@@ -1,0 +1,3 @@
+dependencies {
+    compile project(':oa_tcp_manager'), project(":oa_mailandgroup_manager"),project(':oa_sail_manager')
+}

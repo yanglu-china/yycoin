@@ -1,0 +1,3 @@
+dependencies {
+    compile project(':oa_customer_manager')
+}

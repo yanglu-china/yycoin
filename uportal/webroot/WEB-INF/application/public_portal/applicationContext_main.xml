@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context-2.5.xsd"
+	default-autowire="byName" default-init-method="init" default-destroy-method="destroy">
+
+	<bean id="actionConfigManager" class="com.china.center.struts.wrap.ActionConfigManagerImpl">
+	</bean>
+	<!--<bean id="registerActionConfig"-->
+		<!--class="com.china.center.struts.wrapinner.RegisterActionConfig"-->
+		<!--destroy-method="destroy">-->
+		<!--<property name="actionConfigManager">-->
+			<!--<ref bean="actionConfigManager" />-->
+		<!--</property>-->
+		<!--<property name="paths">-->
+			<!--<value>classpath:config/struts-config.xml</value>-->
+		<!--</property>-->
+	<!--</bean>-->
+
+	<bean id="defaultQueryConfigImpl"
+		class="com.china.center.actionhelper.query.DefaultQueryConfigImpl">
+		<property name="configXMLPath">
+			<value>
+				classpath:config/budget/queryConfig.xml,
+				classpath:config/commission/queryConfig.xml,
+				classpath:config/customer/queryConfig.xml,
+				classpath:config/finance/queryConfig.xml,
+				classpath:config/mailandgroup/queryConfig.xml,
+				classpath:config/product/queryConfig.xml,
+				classpath:config/public/queryConfig.xml,
+				classpath:config/sail/queryConfig.xml,
+				classpath:config/stock/queryConfig.xml,
+				classpath:config/tax/queryConfig.xml,
+				classpath:config/tcp/queryConfig.xml
+			</value>
+		</property>
+	</bean>
+
+	<!--<bean id="buffaloOSGiConfigurerFactory"-->
+		<!--class="com.china.center.webplugin.inter.BuffaloOSGiConfigurerFactory"-->
+		<!--destroy-method="destroy">-->
+		<!--<property name="services">-->
+			<!--<map>-->
+				<!--<entry key="userManager">-->
+                    <!--<ref bean="userManager" />-->
+                <!--</entry>-->
+                <!--<entry key="orgManager">-->
+                    <!--<ref bean="orgManager" />-->
+                <!--</entry>-->
+                <!--<entry key="commonManager">-->
+                    <!--<ref bean="commonManager" />-->
+                <!--</entry>-->
+                <!--<entry key="checkuser">-->
+                    <!--<ref bean="/admin/checkuser" />-->
+                <!--</entry>-->
+			<!--</map>-->
+		<!--</property>-->
+	<!--</bean>-->
+	<!--just call init() method -->
+	<bean name="myPageSelectOption" class="com.china.center.oa.publics.taglib.MyPageSelectOption" />
+
+	<bean name="/admin/common" class="com.china.center.oa.publics.action.CommonAction" />
+
+	<bean name="/admin/down"
+		  class="com.china.center.oa.publics.action.DownFileAction" />
+
+	<bean name="/down/down"
+		  class="com.china.center.oa.publics.action.DownFileAction" />
+
+	<bean name="/admin/location"
+		  class="com.china.center.oa.publics.action.LocationAction" />
+
+	<bean name="/admin/checkuser"
+		  class="com.china.center.oa.publics.action.LoginAction" />
+
+	<bean name="/admin/logout"
+		  class="com.china.center.oa.publics.action.LogoutAction" />
+
+	<bean name="/admin/org"
+		  class="com.china.center.oa.publics.action.OrgAction" />
+
+	<bean name="/admin/pop"
+		  class="com.china.center.oa.publics.action.PopQueryAction" />
+
+	<bean name="/admin/query"
+		  class="com.china.center.oa.publics.action.PublicQueryAction" />
+
+	<bean name="/admin/role"
+		  class="com.china.center.oa.publics.action.RoleAction" />
+
+	<bean name="/admin/user"
+		  class="com.china.center.oa.publics.action.UserAction" />
+
+	<bean name="/admin/staffer"
+		  class="com.china.center.oa.publics.action.StafferAction" />
+
+	<bean name="/admin/duty"
+		  class="com.china.center.oa.publics.action.DutyAction" />
+
+	<bean name="/admin/enum"
+		  class="com.china.center.oa.publics.action.EnumAction" />
+
+	<bean name="/admin/invoice"
+		  class="com.china.center.oa.publics.action.InvoiceAction" />
+
+	<bean name="/admin/show"
+		  class="com.china.center.oa.publics.action.ShowAction" />
+
+	<bean name="/admin/desktop"
+		  class="com.china.center.oa.publics.action.DesktopAction" />
+
+	<bean name="/admin/alarm"
+		  class="com.china.center.oa.publics.action.AlarmAction" />
+
+	<bean name="/admin/logon"
+		  class="com.china.center.oa.publics.action.LogonAction" />
+
+	<bean name="strutsActionInterceptor"
+		  class="com.china.center.oa.publics.StrutsActionInterceptor"/>
+
+	<!--<bean name="strutsActionAutoProxy"-->
+		  <!--class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">-->
+		<!--<property name="beanNames">-->
+			<!--<value>/admin/*,/sail/*</value>-->
+		<!--</property>-->
+		<!--<property name="interceptorNames">-->
+			<!--<list>-->
+				<!--<value>strutsActionInterceptor</value>-->
+			<!--</list>-->
+		<!--</property>-->
+	<!--</bean>-->
+	<bean id="myConfigLoader" class="com.china.center.oa.config.MyConfigLoader" />
+</beans>

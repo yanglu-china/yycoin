@@ -1,0 +1,12 @@
+include 'oa_budget_manager','oa_budget_inner',
+        'oa_commission_manager','oa_commission_inner',
+        'oa_customer_manager','oa_customer_inner',
+        'oa_customervsservice_glue',
+        'oa_finance_manager','oa_finance_inner',
+        'oa_mailandgroup_manager',
+        'oa_product_manager','oa_product_inner',
+        'oa_public_manager','oa_public_inner','uportal',
+        'oa_sail_manager',  'oa_sail_inner',
+        'oa_stock_manager',  'oa_stock_inner','oa_stockvssail_glue',
+        'oa_tax_manager',  'oa_tax_inner','oa_tax_glue',
+        'oa_tcp_manager',  'oa_tcp_inner'

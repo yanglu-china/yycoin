@@ -1,0 +1,4 @@
+dependencies {
+//    compile files('lib/com.china.center.osgi.jdbc_1.0.10.jar','lib/test.jar')
+    compile project(':oa_sail_manager'),project(':oa_product_manager')
+}

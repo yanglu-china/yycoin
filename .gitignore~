@@ -1,0 +1,20 @@
+# Compiled source #
+*.class
+
+# Intellij #
+oa_sail_manager/dist
+out
+build
+.idea
+.gradle
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+#*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+dump*
