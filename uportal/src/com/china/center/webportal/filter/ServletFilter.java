@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public class ServletFilter implements Filter {
+    public class ServletFilter implements Filter {
     private final Log _logger = LogFactory.getLog(getClass());
 
     private static final List<String> IGNORE_FILTER = new ArrayList() {
@@ -100,6 +100,40 @@ public class ServletFilter implements Filter {
 //            _logger.info("***chain****");
 ////            chain.doFilter(request, response);
 //        }
+
+        //AdminFilterListener Resolver
+//        HttpServletRequest request = (HttpServletRequest)req;
+
+        // 处理menu的逻辑
+        String menu = request.getParameter("menu");
+
+        if ("1".equals(menu))
+        {
+            request.getSession().setAttribute("f_menu", menu);
+        }
+
+        Object lock = request.getSession().getAttribute("SLOCK");
+
+        if (lock != null && lock.toString().equals("true"))
+        {
+//            final String servletPath = request.getServletPath();
+
+            if (servletPath.startsWith("/admin/checkuser.do?method=unlock"))
+            {
+                return;
+            }
+
+            if (servletPath.startsWith("/admin/logout"))
+            {
+                return;
+            }
+
+            RequestDispatcher lockDispatch = request.getRequestDispatcher("/admin/lock.jsp");
+
+            lockDispatch.forward(req, resp);
+
+            return;
+        }
 
         chain.doFilter(request, response);
     }
