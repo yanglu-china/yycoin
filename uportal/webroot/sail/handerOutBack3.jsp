@@ -5,7 +5,7 @@
 <html>
 <head>
 <p:link title="销售退货" />
-<script language="JavaScript" src="../js/common.js"></script>
+<script language="JavaScript" src="../js/sail_common.js"></script>
 <script language="JavaScript" src="../js/math.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/cnchina.js"></script>
