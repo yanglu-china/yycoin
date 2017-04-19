@@ -1155,7 +1155,8 @@ public class BlackManagerImpl implements BlackManager
             				bod.setAmount(eachbb.getAmount());
             				bod.setOutId(base.getOutId());
             				bod.setOutBalanceId(eachbb.getParentId());
-            				bod.setCostPrice(base.getCostPrice());
+                            //#452
+            				bod.setCostPrice(base.getPprice());
             				
             				blackOutDetailDAO.saveEntityBean(bod);
         				}
@@ -1228,7 +1229,7 @@ public class BlackManagerImpl implements BlackManager
 		bod.setPrice(base.getPrice());
 		bod.setAmount(base.getAmount());
 		bod.setOutId(base.getOutId());
-		bod.setCostPrice(base.getCostPrice());
+		bod.setCostPrice(base.getPprice());
 		
 		blackOutDetailDAO.saveEntityBean(bod);
 	}
