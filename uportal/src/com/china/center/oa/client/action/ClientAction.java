@@ -657,152 +657,152 @@ public class ClientAction extends DispatchAction
      * @return
      * @throws ServletException
      */
-    public ActionForward importCustomer(ActionMapping mapping, ActionForm form,
-                                            HttpServletRequest request, HttpServletResponse response)
-            throws ServletException
-    {
-        RequestDataStream rds = new RequestDataStream(request);
+	public ActionForward importCustomer(ActionMapping mapping, ActionForm form,
+										HttpServletRequest request, HttpServletResponse response)
+			throws ServletException
+	{
+		RequestDataStream rds = new RequestDataStream(request);
 
-        boolean importError = false;
+		boolean importError = false;
 
-        //就几个字段:客户名，省，市，地址，对应业务员
-        //默认都是组织客户
+		//就几个字段:客户名，省，市，地址，对应业务员
+		//默认都是组织客户
+		//#443 去掉地址
 
-        List<CustomerVO> importItemList = new ArrayList<CustomerVO>();
+		List<CustomerVO> importItemList = new ArrayList<CustomerVO>();
 
-        StringBuilder builder = new StringBuilder();
+		StringBuilder builder = new StringBuilder();
 
-        try
-        {
-            rds.parser();
-        }
-        catch (Exception e1)
-        {
-            _logger.error(e1, e1);
+		try
+		{
+			rds.parser();
+		}
+		catch (Exception e1)
+		{
+			_logger.error(e1, e1);
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
-            return mapping.findForward("importCustomer");
-        }
+			return mapping.findForward("importCustomer");
+		}
 
-        if ( !rds.haveStream())
-        {
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+		if ( !rds.haveStream())
+		{
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
-            return mapping.findForward("importCustomer");
-        }
+			return mapping.findForward("importCustomer");
+		}
 
-        ReaderFile reader = ReadeFileFactory.getXLSReader();
+		ReaderFile reader = ReadeFileFactory.getXLSReader();
 
-        try
-        {
-            reader.readFile(rds.getUniqueInputStream());
+		try
+		{
+			reader.readFile(rds.getUniqueInputStream());
 
-            while (reader.hasNext())
-            {
-                String[] obj = fillObj((String[])reader.next());
+			while (reader.hasNext())
+			{
+				String[] obj = fillObj((String[])reader.next());
 
-                // 第一行忽略
-                if (reader.getCurrentLineNumber() == 1)
-                {
-                    continue;
-                }
+				// 第一行忽略
+				if (reader.getCurrentLineNumber() == 1)
+				{
+					continue;
+				}
 
-                if (StringTools.isNullOrNone(obj[0]))
-                {
-                    continue;
-                }
+				if (StringTools.isNullOrNone(obj[0]))
+				{
+					continue;
+				}
 
-                int currentNumber = reader.getCurrentLineNumber();
+				int currentNumber = reader.getCurrentLineNumber();
 
-                if (obj.length >= 2 )
-                {
-                    CustomerVO bean = new CustomerVO();
+				if (obj.length >= 2 )
+				{
+					CustomerVO bean = new CustomerVO();
 
-                    // 客户名
-                    if ( !StringTools.isNullOrNone(obj[0]))
-                    {
-                        String name = obj[0].trim();
-                        bean.setName(name);
+					// 客户名
+					if ( !StringTools.isNullOrNone(obj[0]))
+					{
+						String name = obj[0].trim();
+						bean.setName(name);
 
-                        CustomerVO vo = this.customerMainDAO.findVOByUnique(name);
-                        if (vo!= null){
-                            builder
-                                    .append("第[" + currentNumber + "]错误:")
-                                    .append("客户名已存在:"+name)
-                                    .append("<br>");
+						CustomerVO vo = this.customerMainDAO.findVOByUnique(name);
+						if (vo!= null){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("客户名已存在")
+									.append("<br>");
 
-                            importError = true;
-                        }
-                    }
-                    else
-                    {
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("客户名不能为空")
-                                .append("<br>");
+							importError = true;
+						}
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("客户名不能为空")
+								.append("<br>");
 
-                        importError = true;
-                    }
+						importError = true;
+					}
 
-                    // 省
-                    if ( !StringTools.isNullOrNone(obj[1]))
-                    {
-                        String province = obj[1].trim();
-                        bean.setProvinceName(province);
+					// 省
+					if ( !StringTools.isNullOrNone(obj[1]))
+					{
+						String province = obj[1].trim();
+						bean.setProvinceName(province);
 
-                        ProvinceBean provinceBean = this.provinceDAO.findByUnique(province);
-                        if (provinceBean == null){
-                            builder
-                                    .append("第[" + currentNumber + "]错误:")
-                                    .append("省份不存在:"+province)
-                                    .append("<br>");
+						ProvinceBean provinceBean = this.provinceDAO.findByUnique(province);
+						if (provinceBean == null){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("省份不存在")
+									.append("<br>");
 
-                            importError = true;
-                        } else{
-                            bean.setProvinceId(provinceBean.getId());
-                        }
+							importError = true;
+						} else{
+							bean.setProvinceId(provinceBean.getId());
+						}
 
-                    }
-                    else
-                    {
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("省份不能为空")
-                                .append("<br>");
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("省份不能为空")
+								.append("<br>");
 
-                        importError = true;
-                    }
+						importError = true;
+					}
 
-                    // 市
-                    if ( !StringTools.isNullOrNone(obj[2]))
-                    {
-                        String city = obj[2].trim();
-                        bean.setCityName(city);
+					// 市
+					if ( !StringTools.isNullOrNone(obj[2]))
+					{
+						String city = obj[2].trim();
+						bean.setCityName(city);
 
-                        CityBean cityBean = this.cityDAO.findByUnique(city);
-                        if (cityBean == null){
-                            builder
-                                    .append("第[" + currentNumber + "]错误:")
-                                    .append("城市不存在:"+city)
-                                    .append("<br>");
+						CityBean cityBean = this.cityDAO.findByUnique(city);
+						if (cityBean == null){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("城市不存在")
+									.append("<br>");
 
-                            importError = true;
-                        } else{
-                            bean.setCityId(cityBean.getId());
-                        }
+							importError = true;
+						} else{
+							bean.setCityId(cityBean.getId());
+						}
 
-                    }
-                    else
-                    {
-                        builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("市不能为空")
-                                .append("<br>");
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("市不能为空")
+								.append("<br>");
 
-                        importError = true;
-                    }
-
+						importError = true;
+					}
 
 					// 区县
 					if ( !StringTools.isNullOrNone(obj[3]))
@@ -817,7 +817,7 @@ public class ClientAction extends DispatchAction
 						if (ListTools.isEmptyOrNull(areaBeans)){
 							builder
 									.append("第[" + currentNumber + "]错误:")
-									.append("区县不存在:"+area)
+									.append("区县不存在")
 									.append("<br>");
 
 							importError = true;
@@ -836,33 +836,18 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
-					// 地址
-					if ( !StringTools.isNullOrNone(obj[4]))
-					{
-						String address = obj[4].trim();
-						bean.setAddress(address);
-					}
-					else
-					{
-						builder
-								.append("第[" + currentNumber + "]错误:")
-								.append("地址不能为空")
-								.append("<br>");
-
-						importError = true;
-					}
 
 					// 业务员
-					if ( !StringTools.isNullOrNone(obj[5]))
+					if ( !StringTools.isNullOrNone(obj[4]))
 					{
-						String stafferName = obj[5].trim();
+						String stafferName = obj[4].trim();
 						bean.setStafferName(stafferName);
 
 						StafferBean stafferBean = this.stafferDAO.findyStafferByName(stafferName);
 						if (stafferBean == null){
 							builder
 									.append("第[" + currentNumber + "]错误:")
-									.append("业务员不存在:"+stafferName)
+									.append("业务员不存在")
 									.append("<br>");
 
 							importError = true;
@@ -878,62 +863,63 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
-                    importItemList.add(bean);
+					importItemList.add(bean);
 
-                }
-                else
-                {
-                    builder
-                            .append("第[" + currentNumber + "]错误:")
-                            .append("数据长度不足26格错误")
-                            .append("<br>");
+				}
+				else
+				{
+					builder
+							.append("第[" + currentNumber + "]错误:")
+							.append("数据长度不足26格错误")
+							.append("<br>");
 
-                    importError = true;
-                }
-            }
-        }catch (Exception e)
-        {
-            _logger.error(e, e);
+					importError = true;
+				}
+			}
+		}catch (Exception e)
+		{
+			_logger.error(e, e);
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
 
-            return mapping.findForward("importCustomer");
-        }
-        finally
-        {
-            try
-            {
-                reader.close();
-            }
-            catch (IOException e)
-            {
-                _logger.error(e, e);
-            }
-        }
+			return mapping.findForward("importCustomer");
+		}
+		finally
+		{
+			try
+			{
+				reader.close();
+			}
+			catch (IOException e)
+			{
+				_logger.error(e, e);
+			}
+		}
 
-        rds.close();
+		rds.close();
 
-        if (importError){
+		if (importError){
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
 
-            return mapping.findForward("importCustomer");
-        }
+			return mapping.findForward("importCustomer");
+		}
 
-        try
-        {
-            this.clientManager.importCustomer(importItemList);
-            request.setAttribute(KeyConstant.MESSAGE, "批量导入成功");
-        }
-        catch(MYException e)
-        {
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
+		try
+		{
+			this.clientManager.importCustomer(importItemList);
+			request.setAttribute(KeyConstant.MESSAGE, "批量导入成功");
+		}
+		catch(MYException e)
+		{
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
 
-            return mapping.findForward("importCustomer");
-        }
+			return mapping.findForward("importCustomer");
+		}
 
-        return mapping.findForward("importCustomer");
-    }
+		return mapping.findForward("importCustomer");
+	}
+
 
 	private int getType(String type){
 		int result = 1;
