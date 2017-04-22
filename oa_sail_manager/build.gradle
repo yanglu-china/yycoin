@@ -1,36 +1,4 @@
-//apply plugin: 'java'
-//compileJava.options.encoding = 'UTF-8'
-//
-//sourceSets {
-//    main {
-//        java {
-//            srcDir 'src'
-//        }
-//        resources {
-//            srcDir 'src/resources'
-//        }
-//    }
-//}
-//
-//repositories {
-//    mavenCentral()
-//}
-
 dependencies {
-//    compile files('lib/com.china.center.osgi.jdbc_1.0.10.jar','lib/test.jar')
-//    compile fileTree(dir: 'D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/', include: '*.jar')
-//    compile files('D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.jdbc_1.0.0.jar')
-//    compile 'commons-io:commons-io:2.4'
-//    compile 'org.codehaus.groovy:groovy-all:2.3.10'
-//    compile 'org.mockito:mockito-all:1.9.5'
-//    compile 'org.slf4j:slf4j-api:1.7.6'
-
-//    provided 'junit:junit-dep:4.10'
-//    provided 'javax.servlet:servlet-api:2.5'
-
-//    compile 'com.netflix.archaius:archaius-core:0.6.0'
-//    compile 'com.netflix.servo:servo-core:0.7.2'
-//    compile 'com.netflix.netflix-commons:netflix-commons-util:0.1.1'
     compile project(':oa_product_manager')
 }
 

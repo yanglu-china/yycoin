@@ -57,9 +57,6 @@ dependencies {
             project(':oa_tcp_manager'),project(':oa_tcp_inner')
 
     providedCompile "javax.servlet:servlet-api:2.5"
-//    providedCompile files("D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.customer.manager_1.0.0.jar")
-    providedCompile files("D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.customer.manager_1.0.0.jar",
-            "D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.publics.manager_1.0.0.jar")
 }
 
 //tomcat_home='E:\\apache-tomcat-6.0.45'
