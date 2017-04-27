@@ -10,6 +10,7 @@
 			<forward name="rptQueryAbsProduct" path="/product/rptQueryAbsProduct.jsp"/>
 			<forward name="queryApplyProduct" path="/product/queryApplyProduct.jsp"/>
 			<forward name="composeProduct" path="/product/composeProduct.jsp"/>
+			<forward name="updateCompose" path="/product/updateCompose.jsp"/>
             <forward name="preComposeProduct" path="/product/preComposeProduct.jsp"/>
 			<forward name="detailCompose" path="/product/detailCompose.jsp"/>
 			<forward name="priceChange" path="/product/priceChange.jsp"/>

@@ -1402,6 +1402,16 @@ public class ProductAction extends DispatchAction
 
         BeanUtil.getBean(bean, request);
 
+        String save = request.getParameter("save");
+
+        if ("0".equals(save))
+        {
+            bean.setStatus(ComposeConstant.STATUS_SAVE);
+        } else
+        {
+            bean.setStatus(ComposeConstant.STATUS_SUBMIT);
+        }
+
         try
         {
             setCompose(request, bean);
@@ -2991,6 +3001,7 @@ public class ProductAction extends DispatchAction
         for (ComposeFeeDefinedBean fee: feeList){
             ComposeFeeVO cfb = new ComposeFeeVO();
             cfb.setFeeItemName(fee.getName());
+            cfb.setFeeItemId(fee.getId());
             for (ComposeFeeVO vo: feeVOList){
                 if (vo.getFeeItemId().equals(fee.getId())){
                     cfb.setPrice(vo.getPrice());
