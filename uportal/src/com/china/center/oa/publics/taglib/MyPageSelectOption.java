@@ -6,8 +6,6 @@ package com.china.center.oa.publics.taglib;
 
 import com.china.center.common.taglib.*;
 import com.china.center.jdbc.annotation.Defined;
-import com.china.center.jdbc.annotation.Html;
-import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.oa.budget.constant.BudgetConstant;
 import com.china.center.oa.commission.constant.BlackConstant;
 import com.china.center.oa.customer.constant.ClientConstant;
@@ -24,37 +22,21 @@ import com.china.center.oa.publics.bean.JobConstant;
 import com.china.center.oa.publics.constant.*;
 import com.china.center.oa.publics.dao.EnumDAO;
 import com.china.center.oa.publics.manager.impl.DefaultDymOptionImpl;
-import com.china.center.oa.sail.bean.PromotionBean;
 import com.china.center.oa.sail.constanst.*;
 import com.china.center.oa.stock.constant.StockConstant;
 import com.china.center.oa.tax.constanst.CheckConstant;
 import com.china.center.oa.tax.constanst.FinaConstant;
+import com.china.center.oa.tax.constanst.TaxConstanst;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
-import com.china.center.tools.InnerReflect;
-import com.china.center.tools.ReflectException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.JspException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
-
-import com.china.center.common.taglib.BodyTagCenterSupport;
-import com.china.center.common.taglib.DymOption;
 import com.china.center.common.taglib.MapBean;
-import com.china.center.tools.InnerReflect;
-import com.china.center.tools.ReflectException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.JspException;
+
 
 public class MyPageSelectOption extends PageSelectOption {
     private final Log _logger = LogFactory.getLog(getClass());
@@ -85,6 +67,7 @@ public class MyPageSelectOption extends PageSelectOption {
 
             constantClasses.add(FinanceConstant.class);
             constantClasses.add(FinaConstant.class);
+            constantClasses.add(TaxConstanst.class);
 
             constantClasses.add(GroupConstant.class);
 
