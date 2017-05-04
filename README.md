@@ -32,7 +32,7 @@ https://www.elastic.co/guide/en/kibana/3.0/queries.html
 
 
 后台JOB:
-updateOutbackStatusJob:更新入库单对应退单状态  
+**updateOutbackStatusJob:更新入库单对应退单状态**  
 updateCustomerReserve2Job:更新客户线上/线下状态  
 synReferJob:  
 synNewJob:  
@@ -45,10 +45,10 @@ statsBlackDetailJob:黑名单明细统计
 statOutJob:客户信用统计    
 statBankJob:银行月结统计    
 statBankBalanceJob:银行余额统计  
-sortPackages:CK单中距当前时间最长的单据创建时间统计  
-sendShippingMailToSails:发送发货邮件给销售员    
-sendMailForShipping:发送发货邮件给客户  
-sendMailForNbShipping:宁波银行发货邮件  
+**sortPackages:CK单中距当前时间最长的单据创建时间统计**  
+**sendShippingMailToSails:发送发货邮件给销售员**      
+**sendMailForShipping:发送发货邮件给客户**    
+**sendMailForNbShipping:宁波银行发货邮件**    
 planJob:已废弃    
 passPaymentApplyJob:坏帐金额为0的收款审核申请自动审批通过  
 passPaymentApply2Job:已废弃    
@@ -57,14 +57,14 @@ monitorImplJob:已废弃
 initCarryStatusJob:预算的执行状态变更  
 ibReportJobMonthlyJob:中收激励申请统计导出  
 ibReportJob:中收激励统计  
-ibReportJob2：中收激励统计12点  
+**ibReportJob2：中收激励统计晚上**  
 hotLoadingParameterJob:系统参数初始化  
 handleCheckPayJob：已废弃  
 fixMonthIndexJob:更新财务凭证表monthIndex字段  
 financeTagJob:T_CENTER_FINANCE_TAG统计  
 financeOutPayTagJob：销售单回款标识统计  
 exportAllStorageRelationJob:库存导出  
-exportAllStafferCreditJob:职员信用导出  
+**exportAllStafferCreditJob:职员信用导出**  
 exportAllCurrentBankStatJob:银行统计导出  
 everyDayCarryWithOutTransactionalJob:数据库备份  
 everyHourCarryWithOutTransactionalJob:更新客户信息核对申请状态  
@@ -83,7 +83,7 @@ autoProcessPaymentToPreJob:暂记户-预收自动认款
 autoCreatePriceConfigJob:自动生成结算价  
 autoApproveOutJob:已废弃   
 autoApproveJob:自动库管审批通过  
-createCustomerJob:创建客户  
+**createCustomerJob:创建客户**  
 
 
 
