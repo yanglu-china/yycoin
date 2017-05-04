@@ -34,9 +34,10 @@ function load()
 		     {display: '执行方法', name : 'methodName', width : 'auto', sortable : true, align: 'left'}
 		     ],
 		 extAtt: {
-		     name : {begin : '<a href=.../schedulejob/jobs.do?method=findJob&id={id}&update=1>', end : '</a>'}
+		     jobName : {begin : '<a href=../schedulejob/jobLog.jsp?targerId={id}&menu=1>', end : '</a>'}
 		 },
 		 buttons : [
+		     // {id: 'add',bclass: 'add', onpress : addBean, auth: '0202'},
 			 {id: 'update', bclass: 'update', onpress : updateBean, auth: '0202'},
 		     {id: 'start',caption: '启动', bclass: 'update', onpress : startJob, auth: '0202'},
 		     // {id: 'pause', caption: '暂停',bclass: 'update', onpress : pauseJob, auth: '0202'},
@@ -50,6 +51,11 @@ function load()
 
 	 $("#mainTable").flexigrid(guidMap, thisObj);
  }
+
+function addBean()
+{
+    $l('../schedulejob/jobs.do?method=preForAddJob');
+}
 
 function updateBean(opr, grid)
 {

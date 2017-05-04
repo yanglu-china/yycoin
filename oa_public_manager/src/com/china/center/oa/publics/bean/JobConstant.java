@@ -15,4 +15,17 @@ public interface JobConstant {
 
     @Defined(key = "jobStatus", value = "暂停")
     int STATUS_PAUSED = 2;
+
+    /**
+     * 定时任务执行结果成功
+     */
+    @Defined(key = "scheduleLogResult", value = "成功")
+    int SCHEDULE_LOG_RESULT_SUCCESS = 0;
+
+    /**
+     * 定时任务执行结果失败
+     */
+    @Defined(key = "scheduleLogResult", value = "失败")
+    int SCHEDULE_LOG_RESULT_FAIL = 1;
+
 }
