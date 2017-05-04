@@ -181,6 +181,14 @@ function calDateInner(obj, name)
 
 function checks()
 {
+    var fileName = $O('atts').value;
+
+    if ("" == fileName)
+    {
+        alert("附件不能为空");
+        return false;
+    }
+
 	var shareTotal = sumRatio();
 	
 	if ($$('payType') == 0)

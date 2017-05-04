@@ -965,7 +965,7 @@ function clears()
                     </tr>
                     
                     <tr class="content1">
-                        <td width="15%" align="center">回款时间从</td>
+                        <td width="15%" align="center">付款时间从</td>
                         <td align="center" width="35%"><p:plugin name="redateB" type="0" size="20" value="${ppmap.redateB}"/></td>
                         <td width="15%" align="center">到</td>
                         <td align="center"><p:plugin name="redateE" type="0" size="20" value="${ppmap.redateE}"/>

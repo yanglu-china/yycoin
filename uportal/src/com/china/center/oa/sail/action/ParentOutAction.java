@@ -8791,12 +8791,14 @@ public class ParentOutAction extends DispatchAction
 
 		if (!StringTools.isNullOrNone(redateB))
 		{
-			condtion.addCondition("OutBean.redate", ">=", redateB);
+//			condtion.addCondition("OutBean.redate", ">=", redateB);
+			condtion.addCondition("OutBean.payTime", ">=", redateB+ " 00:00:00");
 		}
 
 		if (!StringTools.isNullOrNone(redateE))
 		{
-			condtion.addCondition("OutBean.redate", "<=", redateE);
+//			condtion.addCondition("OutBean.redate", "<=", redateE);
+			condtion.addCondition("OutBean.payTime", "<=", redateE+ " 23:59:59");
 		}
 
 		// add 2012.7.2 当没有选择时间才给outTime默认日期
