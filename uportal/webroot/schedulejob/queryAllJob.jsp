@@ -25,7 +25,7 @@ function load()
 		 url: '../schedulejob/jobs.do?method=queryAllJobs',
 		 colModel : [
 		     {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lname={jobName}>', width : 40, sortable : false, align: 'center'},
-		     {display: '任务名称', name : 'jobName', width : '20%', sortable : true, align: 'left', cname: 'id'},
+		     {display: '任务名称', name : 'jobName', width : '20%', sortable : true, align: 'left'},
 		     {display: '描述', name : 'description', width : '20%',sortable : true},
 		     {display: '状态', name : 'jobStatus', cc:'jobStatus', width : '5%', sortable : true, align: 'left'},
 		     {display: '下次执行时间', name : 'nextFireTime',  width : '12%', sortable : false, align: 'left'},

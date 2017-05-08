@@ -11,6 +11,7 @@ import com.china.center.oa.publics.bean.ScheduleJobBean;
 import com.china.center.oa.publics.dao.ScheduleJobDAO;
 import com.china.center.oa.publics.dao.ScheduleJobLogDAO;
 import com.china.center.oa.publics.manager.ScheduleJobManager;
+import com.china.center.tools.BeanUtil;
 import com.china.center.tools.CommonTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -72,7 +73,7 @@ public class ScheduleJobAction extends DispatchAction
 		
 		ActionTools.processJSONQueryCondition(QUERYALLJOBS, request, condtion);
 
-		condtion.addCondition("order by ScheduleJobBean.jobName desc");
+		condtion.addCondition("order by ScheduleJobBean.jobName asc");
 
 		String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYALLJOBS, request,
 		condtion, this.scheduleJobDAO , new HandleResult<ScheduleJobBean>()
@@ -198,6 +199,58 @@ public class ScheduleJobAction extends DispatchAction
 		return mapping.findForward("queryAllJob");
 	}
 
+	/**
+	 * preForAddJob
+	 *
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward preForAddJob(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+								 HttpServletResponse response)
+			throws ServletException
+	{
+		return mapping.findForward("addJob");
+	}
+
+	/**
+	 * addJob
+	 *
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward addJob(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+								   HttpServletResponse response)
+			throws ServletException
+	{
+		ScheduleJobBean bean = new ScheduleJobBean();
+		try
+		{
+			BeanUtil.getBean(bean, request);
+
+			scheduleJobManager.addTask(bean);
+            scheduleJobManager.addJob(bean);
+
+			request.setAttribute(KeyConstant.MESSAGE, "成功增加:" + bean.getJobName());
+		}
+        catch (SchedulerException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:" + e.getMessage());
+        }
+
+		CommonTools.removeParamers(request);
+
+		return mapping.findForward("queryAllJob");
+	}
 	/**
 	 * pauseJob
 	 *
