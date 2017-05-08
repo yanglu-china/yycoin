@@ -70,9 +70,9 @@ public class MyJobHistoryPlugin extends LoggingJobHistoryPlugin {
 //            由于定时任务的log已经保存到数据库,不用输出到日志文件
 //            this.getLog().info(MessageFormat.format(this.getJobSuccessMessage(), args));
 
-            if(!"createPackageJob".equalsIgnoreCase(context.getJobDetail().getName())){
+//            if(!"createPackageJob".equalsIgnoreCase(context.getJobDetail().getName())){
                 saveScheduleJobLog(context, jobLog);
-            }
+//            }
 
         }
 
