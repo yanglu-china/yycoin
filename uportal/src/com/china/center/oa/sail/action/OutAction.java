@@ -1856,7 +1856,11 @@ public class OutAction extends ParentOutAction
                                     {
                                         StafferVSCustomerVO vsCustVO = stafferVSCustomerDAO.findVOByUnique(out.getCustomerId());
 
-                                        stafferId = vsCustVO.getStafferId();
+                                        if (vsCustVO == null){
+                                            stafferId = out.getStafferId();
+                                        } else {
+                                            stafferId = vsCustVO.getStafferId();
+                                        }
                                     }
                                     final StafferBean stafferBean = stafferDAO.find(stafferId);
                                     // 获取销售配置
