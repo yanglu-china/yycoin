@@ -593,26 +593,26 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 // 记录操作日志
                 saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
             }
-        }
-        else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
-                || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector"))
-        {
-            List<String> processList = new ArrayList();
-            String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getNextStatus());
-            if (!StringTools.isNullOrNone(nextProcessor)){
-                processList.add(nextProcessor);
+            else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector"))
+            {
+                List<String> processList = new ArrayList();
+                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getNextStatus());
+                if (!StringTools.isNullOrNone(nextProcessor)){
+                    processList.add(nextProcessor);
+                }
+                _logger.info("***processList***"+processList.size());
+
+                int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
+                        TcpConstanst.TCP_POOL_COMMON);
+
+                bean.setStatus(newStatus);
+
+                expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+
+                // 记录操作日志
+                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
             }
-            _logger.info("***processList***"+processList.size());
-
-            int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
-                    TcpConstanst.TCP_POOL_COMMON);
-
-            bean.setStatus(newStatus);
-
-            expenseApplyDAO.updateStatus(bean.getId(), newStatus);
-
-            // 记录操作日志
-            saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
         }
         // 结束模式
         else if (token.getNextPlugin().startsWith("end")) {

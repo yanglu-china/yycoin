@@ -3260,6 +3260,11 @@ public class OutImportManagerImpl implements OutImportManager
                     }
 
 					for (OlBaseBean olBaseBean : olBaseBeans){
+						if(olBaseBean.getAmount() == 0){
+							_logger.error("数量不能为0:"+olBaseBean.getId());
+							this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"数量不能为0");
+							continue;
+						}
 						OutBean out = new OutBean();
 
                         out.setType(OutConstant.OUT_TYPE_OUTBILL);
