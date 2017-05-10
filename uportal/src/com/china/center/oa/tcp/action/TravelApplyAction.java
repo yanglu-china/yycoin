@@ -19,6 +19,7 @@ import com.china.center.actionhelper.common.*;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
+import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.budget.bean.BudgetBean;
@@ -33,7 +34,9 @@ import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.bean.OutBillBean;
 import com.china.center.oa.finance.dao.OutBillDAO;
 import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
@@ -45,9 +48,11 @@ import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.OutImportBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.dao.OutImportDAO;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
@@ -104,6 +109,8 @@ public class TravelApplyAction extends DispatchAction
     
     protected ProductDAO productDAO = null;
 
+    private ProductImportDAO productImportDAO = null;
+
     private TcpShareDAO tcpShareDAO = null;
 
     private TcpIbDAO tcpIbDAO = null;
@@ -145,6 +152,8 @@ public class TravelApplyAction extends DispatchAction
     private AttachmentDAO attachmentDAO = null;
 
     private OutDAO outDAO = null;
+
+    private OutImportDAO outImportDAO = null;
 
     private CustomerMainDAO customerMainDAO = null;
 
@@ -4205,6 +4214,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("客户名");
             line.writeColumn("订单号");
             line.writeColumn("商品名");
+            line.writeColumn("银行产品代码");
             line.writeColumn("商品单价");
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
@@ -4235,6 +4245,8 @@ public class TravelApplyAction extends DispatchAction
                     line.writeColumn(ib.getCustomerName());
                     line.writeColumn(fullId);
                     line.writeColumn(ib.getProductName());
+
+                    line.writeColumn(this.getBankProductCode(ib));
                     line.writeColumn(ib.getPrice());
                     line.writeColumn(ib.getAmount());
                     line.writeColumn(ib.getIbMoney());
@@ -4289,6 +4301,44 @@ public class TravelApplyAction extends DispatchAction
         return null;
     }
 
+    private String getBankProductCode(TcpIbReportItemBean ib){
+        String productId = ib.getProductId();
+        String customerName = ib.getCustomerName();
+        String outId = ib.getFullId();
+        String bankProductCode = "";
+        //先取out_import表吧，取OANO对应的productcode,
+        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+        if (!ListTools.isEmptyOrNull(importBeans)){
+            for (OutImportBean outImportBean: importBeans){
+                if (!StringTools.isNullOrNone(outImportBean.getProductCode())){
+                    bankProductCode = outImportBean.getProductCode();
+                    break;
+                }
+            }
+        }
+
+        //如果在表里没有对应的OANO，再去product_import表取个值
+        if(StringTools.isNullOrNone(bankProductCode) && !StringTools.isNullOrNone(productId)){
+            ProductBean productBean = this.productDAO.find(productId);
+            if (productBean!= null) {
+                String productCode = productBean.getCode();
+                //#291
+
+                if ( !StringTools.isNullOrNone(productCode) && customerName!= null && customerName.length()>=4) {
+                    ConditionParse conditionParse = new ConditionParse();
+                    conditionParse.addCondition("code", "=", productCode);
+                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+
+                    List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                    if (!ListTools.isEmptyOrNull(beans)) {
+                        ProductImportBean productImportBean = beans.get(0);
+                        bankProductCode = productImportBean.getBankProductCode();
+                    }
+                }
+            }
+        }
+        return bankProductCode;
+    }
 
     /**
      * export中收激励明细导出CSV
@@ -4339,6 +4389,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("客户名");
             line.writeColumn("订单号");
             line.writeColumn("商品名");
+            line.writeColumn("银行产品代码");
             line.writeColumn("商品单价");
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
@@ -4355,6 +4406,9 @@ public class TravelApplyAction extends DispatchAction
                 line.writeColumn(ib.getCustomerName());
                 line.writeColumn(ib.getFullId());
                 line.writeColumn(ib.getProductName());
+
+                //#356 导出银行产品代码
+                line.writeColumn(this.getBankProductCode(ib));
                 line.writeColumn(ib.getPrice());
                 line.writeColumn(ib.getAmount());
                 line.writeColumn(ib.getIbMoney());
@@ -4904,5 +4958,21 @@ public class TravelApplyAction extends DispatchAction
 
     public void setOrgManager(OrgManager orgManager) {
         this.orgManager = orgManager;
+    }
+
+    public ProductImportDAO getProductImportDAO() {
+        return productImportDAO;
+    }
+
+    public void setProductImportDAO(ProductImportDAO productImportDAO) {
+        this.productImportDAO = productImportDAO;
+    }
+
+    public OutImportDAO getOutImportDAO() {
+        return outImportDAO;
+    }
+
+    public void setOutImportDAO(OutImportDAO outImportDAO) {
+        this.outImportDAO = outImportDAO;
     }
 }

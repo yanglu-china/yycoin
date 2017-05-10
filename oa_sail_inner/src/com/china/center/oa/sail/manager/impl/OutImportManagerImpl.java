@@ -3717,7 +3717,13 @@ public void offlineStorageInJob() {
 							this.setGrossProfitAndCash(outBean,baseBean);
 
                             baseBean.setUnit("套");
-                            baseBean.setAmount(refBaseBean.getAmount());
+							//#21 数量不能超过outback_item中amount
+							if(refBaseBean.getAmount()>amount){
+								baseBean.setAmount(amount);
+							}else{
+								baseBean.setAmount(refBaseBean.getAmount());
+							}
+
                             baseBean.setPrice(refBaseBean.getPrice());
                             baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
                             baseBean.setCostPrice(refBaseBean.getCostPrice());

@@ -3077,6 +3077,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             TcpIbReportItemBean item = new TcpIbReportItemBean();
                             item.setCustomerName(out.getCustomerName());
                             item.setFullId(out.getFullId());
+                            item.setProductId(base.getProductId());
                             item.setProductName(base.getProductName());
                             item.setAmount(base.getAmount());
                             //销售退库
