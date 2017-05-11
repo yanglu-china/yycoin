@@ -59,6 +59,10 @@ public class OlBaseBean implements Serializable
 
     private String depot = "";
 
+    private double cash =0.0d;
+
+    private double grossProfit =0.0d;
+
     /**
      * default constructor
      */
@@ -152,6 +156,22 @@ public class OlBaseBean implements Serializable
 
     public void setDepot(String depot) {
         this.depot = depot;
+    }
+
+    public double getCash() {
+        return cash;
+    }
+
+    public void setCash(double cash) {
+        this.cash = cash;
+    }
+
+    public double getGrossProfit() {
+        return grossProfit;
+    }
+
+    public void setGrossProfit(double grossProfit) {
+        this.grossProfit = grossProfit;
     }
 
     @Override

@@ -3400,8 +3400,15 @@ public class OutImportManagerImpl implements OutImportManager
 							baseBean.setProductId(product.getId());
 						}
 						baseBean.setProductName(olBaseBean.getProductName());
-						//#359
-						this.setGrossProfitAndCash(out,baseBean);
+                        //#23
+                        if (olBaseBean.getCash()>0 && olBaseBean.getGrossProfit()>0 ){
+                            baseBean.setCash(olBaseBean.getCash());
+                            baseBean.setGrossProfit(olBaseBean.getGrossProfit());
+                        } else{
+                            //#359
+                            this.setGrossProfitAndCash(out,baseBean);
+                        }
+
 
 						baseBean.setUnit("套");
 						baseBean.setAmount(olBaseBean.getAmount());
@@ -3644,6 +3651,8 @@ public void offlineStorageInJob() {
                         for (BaseBean refBaseBean : refBaseBeans){
                             _logger.info("***find refBaseBean ***"+refBaseBean);
                             OutBean outBean = new OutBean();
+                            outBean.setType(OutConstant.OUT_TYPE_INBILL);
+                            outBean.setOutType(Integer.valueOf(item.getType()));
 
                             String id = getAll(commonDAO.getSquence());
                             String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
@@ -3652,9 +3661,6 @@ public void offlineStorageInJob() {
                             String fullId = flag + time + id;
                             outBean.setId(getOutId(id));
                             outBean.setFullId(fullId);
-
-                            outBean.setType(OutConstant.OUT_TYPE_INBILL);
-                            outBean.setOutType(Integer.valueOf(item.getType()));
 
                             outBean.setIndustryId(stafferBean.getIndustryId());
                             outBean.setIndustryId2(stafferBean.getIndustryId2());

@@ -60,6 +60,12 @@ dependencies {
 }
 
 //tomcat_home='E:\\apache-tomcat-6.0.45'
+task backup (type: Copy){
+    System.out.println "backup war..."
+    from tomcat_home+"\\webapps"
+    into "E:\\backup"
+    include "uportal.war"
+}
 
 task undeploy(type: Delete){
     System.out.println "un-deploy war..."
