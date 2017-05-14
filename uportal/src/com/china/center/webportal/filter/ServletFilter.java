@@ -135,6 +135,11 @@ import java.util.List;
             return;
         }
 
-        chain.doFilter(request, response);
+        try {
+            chain.doFilter(request, response);
+        }catch (Exception e){
+            _logger.error(e);
+            timeoutDispatch.forward(req, resp);
+        }
     }
 }

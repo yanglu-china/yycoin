@@ -585,7 +585,20 @@ public class PackageManagerImpl implements PackageManager {
            String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
            String temp = fullAddress.trim();
 
-           if (temp.length()>=6){
+		   //#25 包含特殊字符\,过滤掉
+		   if (temp.contains("\\")) {
+				String[] arrays = temp.split("\\\\");
+			   _logger.info(arrays);
+			   int length = arrays.length;
+			   if (length == 1){
+				   String temp2 = arrays[0];
+				   con.addCondition("PackageBean.address", "like", "%"+temp2+"%");
+			   } else{
+				   String temp2 = arrays[length-1];
+				   con.addCondition("PackageBean.address", "like", "%"+temp2+"%");
+			   }
+		   }
+           else if (temp.length()>=6){
                con.addCondition("PackageBean.address", "like", "%"+temp.substring(temp.length()-6));
            }else{
                con.addCondition("PackageBean.address", "like", "%"+temp);
@@ -910,7 +923,7 @@ public class PackageManagerImpl implements PackageManager {
 		con.addWhereStr();
 		
 		setInnerCondition(distVO, location, con);
-		
+		_logger.info("****con****"+con);
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
 		if (ListTools.isEmptyOrNull(packageList))
