@@ -3194,7 +3194,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                 item.setProductId(eachitem.getProductId());
                                 item.setType(eachb.getType());
                                 item.setCostPrice(eachitem.getCostPrice());
-
+                                _logger.info("生成发票项:"+item);
                                 itemList.add(item);
 
                                 vsMoney += item.getMoneys();
@@ -3354,8 +3354,14 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			numList.add(num);
 
 			invoiceinsDAO.saveEntityBean(bean);
+            _logger.info("生成发票:"+bean);
 
-			invoiceinsItemDAO.saveAllEntityBeans(itemList);
+            if (ListTools.isEmptyOrNull(itemList)){
+                _logger.error("发票子项未生成:"+bean.getId());
+            } else {
+                invoiceinsItemDAO.saveAllEntityBeans(itemList);
+                _logger.info("生成发票子项:"+itemList);
+            }
 
 			insVSOutDAO.saveAllEntityBeans(vsList);
 
