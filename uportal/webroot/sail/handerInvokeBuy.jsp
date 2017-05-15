@@ -6,7 +6,7 @@
 <head>
 <p:link title="入库单明细" />
 <link href="../js/plugin/dialog/css/dialog.css" type="text/css" rel="stylesheet"/>
-<script language="JavaScript" src="../js/common.js"></script>
+<script language="JavaScript" src="../js/sail_common.js"></script>
 <script language="JavaScript" src="../js/math.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/cnchina.js"></script>
