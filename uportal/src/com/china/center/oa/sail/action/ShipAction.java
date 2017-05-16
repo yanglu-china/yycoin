@@ -1406,6 +1406,28 @@ public class ShipAction extends DispatchAction
 
             index_pos = 1;
         }
+
+        //#34 index_pos不对，临时处理 第一次打印时，找出第一个出库单，一个出库单对应多个客户 1:n
+        if ("0".equals(batchPrint) && StringTools.isNullOrNone(packageId)) {
+            ConditionParse condtion = new ConditionParse();
+
+            condtion.addWhereStr();
+
+            condtion.addCondition("PackageBean.pickupId", "=", pickupId);
+            condtion.addIntCondition("PackageBean.index_pos", "=", 1);
+
+            List<PackageVO> packageList = packageDAO.queryVOsByCondition(condtion);
+
+            if (ListTools.isEmptyOrNull(packageList) || packageList.size() > 1) {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印完毕");
+
+                return mapping.findForward("error");
+            }
+
+            packageId = packageList.get(0).getId();
+
+            index_pos = 1;
+        }
         String subindex_pos = request.getParameter("subindex_pos");
 
         int subindexpos = 0;
