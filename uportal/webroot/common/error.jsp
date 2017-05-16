@@ -12,7 +12,7 @@
 
 </head>
 <body bgcolor="#FFFFFF" text="#000000" leftmargin="0" topmargin="0"
-	background="../images/special/bg.gif">
+	background="/uportal/images/special/bg.gif">
 <p:navigation height="22">
 	<td width="550" class="navigation"><span>SMH系统</td>
 	<td width="85"></td>
@@ -33,7 +33,7 @@
 					<tr>
 						<td>
 						<div align="center"><img onclick="javascript:history.go(-1)" style="cursor: pointer;"
-							src="../images/error.gif" width="84" height="35"></div>
+							src="/uportal/images/error.gif" width="84" height="35"></div>
 							<% 
                         if (exception != null)
                         {
