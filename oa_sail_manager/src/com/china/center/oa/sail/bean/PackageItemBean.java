@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.annotation.*;
+import com.china.center.oa.sail.constanst.OutConstant;
 
 @SuppressWarnings("serial")
 @Entity(name = "发货单明细")
@@ -52,6 +53,9 @@ public class PackageItemBean implements Serializable
 
 	@Ignore
 	private String poDate = "";
+
+	@Ignore
+	private int outType = OutConstant.OUTTYPE_OUT_COMMON;
 	
 	/**
 	 * 发票配送时 针对 银行 客户 记录  发票对应的商品明细，客户，销售单对应的银行订单号
@@ -408,5 +412,13 @@ public class PackageItemBean implements Serializable
 
 	public void setLhwd(String lhwd) {
 		this.lhwd = lhwd;
+	}
+
+	public int getOutType() {
+		return outType;
+	}
+
+	public void setOutType(int outType) {
+		this.outType = outType;
 	}
 }

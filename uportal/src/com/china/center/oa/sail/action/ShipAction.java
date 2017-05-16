@@ -240,7 +240,7 @@ public class ShipAction extends DispatchAction
             condtion.addCondition(" and PackageBean.pickupId = ''");
         }
 
-               //2015/3/22 按照单据时间排序，时间最老的最先显示
+        //2015/3/22 按照单据时间排序，时间最老的最先显示
         condtion.addCondition("order by PackageBean.billsTime asc");
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPACKAGE, request, condtion, this.packageDAO,
                 new HandleResult<PackageVO>()
@@ -450,7 +450,7 @@ public class ShipAction extends DispatchAction
 
         for (PackageVO each : list)
         {
-            if (!set.contains(each.getPickupId()))
+            if (!StringTools.isNullOrNone(each.getPickupId()) && !set.contains(each.getPickupId()))
             {
                 set.add(each.getPickupId());
             }
@@ -816,8 +816,8 @@ public class ShipAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward cancelPickup(ActionMapping mapping, ActionForm form,
-                                       HttpServletRequest request,
-                                       HttpServletResponse response)
+                                      HttpServletRequest request,
+                                      HttpServletResponse response)
             throws ServletException
     {
         User user = Helper.getUser(request);
@@ -1495,6 +1495,17 @@ public class ShipAction extends DispatchAction
             }
         }
 
+        //2016/12/23 回执单把黄河银行四个字从客户名称里面去掉
+//        if (vo.getCustomerName().contains("黄河银行")){
+//            vo.setCustomerName(vo.getCustomerName().replace("黄河银行",""));
+//        }
+        if (vo.getCustomerName().contains("黄河银行")){
+            request.setAttribute("customerName", vo.getCustomerName().replace("黄河银行",""));
+        } else{
+            request.setAttribute("customerName", vo.getCustomerName());
+        }
+
+
         List<PackageItemBean> itemList = packageItemDAO.
                 queryEntityBeansByCondition(" where PackageItemBean.packageId = ? order by PackageItemBean.productName", vo.getId()); //  .queryEntityBeansByFK(vo.getId());
         String template = "CK:%s customerID:%s customer:%s item size:%d";
@@ -1922,8 +1933,8 @@ public class ShipAction extends DispatchAction
      */
     @Deprecated
     public ActionForward findOutForReceipt2(ActionMapping mapping, ActionForm form,
-                                           HttpServletRequest request,
-                                           HttpServletResponse response)
+                                            HttpServletRequest request,
+                                            HttpServletResponse response)
             throws ServletException
     {
         CommonTools.saveParamers(request);
@@ -2164,7 +2175,7 @@ public class ShipAction extends DispatchAction
             return mapping.findForward("printPostReceipt");
         }else if (vo.getCustomerName().indexOf("中信银行") != -1 || vo.getCustomerName().indexOf("招商银行") != -1)
         {
-             request.setAttribute("packageId", vo.getId());
+            request.setAttribute("packageId", vo.getId());
 
             request.setAttribute("title", "永银文化创意产业发展有限责任公司产品发货清单");
 
@@ -2551,7 +2562,7 @@ public class ShipAction extends DispatchAction
         return citicNo;
     }
 
-//    //2015/7/26 打印回执单时根据客户名前四位，取银行品名对照表中对应的银行品名
+    //    //2015/7/26 打印回执单时根据客户名前四位，取银行品名对照表中对应的银行品名
     @Deprecated
     private void convertProductName(PackageItemBean item, String customerName){
         ProductBean product = productDAO.find(item.getProductId());
@@ -2701,7 +2712,12 @@ public class ShipAction extends DispatchAction
             if (!StringTools.isNullOrNone(productCode)){
                 ConditionParse conditionParse =  new ConditionParse();
                 conditionParse.addCondition("code", "=", productCode);
-                conditionParse.addCondition("bank", "=", customerName.substring(0,4));
+                if (customerName.length()>=4) {
+                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+                }else{
+                    conditionParse.addCondition("bank", "=", customerName);
+                }
+
                 List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
                 if (!ListTools.isEmptyOrNull(importBeans)) {
@@ -3055,7 +3071,7 @@ public class ShipAction extends DispatchAction
      * @param itemList
      */
     private void prepareForXyPrint(HttpServletRequest request, PackageVO vo,
-                                     List<PackageItemBean> itemList, String compose)
+                                   List<PackageItemBean> itemList, String compose)
     {
         int totalAmount = 0 ;
 
@@ -3292,7 +3308,7 @@ public class ShipAction extends DispatchAction
      * @param compose
      */
     private void prepareForUnified(HttpServletRequest request, PackageVO vo,
-                                     List<PackageItemBean> itemList, String compose)
+                                   List<PackageItemBean> itemList, String compose)
     {
         int totalAmount = 0 ;
 
@@ -3726,7 +3742,7 @@ public class ShipAction extends DispatchAction
      * @param compose
      */
     private void prepareForZyPrint(HttpServletRequest request, PackageVO vo,
-                                     List<PackageItemBean> itemList, String compose)
+                                   List<PackageItemBean> itemList, String compose)
     {
         int totalAmount = 0 ;
 
@@ -3840,6 +3856,11 @@ public class ShipAction extends DispatchAction
             //2015/10/13 销售时间取out表中的podate
             if (out!= null){
                 each.setPoDate(out.getPodate());
+                each.setOutType(out.getOutType());
+            }            //#169
+            else if(out == null && outId.startsWith("A")){
+                each.setPoDate(each.getOutTime());
+                each.setOutType(OutConstant.OUTTYPE_INVOICE);
             }
 
             each.getProductId();
@@ -3935,7 +3956,7 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
+            String productName = this.convertProductNameForBank(item);
             if (!StringTools.isNullOrNone(productName)){
                 item.setProductName(productName);
             }
@@ -4768,6 +4789,56 @@ public class ShipAction extends DispatchAction
         return result;
     }
 
+    public ActionForward printBatch(ActionMapping mapping, ActionForm form,
+                                    HttpServletRequest request,
+                                    HttpServletResponse response)
+            throws ServletException
+    {
+        CommonTools.saveParamers(request);
+
+        String pickupId = request.getParameter("pickupId");
+
+        // 先找出该批次下所有index大于index_pos的CK单
+        ConditionParse condtion = new ConditionParse();
+        condtion.addWhereStr();
+        condtion.addCondition("PackageBean.pickupId", "=", pickupId);
+
+        List<PackageVO> packageList = this.packageDAO.queryVOsByCondition(condtion);
+        boolean flag = false;
+        List<PackageItemBean> items = new ArrayList<PackageItemBean>();
+        for (PackageVO each : packageList)
+        {
+            //2016/10/12 #328 检查临时发票号码
+            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+            for (PackageItemBean item : itemList){
+                String productName = item.getProductName();
+                if (productName!= null && productName.startsWith("发票号：XN")){
+                    flag = true;
+                    items.add(item);
+                }
+            }
+        }
+
+        if (!flag){
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "不存在虚拟发票号无法打印:"+pickupId);
+
+            return mapping.findForward("error");
+        }
+
+        PackageVO batchVO = new PackageVO();
+        batchVO.setPickupId(pickupId);
+        batchVO.setItemList(items);
+        batchVO.setPickupTime(packageList.get(0).getPickupTime());
+
+        request.setAttribute("bean", batchVO);
+
+
+        this.generateQRCode(pickupId);
+        request.setAttribute("qrcode", this.getQrcodeUrl(pickupId));
+
+        return mapping.findForward("printBatch");
+    }
+
     /**
      * 2015/3/11 打印货物交接清单
      * @param mapping
@@ -4778,8 +4849,8 @@ public class ShipAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward printHandover(ActionMapping mapping, ActionForm form,
-                                           HttpServletRequest request,
-                                           HttpServletResponse response)
+                                       HttpServletRequest request,
+                                       HttpServletResponse response)
             throws ServletException
     {
         CommonTools.saveParamers(request);
@@ -4925,60 +4996,6 @@ public class ShipAction extends DispatchAction
 
     }
 
-    public ActionForward printBatch(ActionMapping mapping, ActionForm form,
-                                       HttpServletRequest request,
-                                       HttpServletResponse response)
-            throws ServletException
-    {
-        CommonTools.saveParamers(request);
-
-        String pickupId = request.getParameter("pickupId");
-
-        // 先找出该批次下所有index大于index_pos的CK单
-        ConditionParse condtion = new ConditionParse();
-        condtion.addWhereStr();
-        condtion.addCondition("PackageBean.pickupId", "=", pickupId);
-
-        List<PackageVO> packageList = this.packageDAO.queryVOsByCondition(condtion);
-        boolean flag = false;
-        List<PackageItemBean> items = new ArrayList<PackageItemBean>();
-        for (PackageVO each : packageList)
-        {
-            //2016/10/12 #328 检查临时发票号码
-            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
-            for (PackageItemBean item : itemList){
-                String productName = item.getProductName();
-                if (productName!= null && productName.startsWith("发票号：XN")){
-                    flag = true;
-                    items.add(item);
-                }
-            }
-        }
-
-        if (!flag){
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "不存在虚拟发票号无法打印:"+pickupId);
-
-            return mapping.findForward("error");
-        }
-
-        PackageVO batchVO = new PackageVO();
-        batchVO.setPickupId(pickupId);
-//        batchVO.setRepTime(TimeTools.now_short());
-        batchVO.setItemList(items);
-        batchVO.setPickupTime(packageList.get(0).getPickupTime());
-
-        request.setAttribute("bean", batchVO);
-
-//        request.setAttribute("year", TimeTools.now("yyyy"));
-//        request.setAttribute("month", TimeTools.now("MM"));
-//        request.setAttribute("day", TimeTools.now("dd"));
-
-        this.generateQRCode(pickupId);
-        request.setAttribute("qrcode", this.getQrcodeUrl(pickupId));
-
-        return mapping.findForward("printBatch");
-    }
-
     private boolean needPrintHandover(PackageVO vo){
         boolean result = false;
         CityBean city = this.cityDAO.find(vo.getCityId());
@@ -5006,7 +5023,7 @@ public class ShipAction extends DispatchAction
     }
 
     public ActionForward preForMergePackages(ActionMapping mapping, ActionForm form,
-                                          HttpServletRequest request, HttpServletResponse response){
+                                             HttpServletRequest request, HttpServletResponse response){
         String packageIds = request.getParameter("packageIds");
         request.getSession().setAttribute("packageIds", packageIds);
         _logger.info("***************preForMergePackages**************"+packageIds);
@@ -5024,7 +5041,7 @@ public class ShipAction extends DispatchAction
     }
 
     public ActionForward mergePackages(ActionMapping mapping, ActionForm form,
-                                    HttpServletRequest request, HttpServletResponse response)
+                                       HttpServletRequest request, HttpServletResponse response)
             throws ServletException{
         String shippingStr = request.getParameter("shipping");
         int shipping = 0;
@@ -5103,6 +5120,7 @@ public class ShipAction extends DispatchAction
         return mapping.findForward("updateShipping");
     }
 
+
     public ActionForward updateShipping(ActionMapping mapping, ActionForm form,
                                         HttpServletRequest request, HttpServletResponse response){
         String id = request.getParameter("id");
@@ -5127,13 +5145,13 @@ public class ShipAction extends DispatchAction
     }
 
     public ActionForward preForAutoPickup(ActionMapping mapping, ActionForm form,
-                                    HttpServletRequest request, HttpServletResponse response){
+                                          HttpServletRequest request, HttpServletResponse response){
         _logger.info("***************preForAutoPickup**************");
         return mapping.findForward("addAutoPickup");
     }
 
     public ActionForward autoPickup(ActionMapping mapping, ActionForm form,
-                                              HttpServletRequest request, HttpServletResponse response){
+                                    HttpServletRequest request, HttpServletResponse response){
         String pickupCount = request.getParameter("pickupCount");
         String productName = request.getParameter("productName");
         String productId = request.getParameter("productId");
@@ -5144,7 +5162,7 @@ public class ShipAction extends DispatchAction
             StringBuilder sb = new StringBuilder();
             for (String pickupId: pickupList){
                 sb.append(pickupId)
-                    .append(";");
+                        .append(";");
             }
             request.setAttribute(KeyConstant.MESSAGE, "自动捡配成功:"+sb.toString());
         }
