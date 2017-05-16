@@ -2045,7 +2045,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 }
                 else{
                     each.setProductId(product.getId());
-                    each.setSplitFlag(true);
                 }
             }
     		
@@ -2211,6 +2210,14 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 }
 			}
 		}
+
+        //#393 设置开票申请拆分标记
+        for (InvoiceinsImportBean each : list) {
+            List<InvoiceinsImportBean> beans = outToInvoicesMap.get(each.getOutId());
+            if (!ListTools.isEmptyOrNull(beans) && beans.size()>=2){
+                each.setSplitFlag(true);
+            }
+        }
     }
 
     @Override
