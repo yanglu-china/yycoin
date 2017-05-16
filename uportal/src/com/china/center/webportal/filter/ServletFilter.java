@@ -137,9 +137,10 @@ import java.util.List;
 
         try {
             chain.doFilter(request, response);
-        }catch (Exception e){
+        } catch (Exception e){
             _logger.error(e);
-            timeoutDispatch.forward(req, resp);
+            throw e;
+
         }
     }
 }
