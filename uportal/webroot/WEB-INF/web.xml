@@ -65,7 +65,11 @@
 			/WEB-INF/application/tcp_inner/applicationContext_*.xml,
 			/WEB-INF/application/tcp_portal/applicationContext_*.xml,
 			/WEB-INF/application/mailandgroup_manager/applicationContext_*.xml,
-			/WEB-INF/application/mailandgroup_portal/applicationContext_*.xml,
+            /WEB-INF/application/mailandgroup_portal/applicationContext_*.xml,
+			/WEB-INF/application/note_manager/applicationContext_*.xml,
+			/WEB-INF/application/flow_inner/applicationContext_*.xml,
+			/WEB-INF/application/flow_dy_inner/applicationContext_*.xml,
+			/WEB-INF/application/flow_portal/applicationContext_*.xml
 		</param-value>
 	</context-param>
 
@@ -150,6 +154,7 @@
 				/WEB-INF/config/stock/struts-config.xml,
 				/WEB-INF/config/tax/struts-config.xml,
 				/WEB-INF/config/tcp/struts-config.xml,
+				/WEB-INF/config/flow/struts-config.xml
 			</param-value>
 		</init-param>
 		<init-param>

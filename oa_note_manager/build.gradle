@@ -1,0 +1,10 @@
+
+
+dependencies {
+
+}
+
+task compileTask << {
+    System.out.println "compiling..."
+    println "classpath = ${configurations.compile.collect {File file -> file.name}}"
+}

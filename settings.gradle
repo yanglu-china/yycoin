@@ -9,4 +9,5 @@ include 'oa_budget_manager','oa_budget_inner',
         'oa_sail_manager',  'oa_sail_inner',
         'oa_stock_manager',  'oa_stock_inner','oa_stockvssail_glue',
         'oa_tax_manager',  'oa_tax_inner','oa_tax_glue',
-        'oa_tcp_manager',  'oa_tcp_inner'
+        'oa_tcp_manager',  'oa_tcp_inner',
+        'oa_note_manager','oa_flow_manager',  'oa_flow_manager_dy'

@@ -1,0 +1,8 @@
+dependencies {
+    compile project(':oa_mailandgroup_manager')
+}
+
+task compileTask << {
+    System.out.println "compiling..."
+    println "classpath = ${configurations.compile.collect {File file -> file.name}}"
+}
