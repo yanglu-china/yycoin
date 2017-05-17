@@ -7246,7 +7246,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 }
 
     private void logPreconsign(PreConsignBean preConsignBean){
-        String message = String.format("生成preconsign表:%s", preConsignBean.getOutId());
+        String message = String.format("%s写入preconsign表", preConsignBean.getOutId());
         _logger.info(message);
     }
 
@@ -7257,7 +7257,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private void createPackageForInvoice(final OutBean outBean)
     {
         String fullId = outBean.getFullId();
-        _logger.info("为发票生成preconsign表:"+fullId);
+
         //SO单库管审核通过时，需要检查临时表，有的话就写入两条preconsign，并且把临时表删除
         if (!StringTools.isNullOrNone(fullId)){
             ConditionParse conditionParse = new ConditionParse();
@@ -7271,6 +7271,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                    PreConsignBean preConsign = new PreConsignBean();
                    preConsign.setOutId(insId);
                    preConsignDAO.saveEntityBean(preConsign);
+                   String message = String.format("%s对应的发票%写入preconsign表", fullId,insId);
+                   _logger.info(message);
                    this.logPreconsign(preConsign);
                    ids.add(bean.getId());
                }
@@ -12681,11 +12683,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         distributionDAO.saveEntityBean(distributionBean);
 
         newOutBean.setDistributeBean(distributionBean);
+        //TODO 付款方式:客户信用和业务员信用额度担保
+        newOutBean.setReserve3(2);
         outDAO.saveEntityBean(newOutBean);
 
-
-        //  如果是领样转销售的单子,refOutFullId 有值
-//        newOutBean.setRefOutFullId("");
+        //原单更新为已付款
+        this.outDAO.updatePay(newOutBean.getRefOutFullId(), OutConstant.PAY_YES);
 
         List<BaseBean> baseList = new ArrayList<BaseBean>();
 
@@ -12710,6 +12713,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             listener.onConfirmOutOrBuy(user, newOutBean);
         }
 
+        //直接到“已出库”状态
+        this.outDAO.modifyOutStatus(newOutId, OutConstant.STATUS_PASS);
+
         // 记录退货审批日志 操作人系统，自动审批
         FlowLogBean log = new FlowLogBean();
 
@@ -12722,7 +12728,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         log.setPreStatus(OutConstant.STATUS_SAVE);
 
-        log.setAfterStatus(newOutBean.getStatus());
+        log.setAfterStatus(OutConstant.STATUS_PASS);
 
         flowLogDAO.saveEntityBean(log);
 

@@ -241,6 +241,8 @@ public class PackageManagerImpl implements PackageManager {
 	private void processOut() throws MYException
 	{
         ConditionParse conditionParse = new ConditionParse();
+		conditionParse.addWhereStr();
+		conditionParse.addCondition(" order by logTime asc");
 
         int batchSize = 1;
 
@@ -251,12 +253,12 @@ public class PackageManagerImpl implements PackageManager {
 			_logger.info(msg);
 			return ;
 		} else{
-			String msg = "******createPackage with "+list.get(0).getOutId();
+			PreConsignBean first = list.get(0);
+			String msg = first.getId()+"******createPackage with outId "+first.getOutId();
 			System.out.println(msg);
 			_logger.info(msg);
 		}
 
-        int count = 0;
 		for (PreConsignBean each : list) {
 			boolean isPackaged = this.isPackaged(each);
 			if (isPackaged){
@@ -266,31 +268,30 @@ public class PackageManagerImpl implements PackageManager {
 			OutVO outBean = outDAO.findVO(each.getOutId().trim());
 
 			if (null != outBean) {
-				_logger.info(count+"======is out======" + each.getOutId()+"==="+outBean.getOutType());
+				_logger.info("======is out======" + each.getOutId()+"==="+outBean.getOutType());
 				createPackage(each, outBean);
 			} else {
-				_logger.info(count+"=========is not out=========="+each.getOutId());
+				_logger.info("=========is not out=========="+each.getOutId());
 				InvoiceinsBean insBean = invoiceinsDAO.find(each.getOutId());
 				
 				if (null != insBean) {
-					_logger.info(count+"======is invoiceins======" + each.getOutId());
+					_logger.info("======is invoiceins======" + each.getOutId());
 					createInsPackage(each, insBean.getId());
 				} else {
                     //2015/3/1 预开票申请也需要进入CK单
                     PreInvoiceApplyVO applyBean = this.preInvoiceApplyDAO.findVO(each.getOutId());
 
                     if (applyBean!= null){
-						_logger.info(count+"======is PreInvoiceApplyBean======" + each.getOutId());
+						_logger.info("======is PreInvoiceApplyBean======" + each.getOutId());
                         this.createPreInsPackage(each, applyBean);
                     } else{
-                        triggerLog.warn(count+"======is other, direct delete, handle nothing======"+each.getOutId());
+                        triggerLog.warn("======is other, direct delete, handle nothing======"+each.getOutId());
                         preConsignDAO.deleteEntityBean(each.getId());
 
                         continue;
                     }
 				}
 			}
-            count++;
 		}
 	}
 
