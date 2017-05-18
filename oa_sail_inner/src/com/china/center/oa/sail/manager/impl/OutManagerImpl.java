@@ -7246,8 +7246,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 }
 
     private void logPreconsign(PreConsignBean preConsignBean){
-        String message = String.format("%s写入preconsign表", preConsignBean.getOutId());
-        _logger.info(message);
+        _logger.info("写入preconsign表:"+preConsignBean.getOutId());
     }
 
     /** #169
@@ -7271,8 +7270,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                    PreConsignBean preConsign = new PreConsignBean();
                    preConsign.setOutId(insId);
                    preConsignDAO.saveEntityBean(preConsign);
-                   String message = String.format("%s对应的发票%写入preconsign表", fullId,insId);
-                   _logger.info(message);
+                   _logger.info(fullId+"对应的发票"+insId+"写入preconsign表");
                    this.logPreconsign(preConsign);
                    ids.add(bean.getId());
                }
@@ -12186,7 +12184,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     for (PackageBean pack: packages){
                         pack.setEmergency(1);
                         this.packageDAO.updateEntityBean(pack);
-                        _logger.info(String.format("CK单更新为紧急:%s 销售单:%s",pack.getId(), fullId));
+                        _logger.info(fullId+"对应的CK单更新为紧急:"+pack.getId());
                     }
                 }
             }catch(Exception e){
