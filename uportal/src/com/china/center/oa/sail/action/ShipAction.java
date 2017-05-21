@@ -4597,6 +4597,8 @@ public class ShipAction extends DispatchAction
     {
         RequestDataStream rds = new RequestDataStream(request);
 
+        User user = (User) request.getSession().getAttribute("user");
+
         boolean importError = false;
 
         List<BranchRelationBean> importItemList = new ArrayList<BranchRelationBean>();
@@ -4647,6 +4649,8 @@ public class ShipAction extends DispatchAction
                 if (obj.length >= 2 )
                 {
                     BranchRelationBean bean = new BranchRelationBean();
+                    bean.setOperator(user.getStafferName());
+                    bean.setLogTime(TimeTools.now());
 
                     // 客户ID
                     if ( !StringTools.isNullOrNone(obj[0]))

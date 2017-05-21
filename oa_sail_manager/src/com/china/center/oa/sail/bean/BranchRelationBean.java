@@ -56,6 +56,10 @@ public class BranchRelationBean implements Serializable
      */
     private int copyToBranchFlag = 0;
 
+    private String logTime = "";
+
+    private String operator = "";
+
     public String getId() {
         return id;
     }
@@ -112,6 +116,22 @@ public class BranchRelationBean implements Serializable
         this.copyToBranchFlag = copyToBranchFlag;
     }
 
+    public String getLogTime() {
+        return logTime;
+    }
+
+    public void setLogTime(String logTime) {
+        this.logTime = logTime;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
+
     @Override
     public String toString() {
         return "BranchRelationBean{" +
@@ -122,6 +142,8 @@ public class BranchRelationBean implements Serializable
                 ", branchMail='" + branchMail + '\'' +
                 ", sendMailFlag=" + sendMailFlag +
                 ", copyToBranchFlag=" + copyToBranchFlag +
+                ", logTime='" + logTime + '\'' +
+                ", operator='" + operator + '\'' +
                 '}';
     }
 }

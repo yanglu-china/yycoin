@@ -2437,6 +2437,10 @@ public class ParentOutAction extends DispatchAction
 			line.writeColumn("市");
 			line.writeColumn("区县");
 
+			//#39
+			line.writeColumn("地址");
+			line.writeColumn("收件人");
+
 			line.writeColumn("付款时间");
 			line.writeColumn("旧货");
 			
@@ -2813,6 +2817,14 @@ public class ParentOutAction extends DispatchAction
 					if (areaBean != null) line.writeColumn(areaBean.getName());
 					else
 						line.writeColumn("");
+
+					if(distributionVO == null){
+						line.writeColumn("");
+						line.writeColumn("");
+					} else{
+						line.writeColumn(distributionVO.getAddress());
+						line.writeColumn(distributionVO.getReceiver());
+					}
 
 					line.writeColumn(element.getPayTime());
 					
