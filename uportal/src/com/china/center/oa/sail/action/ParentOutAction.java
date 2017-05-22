@@ -2476,14 +2476,6 @@ public class ParentOutAction extends DispatchAction
 
 				if (customerBean != null)
 				{
-
-					provinceBean = provinceDAO.find(customerBean
-							.getProvinceId());
-
-					cityBean = cityDAO.find(customerBean.getCityId());
-
-					areaBean = areaDAO.find(customerBean.getAreaId());
-
 					protype = DefinedCommon.getValue("102",
 							customerBean.getProtype());
 				}
@@ -2524,6 +2516,12 @@ public class ParentOutAction extends DispatchAction
                     List<DistributionBean> distributionBeanList = distributionDAO.queryEntityBeansByFK(element.getFullId());
                     if (!ListTools.isEmptyOrNull(distributionBeanList)){
                         distributionVO = this.distributionDAO.findVO(distributionBeanList.get(0).getId());
+
+                        provinceBean = provinceDAO.find(distributionVO.getProvinceId());
+
+                        cityBean = cityDAO.find(distributionVO.getCityId());
+
+                        areaBean = areaDAO.find(distributionVO.getAreaId());
                     }
 				}
 				catch (Exception e)
