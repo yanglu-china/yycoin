@@ -3576,7 +3576,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
 			_logger.info("****autoApproveOut outId*****" + outId);
 
-			if (checkInvoiceStatus){
+            //#41 ZS单不用检查,没有发票
+			if (checkInvoiceStatus && !outId.startsWith("ZS")){
 				//#169 只把已导入发票号关联的销售单审批过去
 				ConditionParse condition = new ConditionParse();
 				condition.addWhereStr();

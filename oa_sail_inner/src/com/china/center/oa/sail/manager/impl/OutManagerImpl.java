@@ -7203,7 +7203,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	public void createPackage(final OutBean outBean)
 {
     _logger.info("准备生成CK单:"+outBean);
-    if (StringTools.isNullOrNone(outBean.getRefOutFullId()))
+    if (StringTools.isNullOrNone(outBean.getRefOutFullId())
+            //ZS单也需要生成CK单
+            || outBean.getFullId().startsWith("ZS"))
     {
         List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
         if (!ListTools.isEmptyOrNull(distList))
