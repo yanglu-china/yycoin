@@ -3345,9 +3345,19 @@ public class OutImportManagerImpl implements OutImportManager
 								this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"expressCompany不是整数");
 								continue;
 							}
-                        } else if (distributionBean.getShipping() ==  OutConstant.OUT_SHIPPING_SELFSERVICE){
-                            //自提
+                        } else if (distributionBean.getShipping() ==  OutConstant.OUT_SHIPPING_TRANSPORT){
+							//货运
 							try {
+								distributionBean.setTransport2(Integer.valueOf(olOutBean.getExpressCompany()));
+							}catch(NumberFormatException e){
+								_logger.error("expressCompany不是整数:"+olOutBean.getExpressPay());
+								this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"expressCompany不是整数");
+								continue;
+							}
+						} else if (distributionBean.getShipping() ==  OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
+                            //快递加货运
+							try {
+								distributionBean.setTransport1(Integer.valueOf(olOutBean.getExpressCompany()));
 								distributionBean.setTransport2(Integer.valueOf(olOutBean.getExpressCompany()));
 							}catch(NumberFormatException e){
 								_logger.error("expressCompany不是整数:"+olOutBean.getExpressPay());
