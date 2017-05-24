@@ -421,4 +421,37 @@ public class PackageItemBean implements Serializable
 	public void setOutType(int outType) {
 		this.outType = outType;
 	}
+
+	@Override
+	public String toString() {
+		return "PackageItemBean{" +
+				"id='" + id + '\'' +
+				", packageId='" + packageId + '\'' +
+				", outId='" + outId + '\'' +
+				", baseId='" + baseId + '\'' +
+				", productId='" + productId + '\'' +
+				", productName='" + productName + '\'' +
+				", amount=" + amount +
+				", price=" + price +
+				", value=" + value +
+				", outTime='" + outTime + '\'' +
+				", description='" + description + '\'' +
+				", customerId='" + customerId + '\'' +
+				", customerName='" + customerName + '\'' +
+				", itemType='" + itemType + '\'' +
+				", poDate='" + poDate + '\'' +
+				", outType=" + outType +
+				", printText='" + printText + '\'' +
+				", emergency=" + emergency +
+				", showSubProductName='" + showSubProductName + '\'' +
+				", refId='" + refId + '\'' +
+				", productCode='" + productCode + '\'' +
+				", lhwd='" + lhwd + '\'' +
+				", materiaType='" + materiaType + '\'' +
+				", productAmount=" + productAmount +
+				", packageAmount=" + packageAmount +
+				", certificateAmount=" + certificateAmount +
+				", productWeight=" + productWeight +
+				'}';
+	}
 }

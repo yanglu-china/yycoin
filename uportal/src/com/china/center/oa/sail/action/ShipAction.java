@@ -3341,11 +3341,12 @@ public class ShipAction extends DispatchAction
 
         for (PackageItemBean each : itemList)
         {
-            _logger.info(each.getId() + "****iterate package item:" + "***" + each.getOutId() + "***" + each.getDescription() + "***" + each.getRefId());
+            //只打印同一客户的
             if (!each.getCustomerId().equals(vo.getCustomerId()))
             {
-                _logger.info("*************each.getCustomerId() "+each.getCustomerId()+"****"+vo.getCustomerId());
                 continue;
+            }else{
+                _logger.info("****iterate package item:"+each);
             }
 
             //2015/12/26 #145:回执单打印CK单合并多客户名称问题
@@ -3415,6 +3416,9 @@ public class ShipAction extends DispatchAction
 
 //            String key = each.getProductId();
             String key = each.getProductId()+"_"+each.getItemType();
+            if (!StringTools.isNullOrNone(each.getProductCode())){
+                key = each.getProductId()+"_"+each.getItemType()+"_"+each.getProductCode();
+            }
 
             if (!map1.containsKey(key))
             {
