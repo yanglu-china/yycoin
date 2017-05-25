@@ -1029,10 +1029,11 @@ public class OutImportManagerImpl implements OutImportManager
 			
 			if (null != city)
 			{
-				if (provinceName.equals(city.getName()))
-				{
-					distBean.setProvinceId("");
-				}
+                //#43 导入时上海市provinceId为空
+//				if (provinceName.equals(city.getName()))
+//				{
+//					distBean.setProvinceId("");
+//				}
 				
 				int p = address.indexOf(city.getName());
 				
