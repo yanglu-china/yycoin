@@ -2637,8 +2637,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 //                        triggerLog.info("handleCheckPay 暂停统计，款到发货1小时内未付款，不会自动驳回...");
                         List<PaymentApplyBean> beans = paymentApplyDAO.queryEntityBeansByCondition(condtion);
                         if (!ListTools.isEmptyOrNull(beans)) {
+                            _logger.info("PaymentApplyBean with PAYAPPLY_STATUS_INIT**********" + beans.size());
                             for (PaymentApplyBean bean : beans) {
-                                _logger.info("PaymentApplyBean with PAYAPPLY_STATUS_INIT**********" + beans.size());
                                 synchronized (PAYMENT_APPLY_LOCK) {
                                     try {
                                         passPaymentApplyForJob(null, bean.getId(), "", "");

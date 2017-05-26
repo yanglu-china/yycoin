@@ -3200,6 +3200,8 @@ public class OutImportManagerImpl implements OutImportManager
         conditionParse.addCondition("status","=","0");
         conditionParse.addCondition("priceStatus","=","1");
         conditionParse.addCondition("ibMotStatus","=","1");
+        //#44
+        conditionParse.addCondition("lyStatus","=","1");
         List<OlOutBean> olOutBeans = this.olOutDAO.queryEntityBeansByCondition(conditionParse);
 		//<code,product>
 		Map<String,ProductBean> productCodeMap = new HashMap<String,ProductBean>();

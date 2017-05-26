@@ -78,6 +78,8 @@ public class OlOutBean implements Serializable
 
     private int ibMotStatus = 0;
 
+    private int lyStatus = 0;
+
     /**
      * 库存移动时间
      */
@@ -260,6 +262,14 @@ public class OlOutBean implements Serializable
         this.changeTime = changeTime;
     }
 
+    public int getLyStatus() {
+        return lyStatus;
+    }
+
+    public void setLyStatus(int lyStatus) {
+        this.lyStatus = lyStatus;
+    }
+
     @Override
     public String toString() {
         return "OlOutBean{" +
@@ -283,6 +293,7 @@ public class OlOutBean implements Serializable
                 ", emergency=" + emergency +
                 ", priceStatus=" + priceStatus +
                 ", ibMotStatus=" + ibMotStatus +
+                ", lyStatus=" + lyStatus +
                 ", changeTime='" + changeTime + '\'' +
                 '}';
     }
