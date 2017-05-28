@@ -2631,13 +2631,15 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                         ConditionParse condtion = new ConditionParse();
 
                         condtion.addWhereStr();
-                        condtion.addIntCondition("PaymentApplyBean.status", "=",
-                                FinanceConstant.PAYAPPLY_STATUS_INIT);
+//                        condtion.addIntCondition("PaymentApplyBean.status", "=",
+//                                FinanceConstant.PAYAPPLY_STATUS_INIT);
+                        //29 待审核、待稽核同一个审批入口
+                        condtion.addCondition(" and PaymentApplyBean.status in (0,3)");
 //                        condtion.addIntCondition("PaymentApplyBean.badMoney", "=", 0);
 //                        triggerLog.info("handleCheckPay 暂停统计，款到发货1小时内未付款，不会自动驳回...");
                         List<PaymentApplyBean> beans = paymentApplyDAO.queryEntityBeansByCondition(condtion);
                         if (!ListTools.isEmptyOrNull(beans)) {
-                            _logger.info("PaymentApplyBean with PAYAPPLY_STATUS_INIT**********" + beans.size());
+                            _logger.info("***passPaymentApplyJob with PaymentApplyBean size****" + beans.size());
                             for (PaymentApplyBean bean : beans) {
                                 synchronized (PAYMENT_APPLY_LOCK) {
                                     try {
