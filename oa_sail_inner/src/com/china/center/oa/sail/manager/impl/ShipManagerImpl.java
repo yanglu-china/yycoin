@@ -10,6 +10,8 @@ import java.util.*;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
+import com.china.center.oa.client.bean.CustomerBean;
+import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.product.bean.CiticVSOAProductBean;
 import com.china.center.oa.product.dao.CiticVSOAProductDAO;
 import com.china.center.oa.publics.bean.StafferBean;
@@ -78,6 +80,8 @@ public class ShipManagerImpl implements ShipManager
     private ConsignDAO consignDAO = null;
 
     private StafferDAO stafferDAO = null;
+
+    private CustomerMainDAO customerMainDAO = null;
 
     private CiticVSOAProductDAO citicVSOAProductDAO = null;
 
@@ -211,17 +215,33 @@ public class ShipManagerImpl implements ShipManager
             String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
             String temp = fullAddress.trim();
 
-            if (temp.length()>=6){
+            //#25 包含特殊字符\,过滤掉
+            if (temp.contains("\\")) {
+                String[] arrays = temp.split("\\\\");
+                _logger.info(arrays);
+                int length = arrays.length;
+                if (length == 1){
+                    String temp2 = arrays[0];
+                    con.addCondition("PackageBean.address", "like", "%"+temp2+"%");
+                } else{
+                    String temp2 = arrays[length-1];
+                    con.addCondition("PackageBean.address", "like", "%"+temp2+"%");
+                }
+            }
+            else if (temp.length()>=6){
                 con.addCondition("PackageBean.address", "like", "%"+temp.substring(temp.length()-6));
             }else{
                 con.addCondition("PackageBean.address", "like", "%"+temp);
             }
 
-            con.addCondition("PackageBean.locationId", "=", location);
+            con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
+
             con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
+
             con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 
-            con.addIntCondition("PackageBean.status", "=", 0);
+            con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
+            con.addCondition(" and PackageBean.status in(0,5)");
         } else{
             //con.addCondition("PackageBean.customerId", "=", outBean.getCustomerId());
             con.addCondition("PackageBean.cityId", "=", distVO.getCityId());  // 借用outId 用于存储城市。生成出库单增加 城市 维度
@@ -253,7 +273,7 @@ public class ShipManagerImpl implements ShipManager
     public void createPackage(PreConsignBean pre, OutVO out) throws MYException
     {
         String fullId = out.getFullId();
-        _logger.info("**************ShipManager createPackage************"+fullId);
+        _logger.info("**************ShipManager createPackage with fullId "+fullId);
         String location = "";
 
         // 通过仓库获取 仓库地点
@@ -379,7 +399,7 @@ public class ShipManagerImpl implements ShipManager
                 packageDAO.updateEntityBean(packBean);
 
                 packageItemDAO.saveAllEntityBeans(itemList);
-
+                _logger.info(fullId+"合并到CK单:"+packBean.getId());
                 // 包与客户关系
                 PackageVSCustomerBean vsBean = packageVSCustomerDAO.findByUnique(id, out.getCustomerId());
 
@@ -1899,9 +1919,19 @@ public class ShipManagerImpl implements ShipManager
                         }
 
                         //支行名称
-                        ws.addCell(new Label(j++, i, bean.getCustomerName(), format3));
+                        String customerId = each.getCustomerId();
+                        if (StringTools.isNullOrNone(customerId)){
+                            ws.addCell(new Label(j++, i, bean.getCustomerName(), format3));
+                        } else{
+                            CustomerBean customerBean = this.customerMainDAO.find(customerId);
+                            if (customerBean == null){
+                                ws.addCell(new Label(j++, i, bean.getCustomerName(), format3));
+                            } else {
+                                ws.addCell(new Label(j++, i, customerBean.getName(), format3));
+                            }
+                        }
+
                         //产品名称
-//                        ws.addCell(new Label(j++, i, each.getProductName(), format3));
                         ws.addCell(new Label(j++, i, this.getProductName(each), format3));
                         //数量
                         ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
@@ -2724,5 +2754,13 @@ public class ShipManagerImpl implements ShipManager
 
     public void setCiticVSOAProductDAO(CiticVSOAProductDAO citicVSOAProductDAO) {
         this.citicVSOAProductDAO = citicVSOAProductDAO;
+    }
+
+    public CustomerMainDAO getCustomerMainDAO() {
+        return customerMainDAO;
+    }
+
+    public void setCustomerMainDAO(CustomerMainDAO customerMainDAO) {
+        this.customerMainDAO = customerMainDAO;
     }
 }

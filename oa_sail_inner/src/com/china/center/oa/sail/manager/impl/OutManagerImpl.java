@@ -7219,6 +7219,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 preConsign.setOutId(outBean.getFullId());
 
                 try{
+                    _logger.info("自提单据生成CK单:"+outBean.getFullId());
                     OutVO vo = outDAO.findVO(outBean.getFullId());
 
                     shipManager.createPackage(preConsign, vo);
