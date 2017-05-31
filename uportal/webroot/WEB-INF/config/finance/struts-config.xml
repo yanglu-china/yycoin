@@ -29,7 +29,7 @@
             <forward name="batchSplitInBill" path="/bank/batchSplitInBill.jsp" />
             <forward name="drawTransfer" path="/bank/drawTransfer.jsp" />
             <forward name="drawProvider" path="/bank/drawProvider.jsp" />
-            
+            <forward name="error" path="/error.jsp" />
         </action>
         
         <action path="/finance/invoiceins" parameter="method"

@@ -2478,46 +2478,46 @@ public class FinanceAction extends DispatchAction {
 	public ActionForward preForRefBill(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response)
 			throws ServletException {
-		CommonTools.saveParamers(request);
+		_logger.info("****preForRefBill***");
+		try {
+			CommonTools.saveParamers(request);
 
-		User user = Helper.getUser(request);
+			User user = Helper.getUser(request);
 
-        //商务 - begin
-        ActionForward error = checkAuthForEcommerce(request, user, mapping);
-    	
-    	if (null != error)
-    	{
-    		return error;
-    	}
-        // 商务 - end
-		
-		String outId = request.getParameter("outId");
+			//商务 - begin
+			ActionForward error = checkAuthForEcommerce(request, user, mapping);
 
-		String customerId = request.getParameter("customerId");
+			if (null != error) {
+				return error;
+			}
+			// 商务 - end
 
-		OutBean out = outDAO.find(outId);
+			String outId = request.getParameter("outId");
 
-		if (out == null) {
-			request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据不完备");
+			String customerId = request.getParameter("customerId");
 
-			return mapping.findForward("error");
-		}
+			OutBean out = outDAO.find(outId);
 
-    	// 正在对账
-    	if (out.getFeedBackCheck() == 1)
-    	{
-    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "此销售单正在对账，不允许勾款");
+			if (out == null) {
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据不完备");
 
-            return mapping.findForward("error");
-    	}
-		
-		if (out.getStatus() == OutConstant.STATUS_SAVE
-				|| out.getStatus() == OutConstant.STATUS_REJECT) {
-			request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存和驳回的单据不能勾款");
+				return mapping.findForward("error");
+			}
 
-			return mapping.findForward("error");
-		}
-		
+			// 正在对账
+			if (out.getFeedBackCheck() == 1) {
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "此销售单正在对账，不允许勾款");
+
+				return mapping.findForward("error");
+			}
+
+			if (out.getStatus() == OutConstant.STATUS_SAVE
+					|| out.getStatus() == OutConstant.STATUS_REJECT) {
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存和驳回的单据不能勾款");
+
+				return mapping.findForward("error");
+			}
+
 //		if (out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
 //		{
 //			request.setAttribute(KeyConstant.ERROR_MESSAGE, "此销售单开票审批中，不允许勾款");
@@ -2525,61 +2525,63 @@ public class FinanceAction extends DispatchAction {
 //            return mapping.findForward("error");
 //		}
 
-		double lastMoney = outManager.outNeedPayMoney(user, outId);
+			double lastMoney = outManager.outNeedPayMoney(user, outId);
 
-		if (lastMoney == 0.0) {
-			request.setAttribute(KeyConstant.ERROR_MESSAGE, "已经全部关联预付");
+			if (lastMoney == 0.0) {
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "已经全部关联预付");
 
-			return mapping.findForward("error");
-		}
-
-		// 退货实物价值-返还金额
-		request.setAttribute("lastMoney", lastMoney);
-
-		request.setAttribute("out", out);
-
-		ConditionParse condtion = new ConditionParse();
-
-		condtion.addWhereStr();
-
-		condtion.addCondition("InBillBean.ownerId", "=", user.getStafferId());
-
-		condtion.addCondition("InBillBean.customerId", "=", customerId);
-
-		condtion.addIntCondition("InBillBean.status", "=", FinanceConstant.INBILL_STATUS_NOREF);
-		
-		condtion.addCondition(" and InBillBean.moneys >= 0.01");
-		
-		// 检查要勾款单子是否已开过票
-		if (out.getPiMtype() == PublicConstant.MANAGER_TYPE_MANAGER)
-			condtion.addIntCondition("InBillBean.mtype", "=", PublicConstant.MANAGER_TYPE_MANAGER);
-		else if (!StringTools.isNullOrNone(out.getPiDutyId()))
-		{
-			if (!out.getPiDutyId().equals(PublicConstant.DEFAULR_DUTY_ID))
-			{
-				condtion.addCondition(" and InBillBean.dutyId in ('90201008080000000001','"+ out.getPiDutyId() + "')");	
-			}else{
-				// do nothing
+				return mapping.findForward("error");
 			}
-		}
 
-		condtion.addCondition("order by InBillBean.logTime desc");
+			// 退货实物价值-返还金额
+			request.setAttribute("lastMoney", lastMoney);
 
-		List<InBillVO> billList = inBillDAO.queryEntityVOsByCondition(condtion);
+			request.setAttribute("out", out);
 
-		if (OATools.getManagerFlag()
-				&& out.getOutTime().compareTo("2012-01-01") >= 0 && false) {
-			for (Iterator iterator = billList.iterator(); iterator.hasNext();) {
-				InBillVO inBillVO = (InBillVO) iterator.next();
+			ConditionParse condtion = new ConditionParse();
 
-				if (!inBillVO.getDutyId().equals(out.getDutyId())) {
-					iterator.remove();
+			condtion.addWhereStr();
+
+			condtion.addCondition("InBillBean.ownerId", "=", user.getStafferId());
+
+			condtion.addCondition("InBillBean.customerId", "=", customerId);
+
+			condtion.addIntCondition("InBillBean.status", "=", FinanceConstant.INBILL_STATUS_NOREF);
+
+			condtion.addCondition(" and InBillBean.moneys >= 0.01");
+
+			// 检查要勾款单子是否已开过票
+			if (out.getPiMtype() == PublicConstant.MANAGER_TYPE_MANAGER)
+				condtion.addIntCondition("InBillBean.mtype", "=", PublicConstant.MANAGER_TYPE_MANAGER);
+			else if (!StringTools.isNullOrNone(out.getPiDutyId())) {
+				if (!out.getPiDutyId().equals(PublicConstant.DEFAULR_DUTY_ID)) {
+					condtion.addCondition(" and InBillBean.dutyId in ('90201008080000000001','" + out.getPiDutyId() + "')");
+				} else {
+					// do nothing
 				}
 			}
+
+			condtion.addCondition("order by InBillBean.logTime desc");
+
+			List<InBillVO> billList = inBillDAO.queryEntityVOsByCondition(condtion);
+
+			if (OATools.getManagerFlag()
+					&& out.getOutTime().compareTo("2012-01-01") >= 0 && false) {
+				for (Iterator iterator = billList.iterator(); iterator.hasNext(); ) {
+					InBillVO inBillVO = (InBillVO) iterator.next();
+
+					if (!inBillVO.getDutyId().equals(out.getDutyId())) {
+						iterator.remove();
+					}
+				}
+			}
+
+			request.setAttribute("billList", billList);
+
+		}catch(Exception e){
+			e.printStackTrace();
+			_logger.error(e,e);
 		}
-
-		request.setAttribute("billList", billList);
-
 		return mapping.findForward("refBill");
 	}
 
