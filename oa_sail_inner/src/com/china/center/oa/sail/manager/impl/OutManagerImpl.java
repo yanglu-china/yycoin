@@ -9353,6 +9353,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         	newDist.setId(id);
         	
         	distributionDAO.saveEntityBean(newDist);
+            _logger.info("save saveEntityBean***"+newDist);
         	
         	for(BaseBean eachB : blist)
         	{
@@ -12682,7 +12683,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         distributionBean.setShipping(OutConstant.OUT_SHIPPING_NOTSHIPPING);
         distributionBean.setReceiver(item.getOutReceiver());
         distributionDAO.saveEntityBean(distributionBean);
-
+        _logger.info("save saveEntityBean***"+distributionBean);
         newOutBean.setDistributeBean(distributionBean);
         //TODO 付款方式:客户信用和业务员信用额度担保
         newOutBean.setReserve3(2);

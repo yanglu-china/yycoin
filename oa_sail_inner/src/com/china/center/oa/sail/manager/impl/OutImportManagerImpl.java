@@ -1101,6 +1101,7 @@ public class OutImportManagerImpl implements OutImportManager
         	distList.add(newDist);
         	
         	distributionDAO.saveEntityBean(newDist);
+			_logger.info("save saveEntityBean***"+newDist);
         	
         	for(BaseBean eachB : blist)
         	{
@@ -1292,6 +1293,7 @@ public class OutImportManagerImpl implements OutImportManager
                 newDist.setOutId(newOutId);
 
                 distributionDAO.saveEntityBean(newDist);
+				_logger.info("save saveEntityBean***"+newDist);
             }
 
             // 记录退货审批日志 操作人系统，自动审批
@@ -2603,16 +2605,7 @@ public class OutImportManagerImpl implements OutImportManager
 			
 			for (DistributionBean reach : distList)
 			{
-//				_logger.info("地址更新，销售单：" + reach.getOutId());
-//                _logger.info("新省：" + each.getProvinceId());
-//                _logger.info("新市：" + each.getCityId());
-//                _logger.info("新区：" + each.getAreaId());
-//                _logger.info("新地址：" + each.getAddress());
-//                _logger.info("新接收人：" + each.getReceiver());
-//                _logger.info("新手机：" + each.getMobile());
-//                _logger.info("新发货方式：" + each.getShipping());
-//                _logger.info("新快递公司：" + each.getTransport1());
-                _logger.info("***update distribution "+reach);
+                _logger.info(reach+"***updated to "+each);
 
 				Boolean ret = distributionDAO.updateBean(reach.getId(), each);
 				
@@ -3375,6 +3368,7 @@ public class OutImportManagerImpl implements OutImportManager
                         distributionBean.setReceiver(olOutBean.getReceiver());
                         distributionBean.setMobile(olOutBean.getTelephone());
                         distributionDAO.saveEntityBean(distributionBean);
+						_logger.info("save distributionBean***"+distributionBean);
 
                         //olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
                         double total = 0.0f;
