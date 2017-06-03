@@ -5639,6 +5639,19 @@ public class ParentOutAction extends DispatchAction
 			
 			request.setAttribute("update", update);
 
+			//TODO#52
+			String depotList = request.getParameter("depotList");
+			if (StringTools.isNullOrNone(depotList)){
+				request.setAttribute("kf","0");
+			}else if (depotList.contains("A1201205251506100751")
+					|| depotList.contains("A1201301221008971864")
+					|| depotList.contains("A1201310151011526376")){
+				request.setAttribute("kf","1");
+			} else{
+				request.setAttribute("kf","0");
+			}
+			_logger.info("***depotList***"+depotList);
+
 			return mapping.findForward("addOut51");
 		}
 

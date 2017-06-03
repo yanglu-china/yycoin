@@ -190,33 +190,39 @@ function getAddress(oos)
 	<p:subBody width="98%">
 
 		<p:table cells="2">
-		
-		  <p:cell title="发货方式" width="1" end="true">
-             <input type="radio" name="shipping" value="0" onClick="radio_click(this)">自提&nbsp;&nbsp;
-             <input type="radio" name="shipping" value="1" onClick="radio_click(this)">公司&nbsp;&nbsp;
-             <input type="radio" name="shipping" value="2" onClick="radio_click(this)">第三方快递&nbsp;&nbsp;
-             <input type="radio" name="shipping" value="3" onClick="radio_click(this)">第三方货运&nbsp;&nbsp;
-             <input type="radio" name="shipping" value="4" onClick="radio_click(this)">第三方快递+货运&nbsp;&nbsp;
-			  <input type="radio" name="shipping" value="5" onClick="radio_click(this)">代收货款&nbsp;&nbsp;
-             <input type="radio" name="shipping" value="99" onClick="radio_click(this)">空发&nbsp;&nbsp;             
-          </p:cell>
-		
-		  <p:cell title="运输方式" end="true">
-             <select name="transport1" quick=true class="select_class" style="width:20%" values="${distributionBean.transport1}">
-	         </select>&nbsp;&nbsp;
-	         <select name="transport2" quick=true class="select_class" style="width:20%" values="${distributionBean.transport2}">
-	         </select>
-          </p:cell>
-		
-		  <p:cell title="运费支付方式" end="true">
-             <select name="expressPay" quick=true class="select_class" style="width:20%" values="${distributionBean.expressPay}">
-             <p:option type="deliverPay" empty="true"></p:option>
-	         </select>&nbsp;&nbsp;
-	         <select name="transportPay" quick=true class="select_class" style="width:20%" values="${distributionBean.transportPay}">
-	         <p:option type="deliverPay" empty="true"></p:option>
-	         </select>
-          </p:cell>
-		
+
+			<c:if test="${kf == 0}">
+			  <p:cell title="发货方式" width="1" end="true">
+					  <input type="radio" name="shipping" value="0" onClick="radio_click(this)">自提&nbsp;&nbsp;
+					  <input type="radio" name="shipping" value="1" onClick="radio_click(this)">公司&nbsp;&nbsp;
+					  <input type="radio" name="shipping" value="2" onClick="radio_click(this)">第三方快递&nbsp;&nbsp;
+					  <input type="radio" name="shipping" value="3" onClick="radio_click(this)">第三方货运&nbsp;&nbsp;
+					  <input type="radio" name="shipping" value="4" onClick="radio_click(this)">第三方快递+货运&nbsp;&nbsp;
+					  <input type="radio" name="shipping" value="5" onClick="radio_click(this)">代收货款&nbsp;&nbsp;
+					  <input type="radio" name="shipping" value="99" onClick="radio_click(this)">空发&nbsp;&nbsp;
+			  </p:cell>
+
+			  <p:cell title="运输方式" end="true">
+				 <select name="transport1" quick=true class="select_class" style="width:20%" values="${distributionBean.transport1}">
+				 </select>&nbsp;&nbsp;
+				 <select name="transport2" quick=true class="select_class" style="width:20%" values="${distributionBean.transport2}">
+				 </select>
+			  </p:cell>
+
+			  <p:cell title="运费支付方式" end="true">
+				 <select name="expressPay" quick=true class="select_class" style="width:20%" values="${distributionBean.expressPay}">
+				 <p:option type="deliverPay" empty="true"></p:option>
+				 </select>&nbsp;&nbsp;
+				 <select name="transportPay" quick=true class="select_class" style="width:20%" values="${distributionBean.transportPay}">
+				 <p:option type="deliverPay" empty="true"></p:option>
+				 </select>
+			  </p:cell>
+			</c:if>
+			<c:if test="${kf == 1}">
+				<p:cell title="发货方式" width="1" end="true">
+					<input type="radio" name="shipping" value="99" onClick="radio_click(this)">空发&nbsp;&nbsp;
+				</p:cell>
+			</c:if>
 		  <tr  class="content1">
 		  	<td>送货地址：</td>
 		  	<td>选择地址：</td>
