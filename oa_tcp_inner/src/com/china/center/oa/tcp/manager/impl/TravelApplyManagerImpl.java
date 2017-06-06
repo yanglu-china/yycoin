@@ -3264,6 +3264,19 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             conditionParse.addWhereStr();
             String outId = each.getFullId();
             String productId = each.getProductId();
+            OutBean out = this.outDAO.find(outId);
+            if (out == null){
+                _logger.info("数据错误，原单不存在:"+outId);
+                throw new MYException("数据错误，原单不存在:"+outId);
+            } else {
+                if (out.getIbFlag() == 1 && each.getType() == TcpConstanst.IB_TYPE){
+                    _logger.info("已申请中收,不允许再修改中收金额:"+outId);
+                    throw new MYException("已申请中收,不允许再修改中收金额:"+outId);
+                } else if (out.getMotivationFlag() == 1 && each.getType() == TcpConstanst.MOTIVATION_TYPE){
+                    _logger.info("已申请激励,不允许再修改激励金额:"+outId);
+                    throw new MYException("已申请激励,不允许再修改激励金额:"+outId);
+                }
+            }
             conditionParse.addCondition("outId", "=", outId);
             conditionParse.addCondition("productId", "=", productId);
             List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(conditionParse);
@@ -3285,6 +3298,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     }
                     this.baseDAO.updateEntityBean(bean);
                     _logger.info("***update base bean***" + bean);
+                    _logger.info(sb.toString());
 
                     //日志
                     this.log(user, outId, module, "修改",sb.toString());
