@@ -1097,8 +1097,11 @@ public class BlackManagerImpl implements BlackManager
     			List<OutBalanceBean> obList1 = outBalanceDAO.queryEntityBeansByCondition("where outid = ? and type = 0 and status = 1", outId);
     			
     			List<OutBalanceBean> obList2 = outBalanceDAO.queryEntityBeansByCondition("where outid = ? and type = 1 and status = 99", outId);
-    			
-    			obList2.addAll(obList1);
+
+                List<OutBalanceBean> obList3 = outBalanceDAO.queryEntityBeansByCondition("where outid = ? and type = 2 and status = 99", outId);
+
+                obList2.addAll(obList1);
+    			obList2.addAll(obList3);
     			
     			for (BaseBean base : baseList)
     			{
