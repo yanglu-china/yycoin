@@ -6203,7 +6203,6 @@ public class ParentOutAction extends DispatchAction
 			HttpServletRequest request, HttpServletResponse reponse)
 			throws ServletException
 	{
-        _logger.info("*********addOutStep2111111111111111111");
 		// 是否锁定库存
 		if (storageRelationManager.isStorageRelationLock())
 		{
@@ -6211,7 +6210,6 @@ public class ParentOutAction extends DispatchAction
 
 			return mapping.findForward("error");
 		}
-        _logger.info("addOutStep211122222222222222222");
 
 		User user = (User) request.getSession().getAttribute("user");
 
@@ -6236,9 +6234,8 @@ public class ParentOutAction extends DispatchAction
 
 			return mapping.findForward("error");
 		}
-        _logger.info("addOutStep255555555555555555");
+
 		fillDistribution(request, outBean);
-        _logger.info("addOutStep21166666666666666666");
 		// 商务 - begin
 		ActionForward error = checkAuthForEcommerce(request, user, mapping);
 		if (null != error)
@@ -6258,11 +6255,10 @@ public class ParentOutAction extends DispatchAction
 		}
 
 		// 商务 - end
-        _logger.info("addOutStep2188888888888888888");
 		// 销售单
 		action = processCommonOut(mapping, form, request, reponse, user, saves,
 				fullId, outBean, null, "2");
-        _logger.info("addOutStep211999999999999999999");
+        _logger.info("addOutStep2***"+outBean);
 		if (action != null)
 		{
 			return action;
@@ -6287,7 +6283,7 @@ public class ParentOutAction extends DispatchAction
             System.out.println("addOutStep2 sendOutMailsendOutMailsendOutMailsendOutMail");
 			//outManager.sendOutMail(outBean, "商务开单确认.");
 		}
-        _logger.info("addOutStep2 finished*****");
+
 		return querySelfOut(mapping, form, request, reponse);
 	}
 

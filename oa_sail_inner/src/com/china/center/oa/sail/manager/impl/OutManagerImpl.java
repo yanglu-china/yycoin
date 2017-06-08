@@ -9145,9 +9145,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 outBean.setPromStatus(-1);
             }
         }
-        
-        outBean.setOutTime(TimeTools.now_short());
-        
+
+//        outBean.setOutTime(TimeTools.now_short());
+        if (StringTools.isNullOrNone(outBean.getOutTime())){
+            outBean.setOutTime(TimeTools.now_short());
+        }
+
         outBean.setLogTime(TimeTools.now());
 
         
