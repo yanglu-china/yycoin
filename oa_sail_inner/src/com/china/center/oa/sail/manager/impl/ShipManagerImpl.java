@@ -1530,7 +1530,7 @@ public class ShipManagerImpl implements ShipManager
         List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(packageList))
         {
-            triggerLog.info("****packageList to be sent to sails***"+packageList.size());
+            _logger.info("****packageList to be sent to sails***"+packageList.size());
             for (PackageVO vo : packageList){
                 StafferBean stafferBean = this.stafferDAO.findyStafferByName(vo.getStafferName());
                 if (stafferBean!= null){
@@ -1551,13 +1551,11 @@ public class ShipManagerImpl implements ShipManager
                 }
             }
 
-            triggerLog.info("***mail count to be sent for sails***"+staffer2Packages.keySet().size());
             //send mail for merged packages
             for (String mail : staffer2Packages.keySet()) {
                 List<PackageVO> packages = staffer2Packages.get(mail);
                 String fileName = getShippingAttachmentPath() + "/" + "发货邮件"+"_"
                         + mail2Name.get(mail)+"_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
-                _logger.info("***create fileName****"+fileName+"***mail***"+mail+"***size***"+packages.size());
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
                 String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
@@ -1574,18 +1572,17 @@ public class ShipManagerImpl implements ShipManager
                 //#228 发送销售人员
                 commonMailManager.sendMail(mail, title,content, fileName);
 
+                StringBuilder sb = new StringBuilder();
                 for (PackageBean vo:packages){
                     //Update sendMailFlagSails to 1
                     PackageBean packBean = packageDAO.find(vo.getId());
                     packBean.setSendMailFlagSails(1);
                     this.packageDAO.updateEntityBean(packBean);
                     _logger.info("***update mail flag***"+vo.getId());
+                    sb.append(vo.getId()+",");
                 }
 
-//                if (file!= null && file.exists()){
-//                    file.delete();
-//                    _logger.info("file deleted***"+file.getName());
-//                }
+                _logger.info(fileName+"***sent to mail***"+mail+"with packages***"+sb.toString());
             }
         } else {
             _logger.info("*****no VO found to send mail****");

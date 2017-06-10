@@ -6389,7 +6389,7 @@ public class ParentOutAction extends DispatchAction
 			HttpServletResponse reponse, User user, String saves,
 			String fullId, OutBean outBean, ParamterMap map, String step)
 	{
-        _logger.info("processCommonOut:****step***" + step+"***fullId***"+fullId);
+        _logger.info(outBean+"***processCommonOut:****step***" + step+"***fullId***"+fullId);
 		// 增加库单
 		if (!StringTools.isNullOrNone(fullId))
 		{

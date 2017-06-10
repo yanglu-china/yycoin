@@ -431,7 +431,11 @@ public class GroupAction extends DispatchAction
         for (GroupVSStafferBean groupVSStafferBean : vs)
         {
             StafferVO vo = stafferDAO.findVO(groupVSStafferBean.getStafferId());
-            
+
+            //#57 废弃状态的不显示
+            if (vo!= null && vo.getStatus() == StafferConstant.STATUS_DROP){
+                continue;
+            }
 //            if(vo.getId().equals(staffid))
 //            {
 //            	continue;//处理不提交给自己

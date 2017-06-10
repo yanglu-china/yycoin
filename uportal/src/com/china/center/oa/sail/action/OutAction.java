@@ -4590,7 +4590,7 @@ public class OutAction extends ParentOutAction
     }
     
 	/**
-	 * 通过空开空退
+	 * 驳回空开空退
 	 * 
 	 * @param mapping
 	 * @param form
@@ -4629,7 +4629,7 @@ public class OutAction extends ParentOutAction
     }
 	
     /**
-     * 驳回空开空退
+     * 通过空开空退
      * 
      * @param mapping
      * @param form

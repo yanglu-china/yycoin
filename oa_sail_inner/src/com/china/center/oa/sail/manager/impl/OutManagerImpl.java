@@ -8915,9 +8915,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     		
     		baseList.add(newBaseBean);
     	}
-    	
-//    	outDAO.saveEntityBean(newOutBean);
-        this.saveOutWithPodate(newOutBean);
+
+    	//#59 空开空退XT单的poDate取当前日期
+    	newOutBean.setPodate(TimeTools.now_short());
+        newOutBean.setLogTime(TimeTools.now());
+        newOutBean.setManagerTime(TimeTools.now());
+    	outDAO.saveEntityBean(newOutBean);
+//        this.saveOutWithPodate(newOutBean);
 
     	baseDAO.saveAllEntityBeans(baseList);
 

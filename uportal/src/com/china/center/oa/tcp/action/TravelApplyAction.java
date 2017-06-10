@@ -43,6 +43,7 @@ import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.publics.constant.StafferConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
@@ -3059,11 +3060,10 @@ public class TravelApplyAction extends DispatchAction
         JsonMapper mapper = new JsonMapper();
         AppResult result = new AppResult();
 
-        List<BankBuLevelBean> bankBuLevelBeans = null;
-
         try
         {
-            bankBuLevelBeans = this.bankBuLevelDAO.queryByBearType(bearType);
+            List<BankBuLevelBean> bankBuLevelBeans = this.bankBuLevelDAO.queryByBearType(bearType);
+            this.filterObsoltedStaffer(bankBuLevelBeans);
 
             result.setSuccessAndObj("操作成功", bankBuLevelBeans);
         }
@@ -3103,6 +3103,7 @@ public class TravelApplyAction extends DispatchAction
         AppResult result = new AppResult();
 
         List<BankBuLevelBean> bankBuLevelBeans = this.bankBuLevelDAO.queryByBearTypeAndManager(bearType,manager);
+        this.filterObsoltedStaffer(bankBuLevelBeans);
         result.setSuccessAndObj("操作成功", bankBuLevelBeans);
 
         if (!StringTools.isNullOrNone(budgetId)){
@@ -3121,6 +3122,22 @@ public class TravelApplyAction extends DispatchAction
         _logger.info("***queryZy2 result***"+jsonstr);
 
         return JSONTools.writeResponse(reponse, jsonstr);
+    }
+
+    private void filterObsoltedStaffer(List<BankBuLevelBean> bankBuLevelBeans){
+        //#57
+        if(!ListTools.isEmptyOrNull(bankBuLevelBeans)){
+            for (Iterator<BankBuLevelBean> iterator=bankBuLevelBeans.iterator();iterator.hasNext();){
+                BankBuLevelBean bean = iterator.next();
+                if (!StringTools.isNullOrNone(bean.getId())){
+                    StafferBean stafferBean = this.stafferDAO.find(bean.getId());
+                    if (stafferBean!= null && stafferBean.getStatus()== StafferConstant.STATUS_DROP)
+                    {
+                        iterator.remove();
+                    }
+                }
+            }
+        }
     }
 
 
