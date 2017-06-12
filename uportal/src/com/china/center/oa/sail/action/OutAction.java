@@ -17,10 +17,7 @@ import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vo.StafferVSCustomerVO;
 import com.china.center.oa.customervssail.dao.OutQueryDAO;
-import com.china.center.oa.finance.bean.InBillBean;
-import com.china.center.oa.finance.bean.PaymentApplyBean;
-import com.china.center.oa.finance.bean.PaymentBean;
-import com.china.center.oa.finance.bean.PreInvoiceVSOutBean;
+import com.china.center.oa.finance.bean.*;
 import com.china.center.oa.finance.dao.*;
 import com.china.center.oa.finance.vo.InBillVO;
 import com.china.center.oa.finance.vo.OutBillVO;
@@ -4129,7 +4126,7 @@ public class OutAction extends ParentOutAction
         	double retTotal = outDAO.sumOutBackValueIgnoreStatus(each.getFullId());
         	
         	List<InBillBean> inList = this.inBillDAO.queryEntityBeansByFK(each.getFullId());
-        	
+
         	StringBuffer sb = new StringBuffer();
         	
         	for(InBillBean inbill : inList)
@@ -4146,10 +4143,22 @@ public class OutAction extends ParentOutAction
         	}
         	each.setDescription(sb.toString());
         	
-        	// 已开的发票 = 已开票 + 未审批结束的金额
-        	double notEndInvoice = insVSOutDAO.sumOutHasInvoiceStatusNotEnd(each.getFullId());
-        	
-        	double hadInvoice = each.getInvoiceMoney() + notEndInvoice;
+//        	// 已开的发票 = 已开票 + 未审批结束的金额
+//        	double notEndInvoice = insVSOutDAO.sumOutHasInvoiceStatusNotEnd(each.getFullId());
+//
+//        	double hadInvoice = each.getInvoiceMoney() + notEndInvoice;
+
+            //#60 已开票=开票-退票
+            double hadInvoice = 0L;
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("outId","=",each.getFullId());
+            List<InvoiceinsItemBean> items = this.invoiceinsItemDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(items)){
+                for (InvoiceinsItemBean item: items){
+                    hadInvoice += item.getMoneys();
+                }
+            }
         	
         	each.setRetTotal(retTotal);
         	

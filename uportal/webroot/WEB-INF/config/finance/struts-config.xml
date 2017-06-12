@@ -55,6 +55,7 @@
             <forward name="batchUpdateInsNum" path="/invoiceins/batchUpdateInsNum.jsp" />
             <forward name="batchApproveInvoiceins" path="/invoiceins/batchApproveInvoiceins.jsp" />
             <forward name="batchTransferInvoiceins" path="/invoiceins/batchTransferInvoiceins.jsp" />
+            <forward name="error" path="/error.jsp" />
         </action>
         
         <action path="/finance/bill" parameter="method"
