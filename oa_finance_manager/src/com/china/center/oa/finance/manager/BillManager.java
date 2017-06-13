@@ -213,4 +213,6 @@ public interface BillManager extends ListenerManager<BillListener>
      */
     String freezeInBillBean(User user, String id, double newMoney)
     throws MYException;
+
+    void statsExceptionalPayJob();
 }
