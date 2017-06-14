@@ -1195,7 +1195,7 @@
 
          // 2015/09/29 客户姓名
          if ( !StringTools.isNullOrNone(obj[41]))
-         {sto
+         {
              bean.setCustomerName(obj[41].trim());
          }
 
