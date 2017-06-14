@@ -42,6 +42,7 @@
  import com.china.center.oa.sail.manager.OutImportManager;
  import com.china.center.oa.sail.manager.OutManager;
  import com.china.center.oa.sail.manager.SailConfigManager;
+ import com.china.center.oa.sail.manager.impl.MailOrderException;
  import com.china.center.oa.sail.vo.BaseVO;
  import com.china.center.oa.sail.vo.OutImportVO;
  import com.china.center.tools.*;
@@ -59,10 +60,7 @@
  import java.io.OutputStream;
  import java.text.ParseException;
  import java.text.SimpleDateFormat;
- import java.util.ArrayList;
- import java.util.HashMap;
- import java.util.List;
- import java.util.Map;
+ import java.util.*;
  import java.util.regex.Matcher;
  import java.util.regex.Pattern;
 
@@ -139,6 +137,8 @@
      private SailConfigManager sailConfigManager = null;
 
      private OutManager outManager = null;
+
+     private ProductImportDAO productImportDAO = null;
 
      private static String QUERYOUTIMPORT = "queryOutImport";
 
@@ -1162,33 +1162,68 @@
              }
          }
 
-         // 2015/05/04 中收金额
-         if ( !StringTools.isNullOrNone(obj[41]))
-         {
-             bean.setIbMoney(MathTools.parseDouble(obj[41].trim()));
-         }
+//         // 2015/05/04 中收金额
+//         if ( !StringTools.isNullOrNone(obj[41]))
+//         {
+//             bean.setIbMoney(MathTools.parseDouble(obj[41].trim()));
+//         }
+//
+//         // 激励金额
+//         if ( !StringTools.isNullOrNone(obj[42]))
+//         {
+//             bean.setMotivationMoney(MathTools.parseDouble(obj[42].trim()));
+//         }
 
-         // 激励金额
-         if ( !StringTools.isNullOrNone(obj[42]))
-         {
-             bean.setMotivationMoney(MathTools.parseDouble(obj[42].trim()));
-         }
+         //#65 中收激励从Product import表读取
+         ConditionParse conditionParse = new ConditionParse();
+         conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+         List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+         if (!ListTools.isEmptyOrNull(productImportBeans)){
+             ProductImportBean productImportBean = productImportBeans.get(0);
+            bean.setIbMoney(productImportBean.getIbMoney());
+             bean.setMotivationMoney(productImportBean.getMotivationMoney());
+         } else{
+             String msg = "该产品未配置中收激励金额:"+bean.getProductName();
+             _logger.error(msg);
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("该产品未配置中收激励金额:"+bean.getProductName())
+                     .append("<br>");
 
+             importError = true;
+         }
 
          // 2015/09/29 客户姓名
-         if ( !StringTools.isNullOrNone(obj[43]))
-         {
-             bean.setCustomerName(obj[43].trim());
+         if ( !StringTools.isNullOrNone(obj[41]))
+         {sto
+             bean.setCustomerName(obj[41].trim());
          }
 
          // #426 2017/2/28 固定电话
-         if ( !StringTools.isNullOrNone(obj[44]))
+         if ( !StringTools.isNullOrNone(obj[42]))
          {
-             bean.setTelephone(obj[44].trim());
+             bean.setTelephone(obj[42].trim());
              if (bean.getTelephone().length() != 12) {
                  builder
                          .append("第[" + currentNumber + "]错误:")
                          .append("固定电话号码不是12位")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         // #62 2017/6/13 是否直邮,状态默认为0 输入值为N时为0，Y时为1
+         if ( !StringTools.isNullOrNone(obj[43]))
+         {
+             String direct = obj[43].trim();
+             if ("Y".equalsIgnoreCase(direct)){
+                 bean.setDirect(1);
+             } else if ("N".equalsIgnoreCase(direct)){
+                 bean.setDirect(0);
+             } else {
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("是否直邮只能为Y或N")
                          .append("<br>");
 
                  importError = true;
@@ -6584,5 +6619,13 @@
 
      public void setEnumDAO(EnumDAO enumDAO) {
          this.enumDAO = enumDAO;
+     }
+
+     public ProductImportDAO getProductImportDAO() {
+         return productImportDAO;
+     }
+
+     public void setProductImportDAO(ProductImportDAO productImportDAO) {
+         this.productImportDAO = productImportDAO;
      }
  }

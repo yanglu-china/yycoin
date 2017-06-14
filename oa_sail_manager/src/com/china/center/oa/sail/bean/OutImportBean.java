@@ -222,6 +222,11 @@ public class OutImportBean implements Serializable
      * 激励金额
      */
     private double motivationMoney = 0.0d;
+
+	/**#64
+	 * 是否直邮
+	 */
+	private int direct = 0;
     
     @Ignore
     private int mayAmount = 0;
@@ -885,66 +890,79 @@ public class OutImportBean implements Serializable
 		this.telephone = telephone;
 	}
 
+	public int getDirect() {
+		return direct;
+	}
+
+	public void setDirect(int direct) {
+		this.direct = direct;
+	}
+
 	@Override
-    public String toString() {
-        return "OutImportBean{" +
-                "id=" + id +
-                ", fullId='" + fullId + '\'' +
-                ", batchId='" + batchId + '\'' +
-                ", type=" + type +
-                ", customerId='" + customerId + '\'' +
-                ", customerName='" + customerName + '\'' +
-                ", branchName='" + branchName + '\'' +
-                ", secondBranch='" + secondBranch + '\'' +
-                ", comunicationBranch='" + comunicationBranch + '\'' +
-                ", comunicatonBranchName='" + comunicatonBranchName + '\'' +
-                ", productId='" + productId + '\'' +
-                ", productCode='" + productCode + '\'' +
-                ", productName='" + productName + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", amount=" + amount +
-                ", price=" + price +
-                ", style='" + style + '\'' +
-                ", value=" + value +
-                ", midValue=" + midValue +
-                ", arriveDate='" + arriveDate + '\'' +
-                ", storageType=" + storageType +
-                ", citicNo='" + citicNo + '\'' +
-                ", invoiceNature=" + invoiceNature +
-                ", invoiceHead='" + invoiceHead + '\'' +
-                ", invoiceCondition='" + invoiceCondition + '\'' +
-                ", bindNo='" + bindNo + '\'' +
-                ", invoiceType=" + invoiceType +
-                ", invoiceName='" + invoiceName + '\'' +
-                ", invoiceMoney=" + invoiceMoney +
-                ", provinceId='" + provinceId + '\'' +
-                ", cityId='" + cityId + '\'' +
-                ", address='" + address + '\'' +
-                ", receiver='" + receiver + '\'' +
-                ", handPhone='" + handPhone + '\'' +
-                ", status=" + status +
-                ", OANo='" + OANo + '\'' +
-                ", nbyhNo='" + nbyhNo + '\'' +
-                ", reason='" + reason + '\'' +
-                ", logTime='" + logTime + '\'' +
-                ", citicOrderDate='" + citicOrderDate + '\'' +
-                ", itype=" + itype +
-                ", outType=" + outType +
-                ", depotId='" + depotId + '\'' +
-                ", depotpartId='" + depotpartId + '\'' +
-                ", stafferId='" + stafferId + '\'' +
-                ", description='" + description + '\'' +
-                ", shipping=" + shipping +
-                ", transport1=" + transport1 +
-                ", transport2=" + transport2 +
-                ", expressPay=" + expressPay +
-                ", transportPay=" + transportPay +
-                ", preUse=" + preUse +
-                ", reday=" + reday +
-                ", presentFlag=" + presentFlag +
-                ", ibMoney=" + ibMoney +
-                ", motivationMoney=" + motivationMoney +
-                ", mayAmount=" + mayAmount +
-                '}';
-    }
+	public String toString() {
+		return "OutImportBean{" +
+				"id=" + id +
+				", fullId='" + fullId + '\'' +
+				", batchId='" + batchId + '\'' +
+				", type=" + type +
+				", customerId='" + customerId + '\'' +
+				", customerName='" + customerName + '\'' +
+				", branchName='" + branchName + '\'' +
+				", secondBranch='" + secondBranch + '\'' +
+				", comunicationBranch='" + comunicationBranch + '\'' +
+				", lhwd='" + lhwd + '\'' +
+				", comunicatonBranchName='" + comunicatonBranchName + '\'' +
+				", productId='" + productId + '\'' +
+				", productCode='" + productCode + '\'' +
+				", productName='" + productName + '\'' +
+				", firstName='" + firstName + '\'' +
+				", amount=" + amount +
+				", price=" + price +
+				", style='" + style + '\'' +
+				", value=" + value +
+				", midValue=" + midValue +
+				", arriveDate='" + arriveDate + '\'' +
+				", storageType=" + storageType +
+				", citicNo='" + citicNo + '\'' +
+				", invoiceNature=" + invoiceNature +
+				", invoiceHead='" + invoiceHead + '\'' +
+				", invoiceCondition='" + invoiceCondition + '\'' +
+				", bindNo='" + bindNo + '\'' +
+				", invoiceType=" + invoiceType +
+				", invoiceName='" + invoiceName + '\'' +
+				", invoiceMoney=" + invoiceMoney +
+				", provinceId='" + provinceId + '\'' +
+				", cityId='" + cityId + '\'' +
+				", address='" + address + '\'' +
+				", receiver='" + receiver + '\'' +
+				", handPhone='" + handPhone + '\'' +
+				", telephone='" + telephone + '\'' +
+				", status=" + status +
+				", result='" + result + '\'' +
+				", importFromMail=" + importFromMail +
+				", OANo='" + OANo + '\'' +
+				", nbyhNo='" + nbyhNo + '\'' +
+				", reason='" + reason + '\'' +
+				", logTime='" + logTime + '\'' +
+				", citicOrderDate='" + citicOrderDate + '\'' +
+				", itype=" + itype +
+				", outType=" + outType +
+				", depotId='" + depotId + '\'' +
+				", depotpartId='" + depotpartId + '\'' +
+				", stafferId='" + stafferId + '\'' +
+				", description='" + description + '\'' +
+				", shipping=" + shipping +
+				", transport1=" + transport1 +
+				", transport2=" + transport2 +
+				", expressPay=" + expressPay +
+				", transportPay=" + transportPay +
+				", preUse=" + preUse +
+				", reday=" + reday +
+				", presentFlag=" + presentFlag +
+				", ibMoney=" + ibMoney +
+				", motivationMoney=" + motivationMoney +
+				", direct=" + direct +
+				", mayAmount=" + mayAmount +
+				'}';
+	}
 }
