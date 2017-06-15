@@ -42,6 +42,7 @@ import java.util.List;
             add("/admin/down.do");
             add("/admin/query.do");
             add("/admin/logon.do");
+            add("/down/down.do");
         }
     };
 
