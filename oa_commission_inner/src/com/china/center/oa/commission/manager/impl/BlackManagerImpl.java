@@ -245,7 +245,11 @@ public class BlackManagerImpl implements BlackManager
         List<BlackRuleBean> ruleList = getBlackRuleForBlack();
         
         List<String> stafferList = outDAO.queryDistinctStafferId(beginDate, statsDate, type);
-        
+
+        //for test only
+//        stafferList.clear();
+//        stafferList.add("567582270");
+
         ConditionParse condition = new ConditionParse();
 
         triggerLog.info("**processStatsBlack with staffer size***"+stafferList.size());
@@ -1078,7 +1082,10 @@ public class BlackManagerImpl implements BlackManager
     	blackOutDetailDAO.deleteAllEntityBean();
     	
     	List<BlackOutBean> outList = blackOutDAO.queryEntityBeansByCondition("where type = 2");
-    	
+
+        //for test only
+//        outList = blackOutDAO.queryEntityBeansByCondition("where outId = 'LY1706021508572805842'");
+
     	for (BlackOutBean each : outList)
     	{
     		String outId = each.getOutId();
@@ -1184,7 +1191,7 @@ public class BlackManagerImpl implements BlackManager
     	        con.addCondition("and OutBean.outType in (4, 5)");
     	        
     	        List<OutBean> refList = outDAO.queryEntityBeansByCondition(con);
-    	        
+
     	        // 领样对冲单
     	        con.clear();
 
@@ -1214,12 +1221,13 @@ public class BlackManagerImpl implements BlackManager
                 con.addIntCondition("OutBean.outType", "=", OutConstant.OUTTYPE_OUT_BANK_SWATCH);
 
                 refList.addAll(outDAO.queryEntityBeansByCondition(con));
-    	        
+
     	        for (OutBean eachOut : refList)
     	        {
     	        	refBaseList.addAll(baseDAO.queryEntityBeansByFK(eachOut.getFullId()));
     	        }
-    	        
+
+                boolean flag = false;
     	        for (BaseBean base : baseList)
     	        {
     	        	for (BaseBean refBase : refBaseList)
@@ -1230,16 +1238,22 @@ public class BlackManagerImpl implements BlackManager
     	        		}
     	        	}
     	        	
-    	        	saveOutDetail(base);
+    	        	boolean result = saveOutDetail(base);
+                    if (result){
+                        flag = true;
+                    }
     	        }
+    	        if (!flag) {
+                    _logger.error("Do not create black out detail***" + outId);
+                }
     		}
     	}
     }
 
-	private void saveOutDetail(BaseBean base)
+	private boolean saveOutDetail(BaseBean base)
 	{
 		if (base.getAmount() <= 0)
-			return;
+			return false;
 		
 		BlackOutDetailBean bod = new BlackOutDetailBean();
 		
@@ -1250,6 +1264,7 @@ public class BlackManagerImpl implements BlackManager
 		bod.setCostPrice(base.getPprice());
 		
 		blackOutDetailDAO.saveEntityBean(bod);
+        return true;
 	}
     
     public CommonDAO getCommonDAO() {
