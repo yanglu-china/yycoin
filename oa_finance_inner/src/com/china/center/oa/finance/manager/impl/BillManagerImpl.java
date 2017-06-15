@@ -72,7 +72,7 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
 {
     private final Log _logger = LogFactory.getLog(getClass());
 
-    private final Log badLog = LogFactory.getLog(getClass());
+    private final Log badLog = LogFactory.getLog("bad");
 
     private InBillDAO inBillDAO = null;
 
@@ -1145,7 +1145,7 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
         conditionParse.addWhereStr();
         conditionParse.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
         conditionParse.addCondition("OutBean.pay","=",  OutConstant.PAY_YES);
-        conditionParse.addCondition("OutBean.outTime", ">=", "2015-01-01");
+        conditionParse.addCondition("OutBean.outTime", ">=", "2017-01-01");
 //        conditionParse.addCondition("OutBean.fullId", "=", "LY1605231451438419642");
         conditionParse.addCondition(" and OutBean.outType in(0,1,3,5,6,7)");
         List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(conditionParse);
