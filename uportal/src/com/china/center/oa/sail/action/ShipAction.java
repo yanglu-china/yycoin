@@ -3853,6 +3853,7 @@ public class ShipAction extends DispatchAction
             }
 
             //2015/12/26 #153: 中原银行回执单，合并同一产品后，无法取到产品代码
+            this.getCustomerName(each);
             this.getProductCode(each, Bank.ZY);
 
             // 针对赠品,且有备注的订单,单独显示

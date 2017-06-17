@@ -1192,6 +1192,11 @@ public class BlackManagerImpl implements BlackManager
     	        
     	        List<OutBean> refList = outDAO.queryEntityBeansByCondition(con);
 
+                Set<String> backSet = new HashSet<String>();
+                for (OutBean outBean: refList){
+                    backSet.add(outBean.getFullId());
+                }
+
     	        // 领样对冲单
     	        con.clear();
 
@@ -1220,7 +1225,28 @@ public class BlackManagerImpl implements BlackManager
 
                 con.addIntCondition("OutBean.outType", "=", OutConstant.OUTTYPE_OUT_BANK_SWATCH);
 
-                refList.addAll(outDAO.queryEntityBeansByCondition(con));
+                List<OutBean> lzList = outDAO.queryEntityBeansByCondition(con);
+                //#66 先要检查是否已在退货中看扣除了
+                for (OutBean outBean: lzList){
+                    String description = outBean.getDescription();
+                    if(StringTools.isNullOrNone(description)){
+                        refList.add(outBean);
+                    } else {
+                        boolean flag = true;
+                        for (String backOutId : backSet){
+                            //已退库
+                            if(description.contains(backOutId)){
+                                flag = false;
+                                break;
+                            }
+                        }
+                        if (flag){
+                            refList.add(outBean);
+                        }
+                    }
+                }
+
+//                refList.addAll(outDAO.queryEntityBeansByCondition(con));
 
     	        for (OutBean eachOut : refList)
     	        {
