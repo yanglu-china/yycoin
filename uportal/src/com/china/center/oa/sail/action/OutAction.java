@@ -2820,6 +2820,8 @@ public class OutAction extends ParentOutAction
                 {
                     int hasBack = 0;
 
+                    Set<String> backSet = new HashSet<String>();
+
                     // 退库
                     for (OutBean ref : refBuyList)
                     {
@@ -2834,22 +2836,61 @@ public class OutAction extends ParentOutAction
                                 break;
                             }
                         }
+                        backSet.add(ref.getFullId());
                     }
 
                     // 转销售的
+                    //#73 #66 转销售的需要先核对是否已退库
                     for (OutBean ref : refList)
                     {
-                        List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
+                        String description = ref.getDescription();
+                        if(StringTools.isNullOrNone(description)){
+                            List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
 
-                        for (BaseBean refBase : refBaseList)
-                        {
-                            if (refBase.equals(baseBean))
+                            for (BaseBean refBase : refBaseList)
                             {
-                                hasBack += refBase.getAmount();
+                                if (refBase.equals(baseBean))
+                                {
+                                    hasBack += refBase.getAmount();
 
-                                break;
+                                    break;
+                                }
+                            }
+                        } else{
+                            boolean flag = true;
+                            for (String backOutId : backSet){
+                                //已退库
+                                if(description.contains(backOutId)){
+                                    flag = false;
+                                    break;
+                                }
+                            }
+                            if (flag){
+                                List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
+
+                                for (BaseBean refBase : refBaseList)
+                                {
+                                    if (refBase.equals(baseBean))
+                                    {
+                                        hasBack += refBase.getAmount();
+
+                                        break;
+                                    }
+                                }
                             }
                         }
+//
+//                        List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
+//
+//                        for (BaseBean refBase : refBaseList)
+//                        {
+//                            if (refBase.equals(baseBean))
+//                            {
+//                                hasBack += refBase.getAmount();
+//
+//                                break;
+//                            }
+//                        }
                     }
 
                     baseBean.setInway(hasBack);
