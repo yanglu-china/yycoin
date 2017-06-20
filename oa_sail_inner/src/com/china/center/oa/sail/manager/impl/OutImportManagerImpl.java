@@ -7,6 +7,7 @@ import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.constant.SysConfigConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.bean.*;
@@ -154,6 +155,8 @@ public class OutImportManagerImpl implements OutImportManager
     private OutBackItemDAO outBackItemDAO = null;
 
     private OutBackDAO outBackDAO = null;
+
+	private ParameterDAO parameterDAO = null;
 
 	private final static String SPLIT = "_";
 	
@@ -1692,24 +1695,26 @@ public class OutImportManagerImpl implements OutImportManager
 	public boolean batchApprove(User user, String batchId) throws MYException
 	{
 		List<BatchApproveBean> list = batchApproveDAO.queryEntityBeansByFK(batchId);
-    	
+		List<String> outList = new ArrayList<String>();
     	// 只处理检查是OK的数据
     	for(Iterator<BatchApproveBean> iterator = list.iterator(); iterator.hasNext();)
     	{
     		BatchApproveBean  bean = iterator.next();
-    		
+    		if (!outList.contains(bean.getOutId())){
+				outList.add(bean.getOutId());
+			}
     		if (bean.getRet() == 1)
     			iterator.remove();
     	}
-		
+
+    	_logger.info(batchId+"***batchApprove with out list***"+outList);
     	//
-		Set<String> outSet = new HashSet<String>();
+
     	for (BatchApproveBean each : list)
         {
-			outSet.add(each.getOutId());
             try
             {
-            	processBatchApprove(user,each,outSetSet);
+            	processBatchApprove(user,each,outList);
             	
             	// 成功的
             	updateBatchApprove(each, "批量处理成功");
@@ -1758,7 +1763,7 @@ public class OutImportManagerImpl implements OutImportManager
 	 * @param bean
 	 * @throws MYException
 	 */
-	private void processBatchApprove(User user, BatchApproveBean bean, Set<String> outSet) throws MYException
+	private void processBatchApprove(User user, BatchApproveBean bean, List<String> outList) throws MYException
 	{
 		OutBean out = outDAO.find(bean.getOutId());
 		
@@ -1798,33 +1803,40 @@ public class OutImportManagerImpl implements OutImportManager
 				{
 					outManager.pass(bean.getOutId(), user, OutConstant.STATUS_PASS, bean.getReason(), "");
 					//#74
-					String outId = bean.getOutId();
-					//并检查与上述批量审批的SO单配送信息一致的ZS订单，如有，则一并自动审批通过
-					//根据SO单customerId+PS表上的receiver+mobile一致即可，ZS单不需要已开票
-					List<DistributionBean> distributionBeans = distributionDAO.queryEntityBeansByFK(outId);
-					if (!ListTools.isEmptyOrNull(distributionBeans)) {
-						DistributionBean distributionBean = distributionBeans.get(0);
-						String receiver = distributionBean.getReceiver();
-						String mobile = distributionBean.getMobile();
+					String fullId = bean.getOutId();
+					if (fullId.startsWith("ZS")){
+						//检查对应销售单
+						OutBean srcOut = this.outDAO.find(out.getRefOutFullId());
+						if (srcOut!= null && srcOut.getCustomerId().equals(out.getCustomerId())
+								&& srcOut.getType() == OutConstant.OUT_TYPE_OUTBILL
+								&& srcOut.getStatus() == OutConstant.STATUS_FLOW_PASS){
+							String srcFullId = srcOut.getFullId();
+							//如果本批次导入未包含对应销售单，也自动库管通过
+							if (!outList.contains(srcFullId)){
+								boolean pass = this.autoApproveOut(srcFullId);
+								outList.add(srcFullId);
+								_logger.info(srcFullId+"*****autoApproveOut result****"+pass);
+							}
+						}
+					} else{
+						//检查对应的ZS订单，如有，则一并自动审批通过
 						ConditionParse con1 = new ConditionParse();
 						con1.addWhereStr();
 						con1.addCondition("OutBean.customerId", "=", out.getCustomerId());
 						con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
 						con1.addIntCondition("OutBean.outtype", "=", OutConstant.OUTTYPE_OUT_PRESENT);
 						con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_FLOW_PASS);
-						con1.addCondition(" and exists (select dis.id from t_center_distribution dis " +
-								"where dis.outId=OutBean.fullId and " +
-								"dis.receiver='" + receiver + "' and " +
-								"dis.mobile='" + mobile + "')");
+						con1.addCondition("OutBean.refOutFullId","=", out.getFullId());
 						List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
-						if (ListTools.isEmptyOrNull(outBeans)){
-							_logger.info("****No same address SO exists****");
-						} else{
-							_logger.info("****same address SO need to auto approve****"+outBeans.size());
+						if (!ListTools.isEmptyOrNull(outBeans)){
+							_logger.info("****ZS orders need to auto approve****"+outBeans.size());
 							for (OutBean o: outBeans){
-								String fullId = o.getFullId();
-								boolean pass = this.autoApproveOut(false, fullId);
-								_logger.info(fullId+"*****passOut result****"+pass);
+								String zsFullId = o.getFullId();
+								if (!outList.contains(zsFullId)){
+									boolean pass = this.autoApproveOut(zsFullId);
+									outList.add(zsFullId);
+									_logger.info(fullId+"*****autoApproveOut result****"+pass);
+								}
 							}
 						}
 					}
@@ -1837,6 +1849,66 @@ public class OutImportManagerImpl implements OutImportManager
 					throw new MYException("审批结果不是通过与驳回");
 				}
 		}
+	}
+
+	//若销售单状态为“待库管审批”，则将对应的销售单通过库管审批（正常生成凭证及库存扣减）
+	private boolean autoApproveOut(String outId){
+		boolean result = false;
+		OutBean out = this.outDAO.find(outId);
+
+		if (out == null){
+			_logger.warn("****no SO found****"+outId);
+			return false;
+		} else{
+			_logger.info(outId+"****try to passOut with status****"+out.getStatus());
+		}
+
+		if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
+			_logger.info("****autoApproveOut outId*****" + outId);
+
+			final int statuss = 3;
+			if (statuss == OutConstant.STATUS_MANAGER_PASS
+					|| statuss == OutConstant.STATUS_FLOW_PASS
+					|| statuss == OutConstant.STATUS_PASS)
+			{
+				// 这里需要计算客户的信用金额-是否报送物流中心经理审批
+				boolean outCredit = parameterDAO.getBoolean(SysConfigConstant.OUT_CREDIT);
+
+				// 如果是黑名单的客户(且没有付款)
+				if (outCredit && out.getReserve3() == OutConstant.OUT_SAIL_TYPE_MONEY
+						&& out.getType() == OutConstant.OUT_TYPE_OUTBILL
+						&& out.getPay() == OutConstant.PAY_NOT)
+				{
+					try
+					{
+						outManager.payOut(null, outId, "结算中心确定已经回款");
+					}
+					catch (MYException e)
+					{
+						_logger.error(outId+"****自动库管审批出错****",e);
+						return result;
+					}
+				}
+
+				int resultStatus = -1;
+				try
+				{
+					resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null);
+					OutBean newOut = outDAO.find(outId);
+					if(resultStatus == OutConstant.STATUS_PASS)
+					{
+						outManager.updateCusAndBusVal(newOut,"票随货发Job");
+					}
+					result = true;
+
+				}
+				catch (MYException e)
+				{
+					_logger.warn(e, e);
+				}
+			}
+		}
+		return result;
 	}
 	
 	@Transactional(rollbackFor = MYException.class)
@@ -4450,4 +4522,12 @@ public void offlineStorageInJob() {
     public void setOutBackDAO(OutBackDAO outBackDAO) {
         this.outBackDAO = outBackDAO;
     }
+
+	public ParameterDAO getParameterDAO() {
+		return parameterDAO;
+	}
+
+	public void setParameterDAO(ParameterDAO parameterDAO) {
+		this.parameterDAO = parameterDAO;
+	}
 }
