@@ -1703,11 +1703,13 @@ public class OutImportManagerImpl implements OutImportManager
     	}
 		
     	//
+		Set<String> outSet = new HashSet<String>();
     	for (BatchApproveBean each : list)
         {
+			outSet.add(each.getOutId());
             try
             {
-            	processBatchApprove(user,each);
+            	processBatchApprove(user,each,outSetSet);
             	
             	// 成功的
             	updateBatchApprove(each, "批量处理成功");
@@ -1756,7 +1758,7 @@ public class OutImportManagerImpl implements OutImportManager
 	 * @param bean
 	 * @throws MYException
 	 */
-	private void processBatchApprove(User user, BatchApproveBean bean) throws MYException
+	private void processBatchApprove(User user, BatchApproveBean bean, Set<String> outSet) throws MYException
 	{
 		OutBean out = outDAO.find(bean.getOutId());
 		
@@ -1795,6 +1797,37 @@ public class OutImportManagerImpl implements OutImportManager
 				if (bean.getAction().equals("通过"))
 				{
 					outManager.pass(bean.getOutId(), user, OutConstant.STATUS_PASS, bean.getReason(), "");
+					//#74
+					String outId = bean.getOutId();
+					//并检查与上述批量审批的SO单配送信息一致的ZS订单，如有，则一并自动审批通过
+					//根据SO单customerId+PS表上的receiver+mobile一致即可，ZS单不需要已开票
+					List<DistributionBean> distributionBeans = distributionDAO.queryEntityBeansByFK(outId);
+					if (!ListTools.isEmptyOrNull(distributionBeans)) {
+						DistributionBean distributionBean = distributionBeans.get(0);
+						String receiver = distributionBean.getReceiver();
+						String mobile = distributionBean.getMobile();
+						ConditionParse con1 = new ConditionParse();
+						con1.addWhereStr();
+						con1.addCondition("OutBean.customerId", "=", out.getCustomerId());
+						con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
+						con1.addIntCondition("OutBean.outtype", "=", OutConstant.OUTTYPE_OUT_PRESENT);
+						con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_FLOW_PASS);
+						con1.addCondition(" and exists (select dis.id from t_center_distribution dis " +
+								"where dis.outId=OutBean.fullId and " +
+								"dis.receiver='" + receiver + "' and " +
+								"dis.mobile='" + mobile + "')");
+						List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
+						if (ListTools.isEmptyOrNull(outBeans)){
+							_logger.info("****No same address SO exists****");
+						} else{
+							_logger.info("****same address SO need to auto approve****"+outBeans.size());
+							for (OutBean o: outBeans){
+								String fullId = o.getFullId();
+								boolean pass = this.autoApproveOut(false, fullId);
+								_logger.info(fullId+"*****passOut result****"+pass);
+							}
+						}
+					}
 				}else if (bean.getAction().equals("驳回")){
 					
 					outManager.reject(bean.getOutId(), user, bean.getReason());
