@@ -2604,7 +2604,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				log.setActor("系统");
 				log.setActorId(StafferConstant.SUPER_STAFFER);
 				log.setFullId(obean.getId());
-				log.setDescription("系统自动结束");
+				log.setDescription("批量生成,待审批");
 				log.setLogTime(TimeTools.now());
 				log.setPreStatus(FinanceConstant.INVOICEINS_STATUS_SAVE);
 				log.setAfterStatus(bean.getStatus());
@@ -2735,7 +2735,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				log.setActor("系统");
 				log.setActorId(StafferConstant.SUPER_STAFFER);
 				log.setFullId(obean.getId());
-				log.setDescription("系统自动结束");
+				log.setDescription("批量生成,待审批");
 				log.setLogTime(TimeTools.now());
 				log.setPreStatus(FinanceConstant.INVOICEINS_STATUS_SAVE);
 				log.setAfterStatus(bean.getStatus());
