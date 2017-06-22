@@ -117,6 +117,8 @@ public class MyPageSelectOption extends PageSelectOption {
                                 mapBean.setKey(String.valueOf(field.getInt(null)));
                             } else if (t == double.class) {
                                 mapBean.setKey(String.valueOf(field.getDouble(null)));
+                            } else if (t == String.class) {
+                                mapBean.setKey(String.valueOf(field.get(null)));
                             }
                         }catch(Exception e){e.printStackTrace();}
 
