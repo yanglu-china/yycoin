@@ -91,9 +91,12 @@ function currentDetail()
 function depotpartLog(opr, grid)
 {
 	if (getRadio('checkb') && getRadioValue('checkb'))
-	{	
+	{
+        var checkElement = getRadio("checkb");
+        var productId = checkElement.getAttribute("lproductId");
+        var depotpartId = checkElement.getAttribute("ldepotpartId");
 		$l(gurl + 'queryStorageLog&queryType=1&productId=' 
-			+ getRadio('checkb').lproductId + '&depotpartId=' + getRadio('checkb').ldepotpartId);
+			+ productId + '&depotpartId=' + depotpartId);
 	}
 	else
 	$error('不能操作');
@@ -102,10 +105,15 @@ function depotpartLog(opr, grid)
 function depotpartLog2(opr, grid)
 {
 	if (getRadio('checkb') && getRadioValue('checkb'))
-	{	
+	{
+        var checkElement = getRadio("checkb");
+        var productId = checkElement.getAttribute("lproductId");
+        var depotpartId = checkElement.getAttribute("ldepotpartId");
+        var lpriceKey = checkElement.getAttribute("lpriceKey");
+
 		$l(gurl + 'queryStorageLog&queryType=1&productId=' 
-			+ getRadio('checkb').lproductId + '&depotpartId=' + getRadio('checkb').ldepotpartId 
-			+ '&priceKey=' + getRadio('checkb').lpriceKey);
+			+ productId + '&depotpartId=' + depotpartId
+			+ '&priceKey=' + lpriceKey);
 	}
 	else
 	$error('不能操作');
@@ -114,9 +122,12 @@ function depotpartLog2(opr, grid)
 function depotLog(opr, grid)
 {
 	if (getRadio('checkb') && getRadioValue('checkb'))
-	{	
+	{
+        var checkElement = getRadio("checkb");
+        var productId = checkElement.getAttribute("lproductId");
+        var llocationId = checkElement.getAttribute("llocationId");
 		$l(gurl + 'queryStorageLog&queryType=2&productId=' 
-			+ getRadio('checkb').lproductId + '&locationId=' + getRadio('checkb').llocationId);
+			+ productId + '&locationId=' + llocationId);
 	}
 	else
 	$error('不能操作');
@@ -125,10 +136,14 @@ function depotLog(opr, grid)
 function depotLog2(opr, grid)
 {
 	if (getRadio('checkb') && getRadioValue('checkb'))
-	{	
+	{
+        var checkElement = getRadio("checkb");
+        var productId = checkElement.getAttribute("lproductId");
+        var llocationId = checkElement.getAttribute("llocationId");
+        var lpriceKey = checkElement.getAttribute("lpriceKey");
 		$l(gurl + 'queryStorageLog&queryType=2&productId=' 
-			+ getRadio('checkb').lproductId + '&locationId=' + getRadio('checkb').llocationId 
-			+ '&priceKey=' + getRadio('checkb').lpriceKey);
+			+ productId + '&locationId=' + llocationId
+			+ '&priceKey=' + lpriceKey);
 	}
 	else
 	$error('不能操作');
