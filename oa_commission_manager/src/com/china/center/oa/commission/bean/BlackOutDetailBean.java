@@ -8,6 +8,7 @@ import com.china.center.jdbc.annotation.Table;
 @Table(name = "T_CENTER_BLACK_OUT_DETAIL")
 public class BlackOutDetailBean extends AbstractBlackOutDetailBean
 {
+	private String baseId = "";
 	/**
 	 * 
 	 */
@@ -15,4 +16,18 @@ public class BlackOutDetailBean extends AbstractBlackOutDetailBean
 	{
 	}
 
+	public String getBaseId() {
+		return baseId;
+	}
+
+	public void setBaseId(String baseId) {
+		this.baseId = baseId;
+	}
+
+	@Override
+	public String toString() {
+		return "BlackOutDetailBean{" +
+				"baseId='" + baseId + '\'' +
+				'}';
+	}
 }

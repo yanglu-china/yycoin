@@ -248,7 +248,7 @@ public class BlackManagerImpl implements BlackManager
 
         //for test only
 //        stafferList.clear();
-//        stafferList.add("567582270");
+//        stafferList.add("8344759");
 
         ConditionParse condition = new ConditionParse();
 
@@ -1084,7 +1084,7 @@ public class BlackManagerImpl implements BlackManager
     	List<BlackOutBean> outList = blackOutDAO.queryEntityBeansByCondition("where type = 2");
 
         //for test only
-//        outList = blackOutDAO.queryEntityBeansByCondition("where outId = 'LY1706021508572805842'");
+//        outList = blackOutDAO.queryEntityBeansByCondition("where outId = 'LY1508201527234586992'");
 
     	for (BlackOutBean each : outList)
     	{
@@ -1288,7 +1288,8 @@ public class BlackManagerImpl implements BlackManager
 		bod.setAmount(base.getAmount());
 		bod.setOutId(base.getOutId());
 		bod.setCostPrice(base.getPprice());
-		
+        bod.setBaseId(base.getId());
+
 		blackOutDetailDAO.saveEntityBean(bod);
         return true;
 	}

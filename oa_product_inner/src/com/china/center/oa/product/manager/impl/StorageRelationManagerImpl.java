@@ -163,7 +163,9 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
         if (relation == null)
         {
-            throw new MYException("产品[%s]可发库存不足", productBean.getName());
+            String template = "depotpartID:%s productId:%s priceKey:%s staffer:%s without storage";
+            _logger.error(String.format(template, bean.getDepotpartId(), bean.getProductId(), priceKey, bean.getStafferId()));
+            throw new MYException("产品[%s]库存配置不存在", productBean.getName());
         }
 
         int zaitu = sumPreassignByStorageRelation(relation);
