@@ -1863,16 +1863,15 @@ public class StockAction extends DispatchAction
             {
                 // 查询生产库
                 depotpartList = depotpartDAO.queryOkDepotpartInDepot(DepotConstant.MAKE_DEPOT_ID);
-
-                ConditionParse conditionParse = new ConditionParse();
-                conditionParse.addWhereStr();
-                conditionParse.addCondition("name","=","在售仓");
-                List<DepotpartBean> depotpartBeans = this.depotpartDAO.queryEntityBeansByCondition(conditionParse);
-                if (!ListTools.isEmptyOrNull(depotpartBeans)){
-                    depotpartList.addAll(depotpartBeans);
-                }
             }
 
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("name","=","在售仓");
+            List<DepotpartBean> depotpartBeans = this.depotpartDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(depotpartBeans)){
+                depotpartList.addAll(depotpartBeans);
+            }
             request.setAttribute("depotpartList", depotpartList);
 
             _logger.info("***depotpartList***"+depotpartList);

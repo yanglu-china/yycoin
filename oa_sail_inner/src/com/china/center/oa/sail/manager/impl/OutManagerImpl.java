@@ -7502,6 +7502,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             int hasBack = 0;
 
             // 退库
+            Set<String> backSet = new HashSet<String>();
             for (OutBean ref : refBuyList)
             {
                 List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
@@ -7515,28 +7516,68 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         break;
                     }
                 }
+                backSet.add(ref.getFullId());
             }
 
             // 转销售的
             for (OutBean ref : refList)
             {
-                List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
+                String description = ref.getDescription();
+                if(StringTools.isNullOrNone(description)){
+                    List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
 
-                for (BaseBean refBase : refBaseList)
-                {
-                    if (refBase.equals(baseBean))
+                    for (BaseBean refBase : refBaseList)
                     {
-                        hasBack += refBase.getAmount();
+                        if (refBase.equals(baseBean))
+                        {
+                            hasBack += refBase.getAmount();
 
-                        break;
+                            break;
+                        }
+                    }
+                } else{
+                    boolean flag = true;
+                    for (String backOutId : backSet){
+                        //已退库
+                        if(description.contains(backOutId)){
+                            flag = false;
+                            break;
+                        }
+                    }
+
+                    if (flag){
+                        List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
+
+                        for (BaseBean refBase : refBaseList)
+                        {
+                            if (refBase.equals(baseBean))
+                            {
+                                hasBack += refBase.getAmount();
+
+                                break;
+                            }
+                        }
                     }
                 }
+
+//                List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
+//
+//                for (BaseBean refBase : refBaseList)
+//                {
+//                    if (refBase.equals(baseBean))
+//                    {
+//                        hasBack += refBase.getAmount();
+//
+//                        break;
+//                    }
+//                }
             }
 
             baseBean.setAmount(baseBean.getAmount() - hasBack);
 
             if (baseBean.getAmount() < 0)
             {
+                _logger.error("***baseBean.getAmount()***"+baseBean.getAmount()+"***hasBack***"+hasBack);
                 throw new MYException("领样转销售或者退库数量不够[%s],请重新操作", baseBean.getProductName());
             }
         }
@@ -7670,6 +7711,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             if (baseBean.getAmount() < 0)
             {
+                _logger.error("***baseBean.getAmount()***"+baseBean.getAmount()+"***hasBack***"+hasBack);
                 throw new MYException("领样转销售或者退库数量不够[%s],请重新操作", baseBean.getProductName());
             }
             
