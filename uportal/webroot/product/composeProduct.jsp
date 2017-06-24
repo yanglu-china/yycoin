@@ -251,7 +251,7 @@ function depotChange()
 	elements.push($O('dirDepotpart'));
 	
 	var newsrcDepot = $$('srcDepot');
-	
+    var defaultValue = '';
 	for (var i = 0; i < elements.length; i++)
 	{
 		removeAllItem(elements[i]);
@@ -262,11 +262,23 @@ function depotChange()
 			if (dList[j].locationId == newsrcDepot)
 			{
 				setOption(elements[i], dList[j].id, dList[j].name);
+                if (dList[j].id == 'A1201606211663545389')
+                    defaultValue = "A1201606211663545389";
 			}
 		}
 		
 		depotpartChange(elements[i]);
 	}
+	//默认仓区设为 备货仓
+    if (defaultValue == 'A1201606211663545389')
+    {
+        var dirDepotpart = document.querySelector('[name="dirDepotpart"]');
+//        console.log(dirDepotpart);
+        setSelect(dirDepotpart,"A1201606211663545389");
+        for(var i=0;i<sels.length;i++){
+            setSelect(sels[i],"A1201606211663545389");
+        }
+    }
 }
 
 function bomClick(){
@@ -293,7 +305,11 @@ function bomClick(){
 function load()
 {
 	addTr();
-	
+
+    //默认仓库"物流中心-作业库"
+    var srcDepot = document.querySelector('[name="srcDepot"]');
+    setSelect(srcDepot,"A1201606211663545335");
+
 	depotChange();
 }
 </script>

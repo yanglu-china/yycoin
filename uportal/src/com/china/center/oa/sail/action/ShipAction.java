@@ -1688,6 +1688,51 @@ public class ShipAction extends DispatchAction
             }
 
             return mapping.findForward("printZjReceipt");
+        }
+        //贵州银行
+        else if (vo.getCustomerName().indexOf("贵州银行") != -1) {
+            request.setAttribute("packageId", vo.getId());
+            //TODO
+            request.setAttribute("title", "永银文化——发货清单");
+
+            ConditionParse con2 = new ConditionParse();
+            con2.addWhereStr();
+            con2.addCondition("PackageBean.pickupId", "=", pickupId);
+
+            List<PackageVO> allPackages = packageDAO.queryVOsByCondition(con2);
+            if (!ListTools.isEmptyOrNull(allPackages)) {
+                _logger.info("****allPackages size****" + allPackages.size());
+                request.setAttribute("allPackages", allPackages.size());
+
+                //2015/3/30 批量打印最后一张回执单时，因定向到交接单打印，需要此时把最后一张CK单状态设置为“已打印"
+                if ("0".equals(batchPrint) && allPackages.size() == index_pos) {
+                    // 更新状态
+                    try {
+                        shipManager.updatePrintStatus(pickupId, index_pos);
+                        _logger.info(pickupId + ":" + index_pos + " print finished***");
+                    } catch (MYException e) {
+                        request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印出错." + e.getErrorContent());
+
+                        return mapping.findForward("error");
+                    }
+                }
+            }
+
+            try {
+                String msg5 = "**********before printGzReceipt****";
+                _logger.info(msg5);
+                //TODO
+                this.prepareForUnified(request, vo, itemList, compose);
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+                String msg6 = "**********after printGzReceipt****";
+                _logger.info(msg6);
+            } catch (Exception e) {
+                e.printStackTrace();
+                _logger.error("****prepareForZjPrint exception***", e);
+            }
+
+            return mapping.findForward("printGzReceipt");
         } else{
             //其他所有银行
             request.setAttribute("packageId", vo.getId());
