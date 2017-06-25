@@ -1692,8 +1692,7 @@ public class ShipAction extends DispatchAction
         //贵州银行
         else if (vo.getCustomerName().indexOf("贵州银行") != -1) {
             request.setAttribute("packageId", vo.getId());
-            //TODO
-            request.setAttribute("title", "永银文化——发货清单");
+            request.setAttribute("title", "贵州银行贵金属产品发货确认单");
 
             ConditionParse con2 = new ConditionParse();
             con2.addWhereStr();
@@ -1721,10 +1720,17 @@ public class ShipAction extends DispatchAction
             try {
                 String msg5 = "**********before printGzReceipt****";
                 _logger.info(msg5);
-                //TODO
-                this.prepareForUnified(request, vo, itemList, compose);
+                //TODO 参考宁波银行
+                this.prepareForNbPrint(request, vo, itemList, compose);
                 this.generateQRCode(vo.getId());
                 request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+
+                request.setAttribute("year", TimeTools.now("yyyy"));
+                request.setAttribute("month", TimeTools.now("MM"));
+                request.setAttribute("day", TimeTools.now("dd"));
+                request.setAttribute("hour", TimeTools.now("HH"));
+                request.setAttribute("minute", TimeTools.now("mm"));
+
                 String msg6 = "**********after printGzReceipt****";
                 _logger.info(msg6);
             } catch (Exception e) {
