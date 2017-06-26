@@ -7693,18 +7693,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         }
                     }
                 }
-
-//                List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
-//
-//                for (BaseBean refBase : refBaseList)
-//                {
-//                    if (refBase.equals(baseBean))
-//                    {
-//                        hasBack += refBase.getAmount();
-//
-//                        break;
-//                    }
-//                }
             }
 
             baseBean.setAmount(baseBean.getAmount() - hasBack);
@@ -7719,7 +7707,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 _logger.info(baseBean+" checkIfAllSwithToSail hasBack "+hasBack);
                 ret = false;
             }
-
         }
 
         return ret;
@@ -12687,56 +12674,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         newOutBean.setFullId(newOutId);
 
         newOutBean.setOutTime(TimeTools.now_short());
-//
-//        newOutBean.setReday(bean.getReday());
-//
-//        newOutBean.setRedate(bean.getRedate());
 
         newOutBean.setChangeTime(TimeTools.now());
-
-//        newOutBean.setDutyId(bean.getDutyId());
-//
-//        newOutBean.setInvoiceId(bean.getInvoiceId());
-
-//        double total = 0.0d;
-//
-//        List<BaseRepaireBean> repaireList = bean.getList();
-//
-//        for (BaseRepaireBean each : repaireList)
-//        {
-//            total += each.getPrice() * each.getAmount();
-//        }
-//
-//        newOutBean.setTotal(total);
-//
-//        if (total > out.getTotal())
-//        {
-//            newOutBean.setPay(0);
-//
-//            newOutBean.setPayTime("");
-//        }
-//
-//        if (newOutBean.getPay() == OutConstant.PAY_YES)
-//        {
-//            newOutBean.setPayTime(TimeTools.now());
-//
-//            newOutBean.setRedate(TimeTools.now_short());
-//        }
-//
-//        if (out.getPay() == OutConstant.PAY_YES && total < out.getTotal())
-//        {
-//            newOutBean.setHadPay(total);
-//        }
-
-        // 新单不自动勾款，新单为未付款，已支付0，付款时间为空
-//        if (bean.getReason().equals(OutConstant.OUT_REPAIREREASON_DONOTAUTOPAY))
-//        {
-//            newOutBean.setHadPay(0);
-//
-//            newOutBean.setPay(0);
-//
-//            newOutBean.setPayTime("");
-//        }
 
         long add = 3 * 24 * 3600 * 1000L;
 
@@ -12747,10 +12686,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         newOutBean.setManagerTime(TimeTools.now());
 
         newOutBean.setChangeTime(TimeTools.now());
-
-//        newOutBean.setOperator(bean.getOperator());
-
-//        newOutBean.setOperatorName(bean.getOperatorName());
 
         newOutBean.setFeedBackVisit(0);
         newOutBean.setFeedBackCheck(0);
@@ -12774,12 +12709,28 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         distributionDAO.saveEntityBean(distributionBean);
         _logger.info("save saveEntityBean***"+distributionBean);
         newOutBean.setDistributeBean(distributionBean);
-        //TODO 付款方式:客户信用和业务员信用额度担保
+        // 付款方式:客户信用和业务员信用额度担保
         newOutBean.setReserve3(2);
         outDAO.saveEntityBean(newOutBean);
 
-        //原单更新为已付款
-        this.outDAO.updatePay(newOutBean.getRefOutFullId(), OutConstant.PAY_YES);
+        //原单更新付款状态
+        if (newOutBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                && isSwatchToSail(newOutBean.getFullId())) {
+            // 检查是否溢出
+            try {
+                boolean ret = checkIfAllSwithToSail(newOutBean.getRefOutFullId());
+
+                if (ret) {
+                    // add 原领样单自动变为已付款
+                    String srcFullId = newOutBean.getRefOutFullId();
+
+                    outDAO.updatePay(srcFullId, OutConstant.PAY_YES);
+                    _logger.info("***out update to pay***" + srcFullId);
+                }
+            }catch (Exception e){
+                _logger.error(e,e);
+            }
+        }
 
         List<BaseBean> baseList = new ArrayList<BaseBean>();
 
