@@ -1720,17 +1720,9 @@ public class ShipAction extends DispatchAction
             try {
                 String msg5 = "**********before printGzReceipt****";
                 _logger.info(msg5);
-                //TODO 参考宁波银行
-                this.prepareForNbPrint(request, vo, itemList, compose);
+                this.prepareForGzPrint(request, vo, itemList, compose);
                 this.generateQRCode(vo.getId());
                 request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
-
-                request.setAttribute("year", TimeTools.now("yyyy"));
-                request.setAttribute("month", TimeTools.now("MM"));
-                request.setAttribute("day", TimeTools.now("dd"));
-                request.setAttribute("hour", TimeTools.now("HH"));
-                request.setAttribute("minute", TimeTools.now("mm"));
-
                 String msg6 = "**********after printGzReceipt****";
                 _logger.info(msg6);
             } catch (Exception e) {
@@ -3089,6 +3081,21 @@ public class ShipAction extends DispatchAction
         ZY,OTHER
     }
 
+    private ProductImportBean getProductImportBean(PackageItemBean item,String bank){
+        ProductImportBean result = null;
+        ProductBean product = productDAO.find(item.getProductId());
+        if (product!= null) {
+            ConditionParse conditionParse =  new ConditionParse();
+            conditionParse.addCondition("code", "=", product.getCode());
+            conditionParse.addCondition("bank","=",bank);
+            List<ProductImportBean> productImportBeanList = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(productImportBeanList)){
+                result = productImportBeanList.get(0);
+            }
+        }
+
+        return result;
+    }
     /**
      * 2015/11/13 中原银行回执单产品编码取 out_import表里的商品编码字段productCode
      * @param item
@@ -4255,6 +4262,234 @@ public class ShipAction extends DispatchAction
             if (product!= null) {
                 this.setProductInfoForNb(item, product);
             }
+            itemList1.add(item);
+        }
+
+        //2015/11/13 中原银行回执单：调入单位就取客户名称，但到（ 和 -符号后面的字条 去掉
+        vo.setCustomerName(this.getCustomerName(vo.getCustomerName()));
+        vo.setItemList(itemList1);
+
+        request.setAttribute("total", totalAmount);
+    }
+
+
+    /**
+     * 贵州银行
+     * @param request
+     * @param vo
+     * @param itemList
+     * @param compose
+     */
+    private void prepareForGzPrint(HttpServletRequest request, PackageVO vo,
+                                   List<PackageItemBean> itemList, String compose)
+    {
+        int totalAmount = 0 ;
+
+        List<PackageItemBean> itemList1 = new ArrayList<PackageItemBean>();
+
+        Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
+
+        //2015/1/25 取商务联系人及电话
+        if (!ListTools.isEmptyOrNull(itemList)){
+            PackageItemBean first = itemList.get(0);
+            String outId = first.getOutId();
+            String stafferName = "永银商务部";
+            String phone = "4006518859";
+            _logger.info(first+"******first****"+outId);
+            if (StringTools.isNullOrNone(outId)){
+                _logger.warn("****Empty OutId***********"+first.getId());
+            }else if (this.isOut(outId)){
+                String[] result = this.getStafferNameAndPhone(outId);
+                if (result.length>=2){
+                    stafferName = result[0];
+                    phone = result[1];
+                }
+            } else if(outId.startsWith("A")){
+                InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
+                if (bean!= null){
+                    String refIds = bean.getRefIds();
+                    _logger.info(outId+"*****refIds found********"+refIds);
+                    if (!StringTools.isNullOrNone(refIds)){
+                        String[] temp = refIds.split(";");
+                        String refOutId = null;
+                        for (String out: temp){
+                            if (out.startsWith("SO")){
+                                refOutId = out;
+                                break;
+                            }
+                        }
+                        String[] result2 = this.getStafferNameAndPhone(refOutId);
+                        if (result2.length>=2){
+                            stafferName = result2[0];
+                            phone = result2[1];
+                        }
+                    }
+                }
+            }
+            _logger.info("*****stafferName***********"+stafferName+"**phone**"+phone);
+            request.setAttribute("stafferName", stafferName);
+            request.setAttribute("phone",phone);
+
+            request.setAttribute("year", TimeTools.now("yyyy"));
+            request.setAttribute("month", TimeTools.now("MM"));
+            request.setAttribute("day", TimeTools.now("dd"));
+            request.setAttribute("hour", TimeTools.now("HH"));
+            request.setAttribute("minute", TimeTools.now("mm"));
+        }
+
+        for (PackageItemBean each : itemList)
+        {
+            _logger.info(each.getId()+"****iterate package item:"+"***"+each.getOutId()+"***"+each.getDescription()+"***"+each.getRefId()+"***"+each.getAmount());
+            if (!each.getCustomerId().equals(vo.getCustomerId()))
+            {
+                _logger.info("*************each.getCustomerId()***"+each.getCustomerId()+"****"+vo.getCustomerId());
+                continue;
+            }
+
+            //贵州银行的回执单信息，按productid取CODE，再去product_import取bank为贵州银行的对应产品的银行品名，编码，规格和材质
+            ProductImportBean productImportBean = this.getProductImportBean(each,"贵州银行");
+            _logger.info("***productImportBean***"+productImportBean);
+            if (productImportBean!= null){
+                each.setProductCode(productImportBean.getBankProductCode());
+                each.setProductName(productImportBean.getBankProductName());
+                each.setMateriaType(productImportBean.getMaterial());
+                try {
+                    each.setProductWeight(Double.valueOf(productImportBean.getWeight()));
+                }catch (Exception e){}
+            }
+
+            // 针对赠品,且有备注的订单,单独显示
+            String outId = each.getOutId();
+
+            OutBean out = outDAO.find(outId);
+
+            //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
+            if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
+                if (out.getOutType() == OutConstant.OUTTYPE_OUT_COMMON){
+                    each.setItemType("销售");
+                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
+                        || out.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH
+                        || out.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH){
+                    each.setItemType("领样");
+                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SHOW){
+                    each.setItemType("铺货");
+                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT){
+                    each.setItemType("赠品");
+                }
+            }
+
+            if (StringTools.isNullOrNone(each.getItemType()) && outId.startsWith("A")){
+                each.setItemType("发票");
+            }
+
+            //2015/10/13 销售时间取out表中的podate
+            if (out!= null){
+                each.setPoDate(out.getPodate());
+            }
+
+            each.getProductId();
+
+            if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
+            {
+                _logger.info("******赠品类型*****"+each.getOutId());
+                List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(each.getOutId(), AnoConstant.FK_FIRST);
+
+                if (!ListTools.isEmptyOrNull(outiList))
+                {
+                    String refId = outiList.get(0).getCiticNo();
+                    _logger.info("****refId:"+refId);
+                    each.setRefId(refId);
+
+                    if (!StringTools.isNullOrNone(outiList.get(0).getDescription()))
+                    {
+                        checkCompose(each, each, compose);
+
+                        String description = outiList.get(0).getDescription();
+                        _logger.info("****Description****"+description);
+                        each.setDescription(description);
+
+                        itemList1.add(each);
+
+                        totalAmount += each.getAmount();
+
+                        continue;
+                    }
+                }
+            }
+
+            String key = each.getProductId();
+
+            if (!map1.containsKey(key))
+            {
+                checkCompose(each, each, compose);
+
+                String refId = this.getRefId(out, each.getOutId());
+                if (!StringTools.isNullOrNone(refId)){
+                    each.setRefId(refId);
+                }
+
+                //2015/1/25 注释掉
+//				each.setDescription("");
+
+                map1.put(each.getProductId(), each);
+            }else{
+                PackageItemBean itemBean = map1.get(key);
+
+                itemBean.setAmount(itemBean.getAmount() + each.getAmount());
+
+                itemBean.setOutId(itemBean.getOutId() + "<br>" + each.getOutId());
+
+                if (!StringTools.isNullOrNone(itemBean.getRefId()))
+                {
+                    String refId = this.getRefId(out, each.getOutId());
+                    if (!StringTools.isNullOrNone(refId))
+                    {
+//                        String refId3 = itemBean.getRefId() + "<br>" + refId;
+                        String refId3 = this.concat(itemBean.getRefId(),refId,"<br>");
+                        _logger.info("**********refId3**********"+refId3);
+                        itemBean.setRefId(refId3);
+                    }
+                }else{
+                    if (!StringTools.isNullOrNone(each.getRefId()))
+                    {
+                        _logger.info("**********refId4**********"+each.getRefId());
+                        itemBean.setRefId(each.getRefId());
+                    }
+                }
+
+                //2015/1/29 合并Description
+                if (!StringTools.isNullOrNone(itemBean.getDescription()))
+                {
+                    if (!StringTools.isNullOrNone(each.getDescription()))
+                    {
+//                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
+                        String description = this.concat(itemBean.getDescription(), each.getDescription(), "<br>");
+                        _logger.info("**********description2**********"+description);
+                        itemBean.setDescription(description);
+                    }
+                }else{
+                    if (!StringTools.isNullOrNone(each.getDescription()))
+                    {
+                        itemBean.setDescription(each.getDescription());
+                    }
+                }
+            }
+
+            totalAmount += each.getAmount();
+        }
+
+        for(Entry<String, PackageItemBean> each : map1.entrySet())
+        {
+            PackageItemBean item = each.getValue();
+//            String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
+//            if (!StringTools.isNullOrNone(productName)){
+//                item.setProductName(productName);
+//            }
+
+//            ProductBean product = productDAO.find(item.getProductId());
+//            if (product!= null) {
+//                this.setProductInfoForNb(item, product);
+//            }
             itemList1.add(item);
         }
 
