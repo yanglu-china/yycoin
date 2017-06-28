@@ -772,16 +772,17 @@ public class ProductApplyAction extends DispatchAction {
                     if ( !StringTools.isNullOrNone(obj[7]))
                     {
                         String weight = obj[7].trim();
-                        try{
-                            Double.valueOf(weight);
-                        }catch (NumberFormatException e){
-                            importError = true;
-
-                            builder
-                                    .append("第[" + currentNumber + "]错误:")
-                                    .append("克重必须为数值")
-                                    .append("<br>");
-                        }
+                        //#88
+//                        try{
+//                            Double.valueOf(weight);
+//                        }catch (NumberFormatException e){
+//                            importError = true;
+//
+//                            builder
+//                                    .append("第[" + currentNumber + "]错误:")
+//                                    .append("克重必须为数值")
+//                                    .append("<br>");
+//                        }
                         bean.setWeight(weight);
                     }
 
