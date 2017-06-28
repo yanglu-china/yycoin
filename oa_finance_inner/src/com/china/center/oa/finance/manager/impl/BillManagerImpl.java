@@ -1141,6 +1141,7 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
     @Override
     public void statsExceptionalPayJob() {
         badLog.info("***statsExceptionalPayJob running***");
+        _logger.info("***statsExceptionalPayJob running***");
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
         conditionParse.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
@@ -1150,6 +1151,7 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
         conditionParse.addCondition(" and OutBean.outType in(0,1,3,5,6,7)");
         List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(conditionParse);
         badLog.info("***outList size***"+outList.size());
+        _logger.info("***outList size***"+outList.size());
         for (OutBean out: outList){
             //金额-退货金额-领转金额-已支付，
             String outId = out.getFullId();
@@ -1194,9 +1196,11 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
 //            badLog.info(out.getTotal()-sum-billSum-out.getHadPay()-out.getBadDebts());
             if (out.getTotal()-sum-lySum-billSum-out.getHadPay()-out.getBadDebts()>= 0.01){
                 badLog.error(out.getFullId());
+                _logger.error(out.getFullId());
             }
         }
         badLog.info("***finish statsExceptionalPayJob running***");
+        _logger.info("***finish statsExceptionalPayJob running***");
     }
 
     /**

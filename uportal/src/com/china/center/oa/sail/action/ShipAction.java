@@ -1959,7 +1959,27 @@ public class ShipAction extends DispatchAction
             }
 
             return mapping.findForward("printZjReceipt");
-        } else{
+        }//贵州银行
+        else if (vo.getCustomerName().indexOf("贵州银行") != -1) {
+            request.setAttribute("packageId", vo.getId());
+            request.setAttribute("title", "贵州银行贵金属产品发货确认单");
+
+            try {
+                String msg5 = "**********before printGzReceipt****";
+                _logger.info(msg5);
+                this.prepareForGzPrint(request, vo, itemList, compose);
+                this.generateQRCode(vo.getId());
+                request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+                String msg6 = "**********after printGzReceipt****";
+                _logger.info(msg6);
+            } catch (Exception e) {
+                e.printStackTrace();
+                _logger.error("****printGzReceipt exception***", e);
+            }
+
+            return mapping.findForward("printGzReceipt");
+        }
+        else{
             //其他所有银行
             request.setAttribute("packageId", vo.getId());
             request.setAttribute("title", "永银文化——发货清单");

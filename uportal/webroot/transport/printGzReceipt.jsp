@@ -127,7 +127,7 @@
 									<td><table class="border1"><tr><td align="center">${item.productName}</td></tr></table></td>
 									<td><table class="border1"><tr><td align="center">${item.materiaType}</td></tr></table></td>
 									<td><table class="border1"><tr><td align="center">${item.productWeight}</td></tr></table></td>
-									<td><table class="border1"><tr><td align="center">${item.productAmount}</td></tr></table></td>
+									<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 									<td><table class="border1"><tr><td align="center">与实物匹配</td></tr></table></td>
 									<td><table class="border1"><tr><td align="center">与实物匹配</td></tr></table></td>
 									<td><table class="border1"><tr><td align="center">${item.description}${item.printText}</td></tr></table></td>
