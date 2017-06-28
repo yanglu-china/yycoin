@@ -2022,7 +2022,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	}
 
     public void checkImportIns(List<InvoiceinsImportBean> list, StringBuilder sb){
-		_logger.info("***begin checkImportIns***");
+		_logger.info("***begin checkImportIns***"+list);
 		//同一个SO可对应多个开票申请
 		Map<String ,List<InvoiceinsImportBean>> outToInvoicesMap = new HashMap<String, List<InvoiceinsImportBean>>();
 
@@ -2129,17 +2129,27 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     					}
     				}
     				
-    				if (StringTools.isNullOrNone(out.getPiDutyId()) || (out.getPiMtype() == 1 && out.getPiStatus() == 1)) {
-    					// 检查 导入的开票金额是全部的可开票金额
-						String key = each.getOutId();
-						if (outToInvoicesMap.containsKey(key)){
-							outToInvoicesMap.get(key).add(each);
-						} else{
-							List<InvoiceinsImportBean> beans = new ArrayList<InvoiceinsImportBean>();
-							beans.add(each);
-							outToInvoicesMap.put(key, beans);
-						}
-    				}
+//    				if (StringTools.isNullOrNone(out.getPiDutyId()) || (out.getPiMtype() == 1 && out.getPiStatus() == 1)) {
+//    					// 检查 导入的开票金额是全部的可开票金额
+//						String key = each.getOutId();
+//						if (outToInvoicesMap.containsKey(key)){
+//							outToInvoicesMap.get(key).add(each);
+//						} else{
+//							List<InvoiceinsImportBean> beans = new ArrayList<InvoiceinsImportBean>();
+//							beans.add(each);
+//							outToInvoicesMap.put(key, beans);
+//						}
+//    				}
+
+                    //#84 2017/6/28 拆单开票和非拆单开票一起导入时，有时开票有问题
+                    String key = each.getOutId();
+                    if (outToInvoicesMap.containsKey(key)){
+                        outToInvoicesMap.get(key).add(each);
+                    } else{
+                        List<InvoiceinsImportBean> beans = new ArrayList<InvoiceinsImportBean>();
+                        beans.add(each);
+                        outToInvoicesMap.put(key, beans);
+                    }
 //    				else {
 //    					sb.append("销售单");
 //        				sb.append(each.getOutId());
@@ -2212,6 +2222,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		}
 
         //#393 设置开票申请拆分标记
+        _logger.info("***outToInvoicesMap****"+outToInvoicesMap);
         for (InvoiceinsImportBean each : list) {
             List<InvoiceinsImportBean> beans = outToInvoicesMap.get(each.getOutId());
             if (!ListTools.isEmptyOrNull(beans) && beans.size()>=2){
@@ -3046,7 +3057,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			List<InvoiceinsImportBean> elist = each.getValue();
 
 			InvoiceinsImportBean first = elist.get(0);
-			_logger.info("***key***"+each.getKey()+"***value size***"+elist.size());
+			_logger.info("***key***"+each.getKey()+"***value size***"+elist);
 
 			// Assemble invoiceinsBean/invoiceinsItemBean/insVSOutBean/InsVSInvoiceNumBean
 			InvoiceinsBean bean = new InvoiceinsBean();
@@ -3356,7 +3367,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             //#328 生成临时发票号写入发票表，供CK单打印用
             String tempInvoiceNum = commonDAO.getSquenceString20("XN");;
             num.setInvoiceNum(tempInvoiceNum);
-            _logger.info(bean.getId()+"生成临时发票号:"+tempInvoiceNum);
+            _logger.info(bean.getId()+"生成临时发票号:"+num);
 
 			numList.add(num);
 
@@ -3367,11 +3378,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 _logger.error("发票子项未生成:"+bean.getId());
             } else {
                 invoiceinsItemDAO.saveAllEntityBeans(itemList);
-                _logger.info("生成发票子项:"+itemList);
+                _logger.info("生成发票子项列表:"+itemList);
             }
 
 			insVSOutDAO.saveAllEntityBeans(vsList);
-
+            _logger.info(bean.getId()+"生成insVSOut表:"+vsList);
 			insVSInvoiceNumDAO.saveAllEntityBeans(numList);
 
 			invoiceinsList.add(bean);
