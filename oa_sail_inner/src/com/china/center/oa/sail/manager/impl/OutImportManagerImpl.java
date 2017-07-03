@@ -3787,7 +3787,7 @@ public void offlineStorageInJob() {
                                 outBean.setCustomerName(originalOut.getCustomerName());
                             }
 
-                            outBean.setDescription("线下入库"+"_"+outId);
+                            outBean.setDescription("线下入库"+"_"+outId+"_"+item.getId());
                             String now = TimeTools.now_short();
                             outBean.setOutTime(now);
                             outBean.setPodate(now);
