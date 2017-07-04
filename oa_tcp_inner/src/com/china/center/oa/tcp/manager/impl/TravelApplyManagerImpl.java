@@ -380,7 +380,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 String outId = st.nextToken();
                                 OutBean out = this.outDAO.find(outId);
                                 if (out!= null){
-                                    _logger.info(outId+" OutBean set IB flag**********");
                                     if (bean.getIbType() == TcpConstanst.IB_TYPE){
                                         out.setIbFlag(1);
                                         out.setIbApplyId(bean.getId());
@@ -389,6 +388,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                         out.setMotivationApplyId(bean.getId());
                                     }
 
+                                    _logger.info(out+" OutBean set IB flag**********");
                                     this.outDAO.updateEntityBean(out);
                                 }
                             }
@@ -712,7 +712,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             String outId = st.nextToken();
                             OutBean out = this.outDAO.find(outId);
                             if (out!= null){
-                                _logger.info(outId+" OutBean set IB flag**********");
                                 if (bean.getIbType() == TcpConstanst.IB_TYPE){
                                     out.setIbFlag(1);
                                     out.setIbApplyId(bean.getId());
@@ -721,6 +720,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     out.setMotivationApplyId(bean.getId());
                                 }
 
+                                _logger.info(out+" OutBean set IB flag**********");
                                 this.outDAO.updateEntityBean(out);
                             }
                         }
@@ -1833,7 +1833,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 String outId = st.nextToken();
                                 OutBean out = this.outDAO.find(outId);
                                 if (out!= null){
-                                    _logger.info(outId+" OutBean reset IB flag**********");
                                     if (bean.getIbType() == TcpConstanst.IB_TYPE){
                                         out.setIbFlag(0);
                                         out.setIbApplyId("");
@@ -1842,6 +1841,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                         out.setMotivationApplyId("");
                                     }
 
+                                    _logger.info(out+" OutBean reset IB flag**********");
                                     this.outDAO.updateEntityBean(out);
                                 }
                             }
@@ -2840,7 +2840,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             String outId = st.nextToken();
                             OutBean out = this.outDAO.find(outId);
                             if (out!= null){
-                                _logger.info(outId+" OutBean reset IB flag before delete bean**********"+bean.getId());
                                 if (bean.getIbType() == TcpConstanst.IB_TYPE){
                                     out.setIbFlag(0);
                                     out.setIbApplyId("");
@@ -2849,6 +2848,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     out.setMotivationApplyId("");
                                 }
 
+                                _logger.info(out+" OutBean reset IB flag before delete bean**********"+bean.getId());
                                 this.outDAO.updateEntityBean(out);
                             }
                         }
@@ -3369,7 +3369,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 //                            badLog.info(outId+"***ib***"+out.getIbFlag()+"***motivation***"+out.getMotivationFlag());
                             if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
                                     && TcpFlowConstant.TRAVELAPPLY_IB.equals(bean.getFlowKey()) && out.getIbFlag() != 1) {
-                                _logger.warn(bean.getId()+"***IB***" + outId);
                                 List<String> outList = customerToOutMap.get(customer);
                                 if (outList == null){
                                     outList = new ArrayList<String>();
@@ -3377,13 +3376,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 }
                                 outList.add(outId);
                                 outToApplyMap.put(outId,bean.getId());
-                                //TODO
-//                                this.outDAO.updateIbFlag(outId,1);
+                                _logger.warn("修改中收标志:"+outId);
+                                this.outDAO.updateIbFlag(outId,1, bean.getId());
                             }
 
                             if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION
                                     && TcpFlowConstant.TRAVELAPPLY_MOTIVATION.equals(bean.getFlowKey()) && out.getMotivationFlag() != 1) {
-                                _logger.warn(bean.getId()+"***Motivation***" + outId);
                                 List<String> outList = customerToOutMap.get(customer);
                                 if (outList == null){
                                     outList = new ArrayList<String>();
@@ -3392,7 +3390,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 outList.add(outId);
                                 outToApplyMap.put(outId,bean.getId());
                                 //TODO
-//                                this.outDAO.updateMotivationFlag(outId,1);
+                                _logger.warn("修改激励标志:"+outId);
+                                this.outDAO.updateMotivationFlag(outId,1, bean.getId());
                             }
                         }
                     }

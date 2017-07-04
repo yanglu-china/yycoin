@@ -1210,14 +1210,22 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
     }
 
     @Override
-    public boolean updateIbFlag(String fullId, int ibFlag) {
-        this.jdbcOperation.updateField("ibFlag", ibFlag, fullId, this.claz);
-        return true;
+    public boolean updateIbFlag(String fullId, int ibFlag, String ibApplyId) {
+        String sql = "update T_CENTER_OUT set ibFlag = ? ,ibApplyId = ? " +
+                " where fullId = ?";
+
+        int i = jdbcOperation.update(sql, ibFlag,  ibApplyId,  fullId);
+
+        return i != 0;
     }
 
     @Override
-    public boolean updateMotivationFlag(String fullId, int motivationFlag) {
-        this.jdbcOperation.updateField("motivationFlag", motivationFlag, fullId, this.claz);
-        return true;
+    public boolean updateMotivationFlag(String fullId, int motivationFlag, String motivationApplyId) {
+        String sql = "update T_CENTER_OUT set motivationFlag = ? ,motivationApplyId = ? " +
+                " where fullId = ?";
+
+        int i = jdbcOperation.update(sql, motivationFlag,  motivationApplyId,  fullId);
+
+        return i != 0;
     }
 }

@@ -415,7 +415,7 @@ public interface OutDAO extends DAO<OutBean, OutVO>
 
     boolean updateFlowTime(String fullId, String flowTime);
 
-    boolean updateIbFlag(String fullId,int ibFlag);
+    boolean updateIbFlag(String fullId,int ibFlag, String ibApplyId);
 
-    boolean updateMotivationFlag(String fullId,int motivationFlag);
+    boolean updateMotivationFlag(String fullId,int motivationFlag, String motivationApplyId);
 }
