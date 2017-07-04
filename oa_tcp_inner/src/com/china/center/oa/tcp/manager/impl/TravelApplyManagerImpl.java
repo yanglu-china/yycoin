@@ -3349,7 +3349,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //去掉初始和駁回狀態
         conditionParse.addCondition(" and status not in(0,1)");
         //TODO
-        conditionParse.addCondition(" and id='UT201701210052361731'");
+//        conditionParse.addCondition(" and id='UT201701210052361731'");
 //        conditionParse.addCondition(" and id='UT201606141556744885'");
         List<TravelApplyBean> beans = this.travelApplyDAO.queryEntityBeansByCondition(conditionParse);
 //        badLog.info("***beans size***"+beans.size());
@@ -3357,7 +3357,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         Map<String,String> outToApplyMap = new HashMap<String,String>();
         for(TravelApplyBean bean: beans){
             List<TcpIbBean> tcpIbBeenList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
-//            badLog.info("***tcpIbBeenList size***"+tcpIbBeenList.size());
             for (TcpIbBean ib: tcpIbBeenList){
                 String outIds = ib.getFullId();
                 String customer = ib.getCustomerName();
@@ -3370,7 +3369,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 //                            badLog.info(outId+"***ib***"+out.getIbFlag()+"***motivation***"+out.getMotivationFlag());
                             if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
                                     && TcpFlowConstant.TRAVELAPPLY_IB.equals(bean.getFlowKey()) && out.getIbFlag() != 1) {
-                                badLog.warn(bean.getId()+"***IB***" + outId);
+                                _logger.warn(bean.getId()+"***IB***" + outId);
                                 List<String> outList = customerToOutMap.get(customer);
                                 if (outList == null){
                                     outList = new ArrayList<String>();
@@ -3379,12 +3378,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 outList.add(outId);
                                 outToApplyMap.put(outId,bean.getId());
                                 //TODO
-                                this.outDAO.updateIbFlag(outId,1);
+//                                this.outDAO.updateIbFlag(outId,1);
                             }
 
                             if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION
                                     && TcpFlowConstant.TRAVELAPPLY_MOTIVATION.equals(bean.getFlowKey()) && out.getMotivationFlag() != 1) {
-                                badLog.warn(bean.getId()+"***Motivation***" + outId);
+                                _logger.warn(bean.getId()+"***Motivation***" + outId);
                                 List<String> outList = customerToOutMap.get(customer);
                                 if (outList == null){
                                     outList = new ArrayList<String>();
@@ -3393,7 +3392,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 outList.add(outId);
                                 outToApplyMap.put(outId,bean.getId());
                                 //TODO
-                                this.outDAO.updateMotivationFlag(outId,1);
+//                                this.outDAO.updateMotivationFlag(outId,1);
                             }
                         }
                     }
@@ -3402,13 +3401,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         }
 
         for (String customer: customerToOutMap.keySet()){
-            badLog.warn(customer);
+            _logger.warn(customer);
             List<String> outList = customerToOutMap.get(customer);
             for(String outId:outList){
-                badLog.warn(outId+":"+outToApplyMap.get(outId));
+                _logger.warn(outId+":"+outToApplyMap.get(outId));
             }
         }
-        badLog.info("********duplicate apply for OUT***************");
+        _logger.info("********duplicate apply for OUT***************");
         //check duplicate
         for (String fullId: outToApplyMap.keySet()){
             ConditionParse conditionParse1 = new ConditionParse();
@@ -3424,12 +3423,11 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     TravelApplyBean apply2 = this.getBean(beans,two.getRefId());
                     if ((apply1!= null && apply1.getStatus()!=0 && apply1.getStatus()!=1)
                             && (apply2!= null && apply2.getStatus()!=0 && apply2.getStatus()!=1)){
-                        badLog.warn(fullId);
+                        _logger.warn(fullId);
                     }
                 }
             }
         }
-        badLog.info("********finish check***************");
         _logger.info("****finish exceptionalIbReportJob***");
     }
 
