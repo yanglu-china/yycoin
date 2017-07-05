@@ -250,7 +250,8 @@ public class StorageAction extends DispatchAction
         ActionTools.processJSONQueryCondition(QUERYSTORAGERELATION, request, condtion);
 
         notQueryFirstTime(condtion);
-        condtion.addCondition(" and DepotBean.name !='物流中心-作业库'");
+        //#91 为何有这个约束呢？
+//        condtion.addCondition(" and DepotBean.name !='物流中心-作业库'");
 
         final IntegerWrap wrap = new IntegerWrap();
 
