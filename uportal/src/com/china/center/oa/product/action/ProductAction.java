@@ -3779,11 +3779,24 @@ public class ProductAction extends DispatchAction
                 if (obj.length >= 2 )
                 {
                 	CiticVSOAProductBean bean = new CiticVSOAProductBean();
-                    
+
+                    ProductBean pbean = null;
                 	// OA产品
             		if ( !StringTools.isNullOrNone(obj[0]))
             		{
             			bean.setProductCode(obj[0]);
+
+                        pbean = productDAO.findByUnique(bean.getProductCode());
+
+                        if (null == pbean)
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("OA产品编码" + bean.getProductCode() + "的产品不存在,请创建")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
             		}else{
             			importError = true;
             			
@@ -3797,6 +3810,16 @@ public class ProductAction extends DispatchAction
             		if ( !StringTools.isNullOrNone(obj[1]))
             		{
             			bean.setProductName(obj[1]);
+
+                        //#94 OA产品品名要与code一致
+                        if (pbean!= null && !pbean.getName().equals(bean.getProductName())){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("OA产品编码"+bean.getProductCode()+"与OA产品名不一致:"+bean.getProductName())
+                                    .append("<br>");
+                        }
             		}else{
             			importError = true;
             			
