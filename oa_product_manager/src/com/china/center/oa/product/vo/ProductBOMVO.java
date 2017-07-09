@@ -34,12 +34,26 @@ public class ProductBOMVO extends ProductBOMBean
 	 * #93 可用数量
 	 */
 	private int pamount = 0;
+
+	@Ignore
+	private double price = 0.0d;
+
+	@Ignore
+	private String srcRelation = "";
 	
 	@Ignore
 	private List<ProductBOMVO> voList = null;
 	
 	public ProductBOMVO()
 	{
+	}
+
+	public String getSrcRelation() {
+		return srcRelation;
+	}
+
+	public void setSrcRelation(String srcRelation) {
+		this.srcRelation = srcRelation;
 	}
 
 	/**
@@ -158,6 +172,14 @@ public class ProductBOMVO extends ProductBOMBean
 		this.pamount = pamount;
 	}
 
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
+	}
+
 	@Override
 	public String toString() {
 		return "ProductBOMVO{" +
@@ -165,6 +187,9 @@ public class ProductBOMVO extends ProductBOMBean
 				", subProductName='" + subProductName + '\'' +
 				", code='" + code + '\'' +
 				", pamount=" + pamount +
+				", price=" + price +
+				", productId=" + this.getProductId() +
+				", subProductId=" + this.getSubProductId() +
 				'}';
 	}
 }

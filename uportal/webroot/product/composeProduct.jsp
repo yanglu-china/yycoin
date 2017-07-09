@@ -27,7 +27,6 @@ function addBean()
 function checks()
 {
 	var srs = document.getElementsByName('srcRelation');
-	
 	var ret = $duplicate(srs);
 	
 	if (ret)
@@ -75,13 +74,16 @@ function getProductBom(oos)
 	for (var j = 0; j < bomjson.length; j++)
     {
         var item = bomjson[j];
-
 		var trow = addTrInner();
 
 		setInputValueInTr(trow, 'srcProductId', item.subProductId);
 		setInputValueInTr(trow, 'targerName', item.subProductName);
 		setInputValueInTr(trow, 'srcProductCode', item.code);
+        setInputValueInTr(trow, 'srcPrice', item.price);
         setInputValueInTr(trow, 'srcAmount', item.pamount);
+        setInputValueInTr(trow, 'srcRelation', item.srcRelation);
+        var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
+        setSelect(srcDe1, "A1201606211663545389");
     }
 }
 
@@ -101,7 +103,6 @@ function getEle(eles, name)
 function getProductRelation(oos)
 {
 	var oo = oos[0];
-
 	current.value = oo.pname;
 	
 	var tr = getTrObject(current);
@@ -466,7 +467,7 @@ function load()
          <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
                     name="srcAmount" value="" oncheck="notNone;isNumber"></td>
          <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
-                    name="srcPrice" value="" oncheck="notNone;isFloat">
+                    name="srcPrice" value="0" oncheck="isFloat">
          <input type="hidden" 
                     name="srcRelation" value="">
          </td>

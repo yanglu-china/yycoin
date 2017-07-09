@@ -810,7 +810,6 @@ public class ProductAction extends DispatchAction
 
                 if(!ListTools.isEmptyOrNull(voList)){
                     for (ProductBOMVO bom: voList){
-
                         ConditionParse condition = new ConditionParse();
 
                         // 备货仓
@@ -819,15 +818,15 @@ public class ProductAction extends DispatchAction
                         // 公共的库存
                         condition.addCondition("StorageRelationBean.stafferId", "=", "0");
 
-                        condition.addCondition("StorageRelationBean.productId", "=", bom.getProductId());
+                        condition.addCondition("StorageRelationBean.productId", "=", bom.getSubProductId());
 
                         List<StorageRelationVO> eachList = storageRelationDAO.queryEntityVOsByCondition(condition);
                         if (!ListTools.isEmptyOrNull(eachList)){
                             StorageRelationVO vo = eachList.get(0);
                             int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
-                            _logger.info("***vo.getAmount****"+vo.getAmount()+"***"+preassign);
                             bom.setPamount(vo.getAmount()-preassign);
-                            _logger.info(bom);
+                            bom.setPrice(this.roundDouble(vo.getPrice()));
+                            bom.setSrcRelation(vo.getId());
                         }
                     }
                 }
@@ -847,7 +846,6 @@ public class ProductAction extends DispatchAction
         }
 
         request.setAttribute("beanList", lastList);
-        _logger.info(lastList);
         request.setAttribute("random", new Random().nextInt());
 
         String rootUrl = RequestTools.getRootUrl(request);
@@ -856,7 +854,11 @@ public class ProductAction extends DispatchAction
 
         return mapping.findForward("rptQueryProductBom");
     }
-    
+    private double roundDouble(double value){
+        BigDecimal bd = new BigDecimal(value);
+        double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return v1;
+    }
     private void setProductBomCondition(HttpServletRequest request, ConditionParse condtion)
     {
         String name = request.getParameter("name");

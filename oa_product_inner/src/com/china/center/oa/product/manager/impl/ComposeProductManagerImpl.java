@@ -158,7 +158,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
         if (compose == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("产品不存在："+productId);
         }
 
         if (compose.getCtype() != ProductConstant.CTYPE_YES)
