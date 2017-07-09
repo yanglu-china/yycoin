@@ -2405,7 +2405,7 @@ public class ShipManagerImpl implements ShipManager
     @Override
     @Transactional(rollbackFor = MYException.class)
     public void sortPackagesJob() throws MYException {
-        _logger.info("**********sortPackagesJob running*************");
+//        _logger.info("**********sortPackagesJob running*************");
         ConditionParse con1 = new ConditionParse();
         con1.addWhereStr();
         con1.addCondition(" and status in (0,5)");
@@ -2461,7 +2461,7 @@ public class ShipManagerImpl implements ShipManager
                         packBean.setZsFollowOut(ShipConstant.ZS_SHIP_FOLLOW_OUT);
                     }
                     this.packageDAO.updateEntityBean(packBean);
-                    _logger.info(" 更新PackageBean:"+packBean);
+//                    _logger.info(" 更新PackageBean:"+packBean);
                 }
             }
 

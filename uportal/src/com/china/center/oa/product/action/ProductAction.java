@@ -33,6 +33,7 @@ import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.manager.ComposeProductManager;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.ProductManager;
+import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vo.*;
 import com.china.center.oa.product.vs.ProductCombinationBean;
 import com.china.center.oa.product.vs.ProductVSLocationBean;
@@ -138,6 +139,8 @@ public class ProductAction extends DispatchAction
     private InvoiceDAO invoiceDAO = null;
     
     private CiticVSOAProductDAO citicVSOAProductDAO = null;
+
+    private StorageRelationManager storageRelationManager = null;
     
     private static String QUERYPRODUCT = "queryProduct";
 
@@ -804,22 +807,47 @@ public class ProductAction extends DispatchAction
         	if (!set.contains(each.getProductId()))
         	{
         		List<ProductBOMVO> voList = productBOMDAO.queryEntityVOsByFK(each.getProductId());
-        		
+
+                if(!ListTools.isEmptyOrNull(voList)){
+                    for (ProductBOMVO bom: voList){
+
+                        ConditionParse condition = new ConditionParse();
+
+                        // 备货仓
+                        condition.addCondition("DepotpartBean.type", "=", "A1201606211663545389");
+
+                        // 公共的库存
+                        condition.addCondition("StorageRelationBean.stafferId", "=", "0");
+
+                        condition.addCondition("StorageRelationBean.productId", "=", bom.getProductId());
+
+                        List<StorageRelationVO> eachList = storageRelationDAO.queryEntityVOsByCondition(condition);
+                        if (!ListTools.isEmptyOrNull(eachList)){
+                            StorageRelationVO vo = eachList.get(0);
+                            int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
+                            _logger.info("***vo.getAmount****"+vo.getAmount()+"***"+preassign);
+                            bom.setPamount(vo.getAmount()-preassign);
+                            _logger.info(bom);
+                        }
+                    }
+                }
         		each.setVoList(voList);
         		
         		// voList 转换为JSON
         		JSONArray shows = new JSONArray(voList, true);
 
         		each.setBomJson(shows.toString());
-        		
+
+
         		lastList.add(each);
         		
         		set.add(each.getProductId());
         	}
+
         }
 
         request.setAttribute("beanList", lastList);
-        
+        _logger.info(lastList);
         request.setAttribute("random", new Random().nextInt());
 
         String rootUrl = RequestTools.getRootUrl(request);
@@ -4655,4 +4683,12 @@ public class ProductAction extends DispatchAction
 	{
 		this.invoiceDAO = invoiceDAO;
 	}
+
+    public StorageRelationManager getStorageRelationManager() {
+        return storageRelationManager;
+    }
+
+    public void setStorageRelationManager(StorageRelationManager storageRelationManager) {
+        this.storageRelationManager = storageRelationManager;
+    }
 }

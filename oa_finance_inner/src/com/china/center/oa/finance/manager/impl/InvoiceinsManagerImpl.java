@@ -3455,15 +3455,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
     @Override
     public void autoApproveJob() throws MYException {
-        String msg = "***autoApproveJob running***";
-        _logger.info(msg);
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
 		conditionParse.addCondition("type", "=", OutConstant.OUT_TYPE_OUTBILL);
         conditionParse.addCondition("status", "=", OutConstant.STATUS_FLOW_PASS);
         List<OutBean> beans = this.outDAO.queryEntityBeansByCondition(conditionParse);
         if (!ListTools.isEmptyOrNull(beans)){
-            _logger.info("********autoApproveJob with out size******"+beans.size());
+            _logger.info("***autoApproveJob with out size***"+beans.size());
             for (OutBean bean : beans){
                 String outId = bean.getFullId();
                 boolean result = this.autoApproveOut(true, outId);
@@ -3500,6 +3498,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     }
                 }
             }
+        }else{
+            _logger.info("***autoApproveJob running without orders***");
         }
     }
 
@@ -3585,8 +3585,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		}
 
 		if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
-			_logger.info("****autoApproveOut outId*****" + outId);
-            
 			if (checkInvoiceStatus){
 				//#169 只把已导入发票号关联的销售单审批过去
 				ConditionParse condition = new ConditionParse();

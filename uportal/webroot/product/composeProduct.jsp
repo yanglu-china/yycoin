@@ -65,7 +65,6 @@ function selectProduct(obj)
 function getProductBom(oos)
 {
 	var oo = oos[0];
-
     current.value = oo.pname;
 
     $O("mtype").value = oo.pmtype;
@@ -73,7 +72,6 @@ function getProductBom(oos)
     $O("dirProductId").value = oo.value;
 	
 	var bomjson = JSON.parse(oo.pbomjson);
-	
 	for (var j = 0; j < bomjson.length; j++)
     {
         var item = bomjson[j];
@@ -83,6 +81,7 @@ function getProductBom(oos)
 		setInputValueInTr(trow, 'srcProductId', item.subProductId);
 		setInputValueInTr(trow, 'targerName', item.subProductName);
 		setInputValueInTr(trow, 'srcProductCode', item.code);
+        setInputValueInTr(trow, 'srcAmount', item.pamount);
     }
 }
 
@@ -282,19 +281,19 @@ function depotChange()
 }
 
 function bomClick(){
-	var tb = document.getElementById("tables");
-
-	var rnum=tb.rows.length;
-
-	if (rnum > 1)
-	{
-		 for(var i=rnum -1; i>0; i--)
-		 {
-			 tb.deleteRow(i);
-		 }
-	}
-
-	addTr();
+//	var tb = document.getElementById("tables");
+//
+//	var rnum=tb.rows.length;
+//
+//	if (rnum > 1)
+//	{
+//		 for(var i=rnum -1; i>0; i--)
+//		 {
+//			 tb.deleteRow(i);
+//		 }
+//	}
+//
+//	addTr();
 	
 	$O("mtype").value = '';
     $O("oldproduct").value = "";

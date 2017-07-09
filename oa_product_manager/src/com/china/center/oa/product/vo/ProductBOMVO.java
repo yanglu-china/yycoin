@@ -28,6 +28,12 @@ public class ProductBOMVO extends ProductBOMBean
 
 	@Ignore
 	private String bomJson = "";
+
+	@Ignore
+	/**
+	 * #93 可用数量
+	 */
+	private int pamount = 0;
 	
 	@Ignore
 	private List<ProductBOMVO> voList = null;
@@ -142,5 +148,23 @@ public class ProductBOMVO extends ProductBOMBean
 	public void setVoList(List<ProductBOMVO> voList)
 	{
 		this.voList = voList;
+	}
+
+	public int getPamount() {
+		return pamount;
+	}
+
+	public void setPamount(int pamount) {
+		this.pamount = pamount;
+	}
+
+	@Override
+	public String toString() {
+		return "ProductBOMVO{" +
+				"productName='" + productName + '\'' +
+				", subProductName='" + subProductName + '\'' +
+				", code='" + code + '\'' +
+				", pamount=" + pamount +
+				'}';
 	}
 }
