@@ -2000,6 +2000,8 @@ public class ShipAction extends DispatchAction
 
             if (vo.getCustomerName().indexOf("吉林银行") != -1){
                 return mapping.findForward("printJlReceipt");
+            } else if (vo.getCustomerName().indexOf("浦发银行") != -1){
+                return mapping.findForward("printPfReceipt");
             } else{
                 return mapping.findForward("printUnifiedReceipt");
             }
