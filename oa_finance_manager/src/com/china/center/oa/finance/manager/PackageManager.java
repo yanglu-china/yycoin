@@ -20,9 +20,4 @@ public interface PackageManager {
 	 * create preconsign for "shipped" order but without CK
 	 */
 	void checkOrderWithoutCKJob();
-
-	/**
-	 * #95
-	 */
-	void updatePackageStatus();
 }

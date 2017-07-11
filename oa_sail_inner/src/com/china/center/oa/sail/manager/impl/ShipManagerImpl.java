@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
+import com.china.center.oa.publics.MD5;
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.oa.client.bean.CustomerBean;
@@ -19,6 +19,8 @@ import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.express.HttpRequest;
+import com.china.center.oa.sail.express.JacksonHelper;
 import com.china.center.oa.sail.vo.BranchRelationVO;
 import com.china.center.tools.StringTools;
 import jxl.Workbook;
@@ -2561,6 +2563,53 @@ public class ShipManagerImpl implements ShipManager
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void updatePackageStatusJob() {
+        _logger.info("***updatePackageStatusJob running***");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addIntCondition("status","=",ShipConstant.SHIP_STATUS_CONSIGN);
+        conditionParse.addIntCondition("shipping","=",OutConstant.OUT_SHIPPING_3PL);
+        //前7天
+        conditionParse.addCondition("sfReceiveDate",">=",TimeTools.now(-7));
+        conditionParse.addCondition("sfReceiveDate","<=",TimeTools.now(-1));
+        String customerName = "招商银行";
+        conditionParse.addCondition(" and exists (select CustomerBean.id from T_CENTER_CUSTOMER_MAIN CustomerBean where PackageBean.customerId = CustomerBean.id and CustomerBean.name like '%"+customerName+ "%')");
+        List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(packages)){
+            for (PackageBean packageBean: packages){
+                //TODO
+                String expressCode = "shunfeng";
+                HashMap<String,Object> result = this.getExpressStatus(expressCode,packageBean.getTransportNo());
+            }
+        }
+    }
+
+    public HashMap<String,Object> getExpressStatus(String expressCode,String transportNo){
+        HashMap<String,Object> o = new HashMap<String, Object>();
+//        String param ="{\"com\":\"shunfeng\",\"num\":\"615510015091\"}";
+        Map<String,String> paramMap = new HashMap<String,String>();
+        paramMap.put("com",expressCode);
+        paramMap.put("num",transportNo);
+        String param = JacksonHelper.toJSON(paramMap);
+        String customer ="FCBCF67B3FBF4C3898D7028BF3ABFEF1";
+        String key = "oPJSKTwv1061";
+        String sign = MD5.encode(param+key+customer);
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("param",param);
+        params.put("sign",sign);
+        params.put("customer",customer);
+        String resp;
+        try {
+            resp = new HttpRequest().postData("http://poll.kuaidi100.com/poll/query.do", params, "utf-8").toString();
+            o = JacksonHelper.fromJSON(resp, HashMap.class);
+        } catch (Exception e) {
+            _logger.error(e,e);
+        }
+        return o;
+    }
+
     /**
      * @return the preConsignDAO
      */
@@ -2759,5 +2808,13 @@ public class ShipManagerImpl implements ShipManager
 
     public void setCustomerMainDAO(CustomerMainDAO customerMainDAO) {
         this.customerMainDAO = customerMainDAO;
+    }
+
+    public static void main(String[] args){
+        ShipManagerImpl shipManager = new ShipManagerImpl();
+        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","615510015091");
+        System.out.println(map);
+        int state = Integer.valueOf((String)map.get("state"));
+        System.out.println(state);
     }
 }

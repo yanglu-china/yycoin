@@ -84,4 +84,9 @@ public interface ShipManager
     String getProductName(PackageItemBean item);
 
     void updateShipping(String packageId, DistributionBean distributionBean);
+
+    /**
+     * #95
+     */
+    void updatePackageStatusJob();
 }
