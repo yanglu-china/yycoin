@@ -34,6 +34,25 @@ public interface ShipConstant
 	@Defined(key = "shipStatus", value = "打印发票")
 	int SHIP_STATUS_PRINT_INVOICEINS = 5;
 
+	/**
+	 * #95 快递100状态+10
+	 */
+	@Defined(key = "shipStatus", value = "签收")
+	int SHIP_STATUS_PRINT_SIGNED = 13;
+
+	@Defined(key = "shipStatus", value = "退签")
+	int SHIP_STATUS_PRINT_RE_SIGNED = 14;
+
+	@Defined(key = "shipStatus", value = "退回")
+	int SHIP_STATUS_PRINT_RETURN = 16;
+
+	/**
+	 * 快递100状态
+	 */
+	int KD_100_STATUS_SIGNED = 3;
+	int KD_100_STATUS_RE_SIGNED = 4;
+	int KD_100_STATUS_RETURN = 6;
+
 
     /**
      * 2015/3/19 "商品拣配”增加查询条件 “发票单发”

@@ -87,6 +87,8 @@ public class ShipManagerImpl implements ShipManager
 
     private CiticVSOAProductDAO citicVSOAProductDAO = null;
 
+    private ExpressDAO expressDAO = null;
+
     public ShipManagerImpl()
     {
     }
@@ -2576,14 +2578,49 @@ public class ShipManagerImpl implements ShipManager
         conditionParse.addCondition("sfReceiveDate","<=",TimeTools.now(-1));
         String customerName = "招商银行";
         conditionParse.addCondition(" and exists (select CustomerBean.id from T_CENTER_CUSTOMER_MAIN CustomerBean where PackageBean.customerId = CustomerBean.id and CustomerBean.name like '%"+customerName+ "%')");
+        _logger.info(conditionParse);
         List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(conditionParse);
+        _logger.info(packages.size());
         if (!ListTools.isEmptyOrNull(packages)){
             for (PackageBean packageBean: packages){
-                //TODO
-                String expressCode = "shunfeng";
-                HashMap<String,Object> result = this.getExpressStatus(expressCode,packageBean.getTransportNo());
+                if (this.isDirectShipped(packageBean)){
+                    String expressCode = "shunfeng";
+                    ExpressBean expressBean  = this.expressDAO.find(packageBean.getTransport1());
+                    if (expressBean!= null){
+                        expressCode = expressBean.getName2();
+                    }
+
+                    HashMap<String,Object> result = this.getExpressStatus(expressCode,packageBean.getTransportNo());
+
+                    int state = Integer.valueOf((String)result.get("state"));
+                    if (state == ShipConstant.KD_100_STATUS_SIGNED || state == ShipConstant.KD_100_STATUS_RE_SIGNED
+                            || ShipConstant.KD_100_STATUS_RETURN == 6){
+                        int status = state + 10;
+                        this.packageDAO.updateStatus(packageBean.getId(), status);
+                        _logger.info("update package status to "+status);
+                    }
+                }
             }
         }
+    }
+
+    private boolean isDirectShipped(PackageBean packageBean){
+        boolean result = false;
+        List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(packageBean.getId());
+        if (!ListTools.isEmptyOrNull(items)){
+            for (PackageItemBean item: items){
+                String outId = item.getOutId();
+                List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+                if (!ListTools.isEmptyOrNull(importBeans)){
+                    for (OutImportBean importBean: importBeans){
+                        if (importBean.getDirect() == 1){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     public HashMap<String,Object> getExpressStatus(String expressCode,String transportNo){
@@ -2808,6 +2845,14 @@ public class ShipManagerImpl implements ShipManager
 
     public void setCustomerMainDAO(CustomerMainDAO customerMainDAO) {
         this.customerMainDAO = customerMainDAO;
+    }
+
+    public ExpressDAO getExpressDAO() {
+        return expressDAO;
+    }
+
+    public void setExpressDAO(ExpressDAO expressDAO) {
+        this.expressDAO = expressDAO;
     }
 
     public static void main(String[] args){

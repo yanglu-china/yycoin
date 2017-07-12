@@ -19,6 +19,8 @@ public class ExpressBean implements Serializable
 	
 	@Unique
 	private String name = "";
+
+	private String name2 = "";
 	
 	private int type = 0;
 
@@ -55,8 +57,12 @@ public class ExpressBean implements Serializable
 	{
 		this.type = type;
 	}
-	
-	
-	
-	
+
+	public String getName2() {
+		return name2;
+	}
+
+	public void setName2(String name2) {
+		this.name2 = name2;
+	}
 }
