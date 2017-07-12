@@ -464,8 +464,9 @@ public class OutImportManagerImpl implements OutImportManager
 					
 					// 中信类型 产生赠品订单
                     //#153:赠品订单类型判断对0和2有效（中信和招商）
-//                    createGiftOut(outBean);
-					if (eachOut.getItype() == 0 || eachOut.getItype() == 2){
+					//#100 销售出库才赠品
+					if ((eachOut.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
+						&& (eachOut.getItype() == 0 || eachOut.getItype() == 2)){
 						createGiftOut(outBean);
 					}
 					
