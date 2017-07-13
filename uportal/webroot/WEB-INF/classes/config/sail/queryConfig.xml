@@ -365,6 +365,12 @@
             <type>select</type>
             <option>$zsShipStatus</option>
         </condtion>
+        <condtion name="direct" caption="是否直邮">
+            <opr>=</opr>
+            <datatype>1</datatype>
+            <type>select</type>
+            <option>$directStatus</option>
+        </condtion>
     </item>	
     
      <item name="queryOutBack" deaultpfix="OutBackBean">

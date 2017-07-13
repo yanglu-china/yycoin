@@ -196,8 +196,9 @@ public class ShipManagerImpl implements ShipManager
         vsBean.setIndexPos(1);
 
         packBean.setPrintInvoiceinsStatus(itemList);
-        packageDAO.saveEntityBean(packBean);
-        _logger.info(String.format("生成CK单:%s",packBean.getId()));
+//        packageDAO.saveEntityBean(packBean);
+//        _logger.info(String.format("生成CK单:%s",packBean.getId()));
+        this.savePackage(packBean);
 
         packageItemDAO.saveAllEntityBeans(itemList);
 
@@ -399,6 +400,9 @@ public class ShipManagerImpl implements ShipManager
                 if (isEmergency) {
                     packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
                 }
+                if(this.isDirectShipped(itemList)){
+                    packBean.setDirect(1);
+                }
 
                 packageDAO.updateEntityBean(packBean);
 
@@ -567,8 +571,9 @@ public class ShipManagerImpl implements ShipManager
             }
 
             packBean.setPrintInvoiceinsStatus(itemList);
-            packageDAO.saveEntityBean(packBean);
-            _logger.info(String.format("生成CK单:%s",packBean.getId()));
+//            packageDAO.saveEntityBean(packBean);
+//            _logger.info(String.format("生成CK单:%s",packBean.getId()));
+            this.savePackage(packBean);
 
             for (PackageItemBean item : itemList){
                 item.setPackageId(id);
@@ -581,6 +586,15 @@ public class ShipManagerImpl implements ShipManager
             _logger.info("***remove merged packages****"+packageList);
         }
 
+    }
+
+    private void savePackage(PackageBean packageBean){
+        if (this.isDirectShipped(packageBean.getItemList())){
+            packageBean.setDirect(1);
+        }
+
+        packageDAO.saveEntityBean(packageBean);
+        _logger.info(String.format("生成CK单:%s",packageBean.getId()));
     }
 
     @Override
@@ -2583,7 +2597,8 @@ public class ShipManagerImpl implements ShipManager
         _logger.info(packages.size());
         if (!ListTools.isEmptyOrNull(packages)){
             for (PackageBean packageBean: packages){
-                if (this.isDirectShipped(packageBean)){
+                List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(packageBean.getId());
+                if (this.isDirectShipped(items)){
                     String expressCode = "shunfeng";
                     ExpressBean expressBean  = this.expressDAO.find(packageBean.getTransport1());
                     if (expressBean!= null){
@@ -2608,9 +2623,8 @@ public class ShipManagerImpl implements ShipManager
         _logger.info("***updatePackageStatusJob finished***");
     }
 
-    private boolean isDirectShipped(PackageBean packageBean){
+    private boolean isDirectShipped(List<PackageItemBean> items ){
         boolean result = false;
-        List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(packageBean.getId());
         if (!ListTools.isEmptyOrNull(items)){
             for (PackageItemBean item: items){
                 String outId = item.getOutId();

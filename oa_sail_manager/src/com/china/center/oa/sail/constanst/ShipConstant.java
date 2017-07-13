@@ -75,4 +75,11 @@ public interface ShipConstant
 
 	@Defined(key = "pickupStatus", value = "未捡配")
 	int PICKUP_NO = 1;
+
+
+	@Defined(key = "directStatus", value = "非直邮")
+	int DIRECT_YES = 0;
+
+	@Defined(key = "directStatus", value = "直邮")
+	int DIRECT_NO = 1;
 }

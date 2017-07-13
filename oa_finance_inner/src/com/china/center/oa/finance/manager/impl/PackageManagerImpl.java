@@ -827,7 +827,9 @@ public class PackageManagerImpl implements PackageManager {
 				if (isEmergency) {
 					packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
 				}
-				
+				if(this.isDirectShipped(itemList)){
+					packBean.setDirect(1);
+				}
 				packageDAO.updateEntityBean(packBean);
 				
 				packageItemDAO.saveAllEntityBeans(itemList);
@@ -853,7 +855,25 @@ public class PackageManagerImpl implements PackageManager {
 		
 		preConsignDAO.deleteEntityBean(pre.getId());
 	}
-	
+
+	private boolean isDirectShipped(List<PackageItemBean> items ){
+		boolean result = false;
+		if (!ListTools.isEmptyOrNull(items)){
+			for (PackageItemBean item: items){
+				String outId = item.getOutId();
+				List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+				if (!ListTools.isEmptyOrNull(importBeans)){
+					for (OutImportBean importBean: importBeans){
+						if (importBean.getDirect() == 1){
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * 
 	 */

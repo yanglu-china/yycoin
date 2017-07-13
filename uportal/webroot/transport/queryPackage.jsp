@@ -46,6 +46,7 @@ function load()
              {display: '状态', name : 'status', cc: 'shipStatus',  width : '5%' , sortable : true},
              {display: '发票单发', name : 'insFollowOut',cc: 'invoiceShipStatus', width : '6%', sortable : true},
              {display: '赠品单发', name : 'zsFollowOut', cc: 'zsShipStatus', width : '6%', sortable : true},
+             {display: '直邮', name : 'direct', cc: 'directStatus', width : '6%', sortable : true},
              {display: '单据时间', name : 'billsTime', width : '10%', sortable : true},
              {display: '时间', name : 'logTime',  width : 'auto', sortable : true }
              ],

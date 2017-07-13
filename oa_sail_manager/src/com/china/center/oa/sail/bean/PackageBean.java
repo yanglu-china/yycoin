@@ -180,6 +180,11 @@ public class PackageBean implements Serializable
     //2015/6/27 顺丰收货日期
     private String sfReceiveDate = "";
 
+    /**#102
+     * 直邮标识
+     */
+    private int direct = 0;
+
     @Ignore
     List<PackageItemBean> itemList = null;
 
@@ -605,6 +610,14 @@ public class PackageBean implements Serializable
 
     public void setTelephone(String telephone) {
         this.telephone = telephone;
+    }
+
+    public int getDirect() {
+        return direct;
+    }
+
+    public void setDirect(int direct) {
+        this.direct = direct;
     }
 
     @Override
