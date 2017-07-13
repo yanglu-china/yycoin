@@ -1174,23 +1174,26 @@
 //         }
 
          //#65 中收激励从Product import表读取
-         ConditionParse conditionParse = new ConditionParse();
-         conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
-         List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-         if (!ListTools.isEmptyOrNull(productImportBeans)){
-             ProductImportBean productImportBean = productImportBeans.get(0);
-            bean.setIbMoney(productImportBean.getIbMoney());
-             bean.setMotivationMoney(productImportBean.getMotivationMoney());
-         } else{
-             String msg = "该产品未配置中收激励金额:"+bean.getProductName();
-             _logger.error(msg);
-             builder
-                     .append("第[" + currentNumber + "]错误:")
-                     .append("该产品未配置中收激励金额:"+bean.getProductName())
-                     .append("<br>");
+         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON){
+             ConditionParse conditionParse = new ConditionParse();
+             conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+             List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+             if (!ListTools.isEmptyOrNull(productImportBeans)){
+                 ProductImportBean productImportBean = productImportBeans.get(0);
+                 bean.setIbMoney(productImportBean.getIbMoney());
+                 bean.setMotivationMoney(productImportBean.getMotivationMoney());
+             } else{
+                 String msg = "该产品未配置中收激励金额:"+bean.getProductName();
+                 _logger.error(msg);
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("该产品未配置中收激励金额:"+bean.getProductName())
+                         .append("<br>");
 
-             importError = true;
+                 importError = true;
+             }
          }
+
 
          // 2015/09/29 客户姓名
          if ( !StringTools.isNullOrNone(obj[41]))

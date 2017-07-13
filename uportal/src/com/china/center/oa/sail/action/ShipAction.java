@@ -2761,7 +2761,7 @@ public class ShipAction extends DispatchAction
                     productName = productImportBean.getBankProductName();
                     _logger.info("***getBankProductName***"+productName);
                     try {
-                        item.setProductWeight(Double.valueOf(productImportBean.getWeight()));
+                        item.setProductWeight(productImportBean.getWeight());
                     }catch(Exception e){}
                 }
             }
@@ -2825,7 +2825,7 @@ public class ShipAction extends DispatchAction
                     _logger.info("***getBankProductName***"+productName+"***material"+material);
                     item.setMateriaType(material);
                     try {
-                        item.setProductWeight(Double.valueOf(productImportBean.getWeight()));
+                        item.setProductWeight(productImportBean.getWeight());
                     }catch(Exception e){}
                 }
             }
@@ -2883,7 +2883,6 @@ public class ShipAction extends DispatchAction
             item.setProductAmount(Math.abs(item.getAmount()*product.getProductAmount()));
             item.setPackageAmount(Math.abs(item.getAmount()*product.getPackageAmount()));
             item.setCertificateAmount(Math.abs(item.getAmount()*product.getCertificateAmount()));
-//            item.setProductWeight(Math.abs(product.getProductWeight()));
 
             if (StringTools.isNullOrNone(item.getMateriaType())){
                 //材质类型
@@ -4378,7 +4377,7 @@ public class ShipAction extends DispatchAction
                 each.setProductName(productImportBean.getBankProductName());
                 each.setMateriaType(productImportBean.getMaterial());
                 try {
-                    each.setProductWeight(Double.valueOf(productImportBean.getWeight()));
+                    each.setProductWeight(productImportBean.getWeight());
                 }catch (Exception e){}
             }
 

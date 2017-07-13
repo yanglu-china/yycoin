@@ -8,6 +8,7 @@ import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.sail.bean.PackageBean;
 import com.china.center.oa.sail.dao.PackageDAO;
 import com.china.center.oa.sail.vo.PackageVO;
+import com.china.center.tools.TimeTools;
 
 public class PackageDAOImpl extends BaseDAO<PackageBean, PackageVO> implements PackageDAO
 {
@@ -40,9 +41,9 @@ public class PackageDAOImpl extends BaseDAO<PackageBean, PackageVO> implements P
 
 	@Override
 	public boolean updateStatus(String packageId, int status) {
-		String sql = "update t_center_package set status = ? where id = ?";
+		String sql = "update t_center_package set status = ?,logTime = ? where id = ?";
 
-		jdbcOperation.update(sql, status, packageId);
+		jdbcOperation.update(sql, status, TimeTools.now(),packageId);
 
 		return true;
 	}

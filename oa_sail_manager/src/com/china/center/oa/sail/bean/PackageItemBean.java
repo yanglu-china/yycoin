@@ -118,7 +118,7 @@ public class PackageItemBean implements Serializable
 	 * 产品克重
 	 */
 	@Ignore
-	private double productWeight = 0;
+	private String productWeight = "";
 	
 	public PackageItemBean()
 	{
@@ -398,11 +398,11 @@ public class PackageItemBean implements Serializable
 		this.certificateAmount = certificateAmount;
 	}
 
-	public double getProductWeight() {
+	public String getProductWeight() {
 		return productWeight;
 	}
 
-	public void setProductWeight(double productWeight) {
+	public void setProductWeight(String productWeight) {
 		this.productWeight = productWeight;
 	}
 
