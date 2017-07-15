@@ -36,12 +36,12 @@ public class BranchRelationBean implements Serializable
     private String branchName = "";
 
     /**
-     * 支行邮件地址
+     * 支行邮件地址，多个以,分隔
      */
     private String subBranchMail = "";
 
     /**
-     * 分行邮件地址
+     * 分行邮件地址，多个以,分隔
      */
     private String branchMail = "";
 

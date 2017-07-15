@@ -1696,8 +1696,11 @@ public class ShipManagerImpl implements ShipManager
                 if(bean.getSendMailFlag() == 1){
                     String subBranchMail = bean.getSubBranchMail();
                     _logger.info("***send mail to subBranchMail:"+subBranchMail+"***package size***:"+packages.size());
+                    String[] mails = subBranchMail.split(",");
                     // 发送给支行
-                    commonMailManager.sendMail(subBranchMail, title,content, fileName);
+                    for (String mail:mails){
+                        commonMailManager.sendMail(mail, title,content, fileName);
+                    }
                 } else{
                     _logger.warn("***send mail flag for sub branch is 0***" + bean);
                 }
@@ -1706,7 +1709,10 @@ public class ShipManagerImpl implements ShipManager
                     String branchMail = bean.getBranchMail();
                     _logger.info("***send mail to branchMail:"+branchMail+"***package size***:"+packages.size());
                     // 抄送分行
-                    commonMailManager.sendMail(branchMail, title,content, fileName);
+                    String[] mails = branchMail.split(",");
+                    for (String mail: mails){
+                        commonMailManager.sendMail(mail, title,content, fileName);
+                    }
                 } else{
                     _logger.warn("***relation send mail copy flag is 0***" + bean);
                 }
