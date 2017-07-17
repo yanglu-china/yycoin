@@ -416,11 +416,11 @@ function load()
                 <td>
                 <table width="100%" border="0" cellspacing='1' id="tables">
                     <tr align="center" class="content0">
-                        <td width="30%" align="center">源仓区</td>
-                        <td width="30%" align="center">源产品</td>
-                        <td width="15%" align="center">使用数量</td>
-                        <td width="15%" align="center">可用数量</td>
-                        <td width="15%" align="center">价格</td>
+                        <td width="25%" align="center">源仓区</td>
+                        <td width="40%" align="center">源产品</td>
+                        <td width="10%" align="center">使用数量</td>
+                        <td width="10%" align="center">可用数量</td>
+                        <td width="10%" align="center">价格</td>
                         <td width="5%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr()"></td>
                     </tr>

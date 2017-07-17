@@ -813,15 +813,20 @@ public class ProductAction extends DispatchAction
                         ConditionParse condition = new ConditionParse();
 
                         // 备货仓
-                        condition.addCondition("DepotpartBean.type", "=", "A1201606211663545389");
+                        condition.addCondition("StorageRelationBean.depotpartId", "=", "A1201606211663545389");
 
                         // 公共的库存
                         condition.addCondition("StorageRelationBean.stafferId", "=", "0");
 
                         condition.addCondition("StorageRelationBean.productId", "=", bom.getSubProductId());
 
+                        condition.addCondition("StorageRelationBean.amount", ">", 0);
+
                         List<StorageRelationVO> eachList = storageRelationDAO.queryEntityVOsByCondition(condition);
+//                        _logger.info(condition);
                         if (!ListTools.isEmptyOrNull(eachList)){
+//                            _logger.info(eachList.size());
+//                            _logger.info(eachList);
                             StorageRelationVO vo = eachList.get(0);
                             int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
                             bom.setPamount(vo.getAmount()-preassign);
