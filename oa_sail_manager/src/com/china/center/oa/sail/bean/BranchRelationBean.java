@@ -28,6 +28,7 @@ public class BranchRelationBean implements Serializable
      * 支行名称
      * 同客户名称
      */
+    @Unique
     private String subBranchName = "";
 
     /**

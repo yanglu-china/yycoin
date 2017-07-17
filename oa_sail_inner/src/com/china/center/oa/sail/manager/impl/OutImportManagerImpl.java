@@ -3354,7 +3354,19 @@ public class OutImportManagerImpl implements OutImportManager
 										this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + "invoice表不存在:" + sailInvoice);
                                         continue;
                                     } else{
-                                        sailInvoice2TaxRateMap.put(sailInvoice, invoiceBean.getVal()/100);
+                                        //sailInvoice2TaxRateMap.put(sailInvoice, invoiceBean.getVal()/100);
+
+										int mtype = MathTools.parseInt(productBean.getReserve4());
+										double taxRate = 0;
+										if (mtype == PublicConstant.MANAGER_TYPE_COMMON)
+										{
+											if (productBean.getConsumeInDay() == ProductConstant.PRODUCT_OLDGOOD) {
+												taxRate = 0.02;
+											} else if (productBean.getConsumeInDay() == ProductConstant.PRODUCT_OLDGOOD_YES) {
+												taxRate = 0.17;
+											}
+										}
+										sailInvoice2TaxRateMap.put(sailInvoice, taxRate);
                                     }
                                 }
                             }

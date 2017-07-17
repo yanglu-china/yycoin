@@ -2265,14 +2265,13 @@ public class ShipManagerImpl implements ShipManager
     public void saveAllEntityBeans(List<BranchRelationBean> branchRelationBeans) throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         for (BranchRelationBean bean : branchRelationBeans){
-            BranchRelationBean beanInDb = this.branchRelationDAO.find(bean.getId());
+            BranchRelationBean beanInDb = this.branchRelationDAO.findByUnique(bean.getSubBranchName());
             if (beanInDb == null){
                 this.branchRelationDAO.saveEntityBean(bean);
             } else{
                 this.branchRelationDAO.updateEntityBean(bean);
             }
         }
-//        this.branchRelationDAO.saveAllEntityBeans(branchRelationBeans);
     }
 
     @Override
