@@ -1695,7 +1695,7 @@ public class ShipManagerImpl implements ShipManager
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
                 String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
                 if(bean.getSendMailFlag() == 1){
-                    String subBranchMail = bean.getSubBranchMail();
+                    String subBranchMail = bean.getSubBranchMail().trim();
                     _logger.info("***send mail to subBranchMail:"+subBranchMail+"***package size***:"+packages.size());
                     String[] mails = subBranchMail.split(",");
                     // 发送给支行
@@ -1707,7 +1707,7 @@ public class ShipManagerImpl implements ShipManager
                 }
 
                 if(bean.getCopyToBranchFlag() == 1){
-                    String branchMail = bean.getBranchMail();
+                    String branchMail = bean.getBranchMail().trim();
                     _logger.info("***send mail to branchMail:"+branchMail+"***package size***:"+packages.size());
                     // 抄送分行
                     String[] mails = branchMail.split(",");

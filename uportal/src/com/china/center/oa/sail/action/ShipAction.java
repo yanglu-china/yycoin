@@ -42,6 +42,7 @@ import com.china.center.oa.sail.wrap.PickupWrap;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.EmailValidator;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -4423,14 +4424,38 @@ public class ShipAction extends DispatchAction
                     //分行邮件地址
                     if ( !StringTools.isNullOrNone(obj[3]))
                     {
-                        bean.setBranchMail(obj[3]);
+                        String branchMail = obj[3].trim();
+                        bean.setBranchMail(branchMail);
+                        String[] mails = bean.getBranchMail().split(",");
+                        for (String mail: mails){
+                            if (!EmailValidator.getInstance().isValid(mail)){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("邮件地址格式不正确(请使用英文逗号,)-"+branchMail)
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
                     }
 
 
                     //支行邮件地址
                     if ( !StringTools.isNullOrNone(obj[4]))
                     {
-                        bean.setSubBranchMail(obj[4]);
+                        String subBranchMail = obj[4].trim();
+                        bean.setSubBranchMail(subBranchMail);
+                        String[] mails = subBranchMail.split(",");
+                        for (String mail: mails){
+                            if (!EmailValidator.getInstance().isValid(mail)){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("邮件地址格式不正确(请使用英文逗号,)-"+subBranchMail)
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
                     }else
                     {
                         builder
