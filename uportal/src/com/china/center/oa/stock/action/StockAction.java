@@ -1869,7 +1869,7 @@ public class StockAction extends DispatchAction
             ConditionParse conditionParse = new ConditionParse();
             conditionParse.addWhereStr();
 //            conditionParse.addCondition("name","=","在售仓");
-            conditionParse.addCondition(" name in ('在售仓','到货预告库_默认仓区')");
+            conditionParse.addCondition(" and name in ('在售仓','到货预告库_默认仓区')");
             List<DepotpartBean> depotpartBeans = this.depotpartDAO.queryEntityBeansByCondition(conditionParse);
             if (!ListTools.isEmptyOrNull(depotpartBeans)){
                 depotpartList.addAll(depotpartBeans);
