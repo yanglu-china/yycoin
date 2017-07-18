@@ -1852,7 +1852,7 @@ public class StockAction extends DispatchAction
         // 询价人拿货
         if ("2".equals(process) || "21".equals(process))
         {
-            List<DepotpartBean> depotpartList = null;
+            List<DepotpartBean> depotpartList = new ArrayList<DepotpartBean>();
 
             if (vo.getMode() == StockConstant.STOCK_MODE_SAIL)
             {
