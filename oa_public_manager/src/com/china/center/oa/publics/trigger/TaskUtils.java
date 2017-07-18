@@ -49,7 +49,7 @@ public class TaskUtils {
 		try {
 			method = clazz.getDeclaredMethod(scheduleJob.getMethodName());
 		} catch (NoSuchMethodException e) {
-            log.error("任务名称 = [" + scheduleJob.getJobName() + "]---------------未启动成功，方法名设置错误！！！");
+            log.error("任务名称 = [" + scheduleJob.getJobName() + "]---------------未启动成功，方法名设置错误！！！"+clazz);
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

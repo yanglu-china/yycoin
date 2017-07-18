@@ -220,6 +220,8 @@
                  {
                      OutImportBean bean = new OutImportBean();
 
+                     bean.setItype(MathTools.parseInt(itype));
+
                      boolean error = innerAdd(bean, obj, builder, currentNumber);
 
                      if (!importError)
@@ -228,8 +230,6 @@
                      }
 
                      bean.setLogTime(TimeTools.now());
-
-                     bean.setItype(MathTools.parseInt(itype));
 
                      // 操作人
                      bean.setReason(user.getStafferId());
@@ -1174,7 +1174,9 @@
 //         }
 
          //#65 中收激励从Product import表读取
-         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON){
+         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON
+                 //#108 原招商银行导入不需要设置中收激励金额
+                 && bean.getItype()!= 2){
              ConditionParse conditionParse = new ConditionParse();
              conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
              List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);

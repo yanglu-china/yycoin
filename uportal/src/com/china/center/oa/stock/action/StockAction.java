@@ -1859,15 +1859,17 @@ public class StockAction extends DispatchAction
                 // 查询采购中心的良品仓区
                 depotpartList = depotpartDAO.queryOkDepotpartInDepot(DepotConstant.STOCK_DEPOT_ID);
             }
-            else
-            {
-                // 查询生产库
-                depotpartList = depotpartDAO.queryOkDepotpartInDepot(DepotConstant.MAKE_DEPOT_ID);
-            }
+            //#107
+//            else
+//            {
+//                // 查询生产库
+//                depotpartList = depotpartDAO.queryOkDepotpartInDepot(DepotConstant.MAKE_DEPOT_ID);
+//            }
 
             ConditionParse conditionParse = new ConditionParse();
             conditionParse.addWhereStr();
-            conditionParse.addCondition("name","=","在售仓");
+//            conditionParse.addCondition("name","=","在售仓");
+            conditionParse.addCondition(" name in ('在售仓','到货预告库_默认仓区')");
             List<DepotpartBean> depotpartBeans = this.depotpartDAO.queryEntityBeansByCondition(conditionParse);
             if (!ListTools.isEmptyOrNull(depotpartBeans)){
                 depotpartList.addAll(depotpartBeans);

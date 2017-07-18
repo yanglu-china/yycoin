@@ -85,7 +85,7 @@ function changeAction()
                 <select name="type" class="select_class" style="width: 50%;" oncheck="notNone" onchange="changeAction()">
                  <option value="0">中信银行</option>
                  <option value="1">普通订单</option>
-                 <option value="2">招商银行</option>
+                 <option value="2">领样订单(银行编码)</option>
              </select>&nbsp;<font color="red">*</font>
             </p:cell>
 			<p:cell title="导入文件" end="true">

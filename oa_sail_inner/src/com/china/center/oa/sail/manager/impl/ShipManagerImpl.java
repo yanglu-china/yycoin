@@ -29,6 +29,7 @@ import jxl.write.*;
 import jxl.write.biff.RowsExceededException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.EmailValidator;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.center.china.osgi.publics.User;
@@ -2669,6 +2670,54 @@ public class ShipManagerImpl implements ShipManager
             _logger.error(e,e);
         }
         return o;
+    }
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void cleanDuplicateBranch() {
+        _logger.info("***cleanDuplicateBranch running***");
+        try {
+            List<BranchRelationBean> branchRelationBeanList = this.branchRelationDAO.listEntityBeans();
+            //<subBranchName,list>
+            Map<String, List<BranchRelationBean>> name2Branch = new HashMap<String, List<BranchRelationBean>>();
+            for (BranchRelationBean bean : branchRelationBeanList) {
+                List<BranchRelationBean> branchList = name2Branch.get(bean.getSubBranchName());
+                if (branchList == null) {
+                    branchList = new ArrayList<BranchRelationBean>();
+                    branchList.add(bean);
+                    name2Branch.put(bean.getSubBranchName(), branchList);
+                } else {
+                    branchList.add(bean);
+                }
+            }
+
+            for (String name : name2Branch.keySet()) {
+                List<BranchRelationBean> beans = name2Branch.get(name);
+                if (beans.size()>1){
+                    BranchRelationBean duplicate = this.findDuplicate(beans);
+                    if (duplicate != null) {
+                        _logger.info("remove duplicate***" + duplicate);
+                        this.branchRelationDAO.deleteEntityBean(duplicate.getId());
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            _logger.error(e,e);
+        }
+        _logger.info("***cleanDuplicateBranch finished***");
+    }
+
+    private BranchRelationBean findDuplicate(List<BranchRelationBean> beans){
+        for (BranchRelationBean bean: beans){
+            if (EmailValidator.getInstance().isValid(bean.getBranchMail().trim())
+                    && EmailValidator.getInstance().isValid(bean.getSubBranchMail().trim())){
+                continue;
+            }else{
+                return bean;
+            }
+        }
+        return null;
     }
 
     /**

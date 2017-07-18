@@ -89,4 +89,9 @@ public interface ShipManager
      * #95
      */
     void updatePackageStatusJob();
+
+    /**
+     * #106
+     */
+    void cleanDuplicateBranch();
 }
