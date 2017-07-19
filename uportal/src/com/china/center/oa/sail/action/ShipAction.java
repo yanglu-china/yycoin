@@ -4381,7 +4381,21 @@ public class ShipAction extends DispatchAction
                     // 客户ID
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
-                        bean.setId(obj[0]);
+                        String customerId = obj[0].trim();
+                        bean.setId(customerId);
+
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition(" and (id='"+customerId+"' or code='"+customerId+"')");
+                        List<CustomerBean> customerBeanList = this.customerMainDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(customerBeanList)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("客户ID或编码不存在:"+customerId)
+                                    .append("<br>");
+
+                            importError = true;
+                        }
                     }
                     else
                     {
@@ -4396,7 +4410,21 @@ public class ShipAction extends DispatchAction
                     //支行名称
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
-                        bean.setSubBranchName(obj[1]);
+                        String subBranchName = obj[1].trim();
+                        bean.setSubBranchName(subBranchName);
+
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name","=",subBranchName);
+                        List<CustomerBean> customerBeanList = this.customerMainDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(customerBeanList)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("支行名称不存在:"+subBranchName)
+                                    .append("<br>");
+
+                            importError = true;
+                        }
                     } else
                     {
                         builder

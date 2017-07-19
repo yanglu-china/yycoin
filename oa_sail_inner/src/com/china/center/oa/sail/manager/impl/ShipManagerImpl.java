@@ -1749,8 +1749,24 @@ public class ShipManagerImpl implements ShipManager
             _logger.info("***relation found****"+relation);
             return relation;
         } else{
-            _logger.warn("***no relation found***"+customerId);
-            return null;
+            CustomerBean customerBean = this.customerMainDAO.find(customerId);
+            if (customerBean == null){
+                _logger.warn("***no relation found***"+customerId);
+                return null;
+            } else{
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("BranchRelationBean.subBranchName", "=", customerBean.getName());
+                relationList = this.branchRelationDAO.queryVOsByCondition(conditionParse);
+                if (ListTools.isEmptyOrNull(relationList)){
+                    _logger.warn("***no relation found***"+customerId);
+                    return null;
+                }else{
+                    BranchRelationVO relation = relationList.get(0);
+                    _logger.info("***relation found****"+relation);
+                    return relation;
+                }
+            }
         }
     }
 
@@ -2265,11 +2281,14 @@ public class ShipManagerImpl implements ShipManager
     @Transactional(rollbackFor = MYException.class)
     public void saveAllEntityBeans(List<BranchRelationBean> branchRelationBeans) throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
+        _logger.info("import branch relation***"+branchRelationBeans);
         for (BranchRelationBean bean : branchRelationBeans){
             BranchRelationBean beanInDb = this.branchRelationDAO.findByUnique(bean.getSubBranchName());
             if (beanInDb == null){
+//                _logger.info("***save***"+bean);
                 this.branchRelationDAO.saveEntityBean(bean);
             } else{
+//                _logger.info("***update***"+bean);
                 this.branchRelationDAO.updateEntityBean(bean);
             }
         }
