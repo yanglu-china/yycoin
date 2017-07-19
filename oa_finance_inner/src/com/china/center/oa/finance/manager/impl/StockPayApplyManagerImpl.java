@@ -140,6 +140,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
     public boolean submitStockPayApply(User user, String id, String reason, StockPayApplyBean bean)
         throws MYException
     {
+        _logger.info(id+"***submitStockPayApply***"+reason+"***"+bean);
         JudgeTools.judgeParameterIsNull(user, id);
         
         double payMoney = bean.getMoneys();
@@ -208,7 +209,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
         apply.setRealMoneys(bean.getRealMoneys());
 
         stockPayApplyDAO.updateEntityBean(apply);
-
+        _logger.info("***submitStockPayApply***"+apply);
         saveFlowLog(user, preStatus, apply, reason, PublicConstant.OPRMODE_PASS);
 
         return true;
@@ -715,6 +716,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
             next = StockPayApplyConstant.APPLY_STATUS_SEC;
         }
 
+        _logger.info("getNextStatus current status***"+apply.getStatus()+"***next***"+next);
         return next;
     }
     
