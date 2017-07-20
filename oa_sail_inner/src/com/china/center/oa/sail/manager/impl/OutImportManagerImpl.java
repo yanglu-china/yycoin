@@ -3383,12 +3383,13 @@ public class OutImportManagerImpl implements OutImportManager
 
                         out.setType(OutConstant.OUT_TYPE_OUTBILL);
 						try {
-							out.setOutType(Integer.valueOf(olOutBean.getType()));
+							out.setOutType(olOutBean.getType());
 						}catch(NumberFormatException e){
 							_logger.error("Type不是整数:"+olOutBean.getType());
 							this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"Type不是整数");
 							continue;
 						}
+						out.setPresentFlag(olOutBean.getPresentFlag());
 						out.setStafferId(olOutBean.getStafferId());
                         out.setStafferName(olOutBean.getStafferName());
                         out.setCustomerId(olOutBean.getCustomerId());

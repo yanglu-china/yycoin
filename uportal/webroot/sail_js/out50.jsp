@@ -190,7 +190,7 @@ function check(isAdd)
     if ($$('outType') == '4')
     {
     	if ($$('presentFlag') == ''){
-    	   alert('赠送单据须选择赠送类型');
+    	   alert('赠送单据须选择二级类型');
            return false;
     	}
     }

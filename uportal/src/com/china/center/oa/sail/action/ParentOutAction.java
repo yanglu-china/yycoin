@@ -2403,7 +2403,7 @@ public class ParentOutAction extends DispatchAction
 			line.writeColumn("目的库");
 			line.writeColumn("关联单据");
 			line.writeColumn("发票类型"); // only for 采购入库
-			line.writeColumn("赠送类型");
+			line.writeColumn("二级类型");
 
 			line.writeColumn("商品编码");
 			line.writeColumn("销项税率");

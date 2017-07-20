@@ -39,6 +39,7 @@ public class OlOutBean implements Serializable
      */
     private int type = OutConstant.OUT_TYPE_OUTBILL;
 
+    private int presentFlag = 0;
 
     private String stafferName = "";
 
@@ -270,6 +271,14 @@ public class OlOutBean implements Serializable
         this.lyStatus = lyStatus;
     }
 
+    public int getPresentFlag() {
+        return presentFlag;
+    }
+
+    public void setPresentFlag(int presentFlag) {
+        this.presentFlag = presentFlag;
+    }
+
     @Override
     public String toString() {
         return "OlOutBean{" +
@@ -277,6 +286,7 @@ public class OlOutBean implements Serializable
                 ", id='" + id + '\'' +
                 ", status=" + status +
                 ", type=" + type +
+                ", presentFlag=" + presentFlag +
                 ", stafferName='" + stafferName + '\'' +
                 ", stafferId='" + stafferId + '\'' +
                 ", customerId='" + customerId + '\'' +

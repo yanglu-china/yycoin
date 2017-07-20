@@ -300,7 +300,7 @@ function loadInvoice()
 					</tr>
 					
 					<tr id="presentTR" class="content1" style="display: none;">
-						<td align="right" id="outd">赠送类型：</td>
+						<td align="right" id="outd">二级类型：</td>
 						<td colspan="3"><select name="presentFlag" class="select_class" values="${bean.presentFlag}">
 								<p:option type="presentFlag" empty="true"></p:option>
 							</select></td>

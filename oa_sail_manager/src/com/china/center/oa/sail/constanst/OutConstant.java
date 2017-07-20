@@ -895,6 +895,15 @@ public interface OutConstant
     @Defined(key = "presentFlag", value = "物料类赠送")
     int OUT_PRESENT_MATERIAL = 4;
 
+    @Defined(key = "presentFlag", value = "巡展领样")
+    int OUT_PRESENT_SHOWSWATCH = 5;
+
+    @Defined(key = "presentFlag", value = "预转订单")
+    int OUT_PRESENT_PRETRANSFER= 6;
+
+    @Defined(key = "presentFlag", value = "实物展样")
+    int OUT_PRESENT_ENTITY = 7;
+
     @Defined(key = "ibMotivationFlag", value = "未申请")
     int IB_FLAG_NO = 0;
 

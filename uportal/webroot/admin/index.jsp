@@ -366,17 +366,14 @@
 					</tr>
 					<tr>
 						<td class="forumRow" align="right" valign="middle" width="39%"><b>二次密码：</b></td>
-						<td class="forumRow"><input name=spassword value="" onkeypress=KeyPress()
-													class="FormInputEdit" type="text">
-							<a href="../down/down.do?method=downTemplateFileByName&fileName=enc.zip" target="_blank">下载安全控件</a>&nbsp;
-							<a href="../down/down.do?method=downTemplateFileByName&fileName=IE8.zip" target="_blank">下载IE8</a>
+						<td class="forumRow">
+							<input name=spassword value="" onkeypress=KeyPress() class="FormInputEdit" type="text">
 					</tr>
 					<tr>
 						<td colspan="2" class="forumRowHighlight" align="center"
-							valign="middle"><input name="BtnLogin" value="&nbsp;&nbsp;登 录&nbsp;&nbsp;" class="button_class" onclick="VerifyInput()"
-												   type="button">
-							&nbsp;<input name="BtnLogin" value="&nbsp;&nbsp;密码狗一键登录&nbsp;&nbsp;" class="button_class" onclick="VerifyInput2()"
-										 type="button"> &nbsp;
+							valign="middle">
+							<input name="BtnLogin" value="&nbsp;&nbsp;登 录&nbsp;&nbsp;" class="button_class" onclick="VerifyInput()"
+												   type="button">&nbsp;
 							<input class="button_class"
 								   name="BtnReset" value="&nbsp;&nbsp;重 置&nbsp;&nbsp;" type="reset"></td>
 					</tr>

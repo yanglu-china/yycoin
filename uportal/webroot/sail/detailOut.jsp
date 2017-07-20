@@ -220,7 +220,7 @@ function checkBean()
 					</tr>
 					
 					<tr id="presentTR" class="content1" >
-						<td width="15%" align="right" id="outd">赠送类型：</td>
+						<td width="15%" align="right" id="outd">二级类型：</td>
 						<td width="35%">
                             <select name="presentFlag" class="select_class" values="${bean.presentFlag}">
 								<p:option type="presentFlag" empty="true"></p:option>
