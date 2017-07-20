@@ -116,8 +116,8 @@
 		<action path="/admin/query" parameter="method"
 				type="org.springframework.web.struts.DelegatingActionProxy"
 				validate="false">
-			<forward name="commonQuery"
-					 path="/common/commonQuery.jsp" />
+			<forward name="commonQuery" path="/common/commonQuery.jsp" />
+			<forward name="error" path="/error.jsp" />
 		</action>
 
 		<action path="/admin/role" parameter="method"

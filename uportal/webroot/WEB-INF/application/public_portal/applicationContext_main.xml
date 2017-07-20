@@ -36,7 +36,8 @@
 				classpath:config/sail/queryConfig.xml,
 				classpath:config/stock/queryConfig.xml,
 				classpath:config/tax/queryConfig.xml,
-				classpath:config/tcp/queryConfig.xml
+				classpath:config/tcp/queryConfig.xml,
+				classpath:config/flow/queryConfig.xml
 			</value>
 		</property>
 	</bean>

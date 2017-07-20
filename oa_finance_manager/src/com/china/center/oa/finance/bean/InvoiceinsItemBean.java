@@ -18,6 +18,7 @@ import com.china.center.jdbc.annotation.Join;
 import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.tools.TimeTools;
 
 
 /**
@@ -92,6 +93,8 @@ public class InvoiceinsItemBean implements Serializable
      * 原始成本
      */
     private double costPrice = 0.0d;
+
+    private String logTime = TimeTools.now();
     
     /**
      * default constructor
@@ -303,63 +306,32 @@ public class InvoiceinsItemBean implements Serializable
 		this.costPrice = costPrice;
 	}
 
-	/**
-     * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
-     * @return a <code>String</code> representation of this object.
-     */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("InvoiceinsItemBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("parentId = ")
-            .append(this.parentId)
-            .append(TAB)
-            .append("showId = ")
-            .append(this.showId)
-            .append(TAB)
-            .append("showName = ")
-            .append(this.showName)
-            .append(TAB)
-            .append("special = ")
-            .append(this.special)
-            .append(TAB)
-            .append("unit = ")
-            .append(this.unit)
-            .append(TAB)
-            .append("amount = ")
-            .append(this.amount)
-            .append(TAB)
-            .append("price = ")
-            .append(this.price)
-            .append(TAB)
-            .append("moneys = ")
-            .append(this.moneys)
-            .append(TAB)
-            .append("outId = ")
-            .append(this.outId)
-            .append(TAB)
-            .append("baseId = ")
-            .append(this.baseId)
-            .append(TAB)
-            .append("productId = ")
-            .append(this.productId)
-            .append(TAB)
-            .append("type = ")
-            .append(this.type)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    public String getLogTime() {
+        return logTime;
     }
 
+    public void setLogTime(String logTime) {
+        this.logTime = logTime;
+    }
+
+    @Override
+    public String toString() {
+        return "InvoiceinsItemBean{" +
+                "id='" + id + '\'' +
+                ", parentId='" + parentId + '\'' +
+                ", showId='" + showId + '\'' +
+                ", showName='" + showName + '\'' +
+                ", special='" + special + '\'' +
+                ", unit='" + unit + '\'' +
+                ", amount=" + amount +
+                ", price=" + price +
+                ", moneys=" + moneys +
+                ", outId='" + outId + '\'' +
+                ", baseId='" + baseId + '\'' +
+                ", productId='" + productId + '\'' +
+                ", type=" + type +
+                ", costPrice=" + costPrice +
+                ", logTime='" + logTime + '\'' +
+                '}';
+    }
 }
