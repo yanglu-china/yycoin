@@ -58,9 +58,10 @@ function checkEnc(encStr)
         DevicePath = s_simnew31.FindPort(0);
         if( s_simnew31.LastError!= 0 )
         {
-            window.alert ( "未发现加密锁，请插入加密锁");
+            // window.alert ( "未发现加密锁，请插入加密锁");
             
-            return false;
+            // return false;
+            return true;
         }
         else
         {
