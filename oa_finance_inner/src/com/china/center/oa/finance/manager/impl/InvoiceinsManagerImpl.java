@@ -262,6 +262,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         }
 
         invoiceinsItemDAO.deleteEntityBeansByFK(id);
+        _logger.info("***delete invoice ins item***"+id);
         insVSOutDAO.deleteEntityBeansByFK(id, AnoConstant.FK_FIRST);
         
         List<InvoiceinsItemBean> itemList = bean.getItemList();
@@ -1035,6 +1036,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         invoiceinsDAO.deleteEntityBean(id);
 
         invoiceinsItemDAO.deleteEntityBeansByFK(id);
+        _logger.info("***realDelete invoice ins item***"+id);
 
         insVSOutDAO.deleteEntityBeansByFK(id, AnoConstant.FK_FIRST);
         

@@ -1457,6 +1457,7 @@ public class ProductAction extends DispatchAction
 
             bean.setType(ComposeConstant.COMPOSE_TYPE_COMPOSE);
 
+            _logger.info(user.getId()+" compose product***"+bean);
             productFacade.addComposeProduct(user.getId(), bean);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功合成产品,合成后均价:"

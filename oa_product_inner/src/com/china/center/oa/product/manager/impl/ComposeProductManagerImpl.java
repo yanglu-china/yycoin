@@ -108,6 +108,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
     public boolean addComposeProduct(User user, ComposeProductBean bean)
         throws MYException
     {
+        _logger.info("***addComposeProduct***"+bean);
         JudgeTools.judgeParameterIsNull(user, bean);
 
         // 校验

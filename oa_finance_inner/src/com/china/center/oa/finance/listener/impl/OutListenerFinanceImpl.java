@@ -170,6 +170,7 @@ public class OutListenerFinanceImpl extends AbstractListenerManager<BillListener
             		
             		for (InvoiceinsItemBean each : insItemList) {
             			invoiceinsItemDAO.deleteEntityBean(each.getId());
+                        _logger.info(insId+"***delete invoice ins item***"+each.getId());
             		}
             		
             		// 生成新的
@@ -192,6 +193,7 @@ public class OutListenerFinanceImpl extends AbstractListenerManager<BillListener
             			newitem.setCostPrice(each.getCostPrice());
             			
             			newList.add(newitem);
+                        _logger.info("***create new invoice ins item***"+newitem);
             		}
             		
             		invoiceinsItemDAO.saveAllEntityBeans(newList);
