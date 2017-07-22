@@ -253,9 +253,10 @@
 
 					if( s_simnew31.LastError!= 0 )
 					{
-						window.alert("未发现加密锁，请插入加密锁");
+//						window.alert("未发现加密锁，请插入加密锁");
 
-						isActive = false;
+//						isActive = false;
+						isActive = true;
 					}
 					else
 					{

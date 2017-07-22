@@ -67,7 +67,7 @@ function pagePrint()
                             <font size=5>
                                 <b>
 						            客&nbsp;&nbsp;&nbsp;户&nbsp;&nbsp;&nbsp;出&nbsp;&nbsp;&nbsp;库&nbsp;&nbsp;&nbsp;单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <c:if test="${bean.emergency == 1}">紧急订单</c:if>
+                                    <c:if test="${bean.emergency == 1}">紧急订单</c:if>&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.direct == 1}">直邮</c:if>
                                     <img src="${qrcode}"/>
                                 </b>
                             </font>
