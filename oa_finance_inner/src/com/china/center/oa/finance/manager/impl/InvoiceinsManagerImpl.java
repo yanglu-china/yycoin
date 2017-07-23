@@ -21,6 +21,7 @@ import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.OutManager;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -76,12 +77,6 @@ import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.StafferConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.JudgeTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 
 /**
@@ -3054,6 +3049,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 						   List<InvoiceinsBean> invoiceinsList) throws MYException
 	{
 		DutyBean duty = dutyDAO.find(PublicConstant.DEFAULR_DUTY_ID);
+        //BaseBean cache
+        Map<String, List<BaseBean>> baseMap = new HashMap<String, List<BaseBean>>();
 
 		for (Map.Entry<String, List<InvoiceinsImportBean>> each : map.entrySet()) {
 			List<InvoiceinsImportBean> elist = each.getValue();
@@ -3109,8 +3106,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 			double invoicemoney = 0.0d;
 			StringBuilder sb = new StringBuilder();
-			//BaseBean cache
-			Map<String, List<BaseBean>> baseMap = new HashMap<String, List<BaseBean>>();
+
 
 			for (InvoiceinsImportBean eachb : elist) {
 
@@ -3171,29 +3167,39 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					double vsMoney = 0.0d;
                     //#169 2016/3/2 对于拆分开票，根据导入模板中商品+数量来生成item表
                     if (eachb.isSplitFlag()){
-                        BaseBean baseBean = this.getBaseBeanByProduct(baseList, eachb);
-                        InvoiceinsItemBean item = new InvoiceinsItemBean();
+//                        BaseBean baseBean = this.getBaseBeanByProduct(baseList, eachb);
+                        List<BaseBean> baseBeans = this.getBaseBeanByProduct(baseList,eachb);
+                        if (ListTools.isEmptyOrNull(baseBeans)){
+                            _logger.error("DO NOT find baseId for***"+eachb);
+                            throw new MYException("导入开票信息和商品行不一致，无法开票："+eachb);
+                        } else{
+                            for (BaseBean baseBean:baseBeans){
+                                InvoiceinsItemBean item = new InvoiceinsItemBean();
 
-                        item.setId(commonDAO.getSquenceString20());
-                        item.setParentId(bean.getId());
-                        item.setShowId("10201103130001000189");
-                        item.setShowName("纪念品");
-                        item.setUnit("8874797");
-                        item.setAmount(eachb.getAmount());
-                        if (baseBean!= null){
-                            item.setPrice(baseBean.getPrice());
-							item.setBaseId(baseBean.getId());
-							item.setCostPrice(baseBean.getCostPrice());
+                                item.setId(commonDAO.getSquenceString20());
+                                item.setParentId(bean.getId());
+                                item.setShowId("10201103130001000189");
+                                item.setShowName("纪念品");
+                                item.setUnit("8874797");
+//                                item.setAmount(eachb.getAmount());
+                                item.setAmount(baseBean.getAmount());
+                                if (baseBean!= null){
+                                    item.setPrice(baseBean.getPrice());
+                                    item.setBaseId(baseBean.getId());
+                                    item.setCostPrice(baseBean.getCostPrice());
+                                }
+                                item.setMoneys(item.getAmount() * item.getPrice());
+                                item.setOutId(eachb.getOutId());
+                                item.setProductId(eachb.getProductId());
+                                item.setType(eachb.getType());
+
+                                _logger.info("生成发票项:"+item);
+                                itemList.add(item);
+
+                                vsMoney += item.getMoneys();
+                            }
                         }
-                        item.setMoneys(item.getAmount() * item.getPrice());
-                        item.setOutId(eachb.getOutId());
-                        item.setProductId(eachb.getProductId());
-                        item.setType(eachb.getType());
 
-                        _logger.info("生成发票项:"+item);
-                        itemList.add(item);
-
-                        vsMoney += item.getMoneys();
                     } else{
                         //其他根据base表获取
                         for (BaseBean eachitem : baseList) {
@@ -3392,26 +3398,85 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		}
 	}
 
-    private BaseBean getBaseBeanByProduct(List<BaseBean> baseBeans, InvoiceinsImportBean bean){
+    /**
+     * 根据开票导入配置找到对应的base表记录
+     * @param baseBeans
+     * @param bean
+     * @return
+     */
+    private List<BaseBean> getBaseBeanByProduct(List<BaseBean> baseBeans, InvoiceinsImportBean bean){
+        List<BaseBean> result = new ArrayList<BaseBean>();
 		//首先根据productId+amount相等的优先
         for (BaseBean baseBean : baseBeans){
             if (baseBean.getProductId().equals(bean.getProductId())
 					&& baseBean.getAmount() == bean.getAmount()
-					&& baseBean.getTempInvoiceMoney() <0.1){
+                    //尚未开票的base表
+					&& baseBean.getTempInvoiceMoney() <0.01){
 				baseBean.setTempInvoiceMoney(bean.getInvoiceMoney());
-                return baseBean;
+                result.add(baseBean);
+                return result;
             }
         }
-        // 有可能和base表不是一一对应的情况
+        // 开票行和base表商品行不是一一对应的情况
+        int total = 0;
+        int totalCount = 0;
 		for (BaseBean baseBean : baseBeans){
 			if (baseBean.getProductId().equals(bean.getProductId())
-					&& (bean.getInvoiceMoney() +baseBean.getTempInvoiceMoney() <= baseBean.getValue())){
-				baseBean.setTempInvoiceMoney(baseBean.getTempInvoiceMoney()+bean.getInvoiceMoney());
-				return baseBean;
+                    //base表可开票金额大于0
+                    && (baseBean.getValue() - baseBean.getTempInvoiceMoney() > 0.01)){
+                double needInvoiceMoney = bean.getInvoiceMoney()-total;
+                //case1: base表可开票金额大于需开票金额(导入金额-已开金额)
+                if (baseBean.getValue() - baseBean.getTempInvoiceMoney() >= needInvoiceMoney ){
+                    baseBean.setTempInvoiceMoney(baseBean.getTempInvoiceMoney() + needInvoiceMoney);
+
+                    BaseBean newBase = new BaseBean();
+                    BeanUtil.copyProperties(newBase, baseBean);
+                    //数量根据导入数量-已开数量
+                    newBase.setAmount(bean.getAmount()-totalCount);
+                    result.add(newBase);
+                    _logger.info("****case1***"+newBase);
+                    return result;
+                } else{
+                    //case2: base表可开票金额小于需开票金额
+                    //数量是base表单条记录的可开票数量
+                    double invoiceMoney = baseBean.getValue()-baseBean.getTempInvoiceMoney();
+                    int amount = Double.valueOf(invoiceMoney/baseBean.getPrice()).intValue();
+                    baseBean.setTempInvoiceMoney(baseBean.getValue());
+                    BaseBean newBase = new BaseBean();
+                    BeanUtil.copyProperties(newBase, baseBean);
+                    newBase.setAmount(amount);
+                    _logger.info("****case2***"+newBase);
+                    result.add(newBase);
+                    total += invoiceMoney;
+                    totalCount += amount;
+                }
+//                //case1: 开票金额小于base表可开票金额
+//                if(bean.getInvoiceMoney() <=  baseBean.getValue() - baseBean.getTempInvoiceMoney()) {
+//                    baseBean.setTempInvoiceMoney(baseBean.getTempInvoiceMoney() + bean.getInvoiceMoney());
+//
+//                    BaseBean newBase = new BaseBean();
+//                    BeanUtil.copyProperties(newBase, baseBean);
+//                    //数量根据导入数量
+//                    newBase.setAmount(bean.getAmount());
+//                    result.add(newBase);
+//                    _logger.info("****case1***"+newBase);
+//                    return result;
+//                } else{
+//                    //case2: 开票金额大于base表单条记录可开票金额,则需要拆分
+//                    //数量是base表单条记录的可开票数量
+//                    _logger.info("****baseBean***"+baseBean);
+//                    int amount = Double.valueOf((baseBean.getValue()-baseBean.getTempInvoiceMoney())/baseBean.getPrice()).intValue();
+//                    baseBean.setTempInvoiceMoney(baseBean.getValue());
+//                    BaseBean newBase = new BaseBean();
+//                    BeanUtil.copyProperties(newBase, baseBean);
+//                    newBase.setAmount(amount);
+//                    _logger.info("****case2***"+newBase);
+//                    result.add(newBase);
+//                }
 			}
 		}
-		_logger.error("找不到对应base表记录:" + bean);
-        return null;
+
+        return result;
     }
 
 

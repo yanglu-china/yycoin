@@ -206,6 +206,7 @@ public class BaseBean implements Serializable
 
     /**
      * 2016/3/29 # 导入同一SO单的同一商品行时临时校验用
+     * 已开票金额(临时)
      */
     @Ignore
     private double tempInvoiceMoney = 0.0d;
@@ -897,116 +898,51 @@ public class BaseBean implements Serializable
         this.grossProfit = grossProfit;
     }
 
-    /**
-     * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
-     * @return a <code>String</code> representation of this object.
-     */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("BaseBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("outId = ")
-            .append(this.outId)
-            .append(TAB)
-            .append("productId = ")
-            .append(this.productId)
-            .append(TAB)
-            .append("productName = ")
-            .append(this.productName)
-            .append(TAB)
-            .append("showName = ")
-            .append(this.showName)
-            .append(TAB)
-            .append("showId = ")
-            .append(this.showId)
-            .append(TAB)
-            .append("locationId = ")
-            .append(this.locationId)
-            .append(TAB)
-            .append("unit = ")
-            .append(this.unit)
-            .append(TAB)
-            .append("amount = ")
-            .append(this.amount)
-            .append(TAB)
-            .append("mtype = ")
-            .append(this.mtype)
-            .append(TAB)
-            .append("inway = ")
-            .append(this.inway)
-            .append(TAB)
-            .append("storageId = ")
-            .append(this.storageId)
-            .append(TAB)
-            .append("depotpartId = ")
-            .append(this.depotpartId)
-            .append(TAB)
-            .append("depotpartName = ")
-            .append(this.depotpartName)
-            .append(TAB)
-            .append("owner = ")
-            .append(this.owner)
-            .append(TAB)
-            .append("ownerName = ")
-            .append(this.ownerName)
-            .append(TAB)
-            .append("price = ")
-            .append(this.price)
-            .append(TAB)
-            .append("pprice = ")
-            .append(this.pprice)
-            .append(TAB)
-            .append("iprice = ")
-            .append(this.iprice)
-            .append(TAB)
-            .append("inputPrice = ")
-            .append(this.inputPrice)
-            .append(TAB)
-            .append("costPrice = ")
-            .append(this.costPrice)
-            .append(TAB)
-            .append("costPriceKey = ")
-            .append(this.costPriceKey)
-            .append(TAB)
-            .append("value = ")
-            .append(this.value)
-            .append(TAB)
-            .append("invoiceMoney = ")
-            .append(this.invoiceMoney)
-            .append(TAB)
-            .append("description = ")
-            .append(this.description)
-            .append(TAB)
-            .append("deliverType = ")
-            .append(this.deliverType)
-            .append(TAB)
-            .append("expressPay = ")
-            .append(this.expressPay)
-            .append(TAB)
-            .append("transportPay = ")
-            .append(this.transportPay)
-            .append(TAB)
-            .append("profit = ")
-            .append(this.profit)
-            .append(TAB)
-            .append("profitRatio = ")
-            .append(this.profitRatio)
-            .append(TAB)
-            .append("productType = ")
-            .append(this.productType)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "BaseBean{" +
+                "id='" + id + '\'' +
+                ", outId='" + outId + '\'' +
+                ", productId='" + productId + '\'' +
+                ", productName='" + productName + '\'' +
+                ", showName='" + showName + '\'' +
+                ", showId='" + showId + '\'' +
+                ", locationId='" + locationId + '\'' +
+                ", unit='" + unit + '\'' +
+                ", amount=" + amount +
+                ", mtype=" + mtype +
+                ", inway=" + inway +
+                ", storageId='" + storageId + '\'' +
+                ", depotpartId='" + depotpartId + '\'' +
+                ", depotpartName='" + depotpartName + '\'' +
+                ", owner='" + owner + '\'' +
+                ", ownerName='" + ownerName + '\'' +
+                ", price=" + price +
+                ", pprice=" + pprice +
+                ", iprice=" + iprice +
+                ", inputPrice=" + inputPrice +
+                ", costPrice=" + costPrice +
+                ", costPriceKey='" + costPriceKey + '\'' +
+                ", value=" + value +
+                ", invoiceMoney=" + invoiceMoney +
+                ", description='" + description + '\'' +
+                ", profit=" + profit +
+                ", profitRatio=" + profitRatio +
+                ", ibMoney=" + ibMoney +
+                ", motivationMoney=" + motivationMoney +
+                ", cash=" + cash +
+                ", grossProfit=" + grossProfit +
+                ", deliverType=" + deliverType +
+                ", expressPay=" + expressPay +
+                ", transportPay=" + transportPay +
+                ", productType=" + productType +
+                ", oldGoods=" + oldGoods +
+                ", depotName='" + depotName + '\'' +
+                ", taxrate=" + taxrate +
+                ", tax=" + tax +
+                ", inputRate=" + inputRate +
+                ", refId='" + refId + '\'' +
+                ", tempInvoiceMoney=" + tempInvoiceMoney +
+                '}';
     }
 }
