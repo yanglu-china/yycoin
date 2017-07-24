@@ -45,6 +45,12 @@ public class PackageItemBean implements Serializable
 	@Ignore
     private String customerName = "";
 
+	/**#117
+	 * 浦发银行上海分行网店名称
+	 */
+	@Ignore
+	private String comunicatonBranchName = "";
+
 	/**
 	 * 2015/10/13 打印回执单增加商品性质/podate
 	 */
@@ -422,6 +428,14 @@ public class PackageItemBean implements Serializable
 		this.outType = outType;
 	}
 
+	public String getComunicatonBranchName() {
+		return comunicatonBranchName;
+	}
+
+	public void setComunicatonBranchName(String comunicatonBranchName) {
+		this.comunicatonBranchName = comunicatonBranchName;
+	}
+
 	@Override
 	public String toString() {
 		return "PackageItemBean{" +
@@ -438,6 +452,7 @@ public class PackageItemBean implements Serializable
 				", description='" + description + '\'' +
 				", customerId='" + customerId + '\'' +
 				", customerName='" + customerName + '\'' +
+				", comunicatonBranchName='" + comunicatonBranchName + '\'' +
 				", itemType='" + itemType + '\'' +
 				", poDate='" + poDate + '\'' +
 				", outType=" + outType +
@@ -451,7 +466,7 @@ public class PackageItemBean implements Serializable
 				", productAmount=" + productAmount +
 				", packageAmount=" + packageAmount +
 				", certificateAmount=" + certificateAmount +
-				", productWeight=" + productWeight +
+				", productWeight='" + productWeight + '\'' +
 				'}';
 	}
 }

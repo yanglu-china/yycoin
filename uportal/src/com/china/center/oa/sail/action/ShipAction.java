@@ -1441,6 +1441,7 @@ public class ShipAction extends DispatchAction
 
         String customerId = "";
         String customerName = "";
+        String reserve1 = "";
 
         ConditionParse con = new ConditionParse();
 
@@ -1774,7 +1775,12 @@ public class ShipAction extends DispatchAction
             if (vo.getCustomerName().indexOf("吉林银行") != -1){
                 return mapping.findForward("printJlReceipt");
             } else if (vo.getCustomerName().indexOf("浦发银行") != -1){
-                return mapping.findForward("printPfReceipt");
+                CustomerBean customer = customerMainDAO.find(customerId);
+                if (customer!= null && "上海分行".equals(customer.getReserve1())){
+                    return mapping.findForward("printPfShReceipt");
+                } else{
+                    return mapping.findForward("printPfReceipt");
+                }
             } else{
                 return mapping.findForward("printUnifiedReceipt");
             }
@@ -2427,6 +2433,7 @@ public class ShipAction extends DispatchAction
         }
     }
 
+
     //#409 吉林银行联行网点
     private String[] getProductCodeAndLhwdFromOutImport(String outId){
         String[] result = new String[2];
@@ -2490,6 +2497,27 @@ public class ShipAction extends DispatchAction
             for (OutImportBean outImportBean: importBeans){
                 if (!StringTools.isNullOrNone(outImportBean.getBranchName())){
                     branchName = outImportBean.getBranchName();
+                    break;
+                }
+            }
+        }
+        return branchName;
+    }
+
+
+    /**
+     * #117 获取网点名称
+     * @param outId
+     * @return
+     */
+    private String getCommunicationBranchNameFromOutImport(String outId){
+        String branchName = "";
+        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+        if (!ListTools.isEmptyOrNull(importBeans))
+        {
+            for (OutImportBean outImportBean: importBeans){
+                if (!StringTools.isNullOrNone(outImportBean.getBranchName())){
+                    branchName = outImportBean.getComunicatonBranchName();
                     break;
                 }
             }
@@ -2832,20 +2860,21 @@ public class ShipAction extends DispatchAction
         //#189 <productId_itemType,PackageItemBean>
         Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
 
-        for (PackageItemBean each : itemList)
-        {
+        for (PackageItemBean each : itemList) {
             //只打印同一客户的
-            if (!each.getCustomerId().equals(vo.getCustomerId()))
-            {
+            if (!each.getCustomerId().equals(vo.getCustomerId())) {
                 continue;
-            }else{
-                _logger.info("****iterate package item:"+each);
+            } else {
+                _logger.info("****iterate package item:" + each);
             }
 
             //2015/12/26 #145:回执单打印CK单合并多客户名称问题
             this.getCustomerName(each);
             this.getProductCode(each, Bank.OTHER);
-
+            //#117
+            if (vo.getCustomerName().indexOf("浦发银行") != -1){
+                each.setComunicatonBranchName(this.getCommunicationBranchNameFromOutImport(each.getOutId()));
+            }
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
 
