@@ -1523,9 +1523,9 @@ public class ShipAction extends DispatchAction
 //        if (vo.getCustomerName().contains("黄河银行")){
 //            vo.setCustomerName(vo.getCustomerName().replace("黄河银行",""));
 //        }
-        if (vo.getCustomerName().contains("黄河银行")){
-            request.setAttribute("customerName", vo.getCustomerName().replace("黄河银行",""));
-        } else{
+        if (vo.getCustomerName().contains("黄河银行")) {
+            request.setAttribute("customerName", vo.getCustomerName().replace("黄河银行", ""));
+        } else {
             request.setAttribute("customerName", vo.getCustomerName());
         }
 
@@ -1536,10 +1536,10 @@ public class ShipAction extends DispatchAction
         _logger.info(String.format(template, vo.getId(), vo.getCustomerId(), vo.getCustomerName(), itemList.size()));
 
         //2016/10/12 #328 检查临时发票号码
-        for (PackageItemBean item : itemList){
+        for (PackageItemBean item : itemList) {
             String productName = item.getProductName();
-            if (productName!= null && productName.startsWith("发票号：XN")){
-                request.setAttribute(KeyConstant.ERROR_MESSAGE, item.getPackageId()+"商品名中存在虚拟发票号:"+productName);
+            if (productName != null && productName.startsWith("发票号：XN")) {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, item.getPackageId() + "商品名中存在虚拟发票号:" + productName);
 
                 return mapping.findForward("error");
             }
@@ -1733,7 +1733,7 @@ public class ShipAction extends DispatchAction
             }
 
             return mapping.findForward("printGzReceipt");
-        } else{
+        } else {
             //其他所有银行
             request.setAttribute("packageId", vo.getId());
 
@@ -1772,19 +1772,57 @@ public class ShipAction extends DispatchAction
                 e.printStackTrace();
             }
 
-            if (vo.getCustomerName().indexOf("吉林银行") != -1){
+            if (vo.getCustomerName().indexOf("吉林银行") != -1) {
                 return mapping.findForward("printJlReceipt");
-            } else if (vo.getCustomerName().indexOf("浦发银行") != -1){
+            } else if (vo.getCustomerName().indexOf("浦发银行") != -1) {
                 CustomerBean customer = customerMainDAO.find(customerId);
-                if (customer!= null && "上海分行".equals(customer.getReserve1())){
+//                _logger.info("***customer***"+customer.getReserve1());
+                if (customer != null && "上海分行".equals(customer.getReserve1())) {
+                    this.mergeInvoiceNum(vo, request);
                     return mapping.findForward("printPfShReceipt");
-                } else{
+                } else {
                     return mapping.findForward("printPfReceipt");
                 }
-            } else{
+            } else {
                 return mapping.findForward("printUnifiedReceipt");
             }
         }
+    }
+
+    /**#117
+     * 打印回执单时发票行合并
+     * @param vo
+     * @param request
+     */
+    private void mergeInvoiceNum(PackageVO vo,HttpServletRequest request){
+        List<PackageItemBean> packages = vo.getItemList();
+        _logger.info(packages);
+        StringBuilder sb = new StringBuilder();
+        PackageItemBean newItem = new PackageItemBean();
+        int invoiceCount = 0;
+        double invoiceMoney = 0;
+        for (Iterator<PackageItemBean> it=packages.iterator();it.hasNext();){
+            PackageItemBean item = it.next();
+            if (item.getOutId().startsWith("A")){
+                String[] arrays = item.getProductName().split("：");
+                String invoiceNum = arrays[1].trim();
+//                _logger.info("***invoiceNum***"+invoiceNum);
+                sb.append(invoiceNum).append("/");
+                it.remove();
+                BeanUtil.copyProperties(newItem, item);
+                invoiceCount++;
+                invoiceMoney+= item.getPrice();
+            }
+        }
+        //发票号码以/分隔
+        String productName = sb.toString();
+        _logger.info("***productName for***"+productName);
+        newItem.setProductName(productName.substring(0,productName.length()-1));
+        newItem.setPrice(invoiceMoney);
+        newItem.setAmount(invoiceCount);
+        packages.add(newItem);
+        vo.setItemList(packages);
+        request.setAttribute("title", "永银文化创意产业发展有限公司 产品发货清单");
     }
 
     /**
@@ -2008,7 +2046,13 @@ public class ShipAction extends DispatchAction
             if (vo.getCustomerName().indexOf("吉林银行") != -1){
                 return mapping.findForward("printJlReceipt");
             } else if (vo.getCustomerName().indexOf("浦发银行") != -1){
-                return mapping.findForward("printPfReceipt");
+                CustomerBean customer = customerMainDAO.find(customerId);
+                if (customer!= null && "上海分行".equals(customer.getReserve1())){
+                    this.mergeInvoiceNum(vo,request);
+                    return mapping.findForward("printPfShReceipt");
+                } else{
+                    return mapping.findForward("printPfReceipt");
+                }
             } else{
                 return mapping.findForward("printUnifiedReceipt");
             }
@@ -2902,10 +2946,12 @@ public class ShipAction extends DispatchAction
             //2015/10/13 销售时间取out表中的podate
             if (out!= null){
                 each.setPoDate(out.getPodate());
+                each.setOutType(out.getOutType());
             }
             //#169
             else if(out == null && outId.startsWith("A")){
                 each.setPoDate(each.getOutTime());
+                each.setOutType(OutConstant.OUTTYPE_INVOICE);
             }
 
             if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)

@@ -129,13 +129,24 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td>${item.poDate}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.comunicatonBranchName}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
+						<c:if test="${item.outType == 99}">
+							<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+							<td><table class="border1"><tr><td></td></tr></table></td>
+						</c:if>
+						<c:if test="${item.outType != 99}">
+							<td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
+							<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
+						</c:if>
 						<td><table class="border1"><tr><td>${item.price}</td></tr></table></td>
 						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.transportName1}</td></tr></table></td>
+						<td><table class="border1"><tr><td>${bean.transportName1}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${bean.transportNo}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.}</td></tr></table></td>
+						<c:if test="${item.outType == 99}">
+							<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
+						</c:if>
+						<c:if test="${item.outType != 99}">
+							<td><table class="border1"><tr><td></td></tr></table></td>
+						</c:if>
 						<td><table class="border1"><tr><td></td></tr></table></td>
 
 					</tr>
@@ -146,6 +157,10 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td></td></tr></table></td>
                         <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
