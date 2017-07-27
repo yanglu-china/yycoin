@@ -2613,8 +2613,8 @@ public class ShipManagerImpl implements ShipManager
 //        conditionParse.addIntCondition("status","=",ShipConstant.SHIP_STATUS_CONSIGN);
         conditionParse.addCondition(" and status in(2,10)");
         conditionParse.addIntCondition("shipping","=",OutConstant.OUT_SHIPPING_3PL);
-        //前7天
-        conditionParse.addCondition("sfReceiveDate",">=",TimeTools.now(-7));
+        //前30天
+        conditionParse.addCondition("sfReceiveDate",">=",TimeTools.now(-30));
         conditionParse.addCondition("sfReceiveDate","<=",TimeTools.now(-1));
         String customerName = "招商银行";
         conditionParse.addCondition(" and exists (select CustomerBean.id from T_CENTER_CUSTOMER_MAIN CustomerBean where PackageBean.customerId = CustomerBean.id and CustomerBean.name like '%"+customerName+ "%')");
