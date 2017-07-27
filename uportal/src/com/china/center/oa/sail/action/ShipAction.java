@@ -1817,11 +1817,13 @@ public class ShipAction extends DispatchAction
         //发票号码以/分隔
         String productName = sb.toString();
         _logger.info("***productName for***"+productName);
-        newItem.setProductName(productName.substring(0,productName.length()-1));
-        newItem.setPrice(invoiceMoney);
-        newItem.setAmount(invoiceCount);
-        packages.add(newItem);
-        vo.setItemList(packages);
+        if(!StringTools.isNullOrNone(productName)) {
+            newItem.setProductName(productName.substring(0, productName.length() - 1));
+            newItem.setPrice(invoiceMoney);
+            newItem.setAmount(invoiceCount);
+            packages.add(newItem);
+            vo.setItemList(packages);
+        }
         request.setAttribute("title", "永银文化创意产业发展有限公司 产品发货清单");
     }
 
