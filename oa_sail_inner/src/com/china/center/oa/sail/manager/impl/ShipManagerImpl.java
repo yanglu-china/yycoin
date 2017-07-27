@@ -2610,23 +2610,25 @@ public class ShipManagerImpl implements ShipManager
         _logger.info("***updatePackageStatusJob running***");
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
-        conditionParse.addIntCondition("status","=",ShipConstant.SHIP_STATUS_CONSIGN);
+//        conditionParse.addIntCondition("status","=",ShipConstant.SHIP_STATUS_CONSIGN);
+        conditionParse.addCondition(" and status in(2,10)");
         conditionParse.addIntCondition("shipping","=",OutConstant.OUT_SHIPPING_3PL);
         //前7天
         conditionParse.addCondition("sfReceiveDate",">=",TimeTools.now(-7));
         conditionParse.addCondition("sfReceiveDate","<=",TimeTools.now(-1));
         String customerName = "招商银行";
         conditionParse.addCondition(" and exists (select CustomerBean.id from T_CENTER_CUSTOMER_MAIN CustomerBean where PackageBean.customerId = CustomerBean.id and CustomerBean.name like '%"+customerName+ "%')");
-//        _logger.info(conditionParse);
+        _logger.info(conditionParse);
         List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(conditionParse);
-        _logger.info(packages.size());
+        _logger.info("updatePackageStatusJob with size***"+packages.size());
         if (!ListTools.isEmptyOrNull(packages)){
             for (PackageBean packageBean: packages){
                 List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(packageBean.getId());
-                if (this.isDirectShipped(items)){
+                //如果是直邮才检查快递状态
+                if (packageBean.getDirect() == 1 || this.isDirectShipped(items)){
                     String expressCode = "shunfeng";
                     ExpressBean expressBean  = this.expressDAO.find(packageBean.getTransport1());
-                    if (expressBean!= null){
+                    if (expressBean!= null && !StringTools.isNullOrNone(expressBean.getName2())){
                         expressCode = expressBean.getName2();
                     }
 
@@ -2636,8 +2638,12 @@ public class ShipManagerImpl implements ShipManager
                     if (res!= null){
                         int state = Integer.valueOf((String)res);
                         if (state == ShipConstant.KD_100_STATUS_SIGNED || state == ShipConstant.KD_100_STATUS_RE_SIGNED
-                                || ShipConstant.KD_100_STATUS_RETURN == 6){
+                                || state == ShipConstant.KD_100_STATUS_RETURN){
                             int status = state + 10;
+                            this.packageDAO.updateStatus(packageBean.getId(), status);
+                            _logger.info(packageBean.getId()+" update package status to "+status);
+                        } else{
+                            int status =  10;
                             this.packageDAO.updateStatus(packageBean.getId(), status);
                             _logger.info(packageBean.getId()+" update package status to "+status);
                         }
@@ -2949,7 +2955,7 @@ public class ShipManagerImpl implements ShipManager
 
     public static void main(String[] args){
         ShipManagerImpl shipManager = new ShipManagerImpl();
-        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","615510015091");
+        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","615602517677");
         System.out.println(map);
         int state = Integer.valueOf((String)map.get("state"));
         System.out.println(state);

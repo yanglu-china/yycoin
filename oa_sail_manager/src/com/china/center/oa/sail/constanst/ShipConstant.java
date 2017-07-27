@@ -37,11 +37,23 @@ public interface ShipConstant
 	/**
 	 * #95 快递100状态+10
 	 */
+	@Defined(key = "shipStatus", value = "在途")
+	int SHIP_STATUS_PRINT_ZAITU = 10;
+
+//	@Defined(key = "shipStatus", value = "揽件")
+//	int SHIP_STATUS_PRINT_JIAN = 11;
+//
+//	@Defined(key = "shipStatus", value = "疑难")
+//	int SHIP_STATUS_PRINT_PROBLEM = 12;
+//
 	@Defined(key = "shipStatus", value = "签收")
 	int SHIP_STATUS_PRINT_SIGNED = 13;
 
 	@Defined(key = "shipStatus", value = "退签")
 	int SHIP_STATUS_PRINT_RE_SIGNED = 14;
+
+//	@Defined(key = "shipStatus", value = "派件")
+//	int SHIP_STATUS_PRINT_PAIJIAN = 15;
 
 	@Defined(key = "shipStatus", value = "退回")
 	int SHIP_STATUS_PRINT_RETURN = 16;
