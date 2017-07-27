@@ -7,6 +7,11 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProductImportBean;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.publics.MD5;
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
@@ -22,7 +27,7 @@ import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.express.HttpRequest;
 import com.china.center.oa.sail.express.JacksonHelper;
 import com.china.center.oa.sail.vo.BranchRelationVO;
-import com.china.center.tools.StringTools;
+import com.china.center.tools.*;
 import jxl.Workbook;
 import jxl.format.*;
 import jxl.write.*;
@@ -44,9 +49,8 @@ import com.china.center.oa.sail.manager.ShipManager;
 import com.china.center.oa.sail.vo.DistributionVO;
 import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.sail.vo.PackageVO;
-import com.china.center.tools.JudgeTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.TimeTools;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class ShipManagerImpl implements ShipManager
 {
@@ -89,6 +93,10 @@ public class ShipManagerImpl implements ShipManager
     private CiticVSOAProductDAO citicVSOAProductDAO = null;
 
     private ExpressDAO expressDAO = null;
+
+    private ProductDAO productDAO = null;
+
+    private ProductImportDAO productImportDAO = null;
 
     public ShipManagerImpl()
     {
@@ -1684,7 +1692,13 @@ public class ShipManagerImpl implements ShipManager
                 String fileName = getShippingAttachmentPath() + "/" + subBranch
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                 _logger.info("***fileName***"+fileName);
-                createMailAttachment(packages,bean.getBranchName(), fileName, true);
+                //浦发上海分行
+                if (subBranch.indexOf("浦发银行") != -1 && bean.getBranchName().indexOf("上海分行")!= -1){
+                    createPfMailAttachment(packages,bean.getBranchName(), fileName, true);
+                } else{
+                    createMailAttachment(packages,bean.getBranchName(), fileName, true);
+                }
+
                 // check file either exists
                 File file = new File(fileName);
                 if (!file.exists())
@@ -2063,6 +2077,260 @@ public class ShipManagerImpl implements ShipManager
         }
         _logger.info(productCode+"getProductCodeFromOutImport****"+conditionParse.toString());
         return productCode;
+    }
+
+    /**
+     * 浦发银行上海分行
+     * @param beans
+     * @param branchName
+     * @param fileName
+     * @param ignoreLyOrders
+     */
+    private void createPfMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
+    {
+        _logger.info("***create mail attachment for PF with package "+beans.size()+"***branch***"+branchName+"***file name***"+fileName);
+        WritableWorkbook wwb = null;
+
+        WritableSheet ws = null;
+
+        OutputStream out = null;
+
+        try
+        {
+            out = new FileOutputStream(fileName);
+
+            // create a excel
+            wwb = Workbook.createWorkbook(out);
+
+            ws = wwb.createSheet("发货信息", 0);
+
+            // 横向
+            ws.setPageSetup(PageOrientation.LANDSCAPE.LANDSCAPE, PaperSize.A4,0.5d,0.5d);
+
+            // 标题字体
+            WritableFont font = new WritableFont(WritableFont.ARIAL, 11,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
+
+            WritableFont font2 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
+
+            WritableFont font3 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.NO_BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
+
+            WritableFont font4 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLUE);
+
+            WritableCellFormat format = new WritableCellFormat(font);
+
+            format.setAlignment(jxl.format.Alignment.CENTRE);
+            format.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+
+            WritableCellFormat format2 = new WritableCellFormat(font2);
+
+            format2.setAlignment(jxl.format.Alignment.LEFT);
+            format2.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+            format2.setWrap(true);
+
+            WritableCellFormat format21 = new WritableCellFormat(font2);
+            format21.setAlignment(jxl.format.Alignment.RIGHT);
+
+            WritableCellFormat format3 = new WritableCellFormat(font3);
+            format3.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+
+            WritableCellFormat format31 = new WritableCellFormat(font3);
+            format31.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+            format31.setAlignment(jxl.format.Alignment.RIGHT);
+
+            WritableCellFormat format4 = new WritableCellFormat(font4);
+            format4.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+
+            WritableCellFormat format41 = new WritableCellFormat(font4);
+            format41.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+            format41.setAlignment(jxl.format.Alignment.CENTRE);
+            format41.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+
+            int i = 0, j = 0, i1 = 1;
+            String title = String.format("永银文化创意产业发展有限责任公司%s 产品发货清单", this.getYesterday());
+
+            // 完成标题
+            ws.addCell(new Label(1, i, title, format));
+
+            //set column width
+            ws.setColumnView(0, 5);
+            ws.setColumnView(1, 40);
+            ws.setColumnView(2, 40);
+            ws.setColumnView(3, 40);
+            ws.setColumnView(4, 5);
+            ws.setColumnView(5, 30);
+            ws.setColumnView(6, 10);
+            ws.setColumnView(7, 20);
+            ws.setColumnView(8, 10);
+            ws.setColumnView(9, 10);
+
+            i++;
+            // 正文表格
+            ws.addCell(new Label(0, i, "交易日期", format3));
+            ws.addCell(new Label(1, i, "交易机构", format3));
+            ws.addCell(new Label(2, i, "配货机构", format3));
+            ws.addCell(new Label(3, i, "产品代码", format3));
+            ws.addCell(new Label(4, i, "产品名称", format3));
+            ws.addCell(new Label(5, i, "零售价", format3));
+            ws.addCell(new Label(6, i, "数量", format3));
+            ws.addCell(new Label(7, i, "快递公司", format3));
+            ws.addCell(new Label(8, i, "快递单号", format3));
+            ws.addCell(new Label(9, i, "发票号", format3));
+            ws.addCell(new Label(10, i, "证书号", format3));
+
+            for (PackageVO bean :beans){
+                List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
+                _logger.info("***itemList size***"+itemList.size());
+                this.mergeInvoiceNum(itemList);
+                _logger.info("***after merge itemList size***"+itemList.size());
+                if (!ListTools.isEmptyOrNull(itemList)){
+                    for (PackageItemBean each : itemList)
+                    {
+                        //#351 filter LY orders
+                        if (ignoreLyOrders && each.getOutId().startsWith("LY")){
+                            continue;
+                        }
+                        i++;
+                        ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
+                        setWS(ws, i, 300, false);
+
+                        //交易日期
+                        ws.addCell(new Label(j++, i, each.getPoDate(), format3));
+
+                        //交易机构
+                        ws.addCell(new Label(j++, i, each.getCustomerName(), format3));
+
+                        //配货机构
+                        ws.addCell(new Label(j++, i, this.getCommunicationBranchNameFromOutImport(each.getOutId()), format3));
+
+                        if (each.getOutType() == 99){
+                            //产品代码
+                            ws.addCell(new Label(j++, i, "", format3));
+
+                            //产品名称
+                            ws.addCell(new Label(j++, i, "", format3));
+                        } else{
+                            //产品代码
+                            ws.addCell(new Label(j++, i, each.getProductCode(), format3));
+
+                            //产品名称
+                            ws.addCell(new Label(j++, i, this.convertProductName(each,bean.getCustomerName()), format3));
+                        }
+
+
+                        //零售价
+                        ws.addCell(new Label(j++, i, String.valueOf(each.getPrice()), format3));
+
+                        //数量
+                        ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
+
+                        //快递公司
+                        ws.addCell(new Label(j++, i, bean.getTransportName1(), format3));
+                        //2016/4/5 #2 快递单号改取package表的transportNo
+                        String transportNo = bean.getTransportNo();
+                        ws.addCell(new Label(j++, i, transportNo, format3));
+
+                        //发票号
+                        if(each.getOutType() == 99){
+                            ws.addCell(new Label(j++, i, transportNo, format3));
+                        } else{
+                            ws.addCell(new Label(j++, i, this.convertProductName(each,bean.getCustomerName()), format3));
+                        }
+
+                        //证书号
+                        ws.addCell(new Label(j++, i, "", format3));
+
+                        j = 0;
+                    }
+                }
+            }
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (wwb != null)
+            {
+                try
+                {
+                    wwb.write();
+                    wwb.close();
+                }
+                catch (Exception e1)
+                {
+                }
+            }
+            if (out != null)
+            {
+                try
+                {
+                    out.close();
+                }
+                catch (IOException e1)
+                {
+                }
+            }
+        }
+    }
+
+    private String getCommunicationBranchNameFromOutImport(String outId){
+        String branchName = "";
+        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+        if (!ListTools.isEmptyOrNull(importBeans))
+        {
+            for (OutImportBean outImportBean: importBeans){
+                if (!StringTools.isNullOrNone(outImportBean.getBranchName())){
+                    branchName = outImportBean.getComunicatonBranchName();
+                    break;
+                }
+            }
+        }
+        return branchName;
+    }
+
+    private void mergeInvoiceNum(List<PackageItemBean> packages){
+        StringBuilder sb = new StringBuilder();
+        PackageItemBean newItem = new PackageItemBean();
+        int invoiceCount = 0;
+        double invoiceMoney = 0;
+        for (Iterator<PackageItemBean> it=packages.iterator();it.hasNext();){
+            PackageItemBean item = it.next();
+            if (item.getOutId().startsWith("A")){
+                String[] arrays = item.getProductName().split("：");
+                String invoiceNum = arrays[1].trim();
+                sb.append(invoiceNum).append("/");
+                it.remove();
+                BeanUtil.copyProperties(newItem, item);
+                invoiceCount++;
+                invoiceMoney+= item.getPrice();
+            }
+        }
+        //发票号码以/分隔
+        String productName = sb.toString();
+        _logger.info("***productName for***"+productName);
+        if(!StringTools.isNullOrNone(productName)) {
+            newItem.setProductName(productName.substring(0, productName.length() - 1));
+            newItem.setPrice(invoiceMoney);
+            newItem.setAmount(invoiceCount);
+            packages.add(newItem);
+        }
     }
 
     @Deprecated
@@ -2511,6 +2779,61 @@ public class ShipManagerImpl implements ShipManager
         }
     }
 
+    private String convertProductName(PackageItemBean item, String customerName){
+        String productName = "";
+        String outId = item.getOutId();
+        if (outId.startsWith("ZS")){
+            //2016/5/19 赠送单直接取品名
+            return item.getProductName();
+        } else if (outId.contains("<br>")){
+            //2016/8/16 合并商品行的outId也合并过了
+            String[] outIds = item.getOutId().split("<br>");
+            outId = outIds[0];
+        } else if (outId.startsWith("A")){
+            //发票号不用转换
+            return item.getProductName();
+        }
+
+        String productId = item.getProductId();
+        ProductBean productBean = this.productDAO.find(productId);
+        if (productBean!= null){
+            String productCode = productBean.getCode();
+            //#291
+            if (!StringTools.isNullOrNone(productCode)){
+                ConditionParse conditionParse =  new ConditionParse();
+                conditionParse.addCondition("code", "=", productCode);
+                if (customerName.length()>=4) {
+                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+                }else{
+                    conditionParse.addCondition("bank", "=", customerName);
+                }
+
+                List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+
+                if (!ListTools.isEmptyOrNull(importBeans)) {
+                    OutImportBean bean = importBeans.get(0);
+                    conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+                }
+
+                List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                if (!ListTools.isEmptyOrNull(beans)){
+                    ProductImportBean productImportBean = beans.get(0);
+                    productName = productImportBean.getBankProductName();
+                }
+            }
+        }
+
+        //default pick from package item table
+        if (StringTools.isNullOrNone(productName)){
+            productName = item.getProductName();
+        }
+
+        String template = "fullID %s product name %s converted to %s";
+        _logger.info(String.format(template, outId, item.getProductName(), productName));
+
+        return productName;
+    }
+
     @Override
     public String getProductName(PackageItemBean item) {
             String productName = "";
@@ -2951,6 +3274,22 @@ public class ShipManagerImpl implements ShipManager
 
     public void setExpressDAO(ExpressDAO expressDAO) {
         this.expressDAO = expressDAO;
+    }
+
+    public ProductDAO getProductDAO() {
+        return productDAO;
+    }
+
+    public void setProductDAO(ProductDAO productDAO) {
+        this.productDAO = productDAO;
+    }
+
+    public ProductImportDAO getProductImportDAO() {
+        return productImportDAO;
+    }
+
+    public void setProductImportDAO(ProductImportDAO productImportDAO) {
+        this.productImportDAO = productImportDAO;
     }
 
     public static void main(String[] args){
