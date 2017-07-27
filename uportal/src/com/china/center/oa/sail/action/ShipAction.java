@@ -1775,14 +1775,14 @@ public class ShipAction extends DispatchAction
             if (vo.getCustomerName().indexOf("吉林银行") != -1) {
                 return mapping.findForward("printJlReceipt");
             } else if (vo.getCustomerName().indexOf("浦发银行") != -1) {
-                CustomerBean customer = customerMainDAO.find(customerId);
-//                _logger.info("***customer***"+customer.getReserve1());
-                if (customer != null && "上海分行".equals(customer.getReserve1())) {
-                    this.mergeInvoiceNum(vo, request);
-                    return mapping.findForward("printPfShReceipt");
-                } else {
-                    return mapping.findForward("printPfReceipt");
-                }
+//                CustomerBean customer = customerMainDAO.find(customerId);
+//                if (customer != null && "上海分行".equals(customer.getReserve1())) {
+//                    this.mergeInvoiceNum(vo, request);
+//                    return mapping.findForward("printPfShReceipt");
+//                } else {
+//                    return mapping.findForward("printPfReceipt");
+//                }
+                return mapping.findForward("printPfReceipt");
             } else {
                 return mapping.findForward("printUnifiedReceipt");
             }
@@ -2048,13 +2048,14 @@ public class ShipAction extends DispatchAction
             if (vo.getCustomerName().indexOf("吉林银行") != -1){
                 return mapping.findForward("printJlReceipt");
             } else if (vo.getCustomerName().indexOf("浦发银行") != -1){
-                CustomerBean customer = customerMainDAO.find(customerId);
-                if (customer!= null && "上海分行".equals(customer.getReserve1())){
-                    this.mergeInvoiceNum(vo,request);
-                    return mapping.findForward("printPfShReceipt");
-                } else{
-                    return mapping.findForward("printPfReceipt");
-                }
+//                CustomerBean customer = customerMainDAO.find(customerId);
+//                if (customer!= null && "上海分行".equals(customer.getReserve1())){
+//                    this.mergeInvoiceNum(vo,request);
+//                    return mapping.findForward("printPfShReceipt");
+//                } else{
+//                    return mapping.findForward("printPfReceipt");
+//                }
+                return mapping.findForward("printPfReceipt");
             } else{
                 return mapping.findForward("printUnifiedReceipt");
             }
