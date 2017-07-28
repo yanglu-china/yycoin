@@ -355,7 +355,7 @@ function fillTypeChange()
 		$v(tobj, true);
 		$O('provinceId').oncheck = 'notNone';
 	    $O('cityId').oncheck = 'notNone';
-	    $O('areaId').oncheck = 'notNone';
+//	    $O('areaId').oncheck = 'notNone';
 	    $O('address').oncheck = 'notNone';
 	    $O('receiver').oncheck = 'notNone';
 	    $O('mobile').oncheck = 'notNone;isMathNumber';
@@ -364,7 +364,7 @@ function fillTypeChange()
 		$v(tobj, false);
 		$O('provinceId').oncheck = '';
 	    $O('cityId').oncheck = '';
-	    $O('areaId').oncheck = '';
+//	    $O('areaId').oncheck = '';
 	    $O('address').oncheck = '';
 	    $O('receiver').oncheck = '';
 	    $O('mobile').oncheck = '';
