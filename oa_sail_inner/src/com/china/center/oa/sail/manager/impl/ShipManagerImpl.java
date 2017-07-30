@@ -1623,7 +1623,7 @@ public class ShipManagerImpl implements ShipManager
     public void sendMailForShipping() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         String msg =  "**************run sendMailForShipping job****************";
-        triggerLog.info(msg);
+        _logger.info(msg);
 
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
@@ -1632,6 +1632,8 @@ public class ShipManagerImpl implements ShipManager
         con.addIntCondition("PackageBean.status", "=", 2);
         //自提类的也不在发送邮件范围内
         con.addIntCondition("PackageBean.shipping","!=", 0);
+        //!!test only
+//        con.addCondition("PackageBean.id", "=", "CK201701052047004361");
 
         //根据customerId合并CK表:<支行customerId,List<CK>>
         Map<String,List<PackageVO>> customerId2Packages = new HashMap<String,List<PackageVO>>();
@@ -1642,7 +1644,7 @@ public class ShipManagerImpl implements ShipManager
         List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(packageList))
         {
-            triggerLog.info("****packageList to be sent mail to bank***"+packageList.size());
+            _logger.info("****packageList to be sent mail to bank***"+packageList.size());
             for (PackageVO vo : packageList){
                 //2016/4/12 update
                 //如果收货人姓名是在oastaffer表的name字段里的，则此销售单不在发送邮件范围内
@@ -1677,7 +1679,7 @@ public class ShipManagerImpl implements ShipManager
             }
 
             //step2 send mail for merged packages
-            triggerLog.info("***mail count to be sent to bank***" + customerId2Packages.keySet().size());
+            _logger.info("***mail count to be sent to bank***" + customerId2Packages.keySet().size());
             for (String customerId : customerId2Packages.keySet()) {
                 List<PackageVO> packages = customerId2Packages.get(customerId);
                 BranchRelationBean bean = customerId2Relation.get(customerId);
@@ -1743,7 +1745,7 @@ public class ShipManagerImpl implements ShipManager
         } else {
             _logger.warn("***no VO found to send mail****");
         }
-        triggerLog.info("***finish send mail to bank***");
+        _logger.info("***finish send mail to bank***");
     }
 
     private String getYesterday(){
@@ -2206,8 +2208,8 @@ public class ShipManagerImpl implements ShipManager
                             continue;
                         }
                         i++;
-                        ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
-                        setWS(ws, i, 300, false);
+//                        ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
+//                        setWS(ws, i, 300, false);
 
                         //交易日期
                         ws.addCell(new Label(j++, i, each.getPoDate(), format3));
@@ -2218,7 +2220,7 @@ public class ShipManagerImpl implements ShipManager
                         //配货机构
                         ws.addCell(new Label(j++, i, this.getCommunicationBranchNameFromOutImport(each.getOutId()), format3));
 
-                        if (each.getOutType() == 99){
+                        if(each.getOutId().startsWith("A")){
                             //产品代码
                             ws.addCell(new Label(j++, i, "", format3));
 
@@ -2246,10 +2248,10 @@ public class ShipManagerImpl implements ShipManager
                         ws.addCell(new Label(j++, i, transportNo, format3));
 
                         //发票号
-                        if(each.getOutType() == 99){
-                            ws.addCell(new Label(j++, i, transportNo, format3));
-                        } else{
+                        if(each.getOutId().startsWith("A")){
                             ws.addCell(new Label(j++, i, this.convertProductName(each,bean.getCustomerName()), format3));
+                        } else{
+                            ws.addCell(new Label(j++, i, "", format3));
                         }
 
                         //证书号

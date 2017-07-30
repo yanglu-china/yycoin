@@ -3745,11 +3745,12 @@ public class TravelApplyAction extends DispatchAction
 //                }
 
 //                InputStream in;
-                 IOUtils.copy(entry.getValue(), out);
-//                in.close();
-                out.close();
+//                IOUtils.copy(entry.getValue(), out);
+//                out.close();
 
-//                ustream.copyStream();
+
+                ustream = new UtilStream(entry.getValue(), out);
+                ustream.copyStream();
 
                 attachmentList.add(bean);
                 return filePath;

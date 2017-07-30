@@ -206,6 +206,8 @@ public class ParentOutAction extends DispatchAction
 
 	protected InvoiceinsItemDAO invoiceinsItemDAO = null;
 
+	protected InvoiceinsDAO invoiceinsDAO = null;
+
 	protected OutRepaireDAO outRepaireDAO = null;
 
 	protected BaseRepaireDAO baseRepaireDAO = null;
@@ -10982,5 +10984,21 @@ public class ParentOutAction extends DispatchAction
 
 	public void setPackageDAO(PackageDAO packageDAO) {
 		this.packageDAO = packageDAO;
+	}
+
+	public InvoiceinsDAO getInvoiceinsDAO() {
+		return invoiceinsDAO;
+	}
+
+	public void setInvoiceinsDAO(InvoiceinsDAO invoiceinsDAO) {
+		this.invoiceinsDAO = invoiceinsDAO;
+	}
+
+	public InsVSOutDAO getInsVSOutDAO() {
+		return insVSOutDAO;
+	}
+
+	public void setInsVSOutDAO(InsVSOutDAO insVSOutDAO) {
+		this.insVSOutDAO = insVSOutDAO;
 	}
 }

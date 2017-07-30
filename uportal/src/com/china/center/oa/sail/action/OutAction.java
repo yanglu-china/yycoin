@@ -4191,15 +4191,44 @@ public class OutAction extends ParentOutAction
 
             //#60 已开票=开票-退票
             double hadInvoice = 0L;
-            ConditionParse conditionParse = new ConditionParse();
-            conditionParse.addWhereStr();
-            conditionParse.addCondition("outId","=",each.getFullId());
-            List<InvoiceinsItemBean> items = this.invoiceinsItemDAO.queryEntityBeansByCondition(conditionParse);
-            if (!ListTools.isEmptyOrNull(items)){
-                for (InvoiceinsItemBean item: items){
-                    hadInvoice += item.getMoneys();
+            try {
+                List<InsVSOutBean> insList = insVSOutDAO.queryEntityBeansByFK(each.getFullId());
+                if (!ListTools.isEmptyOrNull(insList)) {
+                    for (InsVSOutBean item : insList) {
+                        if (item.getMoneys() < 0) {
+                            InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(item.getInsId());
+                            if (invoiceinsBean.getDescription() != null && invoiceinsBean.getDescription().contains("原票")) {
+                                String[] arrays = invoiceinsBean.getDescription().split("：");
+                                if (arrays.length == 2){
+                                    String originalInsId = arrays[1].trim();
+                                    _logger.info("***originalInsId***" + originalInsId);
+                                    //如果退票对应的原票数据还在，也要加上退票金额
+                                    InvoiceinsBean originalIns = this.invoiceinsDAO.find(originalInsId);
+                                    if (originalIns != null) {
+                                        hadInvoice += item.getMoneys();
+                                    }
+                                }
+                            }
+                        } else {
+                            hadInvoice += item.getMoneys();
+                        }
+                    }
                 }
+            }catch (Exception e){
+                e.printStackTrace();
+                _logger.error(e,e);
             }
+
+//            ConditionParse conditionParse = new ConditionParse();
+//            conditionParse.addWhereStr();
+//            conditionParse.addCondition("outId","=",each.getFullId());
+//            List<InvoiceinsItemBean> items = this.invoiceinsItemDAO.queryEntityBeansByCondition(conditionParse);
+//            if (!ListTools.isEmptyOrNull(items)){
+//                for (InvoiceinsItemBean item: items){
+//                    hadInvoice += item.getMoneys();
+//                }
+//            }
+            //如果退票对应的原票数据没有了，退票的金额就不算
         	
         	each.setRetTotal(retTotal);
         	
