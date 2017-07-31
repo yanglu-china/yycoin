@@ -1125,7 +1125,8 @@
              bean.setReday(OutImportConstant.CITIC_REDAY);
          }
 
-         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT) {
+         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
+                 || bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH) {
              if ( !StringTools.isNullOrNone(obj[40]))
              {
                  String presentFlag = obj[40].trim();
@@ -1146,7 +1147,7 @@
                  {
                      builder
                      .append("第[" + currentNumber + "]错误:")
-                     .append("赠送类型不存在")
+                     .append("二级类型不存在")
                      .append("<br>");
 
                      importError = true;
@@ -1154,7 +1155,7 @@
              }else{
                  builder
                  .append("第[" + currentNumber + "]错误:")
-                 .append("赠送单据时赠送类型不能为空")
+                 .append("赠送或个人领样单据时二级类型不能为空")
                  .append("<br>");
 
                  importError = true;
@@ -2200,7 +2201,8 @@
              bean.setReday(OutImportConstant.CITIC_REDAY);
          }
 
-         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT) {
+         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
+                 || bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH) {
              if ( !StringTools.isNullOrNone(obj[40]))
              {
                  String presentFlag = obj[40].trim();
@@ -2221,7 +2223,7 @@
                  {
                      builder
                      .append("第[" + currentNumber + "]错误:")
-                     .append("赠送类型不存在")
+                     .append("二级类型不存在")
                      .append("<br>");
 
                      importError = true;
@@ -2229,7 +2231,7 @@
              }else{
                  builder
                  .append("第[" + currentNumber + "]错误:")
-                 .append("赠送单据时赠送类型不能为空")
+                 .append("赠送或个人领样单据时二级类型不能为空")
                  .append("<br>");
 
                  importError = true;

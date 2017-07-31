@@ -117,7 +117,6 @@
 								<td width="8%"><table class="border1"><tr><td align="center">数量(实物)</td></tr></table></td>
 								<td width="8%"><table class="border1"><tr><td align="center">数量(包装)</td></tr></table></td>
 								<td width="8%"><table class="border1"><tr><td align="center">数量(证书)</td></tr></table></td>
-								<td width="16%"><table class="border1"><tr><td align="center">备注</td></tr></table></td>
 							</tr>
 
 							<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
@@ -130,7 +129,6 @@
 									<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 									<td><table class="border1"><tr><td align="center">与实物匹配</td></tr></table></td>
 									<td><table class="border1"><tr><td align="center">与实物匹配</td></tr></table></td>
-									<td><table class="border1"><tr><td align="center">${item.description}${item.printText}</td></tr></table></td>
 								</tr>
 							</c:forEach>
 
