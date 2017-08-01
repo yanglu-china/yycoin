@@ -99,9 +99,9 @@ public interface OutImportConstant
 	String expressPay [] = new String []{"业务员支付","公司支付","客户支付"};
 	int iexpressPay [] = new int []{1,2,3};
 	
-	String outPresentTypesArr [] = new String[]{"捆绑销售","员工福利","业务赠送","物料类赠送"};
+	String outPresentTypesArr [] = new String[]{"捆绑销售","员工福利","业务赠送","物料类赠送","巡展领样","预转订单","实物展样"};
 	
-	int outPresentTypeiArr [] = new int []{1,2,3,4}; 
+	int outPresentTypeiArr [] = new int []{1,2,3,4,5,6,7};
 	
 	/**
 	 * 未预占
