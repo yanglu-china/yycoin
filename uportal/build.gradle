@@ -39,6 +39,7 @@ dependencies {
 //    compile("org.springframework.boot:spring-boot-starter-jetty")
     // end::jetty[]
     // tag::actuator[]
+    compile 'joda-time:joda-time:2.9.9'
     compile group: 'commons-io', name: 'commons-io', version: '1.4'
     compile group: 'log4j', name: 'log4j', version: '1.2.15', ext: 'jar'
     // end::actuator[]

@@ -51,6 +51,8 @@
  import org.apache.struts.action.ActionForward;
  import org.apache.struts.action.ActionMapping;
  import org.apache.struts.actions.DispatchAction;
+ import org.joda.time.DateTime;
+ import org.joda.time.Days;
 
  import javax.servlet.ServletException;
  import javax.servlet.http.HttpServletRequest;
@@ -671,11 +673,11 @@
          // 中信订单日期
          if ( !StringTools.isNullOrNone(obj[27]))
          {
-             String name = obj[27].trim();
+             String date = obj[27].trim();
 
              String eL = "[0-9]{4}-[0-9]{2}-[0-9]{2}";
              Pattern p = Pattern.compile(eL);
-             Matcher m = p.matcher(name);
+             Matcher m = p.matcher(date);
              boolean dateFlag = m.matches();
              if (!dateFlag) {
                  builder
@@ -685,7 +687,16 @@
 
                  importError = true;
              }else{
-                 bean.setCiticOrderDate(name);
+                 bean.setCiticOrderDate(date);
+
+                 if(this.daysBetweenToday(date)>5){
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("中信订单日期超过5天:"+date)
+                             .append("<br>");
+
+                     importError = true;
+                 }
              }
          } else {
              builder
@@ -1239,6 +1250,25 @@
      }
 
      /**
+      * days between today and day
+      * @param day
+      * @return
+      */
+     private int daysBetweenToday(String day){
+         Date date = null;
+         try {
+             date = new SimpleDateFormat("yy-MM-dd").parse(day);
+         } catch (ParseException e) {
+             e.printStackTrace();
+         }
+
+         DateTime start = new DateTime(date);
+         DateTime end = new DateTime(new Date());
+         return Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays();
+     }
+
+
+     /**
       * importOutForPufa
       * 浦发销售导入
       * @param mapping
@@ -1747,11 +1777,11 @@
          // 中信订单日期
          if ( !StringTools.isNullOrNone(obj[27]))
          {
-             String name = obj[27].trim();
+             String date = obj[27].trim();
 
              String eL = "[0-9]{4}-[0-9]{2}-[0-9]{2}";
              Pattern p = Pattern.compile(eL);
-             Matcher m = p.matcher(name);
+             Matcher m = p.matcher(date);
              boolean dateFlag = m.matches();
              if (!dateFlag) {
                  builder
@@ -1761,7 +1791,15 @@
 
                  importError = true;
              }else{
-                 bean.setCiticOrderDate(name);
+                 bean.setCiticOrderDate(date);
+                 if(this.daysBetweenToday(date)>5){
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("中信订单日期超过5天:"+date)
+                             .append("<br>");
+
+                     importError = true;
+                 }
              }
          }else{
              builder

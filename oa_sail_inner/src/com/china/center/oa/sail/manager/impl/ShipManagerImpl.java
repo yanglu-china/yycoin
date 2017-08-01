@@ -1820,7 +1820,7 @@ public class ShipManagerImpl implements ShipManager
 
     private void createMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
-        _logger.info("***create mail attachment with package "+beans.size()+"***branch***"+branchName+"***file name***"+fileName);
+        _logger.info("***create mail attachment with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
 
         WritableSheet ws = null;
@@ -2090,7 +2090,7 @@ public class ShipManagerImpl implements ShipManager
      */
     private void createPfMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
-        _logger.info("***create mail attachment for PF with package "+beans.size()+"***branch***"+branchName+"***file name***"+fileName);
+        _logger.info("***create mail attachment for PF with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
 
         WritableSheet ws = null;
@@ -2208,14 +2208,20 @@ public class ShipManagerImpl implements ShipManager
                             continue;
                         }
                         i++;
-//                        ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
-//                        setWS(ws, i, 300, false);
 
                         //交易日期
+                        String outId = each.getOutId();
+                        OutBean outBean = outDAO.find(outId);
+                        if (outBean!= null){
+                            each.setPoDate(outBean.getPodate());
+                        } else if(out == null && outId.startsWith("A")){
+                            each.setPoDate(each.getOutTime());
+                        }
+
                         ws.addCell(new Label(j++, i, each.getPoDate(), format3));
 
                         //交易机构
-                        ws.addCell(new Label(j++, i, each.getCustomerName(), format3));
+                        ws.addCell(new Label(j++, i, this.getCustomerName(each), format3));
 
                         //配货机构
                         ws.addCell(new Label(j++, i, this.getCommunicationBranchNameFromOutImport(each.getOutId()), format3));
@@ -2289,6 +2295,60 @@ public class ShipManagerImpl implements ShipManager
                 {
                 }
             }
+        }
+    }
+
+
+    private String getCustomerName(PackageItemBean item){
+        String customerName = "";
+        String outId = item.getOutId();
+        if (StringTools.isNullOrNone(outId)){
+            _logger.warn("****Empty OutId***********"+outId);
+        } else if (outId.startsWith("SO")){
+            customerName = this.getCustomerNameFromOutImport(outId);
+        } else if(outId.startsWith("ZS")){
+            OutBean out = outDAO.find(outId);
+            if (out!= null){
+                String sourceOutId = out.getRefOutFullId();
+                if (!StringTools.isNullOrNone(sourceOutId)){
+                    customerName = this.getCustomerNameFromOutImport(sourceOutId);
+                }
+
+                if (StringTools.isNullOrNone(item.getCustomerName())) {
+                    //#181默认就读取out表中客户名
+                    customerName = out.getCustomerName();
+                }
+
+            }
+        } else if(outId.startsWith("A")){
+            //TODO refer to ShipAction
+            CustomerBean customerBean = this.customerMainDAO.find(item.getCustomerId());
+            if (customerBean!= null){
+                customerName = customerBean.getName();
+            }
+        }
+        return customerName;
+    }
+
+    private String getCustomerNameFromOutImport(String outId){
+        StringBuilder sb = new StringBuilder();
+        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+
+        if (!ListTools.isEmptyOrNull(importBeans))
+        {
+            for (OutImportBean outImportBean: importBeans){
+                String customerName = outImportBean.getCustomerName();
+                if (!StringTools.isNullOrNone(customerName)){
+                    sb.append(customerName).append(";");
+                }
+            }
+        }
+        String customerName = sb.toString();
+        if (StringTools.isNullOrNone(customerName)){
+            return customerName;
+        } else{
+            //remove last ";" char
+            return customerName.substring(0,customerName.length()-1);
         }
     }
 
