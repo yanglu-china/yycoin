@@ -115,14 +115,16 @@ function callBackPrintFun()
 						<td colspan="2" width="50%"><table><tr><td>收货客户：${bean.customerName}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td><table><tr><td>业务联系：${stafferName}</td></tr></table></td>
-						<td colspan="3"><table><tr><td>客服电话：4006518859</td></tr></table></td>
+						<td colspan="2" width="50%"><table><tr><td>业务联系：${stafferName}</td></tr></table></td>
+						<td colspan="2" width="50%"><table><tr><td>客服电话：4006518859</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td><table><tr><td>业务电话：${phone}</td></tr></table></td>
-						<td><table><tr><td>客服传真：025-51885923</td></tr></table></td>
-                        <td><table><tr><td>收货人员：${bean.receiver}</td></tr></table></td>
-                        <td><table><tr><td>联系电话：${bean.mobile}</td></tr></table></td>
+						<td colspan="2" width="50%"><table><tr><td>业务电话：${phone}</td></tr></table></td>
+						<td colspan="2" width="50%"><table><tr><td>客服传真：025-51885923</td></tr></table></td>
+					</tr>
+					<tr class="content2">
+						<td colspan="2" width="50%"><table><tr><td>收货人员：${bean.receiver}</td></tr></table></td>
+						<td colspan="2" width="50%"><table><tr><td>联系电话：${bean.mobile}</td></tr></table></td>
 					</tr>
 				</table>
 				</td>
@@ -132,13 +134,13 @@ function callBackPrintFun()
 				<td>
 				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
 					<tr class="content2">
-						<td width="20%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
-                        <td width="8%"><table class="border1"><tr><td align="center">代码</td></tr></table></td>
+						<td width="24%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
+                        <td width="16%"><table class="border1"><tr><td align="center">代码</td></tr></table></td>
 						<td width="8%"><table class="border1"><tr><td align="center">数量</td></tr></table></td>
 						<td width="8%"><table class="border1"><tr><td align="center">订单性质</td></tr></table></td>
-						<td width="20%"><table class="border1"><tr><td align="center">客户单号</td></tr></table></td>
-						<td width="10%"><table class="border1"><tr><td align="center">订单日期</td></tr></table></td>
-                        <td width="8%"><table class="border1"><tr><td align="center">顾客姓名</td></tr></table></td>
+						<td width="16%"><table class="border1"><tr><td align="center">客户单号</td></tr></table></td>
+						<td width="16%"><table class="border1"><tr><td align="center">订单日期</td></tr></table></td>
+                        <td width="12%"><table class="border1"><tr><td align="center">顾客姓名</td></tr></table></td>
 					</tr>
 					
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
