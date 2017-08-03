@@ -689,14 +689,14 @@
              }else{
                  bean.setCiticOrderDate(date);
 
-                 if(this.daysBetweenToday(date)>5){
-                     builder
-                             .append("第[" + currentNumber + "]错误:")
-                             .append("中信订单日期超过5天:"+date)
-                             .append("<br>");
-
-                     importError = true;
-                 }
+//                 if(this.daysBetweenToday(date)>5){
+//                     builder
+//                             .append("第[" + currentNumber + "]错误:")
+//                             .append("中信订单日期超过5天:"+date)
+//                             .append("<br>");
+//
+//                     importError = true;
+//                 }
              }
          } else {
              builder
@@ -1792,14 +1792,14 @@
                  importError = true;
              }else{
                  bean.setCiticOrderDate(date);
-                 if(this.daysBetweenToday(date)>5){
-                     builder
-                             .append("第[" + currentNumber + "]错误:")
-                             .append("中信订单日期超过5天:"+date)
-                             .append("<br>");
-
-                     importError = true;
-                 }
+//                 if(this.daysBetweenToday(date)>5){
+//                     builder
+//                             .append("第[" + currentNumber + "]错误:")
+//                             .append("中信订单日期超过5天:"+date)
+//                             .append("<br>");
+//
+//                     importError = true;
+//                 }
              }
          }else{
              builder
