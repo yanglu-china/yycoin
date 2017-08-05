@@ -56,6 +56,12 @@ public class ProductVSGiftBean implements Serializable
     private String bank = "";
 
     /**
+     * 不适用银行
+     */
+    @Html(title = "不适用银行", must = false, maxLength = 100)
+    private String excludeBank = "";
+
+    /**
      * 开始日期
      */
     @Html(title = "开始日期", must = true, type= Element.DATE)
@@ -103,6 +109,28 @@ public class ProductVSGiftBean implements Serializable
 
     @Html(title = "人员", maxLength = 100)
     private String stafferName = "";
+
+
+    /**
+     * #127 增加不包含字段
+     */
+    @Html(title = "不包含事业部", maxLength = 100)
+    private String excludeIndustryName = "";
+
+    @Html(title = "不包含大区", maxLength = 100)
+    private String excludeIndustryName2 = "";
+
+    @Html(title = "不包含部门", maxLength = 100)
+    private String excludeIndustryName3 = "";
+
+    @Html(title = "不包含城市", maxLength = 100)
+    private String excludeCity = "";
+
+    @Html(title = "不包含省份", maxLength = 100)
+    private String excludeProvince = "";
+
+    @Html(title = "不包含人员", maxLength = 100)
+    private String excludeStafferName = "";
 
 	public ProductVSGiftBean()
 	{
@@ -276,6 +304,62 @@ public class ProductVSGiftBean implements Serializable
         this.amount3 = amount3;
     }
 
+    public String getExcludeBank() {
+        return excludeBank;
+    }
+
+    public void setExcludeBank(String excludeBank) {
+        this.excludeBank = excludeBank;
+    }
+
+    public String getExcludeIndustryName() {
+        return excludeIndustryName;
+    }
+
+    public void setExcludeIndustryName(String excludeIndustryName) {
+        this.excludeIndustryName = excludeIndustryName;
+    }
+
+    public String getExcludeIndustryName2() {
+        return excludeIndustryName2;
+    }
+
+    public void setExcludeIndustryName2(String excludeIndustryName2) {
+        this.excludeIndustryName2 = excludeIndustryName2;
+    }
+
+    public String getExcludeIndustryName3() {
+        return excludeIndustryName3;
+    }
+
+    public void setExcludeIndustryName3(String excludeIndustryName3) {
+        this.excludeIndustryName3 = excludeIndustryName3;
+    }
+
+    public String getExcludeCity() {
+        return excludeCity;
+    }
+
+    public void setExcludeCity(String excludeCity) {
+        this.excludeCity = excludeCity;
+    }
+
+    public String getExcludeProvince() {
+        return excludeProvince;
+    }
+
+    public void setExcludeProvince(String excludeProvince) {
+        this.excludeProvince = excludeProvince;
+    }
+
+    public String getExcludeStafferName() {
+        return excludeStafferName;
+    }
+
+    public void setExcludeStafferName(String excludeStafferName) {
+        this.excludeStafferName = excludeStafferName;
+    }
+
     @Override
     public String toString() {
         return "ProductVSGiftBean{" +
@@ -283,9 +367,14 @@ public class ProductVSGiftBean implements Serializable
                 ", productId='" + productId + '\'' +
                 ", giftProductId='" + giftProductId + '\'' +
                 ", amount=" + amount +
+                ", giftProductId2='" + giftProductId2 + '\'' +
+                ", amount2=" + amount2 +
+                ", giftProductId3='" + giftProductId3 + '\'' +
+                ", amount3=" + amount3 +
                 ", sailAmount=" + sailAmount +
                 ", activity='" + activity + '\'' +
                 ", bank='" + bank + '\'' +
+                ", excludeBank='" + excludeBank + '\'' +
                 ", beginDate='" + beginDate + '\'' +
                 ", endDate='" + endDate + '\'' +
                 ", description='" + description + '\'' +
@@ -295,6 +384,12 @@ public class ProductVSGiftBean implements Serializable
                 ", city='" + city + '\'' +
                 ", province='" + province + '\'' +
                 ", stafferName='" + stafferName + '\'' +
+                ", excludeIndustryName='" + excludeIndustryName + '\'' +
+                ", excludeIndustryName2='" + excludeIndustryName2 + '\'' +
+                ", excludeIndustryName3='" + excludeIndustryName3 + '\'' +
+                ", excludeCity='" + excludeCity + '\'' +
+                ", excludeProvince='" + excludeProvince + '\'' +
+                ", excludeStafferName='" + excludeStafferName + '\'' +
                 '}';
     }
 }

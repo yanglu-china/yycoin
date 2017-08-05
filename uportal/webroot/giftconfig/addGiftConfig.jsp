@@ -8,11 +8,14 @@
 <script language="JavaScript" src="../js/common.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/math.js"></script>
+<script language="JavaScript" src="../admin_js/giftConfig.js"></script>
 <script language="javascript">
     var index = -1;
+
+
 function addBean()
 {
-	submit('确定增加赠品配置?', null, null);
+	submit('确定增加赠品配置?', null, checkBean());
 }
 
 function selectProduct(idx)
@@ -102,28 +105,56 @@ function clears(idx)
                 <input type="text" name="bank" id="bank" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
-            <p:cell title="事业部">
+            <p:cell title="不适用银行">
+                <input type="text" name="excludeBank" id="excludeBank" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="包含事业部">
                 <input type="text" name="industryName" id="industryName" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="不包含事业部">
+                <input type="text" name="excludeIndustryName" id="excludeIndustryName" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
             <p:cell title="大区">
                 <input type="text" name="industryName2" id="industryName2" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
+            <p:cell title="不包含大区">
+                <input type="text" name="excludeIndustryName2" id="excludeIndustryName2" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
             <p:cell title="部门">
                 <input type="text" name="industryName3" id="industryName3" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="不包含部门">
+                <input type="text" name="excludeIndustryName3" id="excludeIndustryName3" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
             <p:cell title="人员">
                 <input type="text" name="stafferName" id="stafferName" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
+            <p:cell title="不包含人员">
+                <input type="text" name="excludeStafferName" id="excludeStafferName" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
             <p:cell title="省份">
                 <input type="text" name="province" id="province" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
+            <p:cell title="不包含省份">
+                <input type="text" name="excludeProvince" id="excludeProvince" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
             <p:cell title="城市">
                 <input type="text" name="city" id="city" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="不包含城市">
+                <input type="text" name="excludeCity" id="excludeCity" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
             <p:pro field="beginDate" />

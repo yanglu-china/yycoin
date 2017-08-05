@@ -97,6 +97,7 @@ public class BackPrePayApplyBean implements Serializable
     /**
      * 退部分预收时，退款部分产生一个新的收款单，状态为 关联。如果流程驳回时，要更新为预收。
      */
+	@Html(title = "部分退款新收款单(SF)",readonly = true)
     private String newBillId = "";
     
     @Html(title = "回款单(HK)", readonly = true)

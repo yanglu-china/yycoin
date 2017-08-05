@@ -1171,11 +1171,12 @@ public class OutImportManagerImpl implements OutImportManager
         else {
             _logger.info("giftList size:"+giftList.size());
             //2015/5/2 必须在有效期内才生成赠品订单
+			//同一商品如果有多个规则满足条件，只选择优先级最高的规则
             for (ProductVSGiftVO gift: giftList){
 				_logger.info("*************check gift************"+gift);
                 int result = this.satisfy(out, gift);
                 if (result>priority){
-                    _logger.info("***update priority from "+priority+" to "+result);
+                    _logger.info("***update priority from "+priority+" to "+result+"***with gift config***"+gift);
                     priority = result;
                     giftVO = gift;
                 }
@@ -1372,11 +1373,19 @@ public class OutImportManagerImpl implements OutImportManager
 
 		//如果所有条件都不设置，默认都参加活动
 		if (StringTools.isNullOrNone(gift.getStafferName()) &&
+				StringTools.isNullOrNone(gift.getExcludeStafferName()) &&
+				StringTools.isNullOrNone(gift.getProvince()) &&
+				StringTools.isNullOrNone(gift.getExcludeProvince()) &&
 				StringTools.isNullOrNone(gift.getCity()) &&
+				StringTools.isNullOrNone(gift.getExcludeCity()) &&
 				StringTools.isNullOrNone(gift.getIndustryName()) &&
+				StringTools.isNullOrNone(gift.getExcludeIndustryName()) &&
 				StringTools.isNullOrNone(gift.getIndustryName2()) &&
+				StringTools.isNullOrNone(gift.getExcludeIndustryName2()) &&
 				StringTools.isNullOrNone(gift.getIndustryName3()) &&
-				StringTools.isNullOrNone(gift.getBank())
+				StringTools.isNullOrNone(gift.getExcludeIndustryName3()) &&
+				StringTools.isNullOrNone(gift.getBank()) &&
+				StringTools.isNullOrNone(gift.getExcludeBank())
 				){
 			_logger.info("gift satisfy default rule ***"+gift);
 			return 100;
@@ -1397,6 +1406,19 @@ public class OutImportManagerImpl implements OutImportManager
             }
         }
 
+        //不包含银行
+        String excludeBank = gift.getExcludeBank();
+		if (!StringTools.isNullOrNone(excludeBank)){
+			String customerName = out.getCustomerName();
+			String[] banks = excludeBank.split(";");
+			if (this.contains2(banks, customerName)){
+				_logger.warn(customerName+" bank is not suitable:"+excludeBank);
+				return -1;
+			}else{
+				result = priority.get("银行");
+			}
+		}
+
         //事业部，大区，部门，人员就取人员管理上面的信息
         StafferVO stafferVO = this.stafferDAO.findVO(out.getStafferId());
 
@@ -1413,6 +1435,18 @@ public class OutImportManagerImpl implements OutImportManager
                 }
             }
 
+			//不包含事业部
+			String excludeIndustryName = gift.getExcludeIndustryName();
+			if (!StringTools.isNullOrNone(excludeIndustryName)){
+				String[] industryNames = excludeIndustryName.split(";");
+				if (this.contains(industryNames, stafferVO.getIndustryName())){
+					_logger.info(excludeIndustryName+" is not suitable:"+stafferVO.getIndustryName());
+					return -1;
+				} else{
+					result = priority.get("事业部");
+				}
+			}
+
             //大区
             String industryName2 = gift.getIndustryName2();
             if (!StringTools.isNullOrNone(industryName2)){
@@ -1425,6 +1459,18 @@ public class OutImportManagerImpl implements OutImportManager
                 }
             }
 
+			//不包含大区
+			String excludeIndustryName2 = gift.getExcludeIndustryName2();
+			if (!StringTools.isNullOrNone(excludeIndustryName2)){
+				String[] industryName2s = excludeIndustryName2.split(";");
+				if (this.contains(industryName2s, stafferVO.getIndustryName2())){
+					_logger.info(excludeIndustryName2+" is not suitable:"+stafferVO.getIndustryName2());
+					return -1;
+				} else{
+					result = priority.get("大区");
+				}
+			}
+
             //部门
             String industryName3 = gift.getIndustryName3();
             if (!StringTools.isNullOrNone(industryName3)){
@@ -1436,6 +1482,18 @@ public class OutImportManagerImpl implements OutImportManager
                     result = priority.get("部门");
                 }
             }
+
+			//不包含部门
+			String excludeIndustryName3 = gift.getExcludeIndustryName3();
+			if (!StringTools.isNullOrNone(excludeIndustryName3)){
+				String[] industryName3s = excludeIndustryName3.split(";");
+				if (this.contains(industryName3s, stafferVO.getIndustryName3())){
+					_logger.info(excludeIndustryName3+" is not suitable:"+stafferVO.getIndustryName3());
+					return -1;
+				}  else{
+					result = priority.get("部门");
+				}
+			}
         }
 
 		CustomerVO customerVO = this.customerMainDAO.findVO(out.getCustomerId());
@@ -1448,6 +1506,20 @@ public class OutImportManagerImpl implements OutImportManager
 				String[] provinces = province.split(";");
 				if (!this.contains(provinces, customerProvince)){
 					_logger.info(customerProvince+" is not suitable:"+province);
+					return -1;
+				} else{
+					result = priority.get("省份");
+				}
+			}
+
+			//不包含省份
+			String excludeProvince = gift.getExcludeProvince();
+			if (!StringTools.isNullOrNone(excludeProvince)){
+				//省份取客户信息表中的省份信息
+				String customerProvince = customerVO.getProvinceName();
+				String[] provinces = excludeProvince.split(";");
+				if (this.contains(provinces, customerProvince)){
+					_logger.info(customerProvince+" is not suitable:"+excludeProvince);
 					return -1;
 				} else{
 					result = priority.get("省份");
@@ -1468,8 +1540,22 @@ public class OutImportManagerImpl implements OutImportManager
 					result = priority.get("城市");
 				}
 			}
-		}
 
+			//城市
+			String excludeCity = gift.getExcludeCity();
+			if (!StringTools.isNullOrNone(excludeCity)){
+				//城市取客户信息表中的城市信息
+				//城市
+				String customerCity = customerVO.getCityName();
+				String[] cities = excludeCity.split(";");
+				if (this.contains(cities, customerCity)){
+					_logger.info(customerCity+" is not suitable:"+excludeCity);
+					return -1;
+				} else{
+					result = priority.get("城市");
+				}
+			}
+		}
 
 
         //人员

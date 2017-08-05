@@ -73,7 +73,9 @@ function load()
             
             <p:pro field="billId">
             </p:pro>
-            
+
+            <p:pro field="newBillId" />
+
             <p:pro field="paymentId" />
             
             <p:pro field="total" value="${my:formatNum(bean.total / 100.0)}"/>
