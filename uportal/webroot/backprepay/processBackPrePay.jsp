@@ -167,11 +167,15 @@ function load()
             <p:pro field="receiveBank" innerString="size=40" cell="0"/>
             
             <p:pro field="receiveAccount" innerString="size=40" cell="0"/>
-            
-            <p:pro field="billId">
-            </p:pro>
 
-            <p:pro field="newBillId"/>
+            <c:if test="${illId =='' || newBillId == null}">
+                <p:pro field="billId">
+                </p:pro>
+            </c:if>
+
+            <c:if test="${newBillId !='' && newBillId != null}">
+                <p:pro field="newBillId"/>
+            </c:if>
 
             <p:pro field="paymentId"/>
             
@@ -185,7 +189,7 @@ function load()
             
             <p:pro field="bankName" innerString="readonly='readonly' size=40" cell="0"/>
             
-            <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
+            <p:pro field="description" cell="0" innerString="rows=4 cols=55" />newB
             
             <p:cell title="处理人" width="8" end="true">
             ${bean.processer}
