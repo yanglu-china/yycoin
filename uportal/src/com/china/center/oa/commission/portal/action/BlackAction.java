@@ -1509,7 +1509,7 @@ public class BlackAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("单号,结算单号,类型,客户,省,市,地址,收货人,收货人电话,业务员,事业部名称,产品,数量,单价,当时结算价");
+            write.writeLine("单号,结算单号,类型,二级类型,客户,省,市,地址,收货人,收货人电话,业务员,事业部名称,产品,数量,单价,当时结算价");
 
             WriteFileBuffer line = new WriteFileBuffer(write);
             
@@ -1529,6 +1529,7 @@ public class BlackAction extends DispatchAction
             		line.writeColumn(eachd.getOutId());
                 	line.writeColumn(eachd.getOutBalanceId());
                 	line.writeColumn(DefinedCommon.getValue("outType_out", outVO.getOutType()));
+                    line.writeColumn(DefinedCommon.getValue("presentFlag", outVO.getPresentFlag()));
                 	line.writeColumn(outVO.getCustomerName());
 
                     //2016/3/14 #194
