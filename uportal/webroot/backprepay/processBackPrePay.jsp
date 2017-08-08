@@ -168,12 +168,12 @@ function load()
             
             <p:pro field="receiveAccount" innerString="size=40" cell="0"/>
 
-            <c:if test="${illId =='' || newBillId == null}">
+            <c:if test="${empty bean.newBillId}">
                 <p:pro field="billId">
                 </p:pro>
             </c:if>
 
-            <c:if test="${newBillId !='' && newBillId != null}">
+            <c:if test="${not empty bean.newBillId}">
                 <p:pro field="newBillId"/>
             </c:if>
 
