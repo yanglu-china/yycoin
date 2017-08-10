@@ -2223,8 +2223,9 @@ public class ShipManagerImpl implements ShipManager
                         //交易机构
                         ws.addCell(new Label(j++, i, this.getCustomerName(each), format3));
 
+                        String[] temp = this.getCommunicationBranchNameAndProductCodeFromOutImport(each.getOutId());
                         //配货机构
-                        ws.addCell(new Label(j++, i, this.getCommunicationBranchNameFromOutImport(each.getOutId()), format3));
+                        ws.addCell(new Label(j++, i, temp[1], format3));
 
                         if(each.getOutId().startsWith("A")){
                             //产品代码
@@ -2234,7 +2235,7 @@ public class ShipManagerImpl implements ShipManager
                             ws.addCell(new Label(j++, i, "", format3));
                         } else{
                             //产品代码
-                            ws.addCell(new Label(j++, i, each.getProductCode(), format3));
+                            ws.addCell(new Label(j++, i, temp[0], format3));
 
                             //产品名称
                             ws.addCell(new Label(j++, i, this.convertProductName(each,bean.getCustomerName()), format3));
@@ -2352,19 +2353,25 @@ public class ShipManagerImpl implements ShipManager
         }
     }
 
-    private String getCommunicationBranchNameFromOutImport(String outId){
+    private String[] getCommunicationBranchNameAndProductCodeFromOutImport(String outId){
+        String[] result = new String[2];
+        String productCode = "";
         String branchName = "";
         List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
         if (!ListTools.isEmptyOrNull(importBeans))
         {
             for (OutImportBean outImportBean: importBeans){
                 if (!StringTools.isNullOrNone(outImportBean.getBranchName())){
+                    productCode = outImportBean.getProductCode();
                     branchName = outImportBean.getComunicatonBranchName();
                     break;
                 }
             }
         }
-        return branchName;
+
+        result[0] = productCode;
+        result[1] = branchName;
+        return result;
     }
 
     private void mergeInvoiceNum(List<PackageItemBean> packages){
