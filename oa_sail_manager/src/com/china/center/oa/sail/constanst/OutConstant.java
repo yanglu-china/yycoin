@@ -904,6 +904,9 @@ public interface OutConstant
     @Defined(key = "presentFlag", value = "实物展样")
     int OUT_PRESENT_ENTITY = 7;
 
+    @Defined(key = "presentFlag", value = "其他")
+    int OUT_PRESENT_OTHER = 10;
+
     @Defined(key = "ibMotivationFlag", value = "未申请")
     int IB_FLAG_NO = 0;
 
