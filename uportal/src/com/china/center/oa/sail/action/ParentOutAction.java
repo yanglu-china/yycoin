@@ -2504,7 +2504,7 @@ public class ParentOutAction extends DispatchAction
 							.getFullId());
 
 					if (element.getType() == 1
-							&& element.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)
+							&& !StringTools.isNullOrNone(element.getRefOutFullId()))
 					{
 						refOut = outDAO.find(element.getRefOutFullId());
 					}
