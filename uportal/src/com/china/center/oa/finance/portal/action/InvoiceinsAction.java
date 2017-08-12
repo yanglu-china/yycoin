@@ -1013,6 +1013,23 @@ public class InvoiceinsAction extends DispatchAction
                         String value = obj[0].trim();
 
                         bean.setId(value);
+
+                        InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(value);
+                        if (invoiceinsBean == null){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发票标识不存在:"+value)
+                                    .append("<br>");
+
+                            importError = true;
+                        } else if (invoiceinsBean.getStatus() == FinanceConstant.INVOICEINS_STATUS_END){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发票状态已结束,不能重复导入:"+value)
+                                    .append("<br>");
+
+                            importError = true;
+                        }
                     }
                     else
                     {

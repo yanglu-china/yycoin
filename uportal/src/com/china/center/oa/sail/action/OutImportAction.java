@@ -25,6 +25,7 @@
  import com.china.center.oa.finance.bean.InvoiceinsBean;
  import com.china.center.oa.finance.dao.InvoiceinsDAO;
  import com.china.center.oa.product.bean.*;
+ import com.china.center.oa.product.constant.DepotConstant;
  import com.china.center.oa.product.dao.*;
  import com.china.center.oa.product.manager.PriceConfigManager;
  import com.china.center.oa.product.manager.StorageRelationManager;
@@ -837,6 +838,27 @@
                  .append("第[" + currentNumber + "]错误:")
                  .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
                  .append("<br>");
+
+                 importError = true;
+             }
+
+             //仓库为“可发库”时，发货方式控制不可选择“空发
+             if(DepotConstant.CENTER_DEPOT_ID.equals(bean.getDepotId())
+                     && bean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING){
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("仓库为“可发库”时，发货方式控制不可选择'空发'")
+                         .append("<br>");
+
+                 importError = true;
+             }
+             //仓库为“空退空开库（仅限商务部操作）”时，发货方式控制只能选择“空发”
+             else if(DepotConstant.KTKK_SW_DEPOT_ID.equals(bean.getDepotId())
+                     && bean.getShipping() != OutConstant.OUT_SHIPPING_NOTSHIPPING){
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("仓库为“空退空开库（仅限商务部操作）”时，发货方式控制只能选择“空发”'")
+                         .append("<br>");
 
                  importError = true;
              }
@@ -1940,6 +1962,27 @@
                  .append("第[" + currentNumber + "]错误:")
                  .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
                  .append("<br>");
+
+                 importError = true;
+             }
+
+             //仓库为“可发库”时，发货方式控制不可选择“空发
+             if(DepotConstant.CENTER_DEPOT_ID.equals(bean.getDepotId())
+                     && bean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING){
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("仓库为“可发库”时，发货方式控制不可选择'空发'")
+                         .append("<br>");
+
+                 importError = true;
+             }
+             //仓库为“空退空开库（仅限商务部操作）”时，发货方式控制只能选择“空发”
+             else if(DepotConstant.KTKK_SW_DEPOT_ID.equals(bean.getDepotId())
+                     && bean.getShipping() != OutConstant.OUT_SHIPPING_NOTSHIPPING){
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("仓库为“空退空开库（仅限商务部操作）”时，发货方式控制只能选择“空发”'")
+                         .append("<br>");
 
                  importError = true;
              }

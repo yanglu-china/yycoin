@@ -78,4 +78,7 @@ public interface DepotConstant
     String MAKE_DEPOT_ID = "99000000000000000099";
 
     String DEFAULT_DEPOT_PART = "南京物流中心-物流中心库(销售可发)";
+
+    //空退空开库（仅限商务部操作）
+    String KTKK_SW_DEPOT_ID = "A1201310151011526376";
 }
