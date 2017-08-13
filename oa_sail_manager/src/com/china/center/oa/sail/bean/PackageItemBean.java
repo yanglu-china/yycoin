@@ -125,6 +125,12 @@ public class PackageItemBean implements Serializable
 	 */
 	@Ignore
 	private String productWeight = "";
+
+	/**#117
+	 * 商品行对应的发票号(只针对浦发银行上海分行)
+	 */
+	@Ignore
+	private String invoiceNum = "";
 	
 	public PackageItemBean()
 	{
@@ -436,6 +442,14 @@ public class PackageItemBean implements Serializable
 		this.comunicatonBranchName = comunicatonBranchName;
 	}
 
+	public String getInvoiceNum() {
+		return invoiceNum;
+	}
+
+	public void setInvoiceNum(String invoiceNum) {
+		this.invoiceNum = invoiceNum;
+	}
+
 	@Override
 	public String toString() {
 		return "PackageItemBean{" +
@@ -467,6 +481,7 @@ public class PackageItemBean implements Serializable
 				", packageAmount=" + packageAmount +
 				", certificateAmount=" + certificateAmount +
 				", productWeight='" + productWeight + '\'' +
+				", invoiceNum='" + invoiceNum + '\'' +
 				'}';
 	}
 }

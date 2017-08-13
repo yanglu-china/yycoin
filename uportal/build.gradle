@@ -56,7 +56,8 @@ dependencies {
             project(':oa_stock_manager'),project(':oa_stock_inner'),project(':oa_stockvssail_glue'),
             project(':oa_tax_manager'),project(':oa_tax_inner'),project(':oa_tax_glue'),
             project(':oa_tcp_manager'),project(':oa_tcp_inner'),
-            project(':oa_note_manager'),project(':oa_flow_manager'),project(':oa_flow_manager_dy')
+            project(':oa_note_manager'),project(':oa_flow_manager'),project(':oa_flow_manager_dy'),
+            project(':oa_job_manager'),project(':oa_job_inner')
 
     providedCompile "javax.servlet:servlet-api:2.5"
 }
