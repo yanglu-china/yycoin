@@ -17,6 +17,8 @@
 
     <bean id="outDAO" class="com.china.center.oa.sail.dao.impl.OutDAOImpl" />
 
+	<bean id="presentFlagDAO" class="com.china.center.oa.sail.dao.impl.PresentFlagDAOImpl" />
+
     <bean id="olBaseDAO" class="com.china.center.oa.sail.dao.impl.OlBaseDAOImpl" />
 
     <bean id="olOutDAO" class="com.china.center.oa.sail.dao.impl.OlOutDAOImpl" />
