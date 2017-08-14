@@ -753,9 +753,10 @@ public class PackageManagerImpl implements PackageManager {
 							DepotBean depot2 = this.depotDAO.find(lo);
 							if (depot2!= null && !location.equals(depot2.getIndustryId2())) {
 								String msg = first.getOutId()+"****industryId2 is not same****"+out.getFullId();
-								blockedLog.warn(out.getFullId()+":"+packBean.getId());
 								_logger.warn(msg);
-								preConsignDAO.deleteEntityBean(pre.getId());
+
+								createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+//								preConsignDAO.deleteEntityBean(pre.getId());
 								return ;
 							}
 						}
