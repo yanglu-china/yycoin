@@ -142,6 +142,8 @@
 
      private ProductImportDAO productImportDAO = null;
 
+     private PresentFlagDAO presentFlagDAO = null;
+
      private static String QUERYOUTIMPORT = "queryOutImport";
 
      private static String QUERYOUTIMPORTLOG = "queryOutImportLog";
@@ -1164,27 +1166,42 @@
              {
                  String presentFlag = obj[40].trim();
 
-                 String [] presentFlags = OutImportConstant.outPresentTypesArr;
-
-                 for(int i = 0; i< presentFlags.length; i++)
-                 {
-                     if (presentFlag.equals(presentFlags[i]))
-                     {
-                         bean.setPresentFlag(OutImportConstant.outPresentTypeiArr[i]);
-
-                         break;
-                     }
-                 }
-
-                 if (bean.getPresentFlag() == 0)
-                 {
+                 ConditionParse conditionParse = new ConditionParse();
+                 conditionParse.addWhereStr();
+                 conditionParse.addCondition("name","=",presentFlag);
+                 List<PresentFlagBean> presentFlagBeans = this.presentFlagDAO.queryEntityBeansByCondition(conditionParse);
+                 if (ListTools.isEmptyOrNull(presentFlagBeans)){
                      builder
-                     .append("第[" + currentNumber + "]错误:")
-                     .append("二级类型不存在")
-                     .append("<br>");
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("二级类型不存在")
+                             .append("<br>");
 
                      importError = true;
+                 } else{
+                     bean.setPresentFlag(Integer.valueOf(presentFlagBeans.get(0).getType()));
                  }
+//
+//                 String [] presentFlags = OutImportConstant.outPresentTypesArr;
+//
+//                 for(int i = 0; i< presentFlags.length; i++)
+//                 {
+//                     if (presentFlag.equals(presentFlags[i]))
+//                     {
+//                         bean.setPresentFlag(OutImportConstant.outPresentTypeiArr[i]);
+//
+//                         break;
+//                     }
+//                 }
+//
+//                 if (bean.getPresentFlag() == 0)
+//                 {
+//                     builder
+//                     .append("第[" + currentNumber + "]错误:")
+//                     .append("二级类型不存在")
+//                     .append("<br>");
+//
+//                     importError = true;
+//                 }
              }else{
                  builder
                  .append("第[" + currentNumber + "]错误:")
@@ -2287,28 +2304,41 @@
              if ( !StringTools.isNullOrNone(obj[40]))
              {
                  String presentFlag = obj[40].trim();
-
-                 String [] presentFlags = OutImportConstant.outPresentTypesArr;
-
-                 for(int i = 0; i< presentFlags.length; i++)
-                 {
-                     if (presentFlag.equals(presentFlags[i]))
-                     {
-                         bean.setPresentFlag(OutImportConstant.outPresentTypeiArr[i]);
-
-                         break;
-                     }
-                 }
-
-                 if (bean.getPresentFlag() == 0)
-                 {
+                 ConditionParse conditionParse = new ConditionParse();
+                 conditionParse.addWhereStr();
+                 conditionParse.addCondition("name","=",presentFlag);
+                 List<PresentFlagBean> presentFlagBeans = this.presentFlagDAO.queryEntityBeansByCondition(conditionParse);
+                 if (ListTools.isEmptyOrNull(presentFlagBeans)){
                      builder
-                     .append("第[" + currentNumber + "]错误:")
-                     .append("二级类型不存在")
-                     .append("<br>");
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("二级类型不存在")
+                             .append("<br>");
 
                      importError = true;
+                 } else{
+                     bean.setPresentFlag(Integer.valueOf(presentFlagBeans.get(0).getType()));
                  }
+//                 String [] presentFlags = OutImportConstant.outPresentTypesArr;
+//
+//                 for(int i = 0; i< presentFlags.length; i++)
+//                 {
+//                     if (presentFlag.equals(presentFlags[i]))
+//                     {
+//                         bean.setPresentFlag(OutImportConstant.outPresentTypeiArr[i]);
+//
+//                         break;
+//                     }
+//                 }
+//
+//                 if (bean.getPresentFlag() == 0)
+//                 {
+//                     builder
+//                     .append("第[" + currentNumber + "]错误:")
+//                     .append("二级类型不存在")
+//                     .append("<br>");
+//
+//                     importError = true;
+//                 }
              }else{
                  builder
                  .append("第[" + currentNumber + "]错误:")
@@ -6759,5 +6789,13 @@
 
      public void setProductImportDAO(ProductImportDAO productImportDAO) {
          this.productImportDAO = productImportDAO;
+     }
+
+     public PresentFlagDAO getPresentFlagDAO() {
+         return presentFlagDAO;
+     }
+
+     public void setPresentFlagDAO(PresentFlagDAO presentFlagDAO) {
+         this.presentFlagDAO = presentFlagDAO;
      }
  }
