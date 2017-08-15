@@ -275,7 +275,7 @@ public class JobManagerImpl implements JobManager {
             ws.addCell(new Label(1, i, title, format));
 
             //set column width
-            ws.setColumnView(0, 20);
+            ws.setColumnView(0, 15);
             ws.setColumnView(1, 40);
             ws.setColumnView(2, 40);
             ws.setColumnView(3, 20);
@@ -285,7 +285,7 @@ public class JobManagerImpl implements JobManager {
             ws.setColumnView(7, 10);
             ws.setColumnView(8, 20);
             ws.setColumnView(9, 20);
-            ws.setColumnView(10, 5);
+            ws.setColumnView(10, 10);
 
             i++;
             // 正文表格
