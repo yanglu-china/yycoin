@@ -275,16 +275,17 @@ public class JobManagerImpl implements JobManager {
             ws.addCell(new Label(1, i, title, format));
 
             //set column width
-            ws.setColumnView(0, 5);
+            ws.setColumnView(0, 20);
             ws.setColumnView(1, 40);
             ws.setColumnView(2, 40);
-            ws.setColumnView(3, 40);
-            ws.setColumnView(4, 5);
-            ws.setColumnView(5, 30);
-            ws.setColumnView(6, 10);
-            ws.setColumnView(7, 20);
-            ws.setColumnView(8, 10);
-            ws.setColumnView(9, 10);
+            ws.setColumnView(3, 20);
+            ws.setColumnView(4, 40);
+            ws.setColumnView(5, 10);
+            ws.setColumnView(6, 5);
+            ws.setColumnView(7, 10);
+            ws.setColumnView(8, 20);
+            ws.setColumnView(9, 20);
+            ws.setColumnView(10, 5);
 
             i++;
             // 正文表格
