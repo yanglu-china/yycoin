@@ -126,13 +126,23 @@ public class ProductVSGiftBean implements Serializable
     @Html(title = "不包含城市", maxLength = 100)
     private String excludeCity = "";
 
+    @Html(title = "公司承担比例", maxLength = 10)
+    private int companyShare = 0;
+
+    @Html(title = "个人承担比例", maxLength = 10)
+    private int stafferShare = 0;
+
+
+    /**
+     * #135 增加承担比例
+     */
     @Html(title = "不包含省份", maxLength = 100)
     private String excludeProvince = "";
 
     @Html(title = "不包含人员", maxLength = 100)
     private String excludeStafferName = "";
 
-	public ProductVSGiftBean()
+    public ProductVSGiftBean()
 	{
 	}
 
@@ -360,6 +370,22 @@ public class ProductVSGiftBean implements Serializable
         this.excludeStafferName = excludeStafferName;
     }
 
+    public int getCompanyShare() {
+        return companyShare;
+    }
+
+    public void setCompanyShare(int companyShare) {
+        this.companyShare = companyShare;
+    }
+
+    public int getStafferShare() {
+        return stafferShare;
+    }
+
+    public void setStafferShare(int stafferShare) {
+        this.stafferShare = stafferShare;
+    }
+
     @Override
     public String toString() {
         return "ProductVSGiftBean{" +
@@ -388,6 +414,8 @@ public class ProductVSGiftBean implements Serializable
                 ", excludeIndustryName2='" + excludeIndustryName2 + '\'' +
                 ", excludeIndustryName3='" + excludeIndustryName3 + '\'' +
                 ", excludeCity='" + excludeCity + '\'' +
+                ", companyShare=" + companyShare +
+                ", stafferShare=" + stafferShare +
                 ", excludeProvince='" + excludeProvince + '\'' +
                 ", excludeStafferName='" + excludeStafferName + '\'' +
                 '}';
