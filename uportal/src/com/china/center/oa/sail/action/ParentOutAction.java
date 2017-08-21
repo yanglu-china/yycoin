@@ -240,6 +240,8 @@ public class ParentOutAction extends DispatchAction
 
 	protected PackageDAO packageDAO = null;
 
+	protected PresentFlagDAO presentFlagDAO = null;
+
 	protected static String QUERYSELFOUT = "querySelfOut";
 
 	protected static String QUERYSELFOUTBALANCE = "querySelfOutBalance";
@@ -2659,8 +2661,18 @@ public class ParentOutAction extends DispatchAction
 					line.writeColumn(element.getDestinationName());
 					line.writeColumn(element.getRefOutFullId());
 					line.writeColumn(element.getInvoiceName());
-					line.writeColumn(DefinedCommon.getValue("presentFlag",
-							element.getPresentFlag()));
+//					line.writeColumn(DefinedCommon.getValue("presentFlag",
+//							element.getPresentFlag()));
+					ConditionParse conditionParse = new ConditionParse();
+					conditionParse.addWhereStr();
+					conditionParse.addCondition("type","=",element.getPresentFlag());
+					List<PresentFlagBean> presentFlagBeans = this.presentFlagDAO.queryEntityBeansByCondition(conditionParse);
+					if (ListTools.isEmptyOrNull(presentFlagBeans)){
+						line.writeColumn(DefinedCommon.getValue("presentFlag",
+								element.getPresentFlag()));
+					} else{
+						line.writeColumn(presentFlagBeans.get(0).getName());
+					}
 
 					// 下面是base里面的数据
 					base = (BaseBean) iterator.next();
@@ -11000,5 +11012,13 @@ public class ParentOutAction extends DispatchAction
 
 	public void setInsVSOutDAO(InsVSOutDAO insVSOutDAO) {
 		this.insVSOutDAO = insVSOutDAO;
+	}
+
+	public PresentFlagDAO getPresentFlagDAO() {
+		return presentFlagDAO;
+	}
+
+	public void setPresentFlagDAO(PresentFlagDAO presentFlagDAO) {
+		this.presentFlagDAO = presentFlagDAO;
 	}
 }
