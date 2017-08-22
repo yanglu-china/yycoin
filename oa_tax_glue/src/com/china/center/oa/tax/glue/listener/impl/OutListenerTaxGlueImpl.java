@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.china.center.oa.product.bean.ProductVSGiftBean;
+import com.china.center.oa.product.dao.ProductVSGiftDAO;
 import com.china.center.oa.publics.vo.StafferVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -110,6 +112,8 @@ public class OutListenerTaxGlueImpl implements OutListener
     private StafferVSCustomerDAO stafferVSCustomerDAO = null;
     
     private FinanceTagManager financeTagManager = null;
+
+    private ProductVSGiftDAO productVSGiftDAO = null;
     
     /**
      * default constructor
@@ -1793,6 +1797,7 @@ public class OutListenerTaxGlueImpl implements OutListener
     {
         // 应收账款/主营业务收入
         // 主营业务成本/库存商品（成本价*数量）
+
         FinanceBean financeBean = new FinanceBean();
 
         String name = "销售-赠送:" + outBean.getFullId() + '.';
@@ -3357,8 +3362,9 @@ public class OutListenerTaxGlueImpl implements OutListener
      * 
      * @param outBean
      * @param item
+     * @return principalshipId of StafferBean
      */
-    private void copyDepartment(OutBean outBean, FinanceItemBean item) throws MYException
+    private String copyDepartment(OutBean outBean, FinanceItemBean item) throws MYException
     {
         
         // 其它入库 真实的业务员（关联原单入库红冲）
@@ -3370,21 +3376,21 @@ public class OutListenerTaxGlueImpl implements OutListener
             {
                 item.setDepartmentId(sb.getIndustryId3());
 
-                return;
+                return sb.getPrincipalshipId();
             }            
             
             if ( !StringTools.isNullOrNone(sb.getIndustryId2()))
             {
                 item.setDepartmentId(sb.getIndustryId2());
 
-                return;
+                return sb.getPrincipalshipId();
             }
 
             if ( !StringTools.isNullOrNone(sb.getIndustryId()))
             {
                 item.setDepartmentId(sb.getIndustryId());
 
-                return;
+                return sb.getPrincipalshipId();
             }
             
         }else
@@ -3426,25 +3432,25 @@ public class OutListenerTaxGlueImpl implements OutListener
             {
                 item.setDepartmentId(sb.getIndustryId3());
 
-                return;
+                return sb.getPrincipalshipId();
             }            
             
             if ( !StringTools.isNullOrNone(sb.getIndustryId2()))
             {
                 item.setDepartmentId(sb.getIndustryId2());
 
-                return;
+                return sb.getPrincipalshipId() ;
             }
 
             if ( !StringTools.isNullOrNone(sb.getIndustryId()))
             {
                 item.setDepartmentId(sb.getIndustryId());
 
-                return;
+                return sb.getPrincipalshipId();
             }
         }
         
-
+        return "";
     }
 
     /**
@@ -4405,52 +4411,150 @@ public class OutListenerTaxGlueImpl implements OutListener
         throws MYException
     {
         String name = "销售-赠送:" + outBean.getFullId() + '.';
-
-        // 借:库存商品 贷:应付账款-供应商
-        FinanceItemBean itemIn = new FinanceItemBean();
-
+        final List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
+        outBean.setBaseList(baseList);
         String pare1 = commonDAO.getSquenceString();
 
-        itemIn.setPareId(pare1);
+        //#135 根据赠品承担配置生成凭证,但是如何能找到用的哪一条赠品配置规则呢？
+        //TODO
+        ProductVSGiftBean giftBean = this.productVSGiftDAO.find("");
+        if (giftBean!= null &&
+                (giftBean.getCompanyShare() >0 || giftBean.getStafferShare() > 0)){
+            //公司承担比例
+            if (giftBean.getCompanyShare()> 0){
+                FinanceItemBean itemIn = new FinanceItemBean();
 
-        itemIn.setName("主营业务成本:" + name);
+                itemIn.setPareId(pare1);
 
-        itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+                itemIn.setName("主营业务成本:" + name);
 
-        FinanceHelper.copyFinanceItem(financeBean, itemIn);
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
 
-        // 营业费用-买赠费用(单位/部门/职员/纳税实体)
-        String itemInTaxId = TaxItemConstanst.RECEIVE_COMMON1;
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
-        TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+                // 营业费用-买赠费用(单位/部门/职员/纳税实体)
+                String itemInTaxId = TaxItemConstanst.RECEIVE_COMMON1;
 
-        if (itemInTax == null)
-        {
-            throw new MYException("数据错误,请确认操作");
+                TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+                if (itemInTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(itemInTax, itemIn);
+
+                double money = type * getOutCost(outBean);
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(money)*giftBean.getCompanyShare()/100);
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 单位/部门/职员/纳税实体
+                itemIn.setUnitId(outBean.getCustomerId());
+
+                String principalshipId = copyDepartment(outBean, itemIn);
+                //开单人对应部门负责人
+                StafferBean stafferBean = this.getDepartmentHead(principalshipId);
+                if (stafferBean == null){
+                    _logger.error("部门负责人不存在:"+principalshipId);
+                    itemIn.setStafferId(outBean.getStafferId());
+                } else{
+                    itemIn.setStafferId(stafferBean.getId());
+                }
+
+                itemIn.setDuty2Id(outBean.getDutyId());
+
+                itemList.add(itemIn);
+            }
+
+            //个人承担比例
+            if (giftBean.getStafferShare()> 0){
+                FinanceItemBean itemIn = new FinanceItemBean();
+
+                itemIn.setPareId(pare1);
+
+                itemIn.setName("主营业务成本:" + name);
+
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+                // 营业费用-买赠费用(单位/部门/职员/纳税实体)
+                String itemInTaxId = TaxItemConstanst.RECEIVE_COMMON1;
+
+                TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+                if (itemInTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(itemInTax, itemIn);
+
+                double money = type * getOutCost(outBean);
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(money)*giftBean.getStafferShare()/100);
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 单位/部门/职员/纳税实体
+                itemIn.setUnitId(outBean.getCustomerId());
+                copyDepartment(outBean, itemIn);
+                itemIn.setStafferId(outBean.getStafferId());
+                itemIn.setDuty2Id(outBean.getDutyId());
+
+                itemList.add(itemIn);
+            }
+        } else{
+            // 借:库存商品 贷:应付账款-供应商
+            FinanceItemBean itemIn = new FinanceItemBean();
+
+            itemIn.setPareId(pare1);
+
+            itemIn.setName("主营业务成本:" + name);
+
+            itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+            FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+            // 营业费用-买赠费用(单位/部门/职员/纳税实体)
+            String itemInTaxId = TaxItemConstanst.RECEIVE_COMMON1;
+
+            TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+            if (itemInTax == null)
+            {
+                throw new MYException("数据错误,请确认操作");
+            }
+
+            // 科目拷贝
+            FinanceHelper.copyTax(itemInTax, itemIn);
+
+
+            double money = type * getOutCost(outBean);
+
+            itemIn.setInmoney(FinanceHelper.doubleToLong(money));
+
+            itemIn.setOutmoney(0);
+
+            itemIn.setDescription(itemIn.getName());
+
+            // 辅助核算 单位/部门/职员/纳税实体
+            itemIn.setUnitId(outBean.getCustomerId());
+            copyDepartment(outBean, itemIn);
+            itemIn.setStafferId(outBean.getStafferId());
+            itemIn.setDuty2Id(outBean.getDutyId());
+
+            itemList.add(itemIn);
         }
 
-        // 科目拷贝
-        FinanceHelper.copyTax(itemInTax, itemIn);
-
-        final List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
-
-        outBean.setBaseList(baseList);
-
-        double money = type * getOutCost(outBean);
-
-        itemIn.setInmoney(FinanceHelper.doubleToLong(money));
-
-        itemIn.setOutmoney(0);
-
-        itemIn.setDescription(itemIn.getName());
-
-        // 辅助核算 单位/部门/职员/纳税实体
-        itemIn.setUnitId(outBean.getCustomerId());
-        copyDepartment(outBean, itemIn);
-        itemIn.setStafferId(outBean.getStafferId());
-        itemIn.setDuty2Id(outBean.getDutyId());
-
-        itemList.add(itemIn);
 
         // 库存商品（成本价*数量）
         for (BaseBean baseBean : baseList)
@@ -5311,6 +5415,25 @@ public class OutListenerTaxGlueImpl implements OutListener
         List<StafferBean> stafferList = stafferDAO.queryEntityBeansByCondition(condition);
         
         return stafferList;
+    }
+
+    private StafferBean getDepartmentHead(String departmentId)
+    {
+        StafferBean result = null;
+        ConditionParse condition = new ConditionParse();
+
+        condition.addWhereStr();
+
+        condition.addCondition(" and StafferBean.postid in ('17','19')");
+
+        condition.addCondition("StafferBean.principalshipid", "=", departmentId);
+
+        List<StafferBean> stafferList = stafferDAO.queryEntityBeansByCondition(condition);
+
+        if (!ListTools.isEmptyOrNull(stafferList)){
+            result = stafferList.get(0);
+        }
+        return result;
     }
     
     /**
@@ -6961,4 +7084,12 @@ public class OutListenerTaxGlueImpl implements OutListener
 	{
 		this.stafferVSCustomerDAO = stafferVSCustomerDAO;
 	}
+
+    public ProductVSGiftDAO getProductVSGiftDAO() {
+        return productVSGiftDAO;
+    }
+
+    public void setProductVSGiftDAO(ProductVSGiftDAO productVSGiftDAO) {
+        this.productVSGiftDAO = productVSGiftDAO;
+    }
 }
