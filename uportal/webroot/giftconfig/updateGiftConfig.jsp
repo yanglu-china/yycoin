@@ -129,6 +129,10 @@ function load()
                 <input type="text" name="excludeCity" id="excludeCity" placeholder="可多选，以分号;分割" value="${bean.excludeCity}">
             </p:cell>
 
+            <p:pro field="companyShare" innerString="size=60 oncheck='isMathNumber'"/>
+
+            <p:pro field="stafferShare" innerString="size=60 oncheck='isMathNumber'"/>
+
             <p:pro field="beginDate" />
 
             <p:pro field="endDate" />

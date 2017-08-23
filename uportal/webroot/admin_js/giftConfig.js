@@ -47,4 +47,13 @@ function checkBean(){
         alert('城市和不包含城市不能同时填写!');
         return false;
     }
+
+    var companyShare = $$('companyShare');
+    var stafferShare = $$('stafferShare');
+    // console.log(Number(companyShare));
+    // console.log(Number(stafferShare));
+    if(Number(companyShare) + Number(stafferShare)!= 0 && Number(companyShare)+Number(stafferShare)!= 100){
+        alert('公司和个人承担比例之和必须为100或者0!');
+        return false;
+    }
 }
