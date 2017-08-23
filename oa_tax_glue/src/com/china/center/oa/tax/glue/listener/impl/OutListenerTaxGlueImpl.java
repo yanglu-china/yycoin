@@ -4416,8 +4416,7 @@ public class OutListenerTaxGlueImpl implements OutListener
         String pare1 = commonDAO.getSquenceString();
 
         //#135 根据赠品承担配置生成凭证,但是如何能找到用的哪一条赠品配置规则呢？
-        //TODO
-        ProductVSGiftBean giftBean = this.productVSGiftDAO.find("");
+        ProductVSGiftBean giftBean = this.productVSGiftDAO.find(outBean.getRefGiftId());
         if (giftBean!= null &&
                 (giftBean.getCompanyShare() >0 || giftBean.getStafferShare() > 0)){
             //公司承担比例

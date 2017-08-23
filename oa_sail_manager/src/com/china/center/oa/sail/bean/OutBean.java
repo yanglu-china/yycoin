@@ -487,6 +487,11 @@ public class OutBean implements Serializable
     private String outbackStatus = "";
 
     private boolean customerCreated = false;
+
+    /**
+     * #135 赠品规则ID
+     */
+    private String refGiftId = "";
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -2147,6 +2152,14 @@ public class OutBean implements Serializable
 
     public void setMotivationApplyId(String motivationApplyId) {
         this.motivationApplyId = motivationApplyId;
+    }
+
+    public String getRefGiftId() {
+        return refGiftId;
+    }
+
+    public void setRefGiftId(String refGiftId) {
+        this.refGiftId = refGiftId;
     }
 
     /**

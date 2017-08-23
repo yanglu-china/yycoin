@@ -1208,7 +1208,7 @@ public class OutImportManagerImpl implements OutImportManager
 
             String fullId = out.getFullId();
             newOutBean.setDescription("自动生成赠品订单，关联销售单：" + fullId+" 关联赠品活动："+giftVO.getActivity());
-
+			newOutBean.setRefGiftId(giftVO.getId());
             //2015/9/29 自动导入生成赠品订单时关联refOutFullId
             newOutBean.setRefOutFullId(fullId);
 
