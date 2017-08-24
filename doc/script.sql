@@ -573,5 +573,6 @@ delete from t_center_oamenuitem where PARENTID=21 or MENUITEMNAME in('回访对账')
 delete from t_center_oamenuitem where MENUITEMNAME='流程管理' or PARENTID=07;
 
 #135
+alter table T_CENTER_VS_GIFT add column excludeBank varchar(100) default '',add column excludeIndustryName varchar(100) default '',add column excludeIndustryName2 varchar(100) default '',add column excludeIndustryName3 varchar(100) default '',add column excludeCity varchar(100) default '',add column excludeProvince varchar(100) default '',add column excludeStafferName varchar(100) default '';
 alter table T_CENTER_VS_GIFT add column companyShare int(11) default 0,add column stafferShare int(11) default 0;
 alter table t_center_out add column refGiftId varchar(32) default '';
