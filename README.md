@@ -1,15 +1,11 @@
 ERP built with Spring,Java7.
 
 Build tool:
-gradle
+gradle(2.2)
 
->gradle clean undeploy war deploy
+>gradle clean backup undeploy war deploy
 
 http://localhost:8080/uportal/admin/index.jsp  
-
-
-Allow remote debug  
-set JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,address=9999,suspend=n,server=y  
 
 
 Logstash with log4j input plugin  
