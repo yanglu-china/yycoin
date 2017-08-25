@@ -236,17 +236,6 @@ public class TravelApplyAction extends DispatchAction
                 {
                     TCPHelper.chageVO(vo);
 
-					//中收申请为结束状态进行已关联报销
-                    if(vo.getStatus() == TcpConstanst.TCP_STATUS_END && vo.getType()==TcpConstanst.TCP_APPLYTYPE_MID && vo.getRefId().equals("")){
-                    	List<ExpenseApplyBean> appList = expenseApplyDAO.queryEntityBeansByFK(vo.getId());
-                    	if(appList.size() > 0){
-                    		for (ExpenseApplyBean expenseApplyBean : appList) {
-								vo.setFeedback(TcpConstanst.TCP_APPLY_FEEDBACK_YES);
-								travelApplyDAO.updateFeedback(vo.getId(), expenseApplyBean.getId(), TcpConstanst.TCP_APPLY_FEEDBACK_YES);
-							}
-	                    }
-                    }
-
                     // 当前处理人
                     List<TcpApproveVO> approveList = tcpApproveDAO.queryEntityVOsByFK(vo.getId());
 
@@ -348,19 +337,6 @@ public class TravelApplyAction extends DispatchAction
                 public void handle(TravelApplyVO vo)
                 {
                     TCPHelper.chageVO(vo);
-
-					//除了加班请假申请外 其余的申请只要状态为结束都进行已关联报销
-                    long s=System.currentTimeMillis();
-                    if(vo.getRefId().equals("") && vo.getStatus() == TcpConstanst.TCP_STATUS_END && vo.getType()==TcpConstanst.TCP_APPLYTYPE_MID){
-	                    List<ExpenseApplyBean> appList = expenseApplyDAO.queryEntityBeansByFK(vo.getId());
-	                    if(appList.size() > 0){
-	                    	for (ExpenseApplyBean expenseApplyBean : appList) {
-    							vo.setRefId(expenseApplyBean.getId());
-    							vo.setFeedback(TcpConstanst.TCP_APPLY_FEEDBACK_YES);
-    							travelApplyDAO.updateFeedback(vo.getId(), vo.getRefId(), TcpConstanst.TCP_APPLY_FEEDBACK_YES);
-	    					}
-	                    }
-                    }
 
                     // 当前处理人
                     List<TcpApproveVO> approveList = tcpApproveDAO.queryEntityVOsByFK(vo.getId());
