@@ -22,7 +22,6 @@ import com.china.center.oa.tcp.vo.TravelApplyVO;
  * @see TravelApplyDAO
  * @since 3.0
  */
-@Transactional
 public interface TravelApplyDAO extends DAO<TravelApplyBean, TravelApplyVO>
 {
     int updateStatus(String id, int status);
