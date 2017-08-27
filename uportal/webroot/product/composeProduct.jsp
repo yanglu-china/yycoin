@@ -63,7 +63,13 @@ function selectProduct(obj)
 
 function getProductBom(oos)
 {
+//    document.getElementById('productTable').deleteRow(1);
+    //#139 从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
+    var table = $O("tables");
+//    console.log(table);
+    table.deleteRow(1);
 	var oo = oos[0];
+//	console.log(oo);
     current.value = oo.pname;
 
     $O("mtype").value = oo.pmtype;
@@ -82,6 +88,8 @@ function getProductBom(oos)
         setInputValueInTr(trow, 'srcPrice', item.price);
         setInputValueInTr(trow, 'srcAmount', item.pamount);
         setInputValueInTr(trow, 'srcRelation', item.srcRelation);
+        setInputValueInTr(trow, 'bomAmount', item.bomAmount);
+        setInputValueInTr(trow, 'attritionRate', item.attritionRate);
         var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
         setSelect(srcDe1, "A1201606211663545389");
     }
@@ -410,17 +418,18 @@ function load()
 	
 	<tr>
         <td colspan='2' align='center'>
-        <table width="98%" border="0" cellpadding="0" cellspacing="0"
-            class="border">
+        <table width="98%" border="0" cellpadding="0" cellspacing="0" class="border" id="productTable">
             <tr>
                 <td>
                 <table width="100%" border="0" cellspacing='1' id="tables">
                     <tr align="center" class="content0">
                         <td width="25%" align="center">源仓区</td>
-                        <td width="40%" align="center">源产品</td>
-                        <td width="10%" align="center">使用数量</td>
-                        <td width="10%" align="center">可用数量</td>
-                        <td width="10%" align="center">价格</td>
+                        <td width="35%" align="center">源产品</td>
+                        <td width="8%" align="center">使用数量</td>
+                        <td width="8%" align="center">可用数量</td>
+                        <td width="8%" align="center">价格</td>
+                        <td width="8%" align="center">组成用量</td>
+                        <td width="8%" align="center">损耗率</td>
                         <td width="5%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr()"></td>
                     </tr>
@@ -456,7 +465,8 @@ function load()
          </c:forEach>
          </select>
          </td>
-         <td width="30%" align="center"><input type="text" 
+         <td width="30%" align="center">
+             <input type="text"
          style="width: 100%;cursor: pointer;" readonly="readonly" value="" oncheck="notNone" name="targerName" onclick="selectDepotpartProduct(this)">
          <input type="hidden" name="srcProductId" value="">
          <input type="hidden" name="srcInputRate" value="">
@@ -468,8 +478,11 @@ function load()
                     name="srcAmount" value="" oncheck="notNone;isNumber"></td>
          <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
                     name="srcPrice" value="0" oncheck="isFloat">
-         <input type="hidden" 
-                    name="srcRelation" value="">
+        <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
+                                              name="bomAmount" value="0" >
+        <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
+                                              name="attritionRate" value="0" >
+         <input type="hidden" name="srcRelation" value="">
          </td>
         <td width="5%" align="center"><input type=button
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>

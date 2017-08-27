@@ -23,6 +23,10 @@ public class ProductBOMBean implements Serializable
 	@Join(tagClass = ProductBean.class, alias = "ProductBean2")
 	private String subProductId = "";
 
+	private int bomAmount;
+
+	private int attritionRate;
+
 	public ProductBOMBean()
 	{
 	}
@@ -73,5 +77,21 @@ public class ProductBOMBean implements Serializable
 	public void setSubProductId(String subProductId)
 	{
 		this.subProductId = subProductId;
+	}
+
+	public int getBomAmount() {
+		return bomAmount;
+	}
+
+	public void setBomAmount(int bomAmount) {
+		this.bomAmount = bomAmount;
+	}
+
+	public int getAttritionRate() {
+		return attritionRate;
+	}
+
+	public void setAttritionRate(int attritionRate) {
+		this.attritionRate = attritionRate;
 	}
 }

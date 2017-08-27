@@ -231,6 +231,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 	    
 	    if (ListTools.isEmptyOrNull(relationList))
 	    {
+	        _logger.error("产品可发库存不足:"+bean);
 	        throw new MYException("产品[%s]可发库存不足", productBean.getName());
 	    }
 	
@@ -294,6 +295,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 	    
 	    if (ListTools.isEmptyOrNull(relationList))
 	    {
+            _logger.error("产品可发库存不足:"+bean);
 	        throw new MYException("产品[%s]可发库存不足", productBean.getName());
 	    }
 	
