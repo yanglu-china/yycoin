@@ -9,6 +9,7 @@ import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.jsonimpl.JSONArray;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
+import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
@@ -3238,6 +3239,13 @@ public class OutAction extends ParentOutAction
             request.setAttribute("checkOutPayStatus", checkOutPayStatus);
             
             // 详细
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("type","=",bean.getPresentFlag());
+            List<PresentFlagBean> presentFlagBeans = this.presentFlagDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(presentFlagBeans)){
+                bean.setPresentFlagName(presentFlagBeans.get(0).getName());
+            }
             return mapping.findForward("detailOut");
         }
         

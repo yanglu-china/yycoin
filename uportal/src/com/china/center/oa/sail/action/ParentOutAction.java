@@ -2668,8 +2668,7 @@ public class ParentOutAction extends DispatchAction
 					conditionParse.addCondition("type","=",element.getPresentFlag());
 					List<PresentFlagBean> presentFlagBeans = this.presentFlagDAO.queryEntityBeansByCondition(conditionParse);
 					if (ListTools.isEmptyOrNull(presentFlagBeans)){
-						line.writeColumn(DefinedCommon.getValue("presentFlag",
-								element.getPresentFlag()));
+						line.writeColumn("");
 					} else{
 						line.writeColumn(presentFlagBeans.get(0).getName());
 					}

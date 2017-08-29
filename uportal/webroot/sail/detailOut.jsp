@@ -222,9 +222,10 @@ function checkBean()
 					<tr id="presentTR" class="content1" >
 						<td width="15%" align="right" id="outd">二级类型：</td>
 						<td width="35%">
-                            <select name="presentFlag" class="select_class" values="${bean.presentFlag}">
-								<p:option type="presentFlag" empty="true"></p:option>
-							</select>
+                            <%--<select name="presentFlag" class="select_class" values="${bean.presentFlag}">--%>
+								<%--<p:option type="presentFlag" empty="true"></p:option>--%>
+							<%--</select>--%>
+							<input type="text" name="presentFlagName" maxlength="30" value="${bean.presentFlagName}" readonly="readonly">
                         </td>
                         <td width="15%" align="right">未审批原因：</td>
                         <td width="35%">

@@ -81,6 +81,9 @@ public class OutVO extends OutBean
     @Relationship(relationField = "guarantor")
     private String guarantorName = "";
 
+    @Ignore
+    private String presentFlagName = "";
+
     /**
      * 退货金额
      */
@@ -113,6 +116,14 @@ public class OutVO extends OutBean
     
     public OutVO()
     {
+    }
+
+    public String getPresentFlagName() {
+        return presentFlagName;
+    }
+
+    public void setPresentFlagName(String presentFlagName) {
+        this.presentFlagName = presentFlagName;
     }
 
     /**
