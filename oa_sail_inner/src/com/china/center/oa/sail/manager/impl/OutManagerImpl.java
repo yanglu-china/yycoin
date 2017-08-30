@@ -9166,6 +9166,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	}
     	
 //    	outDAO.saveEntityBean(newOutBean);
+        //#143 空开的新订单的状态要设为 已发货
+        newOutBean.setStatus(OutConstant.STATUS_SEC_PASS);
         this.saveOutWithPodate(newOutBean);
     	
     	baseDAO.saveAllEntityBeans(baseList);
@@ -12711,6 +12713,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         newOutBean.setDistributeBean(distributionBean);
         // 付款方式:客户信用和业务员信用额度担保
         newOutBean.setReserve3(2);
+        newOutBean.setStatus(OutConstant.STATUS_SEC_PASS);
         outDAO.saveEntityBean(newOutBean);
 
         //原单更新付款状态
