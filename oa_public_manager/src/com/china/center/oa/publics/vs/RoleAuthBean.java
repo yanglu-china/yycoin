@@ -94,4 +94,13 @@ public class RoleAuthBean implements Serializable
     {
         this.authId = authId;
     }
+
+    @Override
+    public String toString() {
+        return "RoleAuthBean{" +
+                "id='" + id + '\'' +
+                ", roleId='" + roleId + '\'' +
+                ", authId='" + authId + '\'' +
+                '}';
+    }
 }

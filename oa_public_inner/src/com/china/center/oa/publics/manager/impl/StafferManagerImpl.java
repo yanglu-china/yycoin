@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,6 +60,8 @@ import com.china.center.tools.StringTools;
 @Exceptional
 public class StafferManagerImpl extends AbstractListenerManager<StafferListener> implements StafferManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private UserDAO userDAO = null;
 
     private StafferDAO stafferDAO = null;
@@ -497,6 +501,7 @@ public class StafferManagerImpl extends AbstractListenerManager<StafferListener>
         stafferDAO.updateEntityBean(bean);
 
         stafferVSPriDAO.saveAllEntityBeans(priList);
+        _logger.info(oldBean+" staffer privilege updated to "+bean+"***with priList***"+priList+" by user***"+user.getName());
 
         return true;
     }

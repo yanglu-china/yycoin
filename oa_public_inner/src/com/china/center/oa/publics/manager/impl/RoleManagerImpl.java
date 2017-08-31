@@ -11,6 +11,8 @@ package com.china.center.oa.publics.manager.impl;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,8 @@ import com.china.center.tools.ListTools;
 @Exceptional
 public class RoleManagerImpl implements RoleManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private RoleDAO roleDAO = null;
 
     private CommonDAO commonDAO = null;
@@ -126,6 +130,8 @@ public class RoleManagerImpl implements RoleManager
             }
         }
 
+        List<RoleAuthBean> oldAuthList = this.roleAuthDAO.queryEntityBeansByFK(bean.getId());
+        _logger.info(oldBean.getName()+" role auth ***"+oldAuthList+" updated to "+auth+" by user***"+user.getName());
         return true;
     }
 

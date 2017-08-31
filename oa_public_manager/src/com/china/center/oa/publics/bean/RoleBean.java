@@ -164,4 +164,16 @@ public class RoleBean implements Serializable
     {
         this.locationId = locationId;
     }
+
+    @Override
+    public String toString() {
+        return "RoleBean{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", locationId='" + locationId + '\'' +
+                ", visible=" + visible +
+                ", description='" + description + '\'' +
+                ", auth=" + auth +
+                '}';
+    }
 }
