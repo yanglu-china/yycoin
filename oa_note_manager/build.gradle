@@ -1,7 +1,5 @@
-
-
 dependencies {
-
+    compile project(':oa_public_manager')
 }
 
 task compileTask << {
