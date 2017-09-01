@@ -1,5 +1,5 @@
 dependencies {
-    compile project(':oa_mailandgroup_manager')
+    compile project(':oa_mailandgroup_manager'),project(':oa_note_manager')
 }
 
 task compileTask << {

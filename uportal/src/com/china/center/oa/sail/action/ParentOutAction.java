@@ -70,7 +70,7 @@ import com.china.center.oa.sail.wrap.PromotionWrap;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
 import com.china.center.tools.*;
-import edu.emory.mathcs.backport.java.util.Collections;
+// import edu.emory.mathcs.backport.java.util.Collections;
 import jxl.Workbook;
 import jxl.write.*;
 import org.apache.commons.logging.Log;

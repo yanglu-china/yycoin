@@ -57,7 +57,7 @@ import com.china.center.oa.sail.wrap.CreditWrap;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.tools.*;
-import edu.emory.mathcs.backport.java.util.Collections;
+// import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;

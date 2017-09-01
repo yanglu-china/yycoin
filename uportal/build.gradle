@@ -45,7 +45,7 @@ dependencies {
     // end::actuator[]
     testCompile("junit:junit")
     compile project(':oa_budget_manager'),project(':oa_budget_inner'),
-            project(":oa_customer_manager"),project(':oa_customer_inner'),
+            project(":oa_customer_manager"),project(':oa_customer_inner'),project(':oa_customervssail_glue'),
             project(':oa_customervsservice_glue'),
             project(":oa_commission_manager"),project(":oa_commission_inner"),
             project(':oa_finance_manager'),project(':oa_finance_inner'),

@@ -21,7 +21,7 @@ subprojects {
         mavenCentral()
     }
     dependencies {
-        compile fileTree(dir: 'D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/', include: '*.jar',
+        compile fileTree(dir: '../uportal/webroot/WEB-INF/lib/', include: '*.jar',
                 excludes:['com.springsource.org.apache.commons.attributes-2.2.0.jar',
                           'com.china.center.oa.budget.manager_1.0.0.jar',
                           'com.china.center.oa.budget.inner_1.0.0.jar',

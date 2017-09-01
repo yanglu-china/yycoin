@@ -1,5 +1,5 @@
 dependencies {
-    compile project(':oa_product_manager'),project(':oa_public_manager')
+    compile project(':oa_product_manager'),project(':oa_public_manager'),project(':oa_customer_manager')
 }
 
 task compileTask << {
