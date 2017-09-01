@@ -626,6 +626,12 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             // 中收报销不生成凭证
             if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_MID) {
             	checkBudget(user, bean, 1);
+
+                //#134 中收报销待财务支付后更新中收申请状态状态
+                if (!StringTools.isNullOrNone(bean.getRefId())) {
+                    travelApplyDAO.updateFeedback(bean.getRefId(), bean.getId(),
+                            TcpConstanst.TCP_APPLY_FEEDBACK_YES);
+                }
             } else {
             	Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
 
@@ -770,6 +776,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 // 这里要删除申请的冻结的(这样借款单据就没有预算了)
                 budgetManager.deleteBudgetLogListWithoutTransactional(user, bean.getRefId());
             }
+
         }
 
         // 这里处理报销最终的凭证
