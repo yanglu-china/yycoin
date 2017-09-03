@@ -1527,6 +1527,30 @@ public class ProductAction extends DispatchAction
         return preForCompose(mapping, form, request, response);
     }
 
+
+    public ActionForward computePrice(ActionMapping mapping, ActionForm form,
+                                        HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        AjaxResult ajax = new AjaxResult();
+
+        ComposeProductBean bean = new ComposeProductBean();
+
+        BeanUtil.getBean(bean, request);
+        _logger.info(bean);
+        try {
+            setCompose(request, bean);
+            ajax.setMsg(bean);
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            ajax.setError("Error:" + e.getMessage());
+        }
+
+        return JSONTools.writeResponse(response, ajax);
+    }
     /**
      * 2015/7/24 预合成产品
      *
@@ -1977,7 +2001,7 @@ public class ProductAction extends DispatchAction
         bean.setLogTime(TimeTools.now());
         bean.setType(StorageConstant.OPR_STORAGE_COMPOSE);
         bean.setDescription(description);
-
+        _logger.info("****bean****"+bean);
         // 获取费用
         String[] feeItemIds = request.getParameterValues("feeItemId");
         String[] feeItems = request.getParameterValues("feeItem");
@@ -2036,7 +2060,7 @@ public class ProductAction extends DispatchAction
             each.setProductId(srcProductIds[i]);
             each.setRelationId(srcRelations[i]);
             each.setInputRate(CommonTools.parseFloat(srcInputRates[i]));
-
+            _logger.info("****each****"+each);
             itemList.add(each);
 
             total += each.getPrice() * each.getAmount();

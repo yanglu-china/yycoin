@@ -8,6 +8,7 @@
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
+<script src="../js/jquery/jquery.js"></script>
 <script language="JavaScript" src="../product_js/composeProduct.js"></script>
 <script language="javascript">
 
@@ -22,6 +23,24 @@ function addBean()
 {
     $O('save').value = '1';
     submit('确定合成产品?', null, checks);
+}
+
+function computePrice()
+{
+    var formData = $("#formEntry").serialize();
+//    console.log("formData***"+formData);
+    $.ajax({
+        type: "POST",
+        url: '../product/product.do?method=computePrice',
+        data: formData, // serializes the form's elements.
+        success: function(data)
+        {
+//            alert(data);
+//            console.log(data);
+            var jsonData = JSON.parse(data);
+            $O('price').innerHTML = "合成价格:"+jsonData.msg.price;
+        }
+    });
 }
 
 function checks()
@@ -324,8 +343,8 @@ function load()
 
 </head>
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../product/product.do" method="post"><input
-	type="hidden" name="method" value="composeProduct"> 
+<form name="formEntry" action="../product/product.do" method="post" id="formEntry">
+    <input type="hidden" name="method" value="composeProduct">
 	<input type=hidden name="mtype" value="">
 	<input type=hidden name="oldproduct" value="">
     <input type="hidden" name="save" value="">
@@ -429,7 +448,7 @@ function load()
                         <td width="8%" align="center">可用数量</td>
                         <td width="8%" align="center">价格</td>
                         <td width="8%" align="center">组成用量</td>
-                        <td width="8%" align="center">损耗率</td>
+                        <td width="8%" align="center">损耗率(‰)</td>
                         <td width="5%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr()"></td>
                     </tr>
@@ -444,14 +463,16 @@ function load()
 	<p:line flag="1" />
 
 	<p:button leftWidth="100%" rightWidth="0%">
+        <div align="left" id="price"></div>
 		<div align="right">
+            <input type="button" class="button_class"
+                   value="&nbsp;&nbsp;计算合成价格&nbsp;&nbsp;" onclick="computePrice()">&nbsp;&nbsp;
             <input type="button" class="button_class"
                    value="&nbsp;&nbsp;保 存&nbsp;&nbsp;" onclick="saveBean()">&nbsp;&nbsp;
 		  <input type="button" class="button_class" id="sub_b"
             value="&nbsp;&nbsp;提 交&nbsp;&nbsp;" onclick="addBean()">
         </div>
 	</p:button>
-	
 	<p:message2/>
 </p:body>
 </form>
