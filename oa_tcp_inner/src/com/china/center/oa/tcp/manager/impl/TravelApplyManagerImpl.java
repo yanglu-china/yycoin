@@ -3010,6 +3010,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         // “已出库”、“已发货”状态的订单
 //        con.addCondition("and OutBean.status in (3,4)");
 
+        //#148
+        con.addCondition(" and OutBean.status !=2 ");
+
         con.addCondition("outTime", ">", beginDate);
         con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0)");
         List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(con);
