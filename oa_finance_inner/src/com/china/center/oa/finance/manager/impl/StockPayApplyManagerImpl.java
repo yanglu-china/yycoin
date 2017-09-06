@@ -716,7 +716,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
             next = StockPayApplyConstant.APPLY_STATUS_SEC;
         }
 
-        _logger.info("getNextStatus current status***"+apply.getStatus()+"***next***"+next);
+        _logger.info(apply.getId()+" getNextStatus current status***"+apply.getStatus()+"***next***"+next);
         return next;
     }
     
@@ -761,7 +761,8 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 	
 	        next = StockPayApplyConstant.APPLY_STATUS_SEC;
 	    }
-	
+
+        _logger.info(apply.getId()+" getNextStatus2 current status***"+apply.getStatus()+"***next***"+next);
 	    return next;
 	}
 
