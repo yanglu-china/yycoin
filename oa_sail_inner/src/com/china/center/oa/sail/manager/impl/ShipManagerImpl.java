@@ -1931,22 +1931,6 @@ public class ShipManagerImpl implements ShipManager
                 List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
                 _logger.info("***itemList size***"+itemList.size());
                 if (!ListTools.isEmptyOrNull(itemList)){
-                    PackageItemBean first = itemList.get(0);
-                    first.getOutId();
-                    ConditionParse con3 = new ConditionParse();
-                    con3.addWhereStr();
-                    con3.addCondition("OutImportBean.oano", "=", first.getOutId());
-                    List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
-                    String citicNo = "";
-                    if (!ListTools.isEmptyOrNull(importBeans)){
-                        for (OutImportBean b: importBeans){
-                            if (!StringTools.isNullOrNone(b.getCiticNo())){
-                                citicNo = b.getCiticNo();
-                            }
-                        }
-                    }
-
-
                     for (PackageItemBean each : itemList)
                     {
                         //#351 filter LY orders
@@ -1991,7 +1975,20 @@ public class ShipManagerImpl implements ShipManager
                         ws.addCell(new Label(j++, i, this.getProductName(each), format3));
                         //数量
                         ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
+
                         //银行订单号
+                        ConditionParse con3 = new ConditionParse();
+                        con3.addWhereStr();
+                        con3.addCondition("OutImportBean.oano", "=", each.getOutId());
+                        List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
+                        String citicNo = "";
+                        if (!ListTools.isEmptyOrNull(importBeans)){
+                            for (OutImportBean b: importBeans){
+                                if (!StringTools.isNullOrNone(b.getCiticNo())){
+                                    citicNo = b.getCiticNo();
+                                }
+                            }
+                        }
                         ws.addCell(new Label(j++, i, citicNo, format3));
                         //收货人
                         ws.addCell(new Label(j++, i, bean.getReceiver(), format3));
@@ -2517,18 +2514,6 @@ public class ShipManagerImpl implements ShipManager
                 System.out.println("package itemlist size***********"+itemList.size());
 
                 i++;
-                PackageItemBean first = itemList.get(0);
-                first.getOutId();
-                ConditionParse con3 = new ConditionParse();
-                con3.addWhereStr();
-                con3.addCondition("OutImportBean.oano", "=", first.getOutId());
-                List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
-                String citicNo = "";
-                if (!ListTools.isEmptyOrNull(importBeans)){
-                    OutImportBean b = importBeans.get(0);
-                    citicNo = b.getCiticNo();
-                }
-
                 for (PackageItemBean each : itemList)
                 {
                     ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
@@ -2542,7 +2527,17 @@ public class ShipManagerImpl implements ShipManager
                     ws.addCell(new Label(j++, i, each.getProductName(), format3));
                     //数量
                     ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
+
                     //银行订单号
+                    ConditionParse con3 = new ConditionParse();
+                    con3.addWhereStr();
+                    con3.addCondition("OutImportBean.oano", "=", each.getOutId());
+                    List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
+                    String citicNo = "";
+                    if (!ListTools.isEmptyOrNull(importBeans)){
+                        OutImportBean b = importBeans.get(0);
+                        citicNo = b.getCiticNo();
+                    }
                     ws.addCell(new Label(j++, i, citicNo, format3));
                     //收货人
                     ws.addCell(new Label(j++, i, bean.getReceiver(), format3));
