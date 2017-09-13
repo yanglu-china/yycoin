@@ -141,12 +141,12 @@
 					return;
 				}
 
-				if (document.loginform.spassword.value.length < 1)
-				{
-					alert("请输入二次密码!");
-					document.loginform.spassword.focus();
-					return;
-				}
+//				if (document.loginform.spassword.value.length < 1)
+//				{
+//					alert("请输入二次密码!");
+//					document.loginform.spassword.focus();
+//					return;
+//				}
 
 				var keyRand = $$('rand').toUpperCase();
 
@@ -364,11 +364,6 @@
 								id="rang_span"><img name="randImage" onclick="again(this)"
 													style="cursor: pointer;" title="点击可以切换验证码" id="randImage"
 													src="image.jsp" width="60" height="20" border="1" align="middle"></span></td>
-					</tr>
-					<tr>
-						<td class="forumRow" align="right" valign="middle" width="39%"><b>二次密码：</b></td>
-						<td class="forumRow">
-							<input name=spassword value="" onkeypress=KeyPress() class="FormInputEdit" type="text">
 					</tr>
 					<tr>
 						<td colspan="2" class="forumRowHighlight" align="center"
