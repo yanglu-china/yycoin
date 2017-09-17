@@ -159,7 +159,16 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
         if (compose == null)
         {
-            throw new MYException("产品不存在："+productId);
+            if (!StringTools.isNullOrNone(bean.getDirTargerName())){
+                compose = this.productDAO.findByName(bean.getDirTargerName());
+                if (compose == null){
+                    throw new MYException("产品不存在："+productId);
+                } else{
+                    bean.setProductId(compose.getId());
+                }
+            } else{
+                throw new MYException("产品不存在："+productId);
+            }
         }
 
         if (compose.getCtype() != ProductConstant.CTYPE_YES)
