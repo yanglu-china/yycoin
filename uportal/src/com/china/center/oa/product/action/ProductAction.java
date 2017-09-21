@@ -74,7 +74,7 @@ import java.util.*;
 
 /**
  * FlowAction
- * 
+ *
  * @author ZHUZHU
  * @version 2009-4-26
  * @see ProductAction
@@ -95,7 +95,7 @@ public class ProductAction extends DispatchAction
     private ComposeFeeDefinedDAO composeFeeDefinedDAO = null;
 
     private ComposeProductDAO composeProductDAO = null;
-    
+
     private DecomposeProductDAO decomposeProductDAO = null;
 
     private CommonDAO commonDAO = null;
@@ -123,25 +123,25 @@ public class ProductAction extends DispatchAction
     private SailConfigManager sailConfigManager = null;
 
     private ProductVSLocationDAO productVSLocationDAO = null;
-    
+
     private ComposeItemDAO composeItemDAO = null;
-    
+
     private GoldSilverPriceDAO goldSilverPriceDAO = null;
 
     private PriceConfigDAO priceConfigDAO = null;
-    
+
     private PriceConfigManager priceConfigManager = null;
-    
+
     private ProductBOMDAO productBOMDAO = null;
-    
+
     private FlowLogDAO flowLogDAO = null;
-    
+
     private InvoiceDAO invoiceDAO = null;
-    
+
     private CiticVSOAProductDAO citicVSOAProductDAO = null;
 
     private StorageRelationManager storageRelationManager = null;
-    
+
     private static String QUERYPRODUCT = "queryProduct";
 
     private static String QUERYAPPLYPRODUCT = "queryApplyProduct";
@@ -157,11 +157,11 @@ public class ProductAction extends DispatchAction
     private static String QUERYPRICECHANGE = "queryPriceChange";
 
     private static String QUERYCOMPOSEFEEDEFINED = "queryComposeFeeDefined";
-    
+
     private static String RPTQUERYPRODUCTBOM = "rptQueryProductBom";
-    
+
     private static String QUERYDECOMPOSE = "queryDecompose";
-    
+
     private static String QUERYCITICPRODUCT = "queryCiticProduct";
 
     /**
@@ -173,7 +173,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * queryProduct
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -183,7 +183,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward queryProduct(ActionMapping mapping, ActionForm form,
                                       final HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         final ConditionParse condtion = new ConditionParse();
 
@@ -193,9 +193,9 @@ public class ProductAction extends DispatchAction
         final String src = request.getParameter("src");
 
         ActionTools.processJSONQueryCondition(QUERYPRODUCT, request, condtion);
-        
+
         notQueryFirstTime(condtion);
-        
+
         // 过滤非稳态的产品
         condtion.addIntCondition("ProductBean.status", "<>", ProductConstant.STATUS_APPLY);
 
@@ -203,31 +203,31 @@ public class ProductAction extends DispatchAction
         condtion.addCondition("order by ProductBean.abstractType desc, ProductBean.logTime desc");
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPRODUCT, request, condtion,
-            this.productDAO, new HandleResult<ProductVO>()
-            {
-                public void handle(ProductVO obj)
+                this.productDAO, new HandleResult<ProductVO>()
                 {
-                	// 根据配置获取结算价
-                	List<PriceConfigBean> list = priceConfigDAO.querySailPricebyProductId(obj.getId());
-                	
-                	if (!ListTools.isEmptyOrNull(list))
-                	{
-                		PriceConfigBean cb = priceConfigManager.calcSailPrice(list.get(0));
-                		
-                		obj.setSailPrice(cb.getSailPrice());
-                	}
-                	
-                    if ( !"0".equals(src))
+                    public void handle(ProductVO obj)
                     {
-                        SailConfBean sailConf = sailConfigManager.findProductConf(Helper
-                            .getStaffer(request), obj);
+                        // 根据配置获取结算价
+                        List<PriceConfigBean> list = priceConfigDAO.querySailPricebyProductId(obj.getId());
 
-                        obj.setSailPrice(obj.getSailPrice()
-                                         * (1 + sailConf.getPratio() / 1000.0d + sailConf
-                                             .getIratio() / 1000.0d));
+                        if (!ListTools.isEmptyOrNull(list))
+                        {
+                            PriceConfigBean cb = priceConfigManager.calcSailPrice(list.get(0));
+
+                            obj.setSailPrice(cb.getSailPrice());
+                        }
+
+                        if ( !"0".equals(src))
+                        {
+                            SailConfBean sailConf = sailConfigManager.findProductConf(Helper
+                                    .getStaffer(request), obj);
+
+                            obj.setSailPrice(obj.getSailPrice()
+                                    * (1 + sailConf.getPratio() / 1000.0d + sailConf
+                                    .getIratio() / 1000.0d));
+                        }
                     }
-                }
-            });
+                });
 
         return JSONTools.writeResponse(response, jsonstr);
     }
@@ -236,27 +236,27 @@ public class ProductAction extends DispatchAction
      * 第一次打开时，不做查询，须输入条件才允许查询
      * @param condtion
      */
-	private void notQueryFirstTime(ConditionParse condtion)
-	{
-		String conwhere = condtion.toString();
-        
+    private void notQueryFirstTime(ConditionParse condtion)
+    {
+        String conwhere = condtion.toString();
+
         if (conwhere.indexOf("1 = 2") == -1)
         {
-        	// 判断1=1 后面是否有And 条件
-        	
-        	String subwhere = conwhere.substring(conwhere.indexOf("1=1") + 3);
+            // 判断1=1 后面是否有And 条件
 
-        	if (StringTools.isNullOrNone(subwhere))
-        	{
-        		condtion.addFlaseCondition();
-        	}
+            String subwhere = conwhere.substring(conwhere.indexOf("1=1") + 3);
+
+            if (StringTools.isNullOrNone(subwhere))
+            {
+                condtion.addFlaseCondition();
+            }
         }
-	}
-    
+    }
+
     public ActionForward selectProducts(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        
-    	CommonTools.saveParamers(request);
+                                        HttpServletRequest request, HttpServletResponse response) throws ServletException {
+
+        CommonTools.saveParamers(request);
 
         List<ProductVO> list = null;
 
@@ -281,7 +281,7 @@ public class ProductAction extends DispatchAction
             PageSeparateTools.processSeparate(request, RPTQUERYPRODUCT);
 
             list = productDAO.queryEntityVOsByCondition(PageSeparateTools.getCondition(request,
-                RPTQUERYPRODUCT), PageSeparateTools.getPageSeparate(request, RPTQUERYPRODUCT));
+                    RPTQUERYPRODUCT), PageSeparateTools.getPageSeparate(request, RPTQUERYPRODUCT));
         }
 
         request.setAttribute("random", new Random().nextInt());
@@ -290,11 +290,11 @@ public class ProductAction extends DispatchAction
 
         return mapping.findForward("rptQueryProducts");
     }
-    
-    
+
+
     /**
      * queryPriceChange
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -304,7 +304,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward queryPriceChange(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         final ConditionParse condtion = new ConditionParse();
 
@@ -315,14 +315,14 @@ public class ProductAction extends DispatchAction
         condtion.addCondition("order by PriceChangeBean.id desc");
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPRICECHANGE, request, condtion,
-            this.priceChangeDAO);
+                this.priceChangeDAO);
 
         return JSONTools.writeResponse(response, jsonstr);
     }
 
     /**
      * lockStorageRelation
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -333,7 +333,7 @@ public class ProductAction extends DispatchAction
     public ActionForward lockStorageRelation(ActionMapping mapping, ActionForm form,
                                              HttpServletRequest request,
                                              HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         AjaxResult ajax = new AjaxResult();
 
@@ -357,7 +357,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * lockStorageRelation
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -368,7 +368,7 @@ public class ProductAction extends DispatchAction
     public ActionForward findStorageRelationStatus(ActionMapping mapping, ActionForm form,
                                                    HttpServletRequest request,
                                                    HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         AjaxResult ajax = new AjaxResult();
 
@@ -386,7 +386,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * unlockStorageRelation
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -397,7 +397,7 @@ public class ProductAction extends DispatchAction
     public ActionForward unlockStorageRelation(ActionMapping mapping, ActionForm form,
                                                HttpServletRequest request,
                                                HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         AjaxResult ajax = new AjaxResult();
 
@@ -421,7 +421,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * queryCompose
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -431,32 +431,32 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward queryCompose(ActionMapping mapping, ActionForm form,
                                       HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String foward = request.getParameter("foward");
 
         final ConditionParse condtion = new ConditionParse();
 
         condtion.addWhereStr();
-        
+
         condtion.addCondition(" and ComposeProductBean.parentId = ''");
 
         if ("1".equals(foward))
         {
             condtion.addIntCondition("ComposeProductBean.status", "=",
-                ComposeConstant.STATUS_SUBMIT);
+                    ComposeConstant.STATUS_SUBMIT);
         }
 
         if ("2".equals(foward))
         {
             condtion.addIntCondition("ComposeProductBean.status", "=",
-                ComposeConstant.STATUS_MANAGER_PASS);
+                    ComposeConstant.STATUS_MANAGER_PASS);
         }
 
         if ("3".equals(foward))
         {
             condtion.addIntCondition("ComposeProductBean.status", "=",
-                ComposeConstant.STATUS_CRO_PASS);
+                    ComposeConstant.STATUS_CRO_PASS);
         }
 
         ActionTools.processJSONQueryCondition(QUERYCOMPOSE, request, condtion);
@@ -504,7 +504,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * exportCompose
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -514,7 +514,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward exportCompose(ActionMapping mapping, ActionForm form,
                                        HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         OutputStream out = null;
 
@@ -549,22 +549,22 @@ public class ProductAction extends DispatchAction
             while (page.nextPage())
             {
                 List<ComposeProductVO> voFList = composeProductDAO.queryEntityVOsByCondition(
-                    condtion, page);
+                        condtion, page);
 
                 for (ComposeProductVO vo : voFList)
                 {
-                    
+
                     List<ComposeItemVO> itemVoList =  composeItemDAO.queryEntityVOsByFK(vo.getId());
-                    
+
                     for (ComposeItemVO itemVO : itemVoList)
                     {
                         line.reset();
-                        
+
                         line.writeColumn("[" + vo.getLogTime() + "]");
                         line.writeColumn(vo.getId());
 
                         List<FinanceBean> financeBeanList = financeDAO.queryRefFinanceItemByRefId(vo
-                            .getId());
+                                .getId());
 
                         if (financeBeanList.size() > 0)
                         {
@@ -584,7 +584,7 @@ public class ProductAction extends DispatchAction
                         line.writeColumn(ElTools.get("composeType", vo.getType()));
                         line.writeColumn(ElTools.get("pubCheckStatus", vo.getCheckStatus()));
                         line.writeColumn(ElTools.get("pubManagerType", vo.getMtype()));
-                        
+
                         line.writeColumn(itemVO.getDepotpartName());
                         line.writeColumn(itemVO.getProductCode());
                         line.writeColumn(itemVO.getProductName());
@@ -635,7 +635,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * queryApplyProduct(查询申请的产品)
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -645,7 +645,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward queryApplyProduct(ActionMapping mapping, ActionForm form,
                                            HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         User user = Helper.getUser(request);
 
@@ -667,7 +667,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * 查询产品申请
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -677,7 +677,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward queryCheckProduct(ActionMapping mapping, ActionForm form,
                                            HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         final ConditionParse condtion = new ConditionParse();
 
@@ -688,14 +688,14 @@ public class ProductAction extends DispatchAction
         ActionTools.processJSONQueryCondition(QUERYCHECKPRODUCT, request, condtion);
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCHECKPRODUCT, request, condtion,
-            this.productDAO);
+                this.productDAO);
 
         return JSONTools.writeResponse(response, jsonstr);
     }
 
     /**
      * 产品的选择
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -705,7 +705,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward rptQueryProduct(ActionMapping mapping, ActionForm form,
                                          HttpServletRequest request, HttpServletResponse reponse)
-        throws ServletException
+            throws ServletException
     {
         System.out.println("***rptQueryProduct*********");
         _logger.info("****rptQueryProduct***");
@@ -754,10 +754,10 @@ public class ProductAction extends DispatchAction
         _logger.info("****finish query******");
         return mapping.findForward("rptQueryProduct");
     }
-    
+
     /**
      * 产品的选择
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -766,13 +766,13 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward rptQueryProductBom(ActionMapping mapping, ActionForm form,
-                                         HttpServletRequest request, HttpServletResponse reponse)
-        throws ServletException
+                                            HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
     {
         CommonTools.saveParamers(request);
 
         List<ProductBOMVO> list = null;
-        
+
         if (PageSeparateTools.isFirstLoad(request))
         {
             ConditionParse condtion = new ConditionParse();
@@ -794,19 +794,22 @@ public class ProductAction extends DispatchAction
             PageSeparateTools.processSeparate(request, RPTQUERYPRODUCTBOM);
 
             list = productBOMDAO.queryEntityVOsByCondition(PageSeparateTools.getCondition(request,
-            		RPTQUERYPRODUCTBOM), PageSeparateTools.getPageSeparate(request, RPTQUERYPRODUCTBOM));
+                    RPTQUERYPRODUCTBOM), PageSeparateTools.getPageSeparate(request, RPTQUERYPRODUCTBOM));
         }
 
         Set<String> set = new HashSet<String>();
-        
+
         List<ProductBOMVO> lastList = new ArrayList<ProductBOMVO>();
-        
+
         // 组装结果集
         for (ProductBOMVO each : list)
         {
-        	if (!set.contains(each.getProductId()))
-        	{
-        		List<ProductBOMVO> voList = productBOMDAO.queryEntityVOsByFK(each.getProductId());
+            if (!set.contains(each.getProductId()))
+            {
+                List<ProductBOMVO> voList = productBOMDAO.queryEntityVOsByFK(each.getProductId());
+
+                //#139
+                List<ProductBOMVO> voListWithMultipleStorage = new ArrayList<ProductBOMVO>();
 
                 if(!ListTools.isEmptyOrNull(voList)){
                     for (ProductBOMVO bom: voList){
@@ -827,26 +830,39 @@ public class ProductAction extends DispatchAction
                         if (!ListTools.isEmptyOrNull(eachList)){
 //                            _logger.info(eachList.size());
 //                            _logger.info(eachList);
-                            StorageRelationVO vo = eachList.get(0);
-                            int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
-                            bom.setPamount(vo.getAmount()-preassign);
-                            bom.setPrice(this.roundDouble(vo.getPrice()));
-                            bom.setSrcRelation(vo.getId());
+//                            StorageRelationVO vo = eachList.get(0);
+//                            int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
+//                            bom.setPamount(vo.getAmount()-preassign);
+//                            bom.setPrice(this.roundDouble(vo.getPrice()));
+//                            bom.setSrcRelation(vo.getId());
+                            for (StorageRelationVO vo:eachList){
+                                int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
+                                ProductBOMVO bomVo = new ProductBOMVO();
+                                BeanUtil.copyProperties(bomVo, bom);
+                                bomVo.setPamount(vo.getAmount()-preassign);
+                                bomVo.setPrice(this.roundDouble(vo.getPrice()));
+                                bomVo.setSrcRelation(vo.getId());
+                                voListWithMultipleStorage.add(bomVo);
+                            }
+                        }else{
+                            voListWithMultipleStorage.add(bom);
                         }
                     }
                 }
-        		each.setVoList(voList);
-        		
-        		// voList 转换为JSON
-        		JSONArray shows = new JSONArray(voList, true);
+                _logger.info("***voList***"+voList.size()+"***"+voListWithMultipleStorage.size());
+                each.setVoList(voListWithMultipleStorage);
+//        		each.setVoList(voList);
 
-        		each.setBomJson(shows.toString());
+                // voList 转换为JSON
+                JSONArray shows = new JSONArray(voListWithMultipleStorage, true);
 
+                each.setBomJson(shows.toString());
+                _logger.info("***bomJson****"+each.getBomJson());
 
-        		lastList.add(each);
-        		
-        		set.add(each.getProductId());
-        	}
+                lastList.add(each);
+
+                set.add(each.getProductId());
+            }
 
         }
 
@@ -871,7 +887,7 @@ public class ProductAction extends DispatchAction
         String code = request.getParameter("code");
 
         String mtype = request.getParameter("mtype");
-        
+
         String stock = request.getParameter("stock");
 
         if ( !StringTools.isNullOrNone(name))
@@ -887,46 +903,46 @@ public class ProductAction extends DispatchAction
         // 不可全为空
         if (StringTools.isNullOrNone(name) && StringTools.isNullOrNone(code))
         {
-        	condtion.addFlaseCondition();
+            condtion.addFlaseCondition();
         }
-        
+
         if (OATools.getManagerFlag() && !StringTools.isNullOrNone(mtype))
         {
             // 采购
             if (!StringTools.isNullOrNone(stock))
             {
-            	int mtype1 = MathTools.parseInt(mtype);
-            	
-            	// 普通 17% 非旧货
-            	if (mtype1 == 1 || mtype1 == 3)
-            	{
-            		condtion.addCondition("ProductBean1.reserve4", "=", "1");
-            		
-            		condtion.addIntCondition("ProductBean1.consumeInDay", "<>", ProductConstant.PRODUCT_OLDGOOD);
-            		
-            	} // 普通 旧货
-            	else if (mtype1 == 2)
-            	{
-            		condtion.addCondition("ProductBean1.reserve4", "=", "1");
-            		
-            		condtion.addIntCondition("ProductBean1.consumeInDay", "=", ProductConstant.PRODUCT_OLDGOOD);
-            	} 
-            	// 管理
-            	else
-            	{
-            		condtion.addCondition("ProductBean1.reserve4", "=", mtype);
-            	}
+                int mtype1 = MathTools.parseInt(mtype);
+
+                // 普通 17% 非旧货
+                if (mtype1 == 1 || mtype1 == 3)
+                {
+                    condtion.addCondition("ProductBean1.reserve4", "=", "1");
+
+                    condtion.addIntCondition("ProductBean1.consumeInDay", "<>", ProductConstant.PRODUCT_OLDGOOD);
+
+                } // 普通 旧货
+                else if (mtype1 == 2)
+                {
+                    condtion.addCondition("ProductBean1.reserve4", "=", "1");
+
+                    condtion.addIntCondition("ProductBean1.consumeInDay", "=", ProductConstant.PRODUCT_OLDGOOD);
+                }
+                // 管理
+                else
+                {
+                    condtion.addCondition("ProductBean1.reserve4", "=", mtype);
+                }
             }
             else
             {
-            	condtion.addCondition("ProductBean1.reserve4", "=", mtype);
+                condtion.addCondition("ProductBean1.reserve4", "=", mtype);
             }
         }
     }
-    
+
     /**
      * 项目产品的选择
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -935,21 +951,21 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward selectProjectpro(ActionMapping mapping, ActionForm form,
-                                         HttpServletRequest request, HttpServletResponse reponse)
-        throws ServletException
+                                          HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
     {
         CommonTools.saveParamers(request);
 
         List<ProductVO> list = null;
-        
+
         String name = request.getParameter("name");
 
         String code = request.getParameter("code");
-        
+
         String firstLoad = request.getParameter("firstLoad");
-        
+
         ConditionParse condtion = new ConditionParse();
-        
+
         if ( !StringTools.isNullOrNone(name))
         {
             condtion.addCondition("ProductBean.name", "like", name);
@@ -959,8 +975,8 @@ public class ProductAction extends DispatchAction
         {
             condtion.addCondition("ProductBean.code", "like", code);
         }
-        
-            condtion.addIntCondition("ProductBean.status", "=", ProductConstant.STATUS_COMMON);
+
+        condtion.addIntCondition("ProductBean.status", "=", ProductConstant.STATUS_COMMON);
 
         if (!"1".equals(firstLoad))
         {
@@ -994,10 +1010,10 @@ public class ProductAction extends DispatchAction
 
         return mapping.findForward("selectProjectpro");
     }
-    
+
     /**
      * 合同产品的选择
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1006,21 +1022,21 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward selectAgreementpro(ActionMapping mapping, ActionForm form,
-                                         HttpServletRequest request, HttpServletResponse reponse)
-        throws ServletException
+                                            HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
     {
         CommonTools.saveParamers(request);
 
         List<ProductVO> list = null;
-        
+
         String name = request.getParameter("name");
 
         String code = request.getParameter("code");
-        
+
         String firstLoad = request.getParameter("firstLoad");
-        
+
         ConditionParse condtion = new ConditionParse();
-        
+
         if ( !StringTools.isNullOrNone(name))
         {
             condtion.addCondition("ProductBean.name", "like", name);
@@ -1030,8 +1046,8 @@ public class ProductAction extends DispatchAction
         {
             condtion.addCondition("ProductBean.code", "like", code);
         }
-        
-            condtion.addIntCondition("ProductBean.status", "=", ProductConstant.STATUS_COMMON);
+
+        condtion.addIntCondition("ProductBean.status", "=", ProductConstant.STATUS_COMMON);
 
         if (!"1".equals(firstLoad))
         {
@@ -1068,7 +1084,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * 虚拟产品的选择
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1078,7 +1094,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward rptQueryAbsProduct(ActionMapping mapping, ActionForm form,
                                             HttpServletRequest request, HttpServletResponse reponse)
-        throws ServletException
+            throws ServletException
     {
         CommonTools.saveParamers(request);
 
@@ -1105,9 +1121,9 @@ public class ProductAction extends DispatchAction
             PageSeparateTools.processSeparate(request, RPTQUERYPRODUCT);
 
             list = productDAO
-                .queryEntityVOsByCondition(PageSeparateTools.getCondition(request,
-                    RPTQUERYABSPRODUCT), PageSeparateTools.getPageSeparate(request,
-                    RPTQUERYABSPRODUCT));
+                    .queryEntityVOsByCondition(PageSeparateTools.getCondition(request,
+                            RPTQUERYABSPRODUCT), PageSeparateTools.getPageSeparate(request,
+                            RPTQUERYABSPRODUCT));
         }
 
         Map<String, List<ProductBean>> map = new HashMap();
@@ -1116,7 +1132,7 @@ public class ProductAction extends DispatchAction
         {
             // 获取组合方式
             List<ProductCombinationVO> comVOList = productCombinationDAO
-                .queryEntityVOsByFK(productVO.getId());
+                    .queryEntityVOsByFK(productVO.getId());
 
             List<ProductBean> eachList = new ArrayList<ProductBean>();
 
@@ -1129,7 +1145,7 @@ public class ProductAction extends DispatchAction
                 eachList.add(product);
 
                 product.setDescription("");
-                
+
                 lastName += product.getName() + "(" + product.getCode() + ")<br>&nbsp;";
             }
 
@@ -1141,7 +1157,7 @@ public class ProductAction extends DispatchAction
         request.setAttribute("beanList", list);
 
         // var uAuth = JSON.parse('${authJSON}');
-        request.setAttribute("mapStr", JSONTools.getMapListJSON(map));        
+        request.setAttribute("mapStr", JSONTools.getMapListJSON(map));
 
         request.setAttribute("random", new Random().nextInt());
 
@@ -1169,7 +1185,7 @@ public class ProductAction extends DispatchAction
         String ctype = request.getParameter("ctype");
 
         String mtype = request.getParameter("mtype");
-        
+
         String stock = request.getParameter("stock");
 
         if ( !StringTools.isNullOrNone(name))
@@ -1189,7 +1205,7 @@ public class ProductAction extends DispatchAction
 
 //        if ( !StringTools.isNullOrNone(status))
 //        {
-            condtion.addIntCondition("ProductBean.status", "=", ProductConstant.STATUS_COMMON);
+        condtion.addIntCondition("ProductBean.status", "=", ProductConstant.STATUS_COMMON);
 //        }
 
         if ( !StringTools.isNullOrNone(ctype))
@@ -1202,31 +1218,31 @@ public class ProductAction extends DispatchAction
             // 采购
             if (!StringTools.isNullOrNone(stock))
             {
-            	int mtype1 = MathTools.parseInt(mtype);
-            	
-            	// 普通 17% 非旧货
-            	if (mtype1 == 1 || mtype1 == 3)
-            	{
-            		condtion.addCondition("ProductBean.reserve4", "=", "1");
-            		
-            		//condtion.addIntCondition("ProductBean.consumeInDay", "<>", ProductConstant.PRODUCT_OLDGOOD);
-            		
-            	} // 普通 旧货
-            	else if (mtype1 == 2)
-            	{
-            		condtion.addCondition("ProductBean.reserve4", "=", "1");
-            		
-            		//condtion.addIntCondition("ProductBean.consumeInDay", "=", ProductConstant.PRODUCT_OLDGOOD);
-            	} 
-            	// 管理
-            	else
-            	{
-            		condtion.addCondition("ProductBean.reserve4", "=", mtype);
-            	}
+                int mtype1 = MathTools.parseInt(mtype);
+
+                // 普通 17% 非旧货
+                if (mtype1 == 1 || mtype1 == 3)
+                {
+                    condtion.addCondition("ProductBean.reserve4", "=", "1");
+
+                    //condtion.addIntCondition("ProductBean.consumeInDay", "<>", ProductConstant.PRODUCT_OLDGOOD);
+
+                } // 普通 旧货
+                else if (mtype1 == 2)
+                {
+                    condtion.addCondition("ProductBean.reserve4", "=", "1");
+
+                    //condtion.addIntCondition("ProductBean.consumeInDay", "=", ProductConstant.PRODUCT_OLDGOOD);
+                }
+                // 管理
+                else
+                {
+                    condtion.addCondition("ProductBean.reserve4", "=", mtype);
+                }
             }
             else
             {
-            	condtion.addCondition("ProductBean.reserve4", "=", mtype);
+                condtion.addCondition("ProductBean.reserve4", "=", mtype);
             }
         }
     }
@@ -1252,12 +1268,12 @@ public class ProductAction extends DispatchAction
         }
 
         condtion
-            .addIntCondition("ProductBean.abstractType", "=", ProductConstant.ABSTRACT_TYPE_YES);
+                .addIntCondition("ProductBean.abstractType", "=", ProductConstant.ABSTRACT_TYPE_YES);
 
     }
 
     /**
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1266,37 +1282,37 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward rptQueryComposeProduct(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse reponse)
-	throws ServletException
-	{
+                                                HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
         CommonTools.saveParamers(request);
 
         String productId = request.getParameter("productId");
-        
+
         List<ProductVO> list = new ArrayList<ProductVO>();
-        
+
         ComposeProductBean composeProduct = composeProductDAO.queryLatestByProduct(productId);
-        
+
         if (null != composeProduct)
         {
-        	List<ComposeItemVO> citemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
-            
+            List<ComposeItemVO> citemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
+
             for (ComposeItemVO each : citemList)
             {
-            	ProductVO vo = productDAO.findVO(each.getProductId());
-            	
-            	list.add(vo);
+                ProductVO vo = productDAO.findVO(each.getProductId());
+
+                list.add(vo);
             }
         }
-        
+
         request.setAttribute("beanList", list);
 
         return mapping.findForward("rptQueryComposeProduct");
     }
-    
+
     /**
      * 管理员增加产品(非虚拟产品)
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1306,7 +1322,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward addProduct(ActionMapping mapping, ActionForm form,
                                     HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         ProductBean bean = new ProductBean();
 
@@ -1373,7 +1389,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * 管理员增加产品(虚拟产品)
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1383,7 +1399,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward addAbstractProduct(ActionMapping mapping, ActionForm form,
                                             HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         ProductBean bean = new ProductBean();
 
@@ -1421,7 +1437,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * 合成产品
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1431,7 +1447,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward composeProduct(ActionMapping mapping, ActionForm form,
                                         HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         ComposeProductBean bean = new ComposeProductBean();
 
@@ -1461,7 +1477,7 @@ public class ProductAction extends DispatchAction
             productFacade.addComposeProduct(user.getId(), bean);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功合成产品,合成后均价:"
-                                                      + MathTools.formatNum(bean.getPrice()));
+                    + MathTools.formatNum(bean.getPrice()));
         }
         catch (MYException e)
         {
@@ -1529,7 +1545,7 @@ public class ProductAction extends DispatchAction
 
 
     public ActionForward computePrice(ActionMapping mapping, ActionForm form,
-                                        HttpServletRequest request, HttpServletResponse response)
+                                      HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
         AjaxResult ajax = new AjaxResult();
@@ -1562,7 +1578,7 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward composeProduct2(ActionMapping mapping, ActionForm form,
-                                        HttpServletRequest request, HttpServletResponse response)
+                                         HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
         ComposeProductBean bean = new ComposeProductBean();
@@ -1603,9 +1619,9 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward queryDecompose(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response)
-	throws ServletException
-	{
+                                        HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
         String foward = request.getParameter("foward");
 
         final ConditionParse condtion = new ConditionParse();
@@ -1614,11 +1630,11 @@ public class ProductAction extends DispatchAction
 
         if ("1".equals(foward))
         {
-        	StafferBean staffer = Helper.getStaffer(request);
-        	
+            StafferBean staffer = Helper.getStaffer(request);
+
             condtion.addIntCondition("DecomposeProductBean.status", "=",
-                ComposeConstant.STATUS_INDUSTRY_PASS);
-            
+                    ComposeConstant.STATUS_INDUSTRY_PASS);
+
             condtion.addCondition("StafferBean.industryId", "=", staffer.getIndustryId());
         }
 
@@ -1627,11 +1643,11 @@ public class ProductAction extends DispatchAction
         condtion.addCondition("order by DecomposeProductBean.logTime desc");
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYDECOMPOSE, request, condtion,
-            this.decomposeProductDAO);
+                this.decomposeProductDAO);
 
         return JSONTools.writeResponse(response, jsonstr);
     }
-    
+
     /**
      * findDecompose
      * @param mapping
@@ -1642,46 +1658,46 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward findDecompose(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response)
-	throws ServletException
-	{
-    	CommonTools.saveParamers(request);
-    	
-    	String id = request.getParameter("id");
-    	
-    	 DecomposeProductVO vo = decomposeProductDAO.findVO(id);
+                                       HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        CommonTools.saveParamers(request);
 
-         if (vo == null)
-         {
-        	 return ActionTools.toError("数据异常,请重新操作", "queryDecompose", mapping, request);
-         }
+        String id = request.getParameter("id");
 
-         vo.setItemVOList(composeItemDAO.queryEntityVOsByFK(id));
-    	
-    	List<FinanceBean> financeBeanList = financeDAO.queryRefFinanceItemByRefId(id);
-    	
-    	if (financeBeanList.size() > 0)
-    	{
-    		vo.setOtherId(financeBeanList.get(0).getId());
-    	}
-    	
-    	// log
-    	 List<FlowLogBean> logList = flowLogDAO.queryEntityBeansByFK(id);
+        DecomposeProductVO vo = decomposeProductDAO.findVO(id);
 
-         List<FlowLogVO> logsVO = new ArrayList<FlowLogVO>();
+        if (vo == null)
+        {
+            return ActionTools.toError("数据异常,请重新操作", "queryDecompose", mapping, request);
+        }
 
-         for (FlowLogBean flowLogBean : logList)
-         {
-             logsVO.add(getFlowLogVO(flowLogBean));
-         }
-         
-         request.setAttribute("logList", logsVO);
-    	
-    	request.setAttribute("bean", vo);
-    	
-    	return mapping.findForward("detailDecompose");
-	}
-    
+        vo.setItemVOList(composeItemDAO.queryEntityVOsByFK(id));
+
+        List<FinanceBean> financeBeanList = financeDAO.queryRefFinanceItemByRefId(id);
+
+        if (financeBeanList.size() > 0)
+        {
+            vo.setOtherId(financeBeanList.get(0).getId());
+        }
+
+        // log
+        List<FlowLogBean> logList = flowLogDAO.queryEntityBeansByFK(id);
+
+        List<FlowLogVO> logsVO = new ArrayList<FlowLogVO>();
+
+        for (FlowLogBean flowLogBean : logList)
+        {
+            logsVO.add(getFlowLogVO(flowLogBean));
+        }
+
+        request.setAttribute("logList", logsVO);
+
+        request.setAttribute("bean", vo);
+
+        return mapping.findForward("detailDecompose");
+    }
+
     private FlowLogVO getFlowLogVO(FlowLogBean bean)
     {
         FlowLogVO vo = new FlowLogVO();
@@ -1701,10 +1717,10 @@ public class ProductAction extends DispatchAction
 
         return vo;
     }
-    
+
     /**
      * 产品拆分
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1713,8 +1729,8 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward deComposeProduct(ActionMapping mapping, ActionForm form,
-                                        HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+                                          HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
     {
         DecomposeProductBean bean = new DecomposeProductBean();
 
@@ -1722,7 +1738,7 @@ public class ProductAction extends DispatchAction
 
         try
         {
-        	setDecompose(request, bean);
+            setDecompose(request, bean);
 
             User user = Helper.getUser(request);
 
@@ -1741,10 +1757,10 @@ public class ProductAction extends DispatchAction
 
         return preForDecompose(mapping, form, request, response);
     }
-    
+
     /**
      * queryComposeFeeDefined
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1755,7 +1771,7 @@ public class ProductAction extends DispatchAction
     public ActionForward queryComposeFeeDefined(ActionMapping mapping, ActionForm form,
                                                 HttpServletRequest request,
                                                 HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         final ConditionParse condtion = new ConditionParse();
 
@@ -1764,30 +1780,30 @@ public class ProductAction extends DispatchAction
         ActionTools.processJSONQueryCondition(QUERYCOMPOSEFEEDEFINED, request, condtion);
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCOMPOSEFEEDEFINED, request,
-            condtion, this.composeFeeDefinedDAO, new HandleResult<ComposeFeeDefinedVO>()
-            {
-                public void handle(ComposeFeeDefinedVO obj)
+                condtion, this.composeFeeDefinedDAO, new HandleResult<ComposeFeeDefinedVO>()
                 {
-                    try
+                    public void handle(ComposeFeeDefinedVO obj)
                     {
-                        ComposeFeeDefinedVO vo = composeProductManager.findComposeFeeDefinedVO(obj
-                            .getId());
+                        try
+                        {
+                            ComposeFeeDefinedVO vo = composeProductManager.findComposeFeeDefinedVO(obj
+                                    .getId());
 
-                        obj.setTaxName(vo.getTaxName());
+                            obj.setTaxName(vo.getTaxName());
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+                        }
                     }
-                    catch (MYException e)
-                    {
-                        _logger.warn(e, e);
-                    }
-                }
-            });
+                });
 
         return JSONTools.writeResponse(response, jsonstr);
     }
 
     /**
      * addComposeFeeDefinedBean
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1798,7 +1814,7 @@ public class ProductAction extends DispatchAction
     public ActionForward addComposeFeeDefined(ActionMapping mapping, ActionForm form,
                                               HttpServletRequest request,
                                               HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         ComposeFeeDefinedBean bean = new ComposeFeeDefinedBean();
 
@@ -1824,7 +1840,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * findComposeFeeDefined
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1835,7 +1851,7 @@ public class ProductAction extends DispatchAction
     public ActionForward findComposeFeeDefined(ActionMapping mapping, ActionForm form,
                                                HttpServletRequest request,
                                                HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         CommonTools.saveParamers(request);
 
@@ -1850,7 +1866,7 @@ public class ProductAction extends DispatchAction
         catch (MYException e)
         {
             return ActionTools.toError(e.getErrorContent(), QUERYCOMPOSEFEEDEFINED, mapping,
-                request);
+                    request);
         }
 
         if (bean == null)
@@ -1865,7 +1881,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * updateComposeFeeDefinedBean
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1876,7 +1892,7 @@ public class ProductAction extends DispatchAction
     public ActionForward updateComposeFeeDefined(ActionMapping mapping, ActionForm form,
                                                  HttpServletRequest request,
                                                  HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         ComposeFeeDefinedBean bean = new ComposeFeeDefinedBean();
 
@@ -1902,7 +1918,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * deleteComposeFeeDefinedBean
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1913,7 +1929,7 @@ public class ProductAction extends DispatchAction
     public ActionForward deleteComposeFeeDefined(ActionMapping mapping, ActionForm form,
                                                  HttpServletRequest request,
                                                  HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -1939,7 +1955,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * 产品调价
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -1949,7 +1965,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward priceChange(ActionMapping mapping, ActionForm form,
                                      HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         PriceChangeBean bean = new PriceChangeBean();
 
@@ -1981,15 +1997,16 @@ public class ProductAction extends DispatchAction
 
     /**
      * setCompose
-     * 
+     *
      * @param request
      * @param bean
      */
     private void setCompose(HttpServletRequest request, ComposeProductBean bean)
-        throws MYException
+            throws MYException
     {
         String dirDepotpart = request.getParameter("dirDepotpart");
         String dirProductId = request.getParameter("dirProductId");
+        String dirTargerName = request.getParameter("dirTargerName");
         String dirAmount = request.getParameter("dirAmount");
         String srcDepot = request.getParameter("srcDepot");
         String description = request.getParameter("description");
@@ -1997,6 +2014,7 @@ public class ProductAction extends DispatchAction
         bean.setDepotpartId(dirDepotpart);
         bean.setDeportId(srcDepot);
         bean.setProductId(dirProductId);
+        bean.setDirTargerName(dirTargerName);
         bean.setAmount(CommonTools.parseInt(dirAmount));
         bean.setLogTime(TimeTools.now());
         bean.setType(StorageConstant.OPR_STORAGE_COMPOSE);
@@ -2035,7 +2053,7 @@ public class ProductAction extends DispatchAction
         String[] srcPrices = request.getParameterValues("srcPrice");
         String[] srcRelations = request.getParameterValues("srcRelation");
         String[] srcInputRates = request.getParameterValues("srcInputRate");
-        
+
         List<ComposeItemBean> itemList = new ArrayList<ComposeItemBean>();
 
         for (int i = 0; i < srcRelations.length; i++ )
@@ -2163,12 +2181,12 @@ public class ProductAction extends DispatchAction
 
     /**
      * setDecompose
-     * 
+     *
      * @param request
      * @param bean
      */
     private void setDecompose(HttpServletRequest request, DecomposeProductBean bean)
-        throws MYException
+            throws MYException
     {
         String depotpart = request.getParameter("depotpart");
         String productId = request.getParameter("productId");
@@ -2195,7 +2213,7 @@ public class ProductAction extends DispatchAction
         String[] srcAmounts = request.getParameterValues("srcAmount");
         String[] srcPrices = request.getParameterValues("srcPrice");
         String[] stypes = request.getParameterValues("stype");
-        
+
         List<ComposeItemBean> itemList = new ArrayList<ComposeItemBean>();
 
         for (int i = 0; i < srcProductIds.length; i++ )
@@ -2211,7 +2229,7 @@ public class ProductAction extends DispatchAction
             }
 
             ComposeItemBean each = new ComposeItemBean();
-            
+
             each.setAmount(CommonTools.parseInt(srcAmounts[i]));
             each.setDeportId(srcDepots[i]);
             each.setDepotpartId(srcDepotparts[i]);
@@ -2229,13 +2247,13 @@ public class ProductAction extends DispatchAction
 
         // 拆分的金额要与成品一样
         double cha = Math.abs(total - bean.getAmount() * bean.getPrice());
-        
+
         if (cha > 1)
         {
-        	throw new MYException("拆分后配件金额[%.2f]须与成品[%.2f]一样", total,bean.getAmount() * bean.getPrice() );
+            throw new MYException("拆分后配件金额[%.2f]须与成品[%.2f]一样", total,bean.getAmount() * bean.getPrice() );
         }
     }
-    
+
     /**
      * 拆分导出
      * @param mapping
@@ -2246,128 +2264,128 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward exportDecompose(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response)
-			throws ServletException
-	{
-		OutputStream out = null;
+                                         HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        OutputStream out = null;
 
-		String filenName = "Decompose_" + TimeTools.now("MMddHHmmss") + ".csv";
+        String filenName = "Decompose_" + TimeTools.now("MMddHHmmss") + ".csv";
 
-		response.setContentType("application/x-dbf");
+        response.setContentType("application/x-dbf");
 
-		response.setHeader("Content-Disposition", "attachment; filename="
-				+ filenName);
+        response.setHeader("Content-Disposition", "attachment; filename="
+                + filenName);
 
-		WriteFile write = null;
+        WriteFile write = null;
 
-		ConditionParse condtion = JSONPageSeparateTools.getCondition(request,
-				QUERYDECOMPOSE);
+        ConditionParse condtion = JSONPageSeparateTools.getCondition(request,
+                QUERYDECOMPOSE);
 
-		int count = decomposeProductDAO.countVOByCondition(condtion.toString());
+        int count = decomposeProductDAO.countVOByCondition(condtion.toString());
 
-		if (count > 150000)
-		{
-			return ActionTools.toError("导出数量大于150000,请重新选择时间段导出", mapping,
-					request);
-		}
+        if (count > 150000)
+        {
+            return ActionTools.toError("导出数量大于150000,请重新选择时间段导出", mapping,
+                    request);
+        }
 
-		try
-		{
-			out = response.getOutputStream();
+        try
+        {
+            out = response.getOutputStream();
 
-			write = WriteFileFactory.getMyTXTWriter();
+            write = WriteFileFactory.getMyTXTWriter();
 
-			write.openFile(out);
+            write.openFile(out);
 
-			write.writeLine("标识,拆分产品编码,拆分产品,数量,最终价格,拆分人,状态,仓库,目的仓区,时间,源产品仓库,源产品仓区,源产品,源产品数量,源产品价格");
+            write.writeLine("标识,拆分产品编码,拆分产品,数量,最终价格,拆分人,状态,仓库,目的仓区,时间,源产品仓库,源产品仓区,源产品,源产品数量,源产品价格");
 
-			PageSeparate page = new PageSeparate();
+            PageSeparate page = new PageSeparate();
 
-			page.reset2(count, 2000);
+            page.reset2(count, 2000);
 
-			WriteFileBuffer line = new WriteFileBuffer(write);
+            WriteFileBuffer line = new WriteFileBuffer(write);
 
-			while (page.nextPage())
-			{
-				List<DecomposeProductVO> voFList = decomposeProductDAO.queryEntityVOsByCondition(
-						condtion, page);
+            while (page.nextPage())
+            {
+                List<DecomposeProductVO> voFList = decomposeProductDAO.queryEntityVOsByCondition(
+                        condtion, page);
 
-				for (DecomposeProductVO each : voFList)
-				{
-					List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(each.getId());
-					
-					for (ComposeItemVO item : itemList)
-					{
-						line.reset();
+                for (DecomposeProductVO each : voFList)
+                {
+                    List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(each.getId());
 
-						line.writeColumn(each.getId());
-						line.writeColumn(each.getProductCode());
-						line.writeColumn(each.getProductName());
-						line.writeColumn(each.getAmount());
-						line.writeColumn(each.getPrice());
-						line.writeColumn(each.getStafferName());
-						line.writeColumn(DefinedCommon.getValue("composeStatus", each.getStatus()));
-						line.writeColumn(each.getDeportName());
-						line.writeColumn(each.getDepotpartName());
-						line.writeColumn(each.getLogTime());
-						
-						line.writeColumn(item.getDeportName());
-						line.writeColumn(item.getDepotpartName());
-						line.writeColumn(item.getProductName());
-						line.writeColumn(item.getAmount());
-						line.writeColumn(item.getPrice());
-						
-						line.writeLine();
-					}
-					
-				}
-			}
-			
-			write.close();
-		}
-		catch (Throwable e)
-		{
-			_logger.error(e, e);
+                    for (ComposeItemVO item : itemList)
+                    {
+                        line.reset();
 
-			return null;
-		}
-		finally
-		{
-			if (out != null)
-			{
-				try
-				{
-					out.close();
-				}
-				catch (IOException e1)
-				{
-				}
-			}
+                        line.writeColumn(each.getId());
+                        line.writeColumn(each.getProductCode());
+                        line.writeColumn(each.getProductName());
+                        line.writeColumn(each.getAmount());
+                        line.writeColumn(each.getPrice());
+                        line.writeColumn(each.getStafferName());
+                        line.writeColumn(DefinedCommon.getValue("composeStatus", each.getStatus()));
+                        line.writeColumn(each.getDeportName());
+                        line.writeColumn(each.getDepotpartName());
+                        line.writeColumn(each.getLogTime());
 
-			if (write != null)
-			{
+                        line.writeColumn(item.getDeportName());
+                        line.writeColumn(item.getDepotpartName());
+                        line.writeColumn(item.getProductName());
+                        line.writeColumn(item.getAmount());
+                        line.writeColumn(item.getPrice());
 
-				try
-				{
-					write.close();
-				}
-				catch (IOException e1)
-				{
-				}
-			}
-		}
+                        line.writeLine();
+                    }
 
-		return null;
-	}
-    
+                }
+            }
+
+            write.close();
+        }
+        catch (Throwable e)
+        {
+            _logger.error(e, e);
+
+            return null;
+        }
+        finally
+        {
+            if (out != null)
+            {
+                try
+                {
+                    out.close();
+                }
+                catch (IOException e1)
+                {
+                }
+            }
+
+            if (write != null)
+            {
+
+                try
+                {
+                    write.close();
+                }
+                catch (IOException e1)
+                {
+                }
+            }
+        }
+
+        return null;
+    }
+
     /**
      * setForPriceChange
-     * 
+     *
      * @param request
      * @param bean
      */
     private void setForPriceChange(HttpServletRequest request, PriceChangeBean bean)
-        throws MYException
+            throws MYException
     {
         // 获取费用
         String[] relations = request.getParameterValues("relation_id");
@@ -2493,7 +2511,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * query depotpart for compose
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -2502,7 +2520,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward preForCompose(ActionMapping mapping, ActionForm form,
                                        HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         List<DepotBean> list = depotDAO.queryCommonDepotBean();
 
@@ -2546,7 +2564,7 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward preForCompose2(ActionMapping mapping, ActionForm form,
-                                       HttpServletRequest request, HttpServletResponse response)
+                                        HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
         List<DepotBean> list = depotDAO.queryCommonDepotBean();
@@ -2580,10 +2598,10 @@ public class ProductAction extends DispatchAction
 
         return mapping.findForward("preComposeProduct");
     }
-    
+
     /**
      * query depotpart for decompose
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -2591,8 +2609,8 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward preForDecompose(ActionMapping mapping, ActionForm form,
-                                       HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+                                         HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
     {
         List<DepotBean> list = depotDAO.queryCommonDepotBean();
 
@@ -2624,7 +2642,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * preForPriceChange
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -2634,7 +2652,7 @@ public class ProductAction extends DispatchAction
     public ActionForward preForAddPriceChange(ActionMapping mapping, ActionForm form,
                                               HttpServletRequest request,
                                               HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         User user = Helper.getUser(request);
 
@@ -2721,7 +2739,7 @@ public class ProductAction extends DispatchAction
             condition.addCondition("StorageRelationBean.productId", "=", product.getId());
 
             List<StorageRelationVO> eachList = storageRelationDAO
-                .queryEntityVOsByCondition(condition);
+                    .queryEntityVOsByCondition(condition);
 
             for (Iterator iterator = eachList.iterator(); iterator.hasNext();)
             {
@@ -2771,7 +2789,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * 管理员修改产品(非虚拟产品)
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -2781,7 +2799,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward updateProduct(ActionMapping mapping, ActionForm form,
                                        HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         // 模板最多10M
         RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
@@ -2862,10 +2880,10 @@ public class ProductAction extends DispatchAction
         try
         {
             String rabsPath = '/'
-                              + bean.getId()
-                              + "."
-                              + FileTools.getFilePostfix(
-                                  FileTools.getFileName(rds.getUniqueFileName())).toLowerCase();
+                    + bean.getId()
+                    + "."
+                    + FileTools.getFilePostfix(
+                    FileTools.getFileName(rds.getUniqueFileName())).toLowerCase();
 
             String filePath = this.getPicPath() + '/' + rabsPath;
 
@@ -2905,7 +2923,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * findProduct
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -2915,7 +2933,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward findProduct(ActionMapping mapping, ActionForm form,
                                      HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -2972,7 +2990,7 @@ public class ProductAction extends DispatchAction
         }
 
         request.setAttribute("locationNames", builder);
-        
+
         List<InvoiceBean> invoiceList = invoiceDAO.listEntityBeans();
 
         request.setAttribute("invoiceList", invoiceList);
@@ -2982,7 +3000,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * findCompose
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -2992,7 +3010,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward findCompose(ActionMapping mapping, ActionForm form,
                                      HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         CommonTools.saveParamers(request);
 
@@ -3013,7 +3031,7 @@ public class ProductAction extends DispatchAction
 //        {
 //            bean.setOtherId(financeBeanList.get(0).getId());
 //        }
-        
+
         request.setAttribute("financeBeanList", financeBeanList);
 
         request.setAttribute("bean", bean);
@@ -3076,7 +3094,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * findPriceChange
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3086,7 +3104,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward findPriceChange(ActionMapping mapping, ActionForm form,
                                          HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         CommonTools.saveParamers(request);
 
@@ -3196,7 +3214,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * configProductVSLocation
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3207,7 +3225,7 @@ public class ProductAction extends DispatchAction
     public ActionForward configProductVSLocation(ActionMapping mapping, ActionForm form,
                                                  HttpServletRequest request,
                                                  HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -3252,7 +3270,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * configProductVSLocation
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3262,7 +3280,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward configPrice(ActionMapping mapping, ActionForm form,
                                      HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -3307,7 +3325,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * 准备配置产品和分公司的关系
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3318,7 +3336,7 @@ public class ProductAction extends DispatchAction
     public ActionForward preForConfigProductVSLocation(ActionMapping mapping, ActionForm form,
                                                        HttpServletRequest request,
                                                        HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         AjaxResult ajax = new AjaxResult();
 
@@ -3351,7 +3369,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * deleteProduct
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3362,7 +3380,7 @@ public class ProductAction extends DispatchAction
     public ActionForward rollbackPriceChange(ActionMapping mapping, ActionForm form,
                                              HttpServletRequest request,
                                              HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -3395,7 +3413,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * deleteProduct
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3405,7 +3423,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward deleteProduct(ActionMapping mapping, ActionForm form,
                                        HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -3431,7 +3449,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * passComposeBean
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3441,7 +3459,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward passCompose(ActionMapping mapping, ActionForm form,
                                      HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -3467,7 +3485,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * lastPassComposeBean
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3477,7 +3495,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward lastPassCompose(ActionMapping mapping, ActionForm form,
                                          HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -3503,7 +3521,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * deleteComposeBean
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3513,7 +3531,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward deleteCompose(ActionMapping mapping, ActionForm form,
                                        HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -3539,7 +3557,7 @@ public class ProductAction extends DispatchAction
 
     /**
      * rollbackComposeProduct
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3550,7 +3568,7 @@ public class ProductAction extends DispatchAction
     public ActionForward rollbackComposeProduct(ActionMapping mapping, ActionForm form,
                                                 HttpServletRequest request,
                                                 HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -3584,11 +3602,11 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward passDecompose(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response)
-	throws ServletException
-	{
+                                       HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
         String id = request.getParameter("id");
-        
+
         String reason = request.getParameter("reason");
 
         try
@@ -3605,12 +3623,12 @@ public class ProductAction extends DispatchAction
 
             request.setAttribute(KeyConstant.MESSAGE, "操作失败:" + e.getMessage());
         }
-        
+
         request.setAttribute("forward", "1");
 
         return mapping.findForward("queryDecompose");
     }
-    
+
     /**
      * rejectDecompose
      * @param mapping
@@ -3621,11 +3639,11 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward rejectDecompose(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response)
-	throws ServletException
-	{
+                                         HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
         String id = request.getParameter("id");
-        
+
         String reason = request.getParameter("reason");
 
         try
@@ -3642,15 +3660,15 @@ public class ProductAction extends DispatchAction
 
             request.setAttribute(KeyConstant.MESSAGE, "操作失败:" + e.getMessage());
         }
-        
+
         request.setAttribute("forward", "1");
 
         return mapping.findForward("queryDecompose");
     }
-    
+
     /**
      * deleteProduct
-     * 
+     *
      * @param mapping
      * @param form
      * @param request
@@ -3660,7 +3678,7 @@ public class ProductAction extends DispatchAction
      */
     public ActionForward passApplyProduct(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response)
-        throws ServletException
+            throws ServletException
     {
         String id = request.getParameter("id");
 
@@ -3671,7 +3689,7 @@ public class ProductAction extends DispatchAction
             User user = Helper.getUser(request);
 
             productFacade.changeProductStatus(user.getId(), id, ProductConstant.STATUS_APPLY,
-                ProductConstant.STATUS_COMMON);
+                    ProductConstant.STATUS_COMMON);
 
             ajax.setSuccess("成功通过此申请");
         }
@@ -3695,35 +3713,35 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward preForConfigGoldSilverPrice(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request,
-            HttpServletResponse response)
-	throws ServletException
-	{
-    	AjaxResult ajax = new AjaxResult();
+                                                     HttpServletRequest request,
+                                                     HttpServletResponse response)
+            throws ServletException
+    {
+        AjaxResult ajax = new AjaxResult();
 
-    	GoldSilverPriceBean bean = null;
+        GoldSilverPriceBean bean = null;
 
-    	List<GoldSilverPriceBean> list = goldSilverPriceDAO.listEntityBeans();
+        List<GoldSilverPriceBean> list = goldSilverPriceDAO.listEntityBeans();
 
-    	if (!ListTools.isEmptyOrNull(list))
-    	{
-    		bean = list.get(0);
-    	}
-    	else
-    	{
-    		bean = new GoldSilverPriceBean();
-    		
-    		bean.setGold(0.0d);
-    		
-    		bean.setSilver(0.0d);
-    	}
+        if (!ListTools.isEmptyOrNull(list))
+        {
+            bean = list.get(0);
+        }
+        else
+        {
+            bean = new GoldSilverPriceBean();
 
-    	ajax.setSuccess(bean);
+            bean.setGold(0.0d);
 
-    	return JSONTools.writeResponse(response, ajax);
+            bean.setSilver(0.0d);
+        }
 
-	}
-    
+        ajax.setSuccess(bean);
+
+        return JSONTools.writeResponse(response, ajax);
+
+    }
+
     /***
      * 更新金银价
      * @param mapping
@@ -3734,41 +3752,41 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward configGoldSilverPrice(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response)
-	throws ServletException
-	{
-    	String goldPrice = request.getParameter("goldPrice");
+                                               HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        String goldPrice = request.getParameter("goldPrice");
 
-    	String silverPrice = request.getParameter("silverPrice");
+        String silverPrice = request.getParameter("silverPrice");
 
-    	GoldSilverPriceBean bean = new GoldSilverPriceBean();
+        GoldSilverPriceBean bean = new GoldSilverPriceBean();
 
-    	AjaxResult ajax = new AjaxResult();
+        AjaxResult ajax = new AjaxResult();
 
-    	double newGoldPrice = CommonTools.parseFloat(goldPrice);
-    	double newSilverPrice = CommonTools.parseFloat(silverPrice);
+        double newGoldPrice = CommonTools.parseFloat(goldPrice);
+        double newSilverPrice = CommonTools.parseFloat(silverPrice);
 
-    	bean.setGold(newGoldPrice);
-    	bean.setSilver(newSilverPrice);
+        bean.setGold(newGoldPrice);
+        bean.setSilver(newSilverPrice);
 
-    	try
-    	{
-	    	User user = Helper.getUser(request);
-	
-	    	productManager.configGoldSilverPrice(user, bean);
-	
-	    	ajax.setSuccess("成功配置金银价");
-    	}
-    	catch (MYException e)
-    	{
-	    	_logger.warn(e, e);
-	
-	    	ajax.setError("配置金银价的失败:" + e.getMessage());
-    	}
+        try
+        {
+            User user = Helper.getUser(request);
 
-    	return JSONTools.writeResponse(response, ajax);
-	}
-    
+            productManager.configGoldSilverPrice(user, bean);
+
+            ajax.setSuccess("成功配置金银价");
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            ajax.setError("配置金银价的失败:" + e.getMessage());
+        }
+
+        return JSONTools.writeResponse(response, ajax);
+    }
+
     /**
      * 导入中信产品
      * @param mapping
@@ -3779,19 +3797,19 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward importCiticProduct(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response)
-	throws ServletException
-	{
-		User user = Helper.getUser(request);
-		
+                                            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+
         RequestDataStream rds = new RequestDataStream(request);
-        
+
         boolean importError = false;
-        
-        List<CiticVSOAProductBean> importItemList = new ArrayList<CiticVSOAProductBean>(); 
-        
-        StringBuilder builder = new StringBuilder();       
-        
+
+        List<CiticVSOAProductBean> importItemList = new ArrayList<CiticVSOAProductBean>();
+
+        StringBuilder builder = new StringBuilder();
+
         try
         {
             rds.parser();
@@ -3811,14 +3829,14 @@ public class ProductAction extends DispatchAction
 
             return mapping.findForward("importCiticProduct");
         }
-        
+
         // 获取上次最后一次导入的时间
         ReaderFile reader = ReadeFileFactory.getXLSReader();
-        
+
         try
         {
             reader.readFile(rds.getUniqueInputStream());
-            
+
             while (reader.hasNext())
             {
                 String[] obj = fillObj((String[])reader.next());
@@ -3833,18 +3851,18 @@ public class ProductAction extends DispatchAction
                 {
                     continue;
                 }
-                
+
                 int currentNumber = reader.getCurrentLineNumber();
 
                 if (obj.length >= 2 )
                 {
-                	CiticVSOAProductBean bean = new CiticVSOAProductBean();
+                    CiticVSOAProductBean bean = new CiticVSOAProductBean();
 
                     ProductBean pbean = null;
-                	// OA产品
-            		if ( !StringTools.isNullOrNone(obj[0]))
-            		{
-            			bean.setProductCode(obj[0]);
+                    // OA产品
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        bean.setProductCode(obj[0]);
 
                         pbean = productDAO.findByUnique(bean.getProductCode());
 
@@ -3857,19 +3875,19 @@ public class ProductAction extends DispatchAction
 
                             importError = true;
                         }
-            		}else{
-            			importError = true;
-            			
+                    }else{
+                        importError = true;
+
                         builder
-                        .append("第[" + currentNumber + "]错误:")
-                        .append("OA产品代码为空")
-                        .append("<br>");
-            		}
-            		
-                	// 
-            		if ( !StringTools.isNullOrNone(obj[1]))
-            		{
-            			bean.setProductName(obj[1]);
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("OA产品代码为空")
+                                .append("<br>");
+                    }
+
+                    //
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        bean.setProductName(obj[1]);
 
                         //#94 OA产品品名要与code一致
                         if (pbean!= null && !pbean.getName().equals(bean.getProductName())){
@@ -3880,70 +3898,70 @@ public class ProductAction extends DispatchAction
                                     .append("OA产品编码"+bean.getProductCode()+"与OA产品名不一致:"+bean.getProductName())
                                     .append("<br>");
                         }
-            		}else{
-            			importError = true;
-            			
-                        builder
-                        .append("第[" + currentNumber + "]错误:")
-                        .append("OA产品品名为空")
-                        .append("<br>");
-            		}
-            		
-                	// 产品
-            		if ( !StringTools.isNullOrNone(obj[2]))
-            		{
-            			bean.setCiticProductCode(obj[2]);
-            		}else
-            		{
-            			importError = true;
-            			
-                        builder
-                        .append("第[" + currentNumber + "]错误:")
-                        .append("中信产品code为空")
-                        .append("<br>");
-            		}
+                    }else{
+                        importError = true;
 
-            		// 价格
-            		if ( !StringTools.isNullOrNone(obj[3]))
-            		{
-            			bean.setCiticProductName(obj[3]);
-            		}else
-            		{
-            			importError = true;
-            			
                         builder
-                        .append("第[" + currentNumber + "]错误:")
-                        .append("中信品名为空")
-                        .append("<br>");
-            		}
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("OA产品品名为空")
+                                .append("<br>");
+                    }
 
-            		// 姓氏
-            		if ( !StringTools.isNullOrNone(obj[4]))
-            		{
-            			bean.setFirstName(obj[4]);
-            		}else
-            		{
-            			bean.setFirstName("N/A");
-            		}
-                    
+                    // 产品
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        bean.setCiticProductCode(obj[2]);
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("中信产品code为空")
+                                .append("<br>");
+                    }
+
+                    // 价格
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        bean.setCiticProductName(obj[3]);
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("中信品名为空")
+                                .append("<br>");
+                    }
+
+                    // 姓氏
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        bean.setFirstName(obj[4]);
+                    }else
+                    {
+                        bean.setFirstName("N/A");
+                    }
+
                     importItemList.add(bean);
                 }
                 else
                 {
                     builder
-                        .append("第[" + currentNumber + "]错误:")
-                        .append("数据长度不足5格错误")
-                        .append("<br>");
-                    
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足5格错误")
+                            .append("<br>");
+
                     importError = true;
                 }
             }
-            
-            
+
+
         }catch (Exception e)
         {
             _logger.error(e, e);
-            
+
             request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
 
             return mapping.findForward("importCiticProduct");
@@ -3959,19 +3977,19 @@ public class ProductAction extends DispatchAction
                 _logger.error(e, e);
             }
         }
-        
+
         rds.close();
-        
+
         if (importError){
-            
+
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
 
             return mapping.findForward("importCiticProduct");
         }
-        
+
         try
         {
-        	productManager.importCiticProduct(user, importItemList);
+            productManager.importCiticProduct(user, importItemList);
         }
         catch(MYException e)
         {
@@ -3979,13 +3997,13 @@ public class ProductAction extends DispatchAction
 
             return mapping.findForward("importCiticProduct");
         }
-        
+
         request.setAttribute(KeyConstant.MESSAGE, "导入成功");
-        
+
         return mapping.findForward("importCiticProduct");
-	
-	}
-    
+
+    }
+
     private String[] fillObj(String[] obj)
     {
         String[] result = new String[5];
@@ -4023,7 +4041,7 @@ public class ProductAction extends DispatchAction
 
         return result;
     }
-    
+
     /**
      * queryCiticProduct
      * @param mapping
@@ -4034,9 +4052,9 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward queryCiticProduct(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response)
-	throws ServletException
-	{
+                                           HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
         ConditionParse condtion = new ConditionParse();
 
         condtion.addWhereStr();
@@ -4044,11 +4062,11 @@ public class ProductAction extends DispatchAction
         ActionTools.processJSONQueryCondition(QUERYCITICPRODUCT, request, condtion);
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCITICPRODUCT, request, condtion,
-            this.citicVSOAProductDAO);
+                this.citicVSOAProductDAO);
 
         return JSONTools.writeResponse(response, jsonstr);
-	}
-    
+    }
+
     /**
      * deleteCiticProduct
      * @param mapping
@@ -4059,31 +4077,31 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward deleteCiticProduct(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response)
-	throws ServletException
-	{
-		AjaxResult ajax = new AjaxResult();
-		
-		try
-		{
-			String id = request.getParameter("id");
-			
-			User user = Helper.getUser(request);
-			
-			productManager.deleteCiticProductBean(user, id);
-			
-			ajax.setSuccess("成功删除");
-		}
-		catch (MYException e)
-		{
-			_logger.warn(e, e);
-			
-			ajax.setError("删除失败:" + e.getMessage());
-		}
-		
-		return JSONTools.writeResponse(response, ajax);
-	}
-    
+                                            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        AjaxResult ajax = new AjaxResult();
+
+        try
+        {
+            String id = request.getParameter("id");
+
+            User user = Helper.getUser(request);
+
+            productManager.deleteCiticProductBean(user, id);
+
+            ajax.setSuccess("成功删除");
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            ajax.setError("删除失败:" + e.getMessage());
+        }
+
+        return JSONTools.writeResponse(response, ajax);
+    }
+
     public String getPicPath()
     {
         return ConfigLoader.getProperty("picPath");
@@ -4099,7 +4117,7 @@ public class ProductAction extends DispatchAction
      * @throws ServletException
      */
     public ActionForward importProductVsBank(ActionMapping mapping, ActionForm form,
-                                            HttpServletRequest request, HttpServletResponse response)
+                                             HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
         User user = Helper.getUser(request);
@@ -4606,115 +4624,115 @@ public class ProductAction extends DispatchAction
         this.composeItemDAO = composeItemDAO;
     }
 
-	public GoldSilverPriceDAO getGoldSilverPriceDAO()
-	{
-		return goldSilverPriceDAO;
-	}
+    public GoldSilverPriceDAO getGoldSilverPriceDAO()
+    {
+        return goldSilverPriceDAO;
+    }
 
-	public void setGoldSilverPriceDAO(GoldSilverPriceDAO goldSilverPriceDAO)
-	{
-		this.goldSilverPriceDAO = goldSilverPriceDAO;
-	}
+    public void setGoldSilverPriceDAO(GoldSilverPriceDAO goldSilverPriceDAO)
+    {
+        this.goldSilverPriceDAO = goldSilverPriceDAO;
+    }
 
-	public PriceConfigDAO getPriceConfigDAO()
-	{
-		return priceConfigDAO;
-	}
+    public PriceConfigDAO getPriceConfigDAO()
+    {
+        return priceConfigDAO;
+    }
 
-	public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO)
-	{
-		this.priceConfigDAO = priceConfigDAO;
-	}
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO)
+    {
+        this.priceConfigDAO = priceConfigDAO;
+    }
 
-	public PriceConfigManager getPriceConfigManager()
-	{
-		return priceConfigManager;
-	}
+    public PriceConfigManager getPriceConfigManager()
+    {
+        return priceConfigManager;
+    }
 
-	public void setPriceConfigManager(PriceConfigManager priceConfigManager)
-	{
-		this.priceConfigManager = priceConfigManager;
-	}
+    public void setPriceConfigManager(PriceConfigManager priceConfigManager)
+    {
+        this.priceConfigManager = priceConfigManager;
+    }
 
-	/**
-	 * @return the productBOMDAO
-	 */
-	public ProductBOMDAO getProductBOMDAO()
-	{
-		return productBOMDAO;
-	}
+    /**
+     * @return the productBOMDAO
+     */
+    public ProductBOMDAO getProductBOMDAO()
+    {
+        return productBOMDAO;
+    }
 
-	/**
-	 * @param productBOMDAO the productBOMDAO to set
-	 */
-	public void setProductBOMDAO(ProductBOMDAO productBOMDAO)
-	{
-		this.productBOMDAO = productBOMDAO;
-	}
+    /**
+     * @param productBOMDAO the productBOMDAO to set
+     */
+    public void setProductBOMDAO(ProductBOMDAO productBOMDAO)
+    {
+        this.productBOMDAO = productBOMDAO;
+    }
 
-	/**
-	 * @return the decomposeProductDAO
-	 */
-	public DecomposeProductDAO getDecomposeProductDAO()
-	{
-		return decomposeProductDAO;
-	}
+    /**
+     * @return the decomposeProductDAO
+     */
+    public DecomposeProductDAO getDecomposeProductDAO()
+    {
+        return decomposeProductDAO;
+    }
 
-	/**
-	 * @param decomposeProductDAO the decomposeProductDAO to set
-	 */
-	public void setDecomposeProductDAO(DecomposeProductDAO decomposeProductDAO)
-	{
-		this.decomposeProductDAO = decomposeProductDAO;
-	}
+    /**
+     * @param decomposeProductDAO the decomposeProductDAO to set
+     */
+    public void setDecomposeProductDAO(DecomposeProductDAO decomposeProductDAO)
+    {
+        this.decomposeProductDAO = decomposeProductDAO;
+    }
 
-	/**
-	 * @return the flowLogDAO
-	 */
-	public FlowLogDAO getFlowLogDAO()
-	{
-		return flowLogDAO;
-	}
+    /**
+     * @return the flowLogDAO
+     */
+    public FlowLogDAO getFlowLogDAO()
+    {
+        return flowLogDAO;
+    }
 
-	/**
-	 * @param flowLogDAO the flowLogDAO to set
-	 */
-	public void setFlowLogDAO(FlowLogDAO flowLogDAO)
-	{
-		this.flowLogDAO = flowLogDAO;
-	}
+    /**
+     * @param flowLogDAO the flowLogDAO to set
+     */
+    public void setFlowLogDAO(FlowLogDAO flowLogDAO)
+    {
+        this.flowLogDAO = flowLogDAO;
+    }
 
-	/**
-	 * @return the citicVSOAProductDAO
-	 */
-	public CiticVSOAProductDAO getCiticVSOAProductDAO()
-	{
-		return citicVSOAProductDAO;
-	}
+    /**
+     * @return the citicVSOAProductDAO
+     */
+    public CiticVSOAProductDAO getCiticVSOAProductDAO()
+    {
+        return citicVSOAProductDAO;
+    }
 
-	/**
-	 * @param citicVSOAProductDAO the citicVSOAProductDAO to set
-	 */
-	public void setCiticVSOAProductDAO(CiticVSOAProductDAO citicVSOAProductDAO)
-	{
-		this.citicVSOAProductDAO = citicVSOAProductDAO;
-	}
+    /**
+     * @param citicVSOAProductDAO the citicVSOAProductDAO to set
+     */
+    public void setCiticVSOAProductDAO(CiticVSOAProductDAO citicVSOAProductDAO)
+    {
+        this.citicVSOAProductDAO = citicVSOAProductDAO;
+    }
 
-	/**
-	 * @return the invoiceDAO
-	 */
-	public InvoiceDAO getInvoiceDAO()
-	{
-		return invoiceDAO;
-	}
+    /**
+     * @return the invoiceDAO
+     */
+    public InvoiceDAO getInvoiceDAO()
+    {
+        return invoiceDAO;
+    }
 
-	/**
-	 * @param invoiceDAO the invoiceDAO to set
-	 */
-	public void setInvoiceDAO(InvoiceDAO invoiceDAO)
-	{
-		this.invoiceDAO = invoiceDAO;
-	}
+    /**
+     * @param invoiceDAO the invoiceDAO to set
+     */
+    public void setInvoiceDAO(InvoiceDAO invoiceDAO)
+    {
+        this.invoiceDAO = invoiceDAO;
+    }
 
     public StorageRelationManager getStorageRelationManager() {
         return storageRelationManager;
