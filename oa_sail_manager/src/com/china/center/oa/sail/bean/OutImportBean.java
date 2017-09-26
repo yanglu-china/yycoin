@@ -227,6 +227,12 @@ public class OutImportBean implements Serializable
 	 * 是否直邮
 	 */
 	private int direct = 0;
+
+	/**
+	 * #162
+	 * 渠道
+	 */
+	private String channel = "";
     
     @Ignore
     private int mayAmount = 0;
@@ -898,6 +904,14 @@ public class OutImportBean implements Serializable
 		this.direct = direct;
 	}
 
+	public String getChannel() {
+		return channel;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+
 	@Override
 	public String toString() {
 		return "OutImportBean{" +
@@ -962,6 +976,7 @@ public class OutImportBean implements Serializable
 				", ibMoney=" + ibMoney +
 				", motivationMoney=" + motivationMoney +
 				", direct=" + direct +
+				", channel='" + channel + '\'' +
 				", mayAmount=" + mayAmount +
 				'}';
 	}

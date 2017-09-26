@@ -1285,6 +1285,36 @@
              }
          }
 
+         // #62 2017/6/13 是否直邮,状态默认为0 输入值为N时为0，Y时为1
+         if ( !StringTools.isNullOrNone(obj[43]))
+         {
+             String direct = obj[43].trim();
+             if ("Y".equalsIgnoreCase(direct)){
+                 bean.setDirect(1);
+             } else if ("N".equalsIgnoreCase(direct)){
+                 bean.setDirect(0);
+             } else {
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("是否直邮只能为Y或N")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         if ( !StringTools.isNullOrNone(obj[44]))
+         {
+             String channel = obj[44].trim();
+             bean.setChannel(channel);
+             if (channel.length()>4){
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("渠道不超过4个字符")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
          return importError;
      }
 
@@ -2425,6 +2455,19 @@
              }
          }
 
+
+         if ( !StringTools.isNullOrNone(obj[44]))
+         {
+             String channel = obj[44].trim();
+             bean.setChannel(channel);
+             if (channel.length()>4){
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("渠道不超过4个字符")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
 
          return importError;
      }

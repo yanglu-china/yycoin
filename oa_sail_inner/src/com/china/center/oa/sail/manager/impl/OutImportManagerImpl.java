@@ -604,7 +604,7 @@ public class OutImportManagerImpl implements OutImportManager
     	newOutBean.setFlowId(OutImportConstant.CITIC);
     	
     	newOutBean.setReday(bean.getReday());
-    	
+    	newOutBean.setChannel(bean.getChannel());
 		long add = newOutBean.getReday()  * 24 * 3600 * 1000L;
 		
 		String redate = TimeTools.getStringByFormat(new Date(new Date().getTime() + add), "yyyy-MM-dd");
@@ -821,7 +821,7 @@ public class OutImportManagerImpl implements OutImportManager
 		newOutBean.setDutyId(dutyId);
 		
 		newOutBean.setMtype(mtype);
-		
+
 		outDAO.saveEntityBean(newOutBean);
     	
     	baseDAO.saveAllEntityBeans(baseList);

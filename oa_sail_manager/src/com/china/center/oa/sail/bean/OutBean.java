@@ -492,6 +492,12 @@ public class OutBean implements Serializable
      * #135 赠品规则ID
      */
     private String refGiftId = "";
+
+    /**
+     * #162
+     * 渠道
+     */
+    private String channel = "";
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -2160,6 +2166,14 @@ public class OutBean implements Serializable
 
     public void setRefGiftId(String refGiftId) {
         this.refGiftId = refGiftId;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 
     /**
