@@ -3131,22 +3131,35 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 ibReport.setMotivationMoneyTotal(this.roundDouble((moTotal)));
             }
 
-            //中收或激励只要一个有值就生成
-            if (Math.abs(ibReport.getIbMoneyTotal()) > zero || Math.abs(ibReport.getMotivationMoneyTotal())> zero){
-                this.tcpIbReportDAO.saveEntityBean(ibReport);
-                _logger.info("****save ibReport**********"+ibReport);
+//            //中收或激励只要一个有值就生成
+//            if (Math.abs(ibReport.getIbMoneyTotal()) > zero || Math.abs(ibReport.getMotivationMoneyTotal())> zero){
+//                this.tcpIbReportDAO.saveEntityBean(ibReport);
+//                _logger.info("****save ibReport**********"+ibReport);
+//
+//                if (ListTools.isEmptyOrNull(itemList)){
+//                    _logger.error("***No item created***"+ibReport);
+//                } else {
+//                    for (TcpIbReportItemBean item : itemList) {
+//                        item.setId(commonDAO.getSquenceString20());
+//                        item.setRefId(ibReport.getId());
+//                        _logger.info("****create TcpIbReportItemBean***"+item);
+//                    }
+//                    this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
+//                }
+//            }
 
-                if (ListTools.isEmptyOrNull(itemList)){
-                    _logger.error("***No item created***"+ibReport);
-                } else {
-                    for (TcpIbReportItemBean item : itemList) {
-                        item.setId(commonDAO.getSquenceString20());
-                        item.setRefId(ibReport.getId());
-                        _logger.info("****create TcpIbReportItemBean***"+item);
-//                        this.tcpIbReportItemDAO.saveEntityBean(item);
-                    }
-                    this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
+            this.tcpIbReportDAO.saveEntityBean(ibReport);
+            _logger.info("****save ibReport**********"+ibReport);
+
+            if (ListTools.isEmptyOrNull(itemList)){
+                _logger.error("***No item created***"+ibReport);
+            } else {
+                for (TcpIbReportItemBean item : itemList) {
+                    item.setId(commonDAO.getSquenceString20());
+                    item.setRefId(ibReport.getId());
+                    _logger.info("****create TcpIbReportItemBean***"+item);
                 }
+                this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
             }
 
         }
