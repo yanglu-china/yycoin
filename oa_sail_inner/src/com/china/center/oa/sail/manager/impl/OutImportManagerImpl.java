@@ -3481,7 +3481,7 @@ public class OutImportManagerImpl implements OutImportManager
                         out.setCustomerId(olOutBean.getCustomerId());
                         out.setCustomerName(olOutBean.getCustomerName());
                         //在生成OA订单时，把olfullid写入订单备注
-						String prefix = "OLFULLID_";
+						String prefix = "___线下单号___";
 						if (StringTools.isNullOrNone(olOutBean.getDescription())){
 							out.setDescription(prefix+ olOutBean.getOlFullId());
 						} else{
