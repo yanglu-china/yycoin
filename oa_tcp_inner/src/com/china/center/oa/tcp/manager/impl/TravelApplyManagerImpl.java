@@ -3148,12 +3148,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 //                }
 //            }
 
-            this.tcpIbReportDAO.saveEntityBean(ibReport);
-            _logger.info("****save ibReport**********"+ibReport);
-
             if (ListTools.isEmptyOrNull(itemList)){
                 _logger.error("***No item created***"+ibReport);
             } else {
+                this.tcpIbReportDAO.saveEntityBean(ibReport);
+                _logger.info("****save ibReport**********"+ibReport);
+
                 for (TcpIbReportItemBean item : itemList) {
                     item.setId(commonDAO.getSquenceString20());
                     item.setRefId(ibReport.getId());
