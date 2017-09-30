@@ -423,9 +423,12 @@ public class PackageManagerImpl implements PackageManager {
 		vsBean.setIndexPos(1);
 
 		packBean.setPrintInvoiceinsStatus(itemList);
+		if(this.isDirectShipped(itemList)){
+			packBean.setDirect(1);
+		}
 		packageDAO.saveEntityBean(packBean);
 		packageItemDAO.saveAllEntityBeans(itemList);
-		_logger.info(String.format("生成CK单:%s",packBean.getId()));
+		_logger.info(String.format("生成CK单:%s",packBean));
 
 		packageVSCustomerDAO.saveEntityBean(vsBean);
 	}
@@ -518,6 +521,10 @@ public class PackageManagerImpl implements PackageManager {
 		vsBean.setIndexPos(1);
 
 		packBean.setPrintInvoiceinsStatus(itemList);
+
+		if(this.isDirectShipped(itemList)){
+			packBean.setDirect(1);
+		}
 		packageDAO.saveEntityBean(packBean);
 		_logger.info(String.format("生成CK单:%s",packBean.getId()));
 		
@@ -1007,7 +1014,10 @@ public class PackageManagerImpl implements PackageManager {
 				packBean.setAmount(packBean.getAmount() + allAmount);
 				packBean.setTotal(packBean.getTotal() + total);
 				packBean.setProductCount(packBean.getProductCount() + numList.size());
-				
+
+				if(this.isDirectShipped(itemList)){
+					packBean.setDirect(1);
+				}
 				packageDAO.updateEntityBean(packBean);
 				_logger.info(insId+"***merge to exist package***"+packBean.getId());
 
@@ -1119,6 +1129,9 @@ public class PackageManagerImpl implements PackageManager {
                 packBean.setTotal(packBean.getTotal() + bean.getInvoiceMoney());
                 packBean.setProductCount(packBean.getProductCount() + 1);
 
+				if(this.isDirectShipped(itemList)){
+					packBean.setDirect(1);
+				}
                 packageDAO.updateEntityBean(packBean);
 
                 packageItemDAO.saveAllEntityBeans(itemList);
@@ -1217,8 +1230,11 @@ public class PackageManagerImpl implements PackageManager {
         vsBean.setIndexPos(1);
 
 		packBean.setPrintInvoiceinsStatus(itemList);
+		if(this.isDirectShipped(itemList)){
+			packBean.setDirect(1);
+		}
         packageDAO.saveEntityBean(packBean);
-		_logger.info(String.format("生成CK单:%s",packBean.getId()));
+		_logger.info(String.format("生成CK单:%s",packBean));
 
         packageItemDAO.saveAllEntityBeans(itemList);
 
