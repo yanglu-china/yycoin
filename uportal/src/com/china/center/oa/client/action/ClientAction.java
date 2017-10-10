@@ -720,10 +720,38 @@ public class ClientAction extends DispatchAction
 				{
 					CustomerVO bean = new CustomerVO();
 
-					// 客户名
+					// 客户类型
 					if ( !StringTools.isNullOrNone(obj[0]))
 					{
-						String name = obj[0].trim();
+						String type = obj[0].trim();
+						//TODO
+						bean.setType(1);
+//
+//						CustomerVO vo = this.customerMainDAO.findVOByUnique(name);
+//						if (vo!= null){
+//							builder
+//									.append("第[" + currentNumber + "]错误:")
+//									.append("客户类型已存在")
+//									.append("<br>");
+//
+//							importError = true;
+//						}
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("客户类型不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+
+					// 客户名
+					if ( !StringTools.isNullOrNone(obj[1]))
+					{
+						String name = obj[1].trim();
 						bean.setName(name);
 
 						CustomerVO vo = this.customerMainDAO.findVOByUnique(name);
@@ -747,9 +775,9 @@ public class ClientAction extends DispatchAction
 					}
 
 					// 省
-					if ( !StringTools.isNullOrNone(obj[1]))
+					if ( !StringTools.isNullOrNone(obj[2]))
 					{
-						String province = obj[1].trim();
+						String province = obj[2].trim();
 						bean.setProvinceName(province);
 
 						ProvinceBean provinceBean = this.provinceDAO.findByUnique(province);
@@ -776,9 +804,9 @@ public class ClientAction extends DispatchAction
 					}
 
 					// 市
-					if ( !StringTools.isNullOrNone(obj[2]))
+					if ( !StringTools.isNullOrNone(obj[3]))
 					{
-						String city = obj[2].trim();
+						String city = obj[3].trim();
 						bean.setCityName(city);
 
 						CityBean cityBean = this.cityDAO.findByUnique(city);
@@ -805,36 +833,36 @@ public class ClientAction extends DispatchAction
 					}
 
 					// 区县
-					if ( !StringTools.isNullOrNone(obj[3]))
-					{
-						String area = obj[3].trim();
-						bean.setAreaName(area);
-
-						ConditionParse conditionParse = new ConditionParse();
-						conditionParse.addWhereStr();
-						conditionParse.addCondition("name","=",area);
-						List<AreaBean> areaBeans = this.areaDAO.queryEntityBeansByCondition(conditionParse);
-						if (ListTools.isEmptyOrNull(areaBeans)){
-							builder
-									.append("第[" + currentNumber + "]错误:")
-									.append("区县不存在")
-									.append("<br>");
-
-							importError = true;
-						} else{
-							bean.setAreaId(areaBeans.get(0).getId());
-						}
-
-					}
-					else
-					{
-						builder
-								.append("第[" + currentNumber + "]错误:")
-								.append("区县不能为空")
-								.append("<br>");
-
-						importError = true;
-					}
+//					if ( !StringTools.isNullOrNone(obj[3]))
+//					{
+//						String area = obj[3].trim();
+//						bean.setAreaName(area);
+//
+//						ConditionParse conditionParse = new ConditionParse();
+//						conditionParse.addWhereStr();
+//						conditionParse.addCondition("name","=",area);
+//						List<AreaBean> areaBeans = this.areaDAO.queryEntityBeansByCondition(conditionParse);
+//						if (ListTools.isEmptyOrNull(areaBeans)){
+//							builder
+//									.append("第[" + currentNumber + "]错误:")
+//									.append("区县不存在")
+//									.append("<br>");
+//
+//							importError = true;
+//						} else{
+//							bean.setAreaId(areaBeans.get(0).getId());
+//						}
+//
+//					}
+//					else
+//					{
+//						builder
+//								.append("第[" + currentNumber + "]错误:")
+//								.append("区县不能为空")
+//								.append("<br>");
+//
+//						importError = true;
+//					}
 
 
 					// 业务员
@@ -863,8 +891,49 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
-					importItemList.add(bean);
+					// 地址
+					if ( !StringTools.isNullOrNone(obj[5]))
+					{
+						String address = obj[5].trim();
+						bean.setAddress(address);
+					}
+					//TODO
+					else if(bean.getType() == 1)
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("个人客户地址不能为空")
+								.append("<br>");
 
+						importError = true;
+					}
+
+					// 手机
+					if ( !StringTools.isNullOrNone(obj[6]))
+					{
+						String mobile = obj[6].trim();
+
+					}
+					//TODO
+					else if(bean.getType() == 1)
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("个人客户手机不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					// 邮箱
+					if ( !StringTools.isNullOrNone(obj[7]))
+					{
+						String email = obj[7].trim();
+
+					}
+
+
+					importItemList.add(bean);
 				}
 				else
 				{
