@@ -80,6 +80,8 @@ import com.china.center.oa.publics.manager.CommonManager;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vs.RoleAuthBean;
 
+import static com.china.center.oa.customer.constant.CustomerConstant.NATURE_INDIVIDUAL;
+
 /**
  * 
  * 升级后的客户管理
@@ -724,18 +726,20 @@ public class ClientAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[0]))
 					{
 						String type = obj[0].trim();
-						//TODO
-						bean.setType(1);
-//
-//						CustomerVO vo = this.customerMainDAO.findVOByUnique(name);
-//						if (vo!= null){
-//							builder
-//									.append("第[" + currentNumber + "]错误:")
-//									.append("客户类型已存在")
-//									.append("<br>");
-//
-//							importError = true;
-//						}
+						if ("个人".equals(type) || "个人客户".equals(type)){
+							bean.setType(NATURE_INDIVIDUAL);
+						} else if ("部门".equals(type) || "部门客户".equals(type)){
+							bean.setType(CustomerConstant.NATURE_DEPART);
+						} else if ("组织".equals(type) || "组织客户".equals(type)){
+							bean.setType(CustomerConstant.NATURE_CORPORATION);
+						} else {
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("客户类型只能为：个人、部门、组织")
+									.append("<br>");
+
+							importError = true;
+						}
 					}
 					else
 					{
@@ -897,8 +901,7 @@ public class ClientAction extends DispatchAction
 						String address = obj[5].trim();
 						bean.setAddress(address);
 					}
-					//TODO
-					else if(bean.getType() == 1)
+					else if(bean.getType() == NATURE_INDIVIDUAL)
 					{
 						builder
 								.append("第[" + currentNumber + "]错误:")
@@ -912,10 +915,9 @@ public class ClientAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[6]))
 					{
 						String mobile = obj[6].trim();
-
+						bean.setHandphone(mobile);
 					}
-					//TODO
-					else if(bean.getType() == 1)
+					else if(bean.getType() == NATURE_INDIVIDUAL)
 					{
 						builder
 								.append("第[" + currentNumber + "]错误:")
@@ -929,7 +931,7 @@ public class ClientAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[7]))
 					{
 						String email = obj[7].trim();
-
+						bean.setEmail(email);
 					}
 
 
@@ -1541,7 +1543,7 @@ public class ClientAction extends DispatchAction
 
     private String[] fillObj(String[] obj)
     {
-        String[] result = new String[6];
+        String[] result = new String[8];
 
         for (int i = 0; i < result.length; i++ )
         {
@@ -1668,7 +1670,7 @@ public class ClientAction extends DispatchAction
                 return mapping.findForward("queryApplyClient");
             }
             
-            if (abean.getType() == CustomerConstant.NATURE_INDIVIDUAL)
+            if (abean.getType() == NATURE_INDIVIDUAL)
             {
             	CustomerIndividualApplyVO vo = clientManager.findIndividualApplyVO(id);
             	
@@ -1978,7 +1980,7 @@ public class ClientAction extends DispatchAction
         
         try
         {
-            if (cvo.getType() == CustomerConstant.NATURE_INDIVIDUAL)
+            if (cvo.getType() == NATURE_INDIVIDUAL)
             {
             	CustomerIndividualVO vo = clientManager.findIndividualVO(cvo.getId(), update);
             	

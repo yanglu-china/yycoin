@@ -2327,23 +2327,30 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
                  String code = commonDAO.getSquenceString20();
                  customerBean.setId(id);
                  customerBean.setCode(code);
-                 customerBean.setType(CustomerConstant.NATURE_CORPORATION);
+//                 customerBean.setType(CustomerConstant.NATURE_CORPORATION);
 				 customerBean.setCreateTime(TimeTools.now());
 				 customerBean.setLogTime(TimeTools.now());
                  customerBean.setStatus(CustomerConstant.REAL_STATUS_USED);
                  this.customerMainDAO.saveEntityBean(customerBean);
 
-                 CustomerCorporationBean corpBean = new CustomerCorporationBean();
-//                 corpBean.setId(id);
-//                 corpBean.setName(customerVO.getName());
-//                 corpBean.setProvinceId(customerVO.getProvinceId());
-//                 corpBean.setCityId(customerVO.getCityId());
-//                 corpBean.setAddress(customerVO.getAddress());
-                 BeanUtil.copyProperties(corpBean,customerBean);
-                 corpBean.setLicenseNo("");
-                 corpBean.setSimpleName(corpBean.getName());
-                 corpBean.setEstablishDate("");
-                 customerCorporationDAO.saveEntityBean(corpBean);
+                 if (customerVO.getType() == CustomerConstant.NATURE_CORPORATION){
+					 CustomerCorporationBean corpBean = new CustomerCorporationBean();
+					 BeanUtil.copyProperties(corpBean,customerBean);
+					 corpBean.setLicenseNo("");
+					 corpBean.setSimpleName(corpBean.getName());
+					 corpBean.setEstablishDate("");
+					 customerCorporationDAO.saveEntityBean(corpBean);
+				 } else if (customerVO.getType() == CustomerConstant.NATURE_INDIVIDUAL){
+					 CustomerIndividualBean individualBean = new CustomerIndividualBean();
+					 BeanUtil.copyProperties(individualBean,customerBean);
+					 individualBean.setSimpleName(individualBean.getName());
+					 customerIndividualDAO.saveEntityBean(individualBean);
+				 } else if (customerVO.getType() == CustomerConstant.NATURE_DEPART){
+					 CustomerDepartBean departBean = new CustomerDepartBean();
+					 BeanUtil.copyProperties(departBean,customerBean);
+					 departBean.setSimpleName(departBean.getName());
+					 customerDepartDAO.saveEntityBean(departBean);
+				 }
 
 
                  StafferBean stafferBean = this.stafferDAO.findyStafferByName(customerVO.getStafferName());

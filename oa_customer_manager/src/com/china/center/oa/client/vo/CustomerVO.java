@@ -28,9 +28,6 @@ public class CustomerVO extends CustomerBean
     private String stafferName = "";
 
 	@Ignore
-	private String handphone = "";
-
-	@Ignore
 	private String email = "";
     
 	@Relationship(relationField = "refCorpCustId")
@@ -134,16 +131,6 @@ public class CustomerVO extends CustomerBean
 
 	public void setCustAddrList(List<CustomerDistAddrBean> custAddrList) {
 		this.custAddrList = custAddrList;
-	}
-
-	@Override
-	public String getHandphone() {
-		return handphone;
-	}
-
-	@Override
-	public void setHandphone(String handphone) {
-		this.handphone = handphone;
 	}
 
 	public String getEmail() {
