@@ -2344,6 +2344,7 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
 					 CustomerIndividualBean individualBean = new CustomerIndividualBean();
 					 BeanUtil.copyProperties(individualBean,customerBean);
 					 individualBean.setSimpleName(individualBean.getName());
+					 individualBean.setEmail(customerVO.getEmail());
 					 customerIndividualDAO.saveEntityBean(individualBean);
 				 } else if (customerVO.getType() == CustomerConstant.NATURE_DEPART){
 					 CustomerDepartBean departBean = new CustomerDepartBean();
