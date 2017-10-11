@@ -140,7 +140,6 @@ public class LoginAction extends DispatchAction
                                HttpServletResponse reponse)
         throws ServletException
     {
-        System.out.println("**login***");
         boolean login = parameterDAO.getBoolean("REAL_LOGIN");
 
         // 是否启用加密锁
@@ -185,7 +184,6 @@ public class LoginAction extends DispatchAction
 
             // 是否二次认证
             String anhao = parameterDAO.getString(SysConfigConstant.SIGN_YY_CENTER);
-            System.out.println("***anhao***"+anhao);
             //不管real是否设置为true，都需要做验证码验证
             ActionForward checkCommonResult = checkCommon(mapping, request, rand, true);
 
@@ -197,7 +195,6 @@ public class LoginAction extends DispatchAction
             String randVal = rand.toUpperCase();
 
             user = userDAO.findUserByName(longinName);
-            System.out.println(longinName+"***user***"+user);
             if (user == null)
             {
                 request.getSession().setAttribute(KeyConstant.ERROR_MESSAGE, "用户名或密码错误");
@@ -592,7 +589,10 @@ public class LoginAction extends DispatchAction
 
             return mapping.findForward("error");
         }
+        long begin = System.currentTimeMillis();
         processCity(user, request);
+        long end = System.currentTimeMillis();
+        System.out.println("***time to process city***"+(end-begin));
 
         JSONArray auths = new JSONArray(user.getAuth(), true);
 
@@ -949,16 +949,19 @@ public class LoginAction extends DispatchAction
             map.put(provinceBean.getId(), clist);
         }
         
-        List<CityBean> clist = cityDAO.listEntityBeans();
+//        List<CityBean> clist = cityDAO.listEntityBeans();
         
-        Map<String, List<AreaBean>> areaMap = new HashMap<String, List<AreaBean>>();
+//        Map<String, List<AreaBean>> areaMap = new HashMap<String, List<AreaBean>>();
 
-        for (CityBean cityBean : clist)
-        {
-            List<AreaBean> alist = areaDAO.queryEntityBeansByFK(cityBean.getId());
+//        for (CityBean cityBean : clist)
+//        {
+//            List<AreaBean> alist = areaDAO.queryEntityBeansByFK(cityBean.getId());
+//
+//            areaMap.put(cityBean.getId(), alist);
+//        }
 
-            areaMap.put(cityBean.getId(), alist);
-        }
+
+        Map<String, List<AreaBean>> areaMap = this.getAreaMap();
 
         JSONObject object = new JSONObject();
         JSONObject object1 = new JSONObject();
@@ -973,6 +976,24 @@ public class LoginAction extends DispatchAction
         request.getSession().setAttribute("jsStrJSON", object.toString());
 
         request.getSession().setAttribute("pStrJSON", jarr.toString());
+    }
+
+    private Map<String,List<AreaBean>> getAreaMap(){
+        List<AreaBean> areaBeans = this.areaDAO.listEntityBeans();
+        Map<String,List<AreaBean>> map =  new HashMap<String, List<AreaBean>>();
+        for (AreaBean areaBean: areaBeans){
+            String cityId = areaBean.getParentId();
+            List<AreaBean> aList = map.get(cityId);
+            if ( aList == null){
+                aList = new ArrayList<AreaBean>();
+                aList.add(areaBean);
+                map.put(cityId, aList);
+            } else{
+                aList.add(areaBean);
+            }
+        }
+
+        return map;
     }
 
     private String logLogin(HttpServletRequest request, User user, boolean success)
