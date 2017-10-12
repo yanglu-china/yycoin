@@ -837,42 +837,42 @@ public class ClientAction extends DispatchAction
 					}
 
 					// 区县
-//					if ( !StringTools.isNullOrNone(obj[3]))
-//					{
-//						String area = obj[3].trim();
-//						bean.setAreaName(area);
-//
-//						ConditionParse conditionParse = new ConditionParse();
-//						conditionParse.addWhereStr();
-//						conditionParse.addCondition("name","=",area);
-//						List<AreaBean> areaBeans = this.areaDAO.queryEntityBeansByCondition(conditionParse);
-//						if (ListTools.isEmptyOrNull(areaBeans)){
-//							builder
-//									.append("第[" + currentNumber + "]错误:")
-//									.append("区县不存在")
-//									.append("<br>");
-//
-//							importError = true;
-//						} else{
-//							bean.setAreaId(areaBeans.get(0).getId());
-//						}
-//
-//					}
-//					else
-//					{
-//						builder
-//								.append("第[" + currentNumber + "]错误:")
-//								.append("区县不能为空")
-//								.append("<br>");
-//
-//						importError = true;
-//					}
+					if ( !StringTools.isNullOrNone(obj[4]))
+					{
+						String area = obj[4].trim();
+						bean.setAreaName(area);
+
+						ConditionParse conditionParse = new ConditionParse();
+						conditionParse.addWhereStr();
+						conditionParse.addCondition("name","=",area);
+						List<AreaBean> areaBeans = this.areaDAO.queryEntityBeansByCondition(conditionParse);
+						if (ListTools.isEmptyOrNull(areaBeans)){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("区县不存在")
+									.append("<br>");
+
+							importError = true;
+						} else{
+							bean.setAreaId(areaBeans.get(0).getId());
+						}
+
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("区县不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
 
 
 					// 业务员
-					if ( !StringTools.isNullOrNone(obj[4]))
+					if ( !StringTools.isNullOrNone(obj[5]))
 					{
-						String stafferName = obj[4].trim();
+						String stafferName = obj[5].trim();
 						bean.setStafferName(stafferName);
 
 						StafferBean stafferBean = this.stafferDAO.findyStafferByName(stafferName);
@@ -896,9 +896,9 @@ public class ClientAction extends DispatchAction
 					}
 
 					// 地址
-					if ( !StringTools.isNullOrNone(obj[5]))
+					if ( !StringTools.isNullOrNone(obj[6]))
 					{
-						String address = obj[5].trim();
+						String address = obj[6].trim();
 						bean.setAddress(address);
 					}
 					else if(bean.getType() == NATURE_INDIVIDUAL)
@@ -912,9 +912,9 @@ public class ClientAction extends DispatchAction
 					}
 
 					// 手机
-					if ( !StringTools.isNullOrNone(obj[6]))
+					if ( !StringTools.isNullOrNone(obj[7]))
 					{
-						String mobile = obj[6].trim();
+						String mobile = obj[7].trim();
 						bean.setHandphone(mobile);
 					}
 					else if(bean.getType() == NATURE_INDIVIDUAL)
@@ -928,9 +928,9 @@ public class ClientAction extends DispatchAction
 					}
 
 					// 邮箱
-					if ( !StringTools.isNullOrNone(obj[7]))
+					if ( !StringTools.isNullOrNone(obj[8]))
 					{
-						String email = obj[7].trim();
+						String email = obj[8].trim();
 						bean.setEmail(email);
 					}
 
@@ -1543,7 +1543,7 @@ public class ClientAction extends DispatchAction
 
     private String[] fillObj(String[] obj)
     {
-        String[] result = new String[8];
+        String[] result = new String[9];
 
         for (int i = 0; i < result.length; i++ )
         {
