@@ -1699,6 +1699,9 @@ public class ShipManagerImpl implements ShipManager
 //                    createPfMailAttachment(packages,bean.getBranchName(), fileName, true);
                     //refer to #117 and JobManagerImpl
                     continue;
+                } else if (subBranch.indexOf("浦发银行") != -1 && bean.getBranchName().indexOf("小浦金店-银行")!= -1){
+                    //refer to #170 and JobManagerImpl
+                    continue;
                 } else{
                     createMailAttachment(packages,bean.getBranchName(), fileName, true);
                 }
