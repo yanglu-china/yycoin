@@ -141,7 +141,7 @@ public class JobManagerImpl implements JobManager {
                 //浦发上海分行
                 if (subBranch.indexOf("浦发银行") != -1 && bean.getBranchName().indexOf("上海分行")!= -1){
                     createPfMailAttachment(packages,bean.getBranchName(), fileName, true);
-                } else if (subBranch.indexOf("浦发银行") != -1 && bean.getBranchName().indexOf("小浦金店-银行")!= -1){
+                } else if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("小浦金店-银行")!= -1){
                     createPfMailAttachmentForXiaoPu(packages,bean.getBranchName(), fileName, true);
                 } else{
                     continue;
