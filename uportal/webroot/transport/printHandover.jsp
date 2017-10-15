@@ -22,19 +22,23 @@
             var subindex_pos = $O('subindex_pos').value;
 
             var compose = $O('compose').value;
+//
+//            if ($$('allPackages') == index_pos && batchPrint == '0')
+//            {
+//                var pickupId = $O('pickupId').value;
+//                var index_pos = $O('index_pos').value;
+//                var compose = $O('compose').value;
+//
+//                // TODO 链到交接清单打印界面
+//                $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos=0" + "&compose=" + compose);
+//            } else{
+//                // 链到打印完毕页面
+//                $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos + "&compose=" + compose+ "&printMode=0");
+//            }
 
-            if ($$('allPackages') == index_pos && batchPrint == '0')
-            {
-                var pickupId = $O('pickupId').value;
-                var index_pos = $O('index_pos').value;
-                var compose = $O('compose').value;
+            // 链到打印完毕页面
+            $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos + "&compose=" + compose+ "&printMode=0");
 
-                // TODO 链到交接清单打印界面
-                $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos=0" + "&compose=" + compose);
-            } else{
-                // 链到打印完毕页面
-                $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos + "&compose=" + compose+ "&printMode=0");
-            }
         }
 
         function callBackPrintFun()
