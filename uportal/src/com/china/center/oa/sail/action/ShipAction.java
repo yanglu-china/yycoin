@@ -1376,8 +1376,9 @@ public class ShipAction extends DispatchAction
 
         String batchPrint = RequestTools.getValueFromRequest(request, "batchPrint");
         String print2 = (String) request.getSession().getAttribute("printMode");
+        String direct = RequestTools.getValueFromRequest(request, "direct");
 
-        String msg1 = "***batchPrint***" + batchPrint + "***print2***" + print2 + "***pickupId***" + pickupId + "***packageId***" + packageId + "***index_pos***" + index_pos + "***printMode***" + printMode + "***printSmode***" + printSmode;
+        String msg1 = "***batchPrint***" + batchPrint + "***print2***" + print2 + "***pickupId***" + pickupId + "***packageId***" + packageId + "***index_pos***" + index_pos + "***printMode***" + printMode + "***printSmode***" + printSmode+"***direct***"+direct;
         _logger.info(msg1);
         //2015/3/25 批量打印标志
         request.setAttribute("batchPrint", batchPrint);
@@ -1784,6 +1785,11 @@ public class ShipAction extends DispatchAction
 //                }
                 return mapping.findForward("printPfReceipt");
             } else {
+
+                request.setAttribute("direct", true);
+                if(direct!= null){
+                    return mapping.findForward("printUnifiedReceipt2");
+                }
                 return mapping.findForward("printUnifiedReceipt");
             }
         }

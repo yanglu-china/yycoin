@@ -42,18 +42,10 @@ function pagePrint()
 		if ((!pickupId || 0 === pickupId.length)){
 			alert("已打印!");
 		}else{
-            var direct = $O('direct').value;
-            console.log(direct);
-            if (direct){
-                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
-                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
-                    + "&compose=" + compose+ "&batchPrint=" + batchPrint+"&direct="+direct);
-			} else{
-                // 链到客户出库单打印界面
-                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
-                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
-                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
-			}
+			// 链到客户出库单打印界面
+			$l("../sail/ship.do?method=findOutForReceipt&pickupId="
+					+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
+					+ "&compose=" + compose+ "&batchPrint=" + batchPrint);
 		}
     }
 }
@@ -76,7 +68,6 @@ function callBackPrintFun()
 <input type="hidden" name="printMode" value="${printMode}">
 <input type="hidden" name="printSmode" value="${printSmode}">
 <input type="hidden" name="stafferName" value="${stafferName}">
-<input type="hidden" name="direct" value="${direct}">
 
 <table width="90%" border="0" cellpadding="0" cellspacing="0"
 	align="center">
@@ -96,7 +87,7 @@ function callBackPrintFun()
                             <td style="height: 27px" align="center" colspan="2">
                                 <font size=5>
                                     <b>
-                            ${title}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if>&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.direct == 1}">直邮</c:if>
+                            ${title}22222222222222222222&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if>&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.direct == 1}">直邮</c:if>
                                     </b>
                                 </font>
                             </td>
