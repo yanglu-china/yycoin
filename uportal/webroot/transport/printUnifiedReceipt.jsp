@@ -42,18 +42,21 @@ function pagePrint()
 		if ((!pickupId || 0 === pickupId.length)){
 			alert("已打印!");
 		}else{
-            var direct = $O('direct').value;
-            console.log(direct);
-            if (direct){
-                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
+            $l("../sail/ship.do?method=findOutForReceipt&pickupId="
                     +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
                     + "&compose=" + compose+ "&batchPrint=" + batchPrint+"&direct="+direct);
-			} else{
-                // 链到客户出库单打印界面
-                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
-                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
-                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
-			}
+
+//            var direct = $O('direct').value;
+//            if (direct){
+//                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
+//                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
+//                    + "&compose=" + compose+ "&batchPrint=" + batchPrint+"&direct="+direct);
+//			} else{
+//                // 链到客户出库单打印界面
+//                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
+//                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
+//                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
+//			}
 		}
     }
 }

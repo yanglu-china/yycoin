@@ -1785,11 +1785,11 @@ public class ShipAction extends DispatchAction
 //                }
                 return mapping.findForward("printPfReceipt");
             } else {
-
-                request.setAttribute("direct", true);
-                if(direct!= null){
-                    return mapping.findForward("printUnifiedReceipt2");
-                }
+                //#171 TODO
+//                if(vo.getDirect() == 1){
+//                    request.setAttribute("direct", true);
+//                    request.setAttribute("title", "永银文化——发货清单（寄回发件公司联）");
+//                }
                 return mapping.findForward("printUnifiedReceipt");
             }
         }

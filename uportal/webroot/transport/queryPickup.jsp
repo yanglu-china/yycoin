@@ -70,7 +70,10 @@ function receiptPagePrint(flag)
 
 	if (flag == '1')
 		$l('../sail/ship.do?method=findOutForReceipt&compose=1&pickupId=' + getRadioValue("pickupId") + '&index_pos=0&CENTER_COMMON_CENTER_COMMON=' + new Date().getTime());
-	else{
+	else if (flag == '3') {
+		//直邮打印批次
+		$l('../sail/ship.do?method=findOutForReceipt&compose=2&direct=1&pickupId=' + getRadioValue("pickupId") + '&index_pos=0&CENTER_COMMON_CENTER_COMMON=' + new Date().getTime());
+	}else {
 		var clis = getCheckBox('packageIds');
 		if (clis.length ==1){
 			//打印第一个选中的CK单
@@ -303,6 +306,8 @@ function clears()
 					<option value="2">已发货</option>
 					<option value="4">已拣配/打印/打印发票</option>
 					<option value="5">打印发票</option>
+					<option value="13">签收</option>
+					<option value="14">退签</option>
 				</select>
 				</td>
 			</tr>
@@ -456,6 +461,9 @@ function clears()
             <input type="button"
                    class="button_class" onclick="batchPagePrint()"
                    value="&nbsp;&nbsp;批量打印&nbsp;&nbsp;">&nbsp;&nbsp;
+			<%--<input type="button"--%>
+				   <%--class="button_class" onclick="receiptPagePrint(3)"--%>
+				   <%--value="&nbsp;&nbsp;直邮打印&nbsp;&nbsp;">&nbsp;&nbsp;--%>
 			<input type="button" 
 			class="button_class" onclick="sub()"
 			value="&nbsp;&nbsp;确认发货&nbsp;&nbsp;">&nbsp;&nbsp;
