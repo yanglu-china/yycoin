@@ -95,6 +95,7 @@
             <forward name="addSailConfig" path="/sailconfig/addSailConfig.jsp" />
             <forward name="updateSailConfig" path="/sailconfig/updateSailConfig.jsp" />
             <forward name="detailSailConfig" path="/sailconfig/detailSailConfig.jsp" />
+            <forward name="importSailConfig" path="/sailconfig/importSailConfig.jsp" />
         </action>
 
         <action path="/sail/giftconfig" parameter="method"

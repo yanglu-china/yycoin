@@ -10,6 +10,8 @@ package com.china.center.oa.sail.action;
 
 
 import com.center.china.osgi.publics.User;
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.actionhelper.common.ActionTools;
 import com.china.center.actionhelper.common.JSONTools;
 import com.china.center.actionhelper.common.KeyConstant;
@@ -28,6 +30,7 @@ import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.sail.vo.SailConfVO;
 import com.china.center.tools.BeanUtil;
 import com.china.center.tools.CommonTools;
+import com.china.center.tools.RequestDataStream;
 import com.china.center.tools.StringTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,6 +42,8 @@ import org.apache.struts.actions.DispatchAction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -182,6 +187,196 @@ public class SailConfigAction extends DispatchAction
         CommonTools.removeParamers(request);
 
         return mapping.findForward("querySailConfig");
+    }
+
+
+    public ActionForward importSailConfig(ActionMapping mapping, ActionForm form,
+                                       HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<SailConfBean> importItemList = new ArrayList<SailConfBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importSailConfig");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importSailConfig");
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    SailConfBean item = new SailConfBean();
+
+                    // 专员编码
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String id = obj[0];
+                        item.setId(id);
+                    }else{
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("专员编码必填")
+                                .append("</font><br>");
+
+                        importError = true;
+                    }
+
+                    // 专员姓名
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        String name = obj[1];
+                        item.setName(name);
+
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addCondition("id","=",item.getId());
+                        conditionParse.addCondition("name","=",item.getName());
+                        List<StafferBean> stafferBeans = this.stafferDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(stafferBeans)){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("专员编码与人员必须与oaSTAFFER表里的 ID,NAME 一致")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
+                    } else{
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("专员名称必填")
+                                .append("</font><br>");
+
+                        importError = true;
+                    }
+
+                    //省级团队
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        String provinceName = obj[2];
+                        item.setProvinceName(provinceName);
+                    }
+
+                    //省级经理编码
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        String provinceManagerId = obj[3];
+                        item.setProvinceManagerId(provinceManagerId);
+                    }
+
+                    
+                    importItemList.add(item);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足2格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("importSailConfig");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("importSailConfig");
+        } else{
+            try{
+//                this.travelApplyManager.importBankBulevel(null, importItemList);
+
+                request.setAttribute(KeyConstant.MESSAGE, "导入成功");
+            }catch(Exception e){
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getMessage());
+
+                return mapping.findForward("importSailConfig");
+            }
+        }
+
+        return mapping.findForward("importSailConfig");
+    }
+
+    private String[] fillObj(String[] obj)
+    {
+        String[] result = new String[9];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
     }
 
     /**
