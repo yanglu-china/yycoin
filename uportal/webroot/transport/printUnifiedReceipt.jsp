@@ -44,7 +44,7 @@ function pagePrint()
 		}else{
             $l("../sail/ship.do?method=findOutForReceipt&pickupId="
                     +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
-                    + "&compose=" + compose+ "&batchPrint=" + batchPrint+"&direct="+direct);
+                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
 
 //            var direct = $O('direct').value;
 //            if (direct){
