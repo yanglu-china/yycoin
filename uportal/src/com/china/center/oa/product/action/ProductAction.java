@@ -39,10 +39,7 @@ import com.china.center.oa.product.vs.ProductCombinationBean;
 import com.china.center.oa.product.vs.ProductVSLocationBean;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
-import com.china.center.oa.publics.bean.FlowLogBean;
-import com.china.center.oa.publics.bean.InvoiceBean;
-import com.china.center.oa.publics.bean.PrincipalshipBean;
-import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.helper.OATools;
@@ -2994,6 +2991,21 @@ public class ProductAction extends DispatchAction
         List<InvoiceBean> invoiceList = invoiceDAO.listEntityBeans();
 
         request.setAttribute("invoiceList", invoiceList);
+
+        //#168 材质类型找不到的时候要有默认值
+        //材质类型
+        int checkDays = bean.getCheckDays();
+        String materialType = "";
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("type", "=", "201");
+        conditionParse.addCondition("keyss", "=", checkDays);
+
+        List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(enumBeans)){
+            EnumBean enumBean = enumBeans.get(0);
+            bean.setMaterialType(enumBean.getValue());
+        }
 
         return mapping.findForward("detailProduct");
     }

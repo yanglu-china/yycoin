@@ -73,6 +73,9 @@ public class ProductVO extends ProductBean
     @Ignore
     private List<ProductCombinationVO> vsVOList = null;
 
+    @Ignore
+    private String materialType = "";
+
     /**
      * default constructor
      */
@@ -239,7 +242,15 @@ public class ProductVO extends ProductBean
 		this.price = price;
 	}
 
-	/**
+    public String getMaterialType() {
+        return materialType;
+    }
+
+    public void setMaterialType(String materialType) {
+        this.materialType = materialType;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.
