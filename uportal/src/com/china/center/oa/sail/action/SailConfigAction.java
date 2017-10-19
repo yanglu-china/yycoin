@@ -19,6 +19,8 @@ import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.dao.ShowDAO;
@@ -68,6 +70,8 @@ public class SailConfigAction extends DispatchAction
     private SailConfDAO sailConfDAO = null;
 
     private OrgManager orgManager = null;
+
+    private ProductDAO productDAO = null;
 
     private static final String QUERYSAILCONFIG = "querySailConfig";
 
@@ -249,60 +253,71 @@ public class SailConfigAction extends DispatchAction
                 {
                     SailConfBean item = new SailConfBean();
 
-                    // 专员编码
+                    // 销售类型
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
-                        String id = obj[0];
-                        item.setId(id);
+                        String sailType = obj[0];
+//                        item.setSailType(sailType);
                     }else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("专员编码必填")
+                                .append("销售类型必填")
                                 .append("</font><br>");
 
                         importError = true;
                     }
 
-                    // 专员姓名
+                    // 产品类型
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
-                        String name = obj[1];
-                        item.setName(name);
+                        String productType = obj[1];
 
                         ConditionParse conditionParse = new ConditionParse();
                         conditionParse.addCondition("id","=",item.getId());
-                        conditionParse.addCondition("name","=",item.getName());
-                        List<StafferBean> stafferBeans = this.stafferDAO.queryEntityBeansByCondition(conditionParse);
-                        if (ListTools.isEmptyOrNull(stafferBeans)){
-                            builder
-                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                    .append("专员编码与人员必须与oaSTAFFER表里的 ID,NAME 一致")
-                                    .append("</font><br>");
 
-                            importError = true;
+                    } else{
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("产品类型必填")
+                                .append("</font><br>");
+
+                        importError = true;
+                    }
+
+                    //品名
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        String names = obj[2].trim();
+                        String[] nameList = names.split(";");
+                        for (String name : nameList){
+                            ProductBean productBean = this.productDAO.findByName(name);
+                            if (productBean == null){
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("品名不存在:"+name)
+                                        .append("</font><br>");
+
+                                importError = true;
+                                break;
+                            } else{
+                                //TODO
+                            }
                         }
                     } else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("专员名称必填")
+                                .append("品名必填(多个品名以;隔开)")
                                 .append("</font><br>");
 
                         importError = true;
                     }
 
-                    //省级团队
-                    if ( !StringTools.isNullOrNone(obj[2]))
-                    {
-                        String provinceName = obj[2];
-                        item.setProvinceName(provinceName);
-                    }
-
-                    //省级经理编码
+                    //原结算价
                     if ( !StringTools.isNullOrNone(obj[3]))
                     {
-                        String provinceManagerId = obj[3];
-                        item.setProvinceManagerId(provinceManagerId);
+
                     }
+
 
                     
                     importItemList.add(item);
