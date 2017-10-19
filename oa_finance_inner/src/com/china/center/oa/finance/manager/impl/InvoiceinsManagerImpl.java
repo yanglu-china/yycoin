@@ -3167,12 +3167,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					double vsMoney = 0.0d;
                     //#169 2016/3/2 对于拆分开票，根据导入模板中商品+数量来生成item表
                     if (eachb.isSplitFlag()){
-//                        BaseBean baseBean = this.getBaseBeanByProduct(baseList, eachb);
                         List<BaseBean> baseBeans = this.getBaseBeanByProduct(baseList,eachb);
                         if (ListTools.isEmptyOrNull(baseBeans)){
                             _logger.error("DO NOT find baseId for***"+eachb);
                             throw new MYException("导入开票信息和商品行不一致，无法开票："+eachb);
                         } else{
+                            _logger.info(eachb+"***begin to create InvoiceinsItemBean size***"+baseBeans.size());
                             for (BaseBean baseBean:baseBeans){
                                 InvoiceinsItemBean item = new InvoiceinsItemBean();
 
@@ -3181,8 +3181,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                 item.setShowId("10201103130001000189");
                                 item.setShowName("纪念品");
                                 item.setUnit("8874797");
-//                                item.setAmount(eachb.getAmount());
-                                item.setAmount(baseBean.getAmount());
+                                //TODO
+                                if (baseBean.getAmount() == 0){
+                                    item.setAmount(eachb.getAmount());
+                                } else{
+                                    item.setAmount(baseBean.getAmount());
+                                }
+
                                 if (baseBean!= null){
                                     item.setPrice(baseBean.getPrice());
                                     item.setBaseId(baseBean.getId());
