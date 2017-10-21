@@ -76,6 +76,8 @@ public class JobManagerImpl implements JobManager {
         con.addIntCondition("PackageBean.status", "=", 2);
         //自提类的也不在发送邮件范围内
         con.addIntCondition("PackageBean.shipping","!=", 0);
+        //#174 把有直邮标识的订单过滤掉
+        con.addIntCondition("PackageBean.direct","!=", 1);
         //!!test only
 //        con.addCondition("PackageBean.id", "=", "CK201701052047004361");
 
