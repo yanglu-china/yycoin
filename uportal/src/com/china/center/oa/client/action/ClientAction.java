@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.oa.client.bean.*;
+import com.china.center.oa.client.dao.*;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.ExpressBean;
@@ -37,22 +38,6 @@ import com.china.center.common.MYException;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.client.dao.AppUserApplyDAO;
-import com.china.center.oa.client.dao.AppUserDAO;
-import com.china.center.oa.client.dao.AppUserVSCustomerDAO;
-import com.china.center.oa.client.dao.AssignApplyDAO;
-import com.china.center.oa.client.dao.ChangeLogDAO;
-import com.china.center.oa.client.dao.CustomerApproveDAO;
-import com.china.center.oa.client.dao.CustomerBusinessApplyDAO;
-import com.china.center.oa.client.dao.CustomerBusinessDAO;
-import com.china.center.oa.client.dao.CustomerContactApplyDAO;
-import com.china.center.oa.client.dao.CustomerContactDAO;
-import com.china.center.oa.client.dao.CustomerDistAddrApplyDAO;
-import com.china.center.oa.client.dao.CustomerDistAddrDAO;
-import com.china.center.oa.client.dao.CustomerFormerNameDAO;
-import com.china.center.oa.client.dao.CustomerMainDAO;
-import com.china.center.oa.client.dao.DestStafferVSCustomerDAO;
-import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.facade.ClientFacade;
 import com.china.center.oa.client.manager.AppUserManager;
 import com.china.center.oa.client.manager.ClientManager;
@@ -99,6 +84,8 @@ public class ClientAction extends DispatchAction
 	private CustomerApproveDAO customerApproveDAO = null;
 	
 	private CustomerMainDAO customerMainDAO = null;
+
+	private CustomerIndividualDAO customerIndividualDAO = null;
 	
 	private UserManager userManager = null;
 	
@@ -916,6 +903,23 @@ public class ClientAction extends DispatchAction
 					{
 						String mobile = obj[7].trim();
 						bean.setHandphone(mobile);
+
+						//#175 个人类型手机号不能重复
+						if(bean.getType() == NATURE_INDIVIDUAL){
+							ConditionParse conditionParse = new ConditionParse();
+							conditionParse.addWhereStr();
+							conditionParse.addCondition("handPhone","=",mobile);
+							 List<CustomerIndividualBean> customerIndividualBeans = this.customerIndividualDAO.queryEntityBeansByCondition(conditionParse);
+							 if (!ListTools.isEmptyOrNull(customerIndividualBeans)){
+								 builder
+										 .append("第[" + currentNumber + "]错误:")
+										 .append("个人客户手机号已存在:"+mobile)
+										 .append("<br>");
+
+								 importError = true;
+							 }
+						}
+
 					}
 					else if(bean.getType() == NATURE_INDIVIDUAL)
 					{
@@ -4827,5 +4831,13 @@ public class ClientAction extends DispatchAction
 
 	public void setExpressDAO(ExpressDAO expressDAO) {
 		this.expressDAO = expressDAO;
+	}
+
+	public CustomerIndividualDAO getCustomerIndividualDAO() {
+		return customerIndividualDAO;
+	}
+
+	public void setCustomerIndividualDAO(CustomerIndividualDAO customerIndividualDAO) {
+		this.customerIndividualDAO = customerIndividualDAO;
 	}
 }
