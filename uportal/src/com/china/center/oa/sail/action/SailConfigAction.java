@@ -20,9 +20,11 @@ import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
+import com.china.center.oa.publics.dao.PrincipalshipDAO;
 import com.china.center.oa.publics.dao.ShowDAO;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.sail.bean.SailConfBean;
@@ -30,10 +32,7 @@ import com.china.center.oa.sail.dao.SailConfDAO;
 import com.china.center.oa.sail.dao.SailConfigDAO;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.sail.vo.SailConfVO;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.RequestDataStream;
-import com.china.center.tools.StringTools;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -72,6 +71,8 @@ public class SailConfigAction extends DispatchAction
     private OrgManager orgManager = null;
 
     private ProductDAO productDAO = null;
+
+    private PrincipalshipDAO principalshipDAO = null;
 
     private static final String QUERYSAILCONFIG = "querySailConfig";
 
@@ -198,6 +199,8 @@ public class SailConfigAction extends DispatchAction
                                        HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
+        User user = Helper.getUser(request);
+
         RequestDataStream rds = new RequestDataStream(request);
 
         boolean importError = false;
@@ -256,8 +259,23 @@ public class SailConfigAction extends DispatchAction
                     // 销售类型
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
-                        String sailType = obj[0];
-//                        item.setSailType(sailType);
+                        String sailType = obj[0].trim();
+                        if ("自有".equals(sailType)){
+                            item.setSailType(ProductConstant.SAILTYPE_SELF);
+                        } else if("经销".equals(sailType)){
+                            item.setSailType(ProductConstant.SAILTYPE_REPLACE);
+                        } else if("定制".equals(sailType)){
+                            item.setSailType(ProductConstant.SAILTYPE_CUSTOMER);
+                        } else if("私采".equals(sailType)){
+                            item.setSailType(ProductConstant.SAILTYPE_OTHER);
+                        } else{
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("销售类型只能是自有、经销、定制、私采")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
                     }else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -271,10 +289,26 @@ public class SailConfigAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
                         String productType = obj[1];
+                        if ("金银章".equals(productType)){
+                            item.setProductType(ProductConstant.PRODUCT_TYPE_OTHER);
+                        } else if("金银币".equals(productType)){
+                            item.setProductType(ProductConstant.PRODUCT_TYPE_PAPER);
+                        } else if("流通币".equals(productType)){
+                            item.setProductType(ProductConstant.PRODUCT_TYPE_METAL);
+                        } else if("旧币".equals(productType)){
+                            item.setProductType(ProductConstant.PRODUCT_TYPE_NUMISMATICS);
+                        } else if("邮票".equals(productType)){
+                            item.setProductType(ProductConstant.PRODUCT_TYPE_STAMP);
+                        } else if("其他".equals(productType)){
+                            item.setProductType(ProductConstant.PRODUCT_TYPE_MONCE);
+                        } else{
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("产品类型只能是金银章、金银币、流通币、旧币、邮票、其他")
+                                    .append("</font><br>");
 
-                        ConditionParse conditionParse = new ConditionParse();
-                        conditionParse.addCondition("id","=",item.getId());
-
+                            importError = true;
+                        }
                     } else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -287,22 +321,34 @@ public class SailConfigAction extends DispatchAction
                     //品名
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
-                        String names = obj[2].trim();
-                        String[] nameList = names.split(";");
-                        for (String name : nameList){
-                            ProductBean productBean = this.productDAO.findByName(name);
-                            if (productBean == null){
-                                builder
-                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                        .append("品名不存在:"+name)
-                                        .append("</font><br>");
+                        String name = obj[2].trim();
+                        ProductBean productBean = this.productDAO.findByName(name);
+                        if (productBean == null){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("品名不存在:"+name)
+                                    .append("</font><br>");
 
-                                importError = true;
-                                break;
-                            } else{
-                                //TODO
-                            }
+                            importError = true;
+                        } else{
+                            item.setProductId(productBean.getId());
                         }
+//                        String names = obj[2].trim();
+//                        String[] nameList = names.split(";");
+//                        for (String name : nameList){
+//                            ProductBean productBean = this.productDAO.findByName(name);
+//                            if (productBean == null){
+//                                builder
+//                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                        .append("品名不存在:"+name)
+//                                        .append("</font><br>");
+//
+//                                importError = true;
+//                                break;
+//                            } else{
+//                                //TODO
+//                            }
+//                        }
                     } else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -312,13 +358,47 @@ public class SailConfigAction extends DispatchAction
                         importError = true;
                     }
 
-                    //原结算价
+                    //事业部
                     if ( !StringTools.isNullOrNone(obj[3]))
                     {
+                        String industry = obj[3].trim();
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("name","=",industry);
+                        List<PrincipalshipBean> industryList = this.principalshipDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(industryList)){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("事业部不存在:"+industry)
+                                    .append("</font><br>");
 
+                            importError = true;
+                        } else{
+                            item.setIndustryId(industryList.get(0).getId());
+                        }
+                    }
+
+                    //总部结算率
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        String pratio = obj[4].trim();
+                        item.setPratio(Integer.valueOf(pratio));
+                    }
+
+                    //事业部结算率
+                    if ( !StringTools.isNullOrNone(obj[5]))
+                    {
+                        String iratio = obj[5].trim();
+                        item.setIratio(Integer.valueOf(iratio));
                     }
 
 
+                    //描述
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        String description = obj[6].trim();
+                        item.setDescription(description);
+                    }
                     
                     importItemList.add(item);
                 }
@@ -362,8 +442,7 @@ public class SailConfigAction extends DispatchAction
             return mapping.findForward("importSailConfig");
         } else{
             try{
-//                this.travelApplyManager.importBankBulevel(null, importItemList);
-
+                this.sailConfigManager.importSailConfig(user,importItemList);
                 request.setAttribute(KeyConstant.MESSAGE, "导入成功");
             }catch(Exception e){
                 request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getMessage());
@@ -601,5 +680,21 @@ public class SailConfigAction extends DispatchAction
     public void setOrgManager(OrgManager orgManager)
     {
         this.orgManager = orgManager;
+    }
+
+    public ProductDAO getProductDAO() {
+        return productDAO;
+    }
+
+    public void setProductDAO(ProductDAO productDAO) {
+        this.productDAO = productDAO;
+    }
+
+    public PrincipalshipDAO getPrincipalshipDAO() {
+        return principalshipDAO;
+    }
+
+    public void setPrincipalshipDAO(PrincipalshipDAO principalshipDAO) {
+        this.principalshipDAO = principalshipDAO;
     }
 }

@@ -59,4 +59,6 @@ public interface SailConfigManager
      * @return
      */
     SailConfBean findProductConf(StafferBean sb, ProductBean productBean);
+
+    boolean importSailConfig(User user, List<SailConfBean> beans) throws MYException;
 }

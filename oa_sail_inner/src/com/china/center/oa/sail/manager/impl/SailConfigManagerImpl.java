@@ -168,6 +168,15 @@ public class SailConfigManagerImpl implements SailConfigManager
         return sailConfDAO.saveEntityBean(bean);
     }
 
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean importSailConfig(User user, List<SailConfBean> beans) throws MYException {
+        for (SailConfBean bean: beans){
+            this.addBean(user, bean);
+        }
+        return true;
+    }
+
     @Transactional(rollbackFor = MYException.class)
     public boolean deleteConf(User user, String id)
         throws MYException
