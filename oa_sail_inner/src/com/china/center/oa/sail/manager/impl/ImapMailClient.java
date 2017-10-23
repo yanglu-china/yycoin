@@ -486,18 +486,19 @@ public class ImapMailClient {
         bean.setProductCode(orderBean.getProductCode());
         bean.setDescription("Mail_" + orderBean.getMailId());
 
-        CustomerBean cBean = customerMainDAO.findByUnique(custName);
-        if (null == cBean)
+//        CustomerBean cBean = customerMainDAO.findByUnique(custName);
+        List<CustomerBean> cbeans = customerMainDAO.queryByName(custName);
+        if (ListTools.isEmptyOrNull(cbeans))
         {
             String msg = "网点名称不存在："+custName;
             _logger.error(msg);
             throw new MailOrderException(msg, bean);
         }else{
-            bean.setCustomerId(cBean.getId());
+            bean.setCustomerId(cbeans.get(0).getId());
             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
             {
 
-                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
+                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cbeans.get(0).getId());
                 if (null == vsBean)
                 {
                     String msg = "网点名称没有与业务员挂靠关系："+custName;
@@ -685,18 +686,19 @@ public class ImapMailClient {
         bean.setProductCode(orderBean.getProductCode());
         bean.setDescription("Mail_" + orderBean.getMailId());
 
-        CustomerBean cBean = customerMainDAO.findByUnique(custName);
-        if (null == cBean)
+//        CustomerBean cBean = customerMainDAO.findByUnique(custName);
+        List<CustomerBean> cbeans = customerMainDAO.queryByName(custName);
+        if (ListTools.isEmptyOrNull(cbeans))
         {
             String msg = "网点名称不存在："+custName;
             _logger.error(msg);
             throw new MailOrderException(msg, bean);
         }else{
-            bean.setCustomerId(cBean.getId());
+            bean.setCustomerId(cbeans.get(0).getId());
             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
             {
 
-                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
+                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cbeans.get(0).getId());
                 if (null == vsBean)
                 {
                     String msg = "网点名称没有与业务员挂靠关系："+custName;
@@ -944,18 +946,19 @@ public class ImapMailClient {
         bean.setProductCode(orderBean.getProductCode());
         bean.setDescription(orderBean.getDescription() + "_Mail_" + orderBean.getMailId());
 
-        CustomerBean cBean = customerMainDAO.findByUnique(custName);
-        if (null == cBean)
+//        CustomerBean cBean = customerMainDAO.findByUnique(custName);
+        List<CustomerBean> cbeans = customerMainDAO.queryByName(custName);
+        if (ListTools.isEmptyOrNull(cbeans))
         {
             String msg = "网点名称不存在："+custName;
             _logger.error(msg);
             throw new MailOrderException(msg, bean);
         }else{
-            bean.setCustomerId(cBean.getId());
+            bean.setCustomerId(cbeans.get(0).getId());
             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
             {
 
-                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
+                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cbeans.get(0).getId());
                 if (null == vsBean)
                 {
                     String msg = "网点名称没有与业务员挂靠关系："+custName;
@@ -1130,18 +1133,19 @@ public class ImapMailClient {
         bean.setProductCode(orderBean.getProductCode());
         bean.setDescription("Mail_" + orderBean.getMailId());
 
-        CustomerBean cBean = customerMainDAO.findByUnique(custName);
-        if (null == cBean)
+//        CustomerBean cBean = customerMainDAO.findByUnique(custName);
+        List<CustomerBean> cbeans = customerMainDAO.queryByName(custName);
+        if (ListTools.isEmptyOrNull(cbeans))
         {
             String msg = "网点名称不存在："+custName;
             _logger.error(msg);
             throw new MailOrderException(msg, bean);
         }else{
-            bean.setCustomerId(cBean.getId());
+            bean.setCustomerId(cbeans.get(0).getId());
             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
             {
 
-                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
+                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cbeans.get(0).getId());
                 if (null == vsBean)
                 {
                     String msg = "网点名称没有与业务员挂靠关系："+custName;

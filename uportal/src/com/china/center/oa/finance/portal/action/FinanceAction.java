@@ -1562,28 +1562,48 @@ public class FinanceAction extends DispatchAction {
             		{
             			String customerName = obj[0].trim();
             			
-            			CustomerBean customer = customerMainDAO.findByUnique(customerName);
-            			
-            			if (null == customer){
-                			builder
-                            .append("第[" + currentNumber + "]错误:")
-                            .append("客户不存在")
-                            .append("<br>");
-                        
-                			importError = true;
-            			}else{
-            				if (customer.getId().equals(inbill.getCustomerId())){
-                    			builder
-                                .append("第[" + currentNumber + "]错误:")
-                                .append("拆分与被拆分的客户不能是同一客户")
-                                .append("<br>");
-                            
-                    			importError = true;
-            				}else{
-            					bean.setCustomerId(customer.getId());
-            				}
-            			}
-            			
+//            			CustomerBean customer = customerMainDAO.findByUnique(customerName);
+//
+//            			if (null == customer){
+//                			builder
+//                            .append("第[" + currentNumber + "]错误:")
+//                            .append("客户不存在")
+//                            .append("<br>");
+//
+//                			importError = true;
+//            			}else{
+//            				if (customer.getId().equals(inbill.getCustomerId())){
+//                    			builder
+//                                .append("第[" + currentNumber + "]错误:")
+//                                .append("拆分与被拆分的客户不能是同一客户")
+//                                .append("<br>");
+//
+//                    			importError = true;
+//            				}else{
+//            					bean.setCustomerId(customer.getId());
+//            				}
+//            			}
+						List<CustomerBean> cbeans = customerMainDAO.queryByName(customerName);
+
+						if (ListTools.isEmptyOrNull(cbeans)){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("客户不存在")
+									.append("<br>");
+
+							importError = true;
+						}else{
+							if (cbeans.get(0).getId().equals(inbill.getCustomerId())){
+								builder
+										.append("第[" + currentNumber + "]错误:")
+										.append("拆分与被拆分的客户不能是同一客户")
+										.append("<br>");
+
+								importError = true;
+							}else{
+								bean.setCustomerId(cbeans.get(0).getId());
+							}
+						}
             			
             		}else{
             			builder

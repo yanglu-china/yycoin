@@ -308,14 +308,22 @@ public class ZJRCManagerImpl implements ZJRCManager
         
         outBean.setCustomerName(stafferBean.getIndustryName3());
         
-        CustomerBean customer = customerMainDAO.findByUnique(stafferBean.getIndustryName3());
-        
-        if (null == customer) {
-        	throw new MYException("客户[%s]不存在", stafferBean.getIndustryName3());
+//        CustomerBean customer = customerMainDAO.findByUnique(stafferBean.getIndustryName3());
+//
+//        if (null == customer) {
+//        	throw new MYException("客户[%s]不存在", stafferBean.getIndustryName3());
+//        }
+
+        List<CustomerBean> cbeans = customerMainDAO.queryByName(stafferBean.getIndustryName3());
+
+        if (ListTools.isEmptyOrNull(cbeans))
+        {
+            throw new MYException("客户[%s]不存在", stafferBean.getIndustryName3());
         }
-        
+
+
         // ZJRC 客户定为紫金农商的人员对应的部门
-        outBean.setCustomerId(customer.getId());
+        outBean.setCustomerId(cbeans.get(0).getId());
         
         outBean.setLocation(OutImportConstant.ZJRC_DEPOT);
         

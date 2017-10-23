@@ -380,9 +380,10 @@
          {
              String custName = obj[3].trim();
 
-             CustomerBean cBean = customerMainDAO.findByUnique(custName);
+//             CustomerBean cBean = customerMainDAO.findByUnique(custName);
 
-             if (null == cBean)
+             List<CustomerBean> cbeans = customerMainDAO.queryByName(custName);
+             if (ListTools.isEmptyOrNull(cbeans))
              {
                  builder
                  .append("第[" + currentNumber + "]错误:")
@@ -393,7 +394,7 @@
              }else{
                  if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
                  {
-                     StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
+                     StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cbeans.get(0).getId());
 
                      if (null == vsBean)
                      {
@@ -1559,9 +1560,9 @@
          {
              String custName = obj[3].trim();
 
-             CustomerBean cBean = customerMainDAO.findByUnique(custName);
-
-             if (null == cBean)
+//             CustomerBean cBean = customerMainDAO.findByUnique(custName);
+             List<CustomerBean> cbeans = customerMainDAO.queryByName(custName);
+             if (ListTools.isEmptyOrNull(cbeans))
              {
                  builder
                  .append("第[" + currentNumber + "]错误:")
@@ -1572,7 +1573,7 @@
              }else{
                  if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
                  {
-                     StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cBean.getId());
+                     StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cbeans.get(0).getId());
 
                      if (null == vsBean)
                      {
@@ -3980,14 +3981,22 @@
                      {
                          String cust = obj[4];
 
-                         CustomerBean custBean = customerMainDAO.findByUnique(cust);
+//                         CustomerBean custBean = customerMainDAO.findByUnique(cust);
+//
+//                         if (null == custBean)
+//                         {
+//                             throw new MYException(cust+ " 客户不存在");
+//                         }else{
+//                             bean.setCustomerId(custBean.getId());
+//                         }
+                         List<CustomerBean> cbeans = customerMainDAO.queryByName(cust);
 
-                         if (null == custBean)
+                         if (ListTools.isEmptyOrNull(cbeans))
                          {
                              throw new MYException(cust+ " 客户不存在");
-                         }else{
-                             bean.setCustomerId(custBean.getId());
                          }
+                         else
+                             bean.setCustomerId(cbeans.get(0).getId());
                      }else
                      {
                          throw new MYException("客户不能为空");
@@ -6016,18 +6025,33 @@
                      {
                          String name = obj[1].trim();
 
-                         CustomerBean customer = customerMainDAO.findByUnique(name + "（银行）");
+//                         CustomerBean customer = customerMainDAO.findByUnique(name + "（银行）");
+//
+//                         if (null == customer) {
+//                             builder
+//                             .append("第[" + currentNumber + "]错误:")
+//                             .append("网点名称（客户）不存在")
+//                             .append("<br>");
+//
+//                             importError = true;
+//                         } else {
+//                             bean.setCustomerId(customer.getId());
+//                             bean.setCustomerName(customer.getName());
+//                         }
+                         List<CustomerBean> cbeans = customerMainDAO.queryByName(name + "（银行）");
 
-                         if (null == customer) {
-                             builder
+                         if (ListTools.isEmptyOrNull(cbeans))
+                         {
+                          builder
                              .append("第[" + currentNumber + "]错误:")
                              .append("网点名称（客户）不存在")
                              .append("<br>");
 
                              importError = true;
-                         } else {
-                             bean.setCustomerId(customer.getId());
-                             bean.setCustomerName(customer.getName());
+                         }
+                         else{
+                              bean.setCustomerId(cbeans.get(0).getId());
+                             bean.setCustomerName(cbeans.get(0).getName());
                          }
                      } else {
                          builder

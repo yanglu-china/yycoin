@@ -411,16 +411,26 @@ public class OutImportManagerImpl implements OutImportManager
 			for (OutImportBean each : list)
 			{
 				// 根据网点获取客户ID
-				CustomerBean cbean = customerMainDAO.findByUnique(each.getComunicatonBranchName());
-				
-				if (null == cbean)
+//				CustomerBean cbean = customerMainDAO.findByUnique(each.getComunicatonBranchName());
+//
+//				if (null == cbean)
+//				{
+//                    String msg = each.getCiticNo()+" 客户（网点）不存在:"+each.getComunicatonBranchName();
+//                    _logger.error(msg);
+//					throw new RuntimeException(msg);
+//				}
+//				else
+//					each.setCustomerId(cbean.getId());
+				List<CustomerBean> cbeans = customerMainDAO.queryByName(each.getComunicatonBranchName());
+
+				if (ListTools.isEmptyOrNull(cbeans))
 				{
-                    String msg = each.getCiticNo()+" 客户（网点）不存在:"+each.getComunicatonBranchName();
-                    _logger.error(msg);
+					String msg = each.getCiticNo()+" 客户（网点）不存在:"+each.getComunicatonBranchName();
+					_logger.error(msg);
 					throw new RuntimeException(msg);
 				}
 				else
-					each.setCustomerId(cbean.getId());
+					each.setCustomerId(cbeans.get(0).getId());
 				
 				String key = each.getCustomerId() + SPLIT + each.getArriveDate();
 				

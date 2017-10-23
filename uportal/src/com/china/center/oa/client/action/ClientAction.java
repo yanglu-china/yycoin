@@ -1120,7 +1120,7 @@ public class ClientAction extends DispatchAction
 						conditionParse.addCondition("name","=",bean.getName());
 						conditionParse.addCondition("code","=",code);
 
-						List<CustomerBean> voList = this.customerMainDAO.queryEntityBeansByCondition(conditionParse)
+						List<CustomerBean> voList = this.customerMainDAO.queryEntityBeansByCondition(conditionParse);
 						if (ListTools.isEmptyOrNull(voList)) {
 							builder
 									.append("第[" + currentNumber + "]错误:")
