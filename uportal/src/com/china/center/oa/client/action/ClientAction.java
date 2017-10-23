@@ -745,14 +745,18 @@ public class ClientAction extends DispatchAction
 						String name = obj[1].trim();
 						bean.setName(name);
 
-						CustomerVO vo = this.customerMainDAO.findVOByUnique(name);
-						if (vo!= null){
-							builder
-									.append("第[" + currentNumber + "]错误:")
-									.append("客户名已存在")
-									.append("<br>");
+						//部门和组织客户名称不能重复
+						if(bean.getType() == CustomerConstant.NATURE_DEPART || bean.getType() == CustomerConstant.NATURE_CORPORATION){
 
-							importError = true;
+							List<CustomerBean> beans = this.customerMainDAO.queryByName(name);
+							if (!ListTools.isEmptyOrNull(beans)){
+								builder
+										.append("第[" + currentNumber + "]错误:")
+										.append("客户名已存在")
+										.append("<br>");
+
+								importError = true;
+							}
 						}
 					}
 					else
@@ -1083,17 +1087,17 @@ public class ClientAction extends DispatchAction
 						String name = obj[0].trim();
 						bean.setName(name);
 
-						CustomerVO vo = this.customerMainDAO.findVOByUnique(name);
-						if (vo== null){
-							builder
-									.append("第[" + currentNumber + "]错误:")
-									.append("客户名不存在")
-									.append("<br>");
-
-							importError = true;
-						} else{
-                            bean.setId(vo.getId());
-                        }
+//						List<CustomerBean> voList = this.customerMainDAO.queryByName(name);
+//						if (ListTools.isEmptyOrNull(voList){
+//							builder
+//									.append("第[" + currentNumber + "]错误:")
+//									.append("客户名不存在")
+//									.append("<br>");
+//
+//							importError = true;
+//						} else{
+//                            bean.setId(vo.getId());
+//                        }
 					}
 					else
 					{
@@ -1105,10 +1109,43 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
-					// 客户类型
+					// 客户编码
 					if ( !StringTools.isNullOrNone(obj[1]))
 					{
-						String type = obj[1].trim();
+						String code = obj[1].trim();
+						bean.setCode(code);
+
+						ConditionParse conditionParse = new ConditionParse();
+						conditionParse.addWhereStr();
+						conditionParse.addCondition("name","=",bean.getName());
+						conditionParse.addCondition("code","=",code);
+
+						List<CustomerBean> voList = this.customerMainDAO.queryEntityBeansByCondition(conditionParse)
+						if (ListTools.isEmptyOrNull(voList)) {
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("客户名和编码组合不存在")
+									.append("<br>");
+
+							importError = true;
+						} else{
+							bean.setId(voList.get(0).getId());
+						}
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("客户编码不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					// 客户类型
+					if ( !StringTools.isNullOrNone(obj[2]))
+					{
+						String type = obj[2].trim();
 
 						if (!ArrayUtils.contains(ClientAction.customerType, type)){
 							builder
@@ -1135,9 +1172,9 @@ public class ClientAction extends DispatchAction
 
                     CustomerDistAddrBean address = new CustomerDistAddrBean();
 					// 省
-					if ( !StringTools.isNullOrNone(obj[2]))
+					if ( !StringTools.isNullOrNone(obj[3]))
 					{
-						String province = obj[2].trim();
+						String province = obj[3].trim();
 
 						ProvinceBean provinceBean = this.provinceDAO.findByUnique(province);
 						if (provinceBean == null){
@@ -1162,9 +1199,9 @@ public class ClientAction extends DispatchAction
 					}
 
 					// 市
-					if ( !StringTools.isNullOrNone(obj[3]))
+					if ( !StringTools.isNullOrNone(obj[4]))
 					{
-						String city = obj[3].trim();
+						String city = obj[4].trim();
 
 						CityBean cityBean = this.cityDAO.findByUnique(city);
 						if (cityBean == null){
@@ -1189,10 +1226,10 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
-                    _logger.info("***import 11111");
+
                     // 区
-                    if ( !StringTools.isNullOrNone(obj[4])) {
-                        String area = obj[4].trim();
+                    if ( !StringTools.isNullOrNone(obj[5])) {
+                        String area = obj[5].trim();
                         ConditionParse conditionParse = new ConditionParse();
                         conditionParse.addWhereStr();
                         conditionParse.addCondition("name","=",area);
@@ -1218,11 +1255,10 @@ public class ClientAction extends DispatchAction
                         importError = true;
                     }
 
-                    _logger.info("***import 22222");
 					// 地址
-					if ( !StringTools.isNullOrNone(obj[5]))
+					if ( !StringTools.isNullOrNone(obj[6]))
 					{
-						String addr = obj[5].trim();
+						String addr = obj[6].trim();
 						address.setAddress(addr);
 					}
 					else
@@ -1234,11 +1270,11 @@ public class ClientAction extends DispatchAction
 
 						importError = true;
 					}
-                    _logger.info("***import 33333");
+
 					// 收货人
-					if ( !StringTools.isNullOrNone(obj[6]))
+					if ( !StringTools.isNullOrNone(obj[7]))
 					{
-						String receiver = obj[6].trim();
+						String receiver = obj[7].trim();
                         address.setContact(receiver);
 					}
 					else
@@ -1250,11 +1286,11 @@ public class ClientAction extends DispatchAction
 
 						importError = true;
 					}
-                    _logger.info("***import 4444");
+
                     // 收货人电话
-                    if ( !StringTools.isNullOrNone(obj[7]))
+                    if ( !StringTools.isNullOrNone(obj[8]))
                     {
-						String receiverPhone = obj[7].trim();
+						String receiverPhone = obj[8].trim();
                         address.setTelephone(receiverPhone);
                     }
                     else
@@ -1266,10 +1302,10 @@ public class ClientAction extends DispatchAction
 
                         importError = true;
                     }
-                    _logger.info("***import 555");
+
                     // 地址性质
-                    if ( !StringTools.isNullOrNone(obj[8])) {
-                        String atype = obj[8].trim();
+                    if ( !StringTools.isNullOrNone(obj[9])) {
+                        String atype = obj[9].trim();
 
                         ConditionParse conditionParse = new ConditionParse();
                         conditionParse.addWhereStr();
@@ -1297,13 +1333,13 @@ public class ClientAction extends DispatchAction
                         importError = true;
                     }
 
-                    _logger.info("***import 666");
+
                     // 发货方式
-                    if ( !StringTools.isNullOrNone(obj[9]))
+                    if ( !StringTools.isNullOrNone(obj[10]))
                     {
                         boolean has = false;
 
-						String shipping = obj[9].trim();
+						String shipping = obj[10].trim();
 
                         for (int i = 0 ; i < ClientAction.shipping.length; i++)
                         {
@@ -1334,14 +1370,14 @@ public class ClientAction extends DispatchAction
 
                         importError = true;
                     }
-                    _logger.info("***import 7777");
+
                     //快递公司
 					if (address.getShipping() == 2 || address.getShipping() == 4)
 					{
 						// 如果发货方式是快递或快递+货运 ,则快递须为必填
-						if ( !StringTools.isNullOrNone(obj[10]))
+						if ( !StringTools.isNullOrNone(obj[11]))
 						{
-							String transport1 = obj[10].trim();
+							String transport1 = obj[11].trim();
 
 							ExpressBean express = expressDAO.findByUnique(transport1);
 
@@ -1365,11 +1401,11 @@ public class ClientAction extends DispatchAction
 
 							importError = true;
 						}
-                        _logger.info("***import 8888");
+
 						// 快递支付方式也不能为空
-						if ( !StringTools.isNullOrNone(obj[11]))
+						if ( !StringTools.isNullOrNone(obj[12]))
 						{
-							String expressPay = obj[11].trim();
+							String expressPay = obj[12].trim();
 
 							boolean isexists = false;
 
@@ -1404,14 +1440,14 @@ public class ClientAction extends DispatchAction
 							importError = true;
 						}
 					}
-                    _logger.info("***import 99999");
+
                     //货运
 					if (address.getShipping() == 3 || address.getShipping() == 4)
 					{
 						// 如果发货方式是货运或快递+货运 ,则快递须为必填
-						if ( !StringTools.isNullOrNone(obj[12]))
+						if ( !StringTools.isNullOrNone(obj[13]))
 						{
-							String transport1 = obj[12].trim();
+							String transport1 = obj[13].trim();
 
 							ExpressBean express = expressDAO.findByUnique(transport1);
 
@@ -1435,11 +1471,11 @@ public class ClientAction extends DispatchAction
 
 							importError = true;
 						}
-                        _logger.info("***import aaaaa");
+
 						// 货运支付方式也不能为空
-						if ( !StringTools.isNullOrNone(obj[13]))
+						if ( !StringTools.isNullOrNone(obj[14]))
 						{
-							String expressPay = obj[13].trim();
+							String expressPay = obj[14].trim();
 
 							boolean isexists = false;
 
@@ -1566,7 +1602,7 @@ public class ClientAction extends DispatchAction
 
     private String[] fillObj2(String[] obj)
     {
-        String[] result = new String[14];
+        String[] result = new String[15];
 
         for (int i = 0; i < result.length; i++ )
         {

@@ -39,7 +39,6 @@ public class CustomerBean extends AbstractCustomerBean
 	@Id
 	private String id = "";
 
-	@Unique
 	@Html(title = "客户全称", must = true, maxLength = 100)
 	private String name = "";
 	

@@ -33,6 +33,8 @@ public interface CustomerMainDAO extends DAO<CustomerBean, CustomerVO>
     int countByCreditLevelId(String creditLevelId);
 
     List<CustomerBean> querySelfCusByStafferId(String stafid);
+
+    List<CustomerBean> queryByName(String name);
     
     int countByCode(String code);
 

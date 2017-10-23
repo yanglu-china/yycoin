@@ -627,7 +627,15 @@ public class CustomerMainDAOImpl extends BaseDAO<CustomerBean, CustomerVO> imple
         return jdbcOperation.queryObjectsBySqlAndPageSeparate(getLocationLastQuerySql(condition), page,
         		CustomerVO.class);
     }
-	
+
+    @Override
+    public List<CustomerBean> queryByName(String name) {
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("name","=",name);
+        return this.queryEntityBeansByCondition(conditionParse);
+    }
+
     /**
      * @return the ibatisDaoSupport
      */
