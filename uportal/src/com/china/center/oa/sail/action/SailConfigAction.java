@@ -33,6 +33,7 @@ import com.china.center.oa.sail.dao.SailConfigDAO;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.sail.vo.SailConfVO;
 import com.china.center.tools.*;
+import jxl.write.Number;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -382,14 +383,32 @@ public class SailConfigAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[4]))
                     {
                         String pratio = obj[4].trim();
-                        item.setPratio(Integer.valueOf(pratio));
+                        try {
+                            item.setPratio(Integer.valueOf(pratio));
+                        }catch (NumberFormatException e){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("总部结算率不是整数:"+pratio)
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
                     }
 
                     //事业部结算率
                     if ( !StringTools.isNullOrNone(obj[5]))
                     {
                         String iratio = obj[5].trim();
-                        item.setIratio(Integer.valueOf(iratio));
+                        try {
+                            item.setIratio(Integer.valueOf(iratio));
+                        }catch (NumberFormatException e){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("事业部结算率不是整数:"+iratio)
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
                     }
 
 
