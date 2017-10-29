@@ -576,3 +576,6 @@ delete from t_center_oamenuitem where MENUITEMNAME='流程管理' or PARENTID=07;
 alter table T_CENTER_VS_GIFT add column excludeBank varchar(100) default '',add column excludeIndustryName varchar(100) default '',add column excludeIndustryName2 varchar(100) default '',add column excludeIndustryName3 varchar(100) default '',add column excludeCity varchar(100) default '',add column excludeProvince varchar(100) default '',add column excludeStafferName varchar(100) default '';
 alter table T_CENTER_VS_GIFT add column companyShare int(11) default 0,add column stafferShare int(11) default 0;
 alter table t_center_out add column refGiftId varchar(32) default '';
+
+#169
+INSERT INTO uportal.t_center_oamenuitem (id, MENUITEMNAME, URL, PARENTID, BottomFlag, AUTH, indexPos, description) VALUES ('0126', '导入结算价格', '../sailconfig/importSailConfig.jsp', '01', 1, '0112', 26, '导入结算价格');
