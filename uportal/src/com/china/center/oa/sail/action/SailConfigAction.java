@@ -277,14 +277,15 @@ public class SailConfigAction extends DispatchAction
 
                             importError = true;
                         }
-                    }else{
-                        builder
-                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("销售类型必填")
-                                .append("</font><br>");
-
-                        importError = true;
                     }
+//                    else{
+//                        builder
+//                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                .append("销售类型必填")
+//                                .append("</font><br>");
+//
+//                        importError = true;
+//                    }
 
                     // 产品类型
                     if ( !StringTools.isNullOrNone(obj[1]))
@@ -310,14 +311,15 @@ public class SailConfigAction extends DispatchAction
 
                             importError = true;
                         }
-                    } else{
-                        builder
-                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("产品类型必填")
-                                .append("</font><br>");
-
-                        importError = true;
                     }
+//                    else{
+//                        builder
+//                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                .append("产品类型必填")
+//                                .append("</font><br>");
+//
+//                        importError = true;
+//                    }
 
                     //品名
                     if ( !StringTools.isNullOrNone(obj[2]))
