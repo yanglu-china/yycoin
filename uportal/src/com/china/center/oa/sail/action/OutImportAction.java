@@ -1306,10 +1306,18 @@
          if ( !StringTools.isNullOrNone(obj[44]))
          {
              String channel = obj[44].trim();
-             bean.setChannel(channel);
+
              if (channel.length()>4){
                  builder.append("第[" + currentNumber + "]错误:")
                          .append("渠道不超过4个字符")
+                         .append("<br>");
+
+                 importError = true;
+             } else if("黄金微店".equals(channel) || "小浦金店".equals(channel)){
+                 bean.setChannel(channel);
+             } else{
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("渠道只能是黄金微店或小浦金店")
                          .append("<br>");
 
                  importError = true;
@@ -2460,10 +2468,18 @@
          if ( !StringTools.isNullOrNone(obj[44]))
          {
              String channel = obj[44].trim();
-             bean.setChannel(channel);
+
              if (channel.length()>4){
                  builder.append("第[" + currentNumber + "]错误:")
                          .append("渠道不超过4个字符")
+                         .append("<br>");
+
+                 importError = true;
+             } else if("黄金微店".equals(channel) || "小浦金店".equals(channel)){
+                 bean.setChannel(channel);
+             } else{
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("渠道只能是黄金微店或小浦金店")
                          .append("<br>");
 
                  importError = true;
