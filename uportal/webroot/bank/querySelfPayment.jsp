@@ -49,6 +49,7 @@ function load()
              {display: '回款账号', name : 'fromerNo', width : '10%'},
              {display: '回款/手续费', name : 'money', content: '{money}/{handling}', width : '8%', toFixed: 2},
              {display: '回款日期', name : 'receiveTime', width : '8%', sortable : true},
+             {display: 'POS终端号', name : 'posTerminalNumber', width : '10%'},
              {display: '标识', name : 'refId', sortable : true, width : '12%'},
              {display: '备注', name : 'description', width : 'auto'}
              ],
