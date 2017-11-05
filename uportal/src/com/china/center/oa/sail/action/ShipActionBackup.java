@@ -67,7 +67,7 @@ import java.net.InetAddress;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class ShipAction extends DispatchAction
+public class ShipActionBackup extends DispatchAction
 {
     private final Log _logger = LogFactory.getLog(getClass());
 
@@ -132,7 +132,7 @@ public class ShipAction extends DispatchAction
     /**
      * default construct
      */
-    public ShipAction()
+    public ShipActionBackup()
     {
     }
 
@@ -1218,8 +1218,7 @@ public class ShipAction extends DispatchAction
                 request.setAttribute("printSmode", "0");
 //                request.getSession().setAttribute("printMode", "0");
 //                request.getSession().setAttribute("printSmode", "0");
-                String directFlag = request.getParameter("directFlag");
-                request.setAttribute("directFlag", directFlag);
+
                 _logger.info("****redirect to findOutForReceipt print**********");
                 return findOutForReceipt(mapping, form, request, response);
             }else
@@ -1377,17 +1376,9 @@ public class ShipAction extends DispatchAction
 
         String batchPrint = RequestTools.getValueFromRequest(request, "batchPrint");
         String print2 = (String) request.getSession().getAttribute("printMode");
-        String directFlag = RequestTools.getValueFromRequest(request, "directFlag");
+        String direct = RequestTools.getValueFromRequest(request, "direct");
 
-        String subindex_pos = request.getParameter("subindex_pos");
-        int subindexpos = 0;
-        if (!StringTools.isNullOrNone(subindex_pos)) {
-            subindexpos = MathTools.parseInt(subindex_pos);
-        }
-
-        String msg1 = "***batchPrint***" + batchPrint + "***print2***" + print2 + "***pickupId***" + pickupId +
-                "***packageId***" + packageId + "***index_pos***" + index_pos + "***printMode***" + printMode + "***printSmode***" +
-                printSmode+"***directFlag***"+directFlag+"***subindex_pos***"+subindex_pos;
+        String msg1 = "***batchPrint***" + batchPrint + "***print2***" + print2 + "***pickupId***" + pickupId + "***packageId***" + packageId + "***index_pos***" + index_pos + "***printMode***" + printMode + "***printSmode***" + printSmode+"***direct***"+direct;
         _logger.info(msg1);
         //2015/3/25 批量打印标志
         request.setAttribute("batchPrint", batchPrint);
@@ -1439,13 +1430,15 @@ public class ShipAction extends DispatchAction
 
             index_pos = 1;
         }
+        String subindex_pos = request.getParameter("subindex_pos");
 
+        int subindexpos = 0;
 
-        if("1".equals(batchPrint) && "1".equals(directFlag)){
-            _logger.info("**batchPrint and direct***");
-        } else {
-            subindexpos += 1;
+        if (!StringTools.isNullOrNone(subindex_pos)) {
+            subindexpos = MathTools.parseInt(subindex_pos);
         }
+
+        subindexpos += 1;
 
         String customerId = "";
         String customerName = "";
@@ -1478,11 +1471,7 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("error");
             }
 
-            if("1".equals(batchPrint) && "1".equals(directFlag)){
-                _logger.info("**batchPrint and direct***");
-            } else {
-                index_pos += 1;
-            }
+            index_pos += 1;
         }
 
         ConditionParse condtion = new ConditionParse();
@@ -1797,17 +1786,10 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("printPfReceipt");
             } else {
                 //#171 TODO
-                if(vo.getDirect() == 1){
-                    if (directFlag == null){
-                        _logger.info("****printUnifiedReceipt 11111***");
-                        request.setAttribute("directFlag", "1");
-                    } else{
-                        _logger.info("****printUnifiedReceipt 000000***");
-                        request.setAttribute("directFlag", "0");
-                        request.setAttribute("title", "永银文化——发货清单（寄回发件公司联）");
-                    }
-                }
-                _logger.info("****printUnifiedReceipt end***");
+//                if(vo.getDirect() == 1){
+//                    request.setAttribute("direct", true);
+//                    request.setAttribute("title", "永银文化——发货清单（寄回发件公司联）");
+//                }
                 return mapping.findForward("printUnifiedReceipt");
             }
         }

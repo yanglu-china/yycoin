@@ -22,15 +22,16 @@ function pagePrint()
 
 	var compose = $O('compose').value;
     var batchPrint = $O('batchPrint').value;
+    var directFlag = $O('directFlag').value;
+    console.log("directFlag:"+directFlag);
+    console.log("batchPrint:"+batchPrint);
+    console.log("allPackages:"+$$('allPackages'));
+    console.log("index_pos:"+index_pos);
 
-//    console.log("batchPrint:"+batchPrint);
-//    console.log("stafferName:"+$$('stafferName'));
-//    console.log("index_pos:"+index_pos);
-//    console.log("allPackages:"+$$('allPackages'));
     //连打模式下，并且回执单都已经打印完毕就跳转到交接单打印
 //    if ($$('allPackages') == index_pos && batchPrint == '0' && $$('stafferName') == '叶百韬')
     //2015/3/26 最后打印的回执单可能不是叶百韬的单子，这个判断到打印交接单时做
-    if ($$('allPackages') == index_pos && batchPrint == '0')
+    if ($$('allPackages') == index_pos && batchPrint == '0' && directFlag === '0')
     {
         var pickupId = $O('pickupId').value;
         var index_pos = $O('index_pos').value;
@@ -42,21 +43,25 @@ function pagePrint()
 		if ((!pickupId || 0 === pickupId.length)){
 			alert("已打印!");
 		}else{
-            $l("../sail/ship.do?method=findOutForReceipt&pickupId="
-                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
-                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
-
-//            var direct = $O('direct').value;
-//            if (direct){
-//                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
-//                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
-//                    + "&compose=" + compose+ "&batchPrint=" + batchPrint+"&direct="+direct);
-//			} else{
-//                // 链到客户出库单打印界面
-//                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
+//            $l("../sail/ship.do?method=findOutForReceipt&pickupId="
 //                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
 //                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
-//			}
+
+
+            console.log(window.location.href);
+            if (directFlag === '1'){
+                console.log("OK***");
+				var url = window.location.href+"&directFlag="+directFlag;
+				$l(url);
+//                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
+//                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
+//                    + "&compose=" + compose+ "&batchPrint=" + batchPrint+"&directFlag="+directFlag);
+			} else{
+                // 链到客户出库单打印界面
+                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
+                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
+                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
+			}
 		}
     }
 }
@@ -79,7 +84,7 @@ function callBackPrintFun()
 <input type="hidden" name="printMode" value="${printMode}">
 <input type="hidden" name="printSmode" value="${printSmode}">
 <input type="hidden" name="stafferName" value="${stafferName}">
-<input type="hidden" name="direct" value="${direct}">
+<input type="hidden" name="directFlag" value="${directFlag}">
 
 <table width="90%" border="0" cellpadding="0" cellspacing="0"
 	align="center">
