@@ -23,15 +23,15 @@ function pagePrint()
 	var compose = $O('compose').value;
     var batchPrint = $O('batchPrint').value;
     var directFlag = $O('directFlag').value;
-    console.log("directFlag:"+directFlag);
-    console.log("batchPrint:"+batchPrint);
-    console.log("allPackages:"+$$('allPackages'));
-    console.log("index_pos:"+index_pos);
+//    console.log("directFlag:"+directFlag);
+//    console.log("batchPrint:"+batchPrint);
+//    console.log("allPackages:"+$$('allPackages'));
+//    console.log("index_pos:"+index_pos);
 
     //连打模式下，并且回执单都已经打印完毕就跳转到交接单打印
 //    if ($$('allPackages') == index_pos && batchPrint == '0' && $$('stafferName') == '叶百韬')
     //2015/3/26 最后打印的回执单可能不是叶百韬的单子，这个判断到打印交接单时做
-    if ($$('allPackages') == index_pos && batchPrint == '0' && directFlag === '0')
+    if ($$('allPackages') == index_pos && batchPrint == '0' && directFlag != '1')
     {
         var pickupId = $O('pickupId').value;
         var index_pos = $O('index_pos').value;
@@ -48,9 +48,9 @@ function pagePrint()
 //                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
 
 
-            console.log(window.location.href);
+//            console.log(window.location.href);
             if (directFlag === '1'){
-                console.log("OK***");
+//                console.log("OK***");
 				var url = window.location.href+"&directFlag="+directFlag;
 				$l(url);
 //                $l("../sail/ship.do?method=findOutForReceipt&pickupId="

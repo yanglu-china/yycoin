@@ -1441,11 +1441,12 @@ public class ShipAction extends DispatchAction
         }
 
 
-        if("1".equals(batchPrint) && "1".equals(directFlag)){
-            _logger.info("**batchPrint and direct***");
-        } else {
-            subindexpos += 1;
-        }
+//        if("1".equals(batchPrint) && "1".equals(directFlag)){
+//            _logger.info("**batchPrint and direct***");
+//        } else {
+//            subindexpos += 1;
+//        }
+        subindexpos += 1;
 
         String customerId = "";
         String customerName = "";
@@ -1478,11 +1479,12 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("error");
             }
 
-            if("1".equals(batchPrint) && "1".equals(directFlag)){
-                _logger.info("**batchPrint and direct***");
-            } else {
-                index_pos += 1;
-            }
+//            if("1".equals(batchPrint) && "1".equals(directFlag)){
+//                _logger.info("**batchPrint and direct***");
+//            } else {
+//                index_pos += 1;
+//            }
+            index_pos += 1;
         }
 
         ConditionParse condtion = new ConditionParse();
@@ -1796,8 +1798,8 @@ public class ShipAction extends DispatchAction
 //                }
                 return mapping.findForward("printPfReceipt");
             } else {
-                //#171 TODO
-                if(vo.getDirect() == 1){
+                //#171 批量打印时多打印一份直邮单据,batchPrint为0代表批量打印，否则为空
+                if("0".equals(batchPrint) && vo.getDirect() == 1){
                     if (directFlag == null){
                         _logger.info("****printUnifiedReceipt 11111***");
                         request.setAttribute("directFlag", "1");
