@@ -22,6 +22,7 @@ function pagePrint()
 
 	var compose = $O('compose').value;
     var batchPrint = $O('batchPrint').value;
+    var directFlag = $O('directFlag').value;
 
 //    console.log("batchPrint:"+batchPrint);
 //    console.log("stafferName:"+$$('stafferName'));
@@ -30,7 +31,7 @@ function pagePrint()
     //连打模式下，并且回执单都已经打印完毕就跳转到交接单打印
 //    if ($$('allPackages') == index_pos && batchPrint == '0' && $$('stafferName') == '叶百韬')
     //2015/3/26 最后打印的回执单可能不是叶百韬的单子，这个判断到打印交接单时做
-    if ($$('allPackages') == index_pos && batchPrint == '0')
+    if ($$('allPackages') == index_pos && batchPrint == '0' && directFlag != '1')
     {
         var pickupId = $O('pickupId').value;
         var index_pos = $O('index_pos').value;
@@ -42,10 +43,24 @@ function pagePrint()
 		if ((!pickupId || 0 === pickupId.length)){
 			alert("已打印!");
 		}else{
-			// 链到客户出库单打印界面
-			$l("../sail/ship.do?method=findOutForReceipt&pickupId="
-					+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
-					+ "&compose=" + compose+ "&batchPrint=" + batchPrint);
+            if (directFlag === '1'){
+//                console.log("OK***");
+                var url = window.location.href+"&directFlag="+directFlag;
+                $l(url);
+//                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
+//                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
+//                    + "&compose=" + compose+ "&batchPrint=" + batchPrint+"&directFlag="+directFlag);
+            } else{
+                // 链到客户出库单打印界面
+                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
+                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
+                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
+            }
+
+//			// 链到客户出库单打印界面
+//			$l("../sail/ship.do?method=findOutForReceipt&pickupId="
+//					+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
+//					+ "&compose=" + compose+ "&batchPrint=" + batchPrint);
 		}
     }
 }
@@ -68,6 +83,7 @@ function callBackPrintFun()
 <input type="hidden" name="printMode" value="${printMode}">
 <input type="hidden" name="printSmode" value="${printSmode}">
 <input type="hidden" name="stafferName" value="${stafferName}">
+<input type="hidden" name="directFlag" value="${directFlag}">
 
 <table width="90%" border="0" cellpadding="0" cellspacing="0"
 	align="center">
@@ -178,6 +194,9 @@ function callBackPrintFun()
 					<tr class="content2">
 						<td colspan="3" width="50%"><table><tr><td>发货单位盖章：</td></tr></table></td>
 						<td width="50%"><table><tr><td>收货人签字确认：</td></tr></table></td>
+					</tr>
+					<tr class="content2">
+						<td colspan="4"><table><tr><td>地址：江苏省南京市秦淮区应天大街388号1865创意产业园C2栋</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="4"><table><tr><td>备注：</td></tr></table></td>

@@ -1786,6 +1786,19 @@ public class ShipAction extends DispatchAction
                 e.printStackTrace();
             }
 
+            //#171 批量打印时多打印一份直邮单据,batchPrint为0代表批量打印，否则为空
+            if("0".equals(batchPrint) && vo.getDirect() == 1){
+                if (directFlag == null){
+                    _logger.info("****printUnifiedReceipt 11111***");
+                    request.setAttribute("directFlag", "1");
+                } else{
+                    _logger.info("****printUnifiedReceipt 000000***");
+                    request.setAttribute("directFlag", "0");
+                    request.setAttribute("title", "永银文化——发货清单（寄回发件公司联）");
+                }
+            }
+            _logger.info("****printUnifiedReceipt end***");
+
             if (vo.getCustomerName().indexOf("吉林银行") != -1) {
                 return mapping.findForward("printJlReceipt");
             } else if (vo.getCustomerName().indexOf("浦发银行") != -1) {
@@ -1798,18 +1811,6 @@ public class ShipAction extends DispatchAction
 //                }
                 return mapping.findForward("printPfReceipt");
             } else {
-                //#171 批量打印时多打印一份直邮单据,batchPrint为0代表批量打印，否则为空
-                if("0".equals(batchPrint) && vo.getDirect() == 1){
-                    if (directFlag == null){
-                        _logger.info("****printUnifiedReceipt 11111***");
-                        request.setAttribute("directFlag", "1");
-                    } else{
-                        _logger.info("****printUnifiedReceipt 000000***");
-                        request.setAttribute("directFlag", "0");
-                        request.setAttribute("title", "永银文化——发货清单（寄回发件公司联）");
-                    }
-                }
-                _logger.info("****printUnifiedReceipt end***");
                 return mapping.findForward("printUnifiedReceipt");
             }
         }
