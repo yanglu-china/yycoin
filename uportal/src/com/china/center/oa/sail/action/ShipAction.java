@@ -1791,6 +1791,7 @@ public class ShipAction extends DispatchAction
                 if (directFlag == null){
                     _logger.info("****printUnifiedReceipt 11111***");
                     request.setAttribute("directFlag", "1");
+                    request.setAttribute("title", "永银文化——发货清单（客户留存联）");
                 } else{
                     _logger.info("****printUnifiedReceipt 000000***");
                     request.setAttribute("directFlag", "0");
