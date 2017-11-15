@@ -51,7 +51,7 @@ public class SfRouteService {
         return str;
     }
 
-    private SfRouteBean queryRoute(String mainnoId) {
+    public SfRouteBean queryRoute(String mainnoId) {
         SfRouteBean routeVo = new SfRouteBean();
 //        String uri = "http://bsp-ois.sit.sf-express.com:9080/bsp-ois/ws/sfexpressService?wsdl";  //WEBSERVICE 地址
 //        String uri = "http://218.17.248.244:11080/bsp-oisp/ws/sfexpressService?wsdl";

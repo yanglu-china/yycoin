@@ -736,6 +736,19 @@ public class ProductAction extends DispatchAction
                         RPTQUERYPRODUCT), PageSeparateTools.getPageSeparate(request, RPTQUERYPRODUCT));
             }
 
+            //#169
+            for(ProductVO vo:list){
+                // 根据配置获取结算价
+                List<PriceConfigBean> configList = priceConfigDAO.querySailPricebyProductId(vo.getId());
+
+                if (!ListTools.isEmptyOrNull(configList))
+                {
+                    PriceConfigBean cb = priceConfigManager.calcSailPrice(configList.get(0));
+                    vo.setSailPrice(cb.getSailPrice());
+                }
+            }
+
+
             request.setAttribute("beanList", list);
 
             request.setAttribute("random", new Random().nextInt());
