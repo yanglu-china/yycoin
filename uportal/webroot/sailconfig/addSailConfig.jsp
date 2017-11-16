@@ -56,7 +56,7 @@ function autoCalculation()
     var pratio = parseInt($O('pratio').value);
     
     var iratio = parseInt($O('iratio').value);
-    
+
     //返回
     if (src == 0)
     {
@@ -69,7 +69,7 @@ function autoCalculation()
         var dest = src +  src * (pratio / 1000.0) + src * (iratio / 1000.0);
         
         $O('dirSailPrice').value = formatNum(dest, 2);
-        
+
         return;
     }
     
@@ -205,9 +205,9 @@ function resetRadio()
                 <p:option type="industryList" empty="true"/>
             </p:pro>
             
-            <p:pro field="pratio" value="0" innerString="size=60 oncheck='isMathNumber'"/>
+            <p:pro field="pratio" value="0" innerString="size=60 oncheck='isFloat'"/>
             
-            <p:pro field="iratio" value="0" innerString="size=60 oncheck='isMathNumber'"/>
+            <p:pro field="iratio" value="0" innerString="size=60 oncheck='isFloat'"/>
             
             <p:cell title="目标结算价">
                <input type="text" name="dirSailPrice" id="dirSailPrice" value="0.0" oncheck="isFloat">&nbsp;

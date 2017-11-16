@@ -205,9 +205,9 @@ function load()
             ${bean.industryName}
             </p:cell>
             
-            <p:pro field="pratio" innerString="size=60 oncheck='isMathNumber'"/>
+            <p:pro field="pratio" innerString="size=60 oncheck='isFloat'"/>
             
-            <p:pro field="iratio" innerString="size=60 oncheck='isMathNumber'"/>
+            <p:pro field="iratio" innerString="size=60 oncheck='isFloat'"/>
             
             <p:cell title="目标结算价">
                <input type="text" name="dirSailPrice" id="dirSailPrice" value="0.0" oncheck="isFloat">&nbsp;

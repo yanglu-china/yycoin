@@ -19,9 +19,13 @@ import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.bean.PriceConfigBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ProductConstant;
+import com.china.center.oa.product.dao.PriceConfigDAO;
 import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.manager.PriceConfigManager;
+import com.china.center.oa.product.vo.ProductVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.dao.PrincipalshipDAO;
@@ -74,6 +78,10 @@ public class SailConfigAction extends DispatchAction
     private ProductDAO productDAO = null;
 
     private PrincipalshipDAO principalshipDAO = null;
+
+    private PriceConfigDAO priceConfigDAO = null;
+
+    private PriceConfigManager priceConfigManager = null;
 
     private static final String QUERYSAILCONFIG = "querySailConfig";
 
@@ -576,6 +584,15 @@ public class SailConfigAction extends DispatchAction
 
         if ("1".equals(update))
         {
+            //#169
+            // 根据配置获取结算价
+            List<PriceConfigBean> configList = priceConfigDAO.querySailPricebyProductId(vo.getId());
+
+            if (!ListTools.isEmptyOrNull(configList))
+            {
+                PriceConfigBean cb = priceConfigManager.calcSailPrice(configList.get(0));
+                vo.setSailPrice(cb.getSailPrice());
+            }
             return mapping.findForward("updateSailConfig");
         }
 
@@ -717,5 +734,21 @@ public class SailConfigAction extends DispatchAction
 
     public void setPrincipalshipDAO(PrincipalshipDAO principalshipDAO) {
         this.principalshipDAO = principalshipDAO;
+    }
+
+    public PriceConfigDAO getPriceConfigDAO() {
+        return priceConfigDAO;
+    }
+
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
+        this.priceConfigDAO = priceConfigDAO;
+    }
+
+    public PriceConfigManager getPriceConfigManager() {
+        return priceConfigManager;
+    }
+
+    public void setPriceConfigManager(PriceConfigManager priceConfigManager) {
+        this.priceConfigManager = priceConfigManager;
     }
 }

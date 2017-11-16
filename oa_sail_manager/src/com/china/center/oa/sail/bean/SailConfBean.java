@@ -65,10 +65,10 @@ public class SailConfBean implements DataClone<SailConfBean>, Serializable
     private String industryId = "";
 
     @Html(title = "总部结算率(‰)", type = Element.INPUT)
-    private int pratio = 0;
+    private double pratio = 0.0d;
 
     @Html(title = "事业部结算率(‰)", type = Element.INPUT)
-    private int iratio = 0;
+    private double iratio = 0.0d;
 
     @Html(title = "起始时间", type = Element.INPUT)
     private String beginDate = "";
@@ -192,37 +192,19 @@ public class SailConfBean implements DataClone<SailConfBean>, Serializable
         this.industryId = industryId;
     }
 
-    /**
-     * @return the pratio
-     */
-    public int getPratio()
-    {
+    public double getPratio() {
         return pratio;
     }
 
-    /**
-     * @param pratio
-     *            the pratio to set
-     */
-    public void setPratio(int pratio)
-    {
+    public void setPratio(double pratio) {
         this.pratio = pratio;
     }
 
-    /**
-     * @return the iratio
-     */
-    public int getIratio()
-    {
+    public double getIratio() {
         return iratio;
     }
 
-    /**
-     * @param iratio
-     *            the iratio to set
-     */
-    public void setIratio(int iratio)
-    {
+    public void setIratio(double iratio) {
         this.iratio = iratio;
     }
 
