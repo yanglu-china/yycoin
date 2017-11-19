@@ -1636,6 +1636,7 @@ public class ShipManagerImpl implements ShipManager
         con.addIntCondition("PackageBean.direct","!=", 1);
         //!!test only
 //        con.addCondition("PackageBean.id", "=", "CK201701052047004361");
+//        con.addCondition(" and PackageBean.id in('CK201711191448114358','CK201711191448114338')");
 
         //根据customerId合并CK表:<支行customerId,List<CK>>
         Map<String,List<PackageVO>> customerId2Packages = new HashMap<String,List<PackageVO>>();
@@ -1704,6 +1705,8 @@ public class ShipManagerImpl implements ShipManager
                 } else if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("小浦金店-银行")!= -1){
                     //refer to #170 and JobManagerImpl
                     continue;
+                } else if (subBranch.indexOf("南京银行") != -1 ){
+                    createMailAttachmentNj(packages,bean.getBranchName(),fileName,true);
                 } else{
                     createMailAttachment(packages,bean.getBranchName(), fileName, true);
                 }
@@ -2043,6 +2046,210 @@ public class ShipManagerImpl implements ShipManager
                 }
             }
         }
+    }
+
+    /**
+     * #189 南京银行发货邮件
+     * @param beans
+     * @param branchName
+     * @param fileName
+     * @param ignoreLyOrders
+     */
+    private void createMailAttachmentNj(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
+    {
+        _logger.info("***createMailAttachmentNj package "+beans+"***branch***"+branchName+"***file name***"+fileName);
+        WritableWorkbook wwb = null;
+
+        WritableSheet ws = null;
+
+        OutputStream out = null;
+
+        try
+        {
+            out = new FileOutputStream(fileName);
+
+            // create a excel
+            wwb = Workbook.createWorkbook(out);
+
+            ws = wwb.createSheet("发货信息", 0);
+
+            // 横向
+            ws.setPageSetup(PageOrientation.LANDSCAPE.LANDSCAPE, PaperSize.A4,0.5d,0.5d);
+
+            // 标题字体
+            WritableFont font = new WritableFont(WritableFont.ARIAL, 11,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
+
+            WritableFont font2 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
+
+            WritableFont font3 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.NO_BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
+
+            WritableFont font4 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLUE);
+
+            WritableCellFormat format = new WritableCellFormat(font);
+
+            format.setAlignment(jxl.format.Alignment.CENTRE);
+            format.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+
+            WritableCellFormat format2 = new WritableCellFormat(font2);
+
+            format2.setAlignment(jxl.format.Alignment.LEFT);
+            format2.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+            format2.setWrap(true);
+
+            WritableCellFormat format21 = new WritableCellFormat(font2);
+            format21.setAlignment(jxl.format.Alignment.RIGHT);
+
+            WritableCellFormat format3 = new WritableCellFormat(font3);
+            format3.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+
+            WritableCellFormat format31 = new WritableCellFormat(font3);
+            format31.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+            format31.setAlignment(jxl.format.Alignment.RIGHT);
+
+            WritableCellFormat format4 = new WritableCellFormat(font4);
+            format4.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+
+            WritableCellFormat format41 = new WritableCellFormat(font4);
+            format41.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+            format41.setAlignment(jxl.format.Alignment.CENTRE);
+            format41.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+
+            int i = 0, j = 0, i1 = 1;
+            String title = String.format("永银文化%s发货信息", this.getYesterday());
+
+            // 完成标题
+            ws.addCell(new Label(1, i, title, format));
+
+            //set column width
+            ws.setColumnView(0, 5);
+            ws.setColumnView(1, 40);
+            ws.setColumnView(2, 40);
+            ws.setColumnView(3, 20);
+            ws.setColumnView(4, 30);
+            ws.setColumnView(5, 30);
+            ws.setColumnView(6, 30);
+            ws.setColumnView(7, 40);
+
+            i++;
+            // 正文表格
+            ws.addCell(new Label(0, i, "序号", format3));
+            ws.addCell(new Label(1, i, "产品代码", format3));
+            ws.addCell(new Label(2, i, "产品名称", format3));
+            ws.addCell(new Label(3, i, "产品规格", format3));
+            ws.addCell(new Label(4, i, "产品块号", format3));
+            ws.addCell(new Label(5, i, "入库状态", format3));
+            ws.addCell(new Label(6, i, "收藏证书号", format3));
+            ws.addCell(new Label(7, i, "出厂序号", format3));
+
+            for (PackageVO bean :beans){
+                List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
+                _logger.info("***itemList size***"+itemList.size());
+                if (!ListTools.isEmptyOrNull(itemList)){
+                    for (PackageItemBean each : itemList)
+                    {
+                        //#351 filter LY orders
+                        if (ignoreLyOrders && each.getOutId().startsWith("LY")){
+                            continue;
+                        }
+                        i++;
+                        ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
+                        setWS(ws, i, 300, false);
+
+                        //产品代码
+                        ws.addCell(new Label(j++, i, this.getProductCode(each), format3));
+                        //产品名称
+                        ws.addCell(new Label(j++, i, this.getProductName(each), format3));
+
+                        //产品规格
+                        String spec = "";
+                        ProductImportBean productImportBean = this.getProductImportBean(each,"南京银行");
+                        if (productImportBean!= null){
+                            spec = productImportBean.getWeight();
+                        }
+                        ws.addCell(new Label(j++, i, spec, format3));
+
+
+                        //TODO 产品块号 日期+编号
+                        String serialNo = this.generateSerialNo(i);
+                        ws.addCell(new Label(j++, i, serialNo, format3));
+                        //入库状态
+                        ws.addCell(new Label(j++, i, "正常", format3));
+                        //收藏证书号
+                        ws.addCell(new Label(j++, i, "", format3));
+                        //出厂序号
+                        ws.addCell(new Label(j++, i, "", format3));
+
+                        j = 0;
+                    }
+                }
+            }
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (wwb != null)
+            {
+                try
+                {
+                    wwb.write();
+                    wwb.close();
+                }
+                catch (Exception e1)
+                {
+                }
+            }
+            if (out != null)
+            {
+                try
+                {
+                    out.close();
+                }
+                catch (IOException e1)
+                {
+                }
+            }
+        }
+    }
+
+    private String generateSerialNo(int sn){
+        String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
+
+        return date+String.format("%03d", sn);
+    }
+
+    private ProductImportBean getProductImportBean(PackageItemBean item,String bank){
+        ProductImportBean result = null;
+        ProductBean product = productDAO.find(item.getProductId());
+        if (product!= null) {
+            ConditionParse conditionParse =  new ConditionParse();
+            conditionParse.addCondition("code", "=", product.getCode());
+            conditionParse.addCondition("bank","=",bank);
+            List<ProductImportBean> productImportBeanList = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(productImportBeanList)){
+                result = productImportBeanList.get(0);
+            }
+        }
+
+        return result;
     }
 
     private String getProductCode(PackageItemBean item){
@@ -3002,6 +3209,9 @@ public class ShipManagerImpl implements ShipManager
     @Transactional(rollbackFor = MYException.class)
     public void updatePackageStatusJob() {
         _logger.info("***updatePackageStatusJob running***");
+//        SfRouteService re = new SfRouteService();
+//        re.queryRoute("617233164588");
+
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
 //        conditionParse.addIntCondition("status","=",ShipConstant.SHIP_STATUS_CONSIGN);
@@ -3367,7 +3577,11 @@ public class ShipManagerImpl implements ShipManager
         ShipManagerImpl shipManager = new ShipManagerImpl();
         HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","615602517677");
         System.out.println(map);
-        int state = Integer.valueOf((String)map.get("state"));
-        System.out.println(state);
+        if (map.get("state")!= null){
+            int state = Integer.valueOf((String)map.get("state"));
+            System.out.println(state);
+        }
+        System.out.println(String.format("%05d", 101));
+        System.out.println(new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()));
     }
 }
