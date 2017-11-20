@@ -586,8 +586,7 @@ public class SailConfigAction extends DispatchAction
         {
             //#169
             // 根据配置获取结算价
-            List<PriceConfigBean> configList = priceConfigDAO.querySailPricebyProductId(vo.getId());
-
+            List<PriceConfigBean> configList = priceConfigDAO.querySailPricebyProductId(vo.getProductId());
             if (!ListTools.isEmptyOrNull(configList))
             {
                 PriceConfigBean cb = priceConfigManager.calcSailPrice(configList.get(0));
