@@ -471,9 +471,10 @@ public class ShipManagerImpl implements ShipManager
                 if (null == bean)
                 {
                     throw new MYException("出库单[%s]不存在", id);
-                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
+                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT
+                        && bean.getStatus()!= ShipConstant.SHIP_STATUS_PRINT_INVOICEINS)
                 {
-                    throw new MYException("[%s]不是初始状态无法合并", id);
+                    throw new MYException("[%s]不是初始状态或打印发票状态无法合并", id);
                 }
 
                 if (i == 1){

@@ -405,7 +405,18 @@
 
                          importError = true;
                      }else{
-                         bean.setComunicatonBranchName(custName);
+                         StafferBean stafferBean = this.stafferDAO.find(vsBean.getStafferId());
+                         if (stafferBean!= null &&
+                                 ("停用".equals(stafferBean.getName()) || "重复".equals(stafferBean.getName()))){
+                             builder
+                                     .append("第[" + currentNumber + "]错误:")
+                                     .append("停用或重复名下的客户不能导入" + custName)
+                                     .append("<br>");
+
+                             importError = true;
+                         } else {
+                             bean.setComunicatonBranchName(custName);
+                         }
                      }
                  }else{
                      bean.setComunicatonBranchName("公共客户");
@@ -1592,7 +1603,18 @@
 
                          importError = true;
                      }else{
-                         bean.setComunicatonBranchName(custName);
+                         StafferBean stafferBean = this.stafferDAO.find(vsBean.getStafferId());
+                         if (stafferBean!= null &&
+                                 ("停用".equals(stafferBean.getName()) || "重复".equals(stafferBean.getName()))){
+                             builder
+                                     .append("第[" + currentNumber + "]错误:")
+                                     .append("停用或重复名下的客户不能导入" + custName)
+                                     .append("<br>");
+
+                             importError = true;
+                         } else {
+                             bean.setComunicatonBranchName(custName);
+                         }
                      }
                  }else{
                      bean.setComunicatonBranchName("公共客户");
