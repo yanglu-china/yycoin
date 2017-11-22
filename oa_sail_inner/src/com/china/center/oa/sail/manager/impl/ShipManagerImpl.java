@@ -455,6 +455,8 @@ public class ShipManagerImpl implements ShipManager
             String stafferName = "";
 
             PackageBean packBean = new PackageBean();
+            packBean.setStatus(ShipConstant.SHIP_STATUS_INIT);
+
             List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
             PackageVO firstPack = null;
 
@@ -535,6 +537,10 @@ public class ShipManagerImpl implements ShipManager
                 if (isEmergency) {
                     packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
                 }
+
+                if (bean.getStatus() == ShipConstant.SHIP_STATUS_PRINT_INVOICEINS){
+                    packBean.setStatus(ShipConstant.SHIP_STATUS_PRINT_INVOICEINS);
+                }
             }
 
             packBean.setAmount(allAmount);
@@ -560,7 +566,6 @@ public class ShipManagerImpl implements ShipManager
             packBean.setStafferName(firstPack.getStafferName());
             packBean.setIndustryName(firstPack.getIndustryName());
             packBean.setDepartName(firstPack.getDepartName());
-            packBean.setStatus(0);
             packBean.setLogTime(TimeTools.now());
 
 
@@ -1684,6 +1689,7 @@ public class ShipManagerImpl implements ShipManager
 
             //step2 send mail for merged packages
             _logger.info("***mail count to be sent to bank***" + customerId2Packages.keySet().size());
+            int index = 0;
             for (String customerId : customerId2Packages.keySet()) {
                 List<PackageVO> packages = customerId2Packages.get(customerId);
                 BranchRelationBean bean = customerId2Relation.get(customerId);
@@ -1707,7 +1713,8 @@ public class ShipManagerImpl implements ShipManager
                     //refer to #170 and JobManagerImpl
                     continue;
                 } else if (subBranch.indexOf("南京银行") != -1 ){
-                    createMailAttachmentNj(packages,bean.getBranchName(),fileName,true);
+                    index += 1;
+                    createMailAttachmentNj(index, packages,bean.getBranchName(),fileName,true);
                 } else{
                     createMailAttachment(packages,bean.getBranchName(), fileName, true);
                 }
@@ -2056,7 +2063,7 @@ public class ShipManagerImpl implements ShipManager
      * @param fileName
      * @param ignoreLyOrders
      */
-    private void createMailAttachmentNj(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
+    private void createMailAttachmentNj(int index, List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
         _logger.info("***createMailAttachmentNj package "+beans+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
@@ -2186,8 +2193,8 @@ public class ShipManagerImpl implements ShipManager
                         ws.addCell(new Label(j++, i, spec, format3));
 
 
-                        //TODO 产品块号 日期+编号
-                        String serialNo = this.generateSerialNo(i);
+                        //产品块号 日期+编号
+                        String serialNo = this.generateSerialNo(index*100+i);
                         ws.addCell(new Label(j++, i, serialNo, format3));
                         //入库状态
                         ws.addCell(new Label(j++, i, "正常", format3));
