@@ -1643,7 +1643,7 @@ public class ShipManagerImpl implements ShipManager
         //!!test only
 //        con.addCondition("PackageBean.id", "=", "CK201701052047004361");
 //        con.addCondition(" and PackageBean.id in('CK201711191448114358','CK201711191448114338')");
-
+//
         //根据customerId合并CK表:<支行customerId,List<CK>>
         Map<String,List<PackageVO>> customerId2Packages = new HashMap<String,List<PackageVO>>();
         //<支行customerId,BranchRelationBean>
@@ -2142,7 +2142,7 @@ public class ShipManagerImpl implements ShipManager
             String title = String.format("永银文化%s发货信息", this.getYesterday());
 
             // 完成标题
-            ws.addCell(new Label(1, i, title, format));
+            ws.addCell(new Label(1, i, "", format));
 
             //set column width
             ws.setColumnView(0, 5);
@@ -2175,35 +2175,39 @@ public class ShipManagerImpl implements ShipManager
                         if (ignoreLyOrders && each.getOutId().startsWith("LY")){
                             continue;
                         }
-                        i++;
-                        ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
-                        setWS(ws, i, 300, false);
 
-                        //产品代码
-                        ws.addCell(new Label(j++, i, this.getProductCode(each), format3));
-                        //产品名称
-                        ws.addCell(new Label(j++, i, this.getProductName(each), format3));
+                        for (int number = 0;number< each.getAmount();number++){
+                            i++;
+                            ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
+                            setWS(ws, i, 300, false);
 
-                        //产品规格
-                        String spec = "";
-                        ProductImportBean productImportBean = this.getProductImportBean(each,"南京银行");
-                        if (productImportBean!= null){
-                            spec = productImportBean.getWeight();
+                            //产品代码
+                            ws.addCell(new Label(j++, i, this.getProductCode(each), format3));
+                            //产品名称
+                            ws.addCell(new Label(j++, i, this.getProductName(each), format3));
+
+                            //产品规格
+                            String spec = "";
+                            ProductImportBean productImportBean = this.getProductImportBean(each,"南京银行");
+                            if (productImportBean!= null){
+                                spec = productImportBean.getWeight();
+                            }
+                            ws.addCell(new Label(j++, i, spec, format3));
+
+
+                            //产品块号 日期+编号
+                            String serialNo = this.generateSerialNo(index*100+i);
+                            ws.addCell(new Label(j++, i, serialNo, format3));
+                            //入库状态
+                            ws.addCell(new Label(j++, i, "正常", format3));
+                            //收藏证书号
+                            ws.addCell(new Label(j++, i, "", format3));
+                            //出厂序号
+                            ws.addCell(new Label(j++, i, "", format3));
+
+                            j = 0;
                         }
-                        ws.addCell(new Label(j++, i, spec, format3));
 
-
-                        //产品块号 日期+编号
-                        String serialNo = this.generateSerialNo(index*100+i);
-                        ws.addCell(new Label(j++, i, serialNo, format3));
-                        //入库状态
-                        ws.addCell(new Label(j++, i, "正常", format3));
-                        //收藏证书号
-                        ws.addCell(new Label(j++, i, "", format3));
-                        //出厂序号
-                        ws.addCell(new Label(j++, i, "", format3));
-
-                        j = 0;
                     }
                 }
             }
