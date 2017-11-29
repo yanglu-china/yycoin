@@ -3265,6 +3265,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (outBean == null)
         {
             throw new MYException("销售单不存在，请重新操作");
+        } else if (outBean.getCashFlag() == 1 || outBean.getProfigFlag() == 1){
+            throw new MYException("单品奖励或可支配毛利已支付，不可驳回");
         }
 
         if ( !OutHelper.canReject(outBean))

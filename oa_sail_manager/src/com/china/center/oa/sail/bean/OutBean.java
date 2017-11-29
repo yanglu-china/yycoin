@@ -498,6 +498,10 @@ public class OutBean implements Serializable
      * 渠道
      */
     private String channel = "";
+
+    private int cashFlag = 0;
+
+    private int profigFlag = 0;
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -2176,260 +2180,139 @@ public class OutBean implements Serializable
         this.channel = channel;
     }
 
+    public int getCashFlag() {
+        return cashFlag;
+    }
+
+    public void setCashFlag(int cashFlag) {
+        this.cashFlag = cashFlag;
+    }
+
+    public int getProfigFlag() {
+        return profigFlag;
+    }
+
+    public void setProfigFlag(int profigFlag) {
+        this.profigFlag = profigFlag;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("OutBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("fullId = ")
-            .append(this.fullId)
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("flowId = ")
-            .append(this.flowId)
-            .append(TAB)
-            .append("outTime = ")
-            .append(this.outTime)
-            .append(TAB)
-            .append("managerTime = ")
-            .append(this.managerTime)
-            .append(TAB)
-            .append("changeTime = ")
-            .append(this.changeTime)
-            .append(TAB)
-            .append("payTime = ")
-            .append(this.payTime)
-            .append(TAB)
-            .append("outType = ")
-            .append(this.outType)
-            .append(TAB)
-            .append("type = ")
-            .append(this.type)
-            .append(TAB)
-            .append("vtype = ")
-            .append(this.vtype)
-            .append(TAB)
-            .append("mtype = ")
-            .append(this.mtype)
-            .append(TAB)
-            .append("pmtype = ")
-            .append(this.pmtype)
-            .append(TAB)
-            .append("hasInvoice = ")
-            .append(this.hasInvoice)
-            .append(TAB)
-            .append("invoiceId = ")
-            .append(this.invoiceId)
-            .append(TAB)
-            .append("dutyId = ")
-            .append(this.dutyId)
-            .append(TAB)
-            .append("status = ")
-            .append(this.status)
-            .append(TAB)
-            .append("invoiceStatus = ")
-            .append(this.invoiceStatus)
-            .append(TAB)
-            .append("invoiceMoney = ")
-            .append(this.invoiceMoney)
-            .append(TAB)
-            .append("department = ")
-            .append(this.department)
-            .append(TAB)
-            .append("customerId = ")
-            .append(this.customerId)
-            .append(TAB)
-            .append("customerName = ")
-            .append(this.customerName)
-            .append(TAB)
-            .append("locationId = ")
-            .append(this.locationId)
-            .append(TAB)
-            .append("location = ")
-            .append(this.location)
-            .append(TAB)
-            .append("industryId = ")
-            .append(this.industryId)
-            .append(TAB)
-            .append("industryId2 = ")
-            .append(this.industryId2)
-            .append(TAB)
-            .append("industryId3 = ")
-            .append(this.industryId3)
-            .append(TAB)
-            .append("connector = ")
-            .append(this.connector)
-            .append(TAB)
-            .append("phone = ")
-            .append(this.phone)
-            .append(TAB)
-            .append("stafferName = ")
-            .append(this.stafferName)
-            .append(TAB)
-            .append("stafferId = ")
-            .append(this.stafferId)
-            .append(TAB)
-            .append("managerId = ")
-            .append(this.managerId)
-            .append(TAB)
-            .append("total = ")
-            .append(this.total)
-            .append(TAB)
-            .append("description = ")
-            .append(this.description)
-            .append(TAB)
-            .append("checks = ")
-            .append(this.checks)
-            .append(TAB)
-            .append("checkStatus = ")
-            .append(this.checkStatus)
-            .append(TAB)
-            .append("reday = ")
-            .append(this.reday)
-            .append(TAB)
-            .append("redate = ")
-            .append(this.redate)
-            .append(TAB)
-            .append("depotpartId = ")
-            .append(this.depotpartId)
-            .append(TAB)
-            .append("marks = ")
-            .append(this.marks)
-            .append(TAB)
-            .append("mark = ")
-            .append(this.mark)
-            .append(TAB)
-            .append("consign = ")
-            .append(this.consign)
-            .append(TAB)
-            .append("pay = ")
-            .append(this.pay)
-            .append(TAB)
-            .append("inway = ")
-            .append(this.inway)
-            .append(TAB)
-            .append("tempType = ")
-            .append(this.tempType)
-            .append(TAB)
-            .append("hadPay = ")
-            .append(this.hadPay)
-            .append(TAB)
-            .append("badDebts = ")
-            .append(this.badDebts)
-            .append(TAB)
-            .append("badDebtsCheckStatus = ")
-            .append(this.badDebtsCheckStatus)
-            .append(TAB)
-            .append("arriveDate = ")
-            .append(this.arriveDate)
-            .append(TAB)
-            .append("destinationId = ")
-            .append(this.destinationId)
-            .append(TAB)
-            .append("refOutFullId = ")
-            .append(this.refOutFullId)
-            .append(TAB)
-            .append("vtypeFullId = ")
-            .append(this.vtypeFullId)
-            .append(TAB)
-            .append("tranNo = ")
-            .append(this.tranNo)
-            .append(TAB)
-            .append("reserve1 = ")
-            .append(this.reserve1)
-            .append(TAB)
-            .append("reserve2 = ")
-            .append(this.reserve2)
-            .append(TAB)
-            .append("reserve3 = ")
-            .append(this.reserve3)
-            .append(TAB)
-            .append("reserve4 = ")
-            .append(this.reserve4)
-            .append(TAB)
-            .append("reserve5 = ")
-            .append(this.reserve5)
-            .append(TAB)
-            .append("reserve6 = ")
-            .append(this.reserve6)
-            .append(TAB)
-            .append("reserve7 = ")
-            .append(this.reserve7)
-            .append(TAB)
-            .append("reserve8 = ")
-            .append(this.reserve8)
-            .append(TAB)
-            .append("reserve9 = ")
-            .append(this.reserve9)
-            .append(TAB)
-            .append("sailType = ")
-            .append(this.sailType)
-            .append(TAB)
-            .append("productType = ")
-            .append(this.productType)
-            .append(TAB)
-            .append("ratio = ")
-            .append(this.ratio)
-            .append(TAB)
-            .append("curcredit = ")
-            .append(this.curcredit)
-            .append(TAB)
-            .append("staffcredit = ")
-            .append(this.staffcredit)
-            .append(TAB)
-            .append("managercredit = ")
-            .append(this.managercredit)
-            .append(TAB)
-            .append("forceBuyType = ")
-            .append(this.forceBuyType)    
-            .append(TAB)
-            .append("eventId = ")
-            .append(this.eventId)
-            .append(TAB)
-            .append("promValue = ")
-            .append(this.promValue)
-            .append(TAB)
-            .append("promStatus = ")
-            .append(this.promStatus)     
-            .append(TAB)
-            .append("refBindOutId = ")
-            .append(this.refBindOutId)
-            .append(TAB)
-            .append("operator = ")
-            .append(this.operator)
-            .append(TAB)
-            .append("operatorName = ")
-            .append(this.operatorName)
-            .append(TAB)
-            .append("distributeBean = ")
-            .append(this.distributeBean)
-            .append(TAB)
-            .append("logTime = ")
-            .append(this.logTime)
-            .append(TAB)
-            .append("poDate = ")
-            .append(this.podate)
-            .append(TAB)
-            .append("swbz = ")
-            .append(this.swbz)
-            .append(TAB)
-            .append("baseList = ")
-            .append(this.baseList)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "OutBean{" +
+                "fullId='" + fullId + '\'' +
+                ", id='" + id + '\'' +
+                ", flowId='" + flowId + '\'' +
+                ", outTime='" + outTime + '\'' +
+                ", managerTime='" + managerTime + '\'' +
+                ", changeTime='" + changeTime + '\'' +
+                ", payTime='" + payTime + '\'' +
+                ", flowTime='" + flowTime + '\'' +
+                ", outType=" + outType +
+                ", type=" + type +
+                ", vtype=" + vtype +
+                ", mtype=" + mtype +
+                ", pmtype=" + pmtype +
+                ", hasInvoice=" + hasInvoice +
+                ", invoiceId='" + invoiceId + '\'' +
+                ", dutyId='" + dutyId + '\'' +
+                ", status=" + status +
+                ", invoiceStatus=" + invoiceStatus +
+                ", invoiceMoney=" + invoiceMoney +
+                ", department='" + department + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", customerName='" + customerName + '\'' +
+                ", locationId='" + locationId + '\'' +
+                ", location='" + location + '\'' +
+                ", industryId='" + industryId + '\'' +
+                ", industryId2='" + industryId2 + '\'' +
+                ", industryId3='" + industryId3 + '\'' +
+                ", connector='" + connector + '\'' +
+                ", phone='" + phone + '\'' +
+                ", stafferName='" + stafferName + '\'' +
+                ", stafferId='" + stafferId + '\'' +
+                ", managerId='" + managerId + '\'' +
+                ", total=" + total +
+                ", description='" + description + '\'' +
+                ", checks='" + checks + '\'' +
+                ", checkStatus=" + checkStatus +
+                ", reday=" + reday +
+                ", redate='" + redate + '\'' +
+                ", depotpartId='" + depotpartId + '\'' +
+                ", marks=" + marks +
+                ", mark=" + mark +
+                ", consign=" + consign +
+                ", pay=" + pay +
+                ", inway=" + inway +
+                ", tempType=" + tempType +
+                ", hadPay=" + hadPay +
+                ", badDebts=" + badDebts +
+                ", badDebtsCheckStatus=" + badDebtsCheckStatus +
+                ", arriveDate='" + arriveDate + '\'' +
+                ", destinationId='" + destinationId + '\'' +
+                ", refOutFullId='" + refOutFullId + '\'' +
+                ", vtypeFullId='" + vtypeFullId + '\'' +
+                ", tranNo='" + tranNo + '\'' +
+                ", reserve1=" + reserve1 +
+                ", reserve2=" + reserve2 +
+                ", reserve3=" + reserve3 +
+                ", reserve4='" + reserve4 + '\'' +
+                ", reserve5='" + reserve5 + '\'' +
+                ", reserve6='" + reserve6 + '\'' +
+                ", reserve7='" + reserve7 + '\'' +
+                ", reserve8='" + reserve8 + '\'' +
+                ", reserve9='" + reserve9 + '\'' +
+                ", sailType='" + sailType + '\'' +
+                ", productType='" + productType + '\'' +
+                ", ratio='" + ratio + '\'' +
+                ", curcredit=" + curcredit +
+                ", staffcredit=" + staffcredit +
+                ", managercredit=" + managercredit +
+                ", forceBuyType=" + forceBuyType +
+                ", eventId='" + eventId + '\'' +
+                ", promValue=" + promValue +
+                ", promStatus=" + promStatus +
+                ", refBindOutId='" + refBindOutId + '\'' +
+                ", lastModified='" + lastModified + '\'' +
+                ", operator='" + operator + '\'' +
+                ", operatorName='" + operatorName + '\'' +
+                ", logTime='" + logTime + '\'' +
+                ", feedBackVisit=" + feedBackVisit +
+                ", feedBackCheck=" + feedBackCheck +
+                ", hasRebate=" + hasRebate +
+                ", guarantor='" + guarantor + '\'' +
+                ", taxTotal=" + taxTotal +
+                ", piDutyId='" + piDutyId + '\'' +
+                ", piMtype=" + piMtype +
+                ", piType=" + piType +
+                ", piStatus=" + piStatus +
+                ", hasConfirmInsMoney=" + hasConfirmInsMoney +
+                ", hasConfirm=" + hasConfirm +
+                ", emergency=" + emergency +
+                ", presentFlag=" + presentFlag +
+                ", podate='" + podate + '\'' +
+                ", ibFlag=" + ibFlag +
+                ", ibApplyId='" + ibApplyId + '\'' +
+                ", motivationFlag=" + motivationFlag +
+                ", motivationApplyId='" + motivationApplyId + '\'' +
+                ", remoteAllocate=" + remoteAllocate +
+                ", reason='" + reason + '\'' +
+                ", transportNo='" + transportNo + '\'' +
+                ", swbz='" + swbz + '\'' +
+                ", outbackStatus='" + outbackStatus + '\'' +
+                ", customerCreated=" + customerCreated +
+                ", refGiftId='" + refGiftId + '\'' +
+                ", channel='" + channel + '\'' +
+                ", cashFlag=" + cashFlag +
+                ", profigFlag=" + profigFlag +
+                ", baseList=" + baseList +
+                ", distributeBean=" + distributeBean +
+                ", distList=" + distList +
+                ", attachmentList=" + attachmentList +
+                '}';
     }
 }
