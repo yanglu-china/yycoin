@@ -286,14 +286,6 @@ public class SailConfigAction extends DispatchAction
                             importError = true;
                         }
                     }
-//                    else{
-//                        builder
-//                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-//                                .append("销售类型必填")
-//                                .append("</font><br>");
-//
-//                        importError = true;
-//                    }
 
                     // 产品类型
                     if ( !StringTools.isNullOrNone(obj[1]))
@@ -320,14 +312,7 @@ public class SailConfigAction extends DispatchAction
                             importError = true;
                         }
                     }
-//                    else{
-//                        builder
-//                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-//                                .append("产品类型必填")
-//                                .append("</font><br>");
-//
-//                        importError = true;
-//                    }
+
 
                     //品名
                     if ( !StringTools.isNullOrNone(obj[2]))
@@ -344,22 +329,6 @@ public class SailConfigAction extends DispatchAction
                         } else{
                             item.setProductId(productBean.getId());
                         }
-//                        String names = obj[2].trim();
-//                        String[] nameList = names.split(";");
-//                        for (String name : nameList){
-//                            ProductBean productBean = this.productDAO.findByName(name);
-//                            if (productBean == null){
-//                                builder
-//                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
-//                                        .append("品名不存在:"+name)
-//                                        .append("</font><br>");
-//
-//                                importError = true;
-//                                break;
-//                            } else{
-//                                //TODO
-//                            }
-//                        }
                     } else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -394,11 +363,11 @@ public class SailConfigAction extends DispatchAction
                     {
                         String pratio = obj[4].trim();
                         try {
-                            item.setPratio(Integer.valueOf(pratio));
+                            item.setPratio(Double.valueOf(pratio));
                         }catch (NumberFormatException e){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                    .append("总部结算率不是整数:"+pratio)
+                                    .append("总部结算率不是数值:"+pratio)
                                     .append("</font><br>");
 
                             importError = true;
@@ -410,11 +379,11 @@ public class SailConfigAction extends DispatchAction
                     {
                         String iratio = obj[5].trim();
                         try {
-                            item.setIratio(Integer.valueOf(iratio));
+                            item.setIratio(Double.valueOf(iratio));
                         }catch (NumberFormatException e){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                    .append("事业部结算率不是整数:"+iratio)
+                                    .append("事业部结算率不是数值:"+iratio)
                                     .append("</font><br>");
 
                             importError = true;
