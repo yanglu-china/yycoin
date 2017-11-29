@@ -153,9 +153,9 @@ function pagePrint()
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
 						<td><table class="border1"><tr><td align="center">${vs.index + 1}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
+						<td><table class="border1"><tr><td><p style='font-weight: bold;font-size:18px;'>${item.productName}</p></td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.showSubProductName}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"><p style='font-weight: bold;font-size:18px;'>${item.amount}</p></td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
