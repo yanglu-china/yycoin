@@ -187,7 +187,7 @@ public class SailConfigAction extends DispatchAction
 
             User user = Helper.getUser(request);
 
-            sailConfigManager.addBean(user, bean);
+            sailConfigManager.addBean(user, bean,false);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功操作");
         }

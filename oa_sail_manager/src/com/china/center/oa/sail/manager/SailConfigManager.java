@@ -42,7 +42,7 @@ public interface SailConfigManager
     SailConfigVO findVO(String id)
         throws MYException;
 
-    boolean addBean(User user, SailConfBean bean)
+    boolean addBean(User user, SailConfBean bean,boolean importFlag)
         throws MYException;
 
     boolean updateBean(User user, SailConfBean bean)

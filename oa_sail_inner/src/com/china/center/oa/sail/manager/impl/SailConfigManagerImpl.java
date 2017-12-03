@@ -11,6 +11,7 @@ package com.china.center.oa.sail.manager.impl;
 
 import java.util.List;
 
+import com.china.center.tools.ListTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -52,6 +53,8 @@ import com.china.center.tools.StringTools;
 public class SailConfigManagerImpl implements SailConfigManager
 {
     private final Log operationLog = LogFactory.getLog("opr");
+
+    private final Log _logger = LogFactory.getLog(getClass());
 
     private SailConfigDAO sailConfigDAO = null;
 
@@ -121,7 +124,7 @@ public class SailConfigManagerImpl implements SailConfigManager
     }
 
     @Transactional(rollbackFor = MYException.class)
-    public boolean addBean(User user, SailConfBean bean)
+    public boolean addBean(User user, SailConfBean bean, boolean importFlag)
         throws MYException
     {
         JudgeTools.judgeParameterIsNull(user, bean);
@@ -160,10 +163,30 @@ public class SailConfigManagerImpl implements SailConfigManager
             }
         }
 
-        Expression exp = new Expression(bean, this);
+        if (importFlag){
+            //#169
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("sailType","=",bean.getSailType());
+            conditionParse.addCondition("productType","=",bean.getProductType());
+            conditionParse.addCondition("productId","=",bean.getProductId());
+            conditionParse.addCondition("industryId","=",bean.getIndustryId());
+            List<SailConfBean> beans = this.sailConfDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(beans)){
+                SailConfBean old = sailConfDAO.find(beans.get(0).getId());
+                _logger.info("update sail conf,old:" + old);
 
-        exp.check("#sailType && #productType && #productId && #industryId &unique @sailConfDAO",
-            "结算价格配置组合已经存在");
+                old.setPratio(bean.getPratio());
+                old.setIratio(bean.getIratio());
+                old.setDescription(bean.getDescription());
+                return this.sailConfDAO.updateEntityBean(old);
+            }
+        } else{
+            Expression exp = new Expression(bean, this);
+
+            exp.check("#sailType && #productType && #productId && #industryId &unique @sailConfDAO",
+                    "结算价格配置组合已经存在");
+        }
 
         return sailConfDAO.saveEntityBean(bean);
     }
@@ -172,7 +195,7 @@ public class SailConfigManagerImpl implements SailConfigManager
     @Transactional(rollbackFor = MYException.class)
     public boolean importSailConfig(User user, List<SailConfBean> beans) throws MYException {
         for (SailConfBean bean: beans){
-            this.addBean(user, bean);
+            this.addBean(user, bean,true);
         }
         return true;
     }
