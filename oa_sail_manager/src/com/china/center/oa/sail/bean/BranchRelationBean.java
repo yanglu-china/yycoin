@@ -18,17 +18,16 @@ import java.io.Serializable;
 @Table(name = "T_CENTER_BRANCH_RELATION")
 public class BranchRelationBean implements Serializable
 {
-    /**
-     * 同客户ID
-     */
     @Id
     private String id = "";
+
+    private String customerId = "";
 
     /**
      * 支行名称
      * 同客户名称
      */
-    @Unique
+    @Unique(dependFields = "channel")
     private String subBranchName = "";
 
     /**
@@ -60,6 +59,12 @@ public class BranchRelationBean implements Serializable
     private String logTime = "";
 
     private String operator = "";
+
+    /**
+     * #194
+     * 渠道
+     */
+    private String channel = "";
 
     public String getId() {
         return id;
@@ -133,10 +138,27 @@ public class BranchRelationBean implements Serializable
         this.operator = operator;
     }
 
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
+    }
+
     @Override
     public String toString() {
         return "BranchRelationBean{" +
                 "id='" + id + '\'' +
+                ", customerId='" + customerId + '\'' +
                 ", subBranchName='" + subBranchName + '\'' +
                 ", branchName='" + branchName + '\'' +
                 ", subBranchMail='" + subBranchMail + '\'' +
@@ -145,6 +167,7 @@ public class BranchRelationBean implements Serializable
                 ", copyToBranchFlag=" + copyToBranchFlag +
                 ", logTime='" + logTime + '\'' +
                 ", operator='" + operator + '\'' +
+                ", channel='" + channel + '\'' +
                 '}';
     }
 }

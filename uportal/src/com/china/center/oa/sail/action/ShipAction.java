@@ -4619,8 +4619,14 @@ public class ShipAction extends DispatchAction
                     {
                         bean.setCopyToBranchFlag(Integer.valueOf(obj[6]));
                     }
-                    importItemList.add(bean);
 
+                    //渠道
+                    if ( !StringTools.isNullOrNone(obj[7]))
+                    {
+                        bean.setChannel(obj[7].trim());
+                    }
+
+                    importItemList.add(bean);
                 }
                 else
                 {
