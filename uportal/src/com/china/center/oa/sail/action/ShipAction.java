@@ -2915,7 +2915,8 @@ public class ShipAction extends DispatchAction
 
 
     private boolean isOut(String outId){
-        return outId.startsWith("SO") || outId.startsWith("ZS") || outId.startsWith("XZ");
+        return outId.startsWith("SO") || outId.startsWith("ZS") || outId.startsWith("XZ")
+                || outId.startsWith("YL")|| outId.startsWith("LY");
     }
 
     /**
