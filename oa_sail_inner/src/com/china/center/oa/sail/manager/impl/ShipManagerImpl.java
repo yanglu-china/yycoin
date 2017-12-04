@@ -2857,6 +2857,10 @@ public class ShipManagerImpl implements ShipManager
                 this.branchRelationDAO.saveEntityBean(bean);
             } else{
 //                _logger.info("***update***"+bean);
+                beanInDb.setBranchMail(bean.getBranchMail());
+                beanInDb.setSubBranchMail(bean.getSubBranchMail());
+                beanInDb.setSendMailFlag(bean.getSendMailFlag());
+                beanInDb.setCopyToBranchFlag(bean.getCopyToBranchFlag());
                 this.branchRelationDAO.updateEntityBean(bean);
             }
         }
