@@ -2658,7 +2658,13 @@ public class ShipAction extends DispatchAction
     private String[] getStafferNameAndPhone(String outId){
         String stafferName = "永银商务部";
         String phone = "4006518859";
-        OutBean out = outDAO.find(outId);
+        String[] outIds = outId.split("<br>");
+        String fullId = outId;
+        if (outIds!= null && outIds.length>=1){
+            fullId = outIds[0];
+        }
+
+        OutBean out = outDAO.find(fullId);
         if (out!= null){
             String stafferId = out.getStafferId();
             StafferBean staffer = this.stafferDAO.find(stafferId);
