@@ -176,7 +176,8 @@ function loadShow()
 {
 	var json = showJSON;
 	
-	var pid = $$('dutyId');
+//	var pid = $$('dutyId');
+    var pid = '${dutyId}';
 	
 	var showArr = document.getElementsByName('showName');
 
