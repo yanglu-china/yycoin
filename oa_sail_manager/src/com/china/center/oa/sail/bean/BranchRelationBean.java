@@ -21,8 +21,6 @@ public class BranchRelationBean implements Serializable
     @Id
     private String id = "";
 
-    private String customerId = "";
-
     /**
      * 支行名称
      * 同客户名称
@@ -146,19 +144,10 @@ public class BranchRelationBean implements Serializable
         this.channel = channel;
     }
 
-    public String getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
-    }
-
     @Override
     public String toString() {
         return "BranchRelationBean{" +
                 "id='" + id + '\'' +
-                ", customerId='" + customerId + '\'' +
                 ", subBranchName='" + subBranchName + '\'' +
                 ", branchName='" + branchName + '\'' +
                 ", subBranchMail='" + subBranchMail + '\'' +

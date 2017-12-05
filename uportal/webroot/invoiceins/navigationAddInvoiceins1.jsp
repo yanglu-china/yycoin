@@ -440,9 +440,7 @@ function checkCurrentUser()
 			
 			<p:pro field="headContent" innerString="size=60" value="${pmap['headContent']}"/>
 			
-			<!--<p:pro field="unit" innerString="size=60" />
-			
-			--><p:pro field="dutyId" value="${pmap['dutyId']}" innerString="readonly='readonly' onchange=loadShow(1) style='WIDTH: 340px;'">
+			<p:pro field="dutyId" innerString="style='WIDTH: 340px;'">
 				<option value="">--</option>
                 <p:option type="dutyList" />
             </p:pro>
