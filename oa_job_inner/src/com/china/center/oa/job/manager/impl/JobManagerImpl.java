@@ -18,6 +18,7 @@ import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.manager.ShipManager;
 import com.china.center.oa.sail.vo.BranchRelationVO;
 import com.china.center.oa.sail.vo.PackageVO;
 import com.china.center.tools.BeanUtil;
@@ -65,6 +66,8 @@ public class JobManagerImpl implements JobManager {
 
     private InvoiceinsDAO invoiceinsDAO = null;
 
+    private ShipManager shipManager = null;
+
     @Override
     @Transactional(rollbackFor = MYException.class)
     public void sendShippingMailToPf() throws MYException {
@@ -81,12 +84,12 @@ public class JobManagerImpl implements JobManager {
         //!!test only
 //        con.addCondition("PackageBean.id", "=", "CK201701052047004361");
 
-        //根据customerId合并CK表:<支行customerId,List<CK>>
-        Map<String,List<PackageVO>> customerId2Packages = new HashMap<String,List<PackageVO>>();
-        //<支行customerId,BranchRelationBean>
-        Map<String,BranchRelationBean> customerId2Relation = new HashMap<String,BranchRelationBean>();
+        //根据customerId+channel合并CK表
+        Map<String,List<PackageVO>> customer2Packages = new HashMap<String,List<PackageVO>>();
+        //<支行customerId_channel,BranchRelationBean>
+        Map<String,BranchRelationBean> customer2Relation = new HashMap<String,BranchRelationBean>();
 
-        //step1: 根据支行customerId对CK单合并
+        //step1: 根据支行customerId+channel对CK单合并
         List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(packageList))
         {
@@ -104,32 +107,37 @@ public class JobManagerImpl implements JobManager {
                 }
 
                 String customerId = vo.getCustomerId();
+                String channel = this.getChannel(vo);
+                String key = customerId+"_"+channel;
                 //查询分支行对应关系表
-                BranchRelationBean bean = this.getRelationByCustomerId(customerId);
-                if(bean == null){
-                    _logger.warn(vo.getId()+"***no relation found***"+customerId);
-                    continue;
-                } else{
-                    _logger.info("***relation found****"+bean);
-                    customerId2Relation.put(customerId, bean);
+                if (!customer2Relation.containsKey(key)){
+                    BranchRelationBean bean = this.getRelationByCustomerId(customerId, channel);
+                    if(bean == null){
+                        _logger.warn(vo.getId()+"***no relation found***"+customerId);
+                        continue;
+                    } else{
+                        _logger.info("***relation found****"+bean);
+                        customer2Relation.put(key, bean);
+                    }
                 }
 
-                if (customerId2Packages.containsKey(customerId)){
-                    List<PackageVO> voList = customerId2Packages.get(customerId);
+
+                if (customer2Packages.containsKey(key)){
+                    List<PackageVO> voList = customer2Packages.get(key);
                     voList.add(vo);
                 }else{
                     List<PackageVO> voList =  new ArrayList<PackageVO>();
                     voList.add(vo);
-                    customerId2Packages.put(customerId, voList);
+                    customer2Packages.put(key, voList);
                 }
             }
 
             //step2 send mail for merged packages
-            _logger.info("***mail count to be sent to bank***" + customerId2Packages.keySet().size());
-            for (String customerId : customerId2Packages.keySet()) {
-                List<PackageVO> packages = customerId2Packages.get(customerId);
-                BranchRelationBean bean = customerId2Relation.get(customerId);
-                _logger.info(customerId+"***send mail to branch***"+bean);
+            _logger.info("***mail count to be sent to bank***" + customer2Packages.keySet().size());
+            for (String key : customer2Packages.keySet()) {
+                List<PackageVO> packages = customer2Packages.get(key);
+                BranchRelationBean bean = customer2Relation.get(key);
+                _logger.info(key+"***send mail to branch***"+bean);
                 if (bean == null){
                     continue;
                 } else if (bean.getSendMailFlag() ==0 && bean.getCopyToBranchFlag() == 0) {
@@ -141,19 +149,20 @@ public class JobManagerImpl implements JobManager {
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                 _logger.info("***fileName***"+fileName);
                 //浦发上海分行
-                if (subBranch.indexOf("浦发银行") != -1 && bean.getBranchName().indexOf("上海分行")!= -1){
+                if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("上海分行")!= -1){
                     createPfMailAttachment(packages,bean.getBranchName(), fileName, true);
                 } else if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("小浦金店-银行")!= -1){
                     createPfMailAttachmentForXiaoPu(packages,bean.getBranchName(), fileName, true);
-                } else{
-                    continue;
+                } else if (subBranch.indexOf("浦发银行") != -1){
+                    this.shipManager.createMailAttachment(packages,bean.getBranchName(),fileName,true);
                 }
 
                 // check file either exists
                 File file = new File(fileName);
-                if (!file.exists())
-                {
-                    throw new MYException("邮件附件未成功生成");
+                if (!file.exists()) {
+                    _logger.error("fail to create mail attachment:" + fileName);
+                    continue;
+                    // throw new MYException("邮件附件未成功生成");
                 }
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
@@ -182,7 +191,7 @@ public class JobManagerImpl implements JobManager {
                     _logger.warn("***relation send mail copy flag is 0***" + bean);
                 }
 
-                for (PackageBean vo:customerId2Packages.get(customerId)){
+                for (PackageBean vo:customer2Packages.get(key)){
                     //Update sendMailFlag to 1
                     PackageBean packBean = packageDAO.find(vo.getId());
                     packBean.setSendMailFlag(1);
@@ -196,10 +205,27 @@ public class JobManagerImpl implements JobManager {
         _logger.info("***finish send mail to bank***");
     }
 
+    private String getChannel(PackageVO packageVO){
+        List<PackageItemBean> items = packageItemDAO.queryEntityBeansByFK(packageVO.getId());
+        for (PackageItemBean item: items){
+            String outId = item.getOutId();
+            //忽略发票
+            if (outId.startsWith("A")){
+                continue;
+            } else{
+                OutBean outBean = outDAO.find(outId);
+                if (outBean!= null){
+                    return outBean.getChannel();
+                }
+            }
+        }
+
+        return "";
+    }
 
     private void createPfMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
-        _logger.info("***create mail attachment for PF with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
+        _logger.info("***createPfMailAttachment with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
 
         WritableSheet ws = null;
@@ -527,10 +553,15 @@ public class JobManagerImpl implements JobManager {
         return dayBefore;
     }
 
-    private BranchRelationBean getRelationByCustomerId(String customerId){
+    private BranchRelationBean getRelationByCustomerId(String customerId,String channel){
         ConditionParse con2 = new ConditionParse();
         con2.addWhereStr();
         con2.addCondition("BranchRelationBean.id", "=", customerId);
+        if (StringTools.isNullOrNone(channel)){
+            con2.addCondition(" and (BranchRelationBean.channel is null or BranchRelationBean.channel='')");
+        } else{
+            con2.addCondition("BranchRelationBean.channel", "=", channel);
+        }
         List<BranchRelationVO> relationList = this.branchRelationDAO.queryVOsByCondition(con2);
         if (!ListTools.isEmptyOrNull(relationList)){
             BranchRelationVO relation = relationList.get(0);
@@ -545,6 +576,11 @@ public class JobManagerImpl implements JobManager {
                 ConditionParse conditionParse = new ConditionParse();
                 conditionParse.addWhereStr();
                 conditionParse.addCondition("BranchRelationBean.subBranchName", "=", customerBean.getName());
+                if (StringTools.isNullOrNone(channel)){
+                    conditionParse.addCondition(" and (BranchRelationBean.channel is null or BranchRelationBean.channel='')");
+                } else{
+                    conditionParse.addCondition("BranchRelationBean.channel", "=", channel);
+                }
                 relationList = this.branchRelationDAO.queryVOsByCondition(conditionParse);
                 if (ListTools.isEmptyOrNull(relationList)){
                     _logger.warn("***no relation found***"+customerId);
@@ -693,7 +729,7 @@ public class JobManagerImpl implements JobManager {
      */
     private void createPfMailAttachmentForXiaoPu(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
-        _logger.info("***create mail attachment for PF with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
+        _logger.info("***createPfMailAttachmentForXiaoPu with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
 
         WritableSheet ws = null;
@@ -933,5 +969,13 @@ public class JobManagerImpl implements JobManager {
 
     public void setInvoiceinsDAO(InvoiceinsDAO invoiceinsDAO) {
         this.invoiceinsDAO = invoiceinsDAO;
+    }
+
+    public ShipManager getShipManager() {
+        return shipManager;
+    }
+
+    public void setShipManager(ShipManager shipManager) {
+        this.shipManager = shipManager;
     }
 }

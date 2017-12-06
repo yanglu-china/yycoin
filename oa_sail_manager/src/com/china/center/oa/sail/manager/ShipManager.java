@@ -7,6 +7,7 @@ import com.china.center.oa.sail.bean.DistributionBean;
 import com.china.center.oa.sail.bean.PackageItemBean;
 import com.china.center.oa.sail.bean.PreConsignBean;
 import com.china.center.oa.sail.vo.OutVO;
+import com.china.center.oa.sail.vo.PackageVO;
 
 import java.util.List;
 import java.util.Map;
@@ -94,4 +95,6 @@ public interface ShipManager
      * #106
      */
     void cleanDuplicateBranch();
+
+    void createMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders);
 }
