@@ -1846,7 +1846,7 @@ public class ShipManagerImpl implements ShipManager
         return ConfigLoader.getProperty("shippingAttachmentPath");
     }
 
-    private void createMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
+    public void createMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
         _logger.info("***create mail attachment with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
