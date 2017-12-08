@@ -1715,14 +1715,10 @@ public class ShipManagerImpl implements ShipManager
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                 _logger.info("***fileName***"+fileName);
                 //浦发上海分行
-                if (subBranch.indexOf("浦发银行") != -1 && bean.getBranchName().indexOf("上海分行")!= -1){
-//                    createPfMailAttachment(packages,bean.getBranchName(), fileName, true);
+                if (subBranch.indexOf("浦发银行") != -1 ){
                     //refer to #117 and JobManagerImpl
                     continue;
-                } else if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("小浦金店-银行")!= -1){
-                    //refer to #170 and JobManagerImpl
-                    continue;
-                } else if (subBranch.indexOf("南京银行") != -1 ){
+                }else if (subBranch.indexOf("南京银行") != -1 ){
                     index += 1;
                     createMailAttachmentNj(index, packages,bean.getBranchName(),fileName,true);
                 } else{

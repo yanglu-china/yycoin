@@ -293,7 +293,7 @@ function addTr1()
             	//add new option
             	for (var j = 0; j < dList.length; j++)
             	{
-            		if (dList[j].locationId == '99000000000000000002')
+            		if (dList[j].locationId == 'A1201606211663545335')
             		{
             			setOption(oo, dList[j].id, dList[j].name);
             		}
@@ -415,7 +415,7 @@ function addTr1()
          </select>
          </td>
          <td width="95%" align="center">
-         <select name="srcDepot" class="select_class" style="width: 100%;" onchange="srcDepotChange(this)" values="99000000000000000002">
+         <select name="srcDepot" class="select_class" style="width: 100%;" onchange="srcDepotChange(this)" values="A1201606211663545335">
          <option value="">--</option>
          <c:forEach var="item" items="${depotList}">
              <option value="${item.id}">${item.name}</option>
@@ -423,7 +423,7 @@ function addTr1()
          </select>
          </td>
          <td width="95%" align="center">
-         <select name="srcDepotpart" class="select_class" style="width: 100%;" values="A1201207271106788121">
+         <select name="srcDepotpart" class="select_class" style="width: 100%;" values="A1201606211663545389">
          <option value="">--</option>
          </select>
          </td>
