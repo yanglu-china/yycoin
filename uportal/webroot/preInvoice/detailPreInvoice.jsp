@@ -80,6 +80,18 @@
 
                 <p:pro field="invoiceNumber" cell="0" innerString="size=60"/>
 
+                <p:cell title="发货方式">
+                    ${my:get('outShipment',bean.shipping)}
+                </p:cell>
+
+                <p:cell title="运输公司">
+                    ${bean.transportName1}/${bean.transportName2}
+                </p:cell>
+
+                <p:cell title="支付方式">
+                    ${my:get('deliverPay',bean.expressPay)}//${my:get('deliverPay',bean.transportPay)}
+                </p:cell>
+
                 <p:cell title="省">
                     ${bean.provinceName}
                 </p:cell>
@@ -87,10 +99,6 @@
                 <p:cell title="市">
                     ${bean.cityName}
                 </p:cell>
-
-                <%--<p:pro field="provinceName" cell="0" innerString="size=60"/>--%>
-
-                <%--<p:pro field="cityName" cell="0" innerString="size=60"/>--%>
 
                 <p:pro field="address" cell="0" innerString="size=60"/>
 

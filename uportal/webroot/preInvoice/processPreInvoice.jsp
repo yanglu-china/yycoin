@@ -234,7 +234,33 @@ function getOutBalance(oos)
                     <input type="text" size="60" name="invoiceNumber" readonly="readonly" value="${bean.invoiceNumber}">
                 </p:cell>
             </c:if>
-            
+
+            <p:cell title="发货方式">
+                ${my:get('outShipment',bean.shipping)}
+            </p:cell>
+
+            <p:cell title="运输公司">
+                ${bean.transportName1}/${bean.transportName2}
+            </p:cell>
+
+            <p:cell title="支付方式">
+                ${my:get('deliverPay',bean.expressPay)}//${my:get('deliverPay',bean.transportPay)}
+            </p:cell>
+
+            <p:cell title="省">
+                ${bean.provinceName}
+            </p:cell>
+
+            <p:cell title="市">
+                ${bean.cityName}
+            </p:cell>
+
+            <p:pro field="address" cell="0" innerString="size=60"/>
+
+            <p:pro field="receiver" cell="0" innerString="size=20"/>
+
+            <p:pro field="mobile" cell="0" innerString="size=20"/>
+
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
             
             <p:cell title="处理人" width="8" end="true">
