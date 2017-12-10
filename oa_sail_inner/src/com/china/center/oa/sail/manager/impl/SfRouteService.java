@@ -1,6 +1,10 @@
 package com.china.center.oa.sail.manager.impl;
 
 import com.sf.integration.expressservice.service.CommonExpressServiceService;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import sun.misc.BASE64Encoder;
 
 import javax.xml.namespace.QName;
@@ -9,6 +13,10 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author SunQi
@@ -51,8 +59,8 @@ public class SfRouteService {
         return str;
     }
 
-    public SfRouteBean queryRoute(String mainnoId) {
-        SfRouteBean routeVo = new SfRouteBean();
+    public List<SfRouteBean> queryRoute(String mainnoId) {
+        List<SfRouteBean> routeList = new ArrayList<SfRouteBean>();
 //        String uri = "http://bsp-ois.sit.sf-express.com:9080/bsp-ois/ws/sfexpressService?wsdl";  //WEBSERVICE 地址
 //        String uri = "http://218.17.248.244:11080/bsp-oisp/ws/sfexpressService?wsdl";
 
@@ -88,18 +96,38 @@ public class SfRouteService {
         //请求返回
         String res = service.getCommonExpressServicePort().sfexpressService(xmlFile, verifyCode);
         System.out.println(res);
+        Document doc = Jsoup.parse(res);
+        Elements routes = doc.getElementsByTag("Route");
+        for (Element route : routes) {
+            String remark = route.attr("remark");
+            String accept_time = route.attr("accept_time");
+            String accept_address = route.attr("accept_address");
+            String opcode = route.attr("opcode");
 
+            SfRouteBean sfRouteBean = new SfRouteBean();
+            sfRouteBean.setRemark(remark);
+            sfRouteBean.setAccept_time(accept_time);
+            sfRouteBean.setAccept_address(accept_address);
+            sfRouteBean.setOpcode(opcode);
+            routeList.add(sfRouteBean);
+        }
 
-        return null;
+        Collections.sort(routeList, new Comparator<SfRouteBean>() {
+            public int compare(SfRouteBean o1, SfRouteBean o2) {
+                return o2.getAccept_time().compareTo(o1.getAccept_time());
+            }
+        });
+        return routeList;
     }
 
 
     public static void main(String[] args) {
         SfRouteService re = new SfRouteService();
-
-        re.queryRoute("617233164588");
-        re.queryRoute("617232431410");
-        re.queryRoute("601144837451");
+        List<SfRouteBean> sfRouteBeans = null;
+//        re.queryRoute("617233164588");
+        sfRouteBeans = re.queryRoute("601642231164");
+        System.out.println(sfRouteBeans);
+//        re.queryRoute("601144837451");
 
 //        System.out.println(re.queryRoute("444001003588"));
 

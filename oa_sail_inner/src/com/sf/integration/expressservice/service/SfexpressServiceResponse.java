@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "sfexpressServiceResponse", propOrder = {
+@XmlType(name = "sfexpressServiceResponse2", propOrder = {
     "_return"
 })
 public class SfexpressServiceResponse {

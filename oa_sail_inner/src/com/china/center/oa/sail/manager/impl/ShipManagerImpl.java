@@ -52,6 +52,8 @@ import com.china.center.oa.sail.vo.PackageVO;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.china.center.oa.sail.constanst.ShipConstant.SHIP_STATUS_PRINT_SIGNED;
+
 public class ShipManagerImpl implements ShipManager
 {
     private final Log operationLog = LogFactory.getLog("opr");
@@ -3263,15 +3265,38 @@ public class ShipManagerImpl implements ShipManager
                     Object res = result.get("state");
                     if (res!= null){
                         int state = Integer.valueOf((String)res);
-                        if (state == ShipConstant.KD_100_STATUS_SIGNED || state == ShipConstant.KD_100_STATUS_RE_SIGNED
-                                || state == ShipConstant.KD_100_STATUS_RETURN){
-                            int status = state + 10;
-                            this.packageDAO.updateStatus(packageBean.getId(), status);
-                            _logger.info(packageBean.getId()+" update package status to "+status);
+                        //#184 SF route
+                        if ("shunfeng".equalsIgnoreCase(expressCode)){
+                            if (state  ==  ShipConstant.SF_STATUS_50 || state == ShipConstant.SF_STATUS_30
+                                    || state == ShipConstant.SF_STATUS_607){
+                                //TODO 已收件
+                                this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
+                                _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_SIGNED);
+                            } else if (state  ==  ShipConstant.SF_STATUS_130 || state == ShipConstant.SF_STATUS_123){
+                                //TODO 即将派件
+                                this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
+                                _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_SIGNED);
+                            } else if (state  ==  ShipConstant.SF_STATUS_80 || state == ShipConstant.SF_STATUS_8000){
+                                //已签收
+                                this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
+                                _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_SIGNED);
+                            } else if (state  ==  ShipConstant.SF_STATUS_631 || state == ShipConstant.SF_STATUS_648
+                                    || state == ShipConstant.SF_STATUS_99){
+                                //已退回
+                                this.packageDAO.updateStatus(packageBean.getId(), ShipConstant.SHIP_STATUS_PRINT_RETURN);
+                                _logger.info(packageBean.getId()+" update SF package status to "+ShipConstant.SHIP_STATUS_PRINT_RETURN);
+                            }
                         } else{
-                            int status =  10;
-                            this.packageDAO.updateStatus(packageBean.getId(), status);
-                            _logger.info(packageBean.getId()+" update package status to "+status);
+                            if (state == ShipConstant.KD_100_STATUS_SIGNED || state == ShipConstant.KD_100_STATUS_RE_SIGNED
+                                    || state == ShipConstant.KD_100_STATUS_RETURN){
+                                int status = state + 10;
+                                this.packageDAO.updateStatus(packageBean.getId(), status);
+                                _logger.info(packageBean.getId()+" update package status to "+status);
+                            } else{
+                                int status =  10;
+                                this.packageDAO.updateStatus(packageBean.getId(), status);
+                                _logger.info(packageBean.getId()+" update package status to "+status);
+                            }
                         }
                     }
                 }
@@ -3300,6 +3325,10 @@ public class ShipManagerImpl implements ShipManager
 
     public HashMap<String,Object> getExpressStatus(String expressCode,String transportNo){
         _logger.info("getExpressStatus with express code:"+expressCode+" vs transportNo***"+transportNo);
+        if ("shunfeng".equalsIgnoreCase(expressCode)){
+            return this.getExpressStatusSf(transportNo);
+        }
+
         HashMap<String,Object> o = new HashMap<String, Object>();
 //        String param ="{\"com\":\"shunfeng\",\"num\":\"615510015091\"}";
         Map<String,String> paramMap = new HashMap<String,String>();
@@ -3321,6 +3350,25 @@ public class ShipManagerImpl implements ShipManager
             _logger.error(e,e);
         }
         return o;
+    }
+
+    /**
+     *
+     * #184 SF interface
+     * @param transportNo
+     * @return
+     */
+    public HashMap<String,Object> getExpressStatusSf(String transportNo){
+        HashMap<String,Object> result = new HashMap<String, Object>();
+
+        SfRouteService re = new SfRouteService();
+        List<SfRouteBean> sfRouteBeans = re.queryRoute(transportNo);
+        if (!ListTools.isEmptyOrNull(sfRouteBeans)){
+            SfRouteBean latestRoute = sfRouteBeans.get(0);
+            String opcode = latestRoute.getOpcode();
+            result.put("state",opcode);
+        }
+        return result;
     }
 
     @Override

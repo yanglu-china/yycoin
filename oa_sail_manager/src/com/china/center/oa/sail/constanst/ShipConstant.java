@@ -65,8 +65,38 @@ public interface ShipConstant
 	int KD_100_STATUS_RE_SIGNED = 4;
 	int KD_100_STATUS_RETURN = 6;
 
+	/**
+	 * #184 SF route status
+	 * 50,30,607 已收件
+	 */
+	int SF_STATUS_50 = 50;
+	int SF_STATUS_30 = 30;
+	int SF_STATUS_607 = 607;
 
-    /**
+	/**
+	 * 已到达目的地网点，即将派件
+	 */
+	int SF_STATUS_130 = 130;
+	int SF_STATUS_123 = 123;
+
+	/**
+	 * 已签收
+	 */
+	int SF_STATUS_80 = 80;
+	int SF_STATUS_8000 = 8000;
+
+	/**
+	 * 快件已退回
+	 */
+	int SF_STATUS_631 = 631;
+	int SF_STATUS_648 = 648;
+	int SF_STATUS_99 = 99;
+
+
+
+
+
+	/**
      * 2015/3/19 "商品拣配”增加查询条件 “发票单发”
      * CK单中只有A或FP开头的单号
      */
