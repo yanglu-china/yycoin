@@ -53,6 +53,7 @@ import com.china.center.oa.sail.vo.PackageVO;
 import javax.servlet.http.HttpServletRequest;
 
 import static com.china.center.oa.sail.constanst.ShipConstant.SHIP_STATUS_PRINT_SIGNED;
+import static com.china.center.oa.sail.constanst.ShipConstant.SHIP_STATUS_PRINT_ZAITU;
 
 public class ShipManagerImpl implements ShipManager
 {
@@ -3269,13 +3270,13 @@ public class ShipManagerImpl implements ShipManager
                         if ("shunfeng".equalsIgnoreCase(expressCode)){
                             if (state  ==  ShipConstant.SF_STATUS_50 || state == ShipConstant.SF_STATUS_30
                                     || state == ShipConstant.SF_STATUS_607){
-                                //TODO 已收件
-                                this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
-                                _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_SIGNED);
+                                // 已收件
+                                this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
+                                _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_ZAITU);
                             } else if (state  ==  ShipConstant.SF_STATUS_130 || state == ShipConstant.SF_STATUS_123){
-                                //TODO 即将派件
-                                this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
-                                _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_SIGNED);
+                                // 即将派件
+                                this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
+                                _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_ZAITU);
                             } else if (state  ==  ShipConstant.SF_STATUS_80 || state == ShipConstant.SF_STATUS_8000){
                                 //已签收
                                 this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
