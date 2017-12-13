@@ -3234,9 +3234,6 @@ public class ShipManagerImpl implements ShipManager
     @Transactional(rollbackFor = MYException.class)
     public void updatePackageStatusJob() {
         _logger.info("***updatePackageStatusJob running***");
-//        SfRouteService re = new SfRouteService();
-//        re.queryRoute("617233164588");
-
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
 //        conditionParse.addIntCondition("status","=",ShipConstant.SHIP_STATUS_CONSIGN);
@@ -3245,59 +3242,63 @@ public class ShipManagerImpl implements ShipManager
         //前30天
         conditionParse.addCondition("sfReceiveDate",">=",TimeTools.now(-30));
         conditionParse.addCondition("sfReceiveDate","<=",TimeTools.now(-1));
-        String customerName = "招商银行";
-        conditionParse.addCondition(" and exists (select CustomerBean.id from T_CENTER_CUSTOMER_MAIN CustomerBean where PackageBean.customerId = CustomerBean.id and CustomerBean.name like '%"+customerName+ "%')");
-        _logger.info(conditionParse);
+//        String customerName = "招商银行";
+//        conditionParse.addCondition(" and exists (select CustomerBean.id from T_CENTER_CUSTOMER_MAIN CustomerBean where PackageBean.customerId = CustomerBean.id and CustomerBean.name like '%"+customerName+ "%')");
+//        _logger.info(conditionParse);
         List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(conditionParse);
         _logger.info("updatePackageStatusJob with size***"+packages.size());
         if (!ListTools.isEmptyOrNull(packages)){
             for (PackageBean packageBean: packages){
-                List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(packageBean.getId());
-                //如果是直邮才检查快递状态
-                if (packageBean.getDirect() == 1 || this.isDirectShipped(items)){
-                    String expressCode = "shunfeng";
-                    ExpressBean expressBean  = this.expressDAO.find(packageBean.getTransport1());
-                    if (expressBean!= null && !StringTools.isNullOrNone(expressBean.getName2())){
-                        expressCode = expressBean.getName2();
-                    }
+                if (StringTools.isNullOrNone(packageBean.getTransportNo())){
+                    continue;
+                }
+//                List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(packageBean.getId());
+                //如果是直邮才检查快递状态 #207去掉直邮限制
+//                if (packageBean.getDirect() == 1 || this.isDirectShipped(items)){
+//                }
 
-                    HashMap<String,Object> result = this.getExpressStatus(expressCode,packageBean.getTransportNo());
-                    _logger.info(result);
-                    Object res = result.get("state");
-                    if (res!= null){
-                        int state = Integer.valueOf((String)res);
-                        //#184 SF route
-                        if ("shunfeng".equalsIgnoreCase(expressCode)){
-                            if (state  ==  ShipConstant.SF_STATUS_50 || state == ShipConstant.SF_STATUS_30
-                                    || state == ShipConstant.SF_STATUS_607){
-                                // 已收件
-                                this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
-                                _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_ZAITU);
-                            } else if (state  ==  ShipConstant.SF_STATUS_130 || state == ShipConstant.SF_STATUS_123){
-                                // 即将派件
-                                this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
-                                _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_ZAITU);
-                            } else if (state  ==  ShipConstant.SF_STATUS_80 || state == ShipConstant.SF_STATUS_8000){
-                                //已签收
-                                this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
-                                _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_SIGNED);
-                            } else if (state  ==  ShipConstant.SF_STATUS_631 || state == ShipConstant.SF_STATUS_648
-                                    || state == ShipConstant.SF_STATUS_99){
-                                //已退回
-                                this.packageDAO.updateStatus(packageBean.getId(), ShipConstant.SHIP_STATUS_PRINT_RETURN);
-                                _logger.info(packageBean.getId()+" update SF package status to "+ShipConstant.SHIP_STATUS_PRINT_RETURN);
-                            }
+                String expressCode = "shunfeng";
+                ExpressBean expressBean  = this.expressDAO.find(packageBean.getTransport1());
+                if (expressBean!= null && !StringTools.isNullOrNone(expressBean.getName2())){
+                    expressCode = expressBean.getName2();
+                }
+
+                HashMap<String,Object> result = this.getExpressStatus(expressCode,packageBean.getTransportNo());
+                _logger.info(result);
+                Object res = result.get("state");
+                if (res!= null){
+                    int state = Integer.valueOf((String)res);
+                    //#184 SF route
+                    if ("shunfeng".equalsIgnoreCase(expressCode)){
+                        if (state  ==  ShipConstant.SF_STATUS_50 || state == ShipConstant.SF_STATUS_30
+                                || state == ShipConstant.SF_STATUS_607){
+                            // 已收件
+                            this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
+                            _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_ZAITU);
+                        } else if (state  ==  ShipConstant.SF_STATUS_130 || state == ShipConstant.SF_STATUS_123){
+                            // 即将派件
+                            this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
+                            _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_ZAITU);
+                        } else if (state  ==  ShipConstant.SF_STATUS_80 || state == ShipConstant.SF_STATUS_8000){
+                            //已签收
+                            this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
+                            _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_SIGNED);
+                        } else if (state  ==  ShipConstant.SF_STATUS_631 || state == ShipConstant.SF_STATUS_648
+                                || state == ShipConstant.SF_STATUS_99){
+                            //已退回
+                            this.packageDAO.updateStatus(packageBean.getId(), ShipConstant.SHIP_STATUS_PRINT_RETURN);
+                            _logger.info(packageBean.getId()+" update SF package status to "+ShipConstant.SHIP_STATUS_PRINT_RETURN);
+                        }
+                    } else{
+                        if (state == ShipConstant.KD_100_STATUS_SIGNED || state == ShipConstant.KD_100_STATUS_RE_SIGNED
+                                || state == ShipConstant.KD_100_STATUS_RETURN){
+                            int status = state + 10;
+                            this.packageDAO.updateStatus(packageBean.getId(), status);
+                            _logger.info(packageBean.getId()+" update package status to "+status);
                         } else{
-                            if (state == ShipConstant.KD_100_STATUS_SIGNED || state == ShipConstant.KD_100_STATUS_RE_SIGNED
-                                    || state == ShipConstant.KD_100_STATUS_RETURN){
-                                int status = state + 10;
-                                this.packageDAO.updateStatus(packageBean.getId(), status);
-                                _logger.info(packageBean.getId()+" update package status to "+status);
-                            } else{
-                                int status =  10;
-                                this.packageDAO.updateStatus(packageBean.getId(), status);
-                                _logger.info(packageBean.getId()+" update package status to "+status);
-                            }
+                            int status =  10;
+                            this.packageDAO.updateStatus(packageBean.getId(), status);
+                            _logger.info(packageBean.getId()+" update package status to "+status);
                         }
                     }
                 }
