@@ -157,49 +157,50 @@ public class OutListenerFinanceImpl extends AbstractListenerManager<BillListener
         }
         
         // 同步更新未拆分到具体批次前就开票的明细（规定：这样销售单须一次性开完发票），在此借用 forceBuyType 字段值 999 来表示发生过拆分
-        if (bean.getForceBuyType() == 999) {
-        	// 检查该销售单是否已开票
-        	if (bean.getInvoiceStatus() == OutConstant.INVOICESTATUS_END) {
-        		List<InvoiceinsItemBean> insItemList = invoiceinsItemDAO.queryEntityBeansByCondition("where InvoiceinsItemBean.outId = ?", bean.getFullId());
-            	
-            	if (!ListTools.isEmptyOrNull(insItemList)) {
-            		
-            		InvoiceinsItemBean template = insItemList.get(0);
-            		
-            		String insId = template.getParentId();
-            		
-            		for (InvoiceinsItemBean each : insItemList) {
-            			invoiceinsItemDAO.deleteEntityBean(each.getId());
-                        _logger.info(insId+"***delete invoice ins item***"+each.getId());
-            		}
-            		
-            		// 生成新的
-            		List<BaseBean> bList = baseDAO.queryEntityBeansByFK(bean.getFullId());
-            		
-            		List<InvoiceinsItemBean> newList = new ArrayList<InvoiceinsItemBean>();
-            		
-            		for (BaseBean each : bList) {
-            			InvoiceinsItemBean newitem = new InvoiceinsItemBean();
-            			
-            			BeanUtil.copyProperties(newitem, template);
-            			newitem.setId(commonDAO.getSquenceString20());
-            			newitem.setParentId(insId);
-            			newitem.setAmount(each.getAmount());
-            			newitem.setPrice(each.getPrice());
-            			newitem.setMoneys(each.getValue());
-            			newitem.setOutId(each.getOutId());
-            			newitem.setBaseId(each.getId());
-            			newitem.setProductId(each.getProductId());
-            			newitem.setCostPrice(each.getCostPrice());
-            			
-            			newList.add(newitem);
-                        _logger.info("***create new invoice ins item***"+newitem);
-            		}
-            		
-            		invoiceinsItemDAO.saveAllEntityBeans(newList);
-            	}
-        	}
-        }
+        //#206 重新生成时有问题，暂去掉
+//        if (bean.getForceBuyType() == 999) {
+//        	// 检查该销售单是否已开票
+//        	if (bean.getInvoiceStatus() == OutConstant.INVOICESTATUS_END) {
+//        		List<InvoiceinsItemBean> insItemList = invoiceinsItemDAO.queryEntityBeansByCondition("where InvoiceinsItemBean.outId = ?", bean.getFullId());
+//
+//            	if (!ListTools.isEmptyOrNull(insItemList)) {
+//
+//            		InvoiceinsItemBean template = insItemList.get(0);
+//
+//            		String insId = template.getParentId();
+//
+//            		for (InvoiceinsItemBean each : insItemList) {
+//            			invoiceinsItemDAO.deleteEntityBean(each.getId());
+//                        _logger.info(insId+"***delete invoice ins item***"+each.getId());
+//            		}
+//
+//            		// 生成新的
+//            		List<BaseBean> bList = baseDAO.queryEntityBeansByFK(bean.getFullId());
+//
+//            		List<InvoiceinsItemBean> newList = new ArrayList<InvoiceinsItemBean>();
+//
+//            		for (BaseBean each : bList) {
+//            			InvoiceinsItemBean newitem = new InvoiceinsItemBean();
+//
+//            			BeanUtil.copyProperties(newitem, template);
+//            			newitem.setId(commonDAO.getSquenceString20());
+//            			newitem.setParentId(insId);
+//            			newitem.setAmount(each.getAmount());
+//            			newitem.setPrice(each.getPrice());
+//            			newitem.setMoneys(each.getValue());
+//            			newitem.setOutId(each.getOutId());
+//            			newitem.setBaseId(each.getId());
+//            			newitem.setProductId(each.getProductId());
+//            			newitem.setCostPrice(each.getCostPrice());
+//
+//            			newList.add(newitem);
+//                        _logger.info("***create new invoice ins item***"+newitem);
+//            		}
+//
+//            		invoiceinsItemDAO.saveAllEntityBeans(newList);
+//            	}
+//        	}
+//        }
     }
 
     /**
