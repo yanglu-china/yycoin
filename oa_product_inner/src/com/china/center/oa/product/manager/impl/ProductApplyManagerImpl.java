@@ -635,6 +635,10 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         try{
             for(ProductImportBean bean : productImportBeans){
                 ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addCondition("bank","=",bean.getBank());
+                conditionParse.addCondition("branchName","=",bean.getBranchName());
+                conditionParse.addCondition("customerName","=",bean.getCustomerName());
+                conditionParse.addCondition("channel","=",bean.getChannel());
                 conditionParse.addCondition("bankProductCode","=",bean.getBankProductCode());
                 List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
                 if (ListTools.isEmptyOrNull(beans)){

@@ -4064,9 +4064,9 @@ public void offlineStorageInJob() {
     private void setGrossProfitAndCash(OutBean outBean,BaseBean baseBean){
 		if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
 				||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
-			double grossProfit = outManager.getGrossProfit(baseBean.getProductId(), outBean.getCustomerName());
+			double grossProfit = outManager.getGrossProfit(baseBean.getProductId(), outBean.getCustomerName(), outBean.getChannel());
 			baseBean.setGrossProfit(grossProfit);
-			double cash = this.outManager.getCash(baseBean.getProductId(),outBean.getCustomerName());
+			double cash = this.outManager.getCash(baseBean.getProductId(),outBean.getCustomerName(), outBean.getChannel());
 			baseBean.setCash(cash);
 		}
 	}

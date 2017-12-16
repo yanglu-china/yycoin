@@ -604,9 +604,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         //#359
                         if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
                                 ||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
-                            double grossProfit = getGrossProfit(base.getProductId(), outBean.getCustomerName());
+                            double grossProfit = getGrossProfit(base.getProductId(), outBean.getCustomerName(), outBean.getChannel());
                             base.setGrossProfit(grossProfit);
-                            double cash = getCash(base.getProductId(),outBean.getCustomerName());
+                            double cash = getCash(base.getProductId(),outBean.getCustomerName(), outBean.getChannel());
                             base.setCash(cash);
                         }
                         
@@ -12784,7 +12784,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
 
     @Override
-    public ProductImportBean getProductImportBean(String productId, String customerName) {
+    public ProductImportBean getProductImportBean(String productId, String customerName, String channel) {
         ProductBean productBean = this.productDAO.find(productId);
         if (productBean!= null) {
             String productCode = productBean.getCode();
@@ -12792,7 +12792,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             if (!StringTools.isNullOrNone(productCode)) {
                 ConditionParse conditionParse = new ConditionParse();
                 conditionParse.addCondition("code", "=", productCode);
-//                conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+                conditionParse.addCondition("customerName", "=", customerName);
+                if (!StringTools.isNullOrNone(channel)){
+                    conditionParse.addCondition("channel", "=", channel);
+                }
                 if (customerName.length()>=4) {
                     conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
                 }else{
@@ -12800,7 +12803,18 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 }
 
                 List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-                if (!ListTools.isEmptyOrNull(beans)) {
+                //取有对应关系行项目上的价格，从支行名称开始对比，如果为空，就对比分行，再为空，就还按现在逻辑取值
+                if (ListTools.isEmptyOrNull(beans)) {
+                    conditionParse = new ConditionParse();
+                    conditionParse.addCondition("code", "=", productCode);
+                    if (customerName.length()>=4) {
+                        conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+                    }else{
+                        conditionParse.addCondition("bank", "=", customerName);
+                    }
+
+                    beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                } else{
                     return beans.get(0);
                 }
             }
@@ -12809,8 +12823,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 
     @Override
-    public double getGrossProfit(String productId, String customerName) {
-        ProductImportBean productImportBean = this.getProductImportBean(productId, customerName);
+    public double getGrossProfit(String productId, String customerName,String channel) {
+        ProductImportBean productImportBean = this.getProductImportBean(productId, customerName, channel);
         if (productImportBean == null){
             return 0;
         } else{
@@ -12819,8 +12833,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 
     @Override
-    public double getCash(String productId, String customerName) {
-        ProductImportBean productImportBean = this.getProductImportBean(productId, customerName);
+    public double getCash(String productId, String customerName, String channel) {
+        ProductImportBean productImportBean = this.getProductImportBean(productId, customerName, channel);
         if (productImportBean == null){
             return 0;
         } else{

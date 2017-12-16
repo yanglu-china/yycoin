@@ -38,6 +38,12 @@ public class ProductImportBean implements Serializable
      */
     private String bankProductCode = "";
 
+    private String branchName ="";
+
+    private String customerName = "";
+
+    private String channel = "";
+
     /**
      * OA品名
      */
@@ -319,17 +325,45 @@ public class ProductImportBean implements Serializable
         this.cash = cash;
     }
 
+    public String getBranchName() {
+        return branchName;
+    }
+
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
+
     @Override
     public String toString() {
         return "ProductImportBean{" +
                 "id='" + id + '\'' +
                 ", bank='" + bank + '\'' +
                 ", bankProductCode='" + bankProductCode + '\'' +
+                ", branchName='" + branchName + '\'' +
+                ", customerName='" + customerName + '\'' +
+                ", channel='" + channel + '\'' +
                 ", name='" + name + '\'' +
                 ", code='" + code + '\'' +
                 ", bankProductBarcode='" + bankProductBarcode + '\'' +
                 ", bankProductName='" + bankProductName + '\'' +
-                ", weight=" + weight +
+                ", properties='" + properties + '\'' +
+                ", weight='" + weight + '\'' +
                 ", material='" + material + '\'' +
                 ", retailPrice=" + retailPrice +
                 ", costPrice=" + costPrice +
@@ -340,9 +374,10 @@ public class ProductImportBean implements Serializable
                 ", onMarketDate='" + onMarketDate + '\'' +
                 ", offlineDate='" + offlineDate + '\'' +
                 ", branchRange='" + branchRange + '\'' +
-                ", taxRate='" + taxRate + '\'' +
+                ", taxRate=" + taxRate +
                 ", invoiceType='" + invoiceType + '\'' +
                 ", invoiceContent='" + invoiceContent + '\'' +
+                ", cash=" + cash +
                 '}';
     }
 }

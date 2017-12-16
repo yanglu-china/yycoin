@@ -1242,7 +1242,24 @@
                  && bean.getItype()!= 2){
              ConditionParse conditionParse = new ConditionParse();
              conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+             if  (!StringTools.isNullOrNone(bean.getComunicatonBranchName())){
+                 conditionParse.addCondition("customerName", "=", bean.getComunicatonBranchName());
+             }
+
+             if  (!StringTools.isNullOrNone(bean.getBranchName())){
+                 conditionParse.addCondition("branchName", "=", bean.getBranchName());
+             }
+
+             if  (!StringTools.isNullOrNone(bean.getChannel())){
+                 conditionParse.addCondition("channel", "=", bean.getChannel());
+             }
              List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+             if(ListTools.isEmptyOrNull(productImportBeans)){
+                 conditionParse = new ConditionParse();
+                 conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+                 productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+             }
+
              if (!ListTools.isEmptyOrNull(productImportBeans)){
                  ProductImportBean productImportBean = productImportBeans.get(0);
                  bean.setIbMoney(productImportBean.getIbMoney());

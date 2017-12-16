@@ -654,6 +654,18 @@ public class ProductApplyAction extends DispatchAction {
                                 .append("<br>");
                     }
 
+                    // 分行名称
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        bean.setBranchName(obj[1].trim());
+                    }
+
+                    // 分行名称
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        bean.setCustomerName(obj[2].trim());
+                    }
+
                     //银行产品编码
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {

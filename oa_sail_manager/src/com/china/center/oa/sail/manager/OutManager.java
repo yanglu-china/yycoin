@@ -770,11 +770,11 @@ public interface OutManager extends ListenerManager<OutListener>
 
     OutBean createNewOutBean(OutBean out, OutBackItemBean item) throws MYException;
 
-    ProductImportBean getProductImportBean(String productId, String customerName);
+    ProductImportBean getProductImportBean(String productId, String customerName, String channel);
 
-    double getGrossProfit(String productId, String customerName);
+    double getGrossProfit(String productId, String customerName, String channel);
 
-    double getCash(String productId, String customerName);
+    double getCash(String productId, String customerName, String channel);
 
     public void createCustomerJob();
 }
