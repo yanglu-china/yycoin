@@ -622,7 +622,7 @@ public class ProductApplyAction extends DispatchAction {
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next(), 22);
+                String[] obj = fillObj((String[])reader.next(), 25);
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -660,17 +660,23 @@ public class ProductApplyAction extends DispatchAction {
                         bean.setBranchName(obj[1].trim());
                     }
 
-                    // 分行名称
+                    // 支行名称
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
                         bean.setCustomerName(obj[2].trim());
                     }
 
-                    //银行产品编码
-                    if ( !StringTools.isNullOrNone(obj[1]))
+                    // 渠道
+                    if ( !StringTools.isNullOrNone(obj[3]))
                     {
-                        bean.setBankProductCode(obj[1]);
-                    }else{
+                        bean.setChannel(obj[3].trim());
+                    }
+
+                    //银行产品编码
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        bean.setBankProductCode(obj[4]);
+                    }else  {
                         importError = true;
 
                         builder
@@ -680,9 +686,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // OA品名
-                    if ( !StringTools.isNullOrNone(obj[2]))
+                    if ( !StringTools.isNullOrNone(obj[5]))
                     {
-                        bean.setName(obj[2]);
+                        bean.setName(obj[5]);
                     }else
                     {
                         importError = true;
@@ -694,9 +700,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // OA产品code
-                    if ( !StringTools.isNullOrNone(obj[3]))
+                    if ( !StringTools.isNullOrNone(obj[6]))
                     {
-                        bean.setCode(obj[3].trim());
+                        bean.setCode(obj[6].trim());
                         ProductBean product = productDAO.findByUnique(bean.getCode());
 
                         if (null == product)
@@ -747,9 +753,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 银行产品条码
-                    if ( !StringTools.isNullOrNone(obj[4]))
+                    if ( !StringTools.isNullOrNone(obj[7]))
                     {
-                        bean.setBankProductBarcode(obj[4]);
+                        bean.setBankProductBarcode(obj[7]);
                     }else
                     {
                         importError = true;
@@ -761,9 +767,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 银行产品名称
-                    if ( !StringTools.isNullOrNone(obj[5]))
+                    if ( !StringTools.isNullOrNone(obj[8]))
                     {
-                        bean.setBankProductName(obj[5]);
+                        bean.setBankProductName(obj[8]);
                     }else
                     {
                         importError = true;
@@ -775,40 +781,29 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 特殊属性
-                    if ( !StringTools.isNullOrNone(obj[6]))
+                    if ( !StringTools.isNullOrNone(obj[9]))
                     {
-                        bean.setProperties(obj[6]);
+                        bean.setProperties(obj[9]);
                     }
 
                     // 克重
-                    if ( !StringTools.isNullOrNone(obj[7]))
+                    if ( !StringTools.isNullOrNone(obj[10]))
                     {
-                        String weight = obj[7].trim();
-                        //#88
-//                        try{
-//                            Double.valueOf(weight);
-//                        }catch (NumberFormatException e){
-//                            importError = true;
-//
-//                            builder
-//                                    .append("第[" + currentNumber + "]错误:")
-//                                    .append("克重必须为数值")
-//                                    .append("<br>");
-//                        }
+                        String weight = obj[10].trim();
                         bean.setWeight(weight);
                     }
 
                     // 材质
-                    if ( !StringTools.isNullOrNone(obj[8]))
+                    if ( !StringTools.isNullOrNone(obj[11]))
                     {
-                        bean.setMaterial(obj[8]);
+                        bean.setMaterial(obj[11]);
                     }
 
                     // 零售价
-                    if ( !StringTools.isNullOrNone(obj[9]))
+                    if ( !StringTools.isNullOrNone(obj[12]))
                     {
                         try{
-                            bean.setRetailPrice(Double.valueOf(obj[9]));
+                            bean.setRetailPrice(Double.valueOf(obj[12]));
                         }catch(Exception e){
                             importError = true;
 
@@ -828,10 +823,10 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 供货价
-                    if ( !StringTools.isNullOrNone(obj[10]))
+                    if ( !StringTools.isNullOrNone(obj[13]))
                     {
                         try{
-                            bean.setCostPrice(Double.valueOf(obj[10]));
+                            bean.setCostPrice(Double.valueOf(obj[13]));
                         }catch(Exception e){
                             importError = true;
 
@@ -843,10 +838,10 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 中收
-                    if ( !StringTools.isNullOrNone(obj[11]))
+                    if ( !StringTools.isNullOrNone(obj[14]))
                     {
                         try{
-                            bean.setIbMoney(Double.valueOf(obj[11]));
+                            bean.setIbMoney(Double.valueOf(obj[14]));
                         }catch(Exception e){
                             importError = true;
 
@@ -858,10 +853,10 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 激励
-                    if ( !StringTools.isNullOrNone(obj[12]))
+                    if ( !StringTools.isNullOrNone(obj[15]))
                     {
                         try{
-                            bean.setMotivationMoney(Double.valueOf(obj[12]));
+                            bean.setMotivationMoney(Double.valueOf(obj[15]));
                         }catch(Exception e){
                             importError = true;
 
@@ -873,10 +868,10 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 可支配毛利
-                    if ( !StringTools.isNullOrNone(obj[13]))
+                    if ( !StringTools.isNullOrNone(obj[16]))
                     {
                         try{
-                            bean.setGrossProfit(Double.valueOf(obj[13]));
+                            bean.setGrossProfit(Double.valueOf(obj[16]));
                         }catch(Exception e){
                             importError = true;
 
@@ -889,10 +884,10 @@ public class ProductApplyAction extends DispatchAction {
 
 
                     //单品奖励
-                    if ( !StringTools.isNullOrNone(obj[14]))
+                    if ( !StringTools.isNullOrNone(obj[17]))
                     {
                         try{
-                            bean.setCash(Double.valueOf(obj[14]));
+                            bean.setCash(Double.valueOf(obj[17]));
                         }catch(Exception e){
                             importError = true;
 
@@ -904,11 +899,11 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 是否回购
-                    if ( !StringTools.isNullOrNone(obj[15]))
+                    if ( !StringTools.isNullOrNone(obj[18]))
                     {
-                        if("否".equals(obj[15])){
+                        if("否".equals(obj[18])){
                             bean.setBuyBack(0);
-                        } else if ("是".equals(obj[15])){
+                        } else if ("是".equals(obj[18])){
                             bean.setBuyBack(1);
                         } else{
                             importError = true;
@@ -921,9 +916,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 调价或上市时间
-                    if ( !StringTools.isNullOrNone(obj[16]))
+                    if ( !StringTools.isNullOrNone(obj[19]))
                     {
-                        bean.setOnMarketDate(obj[16]);
+                        bean.setOnMarketDate(obj[19]);
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         try{
                             sdf.parse(bean.getOnMarketDate());
@@ -946,9 +941,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 下线时间
-                    if ( !StringTools.isNullOrNone(obj[17]))
+                    if ( !StringTools.isNullOrNone(obj[20]))
                     {
-                        bean.setOfflineDate(obj[17]);
+                        bean.setOfflineDate(obj[20]);
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         try{
                             sdf.parse(bean.getOfflineDate());
@@ -963,16 +958,16 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 分行范围
-                    if ( !StringTools.isNullOrNone(obj[18]))
+                    if ( !StringTools.isNullOrNone(obj[21]))
                     {
-                        bean.setBranchRange(obj[18]);
+                        bean.setBranchRange(obj[21]);
                     }
 
                     // 税率
-                    if ( !StringTools.isNullOrNone(obj[19]))
+                    if ( !StringTools.isNullOrNone(obj[22]))
                     {
                         try{
-                            bean.setTaxRate(Double.parseDouble(obj[19].trim()));
+                            bean.setTaxRate(Double.parseDouble(obj[22].trim()));
                         }catch(Exception e){
                             importError = true;
 
@@ -992,9 +987,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 发票类型
-                    if ( !StringTools.isNullOrNone(obj[20]))
+                    if ( !StringTools.isNullOrNone(obj[23]))
                     {
-                        String invoiceName = obj[20].trim();
+                        String invoiceName = obj[23].trim();
                         bean.setInvoiceType(invoiceName);
                         InvoiceBean invoiceBean = this.invoiceDAO.findByUnique(invoiceName);
                         if(invoiceBean == null){
@@ -1023,9 +1018,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 可开发票内容
-                    if ( !StringTools.isNullOrNone(obj[21]))
+                    if ( !StringTools.isNullOrNone(obj[24]))
                     {
-                        bean.setInvoiceContent(obj[21]);
+                        bean.setInvoiceContent(obj[24]);
                     }else
                     {
                         importError = true;
