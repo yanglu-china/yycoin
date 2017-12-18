@@ -17,6 +17,7 @@ import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.ShipManager;
 import com.china.center.oa.sail.vo.BranchRelationVO;
@@ -154,7 +155,7 @@ public class JobManagerImpl implements JobManager {
                 } else if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("小浦金店-银行")!= -1){
                     createPfMailAttachmentForXiaoPu(packages,bean.getBranchName(), fileName, true);
                 } else if (subBranch.indexOf("浦发银行") != -1){
-                    this.shipManager.createMailAttachment(packages,bean.getBranchName(),fileName,true);
+                    this.shipManager.createMailAttachment(ShipConstant.BANK_TYPE_PF, packages,bean.getBranchName(),fileName,true);
                 }
 
                 // check file either exists

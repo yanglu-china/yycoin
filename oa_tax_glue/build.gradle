@@ -1,3 +1,4 @@
 dependencies {
-    compile project(':oa_tax_manager'), project(':oa_stockvssail_glue'), project(':oa_tcp_manager')
+    compile project(':oa_tax_manager'), project(':oa_stockvssail_glue'), project(':oa_tcp_manager'),
+            project(':oa_public_manager'),project(':oa_customer_manager')
 }

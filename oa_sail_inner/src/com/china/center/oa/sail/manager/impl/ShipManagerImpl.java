@@ -1605,7 +1605,7 @@ public class ShipManagerImpl implements ShipManager
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());
                 String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
-                createMailAttachment(packages,"" , fileName, false);
+                this.createMailAttachment(ShipConstant.BANK_TYPE_OTHER, packages,"" , fileName, false);
 
                 // check file either exists
                 File file = new File(fileName);
@@ -1725,7 +1725,7 @@ public class ShipManagerImpl implements ShipManager
                     index += 1;
                     createMailAttachmentNj(index, packages,bean.getBranchName(),fileName,true);
                 } else{
-                    createMailAttachment(packages,bean.getBranchName(), fileName, true);
+                    this.createMailAttachment(ShipConstant.BANK_TYPE_OTHER, packages,bean.getBranchName(), fileName, true);
                 }
 
                 // check file either exists
@@ -1845,7 +1845,7 @@ public class ShipManagerImpl implements ShipManager
         return ConfigLoader.getProperty("shippingAttachmentPath");
     }
 
-    public void createMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
+    public void createMailAttachment(int bankType, List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
         _logger.info("***create mail attachment with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
@@ -1941,7 +1941,12 @@ public class ShipManagerImpl implements ShipManager
             i++;
             // 正文表格
             ws.addCell(new Label(0, i, "序号", format3));
-            ws.addCell(new Label(1, i, "分行名称", format3));
+            if (bankType == ShipConstant.BANK_TYPE_PF){
+                ws.addCell(new Label(1, i, "交易机构", format3));
+            } else{
+                ws.addCell(new Label(1, i, "分行名称", format3));
+            }
+
             ws.addCell(new Label(2, i, "支行名称", format3));
             ws.addCell(new Label(3, i, "产品名称", format3));
             ws.addCell(new Label(4, i, "数量", format3));
@@ -1966,21 +1971,26 @@ public class ShipManagerImpl implements ShipManager
                         ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
                         setWS(ws, i, 300, false);
 
-                        //分行名称
-                        if (StringTools.isNullOrNone(branchName)){
-                            String customerId = each.getCustomerId();
-                            if (StringTools.isNullOrNone(customerId)){
-                                ws.addCell(new Label(j++, i, branchName, format3));
-                            } else{
-                                BranchRelationBean relation = this.getRelationByCustomerId(customerId);
-                                if (relation == null){
-                                    ws.addCell(new Label(j++, i, branchName, format3));
-                                }else{
-                                    ws.addCell(new Label(j++, i, relation.getBranchName(), format3));
-                                }
-                            }
+                        if (bankType == ShipConstant.BANK_TYPE_PF){
+                            //交易机构
+                            ws.addCell(new Label(j++, i, this.getCustomerName(each), format3));
                         } else{
-                            ws.addCell(new Label(j++, i, branchName, format3));
+                            //分行名称
+                            if (StringTools.isNullOrNone(branchName)){
+                                String customerId = each.getCustomerId();
+                                if (StringTools.isNullOrNone(customerId)){
+                                    ws.addCell(new Label(j++, i, branchName, format3));
+                                } else{
+                                    BranchRelationBean relation = this.getRelationByCustomerId(customerId);
+                                    if (relation == null){
+                                        ws.addCell(new Label(j++, i, branchName, format3));
+                                    }else{
+                                        ws.addCell(new Label(j++, i, relation.getBranchName(), format3));
+                                    }
+                                }
+                            } else{
+                                ws.addCell(new Label(j++, i, branchName, format3));
+                            }
                         }
 
                         //支行名称
@@ -2320,6 +2330,7 @@ public class ShipManagerImpl implements ShipManager
      * @param fileName
      * @param ignoreLyOrders
      */
+    @Deprecated
     private void createPfMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
         _logger.info("***create mail attachment for PF with package "+beans+"***branch***"+branchName+"***file name***"+fileName);

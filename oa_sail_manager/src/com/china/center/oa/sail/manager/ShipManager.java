@@ -96,5 +96,5 @@ public interface ShipManager
      */
     void cleanDuplicateBranch();
 
-    void createMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders);
+    void createMailAttachment(int bankType, List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders);
 }

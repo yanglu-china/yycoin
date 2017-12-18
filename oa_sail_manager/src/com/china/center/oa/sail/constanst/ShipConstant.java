@@ -124,4 +124,7 @@ public interface ShipConstant
 
 	@Defined(key = "directStatus", value = "直邮")
 	int DIRECT_NO = 1;
+
+	int BANK_TYPE_PF = 1;//浦发
+	int BANK_TYPE_OTHER = 2;//其他
 }
