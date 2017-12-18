@@ -141,6 +141,8 @@ public class ProductImportBean implements Serializable
 
     private double cash =0.0d;
 
+    private String discription = "";
+
     public String getId() {
         return id;
     }
@@ -349,6 +351,14 @@ public class ProductImportBean implements Serializable
         this.channel = channel;
     }
 
+    public String getDiscription() {
+        return discription;
+    }
+
+    public void setDiscription(String discription) {
+        this.discription = discription;
+    }
+
     @Override
     public String toString() {
         return "ProductImportBean{" +
@@ -378,6 +388,7 @@ public class ProductImportBean implements Serializable
                 ", invoiceType='" + invoiceType + '\'' +
                 ", invoiceContent='" + invoiceContent + '\'' +
                 ", cash=" + cash +
+                ", discription='" + discription + '\'' +
                 '}';
     }
 }

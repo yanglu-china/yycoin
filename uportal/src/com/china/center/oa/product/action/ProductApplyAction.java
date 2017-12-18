@@ -1032,6 +1032,11 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
 
+                    // 备注
+                    if ( !StringTools.isNullOrNone(obj[25]))
+                    {
+                        bean.setDiscription(obj[25]);
+                    }
                     importItemList.add(bean);
                 }
             }

@@ -2195,6 +2195,11 @@ public class ShipManagerImpl implements ShipManager
                             continue;
                         }
 
+                        //#210
+                        if(each.getOutId().startsWith("ZS")){
+                            continue;
+                        }
+
                         for (int number = 0;number< each.getAmount();number++){
                             i++;
                             ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
