@@ -127,4 +127,8 @@ public interface ShipConstant
 
 	int BANK_TYPE_PF = 1;//浦发
 	int BANK_TYPE_OTHER = 2;//其他
+
+	String CHANNEL_HJWD = "黄金微店";
+	String CHANNEL_XPJD = "小浦金店";
+	String CHANNEL_FHWD = "分行微店";
 }

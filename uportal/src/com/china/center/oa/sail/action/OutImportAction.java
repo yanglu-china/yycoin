@@ -38,6 +38,7 @@
  import com.china.center.oa.sail.bean.*;
  import com.china.center.oa.sail.constanst.OutConstant;
  import com.china.center.oa.sail.constanst.OutImportConstant;
+ import com.china.center.oa.sail.constanst.ShipConstant;
  import com.china.center.oa.sail.dao.*;
  import com.china.center.oa.sail.helper.OutImportHelper;
  import com.china.center.oa.sail.manager.OutImportManager;
@@ -1192,28 +1193,6 @@
                  } else{
                      bean.setPresentFlag(Integer.valueOf(presentFlagBeans.get(0).getType()));
                  }
-//
-//                 String [] presentFlags = OutImportConstant.outPresentTypesArr;
-//
-//                 for(int i = 0; i< presentFlags.length; i++)
-//                 {
-//                     if (presentFlag.equals(presentFlags[i]))
-//                     {
-//                         bean.setPresentFlag(OutImportConstant.outPresentTypeiArr[i]);
-//
-//                         break;
-//                     }
-//                 }
-//
-//                 if (bean.getPresentFlag() == 0)
-//                 {
-//                     builder
-//                     .append("第[" + currentNumber + "]错误:")
-//                     .append("二级类型不存在")
-//                     .append("<br>");
-//
-//                     importError = true;
-//                 }
              }else{
                  builder
                  .append("第[" + currentNumber + "]错误:")
@@ -1260,7 +1239,7 @@
                  //再根据银行匹配
                  conditionParse = new ConditionParse();
                  String customerName = bean.getComunicatonBranchName();
-                 if  (!StringTools.isNullOrNone(customerName)){
+                 if  (!StringTools.isNullOrNone(customerName) && customerName.contains("银行")){
                      conditionParse.addCondition("bank", "=", bean.getComunicatonBranchName().substring(0, 4));
                  }
 
@@ -1280,11 +1259,11 @@
                  bean.setIbMoney(productImportBean.getIbMoney());
                  bean.setMotivationMoney(productImportBean.getMotivationMoney());
              } else{
-                 String msg = bean.getComunicatonBranchName()+"的产品未配置中收激励金额:"+bean.getProductName()+" bankProductCode:"+bean.getProductCode();
+                 String msg = "客户+银行产品编码未配置产品主数据映射关系:"+bean.getComunicatonBranchName()+"+"+bean.getProductCode();
                  _logger.error(msg);
                  builder
                          .append("第[" + currentNumber + "]错误:")
-                         .append(bean.getComunicatonBranchName()+"[前4位]的产品未配置中收激励金额:"+bean.getProductName()+".代码:"+bean.getProductCode())
+                         .append("客户+银行产品编码未配置产品主数据映射关系:"+bean.getComunicatonBranchName().substring(0, 4)+"+"+bean.getProductCode())
                          .append("<br>");
 
                  importError = true;
@@ -1356,7 +1335,8 @@
                          .append("<br>");
 
                  importError = true;
-             } else if("黄金微店".equals(channel) || "小浦金店".equals(channel) ||"分行微店".equals(channel)){
+             } else if(ShipConstant.CHANNEL_HJWD.equals(channel) || ShipConstant.CHANNEL_XPJD.equals(channel)
+                     ||ShipConstant.CHANNEL_FHWD.equals(channel)){
                  bean.setChannel(channel);
              } else{
                  builder.append("第[" + currentNumber + "]错误:")
@@ -2529,7 +2509,8 @@
                          .append("<br>");
 
                  importError = true;
-             } else if("黄金微店".equals(channel) || "小浦金店".equals(channel) || "分行微店".equals(channel)){
+             } else if(ShipConstant.CHANNEL_HJWD.equals(channel) || ShipConstant.CHANNEL_XPJD.equals(channel)
+                     ||ShipConstant.CHANNEL_FHWD.equals(channel)){
                  bean.setChannel(channel);
              } else{
                  builder.append("第[" + currentNumber + "]错误:")

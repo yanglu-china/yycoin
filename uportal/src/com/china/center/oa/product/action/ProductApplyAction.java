@@ -39,6 +39,7 @@ import com.china.center.oa.publics.dao.FlowLogDAO;
 import com.china.center.oa.publics.dao.InvoiceDAO;
 import com.china.center.oa.publics.dao.PrincipalshipDAO;
 import com.china.center.oa.publics.vo.FlowLogVO;
+import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -669,7 +670,18 @@ public class ProductApplyAction extends DispatchAction {
                     // 渠道
                     if ( !StringTools.isNullOrNone(obj[3]))
                     {
-                        bean.setChannel(obj[3].trim());
+                        String channel = obj[3].trim();
+
+                        if(ShipConstant.CHANNEL_HJWD.equals(channel) || ShipConstant.CHANNEL_XPJD.equals(channel)
+                                ||ShipConstant.CHANNEL_FHWD.equals(channel)){
+                            bean.setChannel(channel);
+                        } else{
+                            builder.append("第[" + currentNumber + "]错误:")
+                                    .append("渠道只能是黄金微店、小浦金店或分行微店")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
                     }
 
                     //银行产品编码
