@@ -1256,6 +1256,10 @@
              List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
              if(ListTools.isEmptyOrNull(productImportBeans)){
                  conditionParse = new ConditionParse();
+                 if  (!StringTools.isNullOrNone(bean.getComunicatonBranchName())){
+                     conditionParse.addCondition("bank", "=", bean.getComunicatonBranchName().substring(0, 4));
+                 }
+
                  conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
                  productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
              }
