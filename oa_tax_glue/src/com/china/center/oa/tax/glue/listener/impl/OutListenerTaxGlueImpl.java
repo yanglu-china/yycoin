@@ -4456,25 +4456,35 @@ public class OutListenerTaxGlueImpl implements OutListener
                 itemIn.setUnitId(outBean.getCustomerId());
 
                 //#135 银行业务部的，公司承担人都是梁义-银行
-                StafferVO stafferVO = this.stafferDAO.findVO(outBean.getStafferId());
-                if (stafferVO!= null  && "04-13银行业务部".equals(stafferVO.getIndustryName())){
-                    StafferBean stafferBean = this.stafferDAO.findyStafferByName("梁义-银行");
-                    if (stafferBean == null){
-                        _logger.error("梁义-银行不存在");
-                        itemIn.setStafferId(outBean.getStafferId());
-                    } else{
-                        itemIn.setStafferId(stafferBean.getId());
-                    }
+//                StafferVO stafferVO = this.stafferDAO.findVO(outBean.getStafferId());
+//                if (stafferVO!= null  && "04-13银行业务部".equals(stafferVO.getIndustryName())){
+//                    StafferBean stafferBean = this.stafferDAO.findyStafferByName("梁义-银行");
+//                    if (stafferBean == null){
+//                        _logger.error("梁义-银行不存在");
+//                        itemIn.setStafferId(outBean.getStafferId());
+//                    } else{
+//                        itemIn.setStafferId(stafferBean.getId());
+//                    }
+//                } else{
+//                    String principalshipId = copyDepartment(outBean, itemIn);
+//                    //开单人对应部门负责人
+//                    StafferBean stafferBean = this.getDepartmentHead(principalshipId);
+//                    if (stafferBean == null){
+//                        _logger.error("部门负责人不存在:"+principalshipId);
+//                        itemIn.setStafferId(outBean.getStafferId());
+//                    } else{
+//                        itemIn.setStafferId(stafferBean.getId());
+//                    }
+//                }
+
+                String principalshipId = copyDepartment(outBean, itemIn);
+                //开单人对应部门负责人
+                StafferBean stafferBean = this.getDepartmentHead(principalshipId);
+                if (stafferBean == null){
+                    _logger.error("部门负责人不存在:"+principalshipId);
+                    itemIn.setStafferId(outBean.getStafferId());
                 } else{
-                    String principalshipId = copyDepartment(outBean, itemIn);
-                    //开单人对应部门负责人
-                    StafferBean stafferBean = this.getDepartmentHead(principalshipId);
-                    if (stafferBean == null){
-                        _logger.error("部门负责人不存在:"+principalshipId);
-                        itemIn.setStafferId(outBean.getStafferId());
-                    } else{
-                        itemIn.setStafferId(stafferBean.getId());
-                    }
+                    itemIn.setStafferId(stafferBean.getId());
                 }
 
                 itemIn.setDuty2Id(outBean.getDutyId());
