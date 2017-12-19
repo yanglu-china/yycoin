@@ -622,7 +622,7 @@ public class ProductApplyAction extends DispatchAction {
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next(), 25);
+                String[] obj = fillObj((String[])reader.next(), 26);
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
