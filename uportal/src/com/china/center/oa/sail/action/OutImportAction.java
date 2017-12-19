@@ -1240,6 +1240,7 @@
          if (bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON
                  //#108 原招商银行导入不需要设置中收激励金额
                  && bean.getItype()!= 2){
+             //先根据多个参数匹配
              ConditionParse conditionParse = new ConditionParse();
              conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
              if  (!StringTools.isNullOrNone(bean.getComunicatonBranchName())){
@@ -1254,13 +1255,22 @@
                  conditionParse.addCondition("channel", "=", bean.getChannel());
              }
              List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+
              if(ListTools.isEmptyOrNull(productImportBeans)){
+                 //再根据银行匹配
                  conditionParse = new ConditionParse();
                  String customerName = bean.getComunicatonBranchName();
                  if  (!StringTools.isNullOrNone(customerName) && customerName.contains("银行")){
                      conditionParse.addCondition("bank", "=", bean.getComunicatonBranchName().substring(0, 4));
                  }
 
+                 conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+                 productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+             }
+
+             if(ListTools.isEmptyOrNull(productImportBeans)){
+                 //最后找不到只根据代码匹配
+                 conditionParse = new ConditionParse();
                  conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
                  productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
              }
