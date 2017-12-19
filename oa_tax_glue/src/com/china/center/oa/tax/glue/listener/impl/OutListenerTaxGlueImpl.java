@@ -3453,6 +3453,24 @@ public class OutListenerTaxGlueImpl implements OutListener
         return "";
     }
 
+    private String getDepartmentId(StafferBean sb){
+        if ( !StringTools.isNullOrNone(sb.getIndustryId3()))
+        {
+            return sb.getIndustryId3();
+        }
+
+        if ( !StringTools.isNullOrNone(sb.getIndustryId2()))
+        {
+            return sb.getIndustryId2() ;
+        }
+
+        if ( !StringTools.isNullOrNone(sb.getIndustryId()))
+        {
+            return sb.getIndustryId();
+        }
+        return "";
+    }
+
     /**
      * 主营业务成本(5401)/库存商品（成本价*数量）
      * 
@@ -4456,36 +4474,38 @@ public class OutListenerTaxGlueImpl implements OutListener
                 itemIn.setUnitId(outBean.getCustomerId());
 
                 //#135 银行业务部的，公司承担人都是梁义-银行
-//                StafferVO stafferVO = this.stafferDAO.findVO(outBean.getStafferId());
-//                if (stafferVO!= null  && "04-13银行业务部".equals(stafferVO.getIndustryName())){
-//                    StafferBean stafferBean = this.stafferDAO.findyStafferByName("梁义-银行");
-//                    if (stafferBean == null){
-//                        _logger.error("梁义-银行不存在");
-//                        itemIn.setStafferId(outBean.getStafferId());
-//                    } else{
-//                        itemIn.setStafferId(stafferBean.getId());
-//                    }
-//                } else{
-//                    String principalshipId = copyDepartment(outBean, itemIn);
-//                    //开单人对应部门负责人
-//                    StafferBean stafferBean = this.getDepartmentHead(principalshipId);
-//                    if (stafferBean == null){
-//                        _logger.error("部门负责人不存在:"+principalshipId);
-//                        itemIn.setStafferId(outBean.getStafferId());
-//                    } else{
-//                        itemIn.setStafferId(stafferBean.getId());
-//                    }
-//                }
-
-                String principalshipId = copyDepartment(outBean, itemIn);
-                //开单人对应部门负责人
-                StafferBean stafferBean = this.getDepartmentHead(principalshipId);
-                if (stafferBean == null){
-                    _logger.error("部门负责人不存在:"+principalshipId);
-                    itemIn.setStafferId(outBean.getStafferId());
+                StafferVO stafferVO = this.stafferDAO.findVO(outBean.getStafferId());
+                if (stafferVO!= null  && "04-13银行业务部".equals(stafferVO.getIndustryName())){
+                    StafferBean stafferBean = this.stafferDAO.findyStafferByName("梁义-银行");
+                    if (stafferBean == null){
+                        _logger.error("梁义-银行不存在");
+                        copyDepartment(outBean, itemIn);
+                        itemIn.setStafferId(outBean.getStafferId());
+                    } else{
+                        itemIn.setDepartmentId(this.getDepartmentId(stafferBean));
+                        itemIn.setStafferId(stafferBean.getId());
+                    }
                 } else{
-                    itemIn.setStafferId(stafferBean.getId());
+                    String principalshipId = copyDepartment(outBean, itemIn);
+                    //开单人对应部门负责人
+                    StafferBean stafferBean = this.getDepartmentHead(principalshipId);
+                    if (stafferBean == null){
+                        _logger.error("部门负责人不存在:"+principalshipId);
+                        itemIn.setStafferId(outBean.getStafferId());
+                    } else{
+                        itemIn.setStafferId(stafferBean.getId());
+                    }
                 }
+
+//                String principalshipId = copyDepartment(outBean, itemIn);
+//                //开单人对应部门负责人
+//                StafferBean stafferBean = this.getDepartmentHead(principalshipId);
+//                if (stafferBean == null){
+//                    _logger.error("部门负责人不存在:"+principalshipId);
+//                    itemIn.setStafferId(outBean.getStafferId());
+//                } else{
+//                    itemIn.setStafferId(stafferBean.getId());
+//                }
 
                 itemIn.setDuty2Id(outBean.getDutyId());
 
