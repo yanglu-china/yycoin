@@ -1260,7 +1260,7 @@
                  //再根据银行匹配
                  conditionParse = new ConditionParse();
                  String customerName = bean.getComunicatonBranchName();
-                 if  (!StringTools.isNullOrNone(customerName) && customerName.contains("银行")){
+                 if  (!StringTools.isNullOrNone(customerName)){
                      conditionParse.addCondition("bank", "=", bean.getComunicatonBranchName().substring(0, 4));
                  }
 
@@ -1268,23 +1268,23 @@
                  productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
              }
 
-             if(ListTools.isEmptyOrNull(productImportBeans)){
-                 //最后找不到只根据代码匹配
-                 conditionParse = new ConditionParse();
-                 conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
-                 productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-             }
+//             if(ListTools.isEmptyOrNull(productImportBeans)){
+//                 //最后找不到只根据代码匹配
+//                 conditionParse = new ConditionParse();
+//                 conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+//                 productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+//             }
 
              if (!ListTools.isEmptyOrNull(productImportBeans)){
                  ProductImportBean productImportBean = productImportBeans.get(0);
                  bean.setIbMoney(productImportBean.getIbMoney());
                  bean.setMotivationMoney(productImportBean.getMotivationMoney());
              } else{
-                 String msg = "该产品未配置中收激励金额:"+bean.getProductName();
+                 String msg = bean.getComunicatonBranchName()+"的产品未配置中收激励金额:"+bean.getProductName()+" bankProductCode:"+bean.getProductCode();
                  _logger.error(msg);
                  builder
                          .append("第[" + currentNumber + "]错误:")
-                         .append("该产品未配置中收激励金额:"+bean.getProductName())
+                         .append(bean.getComunicatonBranchName()+"[前4位]的产品未配置中收激励金额:"+bean.getProductName()+".代码:"+bean.getProductCode())
                          .append("<br>");
 
                  importError = true;
