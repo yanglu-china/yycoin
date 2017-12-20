@@ -34,6 +34,7 @@ import com.china.center.oa.extsail.bean.ZJRCOutBean;
 import com.china.center.oa.extsail.dao.ZJRCOutDAO;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
+import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.vo.FlowLogVO;
@@ -12796,18 +12797,14 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 if (!StringTools.isNullOrNone(channel)){
                     conditionParse.addCondition("channel", "=", channel);
                 }
-                if (customerName.length()>=4) {
-                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
-                }else{
-                    conditionParse.addCondition("bank", "=", customerName);
-                }
+                conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
 
                 List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
                 //取有对应关系行项目上的价格，从支行名称开始对比，如果为空，就对比分行，再为空，就还按现在逻辑取值
                 if (ListTools.isEmptyOrNull(beans)) {
                     conditionParse = new ConditionParse();
                     conditionParse.addCondition("code", "=", productCode);
-                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+                    conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
 
                     beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
                     if (!ListTools.isEmptyOrNull(beans)){

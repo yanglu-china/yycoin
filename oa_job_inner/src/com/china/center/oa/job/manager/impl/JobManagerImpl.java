@@ -13,6 +13,7 @@ import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductImportDAO;
+import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
@@ -618,11 +619,7 @@ public class JobManagerImpl implements JobManager {
             if (!StringTools.isNullOrNone(productCode)){
                 ConditionParse conditionParse =  new ConditionParse();
                 conditionParse.addCondition("code", "=", productCode);
-                if (customerName.length()>=4) {
-                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
-                }else{
-                    conditionParse.addCondition("bank", "=", customerName);
-                }
+                conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
 
                 List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 

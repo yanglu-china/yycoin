@@ -27,6 +27,7 @@ import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.vo.ComposeItemVO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.dao.*;
@@ -2294,11 +2295,7 @@ public class ShipAction extends DispatchAction
             if (!StringTools.isNullOrNone(productCode)){
                 ConditionParse conditionParse =  new ConditionParse();
                 conditionParse.addCondition("code", "=", productCode);
-                if (customerName.length()>=4) {
-                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
-                }else{
-                    conditionParse.addCondition("bank", "=", customerName);
-                }
+                conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
 
                 List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
