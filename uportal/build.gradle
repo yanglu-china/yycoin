@@ -64,12 +64,12 @@ dependencies {
     providedCompile "javax.servlet:servlet-api:2.5"
 }
 
-//tomcat_home='E:\\apache-tomcat-6.0.45'
 task backup (type: Copy){
     System.out.println "backup war..."
     from tomcat_home+"\\webapps"
     into "E:\\backup"
     include "uportal.war"
+    rename ('uportal.war', 'uportal'+System.currentTimeMillis()+'.war')
 }
 
 task undeploy(type: Delete){
