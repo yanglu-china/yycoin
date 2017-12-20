@@ -1,3 +1,4 @@
 dependencies {
     compile project(':oa_finance_manager'),project(':oa_sail_manager'),project(':oa_stock_manager')
+    compile project(':oa_customer_manager'),project(':oa_product_manager')
 }
