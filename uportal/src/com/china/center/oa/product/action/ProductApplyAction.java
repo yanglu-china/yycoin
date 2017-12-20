@@ -948,7 +948,7 @@ public class ProductApplyAction extends DispatchAction {
 
                         builder
                                 .append("第[" + currentNumber + "]错误:")
-                                .append("上线时间为空")
+                                .append("上线时间不能为空")
                                 .append("<br>");
                     }
 
@@ -967,6 +967,13 @@ public class ProductApplyAction extends DispatchAction {
                                     .append("下线时间必须为XXXX-XX-XX格式")
                                     .append("<br>");
                         }
+                    } else{
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("下线时间不能为空")
+                                .append("<br>");
                     }
 
                     // 分行范围

@@ -1248,7 +1248,28 @@
              }
 
              if (!ListTools.isEmptyOrNull(productImportBeans)){
+                 //最后检查时间是否有效
                  ProductImportBean productImportBean = productImportBeans.get(0);
+
+                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                 try{
+                     Date end = sdf.parse(productImportBean.getOfflineDate());
+                     Date begin = sdf.parse(productImportBean.getOnMarketDate());
+                     Date citicDate = sdf.parse(bean.getCiticOrderDate());
+                     if (citicDate.before(begin) || citicDate.after(end)){
+                         _logger.error(bean+" citicDate out of date:"+productImportBean);
+                         builder
+                                 .append("第[" + currentNumber + "]错误:")
+                                 .append(bean.getCiticOrderDate()+"银行订单日期不在产品主数据配置范围内:"+productImportBean.getOnMarketDate()+"至"+productImportBean.getOfflineDate())
+                                 .append("<br>");
+
+                         importError = true;
+                     }
+
+                 }catch(Exception e){
+                     _logger.error(" Exception parse Date:",e);
+                 }
+
                  bean.setIbMoney(productImportBean.getIbMoney());
                  bean.setMotivationMoney(productImportBean.getMotivationMoney());
              } else{
@@ -1897,14 +1918,6 @@
                  importError = true;
              }else{
                  bean.setCiticOrderDate(date);
-//                 if(this.daysBetweenToday(date)>5){
-//                     builder
-//                             .append("第[" + currentNumber + "]错误:")
-//                             .append("中信订单日期超过5天:"+date)
-//                             .append("<br>");
-//
-//                     importError = true;
-//                 }
              }
          }else{
              builder

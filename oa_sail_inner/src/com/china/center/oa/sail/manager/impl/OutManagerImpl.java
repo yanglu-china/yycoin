@@ -12819,6 +12819,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 }
             }
         }
+        _logger.error("not found product import:"+productId+":"+customerName+":"+channel);
         return null;
     }
 
