@@ -1236,23 +1236,16 @@
              List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
 
              if(ListTools.isEmptyOrNull(productImportBeans)){
-                 //再根据银行匹配
+                 //再根据网点名称前4位匹配
                  conditionParse = new ConditionParse();
                  String customerName = bean.getComunicatonBranchName();
-                 if  (!StringTools.isNullOrNone(customerName) && customerName.contains("银行")){
+                 if  (!StringTools.isNullOrNone(customerName)){
                      conditionParse.addCondition("bank", "=", bean.getComunicatonBranchName().substring(0, 4));
                  }
 
                  conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
                  productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
              }
-
-//             if(ListTools.isEmptyOrNull(productImportBeans)){
-//                 //最后找不到只根据代码匹配
-//                 conditionParse = new ConditionParse();
-//                 conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
-//                 productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-//             }
 
              if (!ListTools.isEmptyOrNull(productImportBeans)){
                  ProductImportBean productImportBean = productImportBeans.get(0);
