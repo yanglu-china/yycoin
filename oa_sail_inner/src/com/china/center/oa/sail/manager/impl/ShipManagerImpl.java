@@ -1723,7 +1723,10 @@ public class ShipManagerImpl implements ShipManager
                     continue;
                 }else if (subBranch.indexOf("南京银行") != -1 ){
                     index += 1;
-                    createMailAttachmentNj(index, packages,bean.getBranchName(),fileName,true);
+                    boolean result = createMailAttachmentNj(index, packages,bean.getBranchName(),fileName,true);
+                    if (!result){
+                        continue;
+                    }
                 } else{
                     this.createMailAttachment(ShipConstant.BANK_TYPE_OTHER, packages,bean.getBranchName(), fileName, true);
                 }
@@ -2076,15 +2079,18 @@ public class ShipManagerImpl implements ShipManager
     }
 
     /**
-     * #189 南京银行发货邮件
+     * 南京银行发货邮件
+     * @param index
      * @param beans
      * @param branchName
      * @param fileName
      * @param ignoreLyOrders
+     * @return true 如果生成了附件，otherwise return false
      */
-    private void createMailAttachmentNj(int index, List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
+    private boolean createMailAttachmentNj(int index, List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
         _logger.info("***createMailAttachmentNj package "+beans+"***branch***"+branchName+"***file name***"+fileName);
+        boolean result = false;
         WritableWorkbook wwb = null;
 
         WritableSheet ws = null;
@@ -2230,6 +2236,7 @@ public class ShipManagerImpl implements ShipManager
                             ws.addCell(new Label(j++, i, "", format3));
 
                             j = 0;
+                            result = true;
                         }
 
                     }
@@ -2264,6 +2271,7 @@ public class ShipManagerImpl implements ShipManager
                 }
             }
         }
+        return result;
     }
 
     private String generateSerialNo(int sn){
