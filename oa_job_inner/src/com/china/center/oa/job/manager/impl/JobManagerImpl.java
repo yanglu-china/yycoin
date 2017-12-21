@@ -147,11 +147,12 @@ public class JobManagerImpl implements JobManager {
                     continue;
                 }
                 String subBranch = bean.getSubBranchName();
+                String branchName = bean.getBranchName();
                 String fileName = getShippingAttachmentPath() + "/" + subBranch
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                 _logger.info("***fileName***"+fileName);
                 //浦发上海分行
-                if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("上海分行")!= -1){
+                if (subBranch.indexOf("浦发银行") != -1 && "上海分行".equals(branchName)){
                     createPfMailAttachment(packages,bean.getBranchName(), fileName, true);
                 } else if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("小浦金店-银行")!= -1){
                     createPfMailAttachmentForXiaoPu(packages,bean.getBranchName(), fileName, true);
