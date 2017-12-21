@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.oa.client.bean.*;
 import com.china.center.oa.client.dao.*;
 import com.china.center.oa.client.vo.CustomerVO;
@@ -42,6 +40,7 @@ import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.helper.FlowLogHelper;
+import com.china.center.oa.sail.manager.*;
 import com.china.center.oa.sail.vo.ProductExchangeConfigVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -104,15 +103,10 @@ import com.china.center.oa.sail.constanst.SailConstant;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.helper.YYTools;
 import com.china.center.oa.sail.listener.OutListener;
-import com.china.center.oa.sail.manager.AuditRuleManager;
-import com.china.center.oa.sail.manager.OutManager;
-import com.china.center.oa.sail.manager.SailConfigManager;
-import com.china.center.oa.sail.manager.ShipManager;
 import com.china.center.oa.sail.vo.BaseBalanceVO;
 import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.sail.wrap.BatchBackWrap;
 import com.china.center.oa.sail.wrap.CreditWrap;
-import com.china.center.osgi.dym.DynamicBundleTools;
 import com.china.center.tools.BeanUtil;
 import com.china.center.tools.CommonTools;
 import com.china.center.tools.JudgeTools;
@@ -605,9 +599,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         //#359
                         if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
                                 ||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
-                            double grossProfit = getGrossProfit(base.getProductId(), outBean.getCustomerName(), outBean.getChannel());
+                            CustomerBean customerBean = customerMainDAO.find(outBean.getCustomerId());
+                            double grossProfit = getGrossProfit(outBean,customerBean, base.getProductId());
                             base.setGrossProfit(grossProfit);
-                            double cash = getCash(base.getProductId(),outBean.getCustomerName(), outBean.getChannel());
+                            double cash = getCash(outBean, customerBean, base.getProductId());
                             base.setCash(cash);
                         }
                         
@@ -12785,12 +12780,20 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
 
     @Override
-    public ProductImportBean getProductImportBean(String productId, String customerName, String channel) {
+    public ProductImportBean getProductImportBean(OutBean out, CustomerBean customerBean,String productId) {
+        List<ProductImportBean> beans = null;
         ProductBean productBean = this.productDAO.find(productId);
+        String customerName = out.getCustomerName();
+        String channel = out.getChannel();
+        String branchName = null;
+        if (customerBean!= null){
+            branchName = customerBean.getReserve1();
+        }
         if (productBean!= null) {
             String productCode = productBean.getCode();
             //#291
             if (!StringTools.isNullOrNone(productCode)) {
+                //取有对应关系行项目上的价格，从支行名称开始对比
                 ConditionParse conditionParse = new ConditionParse();
                 conditionParse.addCondition("code", "=", productCode);
                 conditionParse.addCondition("customerName", "=", customerName);
@@ -12798,30 +12801,42 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     conditionParse.addCondition("channel", "=", channel);
                 }
                 conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
+                beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
 
-                List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-                //取有对应关系行项目上的价格，从支行名称开始对比，如果为空，就对比分行，再为空，就还按现在逻辑取值
+                if (ListTools.isEmptyOrNull(beans) && !StringTools.isNullOrNone(branchName)){
+                    //如果支行无法匹配，就对比分行
+                    conditionParse = new ConditionParse();
+                    conditionParse.addCondition("code", "=", productCode);
+                    conditionParse.addCondition("branchName", "=", branchName);
+                    if (!StringTools.isNullOrNone(channel)){
+                        conditionParse.addCondition("channel", "=", channel);
+                    }
+                    conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
+                    beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                }
+
+                //如果支行和分行都无法匹配，就还按现在逻辑取值
                 if (ListTools.isEmptyOrNull(beans)) {
                     conditionParse = new ConditionParse();
                     conditionParse.addCondition("code", "=", productCode);
                     conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
 
                     beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-                    if (!ListTools.isEmptyOrNull(beans)){
-                        return beans.get(0);
-                    }
-                } else{
-                    return beans.get(0);
                 }
             }
         }
-        _logger.error("not found product import:"+productId+":"+customerName+":"+channel);
-        return null;
+
+        if (ListTools.isEmptyOrNull(beans)){
+            _logger.error("not found product import:"+productId+":"+customerName+":"+channel);
+            return null;
+        } else{
+            return beans.get(0);
+        }
     }
 
     @Override
-    public double getGrossProfit(String productId, String customerName,String channel) {
-        ProductImportBean productImportBean = this.getProductImportBean(productId, customerName, channel);
+    public double getGrossProfit(OutBean out, CustomerBean customerBean, String productId) {
+        ProductImportBean productImportBean = this.getProductImportBean(out, customerBean, productId);
         if (productImportBean == null){
             return 0;
         } else{
@@ -12830,8 +12845,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 
     @Override
-    public double getCash(String productId, String customerName, String channel) {
-        ProductImportBean productImportBean = this.getProductImportBean(productId, customerName, channel);
+    public double getCash(OutBean out,CustomerBean customerBean,String productId) {
+        ProductImportBean productImportBean = this.getProductImportBean(out,customerBean, productId);
         if (productImportBean == null){
             return 0;
         } else{

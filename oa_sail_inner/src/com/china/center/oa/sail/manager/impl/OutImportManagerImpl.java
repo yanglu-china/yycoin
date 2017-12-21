@@ -696,7 +696,8 @@ public class OutImportManagerImpl implements OutImportManager
     	
 		String dutyId = "";
 		int mtype = 0;
-    	
+
+		CustomerBean customerBean = this.customerMainDAO.find(bean.getCustomerId());
 		for (OutImportBean each : list)
 		{
 			BaseBean base = new BaseBean();
@@ -740,7 +741,7 @@ public class OutImportManagerImpl implements OutImportManager
             base.setMotivationMoney(each.getMotivationMoney());
 
 			//#359
-			this.setGrossProfitAndCash(newOutBean,base);
+			this.setGrossProfitAndCash(newOutBean,customerBean, base);
 			
 			// 业务员结算价，总部结算价
 			ProductBean product = productDAO.find(base.getProductId());
@@ -3628,7 +3629,8 @@ public class OutImportManagerImpl implements OutImportManager
                             baseBean.setGrossProfit(olBaseBean.getGrossProfit());
                         } else{
                             //#359
-                            this.setGrossProfitAndCash(out,baseBean);
+							CustomerBean customerBean = this.customerMainDAO.find(out.getCustomerId());
+                            this.setGrossProfitAndCash(out, customerBean, baseBean);
                         }
 
 
@@ -3942,7 +3944,8 @@ public void offlineStorageInJob() {
                             baseBean.setProductName(item.getProductName());
 
 							//#359
-							this.setGrossProfitAndCash(outBean,baseBean);
+							CustomerBean customerBean = this.customerMainDAO.find(outBean.getCustomerId());
+							this.setGrossProfitAndCash(outBean,customerBean, baseBean);
 
                             baseBean.setUnit("套");
 							//#21 数量不能超过outback_item中amount
@@ -4061,12 +4064,12 @@ public void offlineStorageInJob() {
         }
     }
 
-    private void setGrossProfitAndCash(OutBean outBean,BaseBean baseBean){
+    private void setGrossProfitAndCash(OutBean outBean,CustomerBean customerBean, BaseBean baseBean){
 		if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
 				||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
-			double grossProfit = outManager.getGrossProfit(baseBean.getProductId(), outBean.getCustomerName(), outBean.getChannel());
+			double grossProfit = outManager.getGrossProfit(outBean, customerBean, baseBean.getProductId());
 			baseBean.setGrossProfit(grossProfit);
-			double cash = this.outManager.getCash(baseBean.getProductId(),outBean.getCustomerName(), outBean.getChannel());
+			double cash = this.outManager.getCash(outBean, customerBean, baseBean.getProductId());
 			baseBean.setCash(cash);
 		}
 	}

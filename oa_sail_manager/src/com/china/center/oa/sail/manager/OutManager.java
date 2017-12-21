@@ -17,6 +17,7 @@ import com.center.china.osgi.publics.ListenerManager;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.china.center.common.MYException;
+import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.wrap.ResultBean;
@@ -770,11 +771,11 @@ public interface OutManager extends ListenerManager<OutListener>
 
     OutBean createNewOutBean(OutBean out, OutBackItemBean item) throws MYException;
 
-    ProductImportBean getProductImportBean(String productId, String customerName, String channel);
+    ProductImportBean getProductImportBean(OutBean out, CustomerBean customerBean, String productId);
 
-    double getGrossProfit(String productId, String customerName, String channel);
+    double getGrossProfit(OutBean out, CustomerBean customerBean,String productId);
 
-    double getCash(String productId, String customerName, String channel);
+    double getCash(OutBean out, CustomerBean customerBean,String productId);
 
     public void createCustomerJob();
 }
