@@ -42,6 +42,7 @@ import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.helper.FlowLogHelper;
 import com.china.center.oa.sail.manager.*;
 import com.china.center.oa.sail.vo.ProductExchangeConfigVO;
+import com.china.center.osgi.dym.DynamicBundleTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -6224,7 +6225,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public int findOutStatusInLog(String fullId)
     {
-        System.out.println("******************findOutStatusInLog*****************" + fullId);
         // 获取日志，正排序
         List<FlowLogBean> logList = flowLogDAO.queryEntityBeansByFK(fullId);
 
@@ -9494,37 +9494,30 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         String psProvinceId = distBean.getProvinceId();
         String psCityId = distBean.getCityId();
         if (StringTools.isNullOrNone(psProvinceId) || StringTools.isNullOrNone(psCityId)){
-            System.out.println("Empty province ID and City ID");
+            _logger.warn("Empty province ID and City ID");
             return;
         } else {
-            System.out.println("***************new provinceId:"+psProvinceId+" cityId:" + psCityId);
-            System.out.println("Customer ID*****"+outBean.getCustomerId());
             String customerId = outBean.getCustomerId();
             CustomerBean customer = this.customerMainDAO.find(customerId);
             String provinceId = customer.getProvinceId();
             String cityId = customer.getCityId();
-            System.out.println("Customer current provinceId*****"+provinceId+" cityId:"+cityId);
+            _logger.info("Customer current provinceId*****"+provinceId+" cityId:"+cityId);
             //如果原客户地址是虚拟省市，并且配送单地址非虚拟省市，则更新客户地址信息
             if ("000000".equals(provinceId) && "000010".equals(cityId) &&
                     !"000000".equals(distBean.getProvinceId()) && !("000010").equals(distBean.getCityId())){
-                System.out.println("Update customer main info*****");
+                _logger.info("Update customer main info*****");
                 customer.setProvinceId(distBean.getProvinceId());
                 customer.setCityId(distBean.getCityId());
                 this.customerMainDAO.updateEntityBean(customer);
 
                 //更新对应的Individual表
                 if (customer.getType() == CustomerConstant.NATURE_INDIVIDUAL){
-                    System.out.println("Update customer individual info*****");
+                    _logger.info("Update customer individual info*****");
                     CustomerIndividualBean indiBean = this.customerIndividualDAO.find(customerId);
                     indiBean.setProvinceId(distBean.getProvinceId());
                     indiBean.setCityId(distBean.getCityId());
                     this.customerIndividualDAO.updateEntityBean(indiBean);
-                } else if (customer.getType() == CustomerConstant.NATURE_DEPART){
-                    System.out.println("Update depart individual info*****");
-                } else if (customer.getType() == CustomerConstant.NATURE_CORPORATION){
-                    System.out.println("Update corporation individual info*****");
                 }
-
             }
         }
 

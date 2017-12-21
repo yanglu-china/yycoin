@@ -1,3 +1,4 @@
 dependencies {
     compile project(':oa_commission_manager')
+    compile project(':oa_product_manager')
 }

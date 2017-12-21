@@ -187,6 +187,7 @@
             <forward name="printXyReceipt" path="/transport/printXyReceipt.jsp" />
             <forward name="printZjReceipt" path="/transport/printZjReceipt.jsp" />
             <forward name="printGzReceipt" path="/transport/printGzReceipt.jsp" />
+            <forward name="printZjghReceipt" path="/transport/printZjghReceipt.jsp" />
             <forward name="importBranchRelation" path="/sailImport/importBranchRelation.jsp" />
             <forward name="addAutoPickup" path="/transport/addAutoPickup.jsp" />
             <forward name="mergePackages" path="/transport/mergePackages.jsp" />

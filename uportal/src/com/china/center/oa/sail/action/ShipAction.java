@@ -1790,28 +1790,21 @@ public class ShipAction extends DispatchAction
             //#171 批量打印时多打印一份直邮单据,batchPrint为0代表批量打印，否则为空
             if("0".equals(batchPrint) && vo.getDirect() == 1){
                 if (directFlag == null){
-                    _logger.info("****printUnifiedReceipt 11111***");
                     request.setAttribute("directFlag", "1");
                     request.setAttribute("title", "永银文化——发货清单（客户留存联）");
                 } else{
-                    _logger.info("****printUnifiedReceipt 000000***");
                     request.setAttribute("directFlag", "0");
                     request.setAttribute("title", "永银文化——发货清单（寄回发件公司联）");
                 }
             }
-            _logger.info("****printUnifiedReceipt end***");
 
             if (vo.getCustomerName().indexOf("吉林银行") != -1) {
                 return mapping.findForward("printJlReceipt");
             } else if (vo.getCustomerName().indexOf("浦发银行") != -1) {
-//                CustomerBean customer = customerMainDAO.find(customerId);
-//                if (customer != null && "上海分行".equals(customer.getReserve1())) {
-//                    this.mergeInvoiceNum(vo, request);
-//                    return mapping.findForward("printPfShReceipt");
-//                } else {
-//                    return mapping.findForward("printPfReceipt");
-//                }
                 return mapping.findForward("printPfReceipt");
+            } else if (vo.getCustomerName().indexOf("中金国华") != -1) {
+                request.setAttribute("title", "中金国华——发货清单");
+                return mapping.findForward("printZjghReceipt");
             } else {
                 return mapping.findForward("printUnifiedReceipt");
             }
@@ -2145,78 +2138,11 @@ public class ShipAction extends DispatchAction
         return citicNo;
     }
 
-    //    //2015/7/26 打印回执单时根据客户名前四位，取银行品名对照表中对应的银行品名
-    @Deprecated
-    private void convertProductName(PackageItemBean item, String customerName){
-        ProductBean product = productDAO.find(item.getProductId());
-        if (product!= null) {
-            ConditionParse conditionParse =  new ConditionParse();
-            conditionParse.addCondition("code", "=", product.getCode());
-            List<ProductVSBankBean> beans = this.productVSBankDAO.queryEntityBeansByCondition(conditionParse);
-            if (!ListTools.isEmptyOrNull(beans)){
-                ProductVSBankBean bean = beans.get(0);
-                String productName = null;
-                if (bean!= null){
-                    if (customerName.indexOf("浦发银行")!= -1){
-                        productName = bean.getPufaProductName();
-                    } else if (customerName.indexOf("中信银行")!= -1) {
-                        productName = bean.getCiticProductName();
-                    } else if (customerName.indexOf("招商银行")!= -1) {
-                        productName = bean.getZhProductName();
-                    }
-                }
-
-                if (!StringTools.isNullOrNone(productName)){
-                    String template = "print receipt convertProductName from:%s to:%s for customer:%s";
-                    _logger.info(String.format(template, item.getProductName(), productName, customerName));
-                    item.setProductName(productName);
-                }
-            }
-        }
-    }
-
-
-    //2015/10/13 此规则只针对银行类回执单
-    // 产品名称取订单对应的导入表中的订单明细行中的productid取对应的CiticProduct表中的CITICNAME字段值，如无对应订单或对应商品则仍取OA品名
-    //如果产品在CiticProduct中无对应产品，取其名称的10位以后（字符之前的中间字符
-    //YG0021100 2015年1盎司熊猫银币含包装（普17） 这个产品找不到对应的银行品名，则回执单上的名称取 2015年1盎司熊猫银币含包装
-    //2016/4/5 所有银行品名规则都参考中信银行,productcode取自out import表
-    @Deprecated
-    private void convertProductName(PackageItemBean item){
-        ProductBean product = productDAO.find(item.getProductId());
-        String productName = null;
-        String productCode = "";
-
-        if (product!= null) {
-            productCode = product.getCode();
-            ConditionParse conditionParse =  new ConditionParse();
-            conditionParse.addCondition("productCode", "=", productCode);
-            List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
-            if (!ListTools.isEmptyOrNull(beans)){
-                CiticVSOAProductBean bean = beans.get(0);
-                if (bean!= null){
-                    productName = bean.getCiticProductName();
-                }
-            } else{
-                productName = item.getProductName();
-            }
-        }
-
-        if (!StringTools.isNullOrNone(productName)){
-            String template = "print receipt convertProductName from:%s to:%s with productCode:%s";
-            _logger.info(String.format(template, item.getProductName(), productName, productCode));
-            item.setProductName(productName);
-        }
-    }
-
-    //#183 2016/6
-
     /**
      * 招行的回执单上品名的取值逻辑要改下：按销售订单号到out_import表中取对应行中的productcode,
      * 再到t_center_vs_citic_product 表中拿productcode对应相同的citicproductcode字段行，取citicproductname
      * @param item
      */
-    @Deprecated
     private String convertProductNameForBank(PackageItemBean item){
         String productName = "";
         String outId = item.getOutId();
@@ -2332,41 +2258,6 @@ public class ShipAction extends DispatchAction
         return productName;
     }
 
-    /**
-     * 2015/11/23 把新产品申请里的销售周期/销售对象/纸币类型/外型栏位，分别改为 实物数量、包装数量、证书数量、产品克重
-     * @param item
-     */
-    @Deprecated
-    private void convertProductNameForNb(PackageItemBean item){
-        ProductBean product = productDAO.find(item.getProductId());
-        String productName = null;
-        String productCode = "";
-
-        if (product!= null) {
-            productCode = product.getCode();
-            ConditionParse conditionParse =  new ConditionParse();
-            conditionParse.addCondition("productCode", "=", productCode);
-            List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
-            if (!ListTools.isEmptyOrNull(beans)){
-                CiticVSOAProductBean bean = beans.get(0);
-                if (bean!= null){
-                    productName = bean.getCiticProductName();
-                }
-            } else{
-                productName = item.getProductName();
-            }
-
-            this.setProductInfoForNb(item, product);
-        }
-
-        if (!StringTools.isNullOrNone(productName)){
-            String template = "print receipt convertProductName from:%s to:%s with productCode:%s";
-            _logger.info(String.format(template, item.getProductName(), productName, productCode));
-            item.setProductName(productName);
-        }
-    }
-
-
     private void setProductInfoForNb(PackageItemBean item, ProductBean product){
         if(item != null && product!= null){
             _logger.info("****product amount***"+item.getAmount()+"***"+product.getProductAmount()+"***"+product.getPackageAmount()+"***");
@@ -2398,30 +2289,6 @@ public class ShipAction extends DispatchAction
                 item.setMateriaType(materialType);
             }
         }
-    }
-
-    //2016/5/27 去掉此品名规则
-    @Deprecated
-    public String getProductName(String original){
-        String name = "";
-        try {
-            String[] l1 = original.split(" ");
-            if (l1.length == 1) {
-                name = original;
-            } else {
-                String word = l1[1];
-                String[] l2 = word.split("（");
-                if (l2.length == 1) {
-                    name = word;
-                } else {
-                    name = l2[0];
-                }
-            }
-        }catch(Exception e){
-            name = original;
-        }
-
-        return name;
     }
 
     //2015/9/29 打印银行回执单时增加客户姓名栏位
