@@ -1056,6 +1056,9 @@ public class ProductApplyAction extends DispatchAction {
                     {
                         bean.setDiscription(obj[25]);
                     }
+
+                    bean.setUpdateTime(TimeTools.now());
+                    bean.setOperator(user.getStafferName());
                     importItemList.add(bean);
                 }
             }

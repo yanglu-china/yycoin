@@ -143,6 +143,10 @@ public class ProductImportBean implements Serializable
 
     private String discription = "";
 
+    private String updateTime = "";
+
+    private String operator = "";
+
     public String getId() {
         return id;
     }
@@ -359,6 +363,22 @@ public class ProductImportBean implements Serializable
         this.discription = discription;
     }
 
+    public String getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
+
     @Override
     public String toString() {
         return "ProductImportBean{" +
@@ -389,6 +409,8 @@ public class ProductImportBean implements Serializable
                 ", invoiceContent='" + invoiceContent + '\'' +
                 ", cash=" + cash +
                 ", discription='" + discription + '\'' +
+                ", updateTime='" + updateTime + '\'' +
+                ", operator='" + operator + '\'' +
                 '}';
     }
 }

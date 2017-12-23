@@ -2202,7 +2202,7 @@ public class ShipManagerImpl implements ShipManager
                         }
 
                         //#210
-                        if(each.getOutId().startsWith("ZS")){
+                        if(each.getOutId().startsWith("ZS") || each.getOutId().startsWith("A")){
                             continue;
                         }
 
