@@ -81,6 +81,30 @@ function load()
                 <input type="text" name="excludeBank" id="excludeBank" value="${bean.excludeBank}">
             </p:cell>
 
+            <p:cell title="适用分行">
+                <input type="text" name="branchName" id="branchName" value="${bean.branchName}" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="不适用分行">
+                <input type="text" name="excludeBranchName" id="excludeBranchName" value="${bean.excludeBranchName}" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="适用支行">
+                <input type="text" name="customerName" id="customerName" value="${bean.customerName}" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="不适用支行">
+                <input type="text" name="excludeCustomerName" id="excludeCustomerName" value="${bean.excludeCustomerName}" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="适用渠道">
+                <input type="text" name="channel" id="channel" value="${bean.channel}" placeholder="可多选，以分号;分割" size="10">
+            </p:cell>
+
+            <p:cell title="不适用渠道">
+                <input type="text" name="excludeChannel" id="excludeChannel" value="${bean.excludeChannel}" placeholder="可多选，以分号;分割" size="10">
+            </p:cell>
+
             <p:cell title="事业部">
                 <input type="text" name="industryName" id="industryName" placeholder="可多选，以分号;分割" value="${bean.industryName}">
             </p:cell>

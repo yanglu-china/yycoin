@@ -142,6 +142,24 @@ public class ProductVSGiftBean implements Serializable
     @Html(title = "不包含人员", maxLength = 100)
     private String excludeStafferName = "";
 
+    @Html(title = "分行", maxLength = 100)
+    private String branchName ="";
+
+    @Html(title = "不包含分行", maxLength = 100)
+    private String excludeBranchName ="";
+
+    @Html(title = "支行", maxLength = 100)
+    private String customerName = "";
+
+    @Html(title = "不包含支行", maxLength = 100)
+    private String excludeCustomerName = "";
+
+    @Html(title = "渠道", maxLength = 10)
+    private String channel = "";
+
+    @Html(title = "不包含渠道", maxLength = 10)
+    private String excludeChannel = "";
+
     public ProductVSGiftBean()
 	{
 	}
@@ -384,6 +402,54 @@ public class ProductVSGiftBean implements Serializable
 
     public void setStafferShare(int stafferShare) {
         this.stafferShare = stafferShare;
+    }
+
+    public String getBranchName() {
+        return branchName;
+    }
+
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
+
+    public String getExcludeBranchName() {
+        return excludeBranchName;
+    }
+
+    public void setExcludeBranchName(String excludeBranchName) {
+        this.excludeBranchName = excludeBranchName;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getExcludeCustomerName() {
+        return excludeCustomerName;
+    }
+
+    public void setExcludeCustomerName(String excludeCustomerName) {
+        this.excludeCustomerName = excludeCustomerName;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
+
+    public String getExcludeChannel() {
+        return excludeChannel;
+    }
+
+    public void setExcludeChannel(String excludeChannel) {
+        this.excludeChannel = excludeChannel;
     }
 
     @Override

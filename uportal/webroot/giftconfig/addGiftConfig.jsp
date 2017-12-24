@@ -109,6 +109,30 @@ function clears(idx)
                 <input type="text" name="excludeBank" id="excludeBank" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
+            <p:cell title="适用分行">
+                <input type="text" name="branchName" id="branchName" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="不适用分行">
+                <input type="text" name="excludeBranchName" id="excludeBranchName" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="适用支行">
+                <input type="text" name="customerName" id="customerName" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="不适用支行">
+                <input type="text" name="excludeCustomerName" id="excludeCustomerName" placeholder="可多选，以分号;分割" size="100">
+            </p:cell>
+
+            <p:cell title="适用渠道">
+                <input type="text" name="channel" id="channel" placeholder="可多选，以分号;分割" size="10">
+            </p:cell>
+
+            <p:cell title="不适用渠道">
+                <input type="text" name="excludeChannel" id="excludeChannel" placeholder="可多选，以分号;分割" size="10">
+            </p:cell>
+
             <p:cell title="包含事业部">
                 <input type="text" name="industryName" id="industryName" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
