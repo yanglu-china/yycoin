@@ -46,6 +46,15 @@ function checkBean(){
     } else  if ($$('city')!='' && $$('excludeCity') !=''){
         alert('城市和不包含城市不能同时填写!');
         return false;
+    } else  if ($$('customerName')!='' && $$('excludeCustomerName') !=''){
+        alert('支行和不包含支行不能同时填写!');
+        return false;
+    } else  if ($$('branchName')!='' && $$('excludeBranchName') !=''){
+        alert('分行和不包含分行不能同时填写!');
+        return false;
+    } else  if ($$('channel')!='' && $$('excludeChannel') !=''){
+        alert('渠道和不包含渠道不能同时填写!');
+        return false;
     }
 
     var companyShare = $$('companyShare');

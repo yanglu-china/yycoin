@@ -1339,13 +1339,16 @@ public class OutImportManagerImpl implements OutImportManager
      */
     private int satisfy(OutBean out, ProductVSGiftVO gift) {
         final Map<String,Integer> priority = new HashMap<String ,Integer>();
-        priority.put("人员", 7);
-        priority.put("城市", 6);
-		priority.put("省份", 5);
-        priority.put("部门", 4);
-        priority.put("大区", 3);
-        priority.put("事业部", 2);
-        priority.put("银行", 1);
+        priority.put("人员", 10);
+        priority.put("城市", 9);
+		priority.put("省份", 8);
+        priority.put("部门", 7);
+        priority.put("大区", 6);
+        priority.put("事业部", 5);
+		priority.put("支行", 4);
+		priority.put("分行", 3);
+        priority.put("银行", 2);
+		priority.put("渠道", 1);
 
         int result = -1;
         String msg = out+" vs gift configuration:"+gift;
@@ -1396,11 +1399,43 @@ public class OutImportManagerImpl implements OutImportManager
 				StringTools.isNullOrNone(gift.getIndustryName3()) &&
 				StringTools.isNullOrNone(gift.getExcludeIndustryName3()) &&
 				StringTools.isNullOrNone(gift.getBank()) &&
-				StringTools.isNullOrNone(gift.getExcludeBank())
+				StringTools.isNullOrNone(gift.getExcludeBank()) &&
+				StringTools.isNullOrNone(gift.getCustomerName()) &&
+				StringTools.isNullOrNone(gift.getExcludeCustomerName()) &&
+				StringTools.isNullOrNone(gift.getBranchName()) &&
+				StringTools.isNullOrNone(gift.getExcludeBranchName()) &&
+				StringTools.isNullOrNone(gift.getChannel()) &&
+				StringTools.isNullOrNone(gift.getExcludeChannel())
 				){
 			_logger.info("gift satisfy default rule ***"+gift);
 			return 100;
 
+		}
+
+		//渠道
+		String channel = gift.getChannel();
+		if (!StringTools.isNullOrNone(channel)){
+			String channel1 = out.getChannel();
+			String[] channels = channel.split(";");
+			if (!this.contains2(channels, channel1)){
+				_logger.warn(channel1+" channel is not suitable:"+channel);
+				return -1;
+			}else{
+				result = priority.get("渠道");
+			}
+		}
+
+		//不包含渠道
+		String excludeChannel = gift.getExcludeChannel();
+		if (!StringTools.isNullOrNone(excludeChannel)){
+			String customerName = out.getCustomerName();
+			String[] banks = excludeChannel.split(";");
+			if (this.contains2(banks, customerName)){
+				_logger.warn(customerName+" excludeChannel is not suitable:"+excludeChannel);
+				return -1;
+			}else{
+				result = priority.get("渠道");
+			}
 		}
 
         //2015/6/14 银行指 客户名中包括“适用银行”字段值
@@ -1420,6 +1455,59 @@ public class OutImportManagerImpl implements OutImportManager
         //不包含银行
         String excludeBank = gift.getExcludeBank();
 		if (!StringTools.isNullOrNone(excludeBank)){
+			String customerName = out.getCustomerName();
+			String[] banks = excludeBank.split(";");
+			if (this.contains2(banks, customerName)){
+				_logger.warn(customerName+" bank is not suitable:"+excludeBank);
+				return -1;
+			}else{
+				result = priority.get("银行");
+			}
+		}
+
+		//分行
+		String branchName = gift.getBranchName();
+		if (!StringTools.isNullOrNone(branchName)){
+			String customerName = out.getCustomerName();
+			String[] banks = bank.split(";");
+			if (!this.contains2(banks, customerName)){
+				_logger.warn(customerName+" bank is not suitable:"+bank);
+				return -1;
+			}else{
+				result = priority.get("分行");
+			}
+		}
+
+		//不包含分行
+		String excludeBranchName = gift.getExcludeBranchName();
+		if (!StringTools.isNullOrNone(excludeBranchName)){
+			String customerName = out.getCustomerName();
+			String[] banks = excludeBank.split(";");
+			if (this.contains2(banks, customerName)){
+				_logger.warn(customerName+" bank is not suitable:"+excludeBank);
+				return -1;
+			}else{
+				result = priority.get("银行");
+			}
+		}
+
+		//TODO
+		//支行
+		String customerName = gift.getCustomerName();
+		if (!StringTools.isNullOrNone(customerName)){
+			String customerName = out.getCustomerName();
+			String[] banks = bank.split(";");
+			if (!this.contains2(banks, customerName)){
+				_logger.warn(customerName+" bank is not suitable:"+bank);
+				return -1;
+			}else{
+				result = priority.get("支行");
+			}
+		}
+
+		//不包含支行
+		String excludeCustomerName = gift.getExcludeCustomerName();
+		if (!StringTools.isNullOrNone(excludeCustomerName)){
 			String customerName = out.getCustomerName();
 			String[] banks = excludeBank.split(";");
 			if (this.contains2(banks, customerName)){
