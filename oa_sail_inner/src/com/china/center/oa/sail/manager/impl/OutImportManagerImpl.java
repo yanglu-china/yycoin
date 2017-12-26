@@ -1417,7 +1417,7 @@ public class OutImportManagerImpl implements OutImportManager
 		if (!StringTools.isNullOrNone(channel)){
 			String channel1 = out.getChannel();
 			String[] channels = channel.split(";");
-			if (!this.contains2(channels, channel1)){
+			if (StringTools.isNullOrNone(channel1) || !this.contains2(channels, channel1)){
 				_logger.warn(channel1+" channel is not suitable:"+channel);
 				return -1;
 			}else{
@@ -1428,10 +1428,10 @@ public class OutImportManagerImpl implements OutImportManager
 		//不包含渠道
 		String excludeChannel = gift.getExcludeChannel();
 		if (!StringTools.isNullOrNone(excludeChannel)){
-			String customerName = out.getCustomerName();
-			String[] banks = excludeChannel.split(";");
-			if (this.contains2(banks, customerName)){
-				_logger.warn(customerName+" excludeChannel is not suitable:"+excludeChannel);
+			String channel1 = out.getChannel();
+			String[] channels = excludeChannel.split(";");
+			if (StringTools.isNullOrNone(channel1) || this.contains2(channels, channel1)){
+				_logger.warn(channel1+" excludeChannel is not suitable:"+excludeChannel);
 				return -1;
 			}else{
 				result = priority.get("渠道");
