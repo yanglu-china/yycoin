@@ -1247,31 +1247,36 @@
                  productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
              }
 
+             ProductImportBean productImportBean = null;
              if (!ListTools.isEmptyOrNull(productImportBeans)){
                  //最后检查时间是否有效
-                 ProductImportBean productImportBean = productImportBeans.get(0);
-
-                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                 try{
-                     Date end = sdf.parse(productImportBean.getOfflineDate());
-                     Date begin = sdf.parse(productImportBean.getOnMarketDate());
-                     Date citicDate = sdf.parse(bean.getCiticOrderDate());
-                     if (citicDate.before(begin) || citicDate.after(end)){
-                         _logger.error(bean+" citicDate out of date:"+productImportBean);
-                         builder
-                                 .append("第[" + currentNumber + "]错误:")
-                                 .append(bean.getCiticOrderDate()+"银行订单日期不在产品主数据配置范围内:"+productImportBean.getOnMarketDate()+"至"+productImportBean.getOfflineDate())
-                                 .append("<br>");
-
-                         importError = true;
+                 for (ProductImportBean pib: productImportBeans){
+                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                     try{
+                         Date end = sdf.parse(pib.getOfflineDate());
+                         Date begin = sdf.parse(pib.getOnMarketDate());
+                         Date citicDate = sdf.parse(bean.getCiticOrderDate());
+                         if (citicDate.before(begin) || citicDate.after(end)){
+                             _logger.error(bean+" citicDate out of date:"+pib);
+                         } else{
+                             productImportBean = pib;
+                         }
+                     }catch(Exception e){
+                         _logger.error(" Exception parse Date:",e);
                      }
-
-                 }catch(Exception e){
-                     _logger.error(" Exception parse Date:",e);
                  }
 
-                 bean.setIbMoney(productImportBean.getIbMoney());
-                 bean.setMotivationMoney(productImportBean.getMotivationMoney());
+                if (productImportBean == null){
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append(bean.getCiticOrderDate()+"银行订单日期不在产品主数据配置范围内:"+productImportBeans.get(0).getOnMarketDate()+"至"+productImportBeans.get(0).getOfflineDate())
+                            .append("<br>");
+
+                    importError = true;
+                } else{
+                    bean.setIbMoney(productImportBean.getIbMoney());
+                    bean.setMotivationMoney(productImportBean.getMotivationMoney());
+                }
              } else{
                  String msg = "客户+银行产品编码未配置产品主数据映射关系:"+bean.getComunicatonBranchName()+"+"+bean.getProductCode();
                  _logger.error(msg);

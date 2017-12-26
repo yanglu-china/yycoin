@@ -1468,37 +1468,43 @@ public class OutImportManagerImpl implements OutImportManager
 		//分行
 		String branchName = gift.getBranchName();
 		if (!StringTools.isNullOrNone(branchName)){
-			String customerName = out.getCustomerName();
-			String[] banks = bank.split(";");
-			if (!this.contains2(banks, customerName)){
-				_logger.warn(customerName+" bank is not suitable:"+bank);
-				return -1;
-			}else{
-				result = priority.get("分行");
+			CustomerBean customerBean = this.customerMainDAO.find(out.getCustomerId());
+			if (customerBean!= null){
+				String branchName1 = customerBean.getReserve1();
+				String[] branchNames = branchName.split(";");
+				if (StringTools.isNullOrNone(branchName1) || !this.contains2(branchNames, branchName1)){
+					_logger.warn(branchName1+" bank is not suitable:"+branchName);
+					return -1;
+				}else{
+					result = priority.get("分行");
+				}
 			}
 		}
 
 		//不包含分行
 		String excludeBranchName = gift.getExcludeBranchName();
 		if (!StringTools.isNullOrNone(excludeBranchName)){
-			String customerName = out.getCustomerName();
-			String[] banks = excludeBank.split(";");
-			if (this.contains2(banks, customerName)){
-				_logger.warn(customerName+" bank is not suitable:"+excludeBank);
-				return -1;
-			}else{
-				result = priority.get("银行");
+			CustomerBean customerBean = this.customerMainDAO.find(out.getCustomerId());
+			if (customerBean!= null){
+				String branchName1 = customerBean.getReserve1();
+				String[] branchNames = excludeBranchName.split(";");
+				if (StringTools.isNullOrNone(branchName1) || this.contains2(branchNames, branchName1)){
+					_logger.warn(branchName1+" bank is not suitable:"+excludeBranchName);
+					return -1;
+				}else{
+					result = priority.get("分行");
+				}
 			}
 		}
 
-		//TODO
+		//同银行
 		//支行
 		String customerName = gift.getCustomerName();
 		if (!StringTools.isNullOrNone(customerName)){
-			String customerName = out.getCustomerName();
-			String[] banks = bank.split(";");
-			if (!this.contains2(banks, customerName)){
-				_logger.warn(customerName+" bank is not suitable:"+bank);
+			String customerName2 = out.getCustomerName();
+			String[] banks = customerName.split(";");
+			if (!this.contains2(banks, customerName2)){
+				_logger.warn(customerName2+" bank is not suitable:"+customerName);
 				return -1;
 			}else{
 				result = priority.get("支行");
@@ -1508,13 +1514,13 @@ public class OutImportManagerImpl implements OutImportManager
 		//不包含支行
 		String excludeCustomerName = gift.getExcludeCustomerName();
 		if (!StringTools.isNullOrNone(excludeCustomerName)){
-			String customerName = out.getCustomerName();
-			String[] banks = excludeBank.split(";");
-			if (this.contains2(banks, customerName)){
-				_logger.warn(customerName+" bank is not suitable:"+excludeBank);
+			String customerName2 = out.getCustomerName();
+			String[] banks = excludeCustomerName.split(";");
+			if (this.contains2(banks, customerName2)){
+				_logger.warn(customerName2+" bank is not suitable:"+excludeCustomerName);
 				return -1;
 			}else{
-				result = priority.get("银行");
+				result = priority.get("支行");
 			}
 		}
 
