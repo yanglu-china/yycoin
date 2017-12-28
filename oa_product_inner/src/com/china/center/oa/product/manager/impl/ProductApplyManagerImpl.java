@@ -640,6 +640,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
                 conditionParse.addCondition("customerName","=",bean.getCustomerName());
                 conditionParse.addCondition("channel","=",bean.getChannel());
                 conditionParse.addCondition("bankProductCode","=",bean.getBankProductCode());
+                conditionParse.addCondition("onMarketDate","=",bean.getOnMarketDate());
+                conditionParse.addCondition("offlineDate","=",bean.getOfflineDate());
                 List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
                 if (ListTools.isEmptyOrNull(beans)){
                     String id = commonDAO.getSquenceString();
