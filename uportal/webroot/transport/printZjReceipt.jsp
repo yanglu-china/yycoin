@@ -137,7 +137,7 @@
                                     <td><table class="border1"><tr><td align="center">${item.materiaType}</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.productWeight}</td></tr></table></td>
                                     <td><table class="border1"><tr><td>${item.amount}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td>${item.productWeight*item.amount}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td>${item.productWeight}</td></tr></table></td>
                                     <td><table class="border1"><tr><td>${item.productCode}</td></tr></table></td>
                                     <td><table class="border1"><tr><td>${item.description}${item.printText}</td></tr></table></td>
                                 </tr>
