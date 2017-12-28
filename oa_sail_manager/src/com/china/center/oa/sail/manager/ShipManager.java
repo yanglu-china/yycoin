@@ -82,6 +82,7 @@ public interface ShipManager
      * @param item
      * @return
      */
+    @Deprecated
     String getProductName(PackageItemBean item);
 
     void updateShipping(String packageId, DistributionBean distributionBean);
@@ -97,4 +98,6 @@ public interface ShipManager
     void cleanDuplicateBranch();
 
     void createMailAttachment(int bankType, List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders);
+
+    String convertProductName(PackageItemBean item, String customerName);
 }

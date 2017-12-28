@@ -84,7 +84,7 @@ public class JobManagerImpl implements JobManager {
         //#174 把有直邮标识的订单过滤掉
         con.addIntCondition("PackageBean.direct","!=", 1);
         //!!test only
-//        con.addCondition("PackageBean.id", "=", "CK201701052047004361");
+//        con.addCondition("PackageBean.id", "=", "CK201708131447669352");
 
         //根据customerId+channel合并CK表
         Map<String,List<PackageVO>> customer2Packages = new HashMap<String,List<PackageVO>>();
@@ -151,13 +151,19 @@ public class JobManagerImpl implements JobManager {
                 String fileName = getShippingAttachmentPath() + "/" + subBranch
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                 _logger.info("***fileName***"+fileName);
-                //浦发上海分行
-                if (subBranch.indexOf("浦发银行") != -1 && "上海分行".equals(branchName)){
-                    createPfMailAttachment(packages,bean.getBranchName(), fileName, true);
-                } else if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("小浦金店-银行")!= -1){
-                    createPfMailAttachmentForXiaoPu(packages,bean.getBranchName(), fileName, true);
+//                //浦发上海分行
+//                if (subBranch.indexOf("浦发银行") != -1 && "上海分行".equals(branchName)){
+//                    createPfMailAttachment(packages,bean.getBranchName(), fileName, true);
+//                } else if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("小浦金店-银行")!= -1){
+//                    createPfMailAttachmentForXiaoPu(packages,bean.getBranchName(), fileName, true);
+//                } else if (subBranch.indexOf("浦发银行") != -1){
+//                    this.shipManager.createMailAttachment(ShipConstant.BANK_TYPE_PF, packages,bean.getBranchName(),fileName,true);
+//                }
+                //#219 浦发改为只有两种模板
+                if (subBranch.indexOf("浦发银行") != -1 && "小浦金店".equals(bean.getChannel())){
+                    createPfMailAttachmentForXiaoPu(packages,branchName, fileName, true);
                 } else if (subBranch.indexOf("浦发银行") != -1){
-                    this.shipManager.createMailAttachment(ShipConstant.BANK_TYPE_PF, packages,bean.getBranchName(),fileName,true);
+                    createPfMailAttachment(packages,branchName, fileName, true);
                 }
 
                 // check file either exists
@@ -217,8 +223,10 @@ public class JobManagerImpl implements JobManager {
                 continue;
             } else{
                 OutBean outBean = outDAO.find(outId);
-                if (outBean!= null){
+                if (outBean!= null && !StringTools.isNullOrNone(outBean.getChannel())){
                     return outBean.getChannel();
+                } else{
+                    continue;
                 }
             }
         }
@@ -379,7 +387,7 @@ public class JobManagerImpl implements JobManager {
                             ws.addCell(new Label(j++, i, temp[0], format3));
 
                             //产品名称
-                            ws.addCell(new Label(j++, i, this.convertProductName(each,bean.getCustomerName()), format3));
+                            ws.addCell(new Label(j++, i, this.shipManager.convertProductName(each,bean.getCustomerName()), format3));
                         }
 
 
@@ -472,16 +480,21 @@ public class JobManagerImpl implements JobManager {
         return customerName;
     }
 
-    private String getCiticNoFromOutImport(String outId){
-        StringBuilder sb = new StringBuilder();
-        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+    private String getCiticNoFromOutImport(PackageItemBean item){
+        String outId = item.getOutId();
+        if (outId.startsWith("A")){
+            //如果是发票，返回合并过的发票号
+            return item.getProductName();
+        }else{
+            List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
-        if (!ListTools.isEmptyOrNull(importBeans))
-        {
-            return importBeans.get(0).getCiticNo();
+            if (!ListTools.isEmptyOrNull(importBeans))
+            {
+                return importBeans.get(0).getCiticNo();
+            }
+
+            return outId;
         }
-
-        return "";
     }
 
     private String getCustomerNameFromOutImport(String outId){
@@ -586,7 +599,7 @@ public class JobManagerImpl implements JobManager {
                 }
                 relationList = this.branchRelationDAO.queryVOsByCondition(conditionParse);
                 if (ListTools.isEmptyOrNull(relationList)){
-                    _logger.warn("***no relation found***"+customerId);
+                    _logger.warn(customerId+"***no relation found***"+channel);
                     return null;
                 }else{
                     BranchRelationVO relation = relationList.get(0);
@@ -595,57 +608,6 @@ public class JobManagerImpl implements JobManager {
                 }
             }
         }
-    }
-
-    private String convertProductName(PackageItemBean item, String customerName){
-        String productName = "";
-        String outId = item.getOutId();
-        if (outId.startsWith("ZS")){
-            //2016/5/19 赠送单直接取品名
-            return item.getProductName();
-        } else if (outId.contains("<br>")){
-            //2016/8/16 合并商品行的outId也合并过了
-            String[] outIds = item.getOutId().split("<br>");
-            outId = outIds[0];
-        } else if (outId.startsWith("A")){
-            //发票号不用转换
-            return item.getProductName();
-        }
-
-        String productId = item.getProductId();
-        ProductBean productBean = this.productDAO.find(productId);
-        if (productBean!= null){
-            String productCode = productBean.getCode();
-            //#291
-            if (!StringTools.isNullOrNone(productCode)){
-                ConditionParse conditionParse =  new ConditionParse();
-                conditionParse.addCondition("code", "=", productCode);
-                conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
-
-                List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
-
-                if (!ListTools.isEmptyOrNull(importBeans)) {
-                    OutImportBean bean = importBeans.get(0);
-                    conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
-                }
-
-                List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-                if (!ListTools.isEmptyOrNull(beans)){
-                    ProductImportBean productImportBean = beans.get(0);
-                    productName = productImportBean.getBankProductName();
-                }
-            }
-        }
-
-        //default pick from package item table
-        if (StringTools.isNullOrNone(productName)){
-            productName = item.getProductName();
-        }
-
-        String template = "fullID %s product name %s converted to %s";
-        _logger.info(String.format(template, outId, item.getProductName(), productName));
-
-        return productName;
     }
 
     private List<PackageItemBean> mergeItems(List<PackageItemBean> items){
@@ -683,7 +645,7 @@ public class JobManagerImpl implements JobManager {
             }
         }
         _logger.info(aList);
-        //剩下的发票行还需要合并一次
+        //剩下未合并的发票行还需要合并到一行
         this.mergeInvoiceNum(aList);
         _logger.info(aList);
         result.addAll(soList);
@@ -822,9 +784,8 @@ public class JobManagerImpl implements JobManager {
             for (PackageVO bean :beans){
                 List<PackageItemBean> items = packageItemDAO.queryEntityBeansByFK(bean.getId());
                 _logger.info("***itemList size***"+items.size());
-                //TODO
                 List<PackageItemBean> itemList = this.mergeItems(items);
-                _logger.info("***after merge itemList size***"+itemList.size());
+                _logger.info("***after merge itemList size***"+itemList);
                 if (!ListTools.isEmptyOrNull(itemList)){
                     for (PackageItemBean each : itemList)
                     {
@@ -836,7 +797,7 @@ public class JobManagerImpl implements JobManager {
 
                         //银行单号
                         String outId = each.getOutId();
-                        String citicNo = this.getCiticNoFromOutImport(outId);
+                        String citicNo = this.getCiticNoFromOutImport(each);
                         ws.addCell(new Label(j++, i, citicNo, format3));
 
                         //快递公司

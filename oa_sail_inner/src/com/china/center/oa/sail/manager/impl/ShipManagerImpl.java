@@ -19,6 +19,7 @@ import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.product.bean.CiticVSOAProductBean;
 import com.china.center.oa.product.dao.CiticVSOAProductDAO;
+import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
@@ -2010,7 +2011,7 @@ public class ShipManagerImpl implements ShipManager
                         }
 
                         //产品名称
-                        ws.addCell(new Label(j++, i, this.getProductName(each), format3));
+                        ws.addCell(new Label(j++, i, this.convertProductName(each, bean.getCustomerName()), format3));
                         //数量
                         ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
 
@@ -2214,7 +2215,7 @@ public class ShipManagerImpl implements ShipManager
                             //产品代码
                             ws.addCell(new Label(j++, i, this.getProductCode(each), format3));
                             //产品名称
-                            ws.addCell(new Label(j++, i, this.getProductName(each), format3));
+                            ws.addCell(new Label(j++, i, this.convertProductName(each, bean.getCustomerName()), format3));
 
                             //产品规格
                             String spec = "";
@@ -3106,7 +3107,8 @@ public class ShipManagerImpl implements ShipManager
         }
     }
 
-    private String convertProductName(PackageItemBean item, String customerName){
+    @Override
+    public String convertProductName(PackageItemBean item, String customerName){
         String productName = "";
         String outId = item.getOutId();
         if (outId.startsWith("ZS")){
@@ -3129,11 +3131,7 @@ public class ShipManagerImpl implements ShipManager
             if (!StringTools.isNullOrNone(productCode)){
                 ConditionParse conditionParse =  new ConditionParse();
                 conditionParse.addCondition("code", "=", productCode);
-                if (customerName.length()>=4) {
-                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
-                }else{
-                    conditionParse.addCondition("bank", "=", customerName);
-                }
+                conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
 
                 List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
@@ -3162,6 +3160,7 @@ public class ShipManagerImpl implements ShipManager
     }
 
     @Override
+    @Deprecated
     public String getProductName(PackageItemBean item) {
             String productName = "";
             String outId = item.getOutId();
@@ -3190,6 +3189,7 @@ public class ShipManagerImpl implements ShipManager
             return productName;
     }
 
+    @Deprecated
     private String getProductName2(String original){
         String name = "";
         try {
