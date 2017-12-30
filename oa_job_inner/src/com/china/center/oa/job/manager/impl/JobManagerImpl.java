@@ -636,10 +636,10 @@ public class JobManagerImpl implements JobManager {
                     if (invoiceinsBean!= null && invoiceinsBean.getRefIds()!=null &&
                             invoiceinsBean.getRefIds().contains(item.getOutId())){
                         //把发票号码合并到商品行,此发票行不再单独显示
-                        item.setInvoiceNum(itemBean.getProductId());
+                        item.setInvoiceNum(StringUtils.concat(item.getInvoiceNum(), itemBean.getProductId(),"/"));
                         it.remove();
                         _logger.info("***find invoice num***"+item.getInvoiceNum());
-                        break;
+                        continue;
                     }
                 }
             }
