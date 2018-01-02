@@ -1355,11 +1355,11 @@
 
                  importError = true;
              } else if(ShipConstant.CHANNEL_HJWD.equals(channel) || ShipConstant.CHANNEL_XPJD.equals(channel)
-                     ||ShipConstant.CHANNEL_FHWD.equals(channel)){
+                     ||ShipConstant.CHANNEL_FHWD.equals(channel) || ShipConstant.CHANNEL_SHSC.equals(channel)){
                  bean.setChannel(channel);
              } else{
                  builder.append("第[" + currentNumber + "]错误:")
-                         .append("渠道只能是黄金微店、小浦金店或分行微店")
+                         .append("渠道只能是黄金微店、小浦金店、分行微店或生活商城")
                          .append("<br>");
 
                  importError = true;
@@ -2521,11 +2521,11 @@
 
                  importError = true;
              } else if(ShipConstant.CHANNEL_HJWD.equals(channel) || ShipConstant.CHANNEL_XPJD.equals(channel)
-                     ||ShipConstant.CHANNEL_FHWD.equals(channel)){
+                     ||ShipConstant.CHANNEL_FHWD.equals(channel) || ShipConstant.CHANNEL_SHSC.equals(channel)){
                  bean.setChannel(channel);
              } else{
                  builder.append("第[" + currentNumber + "]错误:")
-                         .append("渠道只能是黄金微店、小浦金店或分行微店")
+                         .append("渠道只能是黄金微店、小浦金店、分行微店或生活商城")
                          .append("<br>");
 
                  importError = true;

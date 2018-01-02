@@ -131,4 +131,5 @@ public interface ShipConstant
 	String CHANNEL_HJWD = "黄金微店";
 	String CHANNEL_XPJD = "小浦金店";
 	String CHANNEL_FHWD = "分行微店";
+	String CHANNEL_SHSC = "生活商城";
 }
