@@ -177,6 +177,9 @@ public class ProductApplyBean implements Serializable {
      */
     @Html(title = "旧货", must = true, type = Element.SELECT)
     private int secondhandGoods = -1;
+
+    @Ignore
+    private String secondhandGoodsName = "";
     
     /**
      * 外型 type = 211
@@ -676,6 +679,14 @@ public class ProductApplyBean implements Serializable {
 
     public void setProductWeight(double productWeight) {
         this.productWeight = productWeight;
+    }
+
+    public String getSecondhandGoodsName() {
+        return secondhandGoodsName;
+    }
+
+    public void setSecondhandGoodsName(String secondhandGoodsName) {
+        this.secondhandGoodsName = secondhandGoodsName;
     }
 
     public String toString()

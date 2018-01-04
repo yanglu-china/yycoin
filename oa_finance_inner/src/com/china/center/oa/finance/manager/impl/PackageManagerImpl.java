@@ -586,6 +586,9 @@ public class PackageManagerImpl implements PackageManager {
 
             con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 
+            //#225
+		   con.addCondition("PackageBean.locationId", "=", location);
+
 		   con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
 		   con.addCondition(" and PackageBean.status in(0,5)");
         } else if (shipping == 2){
@@ -617,7 +620,8 @@ public class PackageManagerImpl implements PackageManager {
            con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
 
            con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
-
+			//#225
+		   con.addCondition("PackageBean.locationId", "=", location);
 		   con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
 		   con.addCondition(" and PackageBean.status in(0,5)");
         } else{

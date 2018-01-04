@@ -227,6 +227,7 @@ public class ShipManagerImpl implements ShipManager
             con.addCondition("PackageBean.locationId", "=", location);
             con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
             con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
+
             con.addIntCondition("PackageBean.status", "=", 0);
         } else if (shipping == 2){
             //第三方快递：地址、收货人、电话完全一致，才合并.能不能判断地址后6个字符一致，电话，收货人一致，就合并
@@ -257,7 +258,8 @@ public class ShipManagerImpl implements ShipManager
             con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
 
             con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
-
+            //#225
+            con.addCondition("PackageBean.locationId", "=", location);
             con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
             con.addCondition(" and PackageBean.status in(0,5)");
         } else{

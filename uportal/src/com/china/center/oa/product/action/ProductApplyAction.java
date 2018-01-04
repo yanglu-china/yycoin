@@ -1346,6 +1346,7 @@ public class ProductApplyAction extends DispatchAction {
                             for (EnumBean enumBean : enumBeans){
                                 if (secondhandGoods.equals(enumBean.getValue())){
                                     bean.setSecondhandGoods(Integer.valueOf(enumBean.getKey()));
+                                    bean.setSecondhandGoodsName(enumBean.getValue());
                                     break;
                                 }
                             }
@@ -1357,6 +1358,32 @@ public class ProductApplyAction extends DispatchAction {
                             builder
                                     .append("第[" + currentNumber + "]错误:")
                                     .append("旧货类型不支持")
+                                    .append("<br>");
+                        } else if(bean.getName().contains("普2") && !"旧货".equals(bean.getSecondhandGoodsName())){
+                            //品名含 普2 的，旧货属性必须为旧货
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("品名含'普2'的，旧货属性必须为旧货:"+bean.getName())
+                                    .append("<br>");
+                        }else if(bean.getName().contains("普0") && !bean.getName().contains("普017")
+                        && !"零税率".equals(bean.getSecondhandGoodsName())){
+                            //品名含普0，不是普017的，旧货属性必须为零税率
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("品名含'普0'，不是'普017'的，旧货属性必须为零税率:"+bean.getName())
+                                    .append("<br>");
+                        }else if(bean.getName().contains("普17") && !bean.getName().contains("普017")
+                                && !"非旧货".equals(bean.getSecondhandGoodsName())){
+                            //品名含普17，且不为普017的，必须为 非旧货
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("品名含'普17'，且不为'普017'的，必须为非旧货:"+bean.getName())
                                     .append("<br>");
                         }
                     }else
