@@ -74,6 +74,7 @@ var current;
 var flag = 0;
 function selectProduct(obj)
 {
+    current = obj;
 	flag = 0;
 	
     if ($$('depot') == '')
@@ -82,10 +83,61 @@ function selectProduct(obj)
         return;
     }
 
-    //查询拆分产品列表
-    window.common.modal('../depot/storage.do?method=rptQueryStorageRelationInDepot&load=1&selectMode=1&depotId='
+    if ($O('cbom').checked == true) {
+
+        window.common.modal('../product/product.do?method=rptQueryProductBom&firstLoad=1&selectMode=1&stock=stock');
+    } else{
+        //查询拆分产品列表
+        window.common.modal('../depot/storage.do?method=rptQueryStorageRelationInDepot&load=1&selectMode=1&depotId='
             + $$('depot') + '&depotpartId=' + $$('depotpart') + '&ctype=1' + '&init=1');
-    
+    }
+}
+
+/**
+ * callback when select from bom
+ * @param oos
+ */
+function getProductBom(oos)
+{
+    console.log(oos);
+    //从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
+    var table = $O("tables");
+//    console.log(table);
+    table.deleteRow(0);
+    table.deleteRow(1);
+//    table.deleteRow(2);
+    var oo = oos[0];
+	console.log(oo);
+    current.value = oo.pname;
+    //TODO
+    $O('amount').value = 1;
+    $O('price').value = 10;
+//
+//    $O("mtype").value = oo.pmtype;
+//    $O("oldproduct").value = oo.poldproduct;
+//    $O("dirProductId").value = oo.value;
+
+    var bomjson = JSON.parse(oo.pbomjson);
+    console.log(bomjson);
+    for (var j = 0; j < bomjson.length; j++)
+    {
+        var item = bomjson[j];
+        var trow = addTrInner();
+
+//        setInputValueInTr(trow, 'stype', "库存");
+//        setInputValueInTr(trow, 'srcDepot', "A1201606211663545335");
+//        setInputValueInTr(trow, 'srcDepotpart', "A1201606211663545389");
+        setInputValueInTr(trow, 'srcProductName', item.subProductName);
+        setInputValueInTr(trow, 'srcAmount', item.pamount);
+        setInputValueInTr(trow, 'srcPrice', item.price);
+        var stype = getEle(trow.getElementsByTagName('select'), "stype");
+        setSelect(stype, "0");
+        var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
+        setSelect(srcDe1, "A1201606211663545335");
+//        var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
+//        setSelect(srcDepotpart, "A1201606211663545389");
+    }
+    depotChange();
 }
 
 function getEle(eles, name)
@@ -348,12 +400,13 @@ function addTr1()
 	         </select>
 			拆分产品：<input type="text" style="width: 20%;cursor: pointer;" readonly="readonly" value="" oncheck="notNone" name="productName" 
 			onclick="selectProduct(this)">
+                <strong>从BOM中选择:</strong><input type="checkbox" name='cbom' id ='cbom' />
          <input type="hidden" name="productId" value="">
          	数量：<input type="text" style="width: 5%"
-                    name="amount" value="" oncheck="notNone;isNumber;range(1)">
+                    name="amount" value="1" oncheck="notNone;isNumber;range(1)">
                     <input type="hidden" name="mayAmount" value=""/>
 			成本：<input type="text" style="width: 6%" readonly="readonly"
-                    name="price" value="" oncheck="notNone;isFloat">                    
+                    name="price" value="1" oncheck="notNone;isFloat">
 			</p:tr>
 			<p:tr align="right">
 				<input type="button" class="button_class" id="ref_b"
