@@ -102,13 +102,19 @@ function getProductBom(oos)
     console.log(oos);
     //从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
     var table = $O("tables");
-//    console.log(table);
-    table.deleteRow(0);
+    //删除原有两行,没删除一行后index会变化
     table.deleteRow(1);
+    table.deleteRow(1);
+//    var table = document.getElementById("tables");
+//    while(table.rows.length > 0) {
+//        table.deleteRow(0);
+//    }
 //    table.deleteRow(2);
     var oo = oos[0];
 	console.log(oo);
+	//TODO
     current.value = oo.pname;
+    console.log(current);
     //TODO
     $O('amount').value = 1;
     $O('price').value = 10;
@@ -124,16 +130,13 @@ function getProductBom(oos)
         var item = bomjson[j];
         var trow = addTrInner();
 
-//        setInputValueInTr(trow, 'stype', "库存");
-//        setInputValueInTr(trow, 'srcDepot', "A1201606211663545335");
-//        setInputValueInTr(trow, 'srcDepotpart', "A1201606211663545389");
-        setInputValueInTr(trow, 'srcProductName', item.subProductName);
-        setInputValueInTr(trow, 'srcAmount', item.pamount);
-        setInputValueInTr(trow, 'srcPrice', item.price);
         var stype = getEle(trow.getElementsByTagName('select'), "stype");
         setSelect(stype, "0");
         var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
         setSelect(srcDe1, "A1201606211663545335");
+        setInputValueInTr(trow, 'srcProductName', item.subProductName);
+        setInputValueInTr(trow, 'srcAmount', item.pamount);
+        setInputValueInTr(trow, 'srcPrice', item.price);
 //        var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
 //        setSelect(srcDepotpart, "A1201606211663545389");
     }
