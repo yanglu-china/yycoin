@@ -405,15 +405,9 @@ function addTr1()
 			onclick="selectProduct(this)">
                 <strong>从BOM中选择:</strong><input type="checkbox" name='cbom' id ='cbom' />
          <input type="hidden" name="productId" value="">
-         	数量：<input type="text" style="width: 5%"
-                    name="amount" value="1" oncheck="notNone;isNumber;range(1)">
+         	数量：<input type="text" style="width: 5%" name="amount" value="" oncheck="notNone;isNumber;">
                     <input type="hidden" name="mayAmount" value=""/>
-			成本：<input type="text" style="width: 6%" readonly="readonly"
-                    name="price" value="1" oncheck="notNone;isFloat">
-			</p:tr>
-			<p:tr align="right">
-				<input type="button" class="button_class" id="ref_b"
-            			value="&nbsp;配件产品查询&nbsp;" onclick="selectSrcProduct()">
+			成本：<input type="text" style="width: 6%"  name="price" value="1" oncheck="notNone;isFloat">
 			</p:tr>
 		</p:table>
 	</p:subBody>
