@@ -115,9 +115,6 @@ function getProductBom(oos)
 	//TODO
     current.value = oo.pname;
     console.log(current);
-    //TODO
-    $O('amount').value = 1;
-    $O('price').value = 10;
 //
 //    $O("mtype").value = oo.pmtype;
 //    $O("oldproduct").value = oo.poldproduct;
@@ -135,12 +132,40 @@ function getProductBom(oos)
         var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
         setSelect(srcDe1, "A1201606211663545335");
         setInputValueInTr(trow, 'srcProductName', item.subProductName);
+        setInputValueInTr(trow, 'srcProductId', item.subProductId);
         setInputValueInTr(trow, 'srcAmount', item.pamount);
         setInputValueInTr(trow, 'srcPrice', item.price);
 //        var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
 //        setSelect(srcDepotpart, "A1201606211663545389");
     }
-    depotChange();
+//    depotChange();
+//    srcDepotpartChange();
+}
+
+function srcDepotpartChange()
+{
+    var selects = document.querySelectorAll('select[name="srcDepotpart"]');
+
+    for (var i = 0 ; i < selects.length; i++)
+    {
+        var oo = selects[i];
+
+        if (oo.name == 'srcDepotpart')
+        {
+            removeAllItem(oo);
+
+            //add new option
+            for (var j = 0; j < dList.length; j++)
+            {
+                if (dList[j].locationId == newsrcDepot)
+                {
+                    setOption(oo, dList[j].id, dList[j].name);
+                }
+            }
+
+            break;
+        }
+    }
 }
 
 function getEle(eles, name)
@@ -297,6 +322,19 @@ function srcDepotChange(obj)
     }
 }
 
+function amountChange(){
+    console.log("amount change");
+    var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
+    console.log(srcAmount);
+    var amount = document.querySelector('input[name="amount"]');
+    console.log(amount);
+    for (var i = 0 ; i < srcAmount.length; i++)
+    {
+        var oo = srcAmount[i];
+        oo.value = '100';
+    }
+}
+
 function selectSrcProduct()
 {
 	var productId = $$('productId');
@@ -401,11 +439,11 @@ function addTr1()
 		             <option value="${item.id}">${item.name}</option>
 		         </c:forEach>
 	         </select>
-			拆分产品：<input type="text" style="width: 20%;cursor: pointer;" readonly="readonly" value="" oncheck="notNone" name="productName" 
+			拆分产品：<input type="text" style="width: 20%;cursor: pointer;" readonly="readonly" value="" oncheck="notNone" name="productName"
 			onclick="selectProduct(this)">
                 <strong>从BOM中选择:</strong><input type="checkbox" name='cbom' id ='cbom' />
          <input type="hidden" name="productId" value="">
-         	数量：<input type="text" style="width: 5%" name="amount" value="" oncheck="notNone;isNumber;">
+         	数量：<input type="text" style="width: 5%" name="amount" value="" oncheck="notNone;isNumber;" onblur="amountChange();">
                     <input type="hidden" name="mayAmount" value=""/>
 			成本：<input type="text" style="width: 6%"  name="price" value="1" oncheck="notNone;isFloat">
 			</p:tr>
@@ -477,7 +515,7 @@ function addTr1()
          <option value="">--</option>
          </select>
          </td>
-         <td width="30%" align="center"><input type="text" 
+         <td width="30%" align="center"><input type="text"
          style="width: 100%;cursor: pointer;" readonly="readonly" value="" oncheck="notNone" name="srcProductName" onclick="selectDepotpartProduct(this)">
          <input type="hidden" name="srcProductId" value="">
          </td>
