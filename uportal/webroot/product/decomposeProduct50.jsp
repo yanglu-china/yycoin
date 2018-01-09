@@ -135,36 +135,16 @@ function getProductBom(oos)
         setInputValueInTr(trow, 'srcProductId', item.subProductId);
         setInputValueInTr(trow, 'srcAmount', item.pamount);
         setInputValueInTr(trow, 'srcPrice', item.price);
-//        var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
-//        setSelect(srcDepotpart, "A1201606211663545389");
-    }
-//    depotChange();
-//    srcDepotpartChange();
-}
-
-function srcDepotpartChange()
-{
-    var selects = document.querySelectorAll('select[name="srcDepotpart"]');
-
-    for (var i = 0 ; i < selects.length; i++)
-    {
-        var oo = selects[i];
-
-        if (oo.name == 'srcDepotpart')
+        var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
+        //add new option
+        for (var k = 0; k < dList.length; k++)
         {
-            removeAllItem(oo);
-
-            //add new option
-            for (var j = 0; j < dList.length; j++)
+            if (dList[k].locationId == "A1201606211663545335")
             {
-                if (dList[j].locationId == newsrcDepot)
-                {
-                    setOption(oo, dList[j].id, dList[j].name);
-                }
+                setOption(srcDepotpart, dList[k].id, dList[k].name);
             }
-
-            break;
         }
+        setSelect(srcDepotpart, "A1201606211663545389");
     }
 }
 
