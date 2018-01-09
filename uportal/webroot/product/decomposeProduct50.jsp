@@ -100,7 +100,7 @@ var amountList = [];
  */
 function getProductBom(oos)
 {
-    console.log(oos);
+//    console.log(oos);
     //从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
     var table = $O("tables");
     //删除原有两行,没删除一行后index会变化
@@ -112,17 +112,15 @@ function getProductBom(oos)
 //    }
 //    table.deleteRow(2);
     var oo = oos[0];
-	console.log(oo);
-	//TODO
+//	console.log(oo);
     current.value = oo.pname;
-    console.log(current);
 //
 //    $O("mtype").value = oo.pmtype;
 //    $O("oldproduct").value = oo.poldproduct;
 //    $O("dirProductId").value = oo.value;
 
     var bomjson = JSON.parse(oo.pbomjson);
-    console.log(bomjson);
+//    console.log(bomjson);
     for (var j = 0; j < bomjson.length; j++)
     {
         var item = bomjson[j];
@@ -305,12 +303,11 @@ function srcDepotChange(obj)
 }
 
 function amountChange(){
-    console.log("amount change");
     var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
-    console.log(srcAmount);
+//    console.log(srcAmount);
     var amount = document.querySelector('input[name="amount"]');
-    console.log(amount.value);
-    console.log(amountList);
+//    console.log(amount.value);
+//    console.log(amountList);
     for (var i = 0 ; i < srcAmount.length; i++)
     {
         var oo = srcAmount[i];

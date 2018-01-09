@@ -1175,6 +1175,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
     public boolean addDecomposeProduct(User user, DecomposeProductBean bean)
         throws MYException
     {
+        _logger.info("***addDecomposeProduct***"+bean);
         JudgeTools.judgeParameterIsNull(user, bean);
 
         // 检查合成逻辑
@@ -1184,7 +1185,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
         if (compose == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("产品不存在："+productId);
         }
 
         if (compose.getCtype() != ProductConstant.CTYPE_YES)

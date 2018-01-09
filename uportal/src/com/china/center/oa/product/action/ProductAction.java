@@ -2200,13 +2200,22 @@ public class ProductAction extends DispatchAction
     {
         String depotpart = request.getParameter("depotpart");
         String productId = request.getParameter("productId");
+        String productName = request.getParameter("productName");
         String amount = request.getParameter("amount");
         String depot = request.getParameter("depot");
         String price = request.getParameter("price");
 
         bean.setDepotpartId(depotpart);
         bean.setDeportId(depot);
-        bean.setProductId(productId);
+        if (StringTools.isNullOrNone(productId) && !StringTools.isNullOrNone(productName)){
+            ProductBean productBean = this.productDAO.findByName(productName);
+            if (productBean!= null){
+                bean.setProductId(productBean.getId());
+            }
+        } else{
+            bean.setProductId(productId);
+        }
+
         bean.setAmount(CommonTools.parseInt(amount));
         _logger.info("***price***" + price);
 //        bean.setPrice(CommonTools.parseFloat(price));
