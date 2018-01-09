@@ -93,6 +93,7 @@ function selectProduct(obj)
     }
 }
 
+var amountList = [];
 /**
  * callback when select from bom
  * @param oos
@@ -133,8 +134,9 @@ function getProductBom(oos)
         setSelect(srcDe1, "A1201606211663545335");
         setInputValueInTr(trow, 'srcProductName', item.subProductName);
         setInputValueInTr(trow, 'srcProductId', item.subProductId);
-        setInputValueInTr(trow, 'srcAmount', item.pamount);
-        setInputValueInTr(trow, 'srcPrice', item.price);
+//        setInputValueInTr(trow, 'srcAmount', item.pamount);
+//        setInputValueInTr(trow, 'srcPrice', item.price);
+        amountList.push(item.bomAmount);
         var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
         //add new option
         for (var k = 0; k < dList.length; k++)
@@ -307,11 +309,12 @@ function amountChange(){
     var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
     console.log(srcAmount);
     var amount = document.querySelector('input[name="amount"]');
-    console.log(amount);
+    console.log(amount.value);
+    console.log(amountList);
     for (var i = 0 ; i < srcAmount.length; i++)
     {
         var oo = srcAmount[i];
-        oo.value = '100';
+        oo.value = parseInt(amount.value)*parseInt(amountList[i]);
     }
 }
 
