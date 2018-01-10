@@ -1251,6 +1251,11 @@
              if (!ListTools.isEmptyOrNull(productImportBeans)){
                  //最后检查时间是否有效
                  for (ProductImportBean pib: productImportBeans){
+                     //分行必须对应，要么分行为空
+                     if (!StringTools.isNullOrNone(bean.getBranchName()) && !StringTools.isNullOrNone(pib.getBranchName())
+                             && !bean.getBranchName().equals(pib.getBranchName())){
+                         continue;
+                     }
                      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                      try{
                          Date end = sdf.parse(pib.getOfflineDate());
