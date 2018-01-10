@@ -2598,7 +2598,6 @@ public class ParentOutAction extends DispatchAction
 						line.writeColumn("");
 						line.writeColumn("");
 						line.writeColumn("");
-						line.writeColumn("");
 
 						// 查询当前已经有多退货
 						ConditionParse con = new ConditionParse();
@@ -2629,11 +2628,33 @@ public class ParentOutAction extends DispatchAction
 								sb.append(outBean.getFullId()).append(';');
 							}
 
+							//原销售是否回款
+							//取日志里的记录来标记原销售单回款情况
+							List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByFK(element.getFullId());
+							boolean payFlag = false;
+							if (!ListTools.isEmptyOrNull(logs)){
+								for (FlowLogBean log: logs){
+									String description = log.getDescription();
+									if (!StringTools.isNullOrNone(description) && description.contains("付款申请通过")
+											&& description.contains(String.valueOf(element.getTotal()))){
+										payFlag = true;
+										break;
+									}
+								}
+							}
+
+							if (payFlag){
+								line.writeColumn("已付款");
+							} else{
+								line.writeColumn("");
+							}
 							line.writeColumn("存在退货");
 							line.writeColumn(sb.toString());
 						}
 						else
 						{
+							//原销售是否回款
+							line.writeColumn("");
 							line.writeColumn("未退货");
 							line.writeColumn("");
 						}

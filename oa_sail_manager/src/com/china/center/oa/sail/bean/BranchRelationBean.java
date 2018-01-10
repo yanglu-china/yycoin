@@ -25,8 +25,14 @@ public class BranchRelationBean implements Serializable
      * 支行名称
      * 同客户名称
      */
-    @Unique(dependFields = "channel")
+    @Unique(dependFields = {"branchName","channel"})
     private String subBranchName = "";
+
+    /**
+     * #194
+     * 渠道
+     */
+    private String channel = "";
 
     /**
      * 分行名称
@@ -58,11 +64,7 @@ public class BranchRelationBean implements Serializable
 
     private String operator = "";
 
-    /**
-     * #194
-     * 渠道
-     */
-    private String channel = "";
+
 
     public String getId() {
         return id;
