@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12823,7 +12824,28 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             _logger.error("not found product import:"+productId+":"+customerName+":"+channel);
             return null;
         } else{
-            return beans.get(0);
+            for (ProductImportBean pib: beans){
+                //分行必须对应，要么分行为空
+                if (!StringTools.isNullOrNone(branchName) && !StringTools.isNullOrNone(pib.getBranchName())
+                        && !branchName.equals(pib.getBranchName())){
+                    continue;
+                }
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                try{
+                    Date end = sdf.parse(pib.getOfflineDate());
+                    Date begin = sdf.parse(pib.getOnMarketDate());
+                    Date citicDate = sdf.parse(out.getPodate());
+                    if (citicDate.before(begin) || citicDate.after(end)){
+                        _logger.warn(out+" citicDate out of date:"+pib);
+                        continue;
+                    } else{
+                        return pib;
+                    }
+                }catch(Exception e){
+                    _logger.error(" Exception parse Date:",e);
+                }
+            }
+            return null;
         }
     }
 

@@ -736,11 +736,10 @@ public class OutImportManagerImpl implements OutImportManager
 			base.setOwnerName("公共");
 
             //2015/5/4 中收激励金额
-            //TODO
             base.setIbMoney(each.getIbMoney());
             base.setMotivationMoney(each.getMotivationMoney());
             base.setCash(each.getCash());
-            base.getGrossProfit(each.getGrossProfit());
+            base.setGrossProfit(each.getGrossProfit());
 
 			//#359
 //			this.setGrossProfitAndCash(newOutBean,customerBean, base);
