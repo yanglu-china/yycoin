@@ -739,9 +739,11 @@ public class OutImportManagerImpl implements OutImportManager
             //TODO
             base.setIbMoney(each.getIbMoney());
             base.setMotivationMoney(each.getMotivationMoney());
+            base.setCash(each.getCash());
+            base.getGrossProfit(each.getGrossProfit());
 
 			//#359
-			this.setGrossProfitAndCash(newOutBean,customerBean, base);
+//			this.setGrossProfitAndCash(newOutBean,customerBean, base);
 			
 			// 业务员结算价，总部结算价
 			ProductBean product = productDAO.find(base.getProductId());
@@ -4158,6 +4160,7 @@ public void offlineStorageInJob() {
         }
     }
 
+    @Deprecated
     private void setGrossProfitAndCash(OutBean outBean,CustomerBean customerBean, BaseBean baseBean){
 		if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
 				||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){

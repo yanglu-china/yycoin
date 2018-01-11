@@ -30,6 +30,7 @@
  import com.china.center.oa.product.manager.PriceConfigManager;
  import com.china.center.oa.product.manager.StorageRelationManager;
  import com.china.center.oa.publics.Helper;
+ import com.china.center.oa.publics.StringUtils;
  import com.china.center.oa.publics.bean.CityBean;
  import com.china.center.oa.publics.bean.EnumBean;
  import com.china.center.oa.publics.bean.ProvinceBean;
@@ -1219,28 +1220,57 @@
          if (bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON
                  //#108 原招商银行导入不需要设置中收激励金额
                  && bean.getItype()!= 2){
-             //先根据多个参数匹配
+             String customerName = bean.getComunicatonBranchName();
+             String bank = "";
+             if (!StringTools.isNullOrNone(customerName)){
+                 bank = StringUtils.subString(customerName, 4);
+             }
+             //先根据支行+代码+渠道+银行匹配
              ConditionParse conditionParse = new ConditionParse();
              conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
-             if  (!StringTools.isNullOrNone(bean.getComunicatonBranchName())){
-                 conditionParse.addCondition("customerName", "=", bean.getComunicatonBranchName());
+             if  (!StringTools.isNullOrNone(customerName)){
+                 conditionParse.addCondition("customerName", "=", customerName);
              }
-
-             if  (!StringTools.isNullOrNone(bean.getBranchName())){
-                 conditionParse.addCondition("branchName", "=", bean.getBranchName());
-             }
-
              if  (!StringTools.isNullOrNone(bean.getChannel())){
                  conditionParse.addCondition("channel", "=", bean.getChannel());
              }
+             if(!StringTools.isNullOrNone(bank)) {
+                 conditionParse.addCondition("bank", "=", bank);
+             }
+
              List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+             if (ListTools.isEmptyOrNull(productImportBeans) && !StringTools.isNullOrNone(bean.getBranchName())){
+                 //如果支行无法匹配，就对比分行+代码+渠道+银行
+                 conditionParse = new ConditionParse();
+                 conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+                 conditionParse.addCondition("branchName", "=", bean.getBranchName());
+                 if (!StringTools.isNullOrNone(bean.getChannel())){
+                     conditionParse.addCondition("channel", "=", bean.getChannel());
+                 }
+                 if(!StringTools.isNullOrNone(bank)) {
+                     conditionParse.addCondition("bank", "=", bank);
+                 }
+                 productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+             }
+             if(ListTools.isEmptyOrNull(productImportBeans)){
+                 //如果支行和分行都无法匹配，就根据银行+代码+渠道
+                 conditionParse = new ConditionParse();
+                 if(!StringTools.isNullOrNone(bank)) {
+                     conditionParse.addCondition("bank", "=", bank);
+                 }
+
+                 conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+                 if (!StringTools.isNullOrNone(bean.getChannel())){
+                     conditionParse.addCondition("channel", "=", bean.getChannel());
+                 }
+                 productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+             }
 
              if(ListTools.isEmptyOrNull(productImportBeans)){
-                 //再根据网点名称前4位匹配
+                 //最后只根据银行+代码
                  conditionParse = new ConditionParse();
-                 String customerName = bean.getComunicatonBranchName();
-                 if  (!StringTools.isNullOrNone(customerName)){
-                     conditionParse.addCondition("bank", "=", bean.getComunicatonBranchName().substring(0, 4));
+                 if(!StringTools.isNullOrNone(bank)) {
+                     conditionParse.addCondition("bank", "=", bank);
                  }
 
                  conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
@@ -1281,6 +1311,8 @@
                 } else{
                     bean.setIbMoney(productImportBean.getIbMoney());
                     bean.setMotivationMoney(productImportBean.getMotivationMoney());
+                    bean.setCash(productImportBean.getCash());
+                    bean.setGrossProfit(productImportBean.getGrossProfit());
                 }
              } else{
                  String msg = "客户+银行产品编码未配置产品主数据映射关系:"+bean.getComunicatonBranchName()+"+"+bean.getProductCode();

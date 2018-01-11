@@ -223,6 +223,13 @@ public class OutImportBean implements Serializable
      */
     private double motivationMoney = 0.0d;
 
+	/**
+	 * #231
+	 */
+	private double cash =0.0d;
+
+	private double grossProfit =0.0d;
+
 	/**#64
 	 * 是否直邮
 	 */
@@ -912,6 +919,22 @@ public class OutImportBean implements Serializable
 		this.channel = channel;
 	}
 
+	public double getCash() {
+		return cash;
+	}
+
+	public void setCash(double cash) {
+		this.cash = cash;
+	}
+
+	public double getGrossProfit() {
+		return grossProfit;
+	}
+
+	public void setGrossProfit(double grossProfit) {
+		this.grossProfit = grossProfit;
+	}
+
 	@Override
 	public String toString() {
 		return "OutImportBean{" +
@@ -975,6 +998,8 @@ public class OutImportBean implements Serializable
 				", presentFlag=" + presentFlag +
 				", ibMoney=" + ibMoney +
 				", motivationMoney=" + motivationMoney +
+				", cash=" + cash +
+				", grossProfit=" + grossProfit +
 				", direct=" + direct +
 				", channel='" + channel + '\'' +
 				", mayAmount=" + mayAmount +
