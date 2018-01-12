@@ -2586,8 +2586,14 @@ public class ParentOutAction extends DispatchAction
 									.getTotal()));
 							line.writeColumn(MathTools.formatNum(refOut
 									.getHadPay()));
-							line.writeColumn(DefinedCommon.getValue("outPay",
-									refOut.getPay()));
+//							line.writeColumn(DefinedCommon.getValue("outPay",
+//									refOut.getPay()));
+							boolean payFlag = this.getPayFlag(refOut);
+							if (payFlag){
+								line.writeColumn("已付款");
+							} else{
+								line.writeColumn("");
+							}
 						}
 
 						line.writeColumn("");
@@ -2628,21 +2634,8 @@ public class ParentOutAction extends DispatchAction
 								sb.append(outBean.getFullId()).append(';');
 							}
 
-							//原销售是否回款
-							//取日志里的记录来标记原销售单回款情况
-							List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByFK(element.getFullId());
-							boolean payFlag = false;
-							if (!ListTools.isEmptyOrNull(logs)){
-								for (FlowLogBean log: logs){
-									String description = log.getDescription();
-									if (!StringTools.isNullOrNone(description) && description.contains("付款申请通过")
-											&& description.contains(String.valueOf(element.getTotal()))){
-										payFlag = true;
-										break;
-									}
-								}
-							}
 
+							boolean payFlag = this.getPayFlag(element);
 							if (payFlag){
 								line.writeColumn("已付款");
 							} else{
@@ -2916,6 +2909,24 @@ public class ParentOutAction extends DispatchAction
 		}
 
 		return null;
+	}
+
+	private boolean getPayFlag(OutBean out){
+		//原销售是否回款
+		//取日志里的记录来标记原销售单回款情况
+		List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByFK(out.getFullId());
+		boolean payFlag = false;
+		if (!ListTools.isEmptyOrNull(logs)){
+			for (FlowLogBean log: logs){
+				String description = log.getDescription();
+				if (!StringTools.isNullOrNone(description) && description.contains("付款申请通过")
+						&& description.contains(String.valueOf(out.getTotal()))){
+					payFlag = true;
+					break;
+				}
+			}
+		}
+		return payFlag;
 	}
 
 	/**
