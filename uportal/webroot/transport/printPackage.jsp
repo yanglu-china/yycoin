@@ -125,6 +125,7 @@ function pagePrint()
 					<tr class="content2">
 						<td width="8%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
 						<td width="15%"><table class="border1"><tr><td align="center">单号</td></tr></table></td>
+						<td width="15%"><table class="border1"><tr><td align="center">中信订单号</td></tr></table></td>
 						<td width="40%"><table class="border1"><tr><td align="center">销售备注</td></tr></table></td>
 					</tr>
 					
@@ -132,6 +133,7 @@ function pagePrint()
 					<tr class="content2">
 						<td><table class="border1"><tr><td align="center">${vs1.index + 1}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item1.outId}</td></tr></table></td>
+						<td><table class="border1"><tr><td>${item1.citicNo}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item1.description}</td></tr></table></td>
 					</tr>
 					</c:forEach>

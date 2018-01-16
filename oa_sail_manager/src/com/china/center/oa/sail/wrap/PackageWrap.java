@@ -13,6 +13,8 @@ import java.io.Serializable;
 public class PackageWrap implements Serializable
 {
 	private String outId = "";
+
+	private String citicNo = "";
 	
 	private String description = "";
 
@@ -50,5 +52,13 @@ public class PackageWrap implements Serializable
 	public void setDescription(String description)
 	{
 		this.description = description;
+	}
+
+	public String getCiticNo() {
+		return citicNo;
+	}
+
+	public void setCiticNo(String citicNo) {
+		this.citicNo = citicNo;
 	}
 }

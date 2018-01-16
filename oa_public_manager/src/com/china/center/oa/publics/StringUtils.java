@@ -2,6 +2,8 @@ package com.china.center.oa.publics;
 
 import com.china.center.tools.StringTools;
 
+import java.util.regex.Pattern;
+
 public class StringUtils {
 
     /**
@@ -33,5 +35,32 @@ public class StringUtils {
         } else{
             return str1+deliminator+str2;
         }
+    }
+
+    /**
+     * 从源字符串中截取deliminator1和deliminator2之间的部分
+     * @param source
+     * @param deliminator1
+     * @param deliminator2
+     * @return
+     */
+    public static String extract(String source, String deliminator1, String deliminator2){
+        if (!StringTools.isNullOrNone(source)){
+            String[] arr1 = source.split(deliminator1);
+            if (arr1.length >= 2){
+                String part2 = arr1[1];
+                if (!StringTools.isNullOrNone(part2)){
+                    String[] arr2 = part2.split(deliminator2);
+                    return arr2[0];
+                }
+            }
+        }
+
+        return source;
+    }
+
+    public static void main(String[] args){
+        String str = extract("数据接口批量导入，银行单号E20180115154115081900008.","银行单号", Pattern.quote("."));
+        System.out.println(str);
     }
 }

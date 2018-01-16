@@ -67,6 +67,7 @@ import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 public class ShipAction extends DispatchAction
 {
@@ -1284,6 +1285,7 @@ public class ShipAction extends DispatchAction
                         wrap.setDescription(out.getDescription());
                     } else {
                         wrap.setDescription(out.getSwbz());
+                        wrap.setCiticNo(StringUtils.extract(out.getDescription(),"银行单号", Pattern.quote(".")));
                     }
                 }
 
