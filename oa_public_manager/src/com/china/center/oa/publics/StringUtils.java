@@ -38,7 +38,7 @@ public class StringUtils {
     }
 
     /**
-     * 从源字符串中截取deliminator1和deliminator2之间的部分
+     * 从源字符串中截取deliminator1和deliminator2之间的部分,找不到就返回空
      * @param source
      * @param deliminator1
      * @param deliminator2
@@ -56,7 +56,7 @@ public class StringUtils {
             }
         }
 
-        return source;
+        return "";
     }
 
     public static void main(String[] args){
