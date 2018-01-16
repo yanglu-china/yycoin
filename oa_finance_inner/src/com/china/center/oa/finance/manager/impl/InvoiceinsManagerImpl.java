@@ -3659,12 +3659,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
 			if (checkInvoiceStatus){
 				//#169 只把已导入发票号关联的销售单审批过去
-				ConditionParse condition = new ConditionParse();
-				condition.addWhereStr();
-				condition.addCondition(" and exists ( select InsVSOutBean.* from T_CENTER_VS_INSOUT InsVSOutBean " +
-						"where InsVSOutBean.insId=InsVSInvoiceNumBean.insId and InsVSOutBean.outId='" +
-						outId + "')");
-				List<InsVSInvoiceNumBean> insVSInvoiceNumBeans = insVSInvoiceNumDAO.queryEntityBeansByCondition(condition);
+//				ConditionParse condition = new ConditionParse();
+//				condition.addWhereStr();
+//				condition.addCondition(" and exists ( select InsVSOutBean.* from T_CENTER_VS_INSOUT InsVSOutBean " +
+//						"where InsVSOutBean.insId=InsVSInvoiceNumBean.insId and InsVSOutBean.outId='" +
+//						outId + "')");
+//				List<InsVSInvoiceNumBean> insVSInvoiceNumBeans = insVSInvoiceNumDAO.queryEntityBeansByCondition(condition);
+                List<InsVSInvoiceNumBean> insVSInvoiceNumBeans = this.getInvoiceNumByOutId(outId);
 				if (ListTools.isEmptyOrNull(insVSInvoiceNumBeans)){
 					_logger.warn("***No InsVSInvoiceNumBean found***"+outId);
 					return false;
@@ -3730,6 +3731,26 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		}
 		return result;
 	}
+
+    /**
+     * #233 以两个查询代替exists连接查询
+     * @param outId
+     * @return
+     */
+	private List<InsVSInvoiceNumBean> getInvoiceNumByOutId(String outId){
+        List<InsVSInvoiceNumBean> result = new ArrayList<InsVSInvoiceNumBean>();
+	    List<InsVSOutBean> insVSOutBeans = this.insVSOutDAO.queryEntityBeansByFK(outId);
+	    if (!ListTools.isEmptyOrNull(insVSOutBeans)){
+            for (InsVSOutBean insVSOutBean: insVSOutBeans){
+                List<InsVSInvoiceNumBean> insVSInvoiceNumBeans = insVSInvoiceNumDAO.queryEntityBeansByFK(insVSOutBean.getInsId());
+                if(!ListTools.isEmptyOrNull(insVSInvoiceNumBeans)){
+                    result.addAll(insVSInvoiceNumBeans);
+                }
+            }
+        }
+
+        return result;
+    }
 
     //若销售单状态为“待库管审批”，则将对应的销售单通过库管审批（正常生成凭证及库存扣减）
     private boolean passOut(String insId, String outId){
