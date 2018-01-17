@@ -125,7 +125,7 @@ public class StafferBean implements Serializable
     @Join(tagClass = PrincipalshipBean.class, type = JoinType.LEFT)
     private String principalshipId = "-1";
 
-    @Html(title = "邮箱", maxLength = 20)
+    @Html(title = "邮箱", maxLength = 200)
     private String nation = "";
 
     @Html(title = "籍贯", maxLength = 20)
