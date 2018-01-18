@@ -1391,20 +1391,27 @@
                          .append("<br>");
 
                  importError = true;
-             } else if(ShipConstant.CHANNEL_HJWD.equals(channel) || ShipConstant.CHANNEL_XPJD.equals(channel)
-                     ||ShipConstant.CHANNEL_FHWD.equals(channel) || ShipConstant.CHANNEL_SHSC.equals(channel)){
-                 bean.setChannel(channel);
-             } else{
-                 builder.append("第[" + currentNumber + "]错误:")
-                         .append("渠道只能是黄金微店、小浦金店、分行微店或生活商城")
-                         .append("<br>");
+             } else {
+                 final String type = "311";
+                 EnumBean enumBean = new EnumBean();
+                 enumBean.setType(type);
+                 enumBean.setValue(channel);
+                 List<EnumBean> enumBeans = this.enumDAO.findByType(type);
+                 if (!ListTools.isEmptyOrNull(enumBeans) && enumBeans.contains(enumBean)){
+                     bean.setChannel(channel);
+                 } else{
+                     builder.append("第[" + currentNumber + "]错误:")
+                             .append("渠道只能是"+EnumBean.join(enumBeans))
+                             .append("<br>");
 
-                 importError = true;
+                     importError = true;
+                 }
              }
          }
 
          return importError;
      }
+
 
      /**
       * days between today and day
@@ -2557,15 +2564,21 @@
                          .append("<br>");
 
                  importError = true;
-             } else if(ShipConstant.CHANNEL_HJWD.equals(channel) || ShipConstant.CHANNEL_XPJD.equals(channel)
-                     ||ShipConstant.CHANNEL_FHWD.equals(channel) || ShipConstant.CHANNEL_SHSC.equals(channel)){
-                 bean.setChannel(channel);
              } else{
-                 builder.append("第[" + currentNumber + "]错误:")
-                         .append("渠道只能是黄金微店、小浦金店、分行微店或生活商城")
-                         .append("<br>");
+                 final String type = "311";
+                 EnumBean enumBean = new EnumBean();
+                 enumBean.setType(type);
+                 enumBean.setValue(channel);
+                 List<EnumBean> enumBeans = this.enumDAO.findByType(type);
+                 if (!ListTools.isEmptyOrNull(enumBeans) && enumBeans.contains(enumBean)){
+                     bean.setChannel(channel);
+                 } else{
+                     builder.append("第[" + currentNumber + "]错误:")
+                             .append("渠道只能是"+EnumBean.join(enumBeans))
+                             .append("<br>");
 
-                 importError = true;
+                     importError = true;
+                 }
              }
          }
 

@@ -13,6 +13,8 @@ import com.china.center.jdbc.inter.DAO;
 import com.china.center.oa.publics.bean.EnumBean;
 import com.china.center.oa.publics.vo.EnumVO;
 
+import java.util.List;
+
 
 /**
  * EnumDAO
@@ -25,4 +27,6 @@ import com.china.center.oa.publics.vo.EnumVO;
 public interface EnumDAO extends DAO<EnumBean, EnumVO>
 {
     EnumBean findByTypeAndEnumIndex(int type, String key);
+
+    List<EnumBean> findByType(String type);
 }

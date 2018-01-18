@@ -10,6 +10,8 @@ package com.china.center.oa.publics.bean;
 
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Objects;
 
 import com.china.center.jdbc.annotation.Column;
 import com.china.center.jdbc.annotation.Entity;
@@ -141,5 +143,33 @@ public class EnumBean implements Serializable
     public void setStatus(int status)
     {
         this.status = status;
+    }
+
+    public static  String join(List<EnumBean> enumBeans){
+        StringBuilder sb = new StringBuilder();
+        if (enumBeans!= null){
+            for(EnumBean enumBean: enumBeans){
+                sb.append(enumBean.getValue()).append(",");
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EnumBean enumBean = (EnumBean) o;
+
+        if (!type.equals(enumBean.type)) return false;
+        return value.equals(enumBean.value);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        result = 31 * result + value.hashCode();
+        return result;
     }
 }

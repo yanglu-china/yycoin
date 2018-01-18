@@ -14,6 +14,8 @@ import com.china.center.oa.publics.bean.EnumBean;
 import com.china.center.oa.publics.dao.EnumDAO;
 import com.china.center.oa.publics.vo.EnumVO;
 
+import java.util.List;
+
 
 /**
  * EnumDAOImpl
@@ -35,5 +37,12 @@ public class EnumDAOImpl extends BaseDAO<EnumBean, EnumVO> implements EnumDAO
     public EnumBean findByTypeAndEnumIndex(int type, String key)
     {
         return this.findUnique("where type = ? and keyss = ?", type, key);
+    }
+
+    @Override
+    public List<EnumBean> findByType(String type) {
+        String sql = "select EnumBean.* from T_CENTER_ENUM EnumBean where EnumBean.type="+type;
+
+        return this.jdbcOperation.queryForListBySql(sql, claz);
     }
 }
