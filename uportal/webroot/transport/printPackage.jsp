@@ -125,7 +125,7 @@ function pagePrint()
 					<tr class="content2">
 						<td width="8%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
 						<td width="15%"><table class="border1"><tr><td align="center">单号</td></tr></table></td>
-						<td width="15%"><table class="border1"><tr><td align="center">中信订单号</td></tr></table></td>
+						<td width="15%"><table class="border1"><tr><td align="center">银行订单号</td></tr></table></td>
 						<td width="40%"><table class="border1"><tr><td align="center">销售备注</td></tr></table></td>
 					</tr>
 					
