@@ -86,7 +86,7 @@ public class JobManagerImpl implements JobManager {
         //#236 已发货和在途都要发邮件
         con.addCondition(" and PackageBean.status in(2,10)");
         //!!test only
-//        con.addCondition("PackageBean.id", "=", "CK201708131447669352");
+//        con.addCondition("PackageBean.id", "=", "CK201801161697089589");
 
         //根据customerId+channel合并CK表
         Map<String,List<PackageVO>> customer2Packages = new HashMap<String,List<PackageVO>>();
@@ -120,7 +120,7 @@ public class JobManagerImpl implements JobManager {
                         _logger.warn(vo.getId()+"***no relation found***"+customerId);
                         continue;
                     } else{
-                        _logger.info("***relation found****"+bean);
+                        _logger.info(vo.getId()+"***relation is found****"+bean);
                         customer2Relation.put(key, bean);
                     }
                 }
@@ -583,7 +583,7 @@ public class JobManagerImpl implements JobManager {
         List<BranchRelationVO> relationList = this.branchRelationDAO.queryVOsByCondition(con2);
         if (!ListTools.isEmptyOrNull(relationList)){
             BranchRelationVO relation = relationList.get(0);
-            _logger.info("***relation found****"+relation);
+            _logger.info("***relation is found****"+relation);
             return relation;
         } else{
             CustomerBean customerBean = this.customerMainDAO.find(customerId);
@@ -605,7 +605,7 @@ public class JobManagerImpl implements JobManager {
                     return null;
                 }else{
                     BranchRelationVO relation = relationList.get(0);
-                    _logger.info("***relation found****"+relation);
+                    _logger.info(customerBean.getName()+"***relation is found for customer****"+relation);
                     return relation;
                 }
             }
