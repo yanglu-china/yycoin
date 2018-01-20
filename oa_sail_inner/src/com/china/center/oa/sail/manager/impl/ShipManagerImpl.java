@@ -1660,12 +1660,14 @@ public class ShipManagerImpl implements ShipManager
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
-        con.addCondition("PackageBean.logTime", ">=", "2016-04-27 00:00:00");
-        con.addIntCondition("PackageBean.status", "=", 2);
+        con.addCondition("PackageBean.logTime", ">=", "2017-04-27 00:00:00");
+//        con.addIntCondition("PackageBean.status", "=", 2);
         //自提类的也不在发送邮件范围内
         con.addIntCondition("PackageBean.shipping","!=", 0);
         //#174 把有直邮标识的订单过滤掉
         con.addIntCondition("PackageBean.direct","!=", 1);
+        //#236 已发货和在途都要发邮件
+        con.addCondition(" and PackageBean.status in(2,10)");
         //!!test only
 //        con.addCondition("PackageBean.id", "=", "CK201701052047004361");
 //        con.addCondition(" and PackageBean.id in('CK201711191448114358','CK201711191448114338')");
