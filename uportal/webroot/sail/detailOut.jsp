@@ -476,9 +476,11 @@ function checkBean()
 					
 					 <tr class="content1">
                         <td align="right">总部核对：</td>
-                        <td colspan="3">
-                       ${bean.checks}
-                       </td>
+                        <td colspan="1">
+                       		${bean.checks}
+                       	</td>
+						 <td align="right">渠道：</td>
+						 <td colspan="1">${bean.channel}</td>
                     </tr>
                     
                     <tr class="content2">
