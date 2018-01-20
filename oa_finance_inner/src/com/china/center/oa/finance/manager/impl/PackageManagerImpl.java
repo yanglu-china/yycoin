@@ -10,6 +10,9 @@ import java.util.Set;
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
 import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.publics.dao.FlowLogDAO;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
@@ -100,6 +103,8 @@ public class PackageManagerImpl implements PackageManager {
     private PreInvoiceApplyDAO preInvoiceApplyDAO = null;
 
     private ProductExchangeConfigDAO productExchangeConfigDAO = null;
+
+	private FlowLogDAO flowLogDAO = null;
 
 	public PackageManagerImpl()
 	{
@@ -423,14 +428,25 @@ public class PackageManagerImpl implements PackageManager {
 		vsBean.setIndexPos(1);
 
 		packBean.setPrintInvoiceinsStatus(itemList);
-		if(this.isDirectShipped(itemList)){
-			packBean.setDirect(1);
-		}
-		packageDAO.saveEntityBean(packBean);
+		this.savePackage(packBean);
 		packageItemDAO.saveAllEntityBeans(itemList);
-		_logger.info(String.format("生成CK单:%s",packBean));
 
 		packageVSCustomerDAO.saveEntityBean(vsBean);
+	}
+
+	private void addLog(final String packageId, int preStatus, int afterStatus)
+	{
+		FlowLogBean log = new FlowLogBean();
+		log.setActor("系统");
+		log.setFullId(packageId);
+		log.setOprMode(PublicConstant.OPRMODE_PASS);
+		log.setLogTime(TimeTools.now());
+		log.setPreStatus(preStatus);
+		log.setAfterStatus(afterStatus);
+
+		flowLogDAO.saveEntityBean(log);
+
+		_logger.info(packageId+" update SF package status to "+afterStatus);
 	}
 
 	/**
@@ -522,12 +538,8 @@ public class PackageManagerImpl implements PackageManager {
 
 		packBean.setPrintInvoiceinsStatus(itemList);
 
-		if(this.isDirectShipped(itemList)){
-			packBean.setDirect(1);
-		}
-		packageDAO.saveEntityBean(packBean);
-		_logger.info(String.format("生成CK单:%s",packBean.getId()));
-		
+		this.savePackage(packBean);
+
 		packageItemDAO.saveAllEntityBeans(itemList);
 		
 		packageVSCustomerDAO.saveEntityBean(vsBean);
@@ -1234,16 +1246,21 @@ public class PackageManagerImpl implements PackageManager {
         vsBean.setIndexPos(1);
 
 		packBean.setPrintInvoiceinsStatus(itemList);
-		if(this.isDirectShipped(itemList)){
-			packBean.setDirect(1);
-		}
-        packageDAO.saveEntityBean(packBean);
-		_logger.info(String.format("生成CK单:%s",packBean));
-
+		this.savePackage(packBean);
         packageItemDAO.saveAllEntityBeans(itemList);
 
         packageVSCustomerDAO.saveEntityBean(vsBean);
     }
+
+	private void savePackage(PackageBean packageBean){
+		if (this.isDirectShipped(packageBean.getItemList())){
+			packageBean.setDirect(1);
+		}
+
+		packageDAO.saveEntityBean(packageBean);
+		this.addLog(packageBean.getId(), ShipConstant.SHIP_STATUS_INIT, ShipConstant.SHIP_STATUS_INIT);
+		_logger.info(String.format("生成CK单:%s",packageBean.getId()));
+	}
 
     /**
      * 2015/2/3 票随货发合并订单及发票
@@ -1539,5 +1556,13 @@ public class PackageManagerImpl implements PackageManager {
 
 	public void setProductExchangeConfigDAO(ProductExchangeConfigDAO productExchangeConfigDAO) {
 		this.productExchangeConfigDAO = productExchangeConfigDAO;
+	}
+
+	public FlowLogDAO getFlowLogDAO() {
+		return flowLogDAO;
+	}
+
+	public void setFlowLogDAO(FlowLogDAO flowLogDAO) {
+		this.flowLogDAO = flowLogDAO;
 	}
 }

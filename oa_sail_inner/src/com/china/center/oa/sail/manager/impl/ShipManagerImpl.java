@@ -20,7 +20,10 @@ import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.product.bean.CiticVSOAProductBean;
 import com.china.center.oa.product.dao.CiticVSOAProductDAO;
 import com.china.center.oa.publics.StringUtils;
+import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.publics.dao.FlowLogDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.sail.bean.*;
@@ -101,6 +104,8 @@ public class ShipManagerImpl implements ShipManager
     private ProductDAO productDAO = null;
 
     private ProductImportDAO productImportDAO = null;
+
+    private FlowLogDAO flowLogDAO = null;
 
     public ShipManagerImpl()
     {
@@ -625,6 +630,7 @@ public class ShipManagerImpl implements ShipManager
         }
 
         packageDAO.saveEntityBean(packageBean);
+        this.addLog(packageBean.getId(), ShipConstant.SHIP_STATUS_INIT, ShipConstant.SHIP_STATUS_INIT);
         _logger.info(String.format("生成CK单:%s",packageBean.getId()));
     }
 
@@ -1061,6 +1067,7 @@ public class ShipManagerImpl implements ShipManager
                 _logger.info("****CK单pickupId不能为空****"+each.getId());
                 throw new MYException("CK单[%s]pickupId不能为空", each.getId());
             }
+            int preStatus = each.getStatus();
             each.setStatus(ShipConstant.SHIP_STATUS_CONSIGN);
 
             each.setShipTime(TimeTools.now());
@@ -1083,6 +1090,7 @@ public class ShipManagerImpl implements ShipManager
             }
 
             packageDAO.updateEntityBean(each);
+            this.addLog(each.getId(),preStatus, ShipConstant.SHIP_STATUS_CONSIGN);
         }
 
         return true;
@@ -1147,6 +1155,7 @@ public class ShipManagerImpl implements ShipManager
                 _logger.info("****CK单pickupId不能为空****"+each.getId());
                 throw new MYException("CK单[%s]pickupId不能为空", each.getId());
             }
+            int preStatus = each.getStatus();
             each.setStatus(ShipConstant.SHIP_STATUS_CONSIGN);
 
             each.setShipTime(TimeTools.now());
@@ -1169,6 +1178,7 @@ public class ShipManagerImpl implements ShipManager
             }
 
             packageDAO.updateEntityBean(each);
+            this.addLog(each.getId(),preStatus, ShipConstant.SHIP_STATUS_CONSIGN);
         }
 
         return true;
@@ -3300,37 +3310,52 @@ public class ShipManagerImpl implements ShipManager
                                 || state == ShipConstant.SF_STATUS_607){
                             // 已收件
                             this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
-                            _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_ZAITU);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_ZAITU);
                         } else if (state  ==  ShipConstant.SF_STATUS_130 || state == ShipConstant.SF_STATUS_123){
                             // 即将派件
                             this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
-                            _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_ZAITU);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_ZAITU);
                         } else if (state  ==  ShipConstant.SF_STATUS_80 || state == ShipConstant.SF_STATUS_8000){
                             //已签收
                             this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
-                            _logger.info(packageBean.getId()+" update SF package status to "+SHIP_STATUS_PRINT_SIGNED);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_SIGNED);
                         } else if (state  ==  ShipConstant.SF_STATUS_631 || state == ShipConstant.SF_STATUS_648
                                 || state == ShipConstant.SF_STATUS_99){
                             //已退回
                             this.packageDAO.updateStatus(packageBean.getId(), ShipConstant.SHIP_STATUS_PRINT_RETURN);
-                            _logger.info(packageBean.getId()+" update SF package status to "+ShipConstant.SHIP_STATUS_PRINT_RETURN);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), ShipConstant.SHIP_STATUS_PRINT_RETURN);
                         }
                     } else{
                         if (state == ShipConstant.KD_100_STATUS_SIGNED || state == ShipConstant.KD_100_STATUS_RE_SIGNED
                                 || state == ShipConstant.KD_100_STATUS_RETURN){
                             int status = state + 10;
                             this.packageDAO.updateStatus(packageBean.getId(), status);
-                            _logger.info(packageBean.getId()+" update package status to "+status);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), status);
                         } else{
                             int status =  10;
                             this.packageDAO.updateStatus(packageBean.getId(), status);
-                            _logger.info(packageBean.getId()+" update package status to "+status);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), status);
                         }
                     }
                 }
             }
         }
         _logger.info("***updatePackageStatusJob finished***");
+    }
+
+    private void addLog(final String packageId, int preStatus, int afterStatus)
+    {
+        FlowLogBean log = new FlowLogBean();
+        log.setActor("系统");
+        log.setFullId(packageId);
+        log.setOprMode(PublicConstant.OPRMODE_PASS);
+        log.setLogTime(TimeTools.now());
+        log.setPreStatus(preStatus);
+        log.setAfterStatus(afterStatus);
+
+        flowLogDAO.saveEntityBean(log);
+
+        _logger.info(packageId+" update SF package status to "+afterStatus);
     }
 
     private boolean isDirectShipped(List<PackageItemBean> items ){
@@ -3671,9 +3696,17 @@ public class ShipManagerImpl implements ShipManager
         this.productImportDAO = productImportDAO;
     }
 
+    public FlowLogDAO getFlowLogDAO() {
+        return flowLogDAO;
+    }
+
+    public void setFlowLogDAO(FlowLogDAO flowLogDAO) {
+        this.flowLogDAO = flowLogDAO;
+    }
+
     public static void main(String[] args){
         ShipManagerImpl shipManager = new ShipManagerImpl();
-        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","615602517677");
+        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","617856083893");
         System.out.println(map);
         if (map.get("state")!= null){
             int state = Integer.valueOf((String)map.get("state"));

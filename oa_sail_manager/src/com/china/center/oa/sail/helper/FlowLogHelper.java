@@ -53,4 +53,31 @@ public abstract class FlowLogHelper
         return vo;
     }
 
+    public static FlowLogVO getPackageLogVO(FlowLogBean bean)
+    {
+        FlowLogVO vo = new FlowLogVO();
+
+        if (bean == null)
+        {
+            return vo;
+        }
+
+        BeanUtil.copyProperties(vo, bean);
+
+        if (bean.getOprMode() == PublicConstant.OPRMODE_PASS)
+        {
+            vo.setOprModeName("通过");
+        }
+
+        if (bean.getOprMode() == PublicConstant.OPRMODE_REJECT)
+        {
+            vo.setOprModeName("驳回");
+        }
+
+        vo.setPreStatusName(OutHelper.getPackageStatus(vo.getPreStatus()));
+
+        vo.setAfterStatusName(OutHelper.getPackageStatus(vo.getAfterStatus()));
+
+        return vo;
+    }
 }

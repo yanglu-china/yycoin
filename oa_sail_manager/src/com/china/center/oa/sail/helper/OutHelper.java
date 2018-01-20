@@ -101,6 +101,12 @@ public abstract class OutHelper
         return DefinedCommon.getValue("outStatus", i);
     }
 
+
+    public static String getPackageStatus(int status)
+    {
+        return DefinedCommon.getValue("shipStatus", status);
+    }
+
     public static boolean canDelete(OutBean outBean)
     {
         int status = outBean.getStatus();

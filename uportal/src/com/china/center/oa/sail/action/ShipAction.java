@@ -32,10 +32,12 @@ import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.manager.UserManager;
+import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.helper.FlowLogHelper;
 import com.china.center.oa.sail.manager.ShipManager;
 import com.china.center.oa.sail.vo.PackageVO;
 import com.china.center.oa.sail.wrap.PackageWrap;
@@ -126,6 +128,8 @@ public class ShipAction extends DispatchAction
     private ProductImportDAO productImportDAO = null;
 
     private BankConfigForShipDAO bankConfigForShipDAO = null;
+
+    private FlowLogDAO flowLogDAO = null;
 
     private final static String QUERYPACKAGE = "queryPackage";
 
@@ -885,6 +889,12 @@ public class ShipAction extends DispatchAction
         vo.setItemList(itemList);
 
         request.setAttribute("bean", vo);
+
+        List<FlowLogBean> logList = flowLogDAO.queryEntityBeansByFK(packageId);
+
+        List<FlowLogVO> voList = ListTools.changeList(logList, FlowLogVO.class,
+                FlowLogHelper.class, "getPackageLogVO");
+        request.setAttribute("logList", voList);
 
         return mapping.findForward("detailPackage");
     }
@@ -3394,7 +3404,8 @@ public class ShipAction extends DispatchAction
             }
 
 //            String key = each.getProductId();
-            String key = each.getProductId()+"_"+each.getItemType();
+            //#239 还要根据客户姓名分组
+            String key = each.getProductId()+"_"+each.getItemType()+"_"+each.getCustomerName();
 
             if (!map1.containsKey(key))
             {
@@ -5550,5 +5561,13 @@ public class ShipAction extends DispatchAction
 
     public void setBankConfigForShipDAO(BankConfigForShipDAO bankConfigForShipDAO) {
         this.bankConfigForShipDAO = bankConfigForShipDAO;
+    }
+
+    public FlowLogDAO getFlowLogDAO() {
+        return flowLogDAO;
+    }
+
+    public void setFlowLogDAO(FlowLogDAO flowLogDAO) {
+        this.flowLogDAO = flowLogDAO;
     }
 }
