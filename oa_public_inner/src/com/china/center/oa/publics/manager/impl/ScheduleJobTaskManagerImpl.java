@@ -8,10 +8,7 @@ import com.china.center.oa.publics.trigger.QuartzJobFactory;
 import com.china.center.oa.publics.trigger.QuartzJobFactoryDisallowConcurrentExecution;
 import com.china.center.tools.TimeTools;
 import org.apache.log4j.Logger;
-import org.quartz.CronTrigger;
-import org.quartz.JobDetail;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
+import org.quartz.*;
 import org.quartz.impl.StdScheduler;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -159,16 +156,32 @@ public class ScheduleJobTaskManagerImpl implements ScheduleJobManager {
 
         jobDetail.getJobDataMap().put("scheduleJob", job);
 
-        CronTrigger trigger = new CronTrigger(job.getJobName() + TRIGGER_SUFFIX, TRIGGER_GROUP_NAME ,  job.getJobName() , job.getJobGroup());
-        // 触发器表达式
-        try {
-            trigger.setCronExpression(job.getCronExpression());
-        } catch (ParseException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-        }
+        int type = job.getType();
+
+        if ( type == ScheduleJobBean.CRON_TRIGGER){
+            CronTrigger trigger = new CronTrigger(job.getJobName() + TRIGGER_SUFFIX, TRIGGER_GROUP_NAME ,  job.getJobName() , job.getJobGroup());
+            // 触发器表达式
+            try {
+                trigger.setCronExpression(job.getCronExpression());
+            } catch (ParseException e) {
+                e.printStackTrace();
+                log.error(e.getMessage());
+            }
 //        log.info(trigger.getFullJobName() + "|trigger:" + trigger.getFullName());
-        myScheduler.scheduleJob(jobDetail, trigger);
+            myScheduler.scheduleJob(jobDetail, trigger);
+        } else if ( type == ScheduleJobBean.SIMPLE_TRIGGER){
+            try {
+                SimpleTrigger trigger = new SimpleTrigger(job.getJobName() + TRIGGER_SUFFIX, TRIGGER_GROUP_NAME,
+                        job.getJobName(), job.getJobGroup(),
+                        new Date(), null,
+                        SimpleTrigger.REPEAT_INDEFINITELY, Integer.valueOf(job.getCronExpression()) * 1000L);
+                myScheduler.scheduleJob(jobDetail, trigger);
+            }catch (Exception e){
+                e.printStackTrace();
+                log.error(e.getMessage());
+            }
+        }
+
 
     }
 
@@ -245,13 +258,27 @@ public class ScheduleJobTaskManagerImpl implements ScheduleJobManager {
     @Transactional(rollbackFor = MYException.class)
     public void updateJobCron(ScheduleJobBean scheduleJob) throws SchedulerException, ParseException {
 
-        CronTrigger trigger = new CronTrigger(scheduleJob.getJobName() + TRIGGER_SUFFIX,
-                TRIGGER_GROUP_NAME , scheduleJob.getJobName(), scheduleJob.getJobGroup());
+        int type = scheduleJob.getType();
+        if (type == ScheduleJobBean.CRON_TRIGGER) {
+            CronTrigger trigger = new CronTrigger(scheduleJob.getJobName() + TRIGGER_SUFFIX,
+                    TRIGGER_GROUP_NAME, scheduleJob.getJobName(), scheduleJob.getJobGroup());
 //        trigger.setJobName(scheduleJob.getJobName());
-        // 触发器表达式
-        trigger.setCronExpression(scheduleJob.getCronExpression());
+            // 触发器表达式
+            trigger.setCronExpression(scheduleJob.getCronExpression());
 
-        myScheduler.rescheduleJob(trigger.getName(), TRIGGER_GROUP_NAME, trigger);
+            myScheduler.rescheduleJob(trigger.getName(), TRIGGER_GROUP_NAME, trigger);
+        }else if (type == ScheduleJobBean.SIMPLE_TRIGGER){
+            try {
+                SimpleTrigger trigger = new SimpleTrigger(scheduleJob.getJobName() + TRIGGER_SUFFIX, TRIGGER_GROUP_NAME,
+                        scheduleJob.getJobName(), scheduleJob.getJobGroup(),
+                        new Date(), null,
+                        SimpleTrigger.REPEAT_INDEFINITELY, Integer.valueOf(scheduleJob.getCronExpression()) * 1000L);
+                myScheduler.rescheduleJob(trigger.getName(), TRIGGER_GROUP_NAME, trigger);
+            }catch (Exception e){
+                e.printStackTrace();
+                log.error(e.getMessage());
+            }
+        }
     }
 
     public void getJob(ScheduleJobBean job) throws SchedulerException {

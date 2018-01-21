@@ -28,8 +28,13 @@ public class ScheduleJobBean  implements Serializable {
 	public static final String CMD_START = "start";
 	public static final String CMD_STOP = "stop";
 
+	public static final int CRON_TRIGGER = 0;
+	public static final int SIMPLE_TRIGGER = 1;
+
 	@Id
 	private int id;
+
+	private int type = CRON_TRIGGER;
 
 	private Date createTime;
 
@@ -189,4 +194,11 @@ public class ScheduleJobBean  implements Serializable {
 
 	public void setNextFireTime(String nextFireTime) { this.nextFireTime = nextFireTime; }
 
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
 }
