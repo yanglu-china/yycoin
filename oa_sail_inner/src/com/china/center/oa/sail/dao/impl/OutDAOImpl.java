@@ -1228,4 +1228,13 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
 
         return i != 0;
     }
+
+    @Override
+    public List<OutBean> queryDirectOut() {
+        String sql = "select OutBean.* from t_center_out OutBean " +
+                "left join t_center_out_import OutImportBean on OutBean.fullId=OutImportBean.oano " +
+                "where OutImportBean.direct=1 and OutBean.customerCreated=0 and OutBean.type=0";
+
+        return this.jdbcOperation.queryForListBySql(sql, claz);
+    }
 }

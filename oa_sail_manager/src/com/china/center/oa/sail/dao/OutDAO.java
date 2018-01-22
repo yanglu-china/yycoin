@@ -390,6 +390,12 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     boolean updatePreInvoiceIns(String invoiceId, int shipping, int expressPay, int transport1, int transportPay, int transport2);
     
     List<OutBean> queryOutByOneCondition(ConditionParse con);
+
+    /**
+     * #238 未生成客户的直邮单据
+     * @return
+     */
+    List<OutBean> queryDirectOut();
     
     boolean updatePayInvoiceData(String fullId, int piType, int piMtype, String piDutyId, int piStatus);
     

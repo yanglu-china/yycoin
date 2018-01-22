@@ -12881,8 +12881,19 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         conditionParse.addCondition(" and (customerName like '%钱币交易部%' or customerName like '%微店%' or customerName like '%天猫%' or customerName like '%永银藏品店%')");
 
         List<OutBean> outBeanList = this.outDAO.queryEntityBeansByCondition(conditionParse);
-        if (!ListTools.isEmptyOrNull(outBeanList)) {
-            for (OutBean out : outBeanList) {
+
+        List<OutBean> outBeanList1 = this.outDAO.queryDirectOut();
+
+        List<OutBean> list = new ArrayList<OutBean>();
+        if (!ListTools.isEmptyOrNull(outBeanList)){
+            list.addAll(outBeanList);
+        }
+        if (!ListTools.isEmptyOrNull(outBeanList1)){
+            list.addAll(outBeanList1);
+        }
+
+        if (!ListTools.isEmptyOrNull(list)) {
+            for (OutBean out : list) {
                 String fullId = out.getFullId();
                 String customerName = out.getCustomerName();
                 try {
@@ -12997,18 +13008,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                                 this.outDAO.updateCustomerCreated(out.getFullId(), true);
                             } else {
-                                _logger.info("already exist**" + mobile);
-                                //TODO update address
+                                _logger.info("mobile already exist**" + mobile);
+                                // update address
                                 //4.	同时将收货信息记为客户的地址信息，同时将收货人记入联系人信息
                                 ConditionParse conditionParse2 = new ConditionParse();
                                 conditionParse2.addCondition("provinceId","=", distributionBean.getProvinceId());
                                 conditionParse2.addCondition("cityId","=", distributionBean.getCityId());
-                                String temp = distributionBean.getAddress();
-                                if (temp.length()>=6){
-                                    conditionParse2.addCondition("address", "like", "%"+temp.substring(temp.length()-6));
-                                }else{
-                                    conditionParse2.addCondition("address", "like", "%"+temp);
-                                }
+                                conditionParse2.addCondition("address", "like", "%"+StringUtils.subString(distributionBean.getAddress(), 6));
                                 List<CustomerDistAddrBean> contactBeans = this.customerDistAddrDAO.queryEntityBeansByCondition(conditionParse2);
                                 if (ListTools.isEmptyOrNull(contactBeans)){
                                     CustomerContactBean contactBean = contactBeanList.get(0);
@@ -13029,6 +13035,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                     this.customerDistAddrDAO.saveEntityBean(distAddrBean);
                                     _logger.info("add distAddrBean***"+distAddrBean);
                                 }
+                                this.outDAO.updateCustomerCreated(out.getFullId(), true);
                             }
                         }
                     }
@@ -13583,5 +13590,21 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public void setEnumDAO(EnumDAO enumDAO) {
         this.enumDAO = enumDAO;
+    }
+
+    public CustomerDistAddrDAO getCustomerDistAddrDAO() {
+        return customerDistAddrDAO;
+    }
+
+    public void setCustomerDistAddrDAO(CustomerDistAddrDAO customerDistAddrDAO) {
+        this.customerDistAddrDAO = customerDistAddrDAO;
+    }
+
+    public CustomerContactDAO getCustomerContactDAO() {
+        return customerContactDAO;
+    }
+
+    public void setCustomerContactDAO(CustomerContactDAO customerContactDAO) {
+        this.customerContactDAO = customerContactDAO;
     }
 }
