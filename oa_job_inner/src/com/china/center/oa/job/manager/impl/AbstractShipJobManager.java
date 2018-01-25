@@ -9,8 +9,6 @@ import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.job.manager.JobManager;
-import com.china.center.oa.product.bean.ProductBean;
-import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.publics.StringUtils;
@@ -18,7 +16,6 @@ import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.sail.bean.*;
-import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.ShipManager;
 import com.china.center.oa.sail.vo.BranchRelationVO;
@@ -27,14 +24,13 @@ import com.china.center.tools.BeanUtil;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
-import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import jxl.Workbook;
 import jxl.format.PageOrientation;
 import jxl.format.PaperSize;
 import jxl.write.*;
-import org.springframework.transaction.annotation.Transactional;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,7 +40,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class JobManagerImpl implements JobManager {
+public abstract class AbstractShipJobManager implements JobManager {
     private final Log _logger = LogFactory.getLog(getClass());
 
     private PackageDAO packageDAO = null;
@@ -71,15 +67,19 @@ public class JobManagerImpl implements JobManager {
 
     private ShipManager shipManager = null;
 
+    abstract protected String getKey(String customerId);
+
+    abstract protected void createMailAttachment(String customerName, List<PackageItemBean> beans,
+                                                 String branchName, String fileName, boolean ignoreLyOrders);
+
     @Override
     @Transactional(rollbackFor = MYException.class)
     public void run() throws MYException {
-        _logger.info("****sendShippingMailToPf running****");
+        _logger.info("****ShipJobManagerImpl running****");
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
         con.addCondition("PackageBean.logTime", ">=", "2017-04-27 00:00:00");
-//        con.addIntCondition("PackageBean.status", "=", 2);
         //自提类的也不在发送邮件范围内
         con.addIntCondition("PackageBean.shipping","!=", 0);
         //#174 把有直邮标识的订单过滤掉
@@ -115,15 +115,19 @@ public class JobManagerImpl implements JobManager {
 
                 List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(vo.getId());
                 for(PackageItemBean itemBean: itemList){
+                    //#245
+                    itemBean.setReceiver(vo.getReceiver());
                     itemBean.setTransportName1(vo.getTransportName1());
                     itemBean.setTransportNo(vo.getTransportNo());
 
                     String customerId = itemBean.getCustomerId();
-                    String channel = this.getChannel(itemBean);
-                    String key = customerId+"_"+channel;
+                    String key = this.getKey(customerId);
+//                    String channel = this.getChannel(itemBean);
+//                    String key = customerId+"_"+channel;
                     //查询分支行对应关系表
                     if (!customer2Relation.containsKey(key)){
-                        BranchRelationBean bean = this.getRelationByCustomerId(customerId, channel);
+                        //TODO
+                        BranchRelationBean bean = this.getRelationByCustomerId(customerId, this.getChannel(itemBean));
                         if(bean == null){
                             _logger.warn(vo.getId()+"***no relation found***"+customerId);
                             continue;
@@ -171,12 +175,14 @@ public class JobManagerImpl implements JobManager {
 //                } else if (subBranch.indexOf("浦发银行") != -1){
 //                    this.shipManager.createMailAttachment(ShipConstant.BANK_TYPE_PF, packages,bean.getBranchName(),fileName,true);
 //                }
+                //TODO
+                this.createMailAttachment(subBranch, packages,branchName, fileName, true);
                 //#219 浦发改为只有两种模板
-                if (subBranch.indexOf("浦发银行") != -1 && "小浦金店".equals(bean.getChannel())){
-                    createPfMailAttachmentForXiaoPu(packages,branchName, fileName, true);
-                } else if (subBranch.indexOf("浦发银行") != -1){
-                    createPfMailAttachment(subBranch, packages,branchName, fileName, true);
-                }
+//                if (subBranch.indexOf("浦发银行") != -1 && "小浦金店".equals(bean.getChannel())){
+//                    createPfMailAttachmentForXiaoPu(packages,branchName, fileName, true);
+//                } else if (subBranch.indexOf("浦发银行") != -1){
+//                    createPfMailAttachment(subBranch, packages,branchName, fileName, true);
+//                }
 
                 // check file either exists
                 File file = new File(fileName);
