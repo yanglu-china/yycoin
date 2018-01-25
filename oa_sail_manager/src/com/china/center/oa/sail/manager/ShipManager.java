@@ -99,5 +99,16 @@ public interface ShipManager
 
     void createMailAttachment(int bankType, List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders);
 
+    /**
+     * #245
+     * @param bankType
+     * @param beans
+     * @param branchName
+     * @param fileName
+     * @param ignoreLyOrders
+     */
+    void createMailAttachment(int bankType, String customerName, List<PackageItemBean> beans,
+                              String branchName, String fileName, boolean ignoreLyOrders);
+
     String convertProductName(PackageItemBean item, String customerName);
 }

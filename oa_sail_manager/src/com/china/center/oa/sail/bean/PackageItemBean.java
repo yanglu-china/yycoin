@@ -131,6 +131,18 @@ public class PackageItemBean implements Serializable
 	 */
 	@Ignore
 	private String invoiceNum = "";
+
+	/**
+	 * #245
+	 */
+	@Ignore
+	private String receiver = "";
+
+	@Ignore
+	private String transportNo = "";
+
+	@Ignore
+	private String transportName1 = "";
 	
 	public PackageItemBean()
 	{
@@ -448,6 +460,30 @@ public class PackageItemBean implements Serializable
 
 	public void setInvoiceNum(String invoiceNum) {
 		this.invoiceNum = invoiceNum;
+	}
+
+	public String getReceiver() {
+		return receiver;
+	}
+
+	public void setReceiver(String receiver) {
+		this.receiver = receiver;
+	}
+
+	public String getTransportNo() {
+		return transportNo;
+	}
+
+	public void setTransportNo(String transportNo) {
+		this.transportNo = transportNo;
+	}
+
+	public String getTransportName1() {
+		return transportName1;
+	}
+
+	public void setTransportName1(String transportName1) {
+		this.transportName1 = transportName1;
 	}
 
 	@Override

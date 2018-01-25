@@ -27,6 +27,7 @@ import com.china.center.tools.BeanUtil;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
+import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import jxl.Workbook;
 import jxl.format.PageOrientation;
 import jxl.format.PaperSize;
@@ -89,7 +90,9 @@ public class JobManagerImpl implements JobManager {
 //        con.addCondition("PackageBean.id", "=", "CK201801161697089589");
 
         //根据customerId+channel合并CK表
-        Map<String,List<PackageVO>> customer2Packages = new HashMap<String,List<PackageVO>>();
+//        Map<String,List<PackageVO>> customer2Packages = new HashMap<String,List<PackageVO>>();
+        //#245
+        Map<String,List<PackageItemBean>> customer2Packages = new HashMap<String,List<PackageItemBean>>();
         //<支行customerId_channel,BranchRelationBean>
         Map<String,BranchRelationBean> customer2Relation = new HashMap<String,BranchRelationBean>();
 
@@ -110,36 +113,43 @@ public class JobManagerImpl implements JobManager {
                     }
                 }
 
-                String customerId = vo.getCustomerId();
-                String channel = this.getChannel(vo);
-                String key = customerId+"_"+channel;
-                //查询分支行对应关系表
-                if (!customer2Relation.containsKey(key)){
-                    BranchRelationBean bean = this.getRelationByCustomerId(customerId, channel);
-                    if(bean == null){
-                        _logger.warn(vo.getId()+"***no relation found***"+customerId);
-                        continue;
-                    } else{
-                        _logger.info(vo.getId()+"***relation is found****"+bean);
-                        customer2Relation.put(key, bean);
+                List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(vo.getId());
+                for(PackageItemBean itemBean: itemList){
+                    itemBean.setTransportName1(vo.getTransportName1());
+                    itemBean.setTransportNo(vo.getTransportNo());
+
+                    String customerId = itemBean.getCustomerId();
+                    String channel = this.getChannel(itemBean);
+                    String key = customerId+"_"+channel;
+                    //查询分支行对应关系表
+                    if (!customer2Relation.containsKey(key)){
+                        BranchRelationBean bean = this.getRelationByCustomerId(customerId, channel);
+                        if(bean == null){
+                            _logger.warn(vo.getId()+"***no relation found***"+customerId);
+                            continue;
+                        } else{
+                            _logger.info(vo.getId()+"***relation is found****"+bean);
+                            customer2Relation.put(key, bean);
+                        }
+                    }
+
+
+                    if (customer2Packages.containsKey(key)){
+                        List<PackageItemBean> voList = customer2Packages.get(key);
+                        voList.add(itemBean);
+                    }else{
+                        List<PackageItemBean> voList =  new ArrayList<PackageItemBean>();
+                        voList.add(itemBean);
+                        customer2Packages.put(key, voList);
                     }
                 }
 
-
-                if (customer2Packages.containsKey(key)){
-                    List<PackageVO> voList = customer2Packages.get(key);
-                    voList.add(vo);
-                }else{
-                    List<PackageVO> voList =  new ArrayList<PackageVO>();
-                    voList.add(vo);
-                    customer2Packages.put(key, voList);
-                }
             }
 
             //step2 send mail for merged packages
             _logger.info("***mail count to be sent to bank***" + customer2Packages.keySet().size());
             for (String key : customer2Packages.keySet()) {
-                List<PackageVO> packages = customer2Packages.get(key);
+                List<PackageItemBean> packages = customer2Packages.get(key);
                 BranchRelationBean bean = customer2Relation.get(key);
                 _logger.info(key+"***send mail to branch***"+bean);
                 if (bean == null){
@@ -165,7 +175,7 @@ public class JobManagerImpl implements JobManager {
                 if (subBranch.indexOf("浦发银行") != -1 && "小浦金店".equals(bean.getChannel())){
                     createPfMailAttachmentForXiaoPu(packages,branchName, fileName, true);
                 } else if (subBranch.indexOf("浦发银行") != -1){
-                    createPfMailAttachment(packages,branchName, fileName, true);
+                    createPfMailAttachment(subBranch, packages,branchName, fileName, true);
                 }
 
                 // check file either exists
@@ -202,12 +212,15 @@ public class JobManagerImpl implements JobManager {
                     _logger.warn("***relation send mail copy flag is 0***" + bean);
                 }
 
-                for (PackageBean vo:customer2Packages.get(key)){
+                for (PackageItemBean vo:customer2Packages.get(key)){
                     //Update sendMailFlag to 1
-                    PackageBean packBean = packageDAO.find(vo.getId());
-                    packBean.setSendMailFlag(1);
-                    this.packageDAO.updateEntityBean(packBean);
-                    _logger.info("***update mail flag for bank***"+vo.getId());
+                    String packageId = vo.getPackageId();
+                    PackageBean packBean = packageDAO.find(packageId);
+                    if (packBean.getSendMailFlag()!= 1){
+                        packBean.setSendMailFlag(1);
+                        this.packageDAO.updateEntityBean(packBean);
+                        _logger.info("***update mail flag for bank***"+packageId);
+                    }
                 }
             }
         } else {
@@ -216,27 +229,23 @@ public class JobManagerImpl implements JobManager {
         _logger.info("***finish send mail to bank***");
     }
 
-    private String getChannel(PackageVO packageVO){
-        List<PackageItemBean> items = packageItemDAO.queryEntityBeansByFK(packageVO.getId());
-        for (PackageItemBean item: items){
-            String outId = item.getOutId();
-            //忽略发票
-            if (outId.startsWith("A")){
-                continue;
-            } else{
-                OutBean outBean = outDAO.find(outId);
-                if (outBean!= null && !StringTools.isNullOrNone(outBean.getChannel())){
-                    return outBean.getChannel();
-                } else{
-                    continue;
-                }
+    private String getChannel(PackageItemBean item){
+        String outId = item.getOutId();
+        //忽略发票
+        if (outId.startsWith("A")){
+            return "";
+        } else{
+            OutBean outBean = outDAO.find(outId);
+            if (outBean!= null && !StringTools.isNullOrNone(outBean.getChannel())){
+                return outBean.getChannel();
             }
         }
 
         return "";
     }
 
-    private void createPfMailAttachment(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
+    private void createPfMailAttachment(String customerName, List<PackageItemBean> beans,
+                                        String branchName, String fileName, boolean ignoreLyOrders)
     {
         _logger.info("***createPfMailAttachment with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
@@ -344,81 +353,80 @@ public class JobManagerImpl implements JobManager {
             ws.addCell(new Label(9, i, "发票号", format3));
             ws.addCell(new Label(10, i, "证书号", format3));
 
-            for (PackageVO bean :beans){
-                List<PackageItemBean> items = packageItemDAO.queryEntityBeansByFK(bean.getId());
-                _logger.info("***itemList size***"+items.size());
+
+            _logger.info("***itemList size***"+beans.size());
 //                this.mergeInvoiceNum(itemList);
-                //TODO
-                List<PackageItemBean> itemList = this.mergeItems(items);
-                _logger.info("***after merge itemList size***"+itemList.size());
-                if (!ListTools.isEmptyOrNull(itemList)){
-                    for (PackageItemBean each : itemList)
-                    {
-                        //#351 filter LY orders
-                        if (ignoreLyOrders && each.getOutId().startsWith("LY")){
-                            continue;
-                        }
-                        i++;
+            //TODO
+            List<PackageItemBean> itemList = this.mergeItems(beans);
+            _logger.info("***after merge itemList size***"+itemList.size());
+            if (!ListTools.isEmptyOrNull(itemList)){
+                for (PackageItemBean each : itemList)
+                {
+                    //#351 filter LY orders
+                    if (ignoreLyOrders && each.getOutId().startsWith("LY")){
+                        continue;
+                    }
+                    i++;
 
-                        //交易日期
-                        String outId = each.getOutId();
-                        OutBean outBean = outDAO.find(outId);
-                        if (outBean!= null){
-                            each.setPoDate(outBean.getPodate());
-                        } else if(out == null && outId.startsWith("A")){
-                            each.setPoDate(each.getOutTime());
-                        }
+                    //交易日期
+                    String outId = each.getOutId();
+                    OutBean outBean = outDAO.find(outId);
+                    if (outBean!= null){
+                        each.setPoDate(outBean.getPodate());
+                    } else if(out == null && outId.startsWith("A")){
+                        each.setPoDate(each.getOutTime());
+                    }
 
-                        ws.addCell(new Label(j++, i, each.getPoDate(), format3));
+                    ws.addCell(new Label(j++, i, each.getPoDate(), format3));
 
-                        //交易机构
-                        ws.addCell(new Label(j++, i, this.getCustomerName(each), format3));
+                    //交易机构
+                    ws.addCell(new Label(j++, i, this.getCustomerName(each), format3));
 
-                        String[] temp = this.getCommunicationBranchNameAndProductCodeFromOutImport(each.getOutId());
-                        //配货机构
-                        ws.addCell(new Label(j++, i, temp[1], format3));
+                    String[] temp = this.getCommunicationBranchNameAndProductCodeFromOutImport(each.getOutId());
+                    //配货机构
+                    ws.addCell(new Label(j++, i, temp[1], format3));
 
-                        if(each.getOutId().startsWith("A")){
-                            //产品代码
-                            ws.addCell(new Label(j++, i, "", format3));
-
-                            //产品名称
-                            ws.addCell(new Label(j++, i, "", format3));
-                        } else{
-                            //产品代码
-                            ws.addCell(new Label(j++, i, temp[0], format3));
-
-                            //产品名称
-                            ws.addCell(new Label(j++, i, this.shipManager.convertProductName(each,bean.getCustomerName()), format3));
-                        }
-
-
-                        //零售价
-                        ws.addCell(new Label(j++, i, String.valueOf(each.getPrice()), format3));
-
-                        //数量
-                        ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
-
-                        //快递公司
-                        ws.addCell(new Label(j++, i, bean.getTransportName1(), format3));
-                        //2016/4/5 #2 快递单号改取package表的transportNo
-                        String transportNo = bean.getTransportNo();
-                        ws.addCell(new Label(j++, i, transportNo, format3));
-
-                        //发票号
-                        if(each.getOutId().startsWith("A")){
-                            ws.addCell(new Label(j++, i, each.getProductName(), format3));
-                        } else{
-                            ws.addCell(new Label(j++, i, each.getInvoiceNum(), format3));
-                        }
-
-                        //证书号
+                    if(each.getOutId().startsWith("A")){
+                        //产品代码
                         ws.addCell(new Label(j++, i, "", format3));
 
-                        j = 0;
+                        //产品名称
+                        ws.addCell(new Label(j++, i, "", format3));
+                    } else{
+                        //产品代码
+                        ws.addCell(new Label(j++, i, temp[0], format3));
+
+                        //产品名称
+                        ws.addCell(new Label(j++, i, this.shipManager.convertProductName(each,customerName), format3));
                     }
+
+
+                    //零售价
+                    ws.addCell(new Label(j++, i, String.valueOf(each.getPrice()), format3));
+
+                    //数量
+                    ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
+
+                    //快递公司
+                    ws.addCell(new Label(j++, i, each.getTransportName1(), format3));
+                    //2016/4/5 #2 快递单号改取package表的transportNo
+                    String transportNo = each.getTransportNo();
+                    ws.addCell(new Label(j++, i, transportNo, format3));
+
+                    //发票号
+                    if(each.getOutId().startsWith("A")){
+                        ws.addCell(new Label(j++, i, each.getProductName(), format3));
+                    } else{
+                        ws.addCell(new Label(j++, i, each.getInvoiceNum(), format3));
+                    }
+
+                    //证书号
+                    ws.addCell(new Label(j++, i, "", format3));
+
+                    j = 0;
                 }
             }
+
         }
         catch (Throwable e)
         {
@@ -690,7 +698,7 @@ public class JobManagerImpl implements JobManager {
      * @param fileName
      * @param ignoreLyOrders
      */
-    private void createPfMailAttachmentForXiaoPu(List<PackageVO> beans, String branchName, String fileName, boolean ignoreLyOrders)
+    private void createPfMailAttachmentForXiaoPu(List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders)
     {
         _logger.info("***createPfMailAttachmentForXiaoPu with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
         WritableWorkbook wwb = null;
@@ -783,37 +791,34 @@ public class JobManagerImpl implements JobManager {
             ws.addCell(new Label(1, i, "快递公司", format3));
             ws.addCell(new Label(2, i, "快递单号", format3));
 
-            for (PackageVO bean :beans){
-                List<PackageItemBean> items = packageItemDAO.queryEntityBeansByFK(bean.getId());
-                _logger.info("***itemList size***"+items.size());
-                List<PackageItemBean> itemList = this.mergeItems(items);
-                _logger.info("***after merge itemList size***"+itemList);
-                if (!ListTools.isEmptyOrNull(itemList)){
-                    for (PackageItemBean each : itemList)
-                    {
-                        //#351 filter LY orders
-                        if (ignoreLyOrders && each.getOutId().startsWith("LY")){
-                            continue;
-                        }
-                        i++;
-
-                        //银行单号
-                        String outId = each.getOutId();
-                        String citicNo = this.getCiticNoFromOutImport(each);
-                        ws.addCell(new Label(j++, i, citicNo, format3));
-
-                        //快递公司
-                        ws.addCell(new Label(j++, i, bean.getTransportName1(), format3));
-
-                        //2016/4/5 #2 快递单号改取package表的transportNo
-                        String transportNo = bean.getTransportNo();
-                        ws.addCell(new Label(j++, i, transportNo, format3));
-
-
-                        j = 0;
+            _logger.info("***itemList size***"+beans.size());
+            List<PackageItemBean> itemList = this.mergeItems(beans);
+            _logger.info("***after merge itemList size***"+itemList);
+            if (!ListTools.isEmptyOrNull(itemList)){
+                for (PackageItemBean each : itemList)
+                {
+                    //#351 filter LY orders
+                    if (ignoreLyOrders && each.getOutId().startsWith("LY")){
+                        continue;
                     }
+                    i++;
+
+                    //银行单号
+                    String outId = each.getOutId();
+                    String citicNo = this.getCiticNoFromOutImport(each);
+                    ws.addCell(new Label(j++, i, citicNo, format3));
+
+                    //快递公司
+                    ws.addCell(new Label(j++, i, each.getTransportName1(), format3));
+
+                    //2016/4/5 #2 快递单号改取package表的transportNo
+                    String transportNo = each.getTransportNo();
+                    ws.addCell(new Label(j++, i, transportNo, format3));
+
+                    j = 0;
                 }
             }
+
         }
         catch (Throwable e)
         {
