@@ -53,7 +53,7 @@ public abstract class AbstractShipJobManager implements JobManager {
 
     private CommonMailManager commonMailManager = null;
 
-    private OutDAO outDAO = null;
+    protected OutDAO outDAO = null;
 
     private OutImportDAO outImportDAO = null;
 
@@ -65,12 +65,14 @@ public abstract class AbstractShipJobManager implements JobManager {
 
     private InvoiceinsDAO invoiceinsDAO = null;
 
-    private ShipManager shipManager = null;
+    protected ShipManager shipManager = null;
 
-    abstract protected String getKey(String customerId);
+    abstract protected String getKey(String customerId, PackageItemBean itemBean);
 
-    abstract protected void createMailAttachment(String customerName, List<PackageItemBean> beans,
+    abstract protected void createMailAttachment(String customerName, String channel, List<PackageItemBean> beans,
                                                  String branchName, String fileName, boolean ignoreLyOrders);
+
+    abstract protected BranchRelationBean getRelation(String customerId,String channel);
 
     @Override
     @Transactional(rollbackFor = MYException.class)
@@ -121,13 +123,13 @@ public abstract class AbstractShipJobManager implements JobManager {
                     itemBean.setTransportNo(vo.getTransportNo());
 
                     String customerId = itemBean.getCustomerId();
-                    String key = this.getKey(customerId);
-//                    String channel = this.getChannel(itemBean);
-//                    String key = customerId+"_"+channel;
+                    String key = this.getKey(customerId, itemBean);
+
                     //查询分支行对应关系表
                     if (!customer2Relation.containsKey(key)){
                         //TODO
-                        BranchRelationBean bean = this.getRelationByCustomerId(customerId, this.getChannel(itemBean));
+//                        BranchRelationBean bean = this.getRelationByCustomerId(customerId, this.getChannel(itemBean));
+                        BranchRelationBean bean = this.getRelation(customerId, this.getChannel(itemBean));
                         if(bean == null){
                             _logger.warn(vo.getId()+"***no relation found***"+customerId);
                             continue;
@@ -176,7 +178,7 @@ public abstract class AbstractShipJobManager implements JobManager {
 //                    this.shipManager.createMailAttachment(ShipConstant.BANK_TYPE_PF, packages,bean.getBranchName(),fileName,true);
 //                }
                 //TODO
-                this.createMailAttachment(subBranch, packages,branchName, fileName, true);
+                this.createMailAttachment(subBranch, bean.getChannel(), packages,branchName, fileName, true);
                 //#219 浦发改为只有两种模板
 //                if (subBranch.indexOf("浦发银行") != -1 && "小浦金店".equals(bean.getChannel())){
 //                    createPfMailAttachmentForXiaoPu(packages,branchName, fileName, true);
@@ -235,7 +237,7 @@ public abstract class AbstractShipJobManager implements JobManager {
         _logger.info("***finish send mail to bank***");
     }
 
-    private String getChannel(PackageItemBean item){
+    protected String getChannel(PackageItemBean item){
         String outId = item.getOutId();
         //忽略发票
         if (outId.startsWith("A")){
@@ -250,222 +252,8 @@ public abstract class AbstractShipJobManager implements JobManager {
         return "";
     }
 
-    private void createPfMailAttachment(String customerName, List<PackageItemBean> beans,
-                                        String branchName, String fileName, boolean ignoreLyOrders)
-    {
-        _logger.info("***createPfMailAttachment with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
-        WritableWorkbook wwb = null;
 
-        WritableSheet ws = null;
-
-        OutputStream out = null;
-
-        try
-        {
-            out = new FileOutputStream(fileName);
-
-            // create a excel
-            wwb = Workbook.createWorkbook(out);
-
-            ws = wwb.createSheet("发货信息", 0);
-
-            // 横向
-            ws.setPageSetup(PageOrientation.LANDSCAPE.LANDSCAPE, PaperSize.A4,0.5d,0.5d);
-
-            // 标题字体
-            WritableFont font = new WritableFont(WritableFont.ARIAL, 11,
-                    WritableFont.BOLD, false,
-                    jxl.format.UnderlineStyle.NO_UNDERLINE,
-                    jxl.format.Colour.BLACK);
-
-            WritableFont font2 = new WritableFont(WritableFont.ARIAL, 9,
-                    WritableFont.BOLD, false,
-                    jxl.format.UnderlineStyle.NO_UNDERLINE,
-                    jxl.format.Colour.BLACK);
-
-            WritableFont font3 = new WritableFont(WritableFont.ARIAL, 9,
-                    WritableFont.NO_BOLD, false,
-                    jxl.format.UnderlineStyle.NO_UNDERLINE,
-                    jxl.format.Colour.BLACK);
-
-            WritableFont font4 = new WritableFont(WritableFont.ARIAL, 9,
-                    WritableFont.BOLD, false,
-                    jxl.format.UnderlineStyle.NO_UNDERLINE,
-                    jxl.format.Colour.BLUE);
-
-            WritableCellFormat format = new WritableCellFormat(font);
-
-            format.setAlignment(jxl.format.Alignment.CENTRE);
-            format.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
-
-            WritableCellFormat format2 = new WritableCellFormat(font2);
-
-            format2.setAlignment(jxl.format.Alignment.LEFT);
-            format2.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
-            format2.setWrap(true);
-
-            WritableCellFormat format21 = new WritableCellFormat(font2);
-            format21.setAlignment(jxl.format.Alignment.RIGHT);
-
-            WritableCellFormat format3 = new WritableCellFormat(font3);
-            format3.setBorder(jxl.format.Border.ALL,
-                    jxl.format.BorderLineStyle.THIN);
-
-            WritableCellFormat format31 = new WritableCellFormat(font3);
-            format31.setBorder(jxl.format.Border.ALL,
-                    jxl.format.BorderLineStyle.THIN);
-            format31.setAlignment(jxl.format.Alignment.RIGHT);
-
-            WritableCellFormat format4 = new WritableCellFormat(font4);
-            format4.setBorder(jxl.format.Border.ALL,
-                    jxl.format.BorderLineStyle.THIN);
-
-            WritableCellFormat format41 = new WritableCellFormat(font4);
-            format41.setBorder(jxl.format.Border.ALL,
-                    jxl.format.BorderLineStyle.THIN);
-            format41.setAlignment(jxl.format.Alignment.CENTRE);
-            format41.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
-
-            int i = 0, j = 0, i1 = 1;
-            String title = String.format("永银文化创意产业发展有限责任公司%s 产品发货清单", this.getYesterday());
-
-            // 完成标题
-            ws.addCell(new Label(1, i, title, format));
-
-            //set column width
-            ws.setColumnView(0, 15);
-            ws.setColumnView(1, 40);
-            ws.setColumnView(2, 40);
-            ws.setColumnView(3, 20);
-            ws.setColumnView(4, 40);
-            ws.setColumnView(5, 10);
-            ws.setColumnView(6, 5);
-            ws.setColumnView(7, 10);
-            ws.setColumnView(8, 20);
-            ws.setColumnView(9, 20);
-            ws.setColumnView(10, 10);
-
-            i++;
-            // 正文表格
-            ws.addCell(new Label(0, i, "交易日期", format3));
-            ws.addCell(new Label(1, i, "交易机构", format3));
-            ws.addCell(new Label(2, i, "配货机构", format3));
-            ws.addCell(new Label(3, i, "产品代码", format3));
-            ws.addCell(new Label(4, i, "产品名称", format3));
-            ws.addCell(new Label(5, i, "零售价", format3));
-            ws.addCell(new Label(6, i, "数量", format3));
-            ws.addCell(new Label(7, i, "快递公司", format3));
-            ws.addCell(new Label(8, i, "快递单号", format3));
-            ws.addCell(new Label(9, i, "发票号", format3));
-            ws.addCell(new Label(10, i, "证书号", format3));
-
-
-            _logger.info("***itemList size***"+beans.size());
-//                this.mergeInvoiceNum(itemList);
-            //TODO
-            List<PackageItemBean> itemList = this.mergeItems(beans);
-            _logger.info("***after merge itemList size***"+itemList.size());
-            if (!ListTools.isEmptyOrNull(itemList)){
-                for (PackageItemBean each : itemList)
-                {
-                    //#351 filter LY orders
-                    if (ignoreLyOrders && each.getOutId().startsWith("LY")){
-                        continue;
-                    }
-                    i++;
-
-                    //交易日期
-                    String outId = each.getOutId();
-                    OutBean outBean = outDAO.find(outId);
-                    if (outBean!= null){
-                        each.setPoDate(outBean.getPodate());
-                    } else if(out == null && outId.startsWith("A")){
-                        each.setPoDate(each.getOutTime());
-                    }
-
-                    ws.addCell(new Label(j++, i, each.getPoDate(), format3));
-
-                    //交易机构
-                    ws.addCell(new Label(j++, i, this.getCustomerName(each), format3));
-
-                    String[] temp = this.getCommunicationBranchNameAndProductCodeFromOutImport(each.getOutId());
-                    //配货机构
-                    ws.addCell(new Label(j++, i, temp[1], format3));
-
-                    if(each.getOutId().startsWith("A")){
-                        //产品代码
-                        ws.addCell(new Label(j++, i, "", format3));
-
-                        //产品名称
-                        ws.addCell(new Label(j++, i, "", format3));
-                    } else{
-                        //产品代码
-                        ws.addCell(new Label(j++, i, temp[0], format3));
-
-                        //产品名称
-                        ws.addCell(new Label(j++, i, this.shipManager.convertProductName(each,customerName), format3));
-                    }
-
-
-                    //零售价
-                    ws.addCell(new Label(j++, i, String.valueOf(each.getPrice()), format3));
-
-                    //数量
-                    ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
-
-                    //快递公司
-                    ws.addCell(new Label(j++, i, each.getTransportName1(), format3));
-                    //2016/4/5 #2 快递单号改取package表的transportNo
-                    String transportNo = each.getTransportNo();
-                    ws.addCell(new Label(j++, i, transportNo, format3));
-
-                    //发票号
-                    if(each.getOutId().startsWith("A")){
-                        ws.addCell(new Label(j++, i, each.getProductName(), format3));
-                    } else{
-                        ws.addCell(new Label(j++, i, each.getInvoiceNum(), format3));
-                    }
-
-                    //证书号
-                    ws.addCell(new Label(j++, i, "", format3));
-
-                    j = 0;
-                }
-            }
-
-        }
-        catch (Throwable e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            if (wwb != null)
-            {
-                try
-                {
-                    wwb.write();
-                    wwb.close();
-                }
-                catch (Exception e1)
-                {
-                }
-            }
-            if (out != null)
-            {
-                try
-                {
-                    out.close();
-                }
-                catch (IOException e1)
-                {
-                }
-            }
-        }
-    }
-
-
-    private String getCustomerName(PackageItemBean item){
+    protected String getCustomerName(PackageItemBean item){
         String customerName = "";
         String outId = item.getOutId();
         if (StringTools.isNullOrNone(outId)){
@@ -496,7 +284,7 @@ public abstract class AbstractShipJobManager implements JobManager {
         return customerName;
     }
 
-    private String getCiticNoFromOutImport(PackageItemBean item){
+    protected String getCiticNoFromOutImport(PackageItemBean item){
         String outId = item.getOutId();
         if (outId.startsWith("A")){
             //如果是发票，返回合并过的发票号
@@ -535,7 +323,7 @@ public abstract class AbstractShipJobManager implements JobManager {
         }
     }
 
-    private String[] getCommunicationBranchNameAndProductCodeFromOutImport(String outId){
+    protected String[] getCommunicationBranchNameAndProductCodeFromOutImport(String outId){
         String[] result = new String[2];
         String productCode = "";
         String branchName = "";
@@ -561,7 +349,7 @@ public abstract class AbstractShipJobManager implements JobManager {
         return ConfigLoader.getProperty("shippingAttachmentPath");
     }
 
-    private String getYesterday(){
+    protected String getYesterday(){
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String specifiedDay = sdf.format(date);
@@ -585,7 +373,7 @@ public abstract class AbstractShipJobManager implements JobManager {
         return dayBefore;
     }
 
-    private BranchRelationBean getRelationByCustomerId(String customerId,String channel){
+    protected BranchRelationBean getRelationByCustomerId(String customerId,String channel){
         ConditionParse con2 = new ConditionParse();
         con2.addWhereStr();
         con2.addCondition("BranchRelationBean.id", "=", customerId);
@@ -626,7 +414,7 @@ public abstract class AbstractShipJobManager implements JobManager {
         }
     }
 
-    private List<PackageItemBean> mergeItems(List<PackageItemBean> items){
+    protected List<PackageItemBean> mergeItems(List<PackageItemBean> items){
         List<PackageItemBean> result = new ArrayList<PackageItemBean>();
         //商品行
         List<PackageItemBean> soList = new ArrayList<PackageItemBean>();
@@ -697,164 +485,7 @@ public abstract class AbstractShipJobManager implements JobManager {
         }
     }
 
-    /**
-     * #170 浦发银行小浦金店
-     * @param beans
-     * @param branchName
-     * @param fileName
-     * @param ignoreLyOrders
-     */
-    private void createPfMailAttachmentForXiaoPu(List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders)
-    {
-        _logger.info("***createPfMailAttachmentForXiaoPu with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
-        WritableWorkbook wwb = null;
 
-        WritableSheet ws = null;
-
-        OutputStream out = null;
-
-        try
-        {
-            out = new FileOutputStream(fileName);
-
-            // create a excel
-            wwb = Workbook.createWorkbook(out);
-
-            ws = wwb.createSheet("发货信息", 0);
-
-            // 横向
-            ws.setPageSetup(PageOrientation.LANDSCAPE.LANDSCAPE, PaperSize.A4,0.5d,0.5d);
-
-            // 标题字体
-            WritableFont font = new WritableFont(WritableFont.ARIAL, 11,
-                    WritableFont.BOLD, false,
-                    jxl.format.UnderlineStyle.NO_UNDERLINE,
-                    jxl.format.Colour.BLACK);
-
-            WritableFont font2 = new WritableFont(WritableFont.ARIAL, 9,
-                    WritableFont.BOLD, false,
-                    jxl.format.UnderlineStyle.NO_UNDERLINE,
-                    jxl.format.Colour.BLACK);
-
-            WritableFont font3 = new WritableFont(WritableFont.ARIAL, 9,
-                    WritableFont.NO_BOLD, false,
-                    jxl.format.UnderlineStyle.NO_UNDERLINE,
-                    jxl.format.Colour.BLACK);
-
-            WritableFont font4 = new WritableFont(WritableFont.ARIAL, 9,
-                    WritableFont.BOLD, false,
-                    jxl.format.UnderlineStyle.NO_UNDERLINE,
-                    jxl.format.Colour.BLUE);
-
-            WritableCellFormat format = new WritableCellFormat(font);
-
-            format.setAlignment(jxl.format.Alignment.CENTRE);
-            format.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
-
-            WritableCellFormat format2 = new WritableCellFormat(font2);
-
-            format2.setAlignment(jxl.format.Alignment.LEFT);
-            format2.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
-            format2.setWrap(true);
-
-            WritableCellFormat format21 = new WritableCellFormat(font2);
-            format21.setAlignment(jxl.format.Alignment.RIGHT);
-
-            WritableCellFormat format3 = new WritableCellFormat(font3);
-            format3.setBorder(jxl.format.Border.ALL,
-                    jxl.format.BorderLineStyle.THIN);
-
-            WritableCellFormat format31 = new WritableCellFormat(font3);
-            format31.setBorder(jxl.format.Border.ALL,
-                    jxl.format.BorderLineStyle.THIN);
-            format31.setAlignment(jxl.format.Alignment.RIGHT);
-
-            WritableCellFormat format4 = new WritableCellFormat(font4);
-            format4.setBorder(jxl.format.Border.ALL,
-                    jxl.format.BorderLineStyle.THIN);
-
-            WritableCellFormat format41 = new WritableCellFormat(font4);
-            format41.setBorder(jxl.format.Border.ALL,
-                    jxl.format.BorderLineStyle.THIN);
-            format41.setAlignment(jxl.format.Alignment.CENTRE);
-            format41.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
-
-            int i = 0, j = 0, i1 = 1;
-            String title = String.format("永银文化创意产业发展有限责任公司%s 产品发货清单", this.getYesterday());
-
-            // 完成标题
-            ws.addCell(new Label(1, i, title, format));
-
-            //set column width
-            ws.setColumnView(0, 40);
-            ws.setColumnView(1, 20);
-            ws.setColumnView(2, 40);
-
-
-            i++;
-            // 正文表格
-            ws.addCell(new Label(0, i, "银行单号", format3));
-            ws.addCell(new Label(1, i, "快递公司", format3));
-            ws.addCell(new Label(2, i, "快递单号", format3));
-
-            _logger.info("***itemList size***"+beans.size());
-            List<PackageItemBean> itemList = this.mergeItems(beans);
-            _logger.info("***after merge itemList size***"+itemList);
-            if (!ListTools.isEmptyOrNull(itemList)){
-                for (PackageItemBean each : itemList)
-                {
-                    //#351 filter LY orders
-                    if (ignoreLyOrders && each.getOutId().startsWith("LY")){
-                        continue;
-                    }
-                    i++;
-
-                    //银行单号
-                    String outId = each.getOutId();
-                    String citicNo = this.getCiticNoFromOutImport(each);
-                    ws.addCell(new Label(j++, i, citicNo, format3));
-
-                    //快递公司
-                    ws.addCell(new Label(j++, i, each.getTransportName1(), format3));
-
-                    //2016/4/5 #2 快递单号改取package表的transportNo
-                    String transportNo = each.getTransportNo();
-                    ws.addCell(new Label(j++, i, transportNo, format3));
-
-                    j = 0;
-                }
-            }
-
-        }
-        catch (Throwable e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            if (wwb != null)
-            {
-                try
-                {
-                    wwb.write();
-                    wwb.close();
-                }
-                catch (Exception e1)
-                {
-                }
-            }
-            if (out != null)
-            {
-                try
-                {
-                    out.close();
-                }
-                catch (IOException e1)
-                {
-                }
-            }
-        }
-    }
 
     public PackageDAO getPackageDAO() {
         return packageDAO;
