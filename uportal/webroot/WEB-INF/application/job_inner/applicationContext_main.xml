@@ -13,5 +13,7 @@
 	
 	<bean id="jobManager" class="com.china.center.oa.job.manager.impl.JobManagerImpl" />
 
-	
+	<bean id="shipJobManager" class="com.china.center.oa.job.manager.impl.ShipJobManagerImpl" />
+
+	<bean id="pfShipJobManager" class="com.china.center.oa.job.manager.impl.PfShipJobManagerImpl" />
 </beans>

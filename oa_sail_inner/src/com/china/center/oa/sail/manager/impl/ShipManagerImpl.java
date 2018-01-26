@@ -1652,6 +1652,7 @@ public class ShipManagerImpl implements ShipManager
     //#2 每日十点发货后必须将已发货信息发送至相关支行与分行
     @Override
     @Transactional(rollbackFor = MYException.class)
+    @Deprecated
     public void sendMailForShipping() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         String msg =  "**************run sendMailForShipping job****************";
@@ -1670,7 +1671,7 @@ public class ShipManagerImpl implements ShipManager
         con.addCondition(" and PackageBean.status in(2,10)");
         //!!test only
 //        con.addCondition("PackageBean.id", "=", "CK201701052047004361");
-//        con.addCondition(" and PackageBean.id in('CK201711191448114358','CK201711191448114338')");
+//        con.addCondition(" and PackageBean.id in('CK201711191448114358')");
 //
         //根据customerId合并CK表:<支行customerId,List<CK>>
 //        Map<String,List<PackageVO>> customerId2Packages = new HashMap<String,List<PackageVO>>();
@@ -2478,7 +2479,7 @@ public class ShipManagerImpl implements ShipManager
 
 
                     //产品块号 日期+编号
-                    String serialNo = this.generateSerialNo(index*100+i);
+                    String serialNo = StringUtils.generateSerialNo(index*100+i);
                     ws.addCell(new Label(j++, i, serialNo, format3));
                     //入库状态
                     ws.addCell(new Label(j++, i, "正常", format3));
@@ -2525,13 +2526,8 @@ public class ShipManagerImpl implements ShipManager
         return result;
     }
 
-    private String generateSerialNo(int sn){
-        String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
 
-        return date+String.format("%03d", sn);
-    }
-
-    private ProductImportBean getProductImportBean(PackageItemBean item,String bank){
+    public ProductImportBean getProductImportBean(PackageItemBean item,String bank){
         ProductImportBean result = null;
         ProductBean product = productDAO.find(item.getProductId());
         if (product!= null) {
@@ -2547,7 +2543,7 @@ public class ShipManagerImpl implements ShipManager
         return result;
     }
 
-    private String getProductCode(PackageItemBean item){
+    public String getProductCode(PackageItemBean item){
         String productId = "";
         String outId = item.getOutId();
         if (StringTools.isNullOrNone(outId)){

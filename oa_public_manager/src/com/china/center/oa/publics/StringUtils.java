@@ -2,6 +2,8 @@ package com.china.center.oa.publics;
 
 import com.china.center.tools.StringTools;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 public class StringUtils {
@@ -57,6 +59,17 @@ public class StringUtils {
         }
 
         return "";
+    }
+
+    /**
+     * 随机数
+     * @param sn
+     * @return
+     */
+    public static String generateSerialNo(int sn){
+        String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
+
+        return date+String.format("%03d", sn);
     }
 
     public static void main(String[] args){

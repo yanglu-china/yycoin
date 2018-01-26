@@ -23,9 +23,9 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
     private final Log _logger = LogFactory.getLog(getClass());
 
     @Override
-    protected String getKey(String customerId, PackageItemBean itemBean) {
+    protected String getKey(PackageItemBean itemBean) {
         //浦发银行同一客户还需要分渠道
-        return customerId+"_"+this.getChannel(itemBean);
+        return itemBean.getCustomerId()+"_"+this.getChannel(itemBean);
     }
 
     @Override
@@ -34,7 +34,12 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
     }
 
     @Override
-    protected void createMailAttachment(String customerName, String channel,List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders) {
+    protected String getTestCk() {
+        return "CK201801161697089589";
+    }
+
+    @Override
+    protected void createMailAttachment(int index, String customerName, String channel,List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders) {
         //#219 浦发改为只有两种模板
         if (customerName.indexOf("浦发银行") != -1 && "小浦金店".equals(channel)){
             createPfMailAttachmentForXiaoPu(beans,branchName, fileName, true);

@@ -55,7 +55,7 @@ public abstract class AbstractShipJobManager implements JobManager {
 
     protected OutDAO outDAO = null;
 
-    private OutImportDAO outImportDAO = null;
+    protected OutImportDAO outImportDAO = null;
 
     private ProductImportDAO productImportDAO = null;
 
@@ -67,17 +67,19 @@ public abstract class AbstractShipJobManager implements JobManager {
 
     protected ShipManager shipManager = null;
 
-    abstract protected String getKey(String customerId, PackageItemBean itemBean);
+    abstract protected String getKey(PackageItemBean itemBean);
 
-    abstract protected void createMailAttachment(String customerName, String channel, List<PackageItemBean> beans,
+    abstract protected void createMailAttachment(int index,String customerName, String channel, List<PackageItemBean> beans,
                                                  String branchName, String fileName, boolean ignoreLyOrders);
 
     abstract protected BranchRelationBean getRelation(String customerId,String channel);
 
+    abstract protected String getTestCk();
+
     @Override
     @Transactional(rollbackFor = MYException.class)
     public void run() throws MYException {
-        _logger.info("****ShipJobManagerImpl running****");
+        _logger.info(this.getClass()+" JOB running****");
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
@@ -89,10 +91,9 @@ public abstract class AbstractShipJobManager implements JobManager {
         //#236 已发货和在途都要发邮件
         con.addCondition(" and PackageBean.status in(2,10)");
         //!!test only
-//        con.addCondition("PackageBean.id", "=", "CK201801161697089589");
+//        con.addCondition("PackageBean.id", "=", this.getTestCk());
 
         //根据customerId+channel合并CK表
-//        Map<String,List<PackageVO>> customer2Packages = new HashMap<String,List<PackageVO>>();
         //#245
         Map<String,List<PackageItemBean>> customer2Packages = new HashMap<String,List<PackageItemBean>>();
         //<支行customerId_channel,BranchRelationBean>
@@ -123,12 +124,10 @@ public abstract class AbstractShipJobManager implements JobManager {
                     itemBean.setTransportNo(vo.getTransportNo());
 
                     String customerId = itemBean.getCustomerId();
-                    String key = this.getKey(customerId, itemBean);
+                    String key = this.getKey(itemBean);
 
                     //查询分支行对应关系表
                     if (!customer2Relation.containsKey(key)){
-                        //TODO
-//                        BranchRelationBean bean = this.getRelationByCustomerId(customerId, this.getChannel(itemBean));
                         BranchRelationBean bean = this.getRelation(customerId, this.getChannel(itemBean));
                         if(bean == null){
                             _logger.warn(vo.getId()+"***no relation found***"+customerId);
@@ -139,7 +138,6 @@ public abstract class AbstractShipJobManager implements JobManager {
                         }
                     }
 
-
                     if (customer2Packages.containsKey(key)){
                         List<PackageItemBean> voList = customer2Packages.get(key);
                         voList.add(itemBean);
@@ -149,11 +147,11 @@ public abstract class AbstractShipJobManager implements JobManager {
                         customer2Packages.put(key, voList);
                     }
                 }
-
             }
 
             //step2 send mail for merged packages
             _logger.info("***mail count to be sent to bank***" + customer2Packages.keySet().size());
+            int index = 0;
             for (String key : customer2Packages.keySet()) {
                 List<PackageItemBean> packages = customer2Packages.get(key);
                 BranchRelationBean bean = customer2Relation.get(key);
@@ -169,22 +167,7 @@ public abstract class AbstractShipJobManager implements JobManager {
                 String fileName = getShippingAttachmentPath() + "/" + subBranch
                         + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                 _logger.info("***fileName***"+fileName);
-//                //浦发上海分行
-//                if (subBranch.indexOf("浦发银行") != -1 && "上海分行".equals(branchName)){
-//                    createPfMailAttachment(packages,bean.getBranchName(), fileName, true);
-//                } else if (subBranch.indexOf("浦发银行") != -1 && subBranch.indexOf("小浦金店-银行")!= -1){
-//                    createPfMailAttachmentForXiaoPu(packages,bean.getBranchName(), fileName, true);
-//                } else if (subBranch.indexOf("浦发银行") != -1){
-//                    this.shipManager.createMailAttachment(ShipConstant.BANK_TYPE_PF, packages,bean.getBranchName(),fileName,true);
-//                }
-                //TODO
-                this.createMailAttachment(subBranch, bean.getChannel(), packages,branchName, fileName, true);
-                //#219 浦发改为只有两种模板
-//                if (subBranch.indexOf("浦发银行") != -1 && "小浦金店".equals(bean.getChannel())){
-//                    createPfMailAttachmentForXiaoPu(packages,branchName, fileName, true);
-//                } else if (subBranch.indexOf("浦发银行") != -1){
-//                    createPfMailAttachment(subBranch, packages,branchName, fileName, true);
-//                }
+                this.createMailAttachment(index, subBranch, bean.getChannel(), packages,branchName, fileName, true);
 
                 // check file either exists
                 File file = new File(fileName);

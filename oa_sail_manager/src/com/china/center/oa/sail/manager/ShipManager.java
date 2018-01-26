@@ -2,6 +2,7 @@ package com.china.center.oa.sail.manager;
 
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
+import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.sail.bean.BranchRelationBean;
 import com.china.center.oa.sail.bean.DistributionBean;
 import com.china.center.oa.sail.bean.PackageItemBean;
@@ -111,4 +112,8 @@ public interface ShipManager
                               String branchName, String fileName, boolean ignoreLyOrders);
 
     String convertProductName(PackageItemBean item, String customerName);
+
+    String getProductCode(PackageItemBean item);
+
+    public ProductImportBean getProductImportBean(PackageItemBean item, String bank);
 }

@@ -43,6 +43,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Deprecated
 public class JobManagerImpl implements JobManager {
     private final Log _logger = LogFactory.getLog(getClass());
 
