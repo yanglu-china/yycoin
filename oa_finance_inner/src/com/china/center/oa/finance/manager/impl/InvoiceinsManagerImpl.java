@@ -2085,12 +2085,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         				if (StringTools.isNullOrNone(balance.getPiDutyId()) || (balance.getPiMtype() == 1 && balance.getPiStatus() == 1)) {
 							//TODO each.getId()应该为空，这段代码有问题！
         					double refMoneys = outBalanceDAO.sumByOutBalanceId(each.getId());
-
+                            double mayMoneys = balance.getTotal() - refMoneys - balance.getInvoiceMoney();
 							//TODO
-        					if (MathTools.compare(each.getInvoiceMoney(), balance.getTotal() - refMoneys - balance.getInvoiceMoney()) != 0) {
+        					if (MathTools.compare(each.getInvoiceMoney(), mayMoneys) != 0) {
 	    						sb.append("销售单");
 	            				sb.append(each.getOutId());
-	            				sb.append("导入的开票金额须等于可开票金额");
+	            				sb.append("导入的开票金额"+each.getInvoiceMoney()+"须等于可开票金额"+mayMoneys);
 	            				sb.append("<br>");
 	    					}
         				}
@@ -2184,10 +2184,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					invoiceMoneyTotal += bean.getInvoiceMoney();
 				}
 				double retTotal = outDAO.sumOutBackValueIgnoreStatus(outId);
-				if (MathTools.compare(invoiceMoneyTotal, out.getTotal() - retTotal - out.getInvoiceMoney()) != 0) {
+                double mayMoneys = out.getTotal() - retTotal - out.getInvoiceMoney();
+				if (MathTools.compare(invoiceMoneyTotal,mayMoneys ) != 0) {
 					sb.append("销售单");
 					sb.append(key);
-					sb.append("导入的开票金额须等于可开票金额");
+					sb.append("导入的开票金额"+invoiceMoneyTotal+"须等于可开票金额"+mayMoneys);
 					sb.append("<br>");
 				}
 

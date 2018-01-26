@@ -29,15 +29,15 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
         //浦发上海分行
         if (customerName.indexOf("浦发银行") != -1 ){
             //refer to #117 and JobManagerImpl
-            continue;
+
         }else if (customerName.indexOf("南京银行") != -1 ){
-            index += 1;
-            boolean result = createMailAttachmentNj(index, customerName, beans,branchName,fileName,true);
-            if (!result){
-                continue;
-            }
+//            index += 1;
+//            boolean result = createMailAttachmentNj(index, customerName, beans,branchName,fileName,true);
+//            if (!result){
+//
+//            }
         } else{
-            this.createMailAttachment(ShipConstant.BANK_TYPE_OTHER, customerName, beans,branchName, fileName, true);
+//            this.createMailAttachment(ShipConstant.BANK_TYPE_OTHER, customerName, beans,branchName, fileName, true);
         }
     }
 }
