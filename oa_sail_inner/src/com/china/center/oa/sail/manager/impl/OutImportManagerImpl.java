@@ -2959,11 +2959,7 @@ public class OutImportManagerImpl implements OutImportManager
 			outDAO.updateEmergency(outId, 1);
 
             try{
-                ConditionParse condtion = new ConditionParse();
-//                condtion.addCondition("PackageItemBean.outId", "=", outId);
-                condtion.addWhereStr();
-                condtion.addCondition(" and exists (select PackageItemBean.id from T_CENTER_PACKAGE_ITEM PackageItemBean where PackageBean.id = PackageItemBean.packageId and PackageItemBean.outId = '"+outId+"')");
-                List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(condtion);
+				List<PackageBean> packages = this.packageDAO.queryPackagesByOutId(outId);
                 if (!ListTools.isEmptyOrNull(packages)){
                      for (PackageBean pack: packages){
                          pack.setEmergency(1);

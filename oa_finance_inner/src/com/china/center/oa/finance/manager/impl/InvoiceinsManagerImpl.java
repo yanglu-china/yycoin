@@ -3839,10 +3839,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     @Override
     public boolean updateEmergency(User user, String fullId) throws MYException {
         try{
-            ConditionParse condtion = new ConditionParse();
-            condtion.addWhereStr();
-            condtion.addCondition(" and exists (select PackageItemBean.id from T_CENTER_PACKAGE_ITEM PackageItemBean where PackageBean.id = PackageItemBean.packageId and PackageItemBean.outId = '"+fullId+"')");
-            List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(condtion);
+            List<PackageBean> packages = this.packageDAO.queryPackagesByOutId(fullId);
             if (!ListTools.isEmptyOrNull(packages)){
                 for (PackageBean pack: packages){
                     pack.setEmergency(1);

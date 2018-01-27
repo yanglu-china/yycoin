@@ -18,5 +18,5 @@ public interface PackageDAO extends DAO<PackageBean, PackageVO>
 
 	boolean updateStatus(String packageId, int status);
 	
-	
+	List<PackageBean> queryPackagesByOutId(String outId);
 }

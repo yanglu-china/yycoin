@@ -47,4 +47,12 @@ public class PackageDAOImpl extends BaseDAO<PackageBean, PackageVO> implements P
 
 		return true;
 	}
+
+	@Override
+	public List<PackageBean> queryPackagesByOutId(String outId) {
+		String sql = "SELECT PackageBean.* from t_center_package PackageBean " +
+				"where PackageBean.id in ( SELECT PackageItemBean.packageId FROM t_center_package_item PackageItemBean " +
+				"WHERE PackageItemBean.packageId = PackageBean.id AND PackageItemBean.outId = ?)";
+		return this.jdbcOperation.queryForListBySql(sql, claz, outId);
+	}
 }

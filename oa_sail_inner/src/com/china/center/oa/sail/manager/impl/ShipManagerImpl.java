@@ -3405,58 +3405,6 @@ public class ShipManagerImpl implements ShipManager
         return productName;
     }
 
-    @Override
-    @Deprecated
-    public String getProductName(PackageItemBean item) {
-            String productName = "";
-            String outId = item.getOutId();
-            List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
-
-            if (!ListTools.isEmptyOrNull(importBeans))
-            {
-                OutImportBean bean = importBeans.get(0);
-                String productCode = bean.getProductCode();
-                if (!StringTools.isNullOrNone(productCode)){
-                    ConditionParse conditionParse =  new ConditionParse();
-                    conditionParse.addCondition("citicProductCode", "=", productCode);
-                    List<CiticVSOAProductBean> beans = this.citicVSOAProductDAO.queryEntityBeansByCondition(conditionParse);
-                    if (!ListTools.isEmptyOrNull(beans)){
-                        productName = beans.get(0).getCiticProductName();
-                        _logger.info("***getCiticProductName***"+productName);
-                    }
-                }
-            }
-
-            //default pick from package item table
-            if (StringTools.isNullOrNone(productName)){
-                productName = this.getProductName2(item.getProductName());
-            }
-
-            return productName;
-    }
-
-    @Deprecated
-    private String getProductName2(String original){
-        String name = "";
-        try {
-            String[] l1 = original.split(" ");
-            if (l1.length == 1) {
-                name = original;
-            } else {
-                String word = l1[1];
-                String[] l2 = word.split("（");
-                if (l2.length == 1) {
-                    name = word;
-                } else {
-                    name = l2[0];
-                }
-            }
-        }catch(Exception e){
-            name = original;
-        }
-
-        return name;
-    }
 
     @Override
     @Transactional(rollbackFor = MYException.class)

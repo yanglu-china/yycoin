@@ -5006,13 +5006,8 @@ public class OutAction extends ParentOutAction
     	
     	request.setAttribute("outBean", outVO);
 
-        //find CK
-        ConditionParse conditionParse = new ConditionParse();
-        conditionParse.addWhereStr();
-        conditionParse.addCondition("and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.outId= '" + outId + "')");
-
         String ck = "";
-        List<PackageBean> packageBeans = this.packageDAO.queryEntityBeansByCondition(conditionParse);
+        List<PackageBean> packageBeans = this.packageDAO.queryPackagesByOutId(outId);
         if (!ListTools.isEmptyOrNull(packageBeans)){
             PackageBean packageBean = packageBeans.get(0);
             ck = packageBean.getId();
