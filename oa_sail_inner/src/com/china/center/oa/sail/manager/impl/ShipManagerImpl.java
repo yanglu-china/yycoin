@@ -630,7 +630,7 @@ public class ShipManagerImpl implements ShipManager
         }
 
         packageDAO.saveEntityBean(packageBean);
-        this.addLog(packageBean.getId(), ShipConstant.SHIP_STATUS_INIT, ShipConstant.SHIP_STATUS_INIT);
+        this.addLog(packageBean.getId(), ShipConstant.SHIP_STATUS_INIT, ShipConstant.SHIP_STATUS_INIT,"生成CK单",TimeTools.now());
         _logger.info(String.format("生成CK单:%s",packageBean.getId()));
     }
 
@@ -1090,7 +1090,7 @@ public class ShipManagerImpl implements ShipManager
             }
 
             packageDAO.updateEntityBean(each);
-            this.addLog(each.getId(),preStatus, ShipConstant.SHIP_STATUS_CONSIGN);
+            this.addLog(each.getId(),preStatus, ShipConstant.SHIP_STATUS_CONSIGN,"确认发货", TimeTools.now());
         }
 
         return true;
@@ -1178,7 +1178,7 @@ public class ShipManagerImpl implements ShipManager
             }
 
             packageDAO.updateEntityBean(each);
-            this.addLog(each.getId(),preStatus, ShipConstant.SHIP_STATUS_CONSIGN);
+            this.addLog(each.getId(),preStatus, ShipConstant.SHIP_STATUS_CONSIGN, "确认发货", TimeTools.now());
         }
 
         return true;
@@ -3486,37 +3486,45 @@ public class ShipManagerImpl implements ShipManager
                 Object res = result.get("state");
                 if (res!= null){
                     int state = Integer.valueOf((String)res);
+                    String description = "";
+                    if (result.get("remark")!= null){
+                        description = (String)result.get("remark");
+                    }
+                    String logTime = TimeTools.now();
+                    if(result.get("accept_time")!= null){
+                        logTime = (String)result.get("accept_time");
+                    }
                     //#184 SF route
                     if ("shunfeng".equalsIgnoreCase(expressCode)){
                         if (state  ==  ShipConstant.SF_STATUS_50 || state == ShipConstant.SF_STATUS_30
                                 || state == ShipConstant.SF_STATUS_607){
                             // 已收件
                             this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_ZAITU);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_ZAITU,description, logTime);
                         } else if (state  ==  ShipConstant.SF_STATUS_130 || state == ShipConstant.SF_STATUS_123){
                             // 即将派件
                             this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_ZAITU);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_ZAITU,description, logTime);
                         } else if (state  ==  ShipConstant.SF_STATUS_80 || state == ShipConstant.SF_STATUS_8000){
                             //已签收
                             this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_SIGNED);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_SIGNED,description, logTime);
                         } else if (state  ==  ShipConstant.SF_STATUS_631 || state == ShipConstant.SF_STATUS_648
                                 || state == ShipConstant.SF_STATUS_99){
                             //已退回
                             this.packageDAO.updateStatus(packageBean.getId(), ShipConstant.SHIP_STATUS_PRINT_RETURN);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), ShipConstant.SHIP_STATUS_PRINT_RETURN);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), ShipConstant.SHIP_STATUS_PRINT_RETURN,description, logTime);
                         }
                     } else{
                         if (state == ShipConstant.KD_100_STATUS_SIGNED || state == ShipConstant.KD_100_STATUS_RE_SIGNED
                                 || state == ShipConstant.KD_100_STATUS_RETURN){
                             int status = state + 10;
                             this.packageDAO.updateStatus(packageBean.getId(), status);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), status);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), status,description, logTime);
                         } else{
                             int status =  10;
                             this.packageDAO.updateStatus(packageBean.getId(), status);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), status);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), status,description, logTime);
                         }
                     }
                 }
@@ -3525,15 +3533,18 @@ public class ShipManagerImpl implements ShipManager
         _logger.info("***updatePackageStatusJob finished***");
     }
 
-    private void addLog(final String packageId, int preStatus, int afterStatus)
+    private void addLog(final String packageId, int preStatus, int afterStatus,String remark, String accept_time)
     {
         FlowLogBean log = new FlowLogBean();
         log.setActor("系统");
         log.setFullId(packageId);
         log.setOprMode(PublicConstant.OPRMODE_PASS);
-        log.setLogTime(TimeTools.now());
+//        log.setLogTime(TimeTools.now());
+        //取顺丰route时间
+        log.setLogTime(accept_time);
         log.setPreStatus(preStatus);
         log.setAfterStatus(afterStatus);
+        log.setDescription(remark);
 
         flowLogDAO.saveEntityBean(log);
 
@@ -3602,6 +3613,8 @@ public class ShipManagerImpl implements ShipManager
             SfRouteBean latestRoute = sfRouteBeans.get(0);
             String opcode = latestRoute.getOpcode();
             result.put("state",opcode);
+            result.put("remark",latestRoute.getRemark());
+            result.put("accept_time",latestRoute.getAccept_time());
         }
         return result;
     }
@@ -3888,7 +3901,7 @@ public class ShipManagerImpl implements ShipManager
 
     public static void main(String[] args){
         ShipManagerImpl shipManager = new ShipManagerImpl();
-        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","617856083893");
+        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","586055588757");
         System.out.println(map);
         if (map.get("state")!= null){
             int state = Integer.valueOf((String)map.get("state"));

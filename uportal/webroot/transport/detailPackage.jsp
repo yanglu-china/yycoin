@@ -188,6 +188,7 @@ function load()
 									<td width="10%" align="center">审批人</td>
 									<td width="10%" align="center">前状态</td>
 									<td width="10%" align="center">后状态</td>
+									<td width="15%" align="center">备注</td>
 									<td width="15%" align="center">时间</td>
 								</tr>
 
@@ -198,6 +199,8 @@ function load()
 										<td  align="center">${item.preStatusName}</td>
 
 										<td  align="center">${item.afterStatusName}</td>
+
+										<td  align="center">${item.description}</td>
 
 										<td  align="center">${item.logTime}</td>
 

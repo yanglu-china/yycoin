@@ -438,7 +438,7 @@ public class PackageManagerImpl implements PackageManager {
 		packageVSCustomerDAO.saveEntityBean(vsBean);
 	}
 
-	private void addLog(final String packageId, int preStatus, int afterStatus)
+	private void addLog(final String packageId, int preStatus, int afterStatus,String description)
 	{
 		FlowLogBean log = new FlowLogBean();
 		log.setActor("系统");
@@ -447,6 +447,7 @@ public class PackageManagerImpl implements PackageManager {
 		log.setLogTime(TimeTools.now());
 		log.setPreStatus(preStatus);
 		log.setAfterStatus(afterStatus);
+		log.setDescription(description);
 
 		flowLogDAO.saveEntityBean(log);
 
@@ -1262,7 +1263,7 @@ public class PackageManagerImpl implements PackageManager {
 		}
 
 		packageDAO.saveEntityBean(packageBean);
-		this.addLog(packageBean.getId(), ShipConstant.SHIP_STATUS_INIT, ShipConstant.SHIP_STATUS_INIT);
+		this.addLog(packageBean.getId(), ShipConstant.SHIP_STATUS_INIT, ShipConstant.SHIP_STATUS_INIT,"生成CK单");
 		_logger.info(String.format("生成CK单:%s",packageBean.getId()));
 	}
 
