@@ -1,7 +1,6 @@
 package com.china.center.oa.job.manager.impl;
 
 import com.china.center.jdbc.util.ConditionParse;
-import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.sail.bean.BranchRelationBean;

@@ -12526,6 +12526,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (!ListTools.isEmptyOrNull(lyBackBeans)){
             this.setOutbackStatus(lyBackBeans);
         }
+        _logger.info("***updateOutbackStatusJob finished***");
     }
 
     private void setOutbackStatus(List<OutBean> list){

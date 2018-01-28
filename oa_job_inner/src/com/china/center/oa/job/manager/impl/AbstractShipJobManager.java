@@ -24,18 +24,10 @@ import com.china.center.tools.BeanUtil;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
-import jxl.Workbook;
-import jxl.format.PageOrientation;
-import jxl.format.PaperSize;
-import jxl.write.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -74,6 +66,11 @@ public abstract class AbstractShipJobManager implements JobManager {
 
     abstract protected BranchRelationBean getRelation(String customerId,String channel);
 
+    /**
+     * Test only!
+     * @return
+     */
+    @Deprecated
     abstract protected String getTestCk();
 
     @Override
