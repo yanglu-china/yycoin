@@ -59,12 +59,22 @@ public abstract class AbstractShipJobManager implements JobManager {
 
     protected ShipManager shipManager = null;
 
+    /**
+     * 分组package的key
+     * @param itemBean
+     * @return
+     */
     abstract protected String getKey(PackageItemBean itemBean);
 
     abstract protected void createMailAttachment(int index,String customerName, String channel, List<PackageItemBean> beans,
                                                  String branchName, String fileName, boolean ignoreLyOrders);
 
     abstract protected BranchRelationBean getRelation(String customerId,String channel);
+
+    protected String getAttachmentFileName(String customerName){
+        return getShippingAttachmentPath() + "/" + customerName
+                + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
+    }
 
     /**
      * Test only!
@@ -161,8 +171,7 @@ public abstract class AbstractShipJobManager implements JobManager {
                 }
                 String subBranch = bean.getSubBranchName();
                 String branchName = bean.getBranchName();
-                String fileName = getShippingAttachmentPath() + "/" + subBranch
-                        + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
+                String fileName = this.getAttachmentFileName(subBranch);
                 _logger.info("***fileName***"+fileName);
                 this.createMailAttachment(index, subBranch, bean.getChannel(), packages,branchName, fileName, true);
 

@@ -1,9 +1,9 @@
 package com.china.center.oa.job.manager.impl;
 
 import com.china.center.oa.sail.bean.BranchRelationBean;
-import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.bean.PackageItemBean;
 import com.china.center.tools.ListTools;
+import com.china.center.tools.TimeTools;
 import jxl.Workbook;
 import jxl.format.PageOrientation;
 import jxl.format.PaperSize;
@@ -16,15 +16,30 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * 浦发银行邮件JOB
+ * 浦发银行小浦金店邮件JOB
  */
-public class PfShipJobManagerImpl extends AbstractShipJobManager{
+public class XpShipJobManagerImpl extends AbstractShipJobManager{
     private final Log _logger = LogFactory.getLog(getClass());
 
     @Override
     protected String getKey(PackageItemBean itemBean) {
-        //浦发银行同一客户还需要分渠道
-        return itemBean.getCustomerId()+"_"+this.getChannel(itemBean);
+        //小浦金店根据支行邮件地址分组
+        String customerId = itemBean.getCustomerId();
+        String channel = this.getChannel(itemBean);
+        BranchRelationBean branchRelationBean = this.getRelation(customerId, channel);
+        if (branchRelationBean == null){
+            return itemBean.getCustomerId()+"_"+this.getChannel(itemBean);
+        } else{
+            return branchRelationBean.getSubBranchMail();
+        }
+    }
+
+    @Override
+    protected String getAttachmentFileName(String customerName) {
+        //TODO
+        String fileName = getShippingAttachmentPath() + "/小浦金店"
+                + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
+        return fileName;
     }
 
     @Override
@@ -39,9 +54,8 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
 
     @Override
     protected void createMailAttachment(int index, String customerName, String channel,List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders) {
-        //#219 浦发银行非小浦金店模板
-        if (customerName.indexOf("浦发银行") != -1 && !"小浦金店".equals(channel)){
-            _logger.info("***createPfMailAttachment with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
+        if (customerName.indexOf("浦发银行") != -1 && "小浦金店".equals(channel)){
+            _logger.info("***createPfMailAttachmentForXiaoPu with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
             WritableWorkbook wwb = null;
 
             WritableSheet ws = null;
@@ -121,38 +135,20 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
                 ws.addCell(new Label(1, i, title, format));
 
                 //set column width
-                ws.setColumnView(0, 15);
-                ws.setColumnView(1, 40);
+                ws.setColumnView(0, 40);
+                ws.setColumnView(1, 20);
                 ws.setColumnView(2, 40);
-                ws.setColumnView(3, 20);
-                ws.setColumnView(4, 40);
-                ws.setColumnView(5, 10);
-                ws.setColumnView(6, 5);
-                ws.setColumnView(7, 10);
-                ws.setColumnView(8, 20);
-                ws.setColumnView(9, 20);
-                ws.setColumnView(10, 10);
+
 
                 i++;
                 // 正文表格
-                ws.addCell(new Label(0, i, "交易日期", format3));
-                ws.addCell(new Label(1, i, "交易机构", format3));
-                ws.addCell(new Label(2, i, "配货机构", format3));
-                ws.addCell(new Label(3, i, "产品代码", format3));
-                ws.addCell(new Label(4, i, "产品名称", format3));
-                ws.addCell(new Label(5, i, "零售价", format3));
-                ws.addCell(new Label(6, i, "数量", format3));
-                ws.addCell(new Label(7, i, "快递公司", format3));
-                ws.addCell(new Label(8, i, "快递单号", format3));
-                ws.addCell(new Label(9, i, "发票号", format3));
-                ws.addCell(new Label(10, i, "证书号", format3));
-
+                ws.addCell(new Label(0, i, "银行单号", format3));
+                ws.addCell(new Label(1, i, "快递公司", format3));
+                ws.addCell(new Label(2, i, "快递单号", format3));
 
                 _logger.info("***itemList size***"+beans.size());
-//                this.mergeInvoiceNum(itemList);
-                //TODO
                 List<PackageItemBean> itemList = this.mergeItems(beans);
-                _logger.info("***after merge itemList size***"+itemList.size());
+                _logger.info("***after merge itemList size***"+itemList);
                 if (!ListTools.isEmptyOrNull(itemList)){
                     for (PackageItemBean each : itemList)
                     {
@@ -162,60 +158,17 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
                         }
                         i++;
 
-                        //交易日期
+                        //银行单号
                         String outId = each.getOutId();
-                        OutBean outBean = outDAO.find(outId);
-                        if (outBean!= null){
-                            each.setPoDate(outBean.getPodate());
-                        } else if(out == null && outId.startsWith("A")){
-                            each.setPoDate(each.getOutTime());
-                        }
-
-                        ws.addCell(new Label(j++, i, each.getPoDate(), format3));
-
-                        //交易机构
-                        ws.addCell(new Label(j++, i, this.getCustomerName(each), format3));
-
-                        String[] temp = this.getCommunicationBranchNameAndProductCodeFromOutImport(each.getOutId());
-                        //配货机构
-                        ws.addCell(new Label(j++, i, temp[1], format3));
-
-                        if(each.getOutId().startsWith("A")){
-                            //产品代码
-                            ws.addCell(new Label(j++, i, "", format3));
-
-                            //产品名称
-                            ws.addCell(new Label(j++, i, "", format3));
-                        } else{
-                            //产品代码
-                            ws.addCell(new Label(j++, i, temp[0], format3));
-
-                            //产品名称
-                            ws.addCell(new Label(j++, i, this.shipManager.convertProductName(each,customerName), format3));
-                        }
-
-
-                        //零售价
-                        ws.addCell(new Label(j++, i, String.valueOf(each.getPrice()), format3));
-
-                        //数量
-                        ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
+                        String citicNo = this.getCiticNoFromOutImport(each);
+                        ws.addCell(new Label(j++, i, citicNo, format3));
 
                         //快递公司
                         ws.addCell(new Label(j++, i, each.getTransportName1(), format3));
+
                         //2016/4/5 #2 快递单号改取package表的transportNo
                         String transportNo = each.getTransportNo();
                         ws.addCell(new Label(j++, i, transportNo, format3));
-
-                        //发票号
-                        if(each.getOutId().startsWith("A")){
-                            ws.addCell(new Label(j++, i, each.getProductName(), format3));
-                        } else{
-                            ws.addCell(new Label(j++, i, each.getInvoiceNum(), format3));
-                        }
-
-                        //证书号
-                        ws.addCell(new Label(j++, i, "", format3));
 
                         j = 0;
                     }
