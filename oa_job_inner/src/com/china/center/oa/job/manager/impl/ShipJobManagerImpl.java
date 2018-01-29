@@ -46,23 +46,22 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
     }
 
     @Override
-    protected void createMailAttachment(int index, String customerName,String channel, List<PackageItemBean> beans,
+    protected boolean createMailAttachment(int index, String customerName,String channel, List<PackageItemBean> beans,
                                         String branchName, String fileName, boolean ignoreLyOrders) {
-        //浦发上海分行
-        if (customerName.indexOf("浦发银行") != -1 ){
-            //refer to #117 and JobManagerImpl
-
-        }else if (customerName.indexOf("南京银行") != -1 ){
+        if (customerName.indexOf("南京银行") != -1 ){
             index += 1;
-            createMailAttachmentNj(index, customerName, beans,branchName,fileName,true);
-        } else{
-            this.createMailAttachment(ShipConstant.BANK_TYPE_OTHER, customerName, beans,branchName, fileName, true);
+            return createMailAttachmentNj(index, customerName, beans,branchName,fileName,true);
+        } else if(customerName.indexOf("浦发银行") == -1) {
+            //非浦发银行
+            return this.createMailAttachment(ShipConstant.BANK_TYPE_OTHER, customerName, beans,branchName, fileName, true);
         }
+        return false;
     }
 
-    private void createMailAttachment(int bankType, String customerName, List<PackageItemBean> beans,
+    private boolean createMailAttachment(int bankType, String customerName, List<PackageItemBean> beans,
                                      String branchName, String fileName, boolean ignoreLyOrders) {
         _logger.info(customerName+"***create mail attachment with package items "+beans+"***branch***"+branchName+"***file name***"+fileName);
+        boolean result = false;
         WritableWorkbook wwb = null;
 
         WritableSheet ws = null;
@@ -248,6 +247,8 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
                 ws.addCell(new Label(j++, i, this.shipManager.getProductCode(each), format3));
 
                 j = 0;
+
+                result = true;
             }
 
         }
@@ -279,6 +280,7 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
                 }
             }
         }
+        return result;
     }
 
     private boolean createMailAttachmentNj(int index, String customerName, List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders)
@@ -358,10 +360,6 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
             format41.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
 
             int i = 0, j = 0, i1 = 1;
-            String title = String.format("永银文化%s发货信息", this.getYesterday());
-
-            // 完成标题
-            ws.addCell(new Label(1, i, "", format));
 
             //set column width
             ws.setColumnView(0, 5);
@@ -373,7 +371,6 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
             ws.setColumnView(6, 30);
             ws.setColumnView(7, 40);
 
-            i++;
             // 正文表格
             ws.addCell(new Label(0, i, "序号", format3));
             ws.addCell(new Label(1, i, "产品代码", format3));

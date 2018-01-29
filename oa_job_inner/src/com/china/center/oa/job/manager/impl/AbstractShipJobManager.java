@@ -66,13 +66,13 @@ public abstract class AbstractShipJobManager implements JobManager {
      */
     abstract protected String getKey(PackageItemBean itemBean);
 
-    abstract protected void createMailAttachment(int index,String customerName, String channel, List<PackageItemBean> beans,
+    abstract protected boolean createMailAttachment(int index,String customerName, String channel, List<PackageItemBean> beans,
                                                  String branchName, String fileName, boolean ignoreLyOrders);
 
     abstract protected BranchRelationBean getRelation(String customerId,String channel);
 
-    protected String getAttachmentFileName(String customerName){
-        return getShippingAttachmentPath() + "/" + customerName
+    protected String getAttachmentFileName(BranchRelationBean bean){
+        return getShippingAttachmentPath() + "/" + bean.getSubBranchName()
                 + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
     }
 
@@ -171,16 +171,19 @@ public abstract class AbstractShipJobManager implements JobManager {
                 }
                 String subBranch = bean.getSubBranchName();
                 String branchName = bean.getBranchName();
-                String fileName = this.getAttachmentFileName(subBranch);
+                String fileName = this.getAttachmentFileName(bean);
                 _logger.info("***fileName***"+fileName);
-                this.createMailAttachment(index, subBranch, bean.getChannel(), packages,branchName, fileName, true);
+                boolean result = this.createMailAttachment(index, subBranch, bean.getChannel(), packages,branchName, fileName, true);
+                if (!result){
+                    _logger.warn("No mail attachment created***"+fileName);
+                    continue;
+                }
 
                 // check file either exists
                 File file = new File(fileName);
                 if (!file.exists()) {
                     _logger.error("fail to create mail attachment:" + fileName);
                     continue;
-                    // throw new MYException("邮件附件未成功生成");
                 }
 
                 String title = String.format("永银文化%s发货信息", this.getYesterday());

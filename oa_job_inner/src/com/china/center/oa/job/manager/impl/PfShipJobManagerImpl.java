@@ -23,7 +23,7 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
 
     @Override
     protected String getKey(PackageItemBean itemBean) {
-        //浦发银行同一客户还需要分渠道
+        //浦发银行同一客户还需要根据渠道分组
         return itemBean.getCustomerId()+"_"+this.getChannel(itemBean);
     }
 
@@ -38,7 +38,8 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
     }
 
     @Override
-    protected void createMailAttachment(int index, String customerName, String channel,List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders) {
+    protected boolean createMailAttachment(int index, String customerName, String channel,List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders) {
+        boolean result = false;
         //#219 浦发银行非小浦金店模板
         if (customerName.indexOf("浦发银行") != -1 && !"小浦金店".equals(channel)){
             _logger.info("***createPfMailAttachment with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
@@ -218,6 +219,7 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
                         ws.addCell(new Label(j++, i, "", format3));
 
                         j = 0;
+                        result = true;
                     }
                 }
 
@@ -251,5 +253,6 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
                 }
             }
         }
+        return result;
     }
 }
