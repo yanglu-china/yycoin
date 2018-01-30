@@ -178,6 +178,7 @@ public abstract class AbstractShipJobManager implements JobManager {
                     _logger.warn("No mail attachment created***"+fileName);
                     continue;
                 }
+                index += 1;
 
                 // check file either exists
                 File file = new File(fileName);

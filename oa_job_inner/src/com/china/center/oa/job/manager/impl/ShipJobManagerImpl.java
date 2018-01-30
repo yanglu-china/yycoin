@@ -49,7 +49,6 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
     protected boolean createMailAttachment(int index, String customerName,String channel, List<PackageItemBean> beans,
                                         String branchName, String fileName, boolean ignoreLyOrders) {
         if (customerName.indexOf("南京银行") != -1 ){
-            index += 1;
             return createMailAttachmentNj(index, customerName, beans,branchName,fileName,true);
         } else if(customerName.indexOf("浦发银行") == -1) {
             //非浦发银行
