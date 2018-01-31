@@ -52,9 +52,17 @@ public class XpShipJobManagerImpl extends AbstractShipJobManager{
     }
 
     @Override
+    protected boolean needSendMail(String customerName, String channel) {
+        if (customerName.indexOf("浦发银行") != -1 && "小浦金店".equals(channel)){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected boolean createMailAttachment(int index, String customerName, String channel,List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders) {
         boolean result = false;
-        if (customerName.indexOf("浦发银行") != -1 && customerName.indexOf("小浦金店-银行")!= -1){
+        if (customerName.indexOf("浦发银行") != -1 && "小浦金店".equals(channel)){
             _logger.info("***createPfMailAttachmentForXiaoPu with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
             WritableWorkbook wwb = null;
 

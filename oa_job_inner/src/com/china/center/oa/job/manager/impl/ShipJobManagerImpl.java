@@ -57,8 +57,18 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
         return false;
     }
 
+    @Override
+    protected boolean needSendMail(String customerName, String channel) {
+        if (customerName.indexOf("南京银行") != -1 ){
+            return true;
+        } else if(customerName.indexOf("浦发银行") == -1){
+            return true;
+        }
+        return false;
+    }
+
     private boolean createMailAttachment(int bankType, String customerName, List<PackageItemBean> beans,
-                                     String branchName, String fileName, boolean ignoreLyOrders) {
+                                         String branchName, String fileName, boolean ignoreLyOrders) {
         _logger.info(customerName+"***create mail attachment with package items "+beans+"***branch***"+branchName+"***file name***"+fileName);
         boolean result = false;
         WritableWorkbook wwb = null;

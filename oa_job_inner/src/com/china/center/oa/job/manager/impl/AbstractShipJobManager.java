@@ -71,6 +71,8 @@ public abstract class AbstractShipJobManager implements JobManager {
 
     abstract protected BranchRelationBean getRelation(String customerId,String channel);
 
+    abstract protected boolean needSendMail(String customerName, String channel);
+
     protected String getAttachmentFileName(BranchRelationBean bean){
         return getShippingAttachmentPath() + "/" + bean.getSubBranchName()
                 + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
@@ -133,15 +135,22 @@ public abstract class AbstractShipJobManager implements JobManager {
                     String customerId = itemBean.getCustomerId();
                     String key = this.getKey(itemBean);
 
+                    String customerName = "";
                     //查询分支行对应关系表
                     if (!customer2Relation.containsKey(key)){
-                        BranchRelationBean bean = this.getRelation(customerId, this.getChannel(itemBean));
+                        String channel = this.getChannel(itemBean);
+                        BranchRelationBean bean = this.getRelation(customerId, channel);
                         if(bean == null){
                             _logger.warn(vo.getId()+"***no relation found***"+customerId);
                             continue;
                         } else{
                             _logger.info(vo.getId()+"***relation is found****"+bean);
                             customer2Relation.put(key, bean);
+                            customerName = bean.getSubBranchName();
+                            //只检查特定客户的订单
+                            if (!this.needSendMail(customerName,channel)){
+                                continue;
+                            }
                         }
                     }
 
