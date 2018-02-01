@@ -396,10 +396,8 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
                 //#351 filter LY orders
                 if (ignoreLyOrders && each.getOutId().startsWith("LY")){
                     continue;
-                }
-
-                //#210
-                if(each.getOutId().startsWith("ZS") || each.getOutId().startsWith("A")){
+                }//#210
+                else if(each.getOutId().startsWith("ZS") || each.getOutId().startsWith("A")){
                     continue;
                 }
 

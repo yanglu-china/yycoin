@@ -75,7 +75,7 @@ public abstract class AbstractShipJobManager implements JobManager {
 
     protected String getAttachmentFileName(BranchRelationBean bean){
         return getShippingAttachmentPath() + "/" + bean.getSubBranchName()
-                + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
+                + TimeTools.now("yyyyMMddHHmm") + ".xls";
     }
 
     /**

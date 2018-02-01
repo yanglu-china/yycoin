@@ -163,7 +163,10 @@ public class XpShipJobManagerImpl extends AbstractShipJobManager{
                         //#351 filter LY orders
                         if (ignoreLyOrders && each.getOutId().startsWith("LY")){
                             continue;
+                        } else if(each.getOutId().startsWith("ZS") || each.getOutId().startsWith("A")){
+                            continue;
                         }
+
                         i++;
 
                         //银行单号
