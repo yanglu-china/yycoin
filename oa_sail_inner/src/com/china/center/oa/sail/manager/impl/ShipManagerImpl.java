@@ -3535,6 +3535,8 @@ public class ShipManagerImpl implements ShipManager
 
     private void addLog(final String packageId, int preStatus, int afterStatus,String remark, String accept_time)
     {
+        List<FlowLogBean> logList = flowLogDAO.queryEntityBeansByFK(packageId);
+
         FlowLogBean log = new FlowLogBean();
         log.setActor("系统");
         log.setFullId(packageId);
@@ -3546,9 +3548,11 @@ public class ShipManagerImpl implements ShipManager
         log.setAfterStatus(afterStatus);
         log.setDescription(remark);
 
-        flowLogDAO.saveEntityBean(log);
-
-        _logger.info(packageId+" update SF package status to "+afterStatus);
+        //#246 check duplicate logs
+        if (ListTools.isEmptyOrNull(logList) || !logList.contains(log)){
+            flowLogDAO.saveEntityBean(log);
+            _logger.info(packageId+" update SF package status to "+afterStatus);
+        }
     }
 
     private boolean isDirectShipped(List<PackageItemBean> items ){
@@ -3901,7 +3905,7 @@ public class ShipManagerImpl implements ShipManager
 
     public static void main(String[] args){
         ShipManagerImpl shipManager = new ShipManagerImpl();
-        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","586055588757");
+        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","586130506901");
         System.out.println(map);
         if (map.get("state")!= null){
             int state = Integer.valueOf((String)map.get("state"));
