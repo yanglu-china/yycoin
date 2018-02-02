@@ -21,6 +21,7 @@ import com.china.center.oa.product.manager.GiftConfigManager;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.tools.JudgeTools;
+import com.china.center.tools.TimeTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -59,7 +60,8 @@ public class GiftConfigManagerImpl implements GiftConfigManager
         JudgeTools.judgeParameterIsNull(user, bean);
 
         bean.setId(commonDAO.getSquenceString20());
-
+        bean.setCreateTime(TimeTools.now());
+        bean.setCreator(user.getStafferName());
         _logger.info("***save ProductVSGiftBean bean:"+bean);
         return this.productVSGiftDAO.saveEntityBean(bean);
     }

@@ -160,6 +160,10 @@ public class ProductVSGiftBean implements Serializable
     @Html(title = "不包含渠道", maxLength = 10)
     private String excludeChannel = "";
 
+    private String createTime = "";
+
+    private String creator = "";
+
     public ProductVSGiftBean()
 	{
 	}
@@ -450,6 +454,22 @@ public class ProductVSGiftBean implements Serializable
 
     public void setExcludeChannel(String excludeChannel) {
         this.excludeChannel = excludeChannel;
+    }
+
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
     }
 
     @Override
