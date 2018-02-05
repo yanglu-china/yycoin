@@ -1599,7 +1599,7 @@ public class ClientAction extends DispatchAction
 
     private String[] fillObj(String[] obj)
     {
-        String[] result = new String[9];
+        String[] result = new String[10];
 
         for (int i = 0; i < result.length; i++ )
         {
