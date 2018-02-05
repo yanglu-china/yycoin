@@ -886,10 +886,27 @@ public class ClientAction extends DispatchAction
 						importError = true;
 					}
 
-					// 地址
+					// 一级分行
 					if ( !StringTools.isNullOrNone(obj[6]))
 					{
-						String address = obj[6].trim();
+						String reserve1 = obj[6].trim();
+						bean.setReserve1(reserve1);
+					}
+					else if(bean.getName().contains("-银行") ||
+							bean.getName().contains("-零售"))
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("一级分行不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					// 地址
+					if ( !StringTools.isNullOrNone(obj[7]))
+					{
+						String address = obj[7].trim();
 						bean.setAddress(address);
 					}
 					else if(bean.getType() == NATURE_INDIVIDUAL)
@@ -903,9 +920,9 @@ public class ClientAction extends DispatchAction
 					}
 
 					// 手机
-					if ( !StringTools.isNullOrNone(obj[7]))
+					if ( !StringTools.isNullOrNone(obj[8]))
 					{
-						String mobile = obj[7].trim();
+						String mobile = obj[8].trim();
 						bean.setHandphone(mobile);
 
 						//#175 个人类型手机号不能重复
@@ -936,12 +953,11 @@ public class ClientAction extends DispatchAction
 					}
 
 					// 邮箱
-					if ( !StringTools.isNullOrNone(obj[8]))
+					if ( !StringTools.isNullOrNone(obj[9]))
 					{
-						String email = obj[8].trim();
+						String email = obj[9].trim();
 						bean.setEmail(email);
 					}
-
 
 					importItemList.add(bean);
 				}
