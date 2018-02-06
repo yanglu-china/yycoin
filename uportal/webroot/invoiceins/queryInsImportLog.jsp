@@ -6,7 +6,7 @@
 <p:link title="开票导入日志数据查询" link="true" guid="true" cal="true" dialog="true" />
 <script src="../js/common.js"></script>
 <script src="../js/public.js"></script>
-<script src="../js/JChe ck.js"></script>
+<script src="../js/JCheck.js"></script>
 <script src="../js/pop.js"></script>
 <script src="../js/plugin/highlight/jquery.highlight.js"></script>
 <script src="../js/jquery.blockUI.js"></script>
@@ -66,8 +66,9 @@ function addBean()
 		    {
 		        $.blockUI({ message: $('#loadingDiv'),css:{width: '40%'}}, true);
 		        
-		        $ajax(gurl + 'processInsImport&batchId=' + getRadio('checkb').vbatchId, callBackFun);
-
+                //$ajax(gurl + 'processInsImport&batchId=' + getRadio('checkb').vbatchId, callBackFun);
+                //replace element.attribute with getAttribute(),but why?
+                $ajax(gurl + 'processInsImport&batchId=' + getRadio('checkb').getAttribute("vbatchId"), callBackFun);
 		        $.unblockUI();
 		    }
 		}
