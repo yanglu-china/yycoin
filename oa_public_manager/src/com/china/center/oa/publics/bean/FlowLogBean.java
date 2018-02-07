@@ -297,7 +297,6 @@ public class FlowLogBean implements Serializable
 
         if (oprMode != that.oprMode) return false;
         if (oprAmount != that.oprAmount) return false;
-        if (preStatus != that.preStatus) return false;
         if (afterStatus != that.afterStatus) return false;
         if (!fullId.equals(that.fullId)) return false;
         if (!actor.equals(that.actor)) return false;
@@ -313,7 +312,6 @@ public class FlowLogBean implements Serializable
         result = 31 * result + actorId.hashCode();
         result = 31 * result + oprMode;
         result = 31 * result + oprAmount;
-        result = 31 * result + preStatus;
         result = 31 * result + afterStatus;
         result = 31 * result + logTime.hashCode();
         result = 31 * result + description.hashCode();

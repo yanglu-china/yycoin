@@ -61,7 +61,9 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
     protected boolean needSendMail(String customerName, String channel) {
         if (customerName.indexOf("南京银行") != -1 ){
             return true;
-        } else if(customerName.indexOf("浦发银行") == -1){
+        } else if(customerName.indexOf("浦发银行") == -1
+                //#259
+                && customerName.indexOf("甘肃银行") == -1 ){
             return true;
         }
         return false;
