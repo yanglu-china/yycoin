@@ -10223,7 +10223,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         }
                         else
                         {
-                            base.setPrice(MathTools.parseDouble(priceList[i]));
+                            try {
+                                base.setPrice(MathTools.parseDouble(priceList[i]));
+                            }catch (Exception e){}
                         }
 
                         if (base.getPrice() == 0)
