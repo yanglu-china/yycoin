@@ -50,11 +50,10 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
                                         String branchName, String fileName, boolean ignoreLyOrders) {
         if (customerName.indexOf("南京银行") != -1 ){
             return createMailAttachmentNj(index, customerName, beans,branchName,fileName,true);
-        } else if(customerName.indexOf("浦发银行") == -1) {
-            //非浦发银行
+        } else{
+            //其他银行
             return this.createMailAttachment(ShipConstant.BANK_TYPE_OTHER, customerName, beans,branchName, fileName, true);
         }
-        return false;
     }
 
     @Override
