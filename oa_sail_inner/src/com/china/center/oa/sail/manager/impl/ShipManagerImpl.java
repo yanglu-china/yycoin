@@ -3131,7 +3131,7 @@ public class ShipManagerImpl implements ShipManager
                 beanInDb.setSubBranchMail(bean.getSubBranchMail());
                 beanInDb.setSendMailFlag(bean.getSendMailFlag());
                 beanInDb.setCopyToBranchFlag(bean.getCopyToBranchFlag());
-                this.branchRelationDAO.updateEntityBean(bean);
+                this.branchRelationDAO.updateEntityBean(beanInDb);
             }
         }
     }

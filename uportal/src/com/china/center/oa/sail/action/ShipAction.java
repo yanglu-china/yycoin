@@ -4372,7 +4372,7 @@ public class ShipAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
                         String customerId = obj[0].trim();
-                        bean.setId(customerId);
+//                        bean.setId(customerId);
 
                         ConditionParse conditionParse = new ConditionParse();
                         conditionParse.addWhereStr();
@@ -4385,6 +4385,8 @@ public class ShipAction extends DispatchAction
                                     .append("<br>");
 
                             importError = true;
+                        } else{
+                            bean.setCustomerId(customerBeanList.get(0).getId());
                         }
                     }
                     else

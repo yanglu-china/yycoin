@@ -18,8 +18,10 @@ import java.io.Serializable;
 @Table(name = "T_CENTER_BRANCH_RELATION")
 public class BranchRelationBean implements Serializable
 {
-    @Id
+    @Id(autoIncrement = true)
     private String id = "";
+
+    private String customerId = "";
 
     /**
      * 支行名称
@@ -146,11 +148,21 @@ public class BranchRelationBean implements Serializable
         this.channel = channel;
     }
 
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
+    }
+
     @Override
     public String toString() {
         return "BranchRelationBean{" +
                 "id='" + id + '\'' +
+                ", customerId='" + customerId + '\'' +
                 ", subBranchName='" + subBranchName + '\'' +
+                ", channel='" + channel + '\'' +
                 ", branchName='" + branchName + '\'' +
                 ", subBranchMail='" + subBranchMail + '\'' +
                 ", branchMail='" + branchMail + '\'' +
@@ -158,7 +170,6 @@ public class BranchRelationBean implements Serializable
                 ", copyToBranchFlag=" + copyToBranchFlag +
                 ", logTime='" + logTime + '\'' +
                 ", operator='" + operator + '\'' +
-                ", channel='" + channel + '\'' +
                 '}';
     }
 }
