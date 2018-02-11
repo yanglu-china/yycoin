@@ -3497,6 +3497,7 @@ public class ShipManagerImpl implements ShipManager
                     //#184 SF route
                     if ("shunfeng".equalsIgnoreCase(expressCode)){
                         if (state  ==  ShipConstant.SF_STATUS_50 || state == ShipConstant.SF_STATUS_30
+                                || state == ShipConstant.SF_STATUS_31
                                 || state == ShipConstant.SF_STATUS_607){
                             // 已收件
                             this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
@@ -3905,7 +3906,7 @@ public class ShipManagerImpl implements ShipManager
 
     public static void main(String[] args){
         ShipManagerImpl shipManager = new ShipManagerImpl();
-        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","586130506901");
+        HashMap<String,Object> map = shipManager.getExpressStatus("shunfeng","586502142696");
         System.out.println(map);
         if (map.get("state")!= null){
             int state = Integer.valueOf((String)map.get("state"));

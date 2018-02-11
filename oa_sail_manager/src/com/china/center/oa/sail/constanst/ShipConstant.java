@@ -71,6 +71,7 @@ public interface ShipConstant
 	 */
 	int SF_STATUS_50 = 50;
 	int SF_STATUS_30 = 30;
+	int SF_STATUS_31 = 31;
 	int SF_STATUS_607 = 607;
 
 	/**
