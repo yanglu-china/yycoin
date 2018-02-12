@@ -549,6 +549,18 @@ function check()
     }
 }
 
+function kckj()
+{
+    console.log("kckj***");
+    $ajax('../sail/out.do?method=kckj&outId=' + getRadioValue("fullId"), callbackKckj);
+}
+
+function callbackKckj(data){
+    console.log(data);
+    if(data.ret == 0){
+        alert("操作成功!");
+	}
+}
 
 function centerSubmit()
 {
@@ -1311,12 +1323,12 @@ function clears()
 	                onclick="check()" />&nbsp;&nbsp;<input type="button" name="bu2"
 	                class="button_class" value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;"
 	                onclick="reject()" />&nbsp;&nbsp;
-	                <!--
+
 	                <c:if test="${queryType == '4'}">
 	                <input type="button" name="bu_pridist"
-	                class="button_class" value="&nbsp;&nbsp;打印配送单&nbsp;&nbsp;"
-	                onclick="printDist()" />&nbsp;&nbsp;
-	                </c:if>-->
+	                class="button_class" value="&nbsp;&nbsp;测试空出空进&nbsp;&nbsp;"
+	                onclick="kckj()" />&nbsp;&nbsp;
+	                </c:if>
 		</c:if>	
 		
 		<c:if test="${queryType == '5'}">

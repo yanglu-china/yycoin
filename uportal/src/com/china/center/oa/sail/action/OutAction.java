@@ -4716,7 +4716,7 @@ public class OutAction extends ParentOutAction
     }
 	
     /**
-     * 通过空开空退
+     * #226 空出空进
      * 
      * @param mapping
      * @param form
@@ -4725,13 +4725,40 @@ public class OutAction extends ParentOutAction
      * @return
      * @throws ServletException
      */
-    public ActionForward passOutRepaireApply(ActionMapping mapping, ActionForm form,
+    public ActionForward kckj(ActionMapping mapping, ActionForm form,
             HttpServletRequest request,
             HttpServletResponse reponse)
     throws ServletException
     {
-    	long begin = System.currentTimeMillis();
-    	
+        AjaxResult ajax = new AjaxResult();
+
+        try
+        {
+            String outId = request.getParameter("outId");
+
+            User user = Helper.getUser(request);
+            
+            outManager.kckj(user, outId);
+
+            ajax.setSuccess("成功操作");
+        }
+        catch (Exception e)
+        {
+            _logger.warn(e, e);
+
+            ajax.setError("操作失败:" + e.getMessage());
+        }
+
+        return JSONTools.writeResponse(reponse, ajax);
+    }
+
+    public ActionForward passOutRepaireApply(ActionMapping mapping, ActionForm form,
+                                             HttpServletRequest request,
+                                             HttpServletResponse reponse)
+            throws ServletException
+    {
+        long begin = System.currentTimeMillis();
+
         AjaxResult ajax = new AjaxResult();
 
         try
@@ -4741,7 +4768,7 @@ public class OutAction extends ParentOutAction
             User user = Helper.getUser(request);
 
             checkOutRepaire(id);
-            
+
             outManager.passOutRepaireApply(user, id);
 
             ajax.setSuccess("成功操作");

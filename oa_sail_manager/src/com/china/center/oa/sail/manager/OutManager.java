@@ -555,6 +555,8 @@ public interface OutManager extends ListenerManager<OutListener>
      */
     boolean passOutRepaireApply(User user, String id)
     throws MYException;
+
+    boolean kckj(User user, String fullId)  throws MYException;
     
     String addOutStep2(final OutBean outBean, final User user)
     throws MYException;

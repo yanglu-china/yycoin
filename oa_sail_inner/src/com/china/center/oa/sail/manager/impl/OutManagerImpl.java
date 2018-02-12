@@ -8860,7 +8860,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 		
 		_logger.info("空开空退原单:"+ out.getFullId()+", 退单"+ newBuyId + ", 新单：" + newOutBean);
 		
-		if (!bean.getReason().equals(OutConstant.OUT_REPAIREREASON_DONOTAUTOPAY))
+		if (bean!= null && !bean.getReason().equals(OutConstant.OUT_REPAIREREASON_DONOTAUTOPAY))
 		{
 			// 已付款 1.处理预收-应收凭让 2.收款单关联 3.如果新单小于原单，部分转预收
 	        if (out.getPay() == OutConstant.PAY_YES)
@@ -8876,10 +8876,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	            outDAO.updateHadPay(out.getFullId(), 0);
 	        }
 		}
-        
-        bean.setNewOutId(newOutBean.getFullId());
-        
-        bean.setRetOutId(newBuyId);
+
+		if (bean!= null){
+            bean.setNewOutId(newOutBean.getFullId());
+            bean.setRetOutId(newBuyId);
+        }
 	}
 
 	private String createNewBuyBean(OutRepaireBean bean, OutBean out, User user) throws MYException
@@ -8955,10 +8956,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	
     	newOutBean.setPayTime("");
     	newOutBean.setLastModified("");
-    	
-    	newOutBean.setOperator(bean.getOperator());
-    	
-    	newOutBean.setOperatorName(bean.getOperatorName());
+
+    	if (bean!= null){
+            newOutBean.setOperator(bean.getOperator());
+            newOutBean.setOperatorName(bean.getOperatorName());
+        }
     	
     	newOutBean.setFeedBackVisit(0);
     	newOutBean.setFeedBackCheck(0);
@@ -9053,26 +9055,28 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	newOutBean.setFullId(newOutId);
     	
     	newOutBean.setOutTime(TimeTools.now_short());
-    	
-    	newOutBean.setReday(bean.getReday());
-
-        newOutBean.setRedate(bean.getRedate());
 
         newOutBean.setChangeTime(TimeTools.now());
 
-        newOutBean.setDutyId(bean.getDutyId());
+        double total = 0.0d;
+        List<BaseRepaireBean> repaireList = new ArrayList<BaseRepaireBean>();
+        if(bean!= null){
+            newOutBean.setReday(bean.getReday());
 
-        newOutBean.setInvoiceId(bean.getInvoiceId());
-    	
-    	double total = 0.0d;
-    	
-    	List<BaseRepaireBean> repaireList = bean.getList();
-    	
-    	for (BaseRepaireBean each : repaireList)
-    	{
-    		total += each.getPrice() * each.getAmount();
-    	}
-    	
+            newOutBean.setRedate(bean.getRedate());
+
+            newOutBean.setDutyId(bean.getDutyId());
+
+            newOutBean.setInvoiceId(bean.getInvoiceId());
+
+            repaireList = bean.getList();
+
+            for (BaseRepaireBean each : repaireList)
+            {
+                total += each.getPrice() * each.getAmount();
+            }
+        }
+
     	newOutBean.setTotal(total);
     	
     	if (total > out.getTotal())
@@ -9095,7 +9099,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	}
     	
     	// 新单不自动勾款，新单为未付款，已支付0，付款时间为空
-    	if (bean.getReason().equals(OutConstant.OUT_REPAIREREASON_DONOTAUTOPAY))
+    	if (bean!= null && bean.getReason().equals(OutConstant.OUT_REPAIREREASON_DONOTAUTOPAY))
     	{
     		newOutBean.setHadPay(0);
     		
@@ -9113,15 +9117,19 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         newOutBean.setManagerTime(TimeTools.now());
 
         newOutBean.setChangeTime(TimeTools.now());
-
-        newOutBean.setOperator(bean.getOperator());
-
-        newOutBean.setOperatorName(bean.getOperatorName());
     	
     	newOutBean.setFeedBackVisit(0);
     	newOutBean.setFeedBackCheck(0);
 
-        newOutBean.setDescription(out.getDescription() + "," + bean.getDescription() + ",空开空退后原单：" + out.getFullId());
+    	if (bean!= null){
+            newOutBean.setOperator(bean.getOperator());
+
+            newOutBean.setOperatorName(bean.getOperatorName());
+            newOutBean.setDescription(out.getDescription() + "," + bean.getDescription() + ",空开空退后原单：" + out.getFullId());
+        } else{
+            newOutBean.setDescription(out.getDescription() +  ",空开空退后原单：" + out.getFullId());
+        }
+
     	
     	//  如果是领样转销售的单子,refOutFullId 有值
     	newOutBean.setRefOutFullId("");
@@ -9197,8 +9205,41 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         
     	return newOutBean;
 	}
-	
-	/**
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean kckj(User user, String fullId) throws MYException {
+        JudgeTools.judgeParameterIsNull(user, fullId);
+
+        OutBean out = outDAO.find(fullId);
+
+        if (out == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        } else if (out.getInvoiceStatus() != 0){
+            throw new MYException("开票状态必须为未开票");
+        }
+
+        // Core 一退一销，脏数据利用，安全性
+        processBlankBuyAndOut(null, out, user);
+
+        // 新旧销售单单号相互关联
+//        outDAO.updateDescription(bean.getOutId(), out.getDescription() + ",空开空退新单："+ bean.getNewOutId());
+
+        // 验证(销售单)是否可以全部回款
+        try
+        {
+            this.payOut(user, out.getFullId(), "自动核对付款");
+        }
+        catch (MYException e)
+        {
+            _logger.info(e, e);
+        }
+
+        return true;
+    }
+
+    /**
 	 * 增加(修改) -- 销售单第二步（配送信息）
 	 * 
 	 * {@inheritDoc}
