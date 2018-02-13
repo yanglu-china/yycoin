@@ -8909,8 +8909,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	newOutBean.setOutTime(TimeTools.now_short());
     	
     	newOutBean.setOutType(OutConstant.OUTTYPE_IN_OUTBACK);
-    	
-    	newOutBean.setDescription("空开空退销售退库,销售单号:" + out.getFullId() + ". 销售退库");
+
+    	if(bean == null){
+            newOutBean.setDescription("空出空进销售退库,销售单号:" + out.getFullId() + ". 销售退库");
+        }else{
+            newOutBean.setDescription("空开空退销售退库,销售单号:" + out.getFullId() + ". 销售退库");
+        }
     	
     	newOutBean.setType(OutConstant.OUT_TYPE_INBILL);
     	
@@ -9002,22 +9006,35 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         {
             listener.onConfirmOutOrBuy(user, newOutBean);
         }
-        
-        outDAO.modifyOutStatus(newOutBean.getFullId(), OutConstant.BUY_STATUS_PASS);
+
+        if(bean == null){
+            outDAO.modifyOutStatus(newOutBean.getFullId(), OutConstant.BUY_STATUS_SEC_PASS);
+        }else{
+            outDAO.modifyOutStatus(newOutBean.getFullId(), OutConstant.BUY_STATUS_PASS);
+        }
         
         // 记录退货审批日志 操作人系统，自动审批 
     	FlowLogBean log = new FlowLogBean();
 
         log.setActor("系统");
 
-        log.setDescription("空开空退系统自动审批");
+        if(bean == null){
+            log.setDescription("空出空进系统自动审批");
+        }else{
+            log.setDescription("空开空退系统自动审批");
+        }
+
         log.setFullId(newOutBean.getFullId());
         log.setOprMode(PublicConstant.OPRMODE_PASS);
         log.setLogTime(TimeTools.now());
 
         log.setPreStatus(OutConstant.BUY_STATUS_SAVE);
 
-        log.setAfterStatus(OutConstant.BUY_STATUS_PASS);
+        if(bean == null){
+            log.setAfterStatus(OutConstant.BUY_STATUS_SEC_PASS);
+        }else{
+            log.setAfterStatus(OutConstant.BUY_STATUS_PASS);
+        }
 
         flowLogDAO.saveEntityBean(log);
         
@@ -9127,7 +9144,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             newOutBean.setOperatorName(bean.getOperatorName());
             newOutBean.setDescription(out.getDescription() + "," + bean.getDescription() + ",空开空退后原单：" + out.getFullId());
         } else{
-            newOutBean.setDescription(out.getDescription() +  ",空开空退后原单：" + out.getFullId());
+            newOutBean.setDescription(out.getDescription() +  ",空出空进后原单：" + out.getFullId());
         }
 
     	
@@ -9192,7 +9209,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         log.setActor("系统");
 
-        log.setDescription("空开空退系统自动审批");
+        if (bean  == null){
+            log.setDescription("空出空进系统自动审批");
+        } else{
+            log.setDescription("空开空退系统自动审批");
+        }
+
         log.setFullId(newOutBean.getFullId());
         log.setOprMode(PublicConstant.OPRMODE_PASS);
         log.setLogTime(TimeTools.now());
@@ -9230,6 +9252,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         try
         {
             this.payOut(user, out.getFullId(), "自动核对付款");
+            this.outDAO.modifyOutStatus(fullId, OutConstant.STATUS_PASS);
         }
         catch (MYException e)
         {
