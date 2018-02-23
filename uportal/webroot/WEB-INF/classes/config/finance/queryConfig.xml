@@ -99,6 +99,10 @@
             <datatype>1</datatype>
             <type>text</type>
         </condtion>
+        <condtion name="posTerminalNumber" caption="POS终端号">
+            <opr>like</opr>
+            <type>text</type>
+        </condtion>
     </item>
     
     <item name="querySelfPayment" alias="queryPayment"/>
