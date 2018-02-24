@@ -8849,7 +8849,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 		
 		List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(out.getFullId());
 		
-		if (!ListTools.isEmptyOrNull(distList))
+		if (newOutBean!= null && !ListTools.isEmptyOrNull(distList))
 		{
 			dist = distList.get(0);
 			
@@ -8857,8 +8857,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 			
 			saveDistributionInner(dist, newOutBean.getBaseList());
 		}
-		
-		_logger.info("空开空退原单:"+ out.getFullId()+", 退单"+ newBuyId + ", 新单：" + newOutBean);
+
+		if (newOutBean == null){
+            _logger.info("空出空进原单:"+ out.getFullId()+", 退单"+ newBuyId );
+        } else{
+            _logger.info("空开空退原单:"+ out.getFullId()+", 退单"+ newBuyId + ", 新单：" + newOutBean);
+        }
 		
 		if (bean!= null && !bean.getReason().equals(OutConstant.OUT_REPAIREREASON_DONOTAUTOPAY))
 		{
@@ -9050,6 +9054,17 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	 */
 	private OutBean createNewOutBean(OutRepaireBean bean, OutBean out, User user) throws MYException
 	{
+        // #226 直接出库,触发产生退货凭证 TAX_ADD,不需要生成新单
+        if (bean == null){
+            Collection<OutListener> listenerMapValues = listenerMapValues();
+
+            for (OutListener listener : listenerMapValues)
+            {
+                listener.onConfirmOutOrBuy(user, out);
+            }
+	        return null;
+        }
+
 		String newOutId;
 		
 		OutBean newOutBean = new OutBean();
@@ -9210,18 +9225,18 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         log.setActor("系统");
 
         if (bean  == null){
+            log.setFullId(out.getFullId());
             log.setDescription("空出空进系统自动审批");
+            log.setAfterStatus(OutConstant.STATUS_PASS);
         } else{
             log.setDescription("空开空退系统自动审批");
+            log.setFullId(newOutBean.getFullId());
+            log.setAfterStatus(newOutBean.getStatus());
         }
 
-        log.setFullId(newOutBean.getFullId());
         log.setOprMode(PublicConstant.OPRMODE_PASS);
         log.setLogTime(TimeTools.now());
-
         log.setPreStatus(OutConstant.STATUS_SAVE);
-
-        log.setAfterStatus(newOutBean.getStatus());
 
         flowLogDAO.saveEntityBean(log);
         
