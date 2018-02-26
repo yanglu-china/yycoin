@@ -9260,14 +9260,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         // Core 一退一销，脏数据利用，安全性
         processBlankBuyAndOut(null, out, user);
 
-        // 新旧销售单单号相互关联
-//        outDAO.updateDescription(bean.getOutId(), out.getDescription() + ",空开空退新单："+ bean.getNewOutId());
-
         // 验证(销售单)是否可以全部回款
         try
         {
             this.payOut(user, out.getFullId(), "自动核对付款");
-            this.outDAO.modifyOutStatus(fullId, OutConstant.STATUS_PASS);
+            this.outDAO.modifyOutStatus(fullId, OutConstant.STATUS_SEC_PASS);
         }
         catch (MYException e)
         {
