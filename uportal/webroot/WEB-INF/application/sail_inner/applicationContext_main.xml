@@ -23,6 +23,12 @@
 
     <bean id="olOutDAO" class="com.china.center.oa.sail.dao.impl.OlOutDAOImpl" />
 
+	<bean id="twBaseDAO" class="com.china.center.oa.sail.dao.impl.TwBaseDAOImpl" />
+
+	<bean id="twOutDAO" class="com.china.center.oa.sail.dao.impl.TwOutDAOImpl" />
+
+	<bean id="twDistributionDAO" class="com.china.center.oa.sail.dao.impl.TwDistributionDAOImpl" />
+
     <bean id="outUniqueDAO" class="com.china.center.oa.sail.dao.impl.OutUniqueDAOImpl" />
 
     <bean id="consignDAO" class="com.china.center.oa.sail.dao.impl.ConsignDAOImpl" />

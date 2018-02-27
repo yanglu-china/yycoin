@@ -13,8 +13,8 @@ import com.china.center.oa.publics.bean.CityBean;
 import com.china.center.oa.publics.bean.ProvinceBean;
 
 @Entity(name = "销售单配送信息")
-@Table(name = "T_CENTER_DISTRIBUTION")
-public class DistributionBean implements Serializable 
+@Table(name = "T_CENTER_TWDISTRIBUTION")
+public class TwDistributionBean implements Serializable
 {
 	@Id
 	private String id = "";
@@ -111,7 +111,7 @@ public class DistributionBean implements Serializable
     private String outboundDate = "";
 	
 	
-	public DistributionBean()
+	public TwDistributionBean()
 	{		
 	}
 
