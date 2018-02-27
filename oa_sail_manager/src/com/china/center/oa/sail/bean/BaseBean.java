@@ -32,7 +32,7 @@ import com.china.center.oa.publics.constant.PublicConstant;
  */
 @Entity
 @Table(name = "T_CENTER_BASE")
-public class BaseBean implements Serializable
+public class BaseBean implements Serializable, BaseInterface
 {
     @Id
     private String id = "";
@@ -379,9 +379,6 @@ public class BaseBean implements Serializable
         return locationId;
     }
 
-    /**
-     * @param 对locationId进行赋值
-     */
     public void setLocationId(String locationId)
     {
         this.locationId = locationId;

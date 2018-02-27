@@ -330,7 +330,7 @@ public class PackageManagerImpl implements PackageManager {
 	}
 
 	private void createNewPackage(OutInterface outBean,
-			List<BaseBean> baseList, DistributionInterface distVO, String fullAddress, String location)
+			List<? extends BaseInterface> baseList, DistributionInterface distVO, String fullAddress, String location)
 	{
         _logger.info("**************createNewPackage for Out now "+outBean.getFullId());
 
@@ -365,8 +365,8 @@ public class PackageManagerImpl implements PackageManager {
 		List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
 		
 		boolean isEmergency = false;
-		Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
-		for (BaseBean base : baseList)
+		Map<String, List<BaseInterface>> pmap = new HashMap<String, List<BaseInterface>>();
+		for (BaseInterface base : baseList)
 		{
 			PackageItemBean item = new PackageItemBean();
 			
@@ -415,14 +415,14 @@ public class PackageManagerImpl implements PackageManager {
 			
 			if (!pmap.containsKey(base.getProductId()))
 			{
-				List<BaseBean> blist = new ArrayList<BaseBean>();
+				List<BaseInterface> blist = new ArrayList<BaseInterface>();
 				
 				blist.add(base);
 				
 				pmap.put(base.getProductId(), blist);
 			}else
 			{
-				List<BaseBean> blist = pmap.get(base.getProductId());
+				List<BaseInterface> blist = pmap.get(base.getProductId());
 				
 				blist.add(base);
 			}
@@ -1003,9 +1003,9 @@ public class PackageManagerImpl implements PackageManager {
 				int allAmount = 0;
 				double total = 0;
 
-				Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
+				Map<String, List<BaseInterface>> pmap = new HashMap<String, List<BaseInterface>>();
 				boolean isEmergency = false;
-				for (BaseBean base : baseList)
+				for (BaseInterface base : baseList)
 				{
 					PackageItemBean item = new PackageItemBean();
 
@@ -1033,14 +1033,14 @@ public class PackageManagerImpl implements PackageManager {
 
 					if (!pmap.containsKey(base.getProductId()))
 					{
-						List<BaseBean> blist = new ArrayList<BaseBean>();
+						List<BaseInterface> blist = new ArrayList<BaseInterface>();
 
 						blist.add(base);
 
 						pmap.put(base.getProductId(), blist);
 					}else
 					{
-						List<BaseBean> blist = pmap.get(base.getProductId());
+						List<BaseInterface> blist = pmap.get(base.getProductId());
 
 						blist.add(base);
 					}

@@ -21,7 +21,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "T_CENTER_TWBASE")
-public class TwBaseBean implements Serializable
+public class TwBaseBean implements Serializable, BaseInterface
 {
     @Id
     private String id = "";
