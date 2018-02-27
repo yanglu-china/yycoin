@@ -11,6 +11,7 @@ package com.china.center.oa.sail.dao;
 
 import com.china.center.jdbc.inter.DAO;
 import com.china.center.oa.sail.bean.TwOutBean;
+import com.china.center.oa.sail.vo.TwOutVO;
 
 
 /**
@@ -21,7 +22,7 @@ import com.china.center.oa.sail.bean.TwOutBean;
  * @see TwOutDAO
  * @since 1.0
  */
-public interface TwOutDAO extends DAO<TwOutBean, TwOutBean>
+public interface TwOutDAO extends DAO<TwOutBean, TwOutVO>
 {
     public void updateStatus(String olFullId, int status);
 }

@@ -286,9 +286,9 @@ public class PackageManagerImpl implements PackageManager {
 				_logger.info("=========is not out=========="+each.getOutId());
 				//#267 系统外TW单据
 				if (each.getOutId().startsWith("TW")){
-					TwOutBean twOutBean = this.twOutDAO.find(each.getOutId());
+					TwOutVO twOutBean = this.twOutDAO.findVO(each.getOutId());
 					if (twOutBean == null){
-
+						this.createTwPackage(each, twOutBean);
 					}
 				} else{
 					InvoiceinsBean insBean = invoiceinsDAO.find(each.getOutId());
@@ -329,8 +329,8 @@ public class PackageManagerImpl implements PackageManager {
 		}
 	}
 
-	private void createNewPackage(OutVO outBean,
-			List<BaseBean> baseList, DistributionVO distVO, String fullAddress, String location)
+	private void createNewPackage(OutInterface outBean,
+			List<BaseBean> baseList, DistributionInterface distVO, String fullAddress, String location)
 	{
         _logger.info("**************createNewPackage for Out now "+outBean.getFullId());
 
@@ -602,7 +602,7 @@ public class PackageManagerImpl implements PackageManager {
 	}
 
     //2015/1/13 update
-    private void setInnerCondition(DistributionVO distVO, String location, ConditionParse con)
+    private void setInnerCondition(DistributionInterface distVO, String location, ConditionParse con)
     {
        int shipping = distVO.getShipping();
        if (shipping == 0){
@@ -891,7 +891,7 @@ public class PackageManagerImpl implements PackageManager {
 		return result;
 	}
 
-	public void createTwPackage(PreConsignBean pre, TwOutBean out) throws MYException
+	public void createTwPackage(PreConsignBean pre, TwOutVO out) throws MYException
 	{
 		String location = "";
 		String fullId = out.getFullId();

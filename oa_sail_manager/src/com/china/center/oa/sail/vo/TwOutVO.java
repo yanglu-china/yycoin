@@ -16,19 +16,10 @@ import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
-import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.TwOutBean;
 
-
-/**
- * Out的展现
- * 
- * @author ZHUZHU
- * @version
- * @see
- * @since 1.0
- */
 @Entity(inherit = true)
-public class OutVO extends OutBean implements OutInterface
+public class TwOutVO extends TwOutBean implements OutInterface
 {
     @Relationship(relationField = "locationId")
     private String locationName = "";
@@ -71,13 +62,13 @@ public class OutVO extends OutBean implements OutInterface
 
     @Relationship(relationField = "industryId3")
     private String industryName3 = "";
-    
+
     @Relationship(relationField = "reserve9")
     private String stafferName1 = "";
-    
+
     @Relationship(relationField = "eventId")
     private String eventName = "";
-    
+
     @Relationship(relationField = "guarantor")
     private String guarantorName = "";
 
@@ -88,33 +79,33 @@ public class OutVO extends OutBean implements OutInterface
      * 退货金额
      */
     @Ignore
-    private double retTotal = 0.0d;   
-    
+    private double retTotal = 0.0d;
+
     /**
      * 可开票金额
      */
     @Ignore
     private double mayInvoiceMoneys = 0.0d;
-    
+
     @Ignore
     private double mayConfirmMoney = 0.0d;
-    
+
     @Ignore
     private String origId = "";
-    
+
     @Ignore
     private int newReday = 0;
-    
+
     @Ignore
     private String newDutyId = "";
-    
+
     @Ignore
     private String newInvoiceId = "";
-    
+
     @Ignore
     private String pdescription = "";
-    
-    public OutVO()
+
+    public TwOutVO()
     {
     }
 
@@ -134,9 +125,6 @@ public class OutVO extends OutBean implements OutInterface
         return locationName;
     }
 
-    /**
-     * @param 对locationName进行赋值
-     */
     public void setLocationName(String locationName)
     {
         this.locationName = locationName;
