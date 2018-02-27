@@ -17,7 +17,7 @@ import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.OutManager;
-import com.china.center.oa.sail.vo.ProductExchangeConfigVO;
+import com.china.center.oa.sail.vo.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -44,9 +44,6 @@ import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.constanst.OutConstant;
-import com.china.center.oa.sail.vo.DistributionVO;
-import com.china.center.oa.sail.vo.OutVO;
-import com.china.center.oa.sail.vo.PackageVO;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
@@ -77,6 +74,12 @@ public class PackageManagerImpl implements PackageManager {
 	private BaseDAO baseDAO = null;
 	
 	private DistributionDAO distributionDAO = null;
+
+	private TwOutDAO twOutDAO = null;
+
+	private TwBaseDAO twBaseDAO = null;
+
+	private TwDistributionDAO twDistributionDAO = null;
 	
 	private CommonDAO commonDAO = null;
 	
@@ -281,24 +284,32 @@ public class PackageManagerImpl implements PackageManager {
 				createPackage(each, outBean);
 			} else {
 				_logger.info("=========is not out=========="+each.getOutId());
-				InvoiceinsBean insBean = invoiceinsDAO.find(each.getOutId());
-				
-				if (null != insBean) {
-					_logger.info("======is invoiceins======" + each.getOutId());
-					createInsPackage(each, insBean.getId());
-				} else {
-                    //2015/3/1 预开票申请也需要进入CK单
-                    PreInvoiceApplyVO applyBean = this.preInvoiceApplyDAO.findVO(each.getOutId());
+				//#267 系统外TW单据
+				if (each.getOutId().startsWith("TW")){
+					TwOutBean twOutBean = this.twOutDAO.find(each.getOutId());
+					if (twOutBean == null){
 
-                    if (applyBean!= null){
-						_logger.info("======is PreInvoiceApplyBean======" + each.getOutId());
-                        this.createPreInsPackage(each, applyBean);
-                    } else{
-                        triggerLog.warn("======is other, direct delete, handle nothing======"+each.getOutId());
-                        preConsignDAO.deleteEntityBean(each.getId());
+					}
+				} else{
+					InvoiceinsBean insBean = invoiceinsDAO.find(each.getOutId());
 
-                        continue;
-                    }
+					if (null != insBean) {
+						_logger.info("======is invoiceins======" + each.getOutId());
+						createInsPackage(each, insBean.getId());
+					} else {
+						//2015/3/1 预开票申请也需要进入CK单
+						PreInvoiceApplyVO applyBean = this.preInvoiceApplyDAO.findVO(each.getOutId());
+
+						if (applyBean!= null){
+							_logger.info("======is PreInvoiceApplyBean======" + each.getOutId());
+							this.createPreInsPackage(each, applyBean);
+						} else{
+							triggerLog.warn("======is other, direct delete, handle nothing======"+each.getOutId());
+							preConsignDAO.deleteEntityBean(each.getId());
+
+							continue;
+						}
+					}
 				}
 			}
 		}
@@ -667,29 +678,6 @@ public class PackageManagerImpl implements PackageManager {
        }
     }
 
-//	private void setInnerCondition(DistributionVO distVO, String location, ConditionParse con)
-//	{
-//		//con.addCondition("PackageBean.customerId", "=", outBean.getCustomerId());
-//		con.addCondition("PackageBean.cityId", "=", distVO.getCityId());  // 借用outId 用于存储城市。生成出库单增加 城市 维度
-//
-//		con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
-//
-//		con.addIntCondition("PackageBean.transport1", "=", distVO.getTransport1());
-//
-//		con.addIntCondition("PackageBean.expressPay", "=", distVO.getExpressPay());
-//
-//		con.addIntCondition("PackageBean.transport2", "=", distVO.getTransport2());
-//
-//		con.addIntCondition("PackageBean.transportPay", "=", distVO.getTransportPay());
-//
-//		con.addCondition("PackageBean.locationId", "=", location);
-//
-//		con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
-//
-//		con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
-//
-//		con.addIntCondition("PackageBean.status", "=", 0);
-//	}
 
 	/**
 	 * 
@@ -901,6 +889,197 @@ public class PackageManagerImpl implements PackageManager {
 			}
 		}
 		return result;
+	}
+
+	public void createTwPackage(PreConsignBean pre, TwOutBean out) throws MYException
+	{
+		String location = "";
+		String fullId = out.getFullId();
+
+		// 通过仓库获取 仓库地点
+		DepotBean depot = depotDAO.find(out.getLocation());
+
+		if (depot != null)
+			location = depot.getIndustryId2();
+
+		List<TwBaseBean> baseList = this.twBaseDAO.queryEntityBeansByFK(fullId);
+
+		List<TwDistributionVO> distList = this.twDistributionDAO.queryEntityVOsByFK(fullId);
+
+		if (ListTools.isEmptyOrNull(distList))
+		{
+			triggerLog.warn("======createPackage== (distList is null or empty)====" + fullId);
+			preConsignDAO.deleteEntityBean(pre.getId());
+
+			return;
+		}
+
+		TwDistributionVO distVO = distList.get(0);
+
+		// 如果是空发,则不处理
+		if (distVO.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING)
+		{
+			triggerLog.warn("======createPackage== (shipping is OUT_SHIPPING_NOTSHIPPING)====" + fullId);
+			preConsignDAO.deleteEntityBean(pre.getId());
+
+			return;
+		}
+
+		// 地址不全,不发
+		if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
+		{
+			_logger.warn("======address not complete==" + fullId);
+			preConsignDAO.deleteEntityBean(pre.getId());
+			return;
+		}
+
+		String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
+		String fullAddressTrim = fullAddress.trim();
+		// 此客户是否存在同一个发货包裹,且未拣配
+		ConditionParse con = new ConditionParse();
+
+		con.addWhereStr();
+
+		setInnerCondition(distVO, location, con);
+
+		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+
+		if (ListTools.isEmptyOrNull(packageList))
+		{
+			_logger.info("****create new package now***"+fullId);
+			createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+		}else{
+			_logger.info(location+"****package already exist***"+fullId);
+			String id = packageList.get(0).getId();
+
+			PackageBean packBean = packageDAO.find(id);
+
+			// 不存在或已不是初始状态(可能已被拣配)
+			if (null == packBean ||
+					(packBean.getStatus() != 0 && packBean.getStatus()!= ShipConstant.SHIP_STATUS_PRINT_INVOICEINS))
+			{
+				_logger.info(fullId+"****added to new package***");
+				createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+			}else
+			{
+				//#18 2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
+				List<PackageItemBean> currentItems = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
+				if (!ListTools.isEmptyOrNull(currentItems)){
+					_logger.info(fullId+"****add SO to existent package "+packBean.getId()+" current size:"+currentItems.size());
+					PackageItemBean first = currentItems.get(0);
+					if (fullId.contains("DB") && first.getOutId().contains("SO")){
+						_logger.warn("***not merge with different out type***"+first.getOutId());
+						createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+					}else{
+						OutVO outBean = outDAO.findVO(first.getOutId());
+						if (outBean!= null){
+							String lo = outBean.getLocation();
+							//#18 2016/6/15 如果销售单对应depot表中industryId2不一致，就不能合并。而不管仓库是否一致
+							DepotBean depot2 = this.depotDAO.find(lo);
+							if (depot2!= null && !location.equals(depot2.getIndustryId2())) {
+								String msg = first.getOutId()+"****industryId2 is not same****"+out.getFullId();
+								_logger.warn(msg);
+
+								createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+//								preConsignDAO.deleteEntityBean(pre.getId());
+								return ;
+							}
+						}
+
+						//2015/2/15 检查重复SO单
+						for (PackageItemBean p: currentItems){
+							if (out.getFullId().equals(p.getOutId())){
+								_logger.warn("****duplicate package item***"+fullId);
+								preConsignDAO.deleteEntityBean(pre.getId());
+								return;
+							}
+						}
+					}
+				} else{
+					_logger.warn("***no package items exist***"+packBean.getId());
+				}
+				List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
+
+				int allAmount = 0;
+				double total = 0;
+
+				Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
+				boolean isEmergency = false;
+				for (BaseBean base : baseList)
+				{
+					PackageItemBean item = new PackageItemBean();
+
+					item.setPackageId(id);
+					item.setOutId(out.getFullId());
+					item.setBaseId(base.getId());
+					item.setProductId(base.getProductId());
+					item.setProductName(base.getProductName());
+					item.setAmount(Math.abs(base.getAmount()));
+					item.setPrice(Math.abs(base.getPrice()));
+					item.setValue(base.getValue());
+					item.setOutTime(out.getOutTime());
+					item.setDescription(out.getDescription());
+					item.setCustomerId(out.getCustomerId());
+					item.setEmergency(out.getEmergency());
+
+					if (item.getEmergency() == 1) {
+						isEmergency = true;
+					}
+
+					itemList.add(item);
+
+					allAmount += item.getAmount();
+					total += base.getValue();
+
+					if (!pmap.containsKey(base.getProductId()))
+					{
+						List<BaseBean> blist = new ArrayList<BaseBean>();
+
+						blist.add(base);
+
+						pmap.put(base.getProductId(), blist);
+					}else
+					{
+						List<BaseBean> blist = pmap.get(base.getProductId());
+
+						blist.add(base);
+					}
+				}
+
+				packBean.setAmount(packBean.getAmount() + allAmount);
+				packBean.setTotal(packBean.getTotal() + total);
+				packBean.setProductCount(packBean.getProductCount() + pmap.values().size());
+
+				if (isEmergency) {
+					packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
+				}
+				if(this.isDirectShipped(itemList)){
+					packBean.setDirect(1);
+				}
+				packageDAO.updateEntityBean(packBean);
+
+				packageItemDAO.saveAllEntityBeans(itemList);
+
+				// 包与客户关系
+				PackageVSCustomerBean vsBean = packageVSCustomerDAO.findByUnique(id, out.getCustomerId());
+
+				if (null == vsBean)
+				{
+					int count = packageVSCustomerDAO.countByCondition("where packageId = ?", id);
+
+					PackageVSCustomerBean newvsBean = new PackageVSCustomerBean();
+
+					newvsBean.setPackageId(id);
+					newvsBean.setCustomerId(out.getCustomerId());
+					newvsBean.setCustomerName(out.getCustomerName());
+					newvsBean.setIndexPos(count + 1);
+
+					packageVSCustomerDAO.saveEntityBean(newvsBean);
+				}
+			}
+		}
+
+		preConsignDAO.deleteEntityBean(pre.getId());
 	}
 
 	/**
@@ -1569,5 +1748,29 @@ public class PackageManagerImpl implements PackageManager {
 
 	public void setFlowLogDAO(FlowLogDAO flowLogDAO) {
 		this.flowLogDAO = flowLogDAO;
+	}
+
+	public TwOutDAO getTwOutDAO() {
+		return twOutDAO;
+	}
+
+	public void setTwOutDAO(TwOutDAO twOutDAO) {
+		this.twOutDAO = twOutDAO;
+	}
+
+	public TwBaseDAO getTwBaseDAO() {
+		return twBaseDAO;
+	}
+
+	public void setTwBaseDAO(TwBaseDAO twBaseDAO) {
+		this.twBaseDAO = twBaseDAO;
+	}
+
+	public TwDistributionDAO getTwDistributionDAO() {
+		return twDistributionDAO;
+	}
+
+	public void setTwDistributionDAO(TwDistributionDAO twDistributionDAO) {
+		this.twDistributionDAO = twDistributionDAO;
 	}
 }
