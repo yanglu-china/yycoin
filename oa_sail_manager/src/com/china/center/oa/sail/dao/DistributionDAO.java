@@ -9,4 +9,6 @@ public interface DistributionDAO extends DAO<DistributionBean, DistributionVO>
 	boolean updateBean(String id, DistributionBean bean);
 	
 	boolean updateOutboundDate(String id, String outboundDate);
+
+	boolean updateShipping(String id, int shipping);
 }

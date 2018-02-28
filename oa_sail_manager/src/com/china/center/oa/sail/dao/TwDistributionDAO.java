@@ -6,4 +6,5 @@ import com.china.center.oa.sail.vo.TwDistributionVO;
 
 public interface TwDistributionDAO extends DAO<TwDistributionBean, TwDistributionVO>
 {
+    boolean updateOutboundDate(String id, String outboundDate);
 }

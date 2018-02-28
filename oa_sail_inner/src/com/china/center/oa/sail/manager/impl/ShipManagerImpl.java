@@ -79,6 +79,10 @@ public class ShipManagerImpl implements ShipManager
 
     private DistributionDAO distributionDAO = null;
 
+    private TwOutDAO twOutDAO = null;
+
+    private TwDistributionDAO twDistributionDAO = null;
+
     private CommonDAO commonDAO = null;
 
     private DepotDAO depotDAO = null;
@@ -1058,40 +1062,7 @@ public class ShipManagerImpl implements ShipManager
 
         List<PackageBean> packageList = packageDAO.queryEntityBeansByFK(pickupId);
         this.checkEmptyTransportNo(packageList);
-
-        Set<String> set = new HashSet<String>();
-
-        for (PackageBean each : packageList)
-        {
-            if (StringTools.isNullOrNone(each.getPickupId())){
-                _logger.info("****CK单pickupId不能为空****"+each.getId());
-                throw new MYException("CK单[%s]pickupId不能为空", each.getId());
-            }
-            int preStatus = each.getStatus();
-            each.setStatus(ShipConstant.SHIP_STATUS_CONSIGN);
-
-            each.setShipTime(TimeTools.now());
-
-            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
-
-            for (PackageItemBean eachItem : itemList)
-            {
-                if (!set.contains(eachItem.getOutId()))
-                {
-                    OutBean out = outDAO.find(eachItem.getOutId());
-
-                    if (null != out && out.getStatus() == OutConstant.STATUS_PASS)
-                    {
-                        outDAO.modifyOutStatus(out.getFullId(), OutConstant.STATUS_SEC_PASS);
-
-                        distributionDAO.updateOutboundDate(out.getFullId(), TimeTools.now_short());
-                    }
-                }
-            }
-
-            packageDAO.updateEntityBean(each);
-            this.addLog(each.getId(),preStatus, ShipConstant.SHIP_STATUS_CONSIGN,"确认发货", TimeTools.now());
-        }
+        this.updatePackagesStatus(packageList);
 
         return true;
     }
@@ -1147,6 +1118,12 @@ public class ShipManagerImpl implements ShipManager
         }
 
         this.checkEmptyTransportNo(packageList);
+        this.updatePackagesStatus(packageList);
+
+        return true;
+    }
+
+    private void updatePackagesStatus(List<PackageBean> packageList) throws MYException {
 
         Set<String> set = new HashSet<String>();
         for (PackageBean each : packageList)
@@ -1164,15 +1141,26 @@ public class ShipManagerImpl implements ShipManager
 
             for (PackageItemBean eachItem : itemList)
             {
-                if (!set.contains(eachItem.getOutId()))
+                String outId = eachItem.getOutId();
+                if (!set.contains(outId))
                 {
-                    OutBean out = outDAO.find(eachItem.getOutId());
+                    if (outId.startsWith("TW")){
+                        TwOutBean out = this.twOutDAO.find(outId);
 
-                    if (null != out && out.getStatus() == OutConstant.STATUS_PASS)
-                    {
-                        outDAO.modifyOutStatus(out.getFullId(), OutConstant.STATUS_SEC_PASS);
+                        if (null != out) {
+                            twOutDAO.updateStatus(outId, OutConstant.STATUS_SEC_PASS);
 
-                        distributionDAO.updateOutboundDate(out.getFullId(), TimeTools.now_short());
+                            twDistributionDAO.updateOutboundDate(outId, TimeTools.now_short());
+                        }
+                    } else{
+                        OutBean out = outDAO.find(eachItem.getOutId());
+
+                        if (null != out && out.getStatus() == OutConstant.STATUS_PASS)
+                        {
+                            outDAO.modifyOutStatus(out.getFullId(), OutConstant.STATUS_SEC_PASS);
+
+                            distributionDAO.updateOutboundDate(out.getFullId(), TimeTools.now_short());
+                        }
                     }
                 }
             }
@@ -1180,8 +1168,6 @@ public class ShipManagerImpl implements ShipManager
             packageDAO.updateEntityBean(each);
             this.addLog(each.getId(),preStatus, ShipConstant.SHIP_STATUS_CONSIGN, "确认发货", TimeTools.now());
         }
-
-        return true;
     }
 
     @Deprecated
@@ -3902,6 +3888,22 @@ public class ShipManagerImpl implements ShipManager
 
     public void setFlowLogDAO(FlowLogDAO flowLogDAO) {
         this.flowLogDAO = flowLogDAO;
+    }
+
+    public TwOutDAO getTwOutDAO() {
+        return twOutDAO;
+    }
+
+    public void setTwOutDAO(TwOutDAO twOutDAO) {
+        this.twOutDAO = twOutDAO;
+    }
+
+    public TwDistributionDAO getTwDistributionDAO() {
+        return twDistributionDAO;
+    }
+
+    public void setTwDistributionDAO(TwDistributionDAO twDistributionDAO) {
+        this.twDistributionDAO = twDistributionDAO;
     }
 
     public static void main(String[] args){

@@ -47,4 +47,20 @@ public class DistributionDAOImpl extends BaseDAO<DistributionBean, DistributionV
             return true;
         }
 	}
+
+
+	@Override
+	public boolean updateShipping(String id, int shipping) {
+		String sql = "update t_center_distribution set shipping = ? where outid = ?";
+
+		int i = jdbcOperation.update(sql, shipping, id);
+
+		if (i == 0)
+		{
+			return false;
+		}else
+		{
+			return true;
+		}
+	}
 }

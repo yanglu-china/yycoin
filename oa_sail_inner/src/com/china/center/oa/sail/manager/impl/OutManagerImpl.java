@@ -9252,25 +9252,21 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         if (out == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("单据不存在,请确认操作");
         } else if (out.getInvoiceStatus() != 0){
             throw new MYException("开票状态必须为未开票");
+        } else if (out.getStatus() == OutConstant.STATUS_SEC_PASS){
+            throw new MYException("销售单状态已发货,不能操作");
         }
 
         // Core 一退一销，脏数据利用，安全性
         processBlankBuyAndOut(null, out, user);
 
         // 验证(销售单)是否可以全部回款
-        try
-        {
-            this.payOut(user, out.getFullId(), "自动核对付款");
-            this.outDAO.modifyOutStatus(fullId, OutConstant.STATUS_SEC_PASS);
-        }
-        catch (MYException e)
-        {
-            _logger.info(e, e);
-        }
-
+        this.payOut(user, out.getFullId(), "自动核对付款");
+        this.outDAO.modifyOutStatus(fullId, OutConstant.STATUS_SEC_PASS);
+        //把这单的发货方式改成 空发，物流怕以后对账时会有误解
+        this.distributionDAO.updateShipping(fullId, OutConstant.OUT_SHIPPING_NOTSHIPPING);
         return true;
     }
 

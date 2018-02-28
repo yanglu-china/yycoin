@@ -551,14 +551,14 @@ function check()
 
 function kckj()
 {
-    console.log("kckj***");
     $ajax('../sail/out.do?method=kckj&outId=' + getRadioValue("fullId"), callbackKckj);
 }
 
 function callbackKckj(data){
-    console.log(data);
     if(data.ret == 0){
         alert("操作成功!");
+	} else if(data.ret == 1){
+        alert(data.msg);
 	}
 }
 
