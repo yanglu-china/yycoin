@@ -287,7 +287,7 @@ public class PackageManagerImpl implements PackageManager {
 				//#267 系统外TW单据
 				if (each.getOutId().startsWith("TW")){
 					TwOutVO twOutBean = this.twOutDAO.findVO(each.getOutId());
-					if (twOutBean == null){
+					if (twOutBean != null){
 						this.createTwPackage(each, twOutBean);
 					}
 				} else{
@@ -893,6 +893,7 @@ public class PackageManagerImpl implements PackageManager {
 
 	public void createTwPackage(PreConsignBean pre, TwOutVO out) throws MYException
 	{
+		_logger.info("createTwPackage***"+pre.getOutId());
 		String location = "";
 		String fullId = out.getFullId();
 
@@ -949,7 +950,7 @@ public class PackageManagerImpl implements PackageManager {
 			_logger.info("****create new package now***"+fullId);
 			createNewPackage(out, baseList, distVO, fullAddressTrim, location);
 		}else{
-			_logger.info(location+"****package already exist***"+fullId);
+			_logger.info("****package already exist***"+fullId);
 			String id = packageList.get(0).getId();
 
 			PackageBean packBean = packageDAO.find(id);
@@ -968,7 +969,7 @@ public class PackageManagerImpl implements PackageManager {
 					_logger.info(fullId+"****add SO to existent package "+packBean.getId()+" current size:"+currentItems.size());
 					PackageItemBean first = currentItems.get(0);
 					if (fullId.contains("DB") && first.getOutId().contains("SO")){
-						_logger.warn("***not merge with different out type***"+first.getOutId());
+						_logger.warn("***DB type not merge with SO***"+first.getOutId());
 						createNewPackage(out, baseList, distVO, fullAddressTrim, location);
 					}else{
 						OutVO outBean = outDAO.findVO(first.getOutId());

@@ -1316,6 +1316,9 @@ function clears()
 		                value="&nbsp;&nbsp;确认回款&nbsp;&nbsp;" onClick="payOut()">&nbsp;&nbsp;
                 <input type="button" class="button_class"
                        value="&nbsp;&nbsp;紧急处理&nbsp;&nbsp;" onClick="updateEmergency()">&nbsp;&nbsp;
+				<input type="button" name="bu_pridist"
+					   class="button_class" value="&nbsp;&nbsp;空出空进&nbsp;&nbsp;"
+					   onclick="kckj()" />&nbsp;&nbsp;
 	        </c:if>
 	        
 	        <input name="bu1"
@@ -1326,7 +1329,7 @@ function clears()
 
 	                <c:if test="${queryType == '4'}">
 	                <input type="button" name="bu_pridist"
-	                class="button_class" value="&nbsp;&nbsp;测试空出空进&nbsp;&nbsp;"
+	                class="button_class" value="&nbsp;&nbsp;空出空进&nbsp;&nbsp;"
 	                onclick="kckj()" />&nbsp;&nbsp;
 	                </c:if>
 		</c:if>	
