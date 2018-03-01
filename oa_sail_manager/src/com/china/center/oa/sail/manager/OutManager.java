@@ -18,6 +18,7 @@ import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.china.center.common.MYException;
 import com.china.center.oa.client.bean.CustomerBean;
+import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.wrap.ResultBean;
@@ -779,5 +780,13 @@ public interface OutManager extends ListenerManager<OutListener>
 
     double getCash(OutBean out, CustomerBean customerBean,String productId);
 
-    public void createCustomerJob();
+    void createCustomerJob();
+
+    /**
+     * 根据配置获取结算价
+     * @param productBean
+     * @param stafferBean
+     * @return
+     */
+    double getSailConfigPrice(ProductBean productBean, StafferBean stafferBean);
 }

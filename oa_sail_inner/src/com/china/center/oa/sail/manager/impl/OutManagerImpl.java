@@ -207,7 +207,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     
     private ProductCombinationDAO productCombinationDAO = null;
     
-    private DistributionDAO distributionDAO = null; 
+    private DistributionDAO distributionDAO = null;
+
+    private PriceConfigDAO priceConfigDAO = null;
     
     private PriceConfigManager priceConfigManager = null;
     
@@ -13132,6 +13134,25 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
     }
 
+    @Override
+    public double getSailConfigPrice(ProductBean productBean, StafferBean stafferBean) {
+        // 根据配置获取结算价
+        double sailPrice = productBean.getSailPrice();
+        List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(productBean.getId());
+
+        if (!ListTools.isEmptyOrNull(pcblist))
+        {
+            PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+            sailPrice = cb.getSailPrice();
+        }
+
+        // 获取销售配置
+        SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+                productBean);
+        return sailPrice* (1 + sailConf.getPratio() / 1000.0d);
+    }
+
     /**
      * @return the mailAttchmentPath
      */
@@ -13678,5 +13699,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public void setCustomerContactDAO(CustomerContactDAO customerContactDAO) {
         this.customerContactDAO = customerContactDAO;
+    }
+
+    public PriceConfigDAO getPriceConfigDAO() {
+        return priceConfigDAO;
+    }
+
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
+        this.priceConfigDAO = priceConfigDAO;
     }
 }

@@ -2116,7 +2116,7 @@ public class StorageAction extends DispatchAction
 
                 List<StorageRelationVO> list = storageRelationDAO
                     .queryEntityVOsByCondition(condtion);
-
+                User user = Helper.getUser(request);
                 for (StorageRelationVO each : list)
                 {
                     if (each.getAmount() > 0)
@@ -2156,6 +2156,19 @@ public class StorageAction extends DispatchAction
                         	proSailtype = "其他";
                         }
 
+                        StafferBean stafferBean = stafferDAO.find(user.getStafferId());
+                        if ( !StringTools.isNullOrNone(each.getStafferId())
+                                && !"0".equals(each.getStafferId()))
+                        {
+                            stafferBean = stafferDAO.find(each.getStafferId());
+                        }
+
+                        double price = each.getPrice();
+                        try{
+                            ProductBean productBean = this.productDAO.find(each.getProductId());
+                            price = outManager.getSailConfigPrice(productBean, stafferBean);
+                        }catch(Exception e){_logger.error(e);}
+
                         write.writeLine(now
                                         + ','
                                         + StringTools.getLineString(locationBean.getIndustryName())
@@ -2171,7 +2184,7 @@ public class StorageAction extends DispatchAction
                                         + each.getProductName().replaceAll(",", " ").replaceAll(
                                             "\r\n", "") + ',' + code + ','
                                         + String.valueOf(each.getAmount()) + ','
-                                        + MathTools.formatNum(each.getPrice()) + ',' + sname
+                                        + MathTools.formatNum(price) + ',' + sname
                                         +','+proSailtype
                         );
                     }
@@ -4067,4 +4080,6 @@ public class StorageAction extends DispatchAction
 	{
 		this.financeDAO = financeDAO;
 	}
+
+
 }
