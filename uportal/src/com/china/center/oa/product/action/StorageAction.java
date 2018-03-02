@@ -2156,17 +2156,10 @@ public class StorageAction extends DispatchAction
                         	proSailtype = "其他";
                         }
 
-                        StafferBean stafferBean = stafferDAO.find(user.getStafferId());
-                        if ( !StringTools.isNullOrNone(each.getStafferId())
-                                && !"0".equals(each.getStafferId()))
-                        {
-                            stafferBean = stafferDAO.find(each.getStafferId());
-                        }
-
                         double price = each.getPrice();
                         try{
                             ProductBean productBean = this.productDAO.find(each.getProductId());
-                            price = outManager.getSailConfigPrice(productBean, stafferBean);
+                            price = outManager.getSailConfigPrice(productBean);
                         }catch(Exception e){_logger.error(e);}
 
                         write.writeLine(now

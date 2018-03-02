@@ -13135,7 +13135,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 
     @Override
-    public double getSailConfigPrice(ProductBean productBean, StafferBean stafferBean) {
+    public double getSailConfigPrice(ProductBean productBean) {
         // 根据配置获取结算价
         double sailPrice = productBean.getSailPrice();
         List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(productBean.getId());
@@ -13147,10 +13147,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             sailPrice = cb.getSailPrice();
         }
 
-        // 获取销售配置
-        SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
-                productBean);
-        return sailPrice* (1 + sailConf.getPratio() / 1000.0d);
+        return sailPrice;
     }
 
     /**

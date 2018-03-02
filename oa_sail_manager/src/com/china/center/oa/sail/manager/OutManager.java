@@ -783,10 +783,9 @@ public interface OutManager extends ListenerManager<OutListener>
     void createCustomerJob();
 
     /**
-     * 根据配置获取结算价
+     * 根据配置获取基础结算价
      * @param productBean
-     * @param stafferBean
      * @return
      */
-    double getSailConfigPrice(ProductBean productBean, StafferBean stafferBean);
+    double getSailConfigPrice(ProductBean productBean,);
 }
