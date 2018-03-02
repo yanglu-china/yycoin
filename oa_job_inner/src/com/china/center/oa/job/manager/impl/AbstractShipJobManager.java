@@ -134,24 +134,25 @@ public abstract class AbstractShipJobManager implements JobManager {
 
                     String customerId = itemBean.getCustomerId();
                     String key = this.getKey(itemBean);
-
                     String customerName = "";
+                    String channel = this.getChannel(itemBean);
                     //查询分支行对应关系表
                     if (!customer2Relation.containsKey(key)){
-                        String channel = this.getChannel(itemBean);
                         BranchRelationBean bean = this.getRelation(customerId, channel);
                         if(bean == null){
                             _logger.warn(vo.getId()+"***no relation found***"+customerId);
                             continue;
                         } else{
-                            _logger.info(vo.getId()+"***relation is found****"+bean);
+                            _logger.info(vo.getId()+"***relation is found****"+bean+"***channel***"+channel+"***key***"+key);
                             customer2Relation.put(key, bean);
                             customerName = bean.getSubBranchName();
-                            //只检查特定客户的订单
-                            if (!this.needSendMail(customerName,channel)){
-                                continue;
-                            }
                         }
+                    }
+
+                    boolean needSendMail = this.needSendMail(customerName,channel);
+                    //只检查特定客户的订单
+                    if (!needSendMail){
+                        continue;
                     }
 
                     if (customer2Packages.containsKey(key)){
