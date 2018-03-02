@@ -551,7 +551,9 @@ function check()
 
 function kckj()
 {
-    $ajax('../sail/out.do?method=kckj&outId=' + getRadioValue("fullId"), callbackKckj);
+    if(window.confirm('确定空出空进?')){
+        $ajax('../sail/out.do?method=kckj&outId=' + getRadioValue("fullId"), callbackKckj);
+	}
 }
 
 function callbackKckj(data){

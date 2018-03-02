@@ -787,5 +787,5 @@ public interface OutManager extends ListenerManager<OutListener>
      * @param productBean
      * @return
      */
-    double getSailConfigPrice(ProductBean productBean,);
+    double getSailConfigPrice(ProductBean productBean);
 }
