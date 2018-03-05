@@ -5,6 +5,8 @@ public interface OutInterface {
 
     String getCustomerId();
 
+    String getStafferId();
+
     String getStafferName();
 
     String getIndustryName();
@@ -20,4 +22,12 @@ public interface OutInterface {
     int getEmergency();
 
     String getCustomerName();
+
+    int getType();
+
+    int getOutType();
+
+    String getPodate();
+
+    String getRefOutFullId();
 }

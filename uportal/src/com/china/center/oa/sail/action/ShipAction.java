@@ -39,6 +39,7 @@ import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.helper.FlowLogHelper;
 import com.china.center.oa.sail.manager.ShipManager;
+import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.oa.sail.vo.PackageVO;
 import com.china.center.oa.sail.wrap.PackageWrap;
 import com.china.center.oa.sail.wrap.PickupWrap;
@@ -84,6 +85,12 @@ public class ShipAction extends DispatchAction
     private BaseDAO baseDAO = null;
 
     private DistributionDAO distributionDAO = null;
+
+    private TwOutDAO twOutDAO = null;
+
+    private TwBaseDAO twBaseDAO = null;
+
+    private TwDistributionDAO twDistributionDAO = null;
 
     private ExpressDAO expressDAO = null;
 
@@ -2463,6 +2470,9 @@ public class ShipAction extends DispatchAction
      */
     private String getCommunicationBranchNameFromOutImport(String outId){
         String branchName = "";
+        if (outId.startsWith("A") || outId.startsWith("TW")){
+            return branchName;
+        }
         List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
         if (!ListTools.isEmptyOrNull(importBeans))
         {
@@ -2516,7 +2526,7 @@ public class ShipAction extends DispatchAction
      */
     private void getProductCode(PackageItemBean item, Bank bank){
         String outId = item.getOutId();
-        if (StringTools.isNullOrNone(outId) || outId.startsWith("A")){
+        if (StringTools.isNullOrNone(outId) || outId.startsWith("A") || outId.startsWith("TW")){
             _logger.warn("****Empty OutId or invoiceins***********"+outId);
         }else {
             if (bank == Bank.ZY && outId.startsWith("ZS")){
@@ -2540,7 +2550,13 @@ public class ShipAction extends DispatchAction
             fullId = outIds[0];
         }
 
-        OutBean out = outDAO.find(fullId);
+        OutInterface out = null;
+        if (outId.startsWith("TW")){
+            out = twOutDAO.findVO(fullId);
+        } else{
+            out = outDAO.findVO(fullId);
+        }
+
         if (out!= null){
             String stafferId = out.getStafferId();
             StafferBean staffer = this.stafferDAO.find(stafferId);
@@ -2563,226 +2579,6 @@ public class ShipAction extends DispatchAction
     }
 
 
-    /**#173兴业银行回执单
-     * prepareForXyPrint
-     *
-     * @param request
-     * @param vo
-     * @param itemList
-     */
-    private void prepareForXyPrint(HttpServletRequest request, PackageVO vo,
-                                   List<PackageItemBean> itemList, String compose)
-    {
-        int totalAmount = 0 ;
-
-        List<PackageItemBean> itemList1 = new ArrayList<PackageItemBean>();
-
-        Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
-
-        //2015/1/25 取商务联系人及电话
-        if (!ListTools.isEmptyOrNull(itemList)){
-            PackageItemBean first = itemList.get(0);
-            String outId = first.getOutId();
-            String stafferName = "永银商务部";
-            String phone = "4006518859";
-            _logger.info(first+"******first****"+outId);
-            if (StringTools.isNullOrNone(outId)){
-                _logger.warn("****Empty OutId***********"+first.getId());
-            }else if (this.isOut(outId)){
-                String[] result = this.getStafferNameAndPhone(outId);
-                if (result.length>=2){
-                    stafferName = result[0];
-                    phone = result[1];
-                }
-            } else if(outId.startsWith("A")){
-                InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
-                if (bean!= null){
-                    String refIds = bean.getRefIds();
-                    _logger.info(outId+"*****refIds found********"+refIds);
-                    if (!StringTools.isNullOrNone(refIds)){
-                        String[] temp = refIds.split(";");
-                        String refOutId = null;
-                        for (String out: temp){
-                            if (out.startsWith("SO")){
-                                refOutId = out;
-                                break;
-                            }
-                        }
-                        String[] result2 = this.getStafferNameAndPhone(refOutId);
-                        if (result2.length>=2){
-                            stafferName = result2[0];
-                            phone = result2[1];
-                        }
-                    }
-                }
-            }
-            _logger.info("**stafferName***"+stafferName+"**phone**"+phone);
-            request.setAttribute("stafferName", stafferName);
-            request.setAttribute("phone",phone);
-        }
-
-        for (PackageItemBean each : itemList)
-        {
-            _logger.info(each.getId()+"****iterate package item:"+"***"+each.getOutId()+"***"+each.getDescription()+"***"+each.getRefId());
-            if (!each.getCustomerId().equals(vo.getCustomerId()))
-            {
-                _logger.info("*************each.getCustomerId()***"+each.getCustomerId()+"****"+vo.getCustomerId());
-                continue;
-            }
-
-            //2015/12/26 #145:回执单打印CK单合并多客户名称问题
-            this.getCustomerNameForXy(each);
-
-            //2015/12/26 #152: 产品编码要在此处获取，因为相同的产品会合并，在后边处理会有问题。
-            this.getProductCode(each, Bank.OTHER);
-
-            // 针对赠品,且有备注的订单,单独显示
-            String outId = each.getOutId();
-
-            OutBean out = outDAO.find(outId);
-
-            //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
-            if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
-                if (out.getOutType() == OutConstant.OUTTYPE_OUT_COMMON){
-                    each.setItemType("销售");
-                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
-                        || out.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH
-                        || out.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH){
-                    each.setItemType("领样");
-                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SHOW){
-                    each.setItemType("铺货");
-                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT){
-                    each.setItemType("赠品");
-                }
-            }
-
-            if (StringTools.isNullOrNone(each.getItemType()) && outId.startsWith("A")){
-                each.setItemType("发票");
-            }
-
-            //2015/10/13 销售时间取out表中的podate
-            if (out!= null){
-                each.setPoDate(out.getPodate());
-            }
-
-            if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
-            {
-                _logger.info("******赠品类型*****"+each.getOutId());
-                List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(each.getOutId(), AnoConstant.FK_FIRST);
-
-                if (!ListTools.isEmptyOrNull(outiList))
-                {
-                    String refId = outiList.get(0).getCiticNo();
-                    _logger.info("****refId:" + refId);
-                    each.setRefId(refId);
-
-                    if (!StringTools.isNullOrNone(outiList.get(0).getDescription()))
-                    {
-                        checkCompose(each, each, compose);
-
-                        String description = outiList.get(0).getDescription();
-                        _logger.info("****Description****"+description);
-                        each.setDescription(description);
-
-                        itemList1.add(each);
-
-                        totalAmount += each.getAmount();
-
-                        continue;
-                    }
-                }
-            }
-
-            String key = each.getProductId();
-
-            if (!map1.containsKey(key))
-            {
-                checkCompose(each, each, compose);
-
-                String refId = this.getRefId(out, each.getOutId());
-                if (!StringTools.isNullOrNone(refId)){
-                    each.setRefId(refId);
-                }
-
-                //2015/1/25 注释掉
-//				each.setDescription("");
-
-                map1.put(each.getProductId(), each);
-            }else{
-                PackageItemBean itemBean = map1.get(key);
-
-                itemBean.setAmount(itemBean.getAmount() + each.getAmount());
-
-                itemBean.setOutId(itemBean.getOutId() + "<br>" + each.getOutId());
-
-                //#145: 2015/12/27 回执单CK单合并多客户名称问题
-                if (StringTools.isNullOrNone(itemBean.getCustomerName())){
-                    itemBean.setCustomerName(each.getCustomerName());
-                }else{
-                    itemBean.setCustomerName(itemBean.getCustomerName()+"<br>"+each.getCustomerName());
-                }
-
-                if (!StringTools.isNullOrNone(itemBean.getRefId()))
-                {
-                    String refId = this.getRefId(out, each.getOutId());
-                    if (!StringTools.isNullOrNone(refId))
-                    {
-//                        String refId3 = itemBean.getRefId() + "<br>" + refId;
-                        String refId3 = this.concat(itemBean.getRefId(),refId,"<br>");
-                        _logger.info("**********refId3**********"+refId3);
-                        itemBean.setRefId(refId3);
-                    }
-                }else{
-                    if (!StringTools.isNullOrNone(each.getRefId()))
-                    {
-                        _logger.info("**********refId4**********"+each.getRefId());
-                        itemBean.setRefId(each.getRefId());
-                    }
-                }
-
-                //2015/1/29 合并Description
-                if (!StringTools.isNullOrNone(itemBean.getDescription()))
-                {
-                    if (!StringTools.isNullOrNone(each.getDescription()))
-                    {
-//                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
-                        String description = this.concat(itemBean.getDescription(), each.getDescription(), "<br>");
-                        _logger.info("**********description2**********"+description);
-                        itemBean.setDescription(description);
-                    }
-                }else{
-                    if (!StringTools.isNullOrNone(each.getDescription()))
-                    {
-                        itemBean.setDescription(each.getDescription());
-                    }
-                }
-            }
-
-            totalAmount += each.getAmount();
-        }
-
-        Set<String> refIdSet = new HashSet<String>();
-        for(Entry<String, PackageItemBean> each : map1.entrySet())
-        {
-            PackageItemBean item = each.getValue();
-            String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
-            if (!StringTools.isNullOrNone(productName)){
-                item.setProductName(productName);
-            }
-
-            itemList1.add(item);
-
-            if (!StringTools.isNullOrNone(item.getRefId()) && !refIdSet.contains(item.getRefId())){
-                refIdSet.add(item.getRefId());
-            }
-        }
-
-        vo.setRefId(this.concat(refIdSet));
-        vo.setItemList(itemList1);
-
-        request.setAttribute("total", totalAmount);
-    }
-
     private String concat(Collection<String> collections){
         StringBuilder sb = new StringBuilder();
         for (String element:collections){
@@ -2799,6 +2595,16 @@ public class ShipAction extends DispatchAction
     private boolean isOut(String outId){
         return outId.startsWith("SO") || outId.startsWith("ZS") || outId.startsWith("XZ")
                 || outId.startsWith("YL")|| outId.startsWith("LY");
+    }
+
+    private OutInterface findOut(String outId){
+        OutInterface out = null;
+        if (outId.startsWith("TW")){
+            out = this.twOutDAO.findVO(outId);
+        } else{
+            out = outDAO.findVO(outId);
+        }
+        return out;
     }
 
     /**
@@ -2836,7 +2642,7 @@ public class ShipAction extends DispatchAction
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
 
-            OutBean out = outDAO.find(outId);
+            OutInterface out = this.findOut(outId);
 
             //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
             if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
@@ -3024,213 +2830,6 @@ public class ShipAction extends DispatchAction
         request.setAttribute("total", totalAmount);
     }
 
-    private void prepareForBankPrint(HttpServletRequest request, PackageVO vo,
-                                     List<PackageItemBean> itemList, String compose)
-    {
-        int totalAmount = 0 ;
-
-        List<PackageItemBean> itemList1 = new ArrayList<PackageItemBean>();
-
-        //#189 <productId_itemType,PackageItemBean>
-        Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
-
-        //2015/1/25 取商务联系人及电话
-        if (!ListTools.isEmptyOrNull(itemList)){
-            PackageItemBean first = itemList.get(0);
-            String outId = first.getOutId();
-            String stafferName = "永银商务部";
-            String phone = "4006518859";
-            if (StringTools.isNullOrNone(outId)){
-                _logger.warn("****Empty OutId***********"+first.getId());
-            }else if (this.isOut(outId)){
-                String[] result = this.getStafferNameAndPhone(outId);
-                if (result.length>=2){
-                    stafferName = result[0];
-                    phone = result[1];
-                }
-            } else if(outId.startsWith("A")){
-                InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
-                if (bean!= null){
-                    String refIds = bean.getRefIds();
-                    _logger.info(outId+"*****refIds found********"+refIds);
-                    if (!StringTools.isNullOrNone(refIds)){
-                        String[] temp = refIds.split(";");
-                        String refOutId = null;
-                        for (String out: temp){
-                            if (out.startsWith("SO")){
-                                refOutId = out;
-                                break;
-                            }
-                        }
-                        String[] result2 = this.getStafferNameAndPhone(refOutId);
-                        if (result2.length>=2){
-                            stafferName = result2[0];
-                            phone = result2[1];
-                        }
-                    }
-                }
-            }
-            _logger.info("*****stafferName***********"+stafferName+"*******phone*************"+phone);
-            request.setAttribute("stafferName", stafferName);
-            request.setAttribute("phone",phone);
-        }
-
-        for (PackageItemBean each : itemList)
-        {
-            _logger.info(each.getId()+"****iterate package item:"+"***"+each.getOutId()+"***"+each.getDescription()+"***"+each.getRefId());
-            if (!each.getCustomerId().equals(vo.getCustomerId()))
-            {
-                _logger.info("*************each.getCustomerId() "+each.getCustomerId()+"****"+vo.getCustomerId());
-                continue;
-            }
-
-            //2015/12/26 #145:回执单打印CK单合并多客户名称问题
-            this.getCustomerName(each);
-
-            // 针对赠品,且有备注的订单,单独显示
-            String outId = each.getOutId();
-
-            OutBean out = outDAO.find(outId);
-
-            //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
-            if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
-                if (out.getOutType() == OutConstant.OUTTYPE_OUT_COMMON){
-                    each.setItemType("销售");
-                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
-                        || out.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH
-                        || out.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH){
-                    each.setItemType("领样");
-                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SHOW){
-                    each.setItemType("铺货");
-                } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT){
-                    each.setItemType("赠品");
-                }
-            }
-
-            if (StringTools.isNullOrNone(each.getItemType()) && outId.startsWith("A")){
-                each.setItemType("发票");
-            }
-
-            //2015/10/13 销售时间取out表中的podate
-            if (out!= null){
-                each.setPoDate(out.getPodate());
-            }
-            //#169
-            else if(out == null && outId.startsWith("A")){
-                each.setPoDate(each.getOutTime());
-            }
-
-            if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
-            {
-                _logger.info("******赠品类型*****"+each.getOutId());
-                List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(each.getOutId(), AnoConstant.FK_FIRST);
-
-                if (!ListTools.isEmptyOrNull(outiList))
-                {
-                    String refId = outiList.get(0).getCiticNo();
-                    _logger.info("****refId:"+refId);
-                    each.setRefId(refId);
-
-                    if (!StringTools.isNullOrNone(outiList.get(0).getDescription()))
-                    {
-                        checkCompose(each, each, compose);
-
-                        String description = outiList.get(0).getDescription();
-                        _logger.info("****Description****"+description);
-                        each.setDescription(description);
-
-                        itemList1.add(each);
-
-                        totalAmount += each.getAmount();
-
-                        continue;
-                    }
-                }
-            }
-
-//            String key = each.getProductId();
-            String key = each.getProductId()+"_"+each.getItemType();
-
-            if (!map1.containsKey(key))
-            {
-                checkCompose(each, each, compose);
-
-                String refId = this.getRefId(out, each.getOutId());
-                if (!StringTools.isNullOrNone(refId)){
-                    each.setRefId(refId);
-                }
-
-                //2015/1/25 注释掉
-//				each.setDescription("");
-
-                map1.put(key, each);
-            }else{
-                PackageItemBean itemBean = map1.get(key);
-
-                itemBean.setAmount(itemBean.getAmount() + each.getAmount());
-
-                itemBean.setOutId(itemBean.getOutId() + "<br>" + each.getOutId());
-
-                //#145: 2015/12/27 回执单CK单合并多客户名称问题
-                if (StringTools.isNullOrNone(itemBean.getCustomerName())){
-                    itemBean.setCustomerName(each.getCustomerName());
-                }else{
-                    itemBean.setCustomerName(itemBean.getCustomerName()+"<br>"+each.getCustomerName());
-                }
-
-                if (!StringTools.isNullOrNone(itemBean.getRefId()))
-                {
-                    String refId = this.getRefId(out, each.getOutId());
-                    if (!StringTools.isNullOrNone(refId))
-                    {
-                        String refId3 = this.concat(itemBean.getRefId(),refId,"<br>");
-                        _logger.info("*****refId3*******"+refId3);
-                        itemBean.setRefId(refId3);
-                    }
-                }else{
-                    if (!StringTools.isNullOrNone(each.getRefId()))
-                    {
-                        _logger.info("**********refId4**********"+each.getRefId());
-                        itemBean.setRefId(each.getRefId());
-                    }
-                }
-
-                //2015/1/29 合并Description
-                if (!StringTools.isNullOrNone(itemBean.getDescription()))
-                {
-                    if (!StringTools.isNullOrNone(each.getDescription()))
-                    {
-                        String description = this.concat(itemBean.getDescription(), each.getDescription(), "<br>");
-                        _logger.info("**********description2**********"+description);
-                        itemBean.setDescription(description);
-                    }
-                }else{
-                    if (!StringTools.isNullOrNone(each.getDescription()))
-                    {
-                        itemBean.setDescription(each.getDescription());
-                    }
-                }
-            }
-
-            totalAmount += each.getAmount();
-        }
-
-        for(Entry<String, PackageItemBean> each : map1.entrySet())
-        {
-            PackageItemBean item = each.getValue();
-            String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
-            if (!StringTools.isNullOrNone(productName)){
-                item.setProductName(productName);
-            }
-
-            itemList1.add(item);
-            _logger.info("***convertProductNameForBank***" + item.getProductName());
-        }
-
-        vo.setItemList(itemList1);
-
-        request.setAttribute("total", totalAmount);
-    }
 
     private String concat(String str1, String str2, String deliminator){
         if (!StringTools.isNullOrNone(str1) && str1.equals(str2)){
@@ -3341,7 +2940,7 @@ public class ShipAction extends DispatchAction
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
 
-            OutBean out = outDAO.find(outId);
+            OutInterface out = this.findOut(outId);
 
             //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
             if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
@@ -3558,7 +3157,7 @@ public class ShipAction extends DispatchAction
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
 
-            OutBean out = outDAO.find(outId);
+            OutInterface out = this.findOut(outId);
 
             //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
             if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
@@ -3786,7 +3385,7 @@ public class ShipAction extends DispatchAction
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
 
-            OutBean out = outDAO.find(outId);
+            OutInterface out = this.findOut(outId);
 
             //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
             if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
@@ -4002,7 +3601,7 @@ public class ShipAction extends DispatchAction
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
 
-            OutBean out = outDAO.find(outId);
+            OutInterface out = this.findOut(outId);
 
             //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
             if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
@@ -4146,7 +3745,7 @@ public class ShipAction extends DispatchAction
      * @param outId
      * @return
      */
-    private String getRefId(OutBean out, String outId){
+    private String getRefId(OutInterface out, String outId){
         String refId = "";
         List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
@@ -5571,5 +5170,29 @@ public class ShipAction extends DispatchAction
 
     public void setFlowLogDAO(FlowLogDAO flowLogDAO) {
         this.flowLogDAO = flowLogDAO;
+    }
+
+    public TwOutDAO getTwOutDAO() {
+        return twOutDAO;
+    }
+
+    public void setTwOutDAO(TwOutDAO twOutDAO) {
+        this.twOutDAO = twOutDAO;
+    }
+
+    public TwBaseDAO getTwBaseDAO() {
+        return twBaseDAO;
+    }
+
+    public void setTwBaseDAO(TwBaseDAO twBaseDAO) {
+        this.twBaseDAO = twBaseDAO;
+    }
+
+    public TwDistributionDAO getTwDistributionDAO() {
+        return twDistributionDAO;
+    }
+
+    public void setTwDistributionDAO(TwDistributionDAO twDistributionDAO) {
+        this.twDistributionDAO = twDistributionDAO;
     }
 }
