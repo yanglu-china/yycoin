@@ -9267,6 +9267,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         // 验证(销售单)是否可以全部回款
         this.payOut(user, out.getFullId(), "自动核对付款");
         this.outDAO.modifyOutStatus(fullId, OutConstant.STATUS_SEC_PASS);
+        this.outDAO.updateChangeTime(fullId, TimeTools.now());
         //把这单的发货方式改成 空发，物流怕以后对账时会有误解
         this.distributionDAO.updateShipping(fullId, OutConstant.OUT_SHIPPING_NOTSHIPPING);
         return true;
