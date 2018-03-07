@@ -389,24 +389,26 @@ public class PackageManagerImpl implements PackageManager {
 			if (item.getEmergency() == 1) {
 				isEmergency = true;
 			}
-			//TODO 2015/11/1 商品转换功能
-            ConditionParse condition = new ConditionParse();
-            condition.addWhereStr();
-            condition.addCondition("ProductExchangeConfigBean.srcProductId", "=", item.getProductId());
-			List<ProductExchangeConfigVO> list = this.productExchangeConfigDAO.queryEntityVOsByCondition(condition);
-            if (!ListTools.isEmptyOrNull(list)){
-				ProductExchangeConfigVO vo = list.get(0);
+			//#120 2015/11/1 商品转换功能
+			if (!outBean.getFullId().startsWith("TW") && !outBean.getFullId().startsWith("A")){
+				ConditionParse condition = new ConditionParse();
+				condition.addWhereStr();
+				condition.addCondition("ProductExchangeConfigBean.srcProductId", "=", item.getProductId());
+				List<ProductExchangeConfigVO> list = this.productExchangeConfigDAO.queryEntityVOsByCondition(condition);
+				if (!ListTools.isEmptyOrNull(list)){
+					ProductExchangeConfigVO vo = list.get(0);
 
-                if (item.getAmount()*vo.getDestAmount()%vo.getSrcAmount() == 0){
-                    item.setAmount(item.getAmount()*vo.getDestAmount()/vo.getSrcAmount());
-                    item.setProductId(vo.getDestProductId());
-                    item.setProductName(vo.getDestProductName());
-                    _logger.info(item+" create package bean for product exchange:"+vo);
-                } else{
-                    _logger.warn(item+" does not match product exchange:"+vo);
-                }
-            } else{
-				_logger.info("no ProductExchangeConfigVO found:"+item.getOutId());
+					if (item.getAmount()*vo.getDestAmount()%vo.getSrcAmount() == 0){
+						item.setAmount(item.getAmount()*vo.getDestAmount()/vo.getSrcAmount());
+						item.setProductId(vo.getDestProductId());
+						item.setProductName(vo.getDestProductName());
+						_logger.info(item+" create package bean for product exchange:"+vo);
+					} else{
+						_logger.warn(item+" does not match product exchange:"+vo);
+					}
+				} else{
+					_logger.info("no ProductExchangeConfigVO found:"+item.getOutId());
+				}
 			}
 
 			itemList.add(item);
