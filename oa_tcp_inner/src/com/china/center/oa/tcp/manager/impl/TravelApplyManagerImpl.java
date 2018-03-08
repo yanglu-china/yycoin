@@ -427,13 +427,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
      */
     private String getNextProcessor(String stafferId, int nextStatus) throws  MYException{
         try {
-            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER) {
-                return this.bankBuLevelDAO.queryHighLevelManagerId("2", stafferId);
-            } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER) {
-                return this.bankBuLevelDAO.queryHighLevelManagerId("3", stafferId);
-            } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR) {
-                return this.bankBuLevelDAO.queryHighLevelManagerId("4", stafferId);
-            } else {
+            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
+                return this.bankBuLevelDAO.queryHighLevelManagerId(nextStatus, stafferId);
+            }else {
                 return "";
             }
         }catch(Exception e){

@@ -179,6 +179,12 @@ public interface TcpConstanst
 
     @Defined(key = "tcpStatus", value = "待副总裁审批")
     int TCP_STATUS_VICE_PRESIDENT = 36;
+
+    /**
+     * # 273
+     */
+    @Defined(key = "tcpStatus", value = "待事业部总经理审批")
+    int TCP_STATUS_REGIONAL_CEO = 37;
     
     /**
      * 结束

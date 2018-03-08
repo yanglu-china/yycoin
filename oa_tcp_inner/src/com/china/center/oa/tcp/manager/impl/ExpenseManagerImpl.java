@@ -594,7 +594,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
             }
             else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
-                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector"))
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector")
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalCEO"))
             {
                 List<String> processList = new ArrayList();
                 String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getNextStatus());
@@ -650,13 +651,12 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
     private String getNextProcessor(String stafferId, int nextStatus) throws  MYException{
         try {
-            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER) {
-                return this.bankBuLevelDAO.queryHighLevelManagerId("2", stafferId);
-            } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER) {
-                return this.bankBuLevelDAO.queryHighLevelManagerId("3", stafferId);
-            } else if (nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR) {
-                return this.bankBuLevelDAO.queryHighLevelManagerId("4", stafferId);
-            } else {
+            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
+                return this.bankBuLevelDAO.queryHighLevelManagerId(nextStatus, stafferId);
+            }else {
                 return "";
             }
         }catch(Exception e){

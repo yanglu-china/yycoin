@@ -73,6 +73,21 @@ public class BankBuLevelBean implements Serializable {
      */
     private String dqName;
 
+    /** #273
+     * 事业部总经理
+     */
+    private String manager;
+
+    private String managerId;
+
+    /**
+     * 业务部
+     */
+    private String ywbName;
+
+    private String changer;
+
+
     public String getId() {
         return id;
     }
@@ -161,6 +176,38 @@ public class BankBuLevelBean implements Serializable {
         this.dqName = dqName;
     }
 
+    public String getManager() {
+        return manager;
+    }
+
+    public void setManager(String manager) {
+        this.manager = manager;
+    }
+
+    public String getManagerId() {
+        return managerId;
+    }
+
+    public void setManagerId(String managerId) {
+        this.managerId = managerId;
+    }
+
+    public String getYwbName() {
+        return ywbName;
+    }
+
+    public void setYwbName(String ywbName) {
+        this.ywbName = ywbName;
+    }
+
+    public String getChanger() {
+        return changer;
+    }
+
+    public void setChanger(String changer) {
+        this.changer = changer;
+    }
+
     @Override
     public String toString() {
         return "BankBuLevelBean{" +
@@ -175,6 +222,8 @@ public class BankBuLevelBean implements Serializable {
                 ", regionalDirectorId='" + regionalDirectorId + '\'' +
                 ", regionalDirector='" + regionalDirector + '\'' +
                 ", dqName='" + dqName + '\'' +
+                ", manager='" + manager + '\'' +
+                ", managerId='" + managerId + '\'' +
                 '}';
     }
 }
