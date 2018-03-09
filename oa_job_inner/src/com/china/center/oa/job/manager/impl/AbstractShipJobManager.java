@@ -134,7 +134,11 @@ public abstract class AbstractShipJobManager implements JobManager {
 
                     String customerId = itemBean.getCustomerId();
                     String key = this.getKey(itemBean);
+                    CustomerBean customerBean = this.customerMainDAO.find(customerId);
                     String customerName = "";
+                    if (customerBean!= null){
+                        customerName = customerBean.getName();
+                    }
                     String channel = this.getChannel(itemBean);
                     //查询分支行对应关系表
                     if (!customer2Relation.containsKey(key)){
@@ -143,9 +147,8 @@ public abstract class AbstractShipJobManager implements JobManager {
                             _logger.warn(vo.getId()+"***no relation found***"+customerId);
                             continue;
                         } else{
-                            _logger.info(vo.getId()+"***relation is found****"+bean+"***channel***"+channel+"***key***"+key);
+                            _logger.info(vo.getId()+"***relation is found****"+bean+"***channel***"+channel+"***key***"+key+"***customerName***"+customerName);
                             customer2Relation.put(key, bean);
-                            customerName = bean.getSubBranchName();
                         }
                     }
 
