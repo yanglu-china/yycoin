@@ -523,7 +523,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             throw new MYException("数据错误,请确认操作");
         }
 
-        _logger.info("*****passExpenseBean token.getNextPlugin() "+token.getNextPlugin());
+        _logger.info("*****passExpenseBean token.getNextPlugin() "+token);
         // 群组模式
         if (token.getNextPlugin().startsWith("group")) {
             int newStatus = saveApprove(user, processId, bean, token.getNextStatus(), 0);
@@ -661,7 +661,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             }
         }catch(Exception e){
             _logger.error(e);
-            throw new MYException("T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+stafferId);
+            throw new MYException(stafferId+"在T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
         }
     }
 
