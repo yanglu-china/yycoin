@@ -47,6 +47,17 @@ function addBean(opr)
     }
 }
 
+$(document).ready(function (){
+    $("#sub_main_tr").hide();
+    $('#marketingFlag').change(function() {
+        if (this.value === '1'){
+            $("#sub_main_tr").hide();
+        } else{
+            $("#sub_main_tr").show();
+        }
+    });
+});
+
 function load()
 {
 	$v('tr_att_more', false);
@@ -280,7 +291,7 @@ function updateInit()
 
     <p:line flag="0" />
     
-    <tr id="pay_main_tr">
+    <tr id="sub_main_tr">
         <td colspan='2' align='center'>
         <table width="98%" border="0" cellpadding="0" cellspacing="0"
             class="border">
