@@ -30,4 +30,6 @@ public interface OutInterface {
     String getPodate();
 
     String getRefOutFullId();
+
+    String getSwbz();
 }

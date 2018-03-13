@@ -1296,13 +1296,24 @@ public class ShipAction extends DispatchAction
                 wrap.setOutId(eachItem.getOutId());
 
                 //#315
-                OutBean out = this.outDAO.find(eachItem.getOutId());
+                String outId = eachItem.getOutId();
+                OutInterface out = null;
+                if (outId.startsWith("TW")){
+                    out = this.twOutDAO.findVO(outId);
+                } else{
+                    out = this.outDAO.findVO(outId);
+                }
                 if (out!= null){
-                    if (out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT){
-                        wrap.setDescription(out.getDescription());
-                    } else {
+                    if (outId.startsWith("TW")){
                         wrap.setDescription(out.getSwbz());
                         wrap.setCiticNo(StringUtils.extract(out.getDescription(),"银行单号", Pattern.quote(".")));
+                    } else{
+                        if (out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT){
+                            wrap.setDescription(out.getDescription());
+                        } else {
+                            wrap.setDescription(out.getSwbz());
+                            wrap.setCiticNo(StringUtils.extract(out.getDescription(),"银行单号", Pattern.quote(".")));
+                        }
                     }
                 }
 
