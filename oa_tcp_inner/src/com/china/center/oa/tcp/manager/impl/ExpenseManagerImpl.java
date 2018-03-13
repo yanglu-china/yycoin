@@ -598,7 +598,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     || token.getNextPlugin().equalsIgnoreCase("plugin:regionalCEO"))
             {
                 List<String> processList = new ArrayList();
-                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getNextStatus());
+                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
                 if (!StringTools.isNullOrNone(nextProcessor)){
                     processList.add(nextProcessor);
                 }
@@ -649,13 +649,13 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         return true;
     }
 
-    private String getNextProcessor(String stafferId, int nextStatus) throws  MYException{
+    private String getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
         try {
             if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                return this.bankBuLevelDAO.queryHighLevelManagerId(nextStatus, stafferId);
+                return this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId);
             }else {
                 return "";
             }
@@ -1167,7 +1167,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         List<TcpApproveBean> appList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
 
         if (appList.size() == 0 || token.getSingeAll() == 0) {
-            String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getNextStatus());
+            String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
             if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
                 processList.add(nextProcessor);
             }
