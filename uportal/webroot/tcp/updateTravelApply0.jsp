@@ -27,7 +27,10 @@ function addBean(opr)
 	    }
 	    else
 	    {
-	        $O('processer').oncheck = 'notNone';
+            var flag = $O('marketingFlag').value;
+            if (flag === '0') {
+                $O('processer').oncheck = 'notNone';
+            }
 	    }
     }
     
