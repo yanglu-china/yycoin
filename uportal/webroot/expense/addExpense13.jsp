@@ -24,7 +24,10 @@ function addBean(opr)
     }
     else
     {
-        $O('processer').oncheck = 'notNone';
+        var flag = $O('marketingFlag').value;
+        if (flag === '0') {
+            $O('processer').oncheck = 'notNone';
+        }
     }
     
     submit('确定日常费用报销?', null, checks);

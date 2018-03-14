@@ -26,7 +26,10 @@ function addBean(opr)
 	    }
 	    else
 	    {
-	        $O('processer').oncheck = 'notNone';
+            var flag = $O('marketingFlag').value;
+            if (flag === '0') {
+                $O('processer').oncheck = 'notNone';
+            }
 	    }
     }
     
@@ -45,6 +48,17 @@ function addBean(opr)
         submit('稽核修改费用,每项费用只能减少.确定提交稽核修改业务招待费报销?', null, checks);
     }
 }
+
+$(document).ready(function (){
+    $("#sub_main_tr").hide();
+    $('#marketingFlag').change(function() {
+        if (this.value === '1'){
+            $("#sub_main_tr").hide();
+        } else{
+            $("#sub_main_tr").show();
+        }
+    });
+});
 
 function load()
 {
@@ -115,7 +129,11 @@ function getTravelApply(oos)
 
             <p:pro field="stafferId" value="${bean.stafferName}"/>
             <p:pro field="departmentId" value="${bean.departmentName}"/>
-            
+
+            <p:pro field="marketingFlag" cell="0" >
+                <p:option type="marketingFlag"></p:option>
+            </p:pro>
+
             <p:pro field="name" cell="0" innerString="size=60"/>
             
             <p:pro field="beginDate" cell="0"/>
@@ -331,7 +349,7 @@ function getTravelApply(oos)
 	
 	    <p:line flag="0" />
 	    
-	    <tr id="pay_main_tr">
+	    <tr id="sub_main_tr">
 	        <td colspan='2' align='center'>
 	        <table width="98%" border="0" cellpadding="0" cellspacing="0"
 	            class="border">
@@ -341,7 +359,7 @@ function getTravelApply(oos)
 	                    <tr align="center" class="content0">
 	                        <td width="15%" align="center">提交到</td>
 	                        <td align="left">
-	                        <input type="text" name="processer" readonly="readonly" oncheck="notNone" head="下环处理人"/>&nbsp;
+	                        <input type="text" name="processer" readonly="readonly"  head="下环处理人"/>&nbsp;
 	                        <font color=red>*</font>
 	                        <input type="button" value="&nbsp;...&nbsp;" name="qout" id="qout"
 	                            class="button_class" onclick="initSelectNext()">&nbsp;&nbsp;
