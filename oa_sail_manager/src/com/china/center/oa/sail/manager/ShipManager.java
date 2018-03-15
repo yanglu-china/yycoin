@@ -109,4 +109,6 @@ public interface ShipManager
     String getProductCode(PackageItemBean item);
 
     public ProductImportBean getProductImportBean(PackageItemBean item, String bank);
+
+    void addLog(final String packageId, int preStatus, int afterStatus,String remark, String accept_time);
 }

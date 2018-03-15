@@ -3520,7 +3520,7 @@ public class ShipManagerImpl implements ShipManager
         _logger.info("***updatePackageStatusJob finished***");
     }
 
-    private void addLog(final String packageId, int preStatus, int afterStatus,String remark, String accept_time)
+    public void addLog(final String packageId, int preStatus, int afterStatus,String remark, String accept_time)
     {
         List<FlowLogBean> logList = flowLogDAO.queryEntityBeansByFK(packageId);
 

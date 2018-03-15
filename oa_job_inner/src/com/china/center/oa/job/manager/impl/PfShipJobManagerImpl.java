@@ -34,7 +34,7 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
 
     @Override
     protected String getTestCk() {
-        return "CK201801161697089589";
+        return "CK201803131505204494";
     }
 
     @Override
@@ -50,7 +50,8 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
         boolean result = false;
         //#219 浦发银行非小浦金店渠道
         if (customerName.indexOf("浦发银行") != -1 && !"小浦金店".equals(channel)){
-            _logger.info("***createPfMailAttachment with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
+            String template = "Job:%s createMailAttachmentPf with package:%s branch:%s file:%s channel:%s";
+            _logger.info(String.format(template, this.getClass(),beans.toString(),branchName, fileName,channel));
             WritableWorkbook wwb = null;
 
             WritableSheet ws = null;

@@ -63,7 +63,8 @@ public class XpShipJobManagerImpl extends AbstractShipJobManager{
     protected boolean createMailAttachment(int index, String customerName, String channel,List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders) {
         boolean result = false;
         if (customerName.indexOf("浦发银行") != -1 && "小浦金店".equals(channel)){
-            _logger.info("***createPfMailAttachmentForXiaoPu with package "+beans+"***branch***"+branchName+"***file name***"+fileName);
+            String template = "Job:%s createMailAttachmentXp with package:%s branch:%s file:%s channel:%s";
+            _logger.info(String.format(template, this.getClass(),beans.toString(),branchName, fileName, channel));
             WritableWorkbook wwb = null;
 
             WritableSheet ws = null;

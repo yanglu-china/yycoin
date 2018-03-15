@@ -16,6 +16,7 @@ import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.ShipManager;
 import com.china.center.oa.sail.vo.BranchRelationVO;
@@ -144,10 +145,12 @@ public abstract class AbstractShipJobManager implements JobManager {
                     if (!customer2Relation.containsKey(key)){
                         BranchRelationBean bean = this.getRelation(customerId, channel);
                         if(bean == null){
-                            _logger.warn(vo.getId()+"***no relation found***"+customerId);
+                            String template = "JOB:%s no relation found for package:%s customer:%s channel:%s";
+                            _logger.warn(String.format(template, this.getClass(),itemBean.toString(),customerId,channel));
                             continue;
                         } else{
-                            _logger.info(vo.getId()+"***relation is found****"+bean+"***channel***"+channel+"***key***"+key+"***customerName***"+customerName);
+                            String template = "JOB:%s relation is found for package:%s customer:%s channel:%s key:%s customerName:%s bean:%s";
+                            _logger.warn(String.format(template, this.getClass(),itemBean.toString(),customerId, channel, key, customerName, bean.toString()));
                             customer2Relation.put(key, bean);
                         }
                     }
@@ -170,7 +173,7 @@ public abstract class AbstractShipJobManager implements JobManager {
             }
 
             //step2 send mail for merged packages
-            _logger.info("***mail count to be sent to bank***" + customer2Packages.keySet().size());
+            _logger.info(this.getClass()+"***mail count to be sent to bank***" + customer2Packages.keySet().size());
             int index = 0;
             for (String key : customer2Packages.keySet()) {
                 List<PackageItemBean> packages = customer2Packages.get(key);
@@ -233,6 +236,8 @@ public abstract class AbstractShipJobManager implements JobManager {
                     if (packBean.getSendMailFlag()!= 1){
                         packBean.setSendMailFlag(1);
                         this.packageDAO.updateEntityBean(packBean);
+                        this.shipManager.addLog(packageId,packBean.getStatus(), ShipConstant.SHIP_STATUS_CONSIGN,
+                                "发货邮件:"+bean.getSubBranchMail().trim(), TimeTools.now());
                         _logger.info("***update mail flag for bank***"+packageId);
                     }
                 }
@@ -247,6 +252,17 @@ public abstract class AbstractShipJobManager implements JobManager {
         String outId = item.getOutId();
         //忽略发票
         if (outId.startsWith("A")){
+            //#275 发票取原销售单的渠道
+            InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(outId);
+            if (invoiceinsBean!= null && invoiceinsBean.getRefIds()!= null){
+                String[] outIds = invoiceinsBean.getRefIds().split(";");
+                if (outIds!= null && outIds.length>=1){
+                    OutBean outBean = this.outDAO.find(outIds[0]);
+                    if(outBean!= null){
+                        return outBean.getChannel();
+                    }
+                }
+            }
             return "";
         } else{
             OutBean outBean = outDAO.find(outId);
