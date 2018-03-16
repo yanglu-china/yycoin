@@ -196,7 +196,7 @@ function callBackPrintFun()
 						<td><table><tr><td>收货人盖章：</td></tr></table></td>
 					</tr>
                     <tr class="content2">
-                        <td colspan="4"><table><tr><td>盖章签字后寄回地址：南京市应天大街388号1865文化创意产业园C2栋永银文化银行事业部商务部收（烦请将回执传真后原件邮寄回我司，谢谢）</td></tr></table></td>
+                        <td colspan="4"><table><tr><td>盖章签字后寄回地址：江苏省南京市江宁区将军大道558号永银文化银行事业部商务部收（烦请将回执传真后原件邮寄回我司，谢谢）</td></tr></table></td>
                     </tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td></td></tr></table></td>

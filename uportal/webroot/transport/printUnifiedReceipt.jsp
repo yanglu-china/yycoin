@@ -199,7 +199,7 @@ function callBackPrintFun()
 						<td width="50%"><table><tr><td>收货人签字确认：</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="4"><table><tr><td>地址：江苏省南京市秦淮区应天大街388号1865创意产业园C2栋</td></tr></table></td>
+						<td colspan="4"><table><tr><td>地址：江苏省南京市江宁区将军大道558号永银文化</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="4"><table><tr><td>备注：</td></tr></table></td>
