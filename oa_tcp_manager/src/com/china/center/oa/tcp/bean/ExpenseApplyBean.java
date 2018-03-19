@@ -178,40 +178,19 @@ public class ExpenseApplyBean extends AbstractTcpBean implements Serializable
 
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("ExpenseApplyBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("payType = ")
-            .append(this.payType)
-            .append(TAB)
-            .append("specialType = ")
-            .append(this.specialType)
-            .append(TAB)
-            .append("ticikCount = ")
-            .append(this.ticikCount)
-            .append(TAB)
-            .append("lastMoney = ")
-            .append(this.lastMoney)
-            .append(TAB)
-            .append("refMoney = ")
-            .append(this.refMoney)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "ExpenseApplyBean{" +
+                "id='" + id + '\'' +
+                ", payType=" + payType +
+                ", specialType=" + specialType +
+                ", ticikCount=" + ticikCount +
+                ", lastMoney=" + lastMoney +
+                ", refMoney=" + refMoney +
+                ", marketingFlag=" + marketingFlag +
+                "} " + super.toString();
     }
-
 }

@@ -151,58 +151,26 @@ public class TravelApplyBean extends AbstractTcpBean implements Serializable
 
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("TravelApplyBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("type = ")
-            .append(this.type)
-            .append(TAB)
-            .append("flowKey = ")
-            .append(this.flowKey)
-            .append(TAB)
-            .append("borrow = ")
-            .append(this.borrow)
-            .append(TAB)
-            .append("feedback = ")
-            .append(this.feedback)
-            .append(TAB)
-            .append("purposeType = ")
-            .append(this.purposeType)
-            .append(TAB)
-            .append("vocationType = ")
-            .append(this.vocationType)
-            .append(TAB)
-            .append("oldNumber = ")
-            .append(this.oldNumber)
-            .append(TAB)
-            .append("qingJiapurpose = ")
-            .append(this.qingJiapurpose)
-            .append(TAB)
-            .append("importFlag = ")
-            .append(this.importFlag)
-            .append(TAB)
-            .append("ibType = ")
-            .append(this.ibType)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "TravelApplyBean{" +
+                "id='" + id + '\'' +
+                ", oldNumber='" + oldNumber + '\'' +
+                ", qingJiapurpose='" + qingJiapurpose + '\'' +
+                ", borrow=" + borrow +
+                ", purposeType=" + purposeType +
+                ", vocationType=" + vocationType +
+                ", feedback=" + feedback +
+                ", importFlag=" + importFlag +
+                ", ibType=" + ibType +
+                ", marketingFlag=" + marketingFlag +
+                "} " + super.toString();
     }
 
-	public int getPurposeType() {
+    public int getPurposeType() {
 		return purposeType;
 	}
 

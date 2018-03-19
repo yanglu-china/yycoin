@@ -437,7 +437,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             }
         }catch(Exception e){
             _logger.error(e);
-            throw new MYException("T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+stafferId);
+            throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
         }
     }
 

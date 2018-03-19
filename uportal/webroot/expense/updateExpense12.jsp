@@ -50,7 +50,6 @@ function addBean(opr)
 }
 
 $(document).ready(function (){
-    $("#sub_main_tr").hide();
     $('#marketingFlag').change(function() {
         if (this.value === '1'){
             $("#sub_main_tr").hide();
@@ -62,6 +61,8 @@ $(document).ready(function (){
 
 function load()
 {
+    showSubMainTr();
+
 	$v('tr_att_more', false);
 	
 	loadForm();

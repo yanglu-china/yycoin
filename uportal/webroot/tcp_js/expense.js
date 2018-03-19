@@ -298,6 +298,15 @@ function borrowChange()
     }
 }
 
+function showSubMainTr(){
+    var flag = $O('marketingFlag').value;
+    if (flag === '1') {
+        $("#sub_main_tr").hide();
+    } else{
+        $("#sub_main_tr").show();
+    }
+}
+
 function payTypeChange()
 {
     if ($$('payType') == 0 || $$('payType') == 2)
