@@ -830,7 +830,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	        }
             //#248
             else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
-                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector"))
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector")
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalCEO"))
             {
                 List<String> processList = new ArrayList();
                 String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());

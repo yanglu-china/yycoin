@@ -1,7 +1,9 @@
 package com.china.center.oa.job.manager.impl;
 
+import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.sail.bean.BranchRelationBean;
 import com.china.center.oa.sail.bean.PackageItemBean;
+import com.china.center.oa.sail.vo.PackageVO;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.TimeTools;
 import jxl.Workbook;
@@ -49,6 +51,22 @@ public class XpShipJobManagerImpl extends AbstractShipJobManager{
     @Override
     protected String getTestCk() {
         return "CK201801161697089589";
+    }
+
+    @Override
+    protected List<PackageVO> getPackageList() {
+        ConditionParse con = new ConditionParse();
+        con.addWhereStr();
+        con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
+        con.addCondition("PackageBean.logTime", ">=", "2017-04-27 00:00:00");
+        //自提类的也不在发送邮件范围内
+        con.addIntCondition("PackageBean.shipping","!=", 0);
+        //#236 已发货和在途都要发邮件
+        con.addCondition(" and PackageBean.status in(2,10)");
+
+        //step1: 根据支行customerId+channel对CK单合并
+        List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+        return packageList;
     }
 
     @Override

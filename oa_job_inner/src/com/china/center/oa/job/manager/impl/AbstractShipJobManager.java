@@ -36,7 +36,7 @@ import java.util.*;
 public abstract class AbstractShipJobManager implements JobManager {
     private final Log _logger = LogFactory.getLog(getClass());
 
-    private PackageDAO packageDAO = null;
+    protected PackageDAO packageDAO = null;
 
     private PackageItemDAO packageItemDAO = null;
 
@@ -79,17 +79,7 @@ public abstract class AbstractShipJobManager implements JobManager {
                 + TimeTools.now("yyyyMMddHHmm") + ".xls";
     }
 
-    /**
-     * Test only!
-     * @return
-     */
-    @Deprecated
-    abstract protected String getTestCk();
-
-    @Override
-    @Transactional(rollbackFor = MYException.class)
-    public void run() throws MYException {
-        _logger.info(this.getClass()+" JOB running****");
+    protected List<PackageVO> getPackageList(){
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
@@ -103,6 +93,23 @@ public abstract class AbstractShipJobManager implements JobManager {
         //!!test only
 //        con.addCondition("PackageBean.id", "=", this.getTestCk());
 
+        //step1: 根据支行customerId+channel对CK单合并
+        List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+        return packageList;
+    }
+
+    /**
+     * Test only!
+     * @return
+     */
+    @Deprecated
+    abstract protected String getTestCk();
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void run() throws MYException {
+        _logger.info(this.getClass()+" JOB running****");
+
         //根据customerId+channel合并CK表
         //#245
         Map<String,List<PackageItemBean>> customer2Packages = new HashMap<String,List<PackageItemBean>>();
@@ -110,7 +117,7 @@ public abstract class AbstractShipJobManager implements JobManager {
         Map<String,BranchRelationBean> customer2Relation = new HashMap<String,BranchRelationBean>();
 
         //step1: 根据支行customerId+channel对CK单合并
-        List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+        List<PackageVO> packageList = this.getPackageList();
         if (!ListTools.isEmptyOrNull(packageList))
         {
             _logger.info("****packageList to be sent mail to bank***"+packageList.size());
