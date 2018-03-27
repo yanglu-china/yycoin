@@ -52,10 +52,12 @@ public abstract class TCPHelper
                 ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
             if (bean instanceof TravelApplyBean){
                 TravelApplyBean apply = (TravelApplyBean)bean;
-                if (apply.getIbType() == TcpConstanst.MOTIVATION_TYPE)  {
+                if (apply.getIbType() == TcpConstanst.MOTIVATION_TYPE
+                        ||apply.getIbType() == TcpConstanst.MOTIVATION_TYPE2)  {
                     bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_MOTIVATION);
                     return;
-                } else if (apply.getIbType() == TcpConstanst.IB_TYPE)  {
+                } else if (apply.getIbType() == TcpConstanst.IB_TYPE
+                        || apply.getIbType() == TcpConstanst.IB_TYPE2)  {
                     bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_IB);
                     return;
                 }

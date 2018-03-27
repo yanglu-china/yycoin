@@ -3259,6 +3259,12 @@ public class TravelApplyAction extends DispatchAction
                         } else if (TcpConstanst.MOTIVATION_TYPE_STR.equals(name)){
                             item.setType(TcpConstanst.MOTIVATION_TYPE);
                             type = TcpConstanst.MOTIVATION_TYPE;
+                        } else if (TcpConstanst.IB_TYPE_STR2.equals(name)){
+                            item.setType(TcpConstanst.IB_TYPE2);
+                            type = TcpConstanst.IB_TYPE;
+                        } else if (TcpConstanst.MOTIVATION_TYPE_STR2.equals(name)){
+                            item.setType(TcpConstanst.MOTIVATION_TYPE2);
+                            type = TcpConstanst.MOTIVATION_TYPE2;
                         } else{
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -3861,6 +3867,10 @@ public class TravelApplyAction extends DispatchAction
                             bean.setType(TcpConstanst.IB_TYPE);
                         } else if (TcpConstanst.MOTIVATION_TYPE_STR.equals(name)){
                             bean.setType(TcpConstanst.MOTIVATION_TYPE);
+                        } else if (TcpConstanst.IB_TYPE_STR2.equals(name)){
+                            bean.setType(TcpConstanst.IB_TYPE2);
+                        } else if (TcpConstanst.MOTIVATION_TYPE_STR2.equals(name)){
+                            bean.setType(TcpConstanst.MOTIVATION_TYPE2);
                         } else{
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")

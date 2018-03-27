@@ -34,7 +34,7 @@ public class TcpIbBean implements Serializable
     private String refId = "";
 
     /**
-     * 申请类型：中收: 0 激励：1
+     * 申请类型：中收: 0 激励：1 中收2: 2 激励2：3
      */
     private int type = TcpConstanst.IB_TYPE;
 
