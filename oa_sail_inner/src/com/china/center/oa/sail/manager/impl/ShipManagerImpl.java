@@ -3487,37 +3487,41 @@ public class ShipManagerImpl implements ShipManager
                                 || state == ShipConstant.SF_STATUS_607){
                             // 已收件
                             this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_ZAITU,description, logTime);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_ZAITU,description+this.appendState(state), logTime);
                         } else if (state  ==  ShipConstant.SF_STATUS_130 || state == ShipConstant.SF_STATUS_123){
                             // 即将派件
                             this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_ZAITU);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_ZAITU,description, logTime);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_ZAITU,description+this.appendState(state), logTime);
                         } else if (state  ==  ShipConstant.SF_STATUS_80 || state == ShipConstant.SF_STATUS_8000){
                             //已签收
                             this.packageDAO.updateStatus(packageBean.getId(), SHIP_STATUS_PRINT_SIGNED);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_SIGNED,description, logTime);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), SHIP_STATUS_PRINT_SIGNED,description+this.appendState(state), logTime);
                         } else if (state  ==  ShipConstant.SF_STATUS_631 || state == ShipConstant.SF_STATUS_648
                                 || state == ShipConstant.SF_STATUS_99){
                             //已退回
                             this.packageDAO.updateStatus(packageBean.getId(), ShipConstant.SHIP_STATUS_PRINT_RETURN);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), ShipConstant.SHIP_STATUS_PRINT_RETURN,description, logTime);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), ShipConstant.SHIP_STATUS_PRINT_RETURN,description+this.appendState(state), logTime);
                         }
                     } else{
                         if (state == ShipConstant.KD_100_STATUS_SIGNED || state == ShipConstant.KD_100_STATUS_RE_SIGNED
                                 || state == ShipConstant.KD_100_STATUS_RETURN){
                             int status = state + 10;
                             this.packageDAO.updateStatus(packageBean.getId(), status);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), status,description, logTime);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), status,description+this.appendState(state), logTime);
                         } else{
                             int status =  10;
                             this.packageDAO.updateStatus(packageBean.getId(), status);
-                            this.addLog(packageBean.getId(), packageBean.getStatus(), status,description, logTime);
+                            this.addLog(packageBean.getId(), packageBean.getStatus(), status,description+this.appendState(state), logTime);
                         }
                     }
                 }
             }
         }
         _logger.info("***updatePackageStatusJob finished***");
+    }
+
+    private String appendState(int state){
+        return ".SF code:"+state;
     }
 
     public void addLog(final String packageId, int preStatus, int afterStatus,String remark, String accept_time)
