@@ -664,14 +664,14 @@ public interface TcpConstanst
     @Defined(key = "type", value = "中收2")
     int IB_TYPE2 = 2;
 
-    @Defined(key = "type", value = "激励2")
+    @Defined(key = "type", value = "其他费用")
     int MOTIVATION_TYPE2 = 3;
 
     String IB_TYPE_STR = "中收";
     String MOTIVATION_TYPE_STR = "激励";
 
     String IB_TYPE_STR2 = "中收2";
-    String MOTIVATION_TYPE_STR2 = "激励2";
+    String MOTIVATION_TYPE_STR2 = "其他费用";
 
     @Defined(key = "marketingFlag", value = "营销")
     int TCP_MARKETING_FLAG_YES = 1;
