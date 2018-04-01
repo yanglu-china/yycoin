@@ -738,6 +738,8 @@ public class OutImportManagerImpl implements OutImportManager
             //2015/5/4 中收激励金额
             base.setIbMoney(each.getIbMoney());
             base.setMotivationMoney(each.getMotivationMoney());
+            base.setIbMoney2(each.getIbMoney2());
+            base.setMotivationMoney2(each.getMotivationMoney2());
             base.setCash(each.getCash());
             base.setGrossProfit(each.getGrossProfit());
 

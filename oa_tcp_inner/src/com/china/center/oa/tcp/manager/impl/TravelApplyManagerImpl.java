@@ -365,53 +365,61 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         travelApplyDAO.updateStatus(bean.getId(), newStatus);
 
         // 中收在此产生凭证借：营业费用-中收 (5504-47)贷：预提费用 (2191)
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
-            if (bean.isImportFlag()){
-                //2015/4/12 中收激励设置对应SO标志位
-                List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
-                if (!ListTools.isEmptyOrNull(ibList)){
-                    _logger.info(bean.getId()+" with TcpIbBean list size:"+ibList.size());
-                    for (TcpIbBean ib : ibList){
-                        String outIds = ib.getFullId();
-                        if (!StringTools.isNullOrNone(outIds)){
-                            StringTokenizer  st = new  StringTokenizer(outIds,";");
-                            while(st.hasMoreTokens()) {
-                                String outId = st.nextToken();
-                                OutBean out = this.outDAO.find(outId);
-                                if (out!= null){
-                                    if (bean.getIbType() == TcpConstanst.IB_TYPE){
-                                        out.setIbFlag(1);
-                                        out.setIbApplyId(bean.getId());
-                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
-                                        out.setMotivationFlag(1);
-                                        out.setMotivationApplyId(bean.getId());
-                                    }
-
-                                    _logger.info(out+" OutBean set IB flag**********");
-                                    this.outDAO.updateEntityBean(out);
-                                }
-                            }
-                        } else{
-                            _logger.info("no out for TcpIbBean:"+ib.getId());
-                        }
-                    }
-                } else{
-                    _logger.info("***no TcpIbBean found for:"+bean.getId());
-                }
-            }
-
-            //2015/7/19 只有中收申请才需要生成凭证
-            if (bean.getIbType() == TcpConstanst.IB_TYPE){
-                Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
-
-                for (TcpPayListener tcpPayListener : listenerMapValues)
-                {
-                    _logger.info("************tcpPayListener************"+tcpPayListener);
-                    tcpPayListener.onSubmitMidTravelApply(user, bean);
-                }
-            }
-        }
+        this.setIbMotivationFlag(user, bean);
+//        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+//                ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
+//            if (bean.isImportFlag()){
+//                //2015/4/12 中收激励设置对应SO标志位
+//                List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+//                if (!ListTools.isEmptyOrNull(ibList)){
+//                    _logger.info(bean.getId()+" with TcpIbBean list size:"+ibList.size());
+//                    for (TcpIbBean ib : ibList){
+//                        String outIds = ib.getFullId();
+//                        if (!StringTools.isNullOrNone(outIds)){
+//                            StringTokenizer  st = new  StringTokenizer(outIds,";");
+//                            while(st.hasMoreTokens()) {
+//                                String outId = st.nextToken();
+//                                OutBean out = this.outDAO.find(outId);
+//                                if (out!= null){
+//                                    if (bean.getIbType() == TcpConstanst.IB_TYPE){
+//                                        out.setIbFlag(1);
+//                                        out.setIbApplyId(bean.getId());
+//                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+//                                        out.setMotivationFlag(1);
+//                                        out.setMotivationApplyId(bean.getId());
+//                                    }  else if (bean.getIbType() == TcpConstanst.IB_TYPE2){
+//                                        out.setIbFlag2(1);
+//                                        out.setIbApplyId2(bean.getId());
+//                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE2){
+//                                        out.setMotivationFlag2(1);
+//                                        out.setMotivationApplyId2(bean.getId());
+//                                    }
+//
+//                                    _logger.info(out+" OutBean set IB flag**********");
+//                                    this.outDAO.updateEntityBean(out);
+//                                }
+//                            }
+//                        } else{
+//                            _logger.info("no out for TcpIbBean:"+ib.getId());
+//                        }
+//                    }
+//                } else{
+//                    _logger.info("***no TcpIbBean found for:"+bean.getId());
+//                }
+//            }
+//
+//            //2015/7/19 只有中收申请才需要生成凭证
+//            if (bean.getIbType() == TcpConstanst.IB_TYPE
+//                    || bean.getIbType() == TcpConstanst.IB_TYPE2){
+//                Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
+//
+//                for (TcpPayListener tcpPayListener : listenerMapValues)
+//                {
+//                    _logger.info("************tcpPayListener************"+tcpPayListener);
+//                    tcpPayListener.onSubmitMidTravelApply(user, bean);
+//                }
+//            }
+//        }
         
         // 记录操作日志
         saveFlowLog(user, oldStatus, bean, "提交申请", PublicConstant.OPRMODE_SUBMIT);
@@ -696,41 +704,48 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	    logicProcess(user, param, bean, oldStatus);
 
         //#441 2017/3/29 每一步通过时再次设置
-        if (bean.isImportFlag() &&
-                (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                        ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION)) {
-            //财务支付通过时，再次设置中收激励设置对应SO标志位
-            List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
-            if (!ListTools.isEmptyOrNull(ibList)){
-                _logger.info(bean.getId()+" with TcpIbBean list size:"+ibList.size());
-                for (TcpIbBean ib : ibList){
-                    String outIds = ib.getFullId();
-                    if (!StringTools.isNullOrNone(outIds)){
-                        StringTokenizer  st = new  StringTokenizer(outIds,";");
-                        while(st.hasMoreTokens()) {
-                            String outId = st.nextToken();
-                            OutBean out = this.outDAO.find(outId);
-                            if (out!= null){
-                                if (bean.getIbType() == TcpConstanst.IB_TYPE){
-                                    out.setIbFlag(1);
-                                    out.setIbApplyId(bean.getId());
-                                } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
-                                    out.setMotivationFlag(1);
-                                    out.setMotivationApplyId(bean.getId());
-                                }
-
-                                _logger.info(out+" OutBean set IB flag**********");
-                                this.outDAO.updateEntityBean(out);
-                            }
-                        }
-                    } else{
-                        _logger.info("no out for TcpIbBean:"+ib.getId());
-                    }
-                }
-            } else{
-                _logger.info("***no TcpIbBean found for:"+bean.getId());
-            }
-        }
+        this.setIbMotivationFlag(user, bean);
+//        if (bean.isImportFlag() &&
+//                (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+//                        ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION)) {
+//            //财务支付通过时，再次设置中收激励设置对应SO标志位
+//            List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+//            if (!ListTools.isEmptyOrNull(ibList)){
+//                _logger.info(bean.getId()+" with TcpIbBean list size:"+ibList.size());
+//                for (TcpIbBean ib : ibList){
+//                    String outIds = ib.getFullId();
+//                    if (!StringTools.isNullOrNone(outIds)){
+//                        StringTokenizer  st = new  StringTokenizer(outIds,";");
+//                        while(st.hasMoreTokens()) {
+//                            String outId = st.nextToken();
+//                            OutBean out = this.outDAO.find(outId);
+//                            if (out!= null){
+//                                if (bean.getIbType() == TcpConstanst.IB_TYPE){
+//                                    out.setIbFlag(1);
+//                                    out.setIbApplyId(bean.getId());
+//                                } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+//                                    out.setMotivationFlag(1);
+//                                    out.setMotivationApplyId(bean.getId());
+//                                } else if (bean.getIbType() == TcpConstanst.IB_TYPE2){
+//                                    out.setIbFlag2(1);
+//                                    out.setIbApplyId2(bean.getId());
+//                                } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE2){
+//                                    out.setMotivationFlag2(1);
+//                                    out.setMotivationApplyId2(bean.getId());
+//                                }
+//
+//                                _logger.info(out+" OutBean set IB flag**********");
+//                                this.outDAO.updateEntityBean(out);
+//                            }
+//                        }
+//                    } else{
+//                        _logger.info("no out for TcpIbBean:"+ib.getId());
+//                    }
+//                }
+//            } else{
+//                _logger.info("***no TcpIbBean found for:"+bean.getId());
+//            }
+//        }
 
 	    // 获得当前的处理环节
 	    TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
@@ -1819,40 +1834,43 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         
         // 中收申请，同时删除凭证。如果此时凭证所在的月份已经月结，要求反月结才能继续驳回操作
         if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
-            if (bean.isImportFlag()) {
-                //2015/4/12 中收激励设置SO单标志位
-                List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
-                if (!ListTools.isEmptyOrNull(ibList)){
-                    _logger.info("TcpIbBean list size:"+ibList.size());
-                    for (TcpIbBean ib : ibList){
-                        String outIds = ib.getFullId();
-                        if (!StringTools.isNullOrNone(outIds)){
-                            StringTokenizer  st = new  StringTokenizer(outIds,";");
-                            while(st.hasMoreTokens()) {
-                                String outId = st.nextToken();
-                                OutBean out = this.outDAO.find(outId);
-                                if (out!= null){
-                                    if (bean.getIbType() == TcpConstanst.IB_TYPE){
-                                        out.setIbFlag(0);
-                                        out.setIbApplyId("");
-                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
-                                        out.setMotivationFlag(0);
-                                        out.setMotivationApplyId("");
-                                    }
-
-                                    _logger.info(out+" OutBean reset IB flag**********");
-                                    this.outDAO.updateEntityBean(out);
-                                }
-                            }
-                        } else{
-                            _logger.info("no out for TcpIbBean:"+ib.getId());
-                        }
-                    }
-
-                }
-
-            }
+                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION
+                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION2) {
+            this.resetIbMotivationFlag(bean);
+//            if (bean.isImportFlag()) {
+//                //2015/4/12 中收激励设置SO单标志位
+//                List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+//                if (!ListTools.isEmptyOrNull(ibList)){
+//                    _logger.info("TcpIbBean list size:"+ibList.size());
+//                    for (TcpIbBean ib : ibList){
+//                        String outIds = ib.getFullId();
+//                        if (!StringTools.isNullOrNone(outIds)){
+//                            StringTokenizer  st = new  StringTokenizer(outIds,";");
+//                            while(st.hasMoreTokens()) {
+//                                String outId = st.nextToken();
+//                                OutBean out = this.outDAO.find(outId);
+//                                if (out!= null){
+//                                    if (bean.getIbType() == TcpConstanst.IB_TYPE){
+//                                        out.setIbFlag(0);
+//                                        out.setIbApplyId("");
+//                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+//                                        out.setMotivationFlag(0);
+//                                        out.setMotivationApplyId("");
+//                                    }
+//
+//                                    _logger.info(out+" OutBean reset IB flag**********");
+//                                    this.outDAO.updateEntityBean(out);
+//                                }
+//                            }
+//                        } else{
+//                            _logger.info("no out for TcpIbBean:"+ib.getId());
+//                        }
+//                    }
+//
+//                }
+//
+//            }
 
         	Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
 
@@ -1936,6 +1954,107 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         }
         
         return true;
+    }
+
+    private void setIbMotivationFlag(User user, TravelApplyBean bean)throws MYException{
+        // 中收在此产生凭证借：营业费用-中收 (5504-47)贷：预提费用 (2191)
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID2
+                ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION
+                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION2) {
+            if (bean.isImportFlag()){
+                //2015/4/12 中收激励设置对应SO标志位
+                List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+                if (!ListTools.isEmptyOrNull(ibList)){
+                    _logger.info(bean.getId()+" with TcpIbBean list size:"+ibList.size());
+                    for (TcpIbBean ib : ibList){
+                        String outIds = ib.getFullId();
+                        if (!StringTools.isNullOrNone(outIds)){
+                            StringTokenizer  st = new  StringTokenizer(outIds,";");
+                            while(st.hasMoreTokens()) {
+                                String outId = st.nextToken();
+                                OutBean out = this.outDAO.find(outId);
+                                if (out!= null){
+                                    if (bean.getIbType() == TcpConstanst.IB_TYPE){
+                                        out.setIbFlag(1);
+                                        out.setIbApplyId(bean.getId());
+                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+                                        out.setMotivationFlag(1);
+                                        out.setMotivationApplyId(bean.getId());
+                                    }  else if (bean.getIbType() == TcpConstanst.IB_TYPE2){
+                                        out.setIbFlag2(1);
+                                        out.setIbApplyId2(bean.getId());
+                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE2){
+                                        out.setMotivationFlag2(1);
+                                        out.setMotivationApplyId2(bean.getId());
+                                    }
+
+                                    _logger.info(out+" OutBean set IB flag**********");
+                                    this.outDAO.updateEntityBean(out);
+                                }
+                            }
+                        } else{
+                            _logger.info("no out for TcpIbBean:"+ib.getId());
+                        }
+                    }
+                } else{
+                    _logger.info("***no TcpIbBean found for:"+bean.getId());
+                }
+            }
+
+            //2015/7/19 只有中收申请才需要生成凭证
+            if (bean.getIbType() == TcpConstanst.IB_TYPE
+                    || bean.getIbType() == TcpConstanst.IB_TYPE2){
+                Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
+
+                for (TcpPayListener tcpPayListener : listenerMapValues)
+                {
+                    _logger.info("************tcpPayListener************"+tcpPayListener);
+                    tcpPayListener.onSubmitMidTravelApply(user, bean);
+                }
+            }
+        }
+    }
+    private void resetIbMotivationFlag(TravelApplyBean bean){
+        if (bean.isImportFlag()) {
+            //中收激励重置SO单标志位
+            List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+            if (!ListTools.isEmptyOrNull(ibList)){
+                _logger.info("TcpIbBean list size:"+ibList.size());
+                for (TcpIbBean ib : ibList){
+                    String outIds = ib.getFullId();
+                    if (!StringTools.isNullOrNone(outIds)){
+                        StringTokenizer  st = new  StringTokenizer(outIds,";");
+                        while(st.hasMoreTokens()) {
+                            String outId = st.nextToken();
+                            OutBean out = this.outDAO.find(outId);
+                            if (out!= null){
+                                if (bean.getIbType() == TcpConstanst.IB_TYPE){
+                                    out.setIbFlag(0);
+                                    out.setIbApplyId("");
+                                } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+                                    out.setMotivationFlag(0);
+                                    out.setMotivationApplyId("");
+                                } else if (bean.getIbType() == TcpConstanst.IB_TYPE2){
+                                    out.setIbFlag2(0);
+                                    out.setIbApplyId2("");
+                                } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE2){
+                                    out.setMotivationFlag2(0);
+                                    out.setMotivationApplyId2("");
+                                }
+
+                                _logger.info(out+" OutBean reset IB flag before delete bean**********"+bean.getId());
+                                this.outDAO.updateEntityBean(out);
+                            }
+                        }
+                    } else{
+                        _logger.info("no out for TcpIbBean:"+ib.getId());
+                    }
+                }
+
+            }
+
+        }
     }
     
     @Transactional(rollbackFor = MYException.class)
@@ -2826,40 +2945,40 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         }
 
         attachmentDAO.deleteEntityBeansByFK(bean.getId());
-
-        if (bean.isImportFlag()) {
-            //2015/5/19 中收激励重置SO单标志位
-            List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
-            if (!ListTools.isEmptyOrNull(ibList)){
-                _logger.info("TcpIbBean list size:"+ibList.size());
-                for (TcpIbBean ib : ibList){
-                    String outIds = ib.getFullId();
-                    if (!StringTools.isNullOrNone(outIds)){
-                        StringTokenizer  st = new  StringTokenizer(outIds,";");
-                        while(st.hasMoreTokens()) {
-                            String outId = st.nextToken();
-                            OutBean out = this.outDAO.find(outId);
-                            if (out!= null){
-                                if (bean.getIbType() == TcpConstanst.IB_TYPE){
-                                    out.setIbFlag(0);
-                                    out.setIbApplyId("");
-                                } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
-                                    out.setMotivationFlag(0);
-                                    out.setMotivationApplyId("");
-                                }
-
-                                _logger.info(out+" OutBean reset IB flag before delete bean**********"+bean.getId());
-                                this.outDAO.updateEntityBean(out);
-                            }
-                        }
-                    } else{
-                        _logger.info("no out for TcpIbBean:"+ib.getId());
-                    }
-                }
-
-            }
-
-        }
+        this.resetIbMotivationFlag(bean);
+//        if (bean.isImportFlag()) {
+//            //2015/5/19 中收激励重置SO单标志位
+//            List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+//            if (!ListTools.isEmptyOrNull(ibList)){
+//                _logger.info("TcpIbBean list size:"+ibList.size());
+//                for (TcpIbBean ib : ibList){
+//                    String outIds = ib.getFullId();
+//                    if (!StringTools.isNullOrNone(outIds)){
+//                        StringTokenizer  st = new  StringTokenizer(outIds,";");
+//                        while(st.hasMoreTokens()) {
+//                            String outId = st.nextToken();
+//                            OutBean out = this.outDAO.find(outId);
+//                            if (out!= null){
+//                                if (bean.getIbType() == TcpConstanst.IB_TYPE){
+//                                    out.setIbFlag(0);
+//                                    out.setIbApplyId("");
+//                                } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+//                                    out.setMotivationFlag(0);
+//                                    out.setMotivationApplyId("");
+//                                }
+//
+//                                _logger.info(out+" OutBean reset IB flag before delete bean**********"+bean.getId());
+//                                this.outDAO.updateEntityBean(out);
+//                            }
+//                        }
+//                    } else{
+//                        _logger.info("no out for TcpIbBean:"+ib.getId());
+//                    }
+//                }
+//
+//            }
+//
+//        }
 
         travelApplyDAO.deleteEntityBean(id);
 
@@ -3072,7 +3191,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 ibReport.setCustomerName(outVOs.get(0).getCustomerName());
                 double ibTotal = 0.0d;
                 double moTotal = 0.0d;
-
+                double ibTotal2 = 0.0d;
+                double moTotal2 = 0.0d;
                 for (OutBean out: outVOs){
                     List<BaseBean> baseList = this.baseDAO.queryEntityBeansByFK(out.getFullId());
                     if (!ListTools.isEmptyOrNull(baseList)){
@@ -3092,33 +3212,50 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
 //                                //已经结算过的中收需要退款
                                 if (out.getIbFlag() == 0){
-                                    item.setType(TcpConstanst.IB_TYPE);
                                     item.setIbMoney(this.roundDouble(-base.getAmount()*base.getIbMoney()));
                                     ibTotal -= base.getAmount()*base.getIbMoney();
+                                }
+
+                                if (out.getIbFlag2() == 0){
+                                    item.setIbMoney2(this.roundDouble(-base.getAmount()*base.getIbMoney2()));
+                                    ibTotal2 -= base.getAmount()*base.getIbMoney2();
                                 }
 //
 //                                //已经结算过的激励需要退款
                                 if (out.getMotivationFlag() == 0){
-                                    item.setType(TcpConstanst.MOTIVATION_TYPE);
                                     item.setMotivationMoney(this.roundDouble(-base.getAmount()*base.getMotivationMoney()));
                                     moTotal -= base.getAmount()*base.getMotivationMoney();
+                                }
+
+                                if (out.getMotivationFlag2() == 0){
+                                    item.setMotivationMoney2(this.roundDouble(-base.getAmount()*base.getMotivationMoney2()));
+                                    moTotal2 -= base.getAmount()*base.getMotivationMoney2();
                                 }
                             } else{
                                 //出库
                                 if (out.getIbFlag() == 0){
-                                    item.setType(TcpConstanst.IB_TYPE);
                                     item.setIbMoney(this.roundDouble(base.getAmount()*base.getIbMoney()));
                                     ibTotal += base.getAmount()*base.getIbMoney();
                                 }
 
+                                if (out.getIbFlag2() == 0){
+                                    item.setIbMoney2(this.roundDouble(base.getAmount()*base.getIbMoney2()));
+                                    ibTotal2 += base.getAmount()*base.getIbMoney2();
+                                }
+
                                 if (out.getMotivationFlag() ==0){
-                                    item.setType(TcpConstanst.MOTIVATION_TYPE);
                                     item.setMotivationMoney(this.roundDouble(base.getAmount()*base.getMotivationMoney()));
                                     moTotal += base.getAmount()*base.getMotivationMoney();
                                 }
+
+                                if (out.getMotivationFlag2() ==0){
+                                    item.setMotivationMoney2(this.roundDouble(base.getAmount()*base.getMotivationMoney2()));
+                                    moTotal2 += base.getAmount()*base.getMotivationMoney2();
+                                }
                             }
 
-                            if (Math.abs(item.getIbMoney()) > zero || Math.abs(item.getMotivationMoney())> zero){
+                            if (Math.abs(item.getIbMoney()) > zero || Math.abs(item.getMotivationMoney())> zero
+                                    || Math.abs(item.getIbMoney2()) > zero || Math.abs(item.getMotivationMoney2())> zero){
 //                                _logger.info("****create TcpIbReportItemBean**********"+item);
                                 itemList.add(item);
                             }
@@ -3129,6 +3266,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 }
                 ibReport.setIbMoneyTotal(this.roundDouble(ibTotal));
                 ibReport.setMotivationMoneyTotal(this.roundDouble((moTotal)));
+                ibReport.setIbMoneyTotal2(this.roundDouble(ibTotal2));
+                ibReport.setMotivationMoneyTotal2(this.roundDouble((moTotal2)));
             }
 
 //            //中收或激励只要一个有值就生成

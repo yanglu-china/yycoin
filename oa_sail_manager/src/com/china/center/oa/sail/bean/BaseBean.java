@@ -147,6 +147,17 @@ public class BaseBean implements Serializable, BaseInterface
      */
     private double motivationMoney = 0.0d;
 
+
+    /**
+     * 中收2金额
+     */
+    private double ibMoney2 = 0.0d;
+
+    /**
+     * 激励2金额
+     */
+    private double motivationMoney2 = 0.0d;
+
     private double cash =0.0d;
 
     private double grossProfit =0.0d;
@@ -895,6 +906,22 @@ public class BaseBean implements Serializable, BaseInterface
         this.grossProfit = grossProfit;
     }
 
+    public double getIbMoney2() {
+        return ibMoney2;
+    }
+
+    public void setIbMoney2(double ibMoney2) {
+        this.ibMoney2 = ibMoney2;
+    }
+
+    public double getMotivationMoney2() {
+        return motivationMoney2;
+    }
+
+    public void setMotivationMoney2(double motivationMoney2) {
+        this.motivationMoney2 = motivationMoney2;
+    }
+
     @Override
     public String toString() {
         return "BaseBean{" +
@@ -927,6 +954,8 @@ public class BaseBean implements Serializable, BaseInterface
                 ", profitRatio=" + profitRatio +
                 ", ibMoney=" + ibMoney +
                 ", motivationMoney=" + motivationMoney +
+                ", ibMoney2=" + ibMoney2 +
+                ", motivationMoney2=" + motivationMoney2 +
                 ", cash=" + cash +
                 ", grossProfit=" + grossProfit +
                 ", deliverType=" + deliverType +

@@ -40,11 +40,6 @@ public class TcpIbReportItemBean implements Serializable
     @FK
     private String refId = "";
 
-    /**
-     * 申请类型：中收: 0 激励：1 中收2: 2 激励2：3
-     */
-    private int type = TcpConstanst.IB_TYPE;
-
     private String customerName = "";
 
     private String fullId = "";
@@ -67,7 +62,15 @@ public class TcpIbReportItemBean implements Serializable
      */
     private double motivationMoney = 0.0d;
 
+    /**
+     * 中收2金额
+     */
+    private double ibMoney2 = 0.0d;
 
+    /**
+     * 激励2金额
+     */
+    private double motivationMoney2 = 0.0d;
 
     /**
      * default constructor
@@ -93,24 +96,6 @@ public class TcpIbReportItemBean implements Serializable
         this.id = id;
     }
 
-
-
-    /**
-     * @return the type
-     */
-    public int getType()
-    {
-        return type;
-    }
-
-    /**
-     * @param type
-     *            the type to set
-     */
-    public void setType(int type)
-    {
-        this.type = type;
-    }
 
     public String getCustomerName() {
         return customerName;
@@ -184,12 +169,27 @@ public class TcpIbReportItemBean implements Serializable
         this.productId = productId;
     }
 
+    public double getIbMoney2() {
+        return ibMoney2;
+    }
+
+    public void setIbMoney2(double ibMoney2) {
+        this.ibMoney2 = ibMoney2;
+    }
+
+    public double getMotivationMoney2() {
+        return motivationMoney2;
+    }
+
+    public void setMotivationMoney2(double motivationMoney2) {
+        this.motivationMoney2 = motivationMoney2;
+    }
+
     @Override
     public String toString() {
         return "TcpIbReportItemBean{" +
                 "id='" + id + '\'' +
                 ", refId='" + refId + '\'' +
-                ", type=" + type +
                 ", customerName='" + customerName + '\'' +
                 ", fullId='" + fullId + '\'' +
                 ", productName='" + productName + '\'' +
@@ -198,6 +198,8 @@ public class TcpIbReportItemBean implements Serializable
                 ", amount=" + amount +
                 ", ibMoney=" + ibMoney +
                 ", motivationMoney=" + motivationMoney +
+                ", ibMoney2=" + ibMoney2 +
+                ", motivationMoney2=" + motivationMoney2 +
                 '}';
     }
 
@@ -208,29 +210,36 @@ public class TcpIbReportItemBean implements Serializable
 
         TcpIbReportItemBean that = (TcpIbReportItemBean) o;
 
+        if (Double.compare(that.price, price) != 0) return false;
         if (amount != that.amount) return false;
         if (Double.compare(that.ibMoney, ibMoney) != 0) return false;
         if (Double.compare(that.motivationMoney, motivationMoney) != 0) return false;
-        if (type != that.type) return false;
-        if (!customerName.equals(that.customerName)) return false;
-        if (!fullId.equals(that.fullId)) return false;
-        if (!productName.equals(that.productName)) return false;
-
-        return true;
+        if (Double.compare(that.ibMoney2, ibMoney2) != 0) return false;
+        if (Double.compare(that.motivationMoney2, motivationMoney2) != 0) return false;
+        if (customerName != null ? !customerName.equals(that.customerName) : that.customerName != null) return false;
+        if (fullId != null ? !fullId.equals(that.fullId) : that.fullId != null) return false;
+        if (productName != null ? !productName.equals(that.productName) : that.productName != null) return false;
+        return productId != null ? productId.equals(that.productId) : that.productId == null;
     }
 
     @Override
     public int hashCode() {
         int result;
         long temp;
-        result = type;
-        result = 31 * result + customerName.hashCode();
-        result = 31 * result + fullId.hashCode();
-        result = 31 * result + productName.hashCode();
+        result = customerName != null ? customerName.hashCode() : 0;
+        result = 31 * result + (fullId != null ? fullId.hashCode() : 0);
+        result = 31 * result + (productName != null ? productName.hashCode() : 0);
+        result = 31 * result + (productId != null ? productId.hashCode() : 0);
+        temp = Double.doubleToLongBits(price);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + amount;
         temp = Double.doubleToLongBits(ibMoney);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(motivationMoney);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(ibMoney2);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(motivationMoney2);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }

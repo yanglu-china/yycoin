@@ -73,7 +73,7 @@ public class TravelApplyBean extends AbstractTcpBean implements Serializable
      */
     private boolean importFlag = false;
     /**
-     * 中收申请类型：中收: 0 激励：1
+     * 中收申请类型：中收: 0 激励：1 中收2: 2 其他费用：3
      */
     private int ibType = -1;
 

@@ -3186,6 +3186,11 @@ public class TravelApplyAction extends DispatchAction
         //<customerName,motivationMoneyTotal>
         Map<String, Double>  customerToMotivationMap = new HashMap<String,Double>();
 
+        //<customerName,ibMoneyTotal2>
+        Map<String, Double>  customerToIbMap2 = new HashMap<String,Double>();
+        //<customerName,motivationMoneyTotal2>
+        Map<String, Double>  customerToMotivationMap2 = new HashMap<String,Double>();
+
         //<customerName,List<outId>>
         Map<String, List<String>>  customerToOutMap = new HashMap<String,List<String>>();
 
@@ -3261,7 +3266,7 @@ public class TravelApplyAction extends DispatchAction
                             type = TcpConstanst.MOTIVATION_TYPE;
                         } else if (TcpConstanst.IB_TYPE_STR2.equals(name)){
                             item.setType(TcpConstanst.IB_TYPE2);
-                            type = TcpConstanst.IB_TYPE;
+                            type = TcpConstanst.IB_TYPE2;
                         } else if (TcpConstanst.MOTIVATION_TYPE_STR2.equals(name)){
                             item.setType(TcpConstanst.MOTIVATION_TYPE2);
                             type = TcpConstanst.MOTIVATION_TYPE2;
@@ -3335,6 +3340,30 @@ public class TravelApplyAction extends DispatchAction
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
                                             .append("订单号不能重复提交激励报销申请:"+outId)
+                                            .append("</font><br>");
+
+                                    importError = true;
+                                }
+                            }
+
+                            //同一个订单不能重复提交中收2报销申请
+                            if (out.getIbFlag2() == 1){
+                                if (type == TcpConstanst.IB_TYPE2){
+                                    builder
+                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                            .append("订单号不能重复提交中收2报销申请:"+outId)
+                                            .append("</font><br>");
+
+                                    importError = true;
+                                }
+                            }
+
+                            //同一个订单不能重复提交激励2报销申请
+                            if (out.getMotivationFlag2() == 1){
+                                if(type == TcpConstanst.MOTIVATION_TYPE2){
+                                    builder
+                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                            .append("订单号不能重复提交激励2报销申请:"+outId)
                                             .append("</font><br>");
 
                                     importError = true;
@@ -3474,21 +3503,6 @@ public class TravelApplyAction extends DispatchAction
                             } else{
                                 customerToIbMap.put(item.getCustomerName(), item.getIbMoney()*item.getAmount());
                             }
-
-//                            if (!ListTools.isEmptyOrNull(baseBeans)){
-//                               com.china.center.oa.sail.bean.BaseBean baseBean = baseBeans.get(0);
-//                                _logger.info("baseBean.getIbMoney():"+baseBean.getIbMoney()+"***item.getIbMoney()***"+item.getIbMoney());
-//                                if (Math.abs(baseBean.getIbMoney()*baseBean.getAmount()-item.getAmount()*item.getIbMoney()) > 0.00001){
-//                                    builder
-//                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
-//                                            .append("中收金额与系统记录的金额不等")
-//                                            .append("</font><br>");
-//
-//                                    importError = true;
-//                                }
-//                            }else{
-//                                _logger.warn("No BaseBeans found:"+con1.toString());
-//                            }
                         } else if (type == TcpConstanst.MOTIVATION_TYPE){
                             item.setMotivationMoney(MathTools.parseDouble(money));
                             if(customerToMotivationMap.containsKey(item.getCustomerName())){
@@ -3497,19 +3511,21 @@ public class TravelApplyAction extends DispatchAction
                             }else{
                                 customerToMotivationMap.put(item.getCustomerName(),item.getMotivationMoney()*item.getAmount());
                             }
-
-//                            if (!ListTools.isEmptyOrNull(baseBeans)){
-//                                com.china.center.oa.sail.bean.BaseBean baseBean = baseBeans.get(0);
-//                                _logger.info("baseBean.getMotivationMoney():"+baseBean.getMotivationMoney()+"***item.getMotivationMoney()***"+item.getMotivationMoney());
-//                                if (Math.abs(baseBean.getMotivationMoney()*baseBean.getAmount()-item.getMotivationMoney()*item.getAmount()) > 0.00001){
-//                                    builder
-//                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
-//                                            .append("激励金额与系统记录的金额不等")
-//                                            .append("</font><br>");
-//
-//                                    importError = true;
-//                                }
-//                            }
+                        } else if (type == TcpConstanst.IB_TYPE2){
+                            item.setIbMoney2(MathTools.parseDouble(money));
+                            if (customerToIbMap2.containsKey(item.getCustomerName())){
+                                customerToIbMap2.put(item.getCustomerName(),customerToIbMap2.get(item.getCustomerName())+item.getIbMoney2()*item.getAmount());
+                            } else{
+                                customerToIbMap2.put(item.getCustomerName(), item.getIbMoney2()*item.getAmount());
+                            }
+                        }else if (type == TcpConstanst.MOTIVATION_TYPE2){
+                            item.setMotivationMoney2(MathTools.parseDouble(money));
+                            if(customerToMotivationMap2.containsKey(item.getCustomerName())){
+                                customerToMotivationMap2.put(item.getCustomerName(),
+                                        customerToMotivationMap2.get(item.getCustomerName())+item.getMotivationMoney2()*item.getAmount());
+                            }else{
+                                customerToMotivationMap2.put(item.getCustomerName(),item.getMotivationMoney2()*item.getAmount());
+                            }
                         }
                     } else{
                         builder
@@ -3583,6 +3599,52 @@ public class TravelApplyAction extends DispatchAction
                         }
                     }
                 }
+            } else if (type == TcpConstanst.IB_TYPE2){
+                for(String customerName : customerToIbMap.keySet()){
+                    ConditionParse con = new ConditionParse();
+                    con.addWhereStr();
+                    con.addCondition("customerName","=",customerName);
+                    List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
+                    if (ListTools.isEmptyOrNull(ibReportList)){
+                        builder.append("客户[").append(customerName)
+                                .append("]").append("可申请中收2金额不足："+0)
+                                .append("<br>");
+                        importError = true;
+                    } else {
+                        TcpIbReportBean ib = ibReportList.get(0);
+                        double currentIb = customerToIbMap.get(customerName);
+                        double currentIb2 = this.roundDouble(currentIb);
+                        if (currentIb2>ib.getIbMoneyTotal2()){
+                            builder.append("客户[").append(customerName)
+                                    .append("]").append("当前申请金额：" + currentIb2 + "大于可申请中收金额：" + ib.getIbMoneyTotal2())
+                                    .append("<br>");
+                            importError = true;
+                        }
+                    }
+                }
+            } else if (type == TcpConstanst.MOTIVATION_TYPE2){
+                for(String customerName : customerToMotivationMap2.keySet()){
+                    ConditionParse con = new ConditionParse();
+                    con.addWhereStr();
+                    con.addCondition("customerName","=",customerName);
+                    List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
+                    if (ListTools.isEmptyOrNull(ibReportList)){
+                        builder.append("客户[").append(customerName)
+                                .append("]").append("可申请激励2金额不足："+0)
+                                .append("<br>");
+                        importError = true;
+                    } else {
+                        TcpIbReportBean ib = ibReportList.get(0);
+                        double currentMot = customerToMotivationMap2.get(customerName);
+                        double currentMot2 = this.roundDouble(currentMot);
+                        if (currentMot2> ib.getMotivationMoneyTotal2()){
+                            builder.append("客户[").append(customerName)
+                                    .append("]").append("当前申请金额："+currentMot2+"大于可申请激励2金额："+ib.getMotivationMoneyTotal2())
+                                    .append("<br>");
+                            importError = true;
+                        }
+                    }
+                }
             }
 
             if (importError){
@@ -3613,11 +3675,29 @@ public class TravelApplyAction extends DispatchAction
                     bean.setFullId(this.listToString(customerToOutMap.get(name)));
                     importItemList.add(bean);
                 }
-            }else if (type == TcpConstanst.MOTIVATION_TYPE){
+            } else if (type == TcpConstanst.MOTIVATION_TYPE){
                 for (String name : customerToMotivationMap.keySet()){
                     TcpIbBean bean = new TcpIbBean();
                     bean.setCustomerName(name);
                     bean.setMotivationMoney(this.roundDouble(customerToMotivationMap.get(name)));
+                    bean.setType(type);
+                    bean.setFullId(this.listToString(customerToOutMap.get(name)));
+                    importItemList.add(bean);
+                }
+            } else if (type == TcpConstanst.IB_TYPE2){
+                for (String name : customerToIbMap2.keySet()){
+                    TcpIbBean bean = new TcpIbBean();
+                    bean.setCustomerName(name);
+                    bean.setIbMoney2(this.roundDouble(customerToIbMap2.get(name)));
+                    bean.setType(type);
+                    bean.setFullId(this.listToString(customerToOutMap.get(name)));
+                    importItemList.add(bean);
+                }
+            } else if (type == TcpConstanst.MOTIVATION_TYPE2){
+                for (String name : customerToMotivationMap2.keySet()){
+                    TcpIbBean bean = new TcpIbBean();
+                    bean.setCustomerName(name);
+                    bean.setMotivationMoney2(this.roundDouble(customerToMotivationMap2.get(name)));
                     bean.setType(type);
                     bean.setFullId(this.listToString(customerToOutMap.get(name)));
                     importItemList.add(bean);
@@ -3910,6 +3990,18 @@ public class TravelApplyAction extends DispatchAction
                                         .append(outId + "激励申请标识为1的，不允许再更改对应金额")
                                         .append("<br>");
                                 importError = true;
+                            } else if (out.getIbFlag2() == 1 && bean.getType() == TcpConstanst.IB_TYPE2){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append(outId + "中收2申请标识为1的，不允许再更改对应金额")
+                                        .append("<br>");
+                                importError = true;
+                            } else if (out.getMotivationFlag2() == 1 && bean.getType() == TcpConstanst.MOTIVATION_TYPE2){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append(outId + "激励2申请标识为1的，不允许再更改对应金额")
+                                        .append("<br>");
+                                importError = true;
                             }
                         }
                     }
@@ -3958,6 +4050,10 @@ public class TravelApplyAction extends DispatchAction
                             bean.setIbMoney(Double.valueOf(price));
                         } else if (TcpConstanst.MOTIVATION_TYPE == bean.getType()){
                             bean.setMotivationMoney(Double.valueOf(price));
+                        } else if (TcpConstanst.IB_TYPE2 == bean.getType()){
+                            bean.setIbMoney2(Double.valueOf(price));
+                        } else if (TcpConstanst.MOTIVATION_TYPE2 == bean.getType()){
+                            bean.setMotivationMoney2(Double.valueOf(price));
                         }
                     } else
                     {

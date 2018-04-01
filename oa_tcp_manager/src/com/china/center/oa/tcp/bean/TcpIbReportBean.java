@@ -46,6 +46,16 @@ public class TcpIbReportBean implements Serializable
      */
     private double motivationMoneyTotal = 0.0d;
 
+    /**
+     * 该客户的中收2金额总数
+     */
+    private double ibMoneyTotal2 = 0.0d;
+
+    /**
+     * 该客户的激励2金额总数
+     */
+    private double motivationMoneyTotal2 = 0.0d;
+
     private String logTime = TimeTools.now();
 
 
@@ -97,6 +107,22 @@ public class TcpIbReportBean implements Serializable
         this.motivationMoneyTotal = motivationMoneyTotal;
     }
 
+    public double getIbMoneyTotal2() {
+        return ibMoneyTotal2;
+    }
+
+    public void setIbMoneyTotal2(double ibMoneyTotal2) {
+        this.ibMoneyTotal2 = ibMoneyTotal2;
+    }
+
+    public double getMotivationMoneyTotal2() {
+        return motivationMoneyTotal2;
+    }
+
+    public void setMotivationMoneyTotal2(double motivationMoneyTotal2) {
+        this.motivationMoneyTotal2 = motivationMoneyTotal2;
+    }
+
     public String getCustomerName() {
         return customerName;
     }
@@ -121,6 +147,9 @@ public class TcpIbReportBean implements Serializable
                 ", customerName='" + customerName + '\'' +
                 ", ibMoneyTotal=" + ibMoneyTotal +
                 ", motivationMoneyTotal=" + motivationMoneyTotal +
+                ", ibMoneyTotal2=" + ibMoneyTotal2 +
+                ", motivationMoneyTotal2=" + motivationMoneyTotal2 +
+                ", logTime='" + logTime + '\'' +
                 '}';
     }
 }
