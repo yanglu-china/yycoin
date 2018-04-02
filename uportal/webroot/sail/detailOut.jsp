@@ -440,6 +440,24 @@ function checkBean()
 							<a href="../tcp/apply.do?method=findTravelApply&id=${bean.motivationApplyId}">${bean.motivationApplyId}</a>
 						</td>
 					</tr>
+
+					<tr class="content1">
+						<td align="right">中收2标志：</td>
+						<td colspan="1">${my:get('ibMotivationFlag', bean.ibFlag2)}</td>
+						<td align="right">中收2申请：</td>
+						<td colspan="1">
+							<a href="../tcp/apply.do?method=findTravelApply&id=${bean.ibApplyId2}">${bean.ibApplyId2}</a>
+						</td>
+					</tr>
+
+					<tr class="content2">
+						<td align="right">其他费用标志：</td>
+						<td colspan="1">${my:get('ibMotivationFlag', bean.motivationFlag2)}</td>
+						<td align="right">其他费用：</td>
+						<td colspan="1">
+							<a href="../tcp/apply.do?method=findTravelApply&id=${bean.motivationApplyId2}">${bean.motivationApplyId2}</a>
+						</td>
+					</tr>
                         
                     <tr class="content1">
                         <td align="right">信用描述：</td>

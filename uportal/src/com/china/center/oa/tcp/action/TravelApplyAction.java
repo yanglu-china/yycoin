@@ -3738,9 +3738,13 @@ public class TravelApplyAction extends DispatchAction
 
         if (type  == TcpConstanst.IB_TYPE) {
             return mapping.findForward("addTravelApply7import");
+        } if (type  == TcpConstanst.IB_TYPE2) {
+            return mapping.findForward("addTravelApply9import");
         } else if (type == TcpConstanst.MOTIVATION_TYPE) {
             return mapping.findForward("addTravelApply8import");
-        } else{
+        } else if (type == TcpConstanst.MOTIVATION_TYPE2) {
+        return mapping.findForward("addTravelApply10import");
+         } else{
             return mapping.findForward("addTravelApply7import");
         }
     }

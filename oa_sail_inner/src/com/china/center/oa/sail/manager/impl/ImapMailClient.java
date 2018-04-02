@@ -1031,6 +1031,9 @@ public class ImapMailClient {
                 //TODO 中收金额
                 bean.setIbMoney(productImportBean.getIbMoney());
 
+                bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
+                bean.setIbMoney2(productImportBean.getIbMoney2());
+
                 //购买日期必须满足(上线时间，下线时间)
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 Date citicOrderDate = null;

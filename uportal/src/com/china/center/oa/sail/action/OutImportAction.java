@@ -1311,6 +1311,8 @@
                 } else{
                     bean.setIbMoney(productImportBean.getIbMoney());
                     bean.setMotivationMoney(productImportBean.getMotivationMoney());
+                    bean.setIbMoney2(productImportBean.getIbMoney2());
+                    bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
                     bean.setCash(productImportBean.getCash());
                     bean.setGrossProfit(productImportBean.getGrossProfit());
                 }
