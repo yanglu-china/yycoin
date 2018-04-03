@@ -91,7 +91,7 @@ public class OrgManagerImpl extends AbstractListenerManager<OrgListener> impleme
 
         if (bean == null)
         {
-            throw new MYException("岗位不存在");
+            throw new MYException("岗位不存在:"+id);
         }
 
         List<PrincipalshipBean> result = new ArrayList<PrincipalshipBean>();
