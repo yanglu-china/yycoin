@@ -201,7 +201,27 @@ function sumIb()
         }
     );
 
+    $("input[name='ibMoney2']").each(
+        function()
+        {
+            if (this.value != '')
+            {
+                total += parseFloat(this.value);
+            }
+        }
+    );
+
     $("input[name='motivationMoney']").each(
+        function()
+        {
+            if (this.value != '')
+            {
+                total += parseFloat(this.value);
+            }
+        }
+    );
+
+    $("input[name='motivationMoney2']").each(
         function()
         {
             if (this.value != '')

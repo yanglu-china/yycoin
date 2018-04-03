@@ -2336,6 +2336,9 @@ public class TravelApplyAction extends DispatchAction
         List<String> ibMoneyList = rds.getParameters("ibMoney");
         List<String> motivationMoneyList = rds.getParameters("motivationMoney");
 
+        List<String> ibMoneyList2 = rds.getParameters("ibMoney2");
+        List<String> motivationMoneyList2 = rds.getParameters("motivationMoney2");
+
         if(!ListTools.isEmptyOrNull(typeList))
         {
             for (int i = 0; i < typeList.size(); i++ )
@@ -2354,8 +2357,19 @@ public class TravelApplyAction extends DispatchAction
                 ib.setFullId(fullIdList.get(i));
 //                ib.setProductName(productNameList2.get(i));
 //                ib.setAmount(Integer.valueOf(amountList2.get(i)));
-                ib.setIbMoney(MathTools.parseDouble(ibMoneyList.get(i)));
-                ib.setMotivationMoney(MathTools.parseDouble(motivationMoneyList.get(i)));
+                if (ibMoneyList!= null) {
+                    ib.setIbMoney(MathTools.parseDouble(ibMoneyList.get(i)));
+                }
+                if (motivationMoneyList!= null) {
+                    ib.setMotivationMoney(MathTools.parseDouble(motivationMoneyList.get(i)));
+                }
+
+                if (ibMoneyList2!= null) {
+                    ib.setIbMoney2(MathTools.parseDouble(ibMoneyList2.get(i)));
+                }
+                if (motivationMoneyList2!= null) {
+                    ib.setMotivationMoney2(MathTools.parseDouble(motivationMoneyList2.get(i)));
+                }
 
                 ibList.add(ib);
             }
