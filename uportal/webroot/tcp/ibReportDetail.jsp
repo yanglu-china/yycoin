@@ -55,6 +55,8 @@
                                     <td align="center" onclick="tableSort(this)" class="td_class">商品数量</td>
                                     <td align="center" onclick="tableSort(this)" class="td_class">中收金额</td>
                                     <td align="center" onclick="tableSort(this)" class="td_class">激励金额</td>
+                                    <td align="center" onclick="tableSort(this)" class="td_class">中收2金额</td>
+                                    <td align="center" onclick="tableSort(this)" class="td_class">其他费用金额</td>
                                 </tr>
 
                                 <c:forEach items="${ibReportItems}" var="item" varStatus="vs">
@@ -68,6 +70,8 @@
                                         <td align="center">${item.amount}</td>
                                         <td align="center">${item.ibMoney}</td>
                                         <td align="center">${item.motivationMoney}</td>
+                                        <td align="center">${item.ibMoney2}</td>
+                                        <td align="center">${item.motivationMoney2}</td>
                                     </tr>
                                 </c:forEach>
                             </table>

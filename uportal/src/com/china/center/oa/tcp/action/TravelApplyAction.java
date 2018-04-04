@@ -4256,6 +4256,8 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("客户名");
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
+            line.writeColumn("中收2金额");
+            line.writeColumn("其他费用金额");
 
             line.writeLine();
 
@@ -4265,6 +4267,8 @@ public class TravelApplyAction extends DispatchAction
                 line.writeColumn(ib.getCustomerName());
                 line.writeColumn(ib.getIbMoneyTotal());
                 line.writeColumn(ib.getMotivationMoneyTotal());
+                line.writeColumn(ib.getIbMoneyTotal2());
+                line.writeColumn(ib.getMotivationMoneyTotal2());
 
                 line.writeLine();
 
@@ -4361,6 +4365,8 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
+            line.writeColumn("中收2金额");
+            line.writeColumn("其他费用金额");
             line.writeColumn("订单状态");
             line.writeColumn("申请人");
             line.writeColumn("银行销售日期");
@@ -4393,6 +4399,9 @@ public class TravelApplyAction extends DispatchAction
                     line.writeColumn(ib.getAmount());
                     line.writeColumn(ib.getIbMoney());
                     line.writeColumn(ib.getMotivationMoney());
+
+                    line.writeColumn(ib.getIbMoney2());
+                    line.writeColumn(ib.getMotivationMoney2());
 
                     //2015/7/11导出申请人和银行销售日期
                     OutBean outBean = this.outDAO.find(ib.getFullId());
@@ -4536,6 +4545,8 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("商品数量");
             line.writeColumn("中收金额");
             line.writeColumn("激励金额");
+            line.writeColumn("中收2金额");
+            line.writeColumn("其他费用金额");
             line.writeColumn("订单状态");
             line.writeColumn("申请人");
             line.writeColumn("银行销售日期");
@@ -4555,6 +4566,8 @@ public class TravelApplyAction extends DispatchAction
                 line.writeColumn(ib.getAmount());
                 line.writeColumn(ib.getIbMoney());
                 line.writeColumn(ib.getMotivationMoney());
+                line.writeColumn(ib.getIbMoney2());
+                line.writeColumn(ib.getMotivationMoney2());
 
                 //2015/7/11导出申请人和银行销售日期
                 OutBean outBean = this.outDAO.find(ib.getFullId());
