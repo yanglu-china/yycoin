@@ -691,8 +691,7 @@ public class TravelApplyAction extends DispatchAction
             return ActionTools.toError("数据异常,请重新操作", mapping, request);
         } else{
             //2015/4/12 中收激励导入功能
-            if ((bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                    || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION )
+            if ((bean.isMidOrMotivation())
                     && bean.isImportFlag()){
                 List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
                  _logger.info("************TcpIbBean list size:"+ibList.size());
@@ -984,8 +983,7 @@ public class TravelApplyAction extends DispatchAction
         bean.setStype(stafferBean.getOtype());
         
         // 中收赋上纳税实体
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                ||bean.getType() ==TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
+        if (bean.isMidOrMotivation()) {
         	bean.setDutyId(PublicConstant.DEFAULR_DUTY_ID);
         }
         
@@ -3565,7 +3563,7 @@ public class TravelApplyAction extends DispatchAction
             }
         }
 
-
+            _logger.info("***type**"+type+"***customerToIbMap2***"+customerToIbMap2);
             //每个客户的申请金额不得大于统计的可申请的中收或激励金额
             if (type == TcpConstanst.IB_TYPE){
                 for(String customerName : customerToIbMap.keySet()){
@@ -3614,7 +3612,7 @@ public class TravelApplyAction extends DispatchAction
                     }
                 }
             } else if (type == TcpConstanst.IB_TYPE2){
-                for(String customerName : customerToIbMap.keySet()){
+                for(String customerName : customerToIbMap2.keySet()){
                     ConditionParse con = new ConditionParse();
                     con.addWhereStr();
                     con.addCondition("customerName","=",customerName);
@@ -3626,11 +3624,11 @@ public class TravelApplyAction extends DispatchAction
                         importError = true;
                     } else {
                         TcpIbReportBean ib = ibReportList.get(0);
-                        double currentIb = customerToIbMap.get(customerName);
+                        double currentIb = customerToIbMap2.get(customerName);
                         double currentIb2 = this.roundDouble(currentIb);
                         if (currentIb2>ib.getIbMoneyTotal2()){
                             builder.append("客户[").append(customerName)
-                                    .append("]").append("当前申请金额：" + currentIb2 + "大于可申请中收金额：" + ib.getIbMoneyTotal2())
+                                    .append("]").append("当前申请金额：" + currentIb2 + "大于可申请中收2金额：" + ib.getIbMoneyTotal2())
                                     .append("<br>");
                             importError = true;
                         }
@@ -3644,7 +3642,7 @@ public class TravelApplyAction extends DispatchAction
                     List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
                     if (ListTools.isEmptyOrNull(ibReportList)){
                         builder.append("客户[").append(customerName)
-                                .append("]").append("可申请激励2金额不足："+0)
+                                .append("]").append("可申请其他费用金额不足："+0)
                                 .append("<br>");
                         importError = true;
                     } else {
@@ -3653,7 +3651,7 @@ public class TravelApplyAction extends DispatchAction
                         double currentMot2 = this.roundDouble(currentMot);
                         if (currentMot2> ib.getMotivationMoneyTotal2()){
                             builder.append("客户[").append(customerName)
-                                    .append("]").append("当前申请金额："+currentMot2+"大于可申请激励2金额："+ib.getMotivationMoneyTotal2())
+                                    .append("]").append("当前申请金额："+currentMot2+"大于可申请其他费用金额："+ib.getMotivationMoneyTotal2())
                                     .append("<br>");
                             importError = true;
                         }

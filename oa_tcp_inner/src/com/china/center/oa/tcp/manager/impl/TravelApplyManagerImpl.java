@@ -1692,8 +1692,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             for (TcpPayListener tcpPayListener : listenerMapValues)
             {
             	// 中收，在支付确认后，红冲提交时产生的凭证
-            	if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                        ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
+            	if (bean.isMidOrMotivation()) {
             		tcpPayListener.onSubmitMidTravelApply(user, bean, -1);
             	}
             	
@@ -1833,10 +1832,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         checkAuth(user, id);
         
         // 中收申请，同时删除凭证。如果此时凭证所在的月份已经月结，要求反月结才能继续驳回操作
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION
-                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION2) {
+        if (bean.isMidOrMotivation()) {
             this.resetIbMotivationFlag(bean);
 //            if (bean.isImportFlag()) {
 //                //2015/4/12 中收激励设置SO单标志位
@@ -1958,10 +1954,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
     private void setIbMotivationFlag(User user, TravelApplyBean bean)throws MYException{
         // 中收在此产生凭证借：营业费用-中收 (5504-47)贷：预提费用 (2191)
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID2
-                ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION
-                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION2) {
+        if (bean.isMidOrMotivation()) {
             if (bean.isImportFlag()){
                 //2015/4/12 中收激励设置对应SO标志位
                 List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
@@ -3131,9 +3124,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         //#148
         con.addCondition(" and OutBean.status !=2 ");
-
         con.addCondition("outTime", ">", beginDate);
-        con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0)");
+        con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0 or OutBean.ibFlag2 =0 or OutBean.motivationFlag2=0)");
         List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(con);
         if (!ListTools.isEmptyOrNull(outList)){
             _logger.info("ibReport outList1 size:"+outList.size());

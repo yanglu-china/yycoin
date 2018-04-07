@@ -150,8 +150,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
             List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
 
             // 中收
-            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID
-                    ||bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION) {
+            if (bean.isMidOrMotivation()) {
             	// 营业费用-中收/银行科目
             	createAddItem11(user, bean, bank, outBillBean, financeBean, itemList);
             } else {

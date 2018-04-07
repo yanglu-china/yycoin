@@ -273,12 +273,12 @@ function load()
                                     <td align="left">
                                         <select name="ib_type" class="select_class" style="width: 100%;" disabled="disabled">
                                             <c:if test="${itemEach.type ==2}">
-                                                <option value="0" selected>中收2</option>
-                                                <option value="1">其他费用</option>
+                                                <option value="2" selected>中收2</option>
+                                                <option value="3">其他费用</option>
                                             </c:if>
                                             <c:if test="${itemEach.type ==3}">
-                                                <option value="0">中收2</option>
-                                                <option value="1" selected>其他费用</option>
+                                                <option value="2">中收2</option>
+                                                <option value="3" selected>其他费用</option>
                                             </c:if>
                                         </select>
                                     </td>
@@ -437,8 +437,8 @@ function load()
     <tr class="content1" id="trCopy_ib" style="display: none;">
         <td align="left">
             <select name="ib_type" class="select_class" style="width: 100%;" oncheck="notNone">
-                <option value="0">中收2</option>
-                <option value="1">其他费用</option>
+                <option value="2">中收2</option>
+                <option value="3">其他费用</option>
             </select>
         </td>
 
