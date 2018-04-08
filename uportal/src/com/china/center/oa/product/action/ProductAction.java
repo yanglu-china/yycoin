@@ -814,9 +814,10 @@ public class ProductAction extends DispatchAction
         // 组装结果集
         for (ProductBOMVO each : list)
         {
-            if (!set.contains(each.getProductId()))
+            String productId = each.getProductId();
+            if (!set.contains(productId))
             {
-                List<ProductBOMVO> voList = productBOMDAO.queryEntityVOsByFK(each.getProductId());
+                List<ProductBOMVO> voList = productBOMDAO.queryEntityVOsByFK(productId);
 
                 //#139
                 List<ProductBOMVO> voListWithMultipleStorage = new ArrayList<ProductBOMVO>();
@@ -876,6 +877,9 @@ public class ProductAction extends DispatchAction
 
         }
 
+        //#283 根据拆分成品的最近一次合成记录，把对应配件的成本自动填充上去。
+        // 如果有不匹配的情况，就把总成本的差值自动计算到金额最大的配件上去
+        this.setBomPriceFromLastComposeItem(lastList);
         request.setAttribute("beanList", lastList);
         request.setAttribute("random", new Random().nextInt());
 
@@ -948,6 +952,32 @@ public class ProductAction extends DispatchAction
                 condtion.addCondition("ProductBean1.reserve4", "=", mtype);
             }
         }
+    }
+
+    private void setBomPriceFromLastComposeItem(List<ProductBOMVO> bomList){
+        if (bomList!= null && bomList.size()>=1){
+            ComposeProductBean composeProduct = composeProductDAO.queryLatestByProduct(bomList.get(0).getProductId());
+
+            if (null != composeProduct)
+            {
+                List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
+                for (ProductBOMVO bom: bomList){
+                    ComposeItemVO item = this.find(itemList, bom.getSubProductId());
+                    if(item!= null){
+                        bom.setLastPrice(item.getPrice());
+                    }
+                }
+            }
+        }
+    }
+
+    private ComposeItemVO find(List<ComposeItemVO> itemList, String productId){
+        for (ComposeItemVO item: itemList){
+            if (item.getProductId().equals(productId)){
+                return item;
+            }
+        }
+        return null;
     }
 
     /**

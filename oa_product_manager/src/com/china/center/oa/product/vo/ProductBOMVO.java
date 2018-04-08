@@ -39,6 +39,12 @@ public class ProductBOMVO extends ProductBOMBean
 	private double price = 0.0d;
 
 	@Ignore
+	/**
+	 * #283 最近一次产品合成的配件价格
+	 */
+	private double lastPrice = 0.0d;
+
+	@Ignore
 	private String srcRelation = "";
 	
 	@Ignore
@@ -180,16 +186,27 @@ public class ProductBOMVO extends ProductBOMBean
 		this.price = price;
 	}
 
+	public double getLastPrice() {
+		return lastPrice;
+	}
+
+	public void setLastPrice(double lastPrice) {
+		this.lastPrice = lastPrice;
+	}
+
 	@Override
 	public String toString() {
 		return "ProductBOMVO{" +
 				"productName='" + productName + '\'' +
+				", reserve4='" + reserve4 + '\'' +
+				", consumeInDay=" + consumeInDay +
 				", subProductName='" + subProductName + '\'' +
 				", code='" + code + '\'' +
+				", bomJson='" + bomJson + '\'' +
 				", pamount=" + pamount +
 				", price=" + price +
-				", productId=" + this.getProductId() +
-				", subProductId=" + this.getSubProductId() +
-				'}';
+				", lastPrice=" + lastPrice +
+				", srcRelation='" + srcRelation + '\'' +
+				"} " + super.toString();
 	}
 }

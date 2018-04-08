@@ -94,6 +94,7 @@ function selectProduct(obj)
 }
 
 var amountList = [];
+var srcPriceList = [];
 /**
  * callback when select from bom
  * @param oos
@@ -135,6 +136,7 @@ function getProductBom(oos)
 //        setInputValueInTr(trow, 'srcAmount', item.pamount);
 //        setInputValueInTr(trow, 'srcPrice', item.price);
         amountList.push(item.bomAmount);
+        srcPriceList.push(item.lastPrice);
         var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
         //add new option
         for (var k = 0; k < dList.length; k++)
@@ -304,6 +306,7 @@ function srcDepotChange(obj)
 
 function amountChange(){
     var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
+    var srcPrice = document.querySelectorAll('input[name="srcPrice"]');
 //    console.log(srcAmount);
     var amount = document.querySelector('input[name="amount"]');
 //    console.log(amount.value);
@@ -312,6 +315,9 @@ function amountChange(){
     {
         var oo = srcAmount[i];
         oo.value = parseInt(amount.value)*parseInt(amountList[i]);
+
+        var oo2 = srcPrice[i];
+        oo2.value = parseInt(amount.value)*parseFloat(srcPriceList[i]);
     }
 }
 
