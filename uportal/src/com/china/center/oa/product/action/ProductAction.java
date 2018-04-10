@@ -860,7 +860,10 @@ public class ProductAction extends DispatchAction
                         }
                     }
                 }
-                _logger.info("***voList***"+voList.size()+"***"+voListWithMultipleStorage.size());
+                _logger.info("***voList size***"+voList.size()+"***voListWithMultipleStorage size***"+voListWithMultipleStorage.size());
+                //#283 根据拆分成品的最近一次合成记录，把对应配件的成本自动填充上去。
+                // 如果有不匹配的情况，就把总成本的差值自动计算到金额最大的配件上去
+                this.setBomPriceFromLastComposeItem(voListWithMultipleStorage);
                 each.setVoList(voListWithMultipleStorage);
 //        		each.setVoList(voList);
 
@@ -874,12 +877,9 @@ public class ProductAction extends DispatchAction
 
                 set.add(each.getProductId());
             }
-
         }
 
-        //#283 根据拆分成品的最近一次合成记录，把对应配件的成本自动填充上去。
-        // 如果有不匹配的情况，就把总成本的差值自动计算到金额最大的配件上去
-        this.setBomPriceFromLastComposeItem(lastList);
+        _logger.info(lastList.size()+"***lastList is***"+lastList);
         request.setAttribute("beanList", lastList);
         request.setAttribute("random", new Random().nextInt());
 
@@ -956,13 +956,15 @@ public class ProductAction extends DispatchAction
 
     private void setBomPriceFromLastComposeItem(List<ProductBOMVO> bomList){
         if (bomList!= null && bomList.size()>=1){
-            ComposeProductBean composeProduct = composeProductDAO.queryLatestByProduct(bomList.get(0).getProductId());
-
+            String productId = bomList.get(0).getProductId();
+            ComposeProductBean composeProduct = composeProductDAO.queryLatestByProduct(productId);
+            _logger.info(productId+"***compose product***"+composeProduct);
             if (null != composeProduct)
             {
                 List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
                 for (ProductBOMVO bom: bomList){
                     ComposeItemVO item = this.find(itemList, bom.getSubProductId());
+                    _logger.info("***item found***"+item);
                     if(item!= null){
                         bom.setLastPrice(item.getPrice());
                     }

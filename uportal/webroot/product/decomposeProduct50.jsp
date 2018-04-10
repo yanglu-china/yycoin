@@ -121,10 +121,11 @@ function getProductBom(oos)
 //    $O("dirProductId").value = oo.value;
 
     var bomjson = JSON.parse(oo.pbomjson);
-//    console.log(bomjson);
+   // console.log(bomjson);
     for (var j = 0; j < bomjson.length; j++)
     {
         var item = bomjson[j];
+        // console.log(item);
         var trow = addTrInner();
 
         var stype = getEle(trow.getElementsByTagName('select'), "stype");
@@ -317,7 +318,7 @@ function amountChange(){
         oo.value = parseInt(amount.value)*parseInt(amountList[i]);
 
         var oo2 = srcPrice[i];
-        oo2.value = parseInt(amount.value)*parseFloat(srcPriceList[i]);
+        oo2.value = parseFloat(srcPriceList[i]);
     }
 }
 
