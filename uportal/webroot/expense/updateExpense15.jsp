@@ -347,7 +347,7 @@ function getTravelApply(oos)
 	                        <input type="text" name="processer" readonly="readonly" oncheck="notNone" head="下环处理人"/>&nbsp;
 	                        <font color=red>*</font>
 	                        <input type="button" value="&nbsp;...&nbsp;" name="qout" id="qout"
-	                            class="button_class" onclick="initSelectNext()">&nbsp;&nbsp;
+	                            class="button_class" onclick="initSelectNext15()">&nbsp;&nbsp;
 	                        </td>
 	                    </tr>
 	                </table>

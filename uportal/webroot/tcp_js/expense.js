@@ -475,6 +475,24 @@ function initSelectNext()
     }
 }
 
+function initSelectNext15()
+{
+    if ($$('stype') == '')
+    {
+        alert('请选择系列');
+        return false;
+    }
+
+    if ($$('stype') != '2')
+    {
+        selectNext('group', 'A220110406000200088')
+    }
+    else
+    {
+        selectNext('group', 'A220110406000200004')
+    }
+}
+
 function selectTravelApply()
 {
     if ($$('stype') == '')
