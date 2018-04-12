@@ -25,4 +25,5 @@ import com.china.center.oa.tcp.vo.TcpIbVO;
 public interface TcpIbDAO extends DAO<TcpIbBean, TcpIbVO>
 {
 
+    boolean deleteByApplyId(String applyId);
 }

@@ -39,6 +39,7 @@ import com.china.center.oa.product.vs.ProductCombinationBean;
 import com.china.center.oa.product.vs.ProductVSLocationBean;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.*;
@@ -966,7 +967,7 @@ public class ProductAction extends DispatchAction
                     ComposeItemVO item = this.find(itemList, bom.getSubProductId());
                     _logger.info("***item found***"+item);
                     if(item!= null){
-                        bom.setLastPrice(item.getPrice());
+                        bom.setLastPrice(NumberUtils.roundDouble(item.getPrice()));
                     }
                 }
             }

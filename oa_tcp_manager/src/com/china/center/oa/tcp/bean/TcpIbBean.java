@@ -70,6 +70,8 @@ public class TcpIbBean implements Serializable
      */
     private double motivationMoney2 = 0.0d;
 
+    private String logTime = "";
+
     /**
      * default constructor
      */
@@ -193,6 +195,14 @@ public class TcpIbBean implements Serializable
         this.motivationMoney2 = motivationMoney2;
     }
 
+    public String getLogTime() {
+        return logTime;
+    }
+
+    public void setLogTime(String logTime) {
+        this.logTime = logTime;
+    }
+
     @Override
     public String toString() {
         return "TcpIbBean{" +
@@ -208,6 +218,7 @@ public class TcpIbBean implements Serializable
                 ", motivationMoney=" + motivationMoney +
                 ", ibMoney2=" + ibMoney2 +
                 ", motivationMoney2=" + motivationMoney2 +
+                ", logTime='" + logTime + '\'' +
                 '}';
     }
 }

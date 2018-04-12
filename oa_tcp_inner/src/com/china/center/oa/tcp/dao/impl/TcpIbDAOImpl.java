@@ -25,4 +25,10 @@ import com.china.center.oa.tcp.vo.TcpIbVO;
  */
 public class TcpIbDAOImpl extends BaseDAO<TcpIbBean, TcpIbVO> implements TcpIbDAO
 {
+    @Override
+    public boolean deleteByApplyId(String applyId) {
+        this.jdbcOperation.delete("where refId = ?", TcpIbBean.class, applyId);
+
+        return true;
+    }
 }

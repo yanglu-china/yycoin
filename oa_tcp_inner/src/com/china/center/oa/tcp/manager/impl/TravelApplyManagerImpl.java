@@ -245,6 +245,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             {
                 ib.setId(commonDAO.getSquenceString20());
                 ib.setRefId(bean.getId());
+                ib.setLogTime(TimeTools.now());
             }
             this.tcpIbDAO.saveAllEntityBeans(ibList);
         }
@@ -1834,39 +1835,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         // 中收申请，同时删除凭证。如果此时凭证所在的月份已经月结，要求反月结才能继续驳回操作
         if (bean.isMidOrMotivation()) {
             this.resetIbMotivationFlag(bean);
-//            if (bean.isImportFlag()) {
-//                //2015/4/12 中收激励设置SO单标志位
-//                List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
-//                if (!ListTools.isEmptyOrNull(ibList)){
-//                    _logger.info("TcpIbBean list size:"+ibList.size());
-//                    for (TcpIbBean ib : ibList){
-//                        String outIds = ib.getFullId();
-//                        if (!StringTools.isNullOrNone(outIds)){
-//                            StringTokenizer  st = new  StringTokenizer(outIds,";");
-//                            while(st.hasMoreTokens()) {
-//                                String outId = st.nextToken();
-//                                OutBean out = this.outDAO.find(outId);
-//                                if (out!= null){
-//                                    if (bean.getIbType() == TcpConstanst.IB_TYPE){
-//                                        out.setIbFlag(0);
-//                                        out.setIbApplyId("");
-//                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
-//                                        out.setMotivationFlag(0);
-//                                        out.setMotivationApplyId("");
-//                                    }
-//
-//                                    _logger.info(out+" OutBean reset IB flag**********");
-//                                    this.outDAO.updateEntityBean(out);
-//                                }
-//                            }
-//                        } else{
-//                            _logger.info("no out for TcpIbBean:"+ib.getId());
-//                        }
-//                    }
-//
-//                }
-//
-//            }
 
         	Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
 
@@ -2044,9 +2012,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                         _logger.info("no out for TcpIbBean:"+ib.getId());
                     }
                 }
-
             }
 
+            this.tcpIbDAO.deleteByApplyId(bean.getId());
         }
     }
     

@@ -62,7 +62,7 @@ function checks()
 
     if (compareDouble(total, money) != 0)
     {
-    	alert('配件成本之和要与成品成本一致');
+    	alert('配件成本之和:'+total+'要与成品成本一致:'+money);
         return false;
     }
     
@@ -113,7 +113,7 @@ function getProductBom(oos)
 //    }
 //    table.deleteRow(2);
     var oo = oos[0];
-//	console.log(oo);
+	// console.log(oo);
     current.value = oo.pname;
 //
 //    $O("mtype").value = oo.pmtype;
@@ -312,6 +312,7 @@ function amountChange(){
     var amount = document.querySelector('input[name="amount"]');
 //    console.log(amount.value);
 //    console.log(amountList);
+    var total = 0;
     for (var i = 0 ; i < srcAmount.length; i++)
     {
         var oo = srcAmount[i];
@@ -319,7 +320,15 @@ function amountChange(){
 
         var oo2 = srcPrice[i];
         oo2.value = parseFloat(srcPriceList[i]);
+        var temp = parseInt(amount.value)*parseInt(amountList[i])*parseFloat(srcPriceList[i]);
+        if (!isNaN(temp)){
+            total += temp;
+            // console.log(total);
+        }
     }
+    // console.log("***");
+    // console.log(total);
+    document.getElementById("price").value = total;
 }
 
 function selectSrcProduct()
@@ -432,7 +441,7 @@ function addTr1()
          <input type="hidden" name="productId" value="">
          	数量：<input type="text" style="width: 5%" name="amount" value="" oncheck="notNone;isNumber;" onblur="amountChange();">
                     <input type="hidden" name="mayAmount" value=""/>
-			成本：<input type="text" style="width: 6%"  name="price" value="1" oncheck="notNone;isFloat">
+			成本：<input type="text" style="width: 6%"  name="price" id="price" value="1" oncheck="notNone;isFloat">
 			</p:tr>
 		</p:table>
 	</p:subBody>
