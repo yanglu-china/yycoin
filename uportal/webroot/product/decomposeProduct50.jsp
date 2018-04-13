@@ -328,7 +328,7 @@ function amountChange(){
     }
     // console.log("***");
     // console.log(total);
-    document.getElementById("price").value = total;
+    document.getElementById("price").value = total/amount.value;
 }
 
 function selectSrcProduct()
