@@ -25,6 +25,9 @@ httpPort = 8080
 stopPort = 9080
 stopKey = "stopKey"
 
+// specify war name
+war.archiveName war_context+".war"
+
 repositories {
     mavenCentral()
 }
@@ -68,15 +71,16 @@ task backup (type: Copy){
     System.out.println "backup war..."
     from tomcat_home+"\\webapps"
     into "E:\\backup"
-    include "uportal.war"
-    rename ('uportal.war', 'uportal'+System.currentTimeMillis()+'.war')
+    include war_context+".war"
+//    rename ('uportal.war', 'uportal'+System.currentTimeMillis()+'.war')
+    rename (war_context+".war", war_context+System.currentTimeMillis()+'.war')
 }
 
 task undeploy(type: Delete){
     System.out.println "un-deploy war..."
     System.out.println tomcat_home
-    delete tomcat_home+"\\webapps\\uportal"
-    delete tomcat_home+"\\webapps\\uportal.war"
+    delete tomcat_home+"\\webapps\\"+war_context
+    delete tomcat_home+"\\webapps\\"+war_context+".war"
 }
 
 task deploy (type: Copy){
