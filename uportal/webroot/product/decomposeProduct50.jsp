@@ -17,6 +17,42 @@ function addBean()
     submit('确定拆分产品?', null, checks);
 }
 
+function getPrices(){
+    var srs = document.getElementsByName('srcProductId');
+    var stypes = document.getElementsByName('stype');
+    var srcDepots = document.getElementsByName('srcDepot');
+    var srcDepotparts = document.getElementsByName('srcDepotpart');
+    var srcAmounts = document.getElementsByName('srcAmount');
+    var srcPrices = document.getElementsByName('srcPrice');
+
+    var total = 0;
+
+    for (var i = 0; i < srs.length - 1; i++)
+    {
+        // 库存类型
+        if (stypes[i].value == '0')
+        {
+            if (srcDepots[i].value == '' || srcDepotparts[i].value == '')
+            {
+                alert('库存类型时,请选择仓库及仓区');
+                return false;
+            }
+        }else{
+            srcDepots[i].value = '';
+            srcDepotparts[i].value = '';
+        }
+
+        total += parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value);
+    }
+
+    var money = 0;
+
+    money = parseFloat($$('amount')) * parseFloat($$('price'));
+
+    return [total, money]
+}
+
+
 function checks()
 {
 	var srs = document.getElementsByName('srcProductId');
@@ -30,35 +66,38 @@ function checks()
 		return !ret;
 	}
 	
-    var stypes = document.getElementsByName('stype');
-    var srcDepots = document.getElementsByName('srcDepot');
-    var srcDepotparts = document.getElementsByName('srcDepotpart');
-    var srcAmounts = document.getElementsByName('srcAmount');
-    var srcPrices = document.getElementsByName('srcPrice');
-
-	var total = 0;
-
-	for (var i = 0; i < srs.length - 1; i++)
-    {
-        // 库存类型
-        if (stypes[i].value == '0')
-        {
-            if (srcDepots[i].value == '' || srcDepotparts[i].value == '')
-            {
-            	alert('库存类型时,请选择仓库及仓区');
-                return false;
-            }
-        }else{
-        	srcDepots[i].value = '';
-        	srcDepotparts[i].value = '';
-        }
-        
-        total += parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value);
-    }
-
-    var money = 0;
-
-    money = parseFloat($$('amount')) * parseFloat($$('price'));
+    // var stypes = document.getElementsByName('stype');
+    // var srcDepots = document.getElementsByName('srcDepot');
+    // var srcDepotparts = document.getElementsByName('srcDepotpart');
+    // var srcAmounts = document.getElementsByName('srcAmount');
+    // var srcPrices = document.getElementsByName('srcPrice');
+    //
+    // var total = 0;
+    //
+    // for (var i = 0; i < srs.length - 1; i++)
+    // {
+    //     // 库存类型
+    //     if (stypes[i].value == '0')
+    //     {
+    //         if (srcDepots[i].value == '' || srcDepotparts[i].value == '')
+    //         {
+    //         	alert('库存类型时,请选择仓库及仓区');
+    //             return false;
+    //         }
+    //     }else{
+    //     	srcDepots[i].value = '';
+    //     	srcDepotparts[i].value = '';
+    //     }
+    //
+    //     total += parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value);
+    // }
+    //
+    // var money = 0;
+    //
+    // money = parseFloat($$('amount')) * parseFloat($$('price'));
+    var prices = getPrices();
+	var total = prices[0];
+	var money = prices[1];
 
     if (compareDouble(total, money) != 0)
     {
@@ -329,6 +368,20 @@ function amountChange(){
     // console.log("***");
     // console.log(total);
     document.getElementById("price").value = total/amount.value;
+}
+
+//TODO
+function priceChange(){
+    var prices = getPrices();
+    var total = prices[0];
+    var money = prices[1];
+    var diff = total - money;
+    console.log(diff);
+
+    var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
+    var srcPrice = document.querySelectorAll('input[name="srcPrice"]');
+    var price0 = srcPrice[0];
+    price0.value = parseFloat(price0.value)+diff/parseFloat(srcAmount[0].value);
 }
 
 function selectSrcProduct()

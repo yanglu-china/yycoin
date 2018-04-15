@@ -9,8 +9,11 @@
 package com.china.center.oa.stock.action;
 
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
+import com.china.center.actionhelper.common.JSONTools;
 import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.jsonimpl.JSONArray;
 import com.china.center.oa.product.bean.ProviderBean;
 import com.china.center.oa.product.bean.ProviderUserBean;
@@ -184,6 +187,19 @@ public class NetLoginAction extends DispatchAction
         String path = forward.getPath();
 
         return new ActionForward(path, true);
+    }
+
+    public ActionForward getAppName(ActionMapping mapping, ActionForm form,
+                                   HttpServletRequest request,
+                                   HttpServletResponse response)
+            throws ServletException
+    {
+        AjaxResult ajax = new AjaxResult();
+
+        String appName = ConfigLoader.getProperty("appName");
+        ajax.setMsg(appName);
+
+        return JSONTools.writeResponse(response, ajax);
     }
 
     /**

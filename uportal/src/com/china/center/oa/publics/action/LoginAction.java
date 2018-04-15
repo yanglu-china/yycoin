@@ -612,8 +612,9 @@ public class LoginAction extends DispatchAction
         request.getSession().setAttribute("g_modifyPassword", "../admin/modifyPassword.jsp");
 
         // OA系统/SKY软件【V2.14.20100509】
+        String appName = ConfigLoader.getProperty("appName");
         request.getSession().setAttribute("SN",
-            "OA系统【" + ConfigLoader.getProperty("version") + "】");
+                appName+"【" + ConfigLoader.getProperty("version") + "】");
 
         ActionForward forward = mapping.findForward("success");
 

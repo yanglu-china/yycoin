@@ -231,6 +231,16 @@
 
 		function load()
 		{
+		    var url = window.location.href;
+		    // console.log(url);
+		    if (url.indexOf("uportaltw") != -1 ){
+                $O('appName').innerHTML  = "永银文化ERP(体外业务)";
+			} else if (url.indexOf("zjgh") != -1 ){
+                $O('appName').innerHTML  = "永银文化ERP(中金国华)";
+            } else{
+                $O('appName').innerHTML  = "永银文化ERP";
+			}
+
 			loginform.userName.focus();
 
 			loginform.userName.select();
@@ -309,7 +319,9 @@
 					   border="0" cellpadding="3" cellspacing="0">
 					<tbody>
 					<tr>
-						<th colspan="2" height="35" align="left"><font size=4 color=black>SKY·OA系统</font></th>
+						<th colspan="2" height="35" align="left">
+							<font size=4 color=black><div id="appName"></div></font>
+						</th>
 					</tr>
 					</tbody>
 				</table>
