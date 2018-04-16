@@ -40,7 +40,7 @@ public class ComposeProductDAOImpl extends BaseDAO<ComposeProductBean, ComposePr
 
 	public ComposeProductBean queryLatestByProduct(String productId)
 	{
-		List<ComposeProductBean> list = this.queryEntityBeansByCondition("where productId=? and status = 3 order by logTime DESC", productId);
+		List<ComposeProductBean> list = this.queryEntityBeansByCondition("where productId=? and status in (2,3) order by logTime DESC", productId);
 		
 		if (ListTools.isEmptyOrNull(list))
 			return null;

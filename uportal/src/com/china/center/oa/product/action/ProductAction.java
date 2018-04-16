@@ -437,7 +437,8 @@ public class ProductAction extends DispatchAction
 
         condtion.addWhereStr();
 
-        condtion.addCondition(" and ComposeProductBean.parentId = ''");
+        //#283
+//        condtion.addCondition(" and ComposeProductBean.parentId = ''");
 
         if ("1".equals(foward))
         {
