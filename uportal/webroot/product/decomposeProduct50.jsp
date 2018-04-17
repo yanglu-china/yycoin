@@ -122,14 +122,16 @@ function selectProduct(obj)
         return;
     }
 
-    if ($O('cbom').checked == true) {
-
-        window.common.modal('../product/product.do?method=rptQueryProductBom&firstLoad=1&selectMode=1&stock=stock');
-    } else{
-        //查询拆分产品列表
-        window.common.modal('../depot/storage.do?method=rptQueryStorageRelationInDepot&load=1&selectMode=1&depotId='
-            + $$('depot') + '&depotpartId=' + $$('depotpart') + '&ctype=1' + '&init=1');
-    }
+//    if ($O('cbom').checked == true) {
+//
+//        window.common.modal('../product/product.do?method=rptQueryProductBom&firstLoad=1&selectMode=1&stock=stock');
+//    } else{
+//        //查询拆分产品列表
+//        window.common.modal('../depot/storage.do?method=rptQueryStorageRelationInDepot&load=1&selectMode=1&depotId='
+//            + $$('depot') + '&depotpartId=' + $$('depotpart') + '&ctype=1' + '&init=1');
+//    }
+   //查询拆分产品列表
+    window.common.modal('../product/product.do?method=rptQueryLatestComposeProduct&load=1&selectMode=0');
 }
 
 var amountList = [];
@@ -496,6 +498,10 @@ function addTr1()
                     <input type="hidden" name="mayAmount" value=""/>
 			成本：<input type="text" style="width: 6%"  name="price" id="price" value="1" oncheck="notNone;isFloat">
 			</p:tr>
+            <p:tr align="right">
+                <input type="button" class="button_class" id="ref_b"
+                       value="&nbsp;配件产品查询&nbsp;" onclick="selectSrcProduct()">
+            </p:tr>
 		</p:table>
 	</p:subBody>
 	

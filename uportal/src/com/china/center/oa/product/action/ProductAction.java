@@ -1355,6 +1355,40 @@ public class ProductAction extends DispatchAction
     }
 
     /**
+     * #283
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward rptQueryLatestComposeProduct(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        CommonTools.saveParamers(request);
+
+        String name = request.getParameter("name");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("ProductBean.name","like",name);
+        List<ProductBean> productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(productBeans)){
+            for (ProductBean productBean: productBeans){
+                String productId = productBean.getId();
+                ComposeProductBean composeProduct = composeProductDAO.queryLatestByProduct(productId);
+                if (null != composeProduct) {
+                    List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
+                }
+            }
+        }
+
+        request.setAttribute("beanList", productBeans);
+
+        return mapping.findForward("rptQueryLatestComposeProduct");
+    }
+
+    /**
      * 管理员增加产品(非虚拟产品)
      *
      * @param mapping
