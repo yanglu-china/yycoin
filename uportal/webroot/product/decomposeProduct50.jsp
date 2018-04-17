@@ -131,15 +131,13 @@ function selectProduct(obj)
 //            + $$('depot') + '&depotpartId=' + $$('depotpart') + '&ctype=1' + '&init=1');
 //    }
    //查询拆分产品列表
-    window.common.modal('../product/product.do?method=rptQueryLatestComposeProduct&load=1&selectMode=0');
+    window.common.modal('../product/product.do?method=rptQueryLatestComposeProduct&load=1&selectMode=1');
 }
 
 var amountList = [];
 var srcPriceList = [];
-/**
- * callback when select from bom
- * @param oos
- */
+
+
 function getProductBom(oos)
 {
 //    console.log(oos);
@@ -153,16 +151,19 @@ function getProductBom(oos)
 //        table.deleteRow(0);
 //    }
 //    table.deleteRow(2);
+
+    // console.log(oos);
     var oo = oos[0];
-	// console.log(oo);
-    current.value = oo.pname;
+    $O('productName').value = oo.pname;
+    $O('productId').value = oo.value;
+    // console.log(bomjson);
 //
 //    $O("mtype").value = oo.pmtype;
 //    $O("oldproduct").value = oo.poldproduct;
 //    $O("dirProductId").value = oo.value;
 
     var bomjson = JSON.parse(oo.pbomjson);
-   // console.log(bomjson);
+    // console.log(bomjson);
     for (var j = 0; j < bomjson.length; j++)
     {
         var item = bomjson[j];
@@ -173,12 +174,12 @@ function getProductBom(oos)
         setSelect(stype, "0");
         var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
         setSelect(srcDe1, "A1201606211663545335");
-        setInputValueInTr(trow, 'srcProductName', item.subProductName);
-        setInputValueInTr(trow, 'srcProductId', item.subProductId);
+        setInputValueInTr(trow, 'srcProductName', item.productName);
+        setInputValueInTr(trow, 'srcProductId', item.productId);
 //        setInputValueInTr(trow, 'srcAmount', item.pamount);
 //        setInputValueInTr(trow, 'srcPrice', item.price);
-        amountList.push(item.bomAmount);
-        srcPriceList.push(item.lastPrice);
+        amountList.push(item.amount);
+        srcPriceList.push(item.price);
         var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
         //add new option
         for (var k = 0; k < dList.length; k++)
@@ -191,6 +192,62 @@ function getProductBom(oos)
         setSelect(srcDepotpart, "A1201606211663545389");
     }
 }
+
+/**
+ * callback when select from bom
+ * @param oos
+ */
+// function getProductBom(oos)
+// {
+// //    console.log(oos);
+//     //从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
+//     var table = $O("tables");
+//     //删除原有两行,没删除一行后index会变化
+//     table.deleteRow(1);
+//     table.deleteRow(1);
+// //    var table = document.getElementById("tables");
+// //    while(table.rows.length > 0) {
+// //        table.deleteRow(0);
+// //    }
+// //    table.deleteRow(2);
+//     var oo = oos[0];
+// 	console.log(oo);
+//     current.value = oo.pname;
+// //
+// //    $O("mtype").value = oo.pmtype;
+// //    $O("oldproduct").value = oo.poldproduct;
+// //    $O("dirProductId").value = oo.value;
+//
+//     var bomjson = JSON.parse(oo.pbomjson);
+//    // console.log(bomjson);
+//     for (var j = 0; j < bomjson.length; j++)
+//     {
+//         var item = bomjson[j];
+//         // console.log(item);
+//         var trow = addTrInner();
+//
+//         var stype = getEle(trow.getElementsByTagName('select'), "stype");
+//         setSelect(stype, "0");
+//         var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
+//         setSelect(srcDe1, "A1201606211663545335");
+//         setInputValueInTr(trow, 'srcProductName', item.subProductName);
+//         setInputValueInTr(trow, 'srcProductId', item.subProductId);
+// //        setInputValueInTr(trow, 'srcAmount', item.pamount);
+// //        setInputValueInTr(trow, 'srcPrice', item.price);
+//         amountList.push(item.bomAmount);
+//         srcPriceList.push(item.lastPrice);
+//         var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
+//         //add new option
+//         for (var k = 0; k < dList.length; k++)
+//         {
+//             if (dList[k].locationId == "A1201606211663545335")
+//             {
+//                 setOption(srcDepotpart, dList[k].id, dList[k].name);
+//             }
+//         }
+//         setSelect(srcDepotpart, "A1201606211663545389");
+//     }
+// }
 
 function getEle(eles, name)
 {
@@ -492,16 +549,16 @@ function addTr1()
 	         </select>
 			拆分产品：<input type="text" style="width: 20%;cursor: pointer;" readonly="readonly" value="" oncheck="notNone" name="productName"
 			onclick="selectProduct(this)">
-                <strong>从BOM中选择:</strong><input type="checkbox" name='cbom' id ='cbom' />
+                <%--<strong>从BOM中选择:</strong><input type="checkbox" name='cbom' id ='cbom' />--%>
          <input type="hidden" name="productId" value="">
          	数量：<input type="text" style="width: 5%" name="amount" value="" oncheck="notNone;isNumber;" onblur="amountChange();">
                     <input type="hidden" name="mayAmount" value=""/>
 			成本：<input type="text" style="width: 6%"  name="price" id="price" value="1" oncheck="notNone;isFloat">
 			</p:tr>
-            <p:tr align="right">
-                <input type="button" class="button_class" id="ref_b"
-                       value="&nbsp;配件产品查询&nbsp;" onclick="selectSrcProduct()">
-            </p:tr>
+            <%--<p:tr align="right">--%>
+                <%--<input type="button" class="button_class" id="ref_b"--%>
+                       <%--value="&nbsp;配件产品查询&nbsp;" onclick="selectSrcProduct()">--%>
+            <%--</p:tr>--%>
 		</p:table>
 	</p:subBody>
 	

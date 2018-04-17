@@ -122,20 +122,20 @@ function pop(obj)
 
 			<c:forEach items="${beanList}" var="item" varStatus="vs">
 				<tr class="${vs.index % 2 == 0 ? 'content1' : 'content2'}">
-					<td align="center"><input type='${selectMode == 1 ? "radio" : "checkbox"}' name="beans"
-					value="${item.id}" pname="${item.productName}" 
-					pmtype="${item.reserve4}" poldproduct="${item.consumeInDay}" pbomjson='${item.bomJson}' />
+					<td align="center">
+						<input type='${selectMode == 1 ? "radio" : "checkbox"}' name="beans"
+							   value="${item.productId}" pname="${item.productName}" pbomjson='${item.bomJson}'/>
 					</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.productName}</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()"></td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()"></td>
-					<c:forEach items="${item.voList}" var="item1">
-					<tr class="content">
-					<td align="center"></td>
-					<td align="center" onclick="hrefAndSelect(this)" ></td>
-					<td align="center" onclick="hrefAndSelect(this)" >${item1.subProductName}</td>
-					<td align="center" onclick="hrefAndSelect(this)" >${item1.code}</td>
-					</tr>
+					<c:forEach items="${item.itemVOList}" var="item1">
+						<tr class="content">
+						<td align="center"></td>
+						<td align="center" onclick="hrefAndSelect(this)" ></td>
+						<td align="center" onclick="hrefAndSelect(this)" >${item1.productName}</td>
+						<td align="center" onclick="hrefAndSelect(this)" >${item1.productCode}</td>
+						</tr>
 					</c:forEach>
 				</tr>
 			</c:forEach>

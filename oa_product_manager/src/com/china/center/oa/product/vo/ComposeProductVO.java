@@ -55,6 +55,9 @@ public class ComposeProductVO extends ComposeProductBean
     @Ignore
     private List<ComposeFeeVO> feeVOList = null;
 
+    @Ignore
+    private String bomJson = "";
+
     /**
      * default constructor
      */
@@ -213,6 +216,14 @@ public class ComposeProductVO extends ComposeProductBean
     public void setOtherId(String otherId)
     {
         this.otherId = otherId;
+    }
+
+    public String getBomJson() {
+        return bomJson;
+    }
+
+    public void setBomJson(String bomJson) {
+        this.bomJson = bomJson;
     }
 
     /**

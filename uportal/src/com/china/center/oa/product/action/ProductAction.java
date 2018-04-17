@@ -1368,22 +1368,38 @@ public class ProductAction extends DispatchAction
             throws ServletException
     {
         CommonTools.saveParamers(request);
+        List<ProductBean> productBeans = null;
 
         String name = request.getParameter("name");
-        ConditionParse conditionParse = new ConditionParse();
-        conditionParse.addCondition("ProductBean.name","like",name);
-        List<ProductBean> productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
+        if (!StringTools.isNullOrNone(name)){
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addCondition("ProductBean.name","like",name);
+            productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
+        }
+
+        List<ComposeProductVO> result = new ArrayList<ComposeProductVO>();
         if (!ListTools.isEmptyOrNull(productBeans)){
             for (ProductBean productBean: productBeans){
                 String productId = productBean.getId();
                 ComposeProductBean composeProduct = composeProductDAO.queryLatestByProduct(productId);
                 if (null != composeProduct) {
+                    ComposeProductVO vo = new ComposeProductVO();
+                    vo.setProductId(productId);
+                    vo.setProductName(productBean.getName());
                     List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
+                    vo.setItemVOList(itemList);
+
+                    JSONArray shows = new JSONArray(itemList, true);
+
+                    vo.setBomJson(shows.toString());
+                    _logger.info("***bom json***"+vo.getBomJson());
+                    result.add(vo);
                 }
             }
         }
 
-        request.setAttribute("beanList", productBeans);
+        _logger.info("***beanList is***"+result);
+        request.setAttribute("beanList", result);
 
         return mapping.findForward("rptQueryLatestComposeProduct");
     }
