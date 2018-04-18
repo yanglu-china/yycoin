@@ -1396,8 +1396,10 @@ public class ProductAction extends DispatchAction
                 ComposeProductBean composeProduct = composeProductDAO.queryLatestByProduct(productId);
                 if (null != composeProduct) {
                     ComposeProductVO vo = new ComposeProductVO();
+                    vo.setId(composeProduct.getId());
                     vo.setProductId(productId);
                     vo.setProductName(productBean.getName());
+                    vo.setAmount(composeProduct.getAmount());
                     List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
                     for (ComposeItemVO item: itemList){
                         item.setPrice(NumberUtils.roundDouble(item.getPrice()));

@@ -10,6 +10,7 @@
 <script language="JavaScript" src="../js/json.js"></script>
 <script language="JavaScript" src="../js/math.js"></script>
 <script language="JavaScript" src="../product_js/composeProduct.js"></script>
+<script language="JavaScript" src="../js/lodash.min.js"></script>
 <script language="javascript">
 
 function addBean()
@@ -154,19 +155,16 @@ function getProductBom(oos)
 
     // console.log(oos);
     var oo = oos[0];
+//    console.log(oo);
     $O('productName').value = oo.pname;
     $O('productId').value = oo.value;
     var url = "../product/product.do?method=findCompose&id="+oo.id;
 //    console.log(url);
-    var html = "最近合成:"+"<a href='"+url+"'>"+oo.id+"</a>";
+    var html = "<strong>最近合成:</strong>"+"<a href='"+url+"'>"+oo.id+"</a>";
 //    console.log(html);
     $O('composeId').innerHTML = html;
     // console.log(bomjson);
-//
-//    $O("mtype").value = oo.pmtype;
-//    $O("oldproduct").value = oo.poldproduct;
-//    $O("dirProductId").value = oo.value;
-
+    var amount = oo.pamount;
     var bomjson = JSON.parse(oo.pbomjson);
     // console.log(bomjson);
     for (var j = 0; j < bomjson.length; j++)
@@ -183,7 +181,8 @@ function getProductBom(oos)
         setInputValueInTr(trow, 'srcProductId', item.productId);
 //        setInputValueInTr(trow, 'srcAmount', item.pamount);
 //        setInputValueInTr(trow, 'srcPrice', item.price);
-        amountList.push(item.amount);
+        //配件使用率
+        amountList.push(item.amount/amount);
         srcPriceList.push(item.price);
         var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
         //add new option
@@ -408,6 +407,17 @@ function srcDepotChange(obj)
     }
 }
 
+//function round(number, precision) {
+//    var shift = function (number, precision, reverseShift) {
+//        if (reverseShift) {
+//            precision = -precision;
+//        }
+//        var numArray = ("" + number).split("e");
+//        return +(numArray[0] + "e" + (numArray[1] ? (+numArray[1] + precision) : precision));
+//    };
+//    return shift(Math.round(shift(number, precision, false)), precision, true);
+//}
+
 function amountChange(){
     var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
     var srcPrice = document.querySelectorAll('input[name="srcPrice"]');
@@ -431,7 +441,7 @@ function amountChange(){
     }
     // console.log("***");
     // console.log(total);
-    document.getElementById("price").value = total/amount.value;
+    document.getElementById("price").value = _.round(total/amount.value,2);
 }
 
 //TODO

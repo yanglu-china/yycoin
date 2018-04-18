@@ -1826,7 +1826,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     }
 
     private void setIbMotivationFlag(User user, TravelApplyBean bean, boolean submit)throws MYException{
-        // 中收在此产生凭证借：营业费用-中收 (5504-47)贷：预提费用 (2191)
         if (bean.isMidOrMotivation()) {
             if (bean.isImportFlag()){
                 //2015/4/12 中收激励设置对应SO标志位
@@ -1870,6 +1869,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
             //2015/7/19 只有中收申请才需要生成凭证
             //提交时才生成凭证
+            // 中收在此产生凭证借：营业费用-中收 (5504-47)贷：预提费用 (2191)
             if (submit){
                 if (bean.getIbType() == TcpConstanst.IB_TYPE
                         || bean.getIbType() == TcpConstanst.IB_TYPE2){
