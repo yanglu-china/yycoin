@@ -156,6 +156,11 @@ function getProductBom(oos)
     var oo = oos[0];
     $O('productName').value = oo.pname;
     $O('productId').value = oo.value;
+    var url = "../product/product.do?method=findCompose&id="+oo.id;
+//    console.log(url);
+    var html = "最近合成:"+"<a href='"+url+"'>"+oo.id+"</a>";
+//    console.log(html);
+    $O('composeId').innerHTML = html;
     // console.log(bomjson);
 //
 //    $O("mtype").value = oo.pmtype;
@@ -565,6 +570,9 @@ function addTr1()
 	<p:title>
         <td class="caption">
          <strong>配件产品</strong>
+        </td>
+        <td>
+            <div id="composeId"></div>
         </td>
     </p:title>
 	

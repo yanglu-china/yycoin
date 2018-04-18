@@ -1371,9 +1371,21 @@ public class ProductAction extends DispatchAction
         List<ProductBean> productBeans = null;
 
         String name = request.getParameter("name");
+        String code = request.getParameter("code");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
         if (!StringTools.isNullOrNone(name)){
-            ConditionParse conditionParse = new ConditionParse();
             conditionParse.addCondition("ProductBean.name","like",name);
+        }
+
+        if ( !StringTools.isNullOrNone(code))
+        {
+            conditionParse.addCondition("ProductBean.code", "=", code);
+        }
+
+        if (StringTools.isNullOrNone(name) && StringTools.isNullOrNone(code)){
+            productBeans = new ArrayList<ProductBean>();
+        } else{
             productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
         }
 
@@ -1387,6 +1399,9 @@ public class ProductAction extends DispatchAction
                     vo.setProductId(productId);
                     vo.setProductName(productBean.getName());
                     List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
+                    for (ComposeItemVO item: itemList){
+                        item.setPrice(NumberUtils.roundDouble(item.getPrice()));
+                    }
                     vo.setItemVOList(itemList);
 
                     JSONArray shows = new JSONArray(itemList, true);
