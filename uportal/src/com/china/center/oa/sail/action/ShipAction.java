@@ -1782,7 +1782,13 @@ public class ShipAction extends DispatchAction
             //其他所有银行
             request.setAttribute("packageId", vo.getId());
 
-            request.setAttribute("title", "永银文化——发货清单");
+            if (vo.getCustomerName().indexOf(ShipConstant.ZJGH) != -1){
+                request.setAttribute("title", ShipConstant.ZJGH+"——发货清单");
+                request.setAttribute("address", ShipConstant.SHIPPING_ADDRESS+ShipConstant.ZJGH);
+            } else{
+                request.setAttribute("title", ShipConstant.YYWH+"——发货清单");
+                request.setAttribute("address", ShipConstant.SHIPPING_ADDRESS+ShipConstant.YYWH);
+            }
 
             ConditionParse con2 = new ConditionParse();
             con2.addWhereStr();
@@ -2083,7 +2089,13 @@ public class ShipAction extends DispatchAction
         else{
             //其他所有银行
             request.setAttribute("packageId", vo.getId());
-            request.setAttribute("title", "永银文化——发货清单");
+            if (vo.getCustomerName().indexOf(ShipConstant.ZJGH) != -1){
+                request.setAttribute("title", ShipConstant.ZJGH+"——发货清单");
+                request.setAttribute("address", ShipConstant.SHIPPING_ADDRESS+ShipConstant.ZJGH);
+            } else{
+                request.setAttribute("title", ShipConstant.YYWH+"——发货清单");
+                request.setAttribute("address", ShipConstant.SHIPPING_ADDRESS+ShipConstant.YYWH);
+            }
 
             try {
                 String msg5 = "**********before prepareForUnified****";

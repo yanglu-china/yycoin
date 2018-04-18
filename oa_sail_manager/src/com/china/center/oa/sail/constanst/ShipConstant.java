@@ -133,4 +133,7 @@ public interface ShipConstant
 	String CHANNEL_XPJD = "小浦金店";
 	String CHANNEL_FHWD = "分行微店";
 	String CHANNEL_SHSC = "生活商城";
+	String ZJGH = "中金国华";
+	String YYWH = "永银文化";
+	String SHIPPING_ADDRESS = "地址：江苏省南京市江宁区将军大道558号";
 }

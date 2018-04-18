@@ -76,7 +76,6 @@ public abstract class TCPHelper
         if (bean instanceof TravelApplyBean){
             TravelApplyBean apply = (TravelApplyBean)bean;
             if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
-//                bean.setFlowKey(TcpFlowConstant.WORK_APPLY_MARKETING);
                 // #273 营销系使用同一个flowKey
                 bean.setFlowKey(TcpFlowConstant.WORK_PAY_MARKETING);
                 return ;
@@ -84,7 +83,7 @@ public abstract class TCPHelper
         }else if (bean instanceof ExpenseApplyBean){
             ExpenseApplyBean apply = (ExpenseApplyBean)bean;
             if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
-                           bean.setFlowKey(TcpFlowConstant.WORK_PAY_MARKETING);
+                bean.setFlowKey(TcpFlowConstant.WORK_PAY_MARKETING);
                 return ;
             }
         }
