@@ -79,6 +79,10 @@ public abstract class AbstractShipJobManager implements JobManager {
                 + TimeTools.now("yyyyMMddHHmm") + ".xls";
     }
 
+    protected String getTitle(){
+        return String.format("永银文化%s发货信息", this.getYesterday());
+    }
+
     protected List<PackageVO> getPackageList(){
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
@@ -210,7 +214,7 @@ public abstract class AbstractShipJobManager implements JobManager {
                     continue;
                 }
 
-                String title = String.format("永银文化%s发货信息", this.getYesterday());
+                String title = this.getTitle();
                 String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
                 if(bean.getSendMailFlag() == 1){
                     String subBranchMail = bean.getSubBranchMail().trim();

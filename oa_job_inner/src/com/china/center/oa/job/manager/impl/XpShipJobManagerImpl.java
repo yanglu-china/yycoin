@@ -49,6 +49,11 @@ public class XpShipJobManagerImpl extends AbstractShipJobManager{
     }
 
     @Override
+    protected String getTitle() {
+        return "小浦金店邮件";
+    }
+
+    @Override
     protected String getTestCk() {
         return "CK201801161697089589";
     }
