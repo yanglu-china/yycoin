@@ -38,8 +38,7 @@ public class XpShipJobManagerImpl extends AbstractShipJobManager{
 
     @Override
     protected String getAttachmentFileName(BranchRelationBean bean) {
-        String fileName = getShippingAttachmentPath() + "/小浦金店"
-                + "_" +bean.getSubBranchMail()+"_"+ TimeTools.now("yyyyMMddHHmmss") + ".xls";
+        String fileName = getShippingAttachmentPath() + "/小浦金店邮件"+"_"+ TimeTools.now("yyyyMMddHHmmss") + ".xls";
         return fileName;
     }
 
