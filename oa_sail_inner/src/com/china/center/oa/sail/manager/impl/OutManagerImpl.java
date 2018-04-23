@@ -964,15 +964,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         }
 
                         //2015/4/15 中收激励金额（对于入库来说没有此数据）
-                        if (!StringTools.isNullOrNone(ibMoneyListStr)){
-                            final String [] ibMoneyList = ibMoneyListStr.split("~");
-                            base.setIbMoney(MathTools.parseDouble(ibMoneyList[i]));
-                        }
+//                        if (!StringTools.isNullOrNone(ibMoneyListStr)){
+//                            final String [] ibMoneyList = ibMoneyListStr.split("~");
+//                            base.setIbMoney(MathTools.parseDouble(ibMoneyList[i]));
+//                        }
+//
+//                        if (!StringTools.isNullOrNone(motivationMoneyListStr)){
+//                            final String [] motivationMoneyList = motivationMoneyListStr.split("~");
+//                            base.setMotivationMoney(MathTools.parseDouble(motivationMoneyList[i]));
+//                        }
 
-                        if (!StringTools.isNullOrNone(motivationMoneyListStr)){
-                            final String [] motivationMoneyList = motivationMoneyListStr.split("~");
-                            base.setMotivationMoney(MathTools.parseDouble(motivationMoneyList[i]));
-                        }
 
                         baseList.add(base);
 
@@ -9343,7 +9344,21 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     }
                     
                     outDAO.updateEntityBean(outBean);
-                    
+
+                    if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)){
+                        for (BaseBean  base: outBean.getBaseList()){
+                            CustomerBean customerBean = customerMainDAO.find(outBean.getCustomerId());
+                            ProductImportBean productImportBean = getProductImportBean(outBean ,customerBean, base.getProductId());
+                            _logger.info("****productImport***"+productImportBean);
+                            if (productImportBean!= null){
+                                base.setIbMoney(productImportBean.getIbMoney());
+                                base.setMotivationMoney(productImportBean.getMotivationMoney());
+                                base.setIbMoney2(productImportBean.getIbMoney2());
+                                base.setMotivationMoney2(productImportBean.getMotivationMoney2());
+                            }
+                        }
+                    }
+
                     baseDAO.updateAllEntityBeans(outBean.getBaseList());
                     
                     DistributionBean distBean = outBean.getDistributeBean();
