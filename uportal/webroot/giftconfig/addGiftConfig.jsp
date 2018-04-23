@@ -25,7 +25,6 @@ function selectProduct(idx)
     window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1');
 }
 
-//refer to rptQueryProduct.jsp, this is callback function for selectProduct()
 function getProduct(oos)
 {
 //    console.log("getProduct now");
@@ -44,23 +43,6 @@ function getProduct(oos)
     }   else if (index === 3){
         $O('giftProductName3').value = obj.pname;
         $O('giftProductId3').value = obj.value;
-    }
-}
-
-function clears(idx)
-{
-    if (idx === 1){
-        $O('productId').value = '';
-        $O('productName').value = '公共';
-    } else if (idx === 2){
-        $O('giftProductId').value = '';
-        $O('giftProductName').value = '公共';
-    } else if (idx === 22){
-        $O('giftProductId22').value = '';
-        $O('giftProductName22').value = '公共';
-    } else if (idx === 3){
-        $O('giftProductId3').value = '';
-        $O('giftProductName3').value = '公共';
     }
 }
 

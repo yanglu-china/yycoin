@@ -10,28 +10,37 @@
 <script language="JavaScript" src="../js/math.js"></script>
 <script language="JavaScript" src="../admin_js/giftConfig.js"></script>
 <script language="javascript">
+    var index = -1;
 function addBean()
 {
     submit('确定修改赠品配置?', null, checkBean());
 }
 
-function selectProduct()
+function selectProduct(idx)
 {
+    index = idx;
     window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1');
 }
 
 function getProduct(oos)
 {
+//    console.log("getProduct now");
     var obj = oos[0];
-    
-    $O('productName').value = obj.pname;   
-    $O('productId').value = obj.value;   
-}
-
-function clears()
-{
-    $O('productId').value = '';
-    $O('productName').value = '公共';
+//    console.log(obj);
+//    console.log(index);
+    if (index === 1){
+        $O('productName').value = obj.pname;
+        $O('productId').value = obj.value;
+    } else if (index === 2){
+        $O('giftProductName').value = obj.pname;
+        $O('giftProductId').value = obj.value;
+    }  else if (index === 22){
+        $O('giftProductName2').value = obj.pname;
+        $O('giftProductId2').value = obj.value;
+    }   else if (index === 3){
+        $O('giftProductName3').value = obj.pname;
+        $O('giftProductId3').value = obj.value;
+    }
 }
 
 function load()
@@ -167,16 +176,28 @@ function load()
             <p:pro field="sailAmount" value="${bean.sailAmount}" innerString="size=60 oncheck='isMathNumber'" />
 
             <p:pro field="giftProductId" value="${bean.giftProductName}" innerString="size=60">
+                <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
+                       class="button_class" onclick="selectProduct(2)">&nbsp;
+                <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
+                       class="button_class" onclick="clears(2)">&nbsp;&nbsp;
             </p:pro>
 
             <p:pro field="amount" value="${bean.amount}" innerString="size=60 oncheck='isMathNumber'"/>
 
             <p:pro field="giftProductId2" value="${bean.giftProductName2}" innerString="size=60">
+                <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
+                       class="button_class" onclick="selectProduct(22)">&nbsp;
+                <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
+                       class="button_class" onclick="clears(22)">&nbsp;&nbsp;
             </p:pro>
 
             <p:pro field="amount2" value="${bean.amount2}" innerString="size=60 oncheck='isMathNumber'"/>
 
             <p:pro field="giftProductId3" value="${bean.giftProductName3}" innerString="size=60">
+                <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
+                       class="button_class" onclick="selectProduct(3)">&nbsp;
+                <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
+                       class="button_class" onclick="clears(3)">&nbsp;&nbsp;
             </p:pro>
 
             <p:pro field="amount3" value="${bean.amount3}" innerString="size=60 oncheck='isMathNumber'"/>

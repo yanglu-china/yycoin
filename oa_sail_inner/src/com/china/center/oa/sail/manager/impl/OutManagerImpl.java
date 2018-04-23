@@ -402,8 +402,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         
         final String [] inputRateList = request.getParameter("inputRateList").split("~");
 
-        final String ibMoneyListStr = request.getParameter("ibMoneyList");
-        final String motivationMoneyListStr = request.getParameter("motivationMoneyList");
+//        final String ibMoneyListStr = request.getParameter("ibMoneyList");
+//        final String motivationMoneyListStr = request.getParameter("motivationMoneyList");
         
         _logger.info(fullId + "/nameList/" + request.getParameter("nameList"));
 
@@ -430,8 +430,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info(fullId + "/taxrateList/" + request.getParameter("taxrateList"));
         _logger.info(fullId + "/taxList/" + request.getParameter("taxList"));
         _logger.info(fullId + "/inputRateList/" + request.getParameter("inputRateList"));
-        _logger.info(fullId + "/ibMoneyList/" + ibMoneyListStr);
-        _logger.info(fullId + "/motivationMoneyList/" + motivationMoneyListStr);
+//        _logger.info(fullId + "/ibMoneyList/" + ibMoneyListStr);
+//        _logger.info(fullId + "/motivationMoneyList/" + motivationMoneyListStr);
 
         // 组织BaseBean
         double ttatol = 0.0d;

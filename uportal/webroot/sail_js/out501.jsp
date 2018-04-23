@@ -176,8 +176,8 @@ function check(isAdd)
     $O('taxrateList').value = '';
     $O('taxList').value = '';
     $O('inputRateList').value = '';
-    $O('ibMoneyList').value = '';
-    $O('motivationMoneyList').value = '';
+    <%--$O('ibMoneyList').value = '';--%>
+    <%--$O('motivationMoneyList').value = '';--%>
     
     if (trim($O('outTime').value) == '')
     {
@@ -238,22 +238,22 @@ function check(isAdd)
     var depotList = document.getElementsByName('locationIds');
 
     //2015/04/15 中收激励申请
-    var ibMoneyList = document.getElementsByName('ibMoney');
-    var motivationMoneyList = document.getElementsByName('motivationMoney');
+    <%--var ibMoneyList = document.getElementsByName('ibMoney');--%>
+    <%--var motivationMoneyList = document.getElementsByName('motivationMoney');--%>
 
     //console.log("ibMoneyList length:"+ibMoneyList.length);
-    for (var i = 1; i < ibMoneyList.length; i++)
-    {
-        $O('ibMoneyList').value = $O('ibMoneyList').value + ibMoneyList[i].value + '~';
-        //console.log($O('ibMoneyList').value);
-    }
+    <%--for (var i = 1; i < ibMoneyList.length; i++)--%>
+    <%--{--%>
+        <%--$O('ibMoneyList').value = $O('ibMoneyList').value + ibMoneyList[i].value + '~';--%>
+        <%--//console.log($O('ibMoneyList').value);--%>
+    <%--}--%>
 
-    //console.log("motivationMoneyList length:"+motivationMoneyList.length);
-    for (var i = 1; i < motivationMoneyList.length; i++)
-    {
-        $O('motivationMoneyList').value = $O('motivationMoneyList').value + motivationMoneyList[i].value + '~';
-        //console.log($O('motivationMoneyList').value);
-    }
+    <%--//console.log("motivationMoneyList length:"+motivationMoneyList.length);--%>
+    <%--for (var i = 1; i < motivationMoneyList.length; i++)--%>
+    <%--{--%>
+        <%--$O('motivationMoneyList').value = $O('motivationMoneyList').value + motivationMoneyList[i].value + '~';--%>
+        <%--//console.log($O('motivationMoneyList').value);--%>
+    <%--}--%>
 
     //console.log("**********check now 222222222**************");
 

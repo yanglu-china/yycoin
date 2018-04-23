@@ -1,29 +1,3 @@
-// function checkBean(){
-//     if ($$('bank')!='' && $$('bank') === $$('excludeBank') ){
-//         alert('适用银行和不适用银行不能重复!');
-//         return false;
-//     } else if ($$('industryName')!='' && $$('industryName') === $$('excludeIndustryName') ){
-//         alert('事业部不能重复!');
-//         return false;
-//     } else if ($$('industryName2')!='' && $$('industryName2') === $$('excludeIndustryName2') ){
-//         alert('大区不能重复!');
-//         return false;
-//     } else if ($$('industryName3')!='' && $$('industryName3') === $$('excludeIndustryName3') ){
-//         alert('部门不能重复!');
-//         return false;
-//     } else if ($$('stafferName')!='' && $$('stafferName') === $$('excludeStafferName') ){
-//         alert('人员不能重复!');
-//         return false;
-//     } else  if ($$('province')!='' && $$('province') === $$('excludeProvince') ){
-//         alert('省份不能重复!');
-//         return false;
-//     } else  if ($$('city')!='' && $$('city') === $$('excludeCity') ){
-//         alert('城市不能重复!');
-//         return false;
-//     }
-// }
-
-
 function checkBean(){
     if ($$('bank')!='' && $$('excludeBank') !=''){
         alert('适用银行和不适用银行不能同时填写!');
@@ -64,5 +38,24 @@ function checkBean(){
     if(Number(companyShare) + Number(stafferShare)!= 0 && Number(companyShare)+Number(stafferShare)!= 100){
         alert('公司和个人承担比例之和必须为100或者0!');
         return false;
+    }
+}
+
+
+
+function clears(idx)
+{
+    if (idx === 1){
+        $O('productId').value = '';
+        $O('productName').value = '公共';
+    } else if (idx === 2){
+        $O('giftProductId').value = '';
+        $O('giftProductName').value = '公共';
+    } else if (idx === 22){
+        $O('giftProductId22').value = '';
+        $O('giftProductName22').value = '公共';
+    } else if (idx === 3){
+        $O('giftProductId3').value = '';
+        $O('giftProductName3').value = '公共';
     }
 }

@@ -89,7 +89,7 @@ public class OutAction extends ParentOutAction
      * @param form
      * @param request
      * @param reponse
-     * @return
+     * @returnqueryForAdd
      * @throws ServletException
      */
     public ActionForward rejectBack(ActionMapping mapping, ActionForm form,
