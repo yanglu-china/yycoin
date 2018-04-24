@@ -7143,7 +7143,7 @@ public class ParentOutAction extends DispatchAction
     }
 
     private void checkProductNumber(String fullId, List<BaseBean> finishedProductList, List<DecomposeProductBean> accessoryList) throws MYException{
-        System.out.println("****成品行数量:"+finishedProductList.size()+"*****配件行数量:"+accessoryList.size());
+        _logger.info("****成品行数量:"+finishedProductList.size()+"*****配件行数量:"+accessoryList.size());
         List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
         Map<String, Integer> productNumber = new HashMap<String,Integer>();
         //成品数量对应关系
@@ -7165,9 +7165,10 @@ public class ParentOutAction extends DispatchAction
                  productNumber.put(productId, cpb.getAmount());
              }
         }
+        _logger.info("***productNumber***"+productNumber);
         for (BaseBean base: baseBeans){
             String productId = base.getProductId();
-            System.out.println(productId+"***********amount***********"+base.getAmount());
+			_logger.info(productId+"***********amount***********"+base.getAmount());
             if (!productNumber.containsKey(base.getProductId())) {
                 System.out.println("*****************************提交商品信息有误******************************");
                 throw new MYException("退库商品数量不对");

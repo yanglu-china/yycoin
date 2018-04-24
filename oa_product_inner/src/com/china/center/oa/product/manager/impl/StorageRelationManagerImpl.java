@@ -505,7 +505,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         //#374 只有出库减少库存才需要检查
         else if (bean.getChange()<0 && relation.getAmount() + bean.getChange() < 0)
         {
-            _logger.error("****relation.getAmount() + bean.getChange() < 0***");
+            _logger.error("****relation.getAmount() + bean.getChange() < 0***"+relation.getId());
             throw new MYException("仓库[%s]下仓区[%s]下储位[%s]的产品[%s]库存不够,当前库存为[%d],需要使用[%d]", depotBean
                 .getName(), depotpartBean.getName(), storageBean.getName(), productBean.getName(),
                 relation.getAmount(), -bean.getChange());
