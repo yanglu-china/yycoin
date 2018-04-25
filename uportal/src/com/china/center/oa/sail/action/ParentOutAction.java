@@ -7010,7 +7010,7 @@ public class ParentOutAction extends DispatchAction
         {
             String fullId = request.getParameter("outId");
             String accessoryList = request.getParameter("accessoryList");
-            System.out.println("******************submitOut2*****************"+fullId+"****accessoryList****"+accessoryList);
+            _logger.info("******************submitOut2*****************"+fullId+"****accessoryList****"+accessoryList);
 
             User user = (User) request.getSession().getAttribute("user");
 
@@ -7092,11 +7092,10 @@ public class ParentOutAction extends DispatchAction
                 List<DecomposeProductBean> beans = this.getDecomposeBeanFromRequest(accessoryList, user);
 
                 this.checkProductNumber(fullId,baseBeans,beans);
-                System.out.println("**********************1111111111111111111111111111111111111*****************");
                 outManager.submit2(fullId, user, type, baseBeans);
 
                 for (DecomposeProductBean bean:beans){
-                    System.out.println("**********************bean*****************"+bean);
+                    _logger.info("**********************bean*****************"+bean);
                     productFacade.addDecomposeProduct(user.getId(), bean);
                 }
             }
@@ -7143,40 +7142,61 @@ public class ParentOutAction extends DispatchAction
     }
 
     private void checkProductNumber(String fullId, List<BaseBean> finishedProductList, List<DecomposeProductBean> accessoryList) throws MYException{
-        _logger.info("****成品行数量:"+finishedProductList.size()+"*****配件行数量:"+accessoryList.size());
-        List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
-        Map<String, Integer> productNumber = new HashMap<String,Integer>();
+        _logger.info("****成品行数量:"+finishedProductList+"*****配件行数量:"+accessoryList);
+        Map<String, Integer> productNumberIn = new HashMap<String,Integer>();
         //成品数量对应关系
         for (BaseBean base : finishedProductList){
             String productId = base.getProductId();
-            System.out.println("put**************"+base.getProductId()+"****"+base.getAmount());
-            if (productNumber.containsKey(productId)){
-                productNumber.put(productId, productNumber.get(productId)+base.getAmount());
+            _logger.info("put**************"+base.getProductId()+"****"+base.getAmount());
+            if (productNumberIn.containsKey(productId)){
+                productNumberIn.put(productId, productNumberIn.get(productId)+base.getAmount());
             } else {
-                productNumber.put(productId, base.getAmount());
+                productNumberIn.put(productId, base.getAmount());
             }
         }
         //配件行数量对应关系
         for (DecomposeProductBean cpb: accessoryList){
             String productId = cpb.getProductId();
-             if (productNumber.containsKey(productId)){
-                 productNumber.put(productId, productNumber.get(productId)+cpb.getAmount());
+             if (productNumberIn.containsKey(productId)){
+                 productNumberIn.put(productId, productNumberIn.get(productId)+cpb.getAmount());
              } else {
-                 productNumber.put(productId, cpb.getAmount());
+                 productNumberIn.put(productId, cpb.getAmount());
              }
         }
-        _logger.info("***productNumber***"+productNumber);
-        for (BaseBean base: baseBeans){
+        _logger.info("***productNumberIn***"+productNumberIn);
+        List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
+        Map<String, Integer> productNumberOut = new HashMap<String,Integer>();
+        //销售单产品数量对应关系
+        for (BaseBean base : baseBeans){
             String productId = base.getProductId();
-			_logger.info(productId+"***********amount***********"+base.getAmount());
-            if (!productNumber.containsKey(base.getProductId())) {
-                System.out.println("*****************************提交商品信息有误******************************");
-                throw new MYException("退库商品数量不对");
-            } else if (base.getAmount() != productNumber.get(productId)){
-                System.out.println("*****************************退库商品数量不对******************************"+productNumber.get(productId));
-                throw new MYException("退库商品数量不对");
+            if (productNumberOut.containsKey(productId)){
+                productNumberOut.put(productId, productNumberOut.get(productId)+base.getAmount());
+            } else {
+                productNumberOut.put(productId, base.getAmount());
             }
         }
+
+        for (String productId: productNumberOut.keySet()){
+            int outAmount = productNumberOut.get(productId);
+            int inAmount = productNumberIn.get(productId);
+            _logger.info(productId+" vs outAmount***"+outAmount+"***vs inAmount***"+inAmount);
+            if(outAmount!= inAmount){
+                _logger.error(productId+"*****************************退库商品数量不对******************************");
+                throw new MYException("退库商品数量不对:"+productId);
+            }
+        }
+
+//        for (BaseBean base: baseBeans){
+//            String productId = base.getProductId();
+//			_logger.info(productId+"***********amount***********"+base.getAmount());
+//            if (!productNumber.containsKey(base.getProductId())) {
+//                _logger.error("*****************************提交商品信息有误******************************");
+//                throw new MYException("退库商品数量不对");
+//            } else if (base.getAmount() != productNumber.get(productId)){
+//                _logger.error("*****************************退库商品数量不对******************************"+productNumber.get(productId));
+//                throw new MYException("退库商品数量不对");
+//            }
+//        }
     }
 
     //获取成品行信息

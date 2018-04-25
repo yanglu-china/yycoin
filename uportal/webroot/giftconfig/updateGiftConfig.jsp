@@ -55,6 +55,8 @@ function load()
 <input type="hidden" name="method" value="updateGiftConfig">
 <input type="hidden" name="productId" value="${bean.productId}">
 <input type="hidden" name="giftProductId" value="${bean.giftProductId}">
+<input type="hidden" name="giftProductId2" value="${bean.giftProductId2}">
+<input type="hidden" name="giftProductId3" value="${bean.giftProductId3}">
 <input type="hidden" name="id" value="${bean.id}">
 
 <p:navigation
