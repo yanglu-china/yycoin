@@ -623,7 +623,7 @@ public class ProductApplyAction extends DispatchAction {
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next(), 26);
+                String[] obj = fillObj((String[])reader.next(), 28);
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -1067,6 +1067,36 @@ public class ProductApplyAction extends DispatchAction {
                     if ( !StringTools.isNullOrNone(obj[25]))
                     {
                         bean.setDiscription(obj[25]);
+                    }
+
+                    // 中收2
+                    if ( !StringTools.isNullOrNone(obj[26]))
+                    {
+                        try{
+                            bean.setIbMoney2(Double.valueOf(obj[26]));
+                        }catch(Exception e){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("中收2必须为数值")
+                                    .append("<br>");
+                        }
+                    }
+
+                    // 其他费用
+                    if ( !StringTools.isNullOrNone(obj[27]))
+                    {
+                        try{
+                            bean.setMotivationMoney2(Double.valueOf(obj[27]));
+                        }catch(Exception e){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("其他费用必须为数值")
+                                    .append("<br>");
+                        }
                     }
 
                     bean.setUpdateTime(TimeTools.now());
