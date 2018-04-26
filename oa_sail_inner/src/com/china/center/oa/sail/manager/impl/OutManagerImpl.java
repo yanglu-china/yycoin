@@ -42,6 +42,7 @@ import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.helper.FlowLogHelper;
 import com.china.center.oa.sail.manager.*;
+import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.oa.sail.vo.ProductExchangeConfigVO;
 import com.china.center.osgi.dym.DynamicBundleTools;
 import org.apache.commons.logging.Log;
@@ -5315,7 +5316,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         return outDAO.updatePay(fullId, OutConstant.PAY_YES);
     }
 
-    public ResultBean checkOutPayStatus(User user, OutBean out)
+    public ResultBean checkOutPayStatus(User user, OutInterface out)
     {
         ResultBean result = new ResultBean();
 

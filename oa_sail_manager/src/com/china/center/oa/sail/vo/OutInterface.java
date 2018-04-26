@@ -1,5 +1,9 @@
 package com.china.center.oa.sail.vo;
 
+import com.china.center.oa.publics.bean.AttachmentBean;
+
+import java.util.List;
+
 public interface OutInterface {
     String getFullId();
 
@@ -19,6 +23,8 @@ public interface OutInterface {
 
     String getDescription();
 
+    void setDescription(String description);
+
     int getEmergency();
 
     String getCustomerName();
@@ -32,4 +38,32 @@ public interface OutInterface {
     String getRefOutFullId();
 
     String getSwbz();
+
+    List<AttachmentBean> getAttachmentList();
+
+    void setAttachmentList(List<AttachmentBean> attachmentList);
+
+    String getEventId();
+
+    String getIndustryId();
+
+    int getStatus();
+
+    void setStatus(int status);
+
+    String getDestinationId();
+
+    int getInway();
+
+    int getPresentFlag();
+
+    void setPresentFlagName(String presentFlagName);
+
+    void setPay(int pay);
+
+    void setCustomerAddress(String customerAddress);
+
+    double getBadDebts();
+
+    double getPromValue();
 }

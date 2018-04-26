@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Formatter;
 import java.util.List;
 
+import com.china.center.oa.sail.vo.OutInterface;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -206,7 +207,7 @@ public class OutListenerFinanceImpl extends AbstractListenerManager<BillListener
     /**
      * CORE 验证回款的核心逻辑
      */
-    public ResultBean onHadPay(User user, OutBean bean)
+    public ResultBean onHadPay(User user, OutInterface bean)
     {
         ResultBean result = new ResultBean();
 

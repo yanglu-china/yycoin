@@ -488,7 +488,7 @@ public class TwOutBean implements Serializable
     private int profigFlag = 0;
 
     @Ignore
-    private List<BaseBean> baseList = null;
+    private List<TwBaseBean> baseList = null;
 
     @Ignore
     private DistributionBean distributeBean = null;
@@ -587,20 +587,11 @@ public class TwOutBean implements Serializable
         this.remoteAllocate = remoteAllocate;
     }
 
-    /**
-     * @return the baseList
-     */
-    public List<BaseBean> getBaseList()
-    {
+    public List<TwBaseBean> getBaseList() {
         return baseList;
     }
 
-    /**
-     * @param baseList
-     *            the baseList to set
-     */
-    public void setBaseList(List<BaseBean> baseList)
-    {
+    public void setBaseList(List<TwBaseBean> baseList) {
         this.baseList = baseList;
     }
 

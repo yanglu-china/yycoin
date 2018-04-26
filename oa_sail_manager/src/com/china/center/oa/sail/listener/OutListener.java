@@ -18,6 +18,7 @@ import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.wrap.ResultBean;
 import com.china.center.oa.sail.bean.OutBalanceBean;
 import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.vo.OutInterface;
 
 
 /**
@@ -121,7 +122,7 @@ public interface OutListener extends ParentListener
      * @param bean
      * @throws MYException
      */
-    ResultBean onHadPay(User user, OutBean bean);
+    ResultBean onHadPay(User user, OutInterface bean);
 
     /**
      * 销售单还剩余未付款的金额(这里坏账是在内的),仅仅是普通销售的

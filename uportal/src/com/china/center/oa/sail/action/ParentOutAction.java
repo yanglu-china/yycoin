@@ -160,6 +160,8 @@ public class ParentOutAction extends DispatchAction
 
 	protected OutDAO outDAO = null;
 
+    protected TwOutDAO twOutDAO = null;
+
 	protected FinanceDAO financeDAO = null;
 
 	protected DutyDAO dutyDAO = null;
@@ -169,6 +171,8 @@ public class ParentOutAction extends DispatchAction
 	protected InvoiceDAO invoiceDAO = null;
 
 	protected BaseDAO baseDAO = null;
+
+    protected TwBaseDAO twBaseDAO = null;
 
 	protected ConsignDAO consignDAO = null;
 
@@ -11073,4 +11077,20 @@ public class ParentOutAction extends DispatchAction
 	public void setPresentFlagDAO(PresentFlagDAO presentFlagDAO) {
 		this.presentFlagDAO = presentFlagDAO;
 	}
+
+    public TwOutDAO getTwOutDAO() {
+        return twOutDAO;
+    }
+
+    public void setTwOutDAO(TwOutDAO twOutDAO) {
+        this.twOutDAO = twOutDAO;
+    }
+
+    public TwBaseDAO getTwBaseDAO() {
+        return twBaseDAO;
+    }
+
+    public void setTwBaseDAO(TwBaseDAO twBaseDAO) {
+        this.twBaseDAO = twBaseDAO;
+    }
 }

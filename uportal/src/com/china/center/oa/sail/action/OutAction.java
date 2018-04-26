@@ -2513,10 +2513,14 @@ public class OutAction extends ParentOutAction
 
         User user = Helper.getUser(request);
 
-        OutVO bean = null;
+        OutInterface bean = null;
         try
         {
-            bean = outDAO.findVO(outId);
+            if (outId.startsWith("TW")){
+                bean = this.twOutDAO.findVO(outId);
+            } else{
+                bean = outDAO.findVO(outId);
+            }
             
             if (bean == null)
             {
@@ -2531,7 +2535,14 @@ public class OutAction extends ParentOutAction
             
             PromotionBean proBean = promotionDAO.find(bean.getEventId());
             
-            List<BaseBean> list = baseDAO.queryEntityBeansByFK(outId);
+//            List<BaseBean> list = baseDAO.queryEntityBeansByFK(outId);
+
+            List<? extends BaseInterface> list = null;
+            if (outId.startsWith("TW")){
+                list = this.twBaseDAO.queryEntityBeansByFK(outId);
+            } else{
+                list = baseDAO.queryEntityBeansByFK(outId);
+            }
 
             if (ListTools.isEmptyOrNull(list))
             {
@@ -2545,7 +2556,7 @@ public class OutAction extends ParentOutAction
             {
                 if (bean.getType() == OutConstant.OUT_TYPE_OUTBILL)
                 {
-                	for (BaseBean each : list)
+                	for (BaseInterface each : list)
                 	{
                 		ProductBean productBean = productDAO.find(each.getProductId());
                 		
@@ -3256,7 +3267,9 @@ public class OutAction extends ParentOutAction
             bean.setPay(OutConstant.PAY_YES);
             try
             {
-            outManager.updateOut(bean);
+                if (bean instanceof  OutBean) {
+                    outManager.updateOut((OutBean)bean);
+                }
             }
             catch (Exception e)
             {

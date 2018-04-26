@@ -13,5 +13,8 @@ public interface BaseInterface {
 
     double getValue();
 
+    void setProductType(int productType);
+
+    void setOldGoods(int oldGoods);
 
 }

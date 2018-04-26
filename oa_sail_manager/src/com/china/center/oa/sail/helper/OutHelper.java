@@ -20,6 +20,7 @@ import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.tools.MathTools;
 import com.china.center.tools.StringTools;
 
@@ -107,7 +108,7 @@ public abstract class OutHelper
         return DefinedCommon.getValue("shipStatus", status);
     }
 
-    public static boolean canDelete(OutBean outBean)
+    public static boolean canDelete(OutInterface outBean)
     {
         int status = outBean.getStatus();
 
