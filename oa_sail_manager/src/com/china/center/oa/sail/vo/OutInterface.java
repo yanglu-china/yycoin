@@ -1,6 +1,7 @@
 package com.china.center.oa.sail.vo;
 
 import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.sail.bean.BaseInterface;
 
 import java.util.List;
 
@@ -12,10 +13,6 @@ public interface OutInterface {
     String getStafferId();
 
     String getStafferName();
-
-    String getIndustryName();
-
-    String getIndustryName3();
 
     double getTotal();
 
@@ -57,11 +54,7 @@ public interface OutInterface {
 
     int getPresentFlag();
 
-    void setPresentFlagName(String presentFlagName);
-
     void setPay(int pay);
-
-    void setCustomerAddress(String customerAddress);
 
     double getBadDebts();
 

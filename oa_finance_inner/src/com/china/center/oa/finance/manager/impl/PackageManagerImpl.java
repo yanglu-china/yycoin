@@ -329,7 +329,7 @@ public class PackageManagerImpl implements PackageManager {
 		}
 	}
 
-	private void createNewPackage(OutInterface outBean,
+	private void createNewPackage(OutVOInterface outBean,
 			List<? extends BaseInterface> baseList, DistributionInterface distVO, String fullAddress, String location)
 	{
         _logger.info("**************createNewPackage for Out now "+outBean.getFullId());

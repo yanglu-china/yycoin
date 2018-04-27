@@ -8,6 +8,7 @@ import com.china.center.oa.product.bean.DepotpartBean;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.tools.StringTools;
 
 import java.io.Serializable;
@@ -20,7 +21,7 @@ import java.util.List;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "T_CENTER_TWOUT")
-public class TwOutBean implements Serializable
+public class TwOutBean implements Serializable, OutInterface
 {
     @Id
     private String fullId = "";
@@ -491,10 +492,10 @@ public class TwOutBean implements Serializable
     private List<TwBaseBean> baseList = null;
 
     @Ignore
-    private DistributionBean distributeBean = null;
+    private TwDistributionBean distributeBean = null;
 
     @Ignore
-    private List<DistributionBean> distList = null;
+    private List<TwDistributionBean> distList = null;
 
     /**
      * 附件列表
@@ -1820,16 +1821,6 @@ public class TwOutBean implements Serializable
 		this.operatorName = operatorName;
 	}
 
-	public DistributionBean getDistributeBean()
-	{
-		return distributeBean;
-	}
-
-	public void setDistributeBean(DistributionBean distributeBean)
-	{
-		this.distributeBean = distributeBean;
-	}
-
 	public String getLogTime()
 	{
 		return logTime;
@@ -2044,21 +2035,21 @@ public class TwOutBean implements Serializable
         this.podate = podate;
     }
 
-    /**
-	 * @return the distList
-	 */
-	public List<DistributionBean> getDistList()
-	{
-		return distList;
-	}
+    public TwDistributionBean getDistributeBean() {
+        return distributeBean;
+    }
 
-	/**
-	 * @param distList the distList to set
-	 */
-	public void setDistList(List<DistributionBean> distList)
-	{
-		this.distList = distList;
-	}
+    public void setDistributeBean(TwDistributionBean distributeBean) {
+        this.distributeBean = distributeBean;
+    }
+
+    public List<TwDistributionBean> getDistList() {
+        return distList;
+    }
+
+    public void setDistList(List<TwDistributionBean> distList) {
+        this.distList = distList;
+    }
 
     public int getIbFlag() {
         return ibFlag;

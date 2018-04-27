@@ -2513,7 +2513,7 @@ public class OutAction extends ParentOutAction
 
         User user = Helper.getUser(request);
 
-        OutInterface bean = null;
+        OutVOInterface bean = null;
         try
         {
             if (outId.startsWith("TW")){

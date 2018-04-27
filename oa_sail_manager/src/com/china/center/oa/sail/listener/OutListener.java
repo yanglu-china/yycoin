@@ -110,7 +110,6 @@ public interface OutListener extends ParentListener
      * 销售单移交
      * 
      * @param user
-     * @param bean
      * @throws MYException
      */
     void onTranOutList(User user, List<OutBean> outList, StafferBean targerStaffer)

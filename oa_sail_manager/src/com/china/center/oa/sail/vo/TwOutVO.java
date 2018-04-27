@@ -19,7 +19,7 @@ import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.sail.bean.TwOutBean;
 
 @Entity(inherit = true)
-public class TwOutVO extends TwOutBean implements OutInterface
+public class TwOutVO extends TwOutBean implements OutVOInterface
 {
     @Relationship(relationField = "locationId")
     private String locationName = "";

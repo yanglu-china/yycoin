@@ -28,7 +28,7 @@ import com.china.center.oa.sail.bean.OutBean;
  * @since 1.0
  */
 @Entity(inherit = true)
-public class OutVO extends OutBean implements OutInterface
+public class OutVO extends OutBean implements  OutVOInterface
 {
     @Relationship(relationField = "locationId")
     private String locationName = "";
@@ -134,9 +134,6 @@ public class OutVO extends OutBean implements OutInterface
         return locationName;
     }
 
-    /**
-     * @param 对locationName进行赋值
-     */
     public void setLocationName(String locationName)
     {
         this.locationName = locationName;

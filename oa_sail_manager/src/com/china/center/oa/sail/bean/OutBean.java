@@ -21,6 +21,7 @@ import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 
@@ -36,7 +37,7 @@ import com.china.center.tools.TimeTools;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "T_CENTER_OUT")
-public class OutBean implements Serializable
+public class OutBean implements Serializable, OutInterface
 {
     @Id
     private String fullId = "";

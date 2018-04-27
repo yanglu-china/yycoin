@@ -24,6 +24,7 @@ import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.wrap.ResultBean;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.listener.OutListener;
+import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.oa.sail.wrap.BatchBackWrap;
 
 
@@ -435,7 +436,7 @@ public interface OutManager extends ListenerManager<OutListener>
      * @param out
      * @throws MYException
      */
-    ResultBean checkOutPayStatus(User user, OutBean out);
+    ResultBean checkOutPayStatus(User user, OutInterface out);
 
     /**
      * initPriceKey
