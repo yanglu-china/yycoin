@@ -20,6 +20,7 @@ import java.util.Set;
 import com.china.center.oa.product.bean.ProductVSGiftBean;
 import com.china.center.oa.product.dao.ProductVSGiftDAO;
 import com.china.center.oa.publics.vo.StafferVO;
+import com.china.center.oa.sail.vo.OutInterface;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -5888,7 +5889,7 @@ public class OutListenerTaxGlueImpl implements OutListener
      * @see com.china.center.oa.sail.listener.OutListener#onHadPay(com.center.china.osgi.publics.User,
      *      com.china.center.oa.sail.bean.OutBean)
      */
-    public ResultBean onHadPay(User user, OutBean bean)
+    public ResultBean onHadPay(User user, OutInterface bean)
     {
         // 
         return null;

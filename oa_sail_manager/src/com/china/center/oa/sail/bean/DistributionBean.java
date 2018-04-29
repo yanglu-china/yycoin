@@ -11,10 +11,11 @@ import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.publics.bean.AreaBean;
 import com.china.center.oa.publics.bean.CityBean;
 import com.china.center.oa.publics.bean.ProvinceBean;
+import com.china.center.oa.sail.vo.DistributionInterface;
 
 @Entity(name = "销售单配送信息")
 @Table(name = "T_CENTER_DISTRIBUTION")
-public class DistributionBean implements Serializable 
+public class DistributionBean implements Serializable, DistributionInterface
 {
 	@Id
 	private String id = "";

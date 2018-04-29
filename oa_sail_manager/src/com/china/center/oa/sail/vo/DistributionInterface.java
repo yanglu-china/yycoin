@@ -7,10 +7,6 @@ public interface DistributionInterface {
 
     String getMobile();
 
-    String getProvinceName();
-
-    String getCityName();
-
     String getAddress();
 
     String getCityId();
@@ -24,4 +20,6 @@ public interface DistributionInterface {
     int getTransportPay();
 
     String getTelephone();
+
+    String getOutId();
 }

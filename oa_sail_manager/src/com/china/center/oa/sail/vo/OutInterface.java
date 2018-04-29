@@ -59,4 +59,6 @@ public interface OutInterface {
     double getBadDebts();
 
     double getPromValue();
+
+    List<? extends BaseInterface> getBaseList();
 }

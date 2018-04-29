@@ -6,7 +6,7 @@ import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.sail.bean.DistributionBean;
 
 @Entity(inherit = true)
-public class DistributionVO extends DistributionBean implements DistributionInterface
+public class DistributionVO extends DistributionBean implements DistributionVOInterface
 {
 	/**
 	 * 省

@@ -454,6 +454,15 @@ public class TwOutBean implements Serializable, OutInterface
 
     private String motivationApplyId = "";
 
+    private int ibFlag2 = 0;
+
+    private String ibApplyId2 = "";
+
+    //0: 未申请 1：已申请
+    private int motivationFlag2 = 0;
+
+    private String motivationApplyId2 = "";
+
     //2015/8/5 异地调拨标志: 1-需异地调拨 0-否
     private int remoteAllocate = 0;
 
@@ -2162,6 +2171,38 @@ public class TwOutBean implements Serializable, OutInterface
         this.profigFlag = profigFlag;
     }
 
+    public int getIbFlag2() {
+        return ibFlag2;
+    }
+
+    public void setIbFlag2(int ibFlag2) {
+        this.ibFlag2 = ibFlag2;
+    }
+
+    public String getIbApplyId2() {
+        return ibApplyId2;
+    }
+
+    public void setIbApplyId2(String ibApplyId2) {
+        this.ibApplyId2 = ibApplyId2;
+    }
+
+    public int getMotivationFlag2() {
+        return motivationFlag2;
+    }
+
+    public void setMotivationFlag2(int motivationFlag2) {
+        this.motivationFlag2 = motivationFlag2;
+    }
+
+    public String getMotivationApplyId2() {
+        return motivationApplyId2;
+    }
+
+    public void setMotivationApplyId2(String motivationApplyId2) {
+        this.motivationApplyId2 = motivationApplyId2;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
@@ -2169,7 +2210,7 @@ public class TwOutBean implements Serializable, OutInterface
      */
     @Override
     public String toString() {
-        return "OutBean{" +
+        return "TwOutBean{" +
                 "fullId='" + fullId + '\'' +
                 ", id='" + id + '\'' +
                 ", flowId='" + flowId + '\'' +
@@ -2265,6 +2306,10 @@ public class TwOutBean implements Serializable, OutInterface
                 ", ibApplyId='" + ibApplyId + '\'' +
                 ", motivationFlag=" + motivationFlag +
                 ", motivationApplyId='" + motivationApplyId + '\'' +
+                ", ibFlag2=" + ibFlag2 +
+                ", ibApplyId2='" + ibApplyId2 + '\'' +
+                ", motivationFlag2=" + motivationFlag2 +
+                ", motivationApplyId2='" + motivationApplyId2 + '\'' +
                 ", remoteAllocate=" + remoteAllocate +
                 ", reason='" + reason + '\'' +
                 ", transportNo='" + transportNo + '\'' +
@@ -2275,10 +2320,6 @@ public class TwOutBean implements Serializable, OutInterface
                 ", channel='" + channel + '\'' +
                 ", cashFlag=" + cashFlag +
                 ", profigFlag=" + profigFlag +
-                ", baseList=" + baseList +
-                ", distributeBean=" + distributeBean +
-                ", distList=" + distList +
-                ", attachmentList=" + attachmentList +
                 '}';
     }
 }

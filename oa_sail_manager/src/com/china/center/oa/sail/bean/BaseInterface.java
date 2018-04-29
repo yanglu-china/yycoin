@@ -17,4 +17,15 @@ public interface BaseInterface {
 
     void setOldGoods(int oldGoods);
 
+    double getCostPrice();
+
+    void setCostPrice(double costPrice);
+
+    void setDescription(String description);
+
+    double getInputPrice();
+
+    double getIprice();
+
+    double getPprice();
 }

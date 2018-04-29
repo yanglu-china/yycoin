@@ -174,6 +174,8 @@ public class ParentOutAction extends DispatchAction
 
     protected TwBaseDAO twBaseDAO = null;
 
+	protected TwDistributionDAO twDistributionDAO = null;
+
 	protected ConsignDAO consignDAO = null;
 
 	protected DepotpartDAO depotpartDAO = null;
@@ -11092,5 +11094,13 @@ public class ParentOutAction extends DispatchAction
 
     public void setTwBaseDAO(TwBaseDAO twBaseDAO) {
         this.twBaseDAO = twBaseDAO;
+    }
+
+    public TwDistributionDAO getTwDistributionDAO() {
+        return twDistributionDAO;
+    }
+
+    public void setTwDistributionDAO(TwDistributionDAO twDistributionDAO) {
+        this.twDistributionDAO = twDistributionDAO;
     }
 }

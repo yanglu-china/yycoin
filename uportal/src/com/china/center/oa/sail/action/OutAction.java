@@ -2570,8 +2570,12 @@ public class OutAction extends ParentOutAction
                 }
             }
             
-            
-            bean.setBaseList(list);
+            if (bean instanceof OutVO){
+                ((OutVO)bean).setBaseList((List<BaseBean>)list);
+            } else if (bean instanceof TwOutVO){
+                ((TwOutVO)bean).setBaseList((List<TwBaseBean>)list);
+            }
+//            bean.setBaseList(list);
 
             List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByFK(outId);
 
@@ -2625,7 +2629,14 @@ public class OutAction extends ParentOutAction
             request.setAttribute("showList", showList);
             
             // 配送
-            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outId);
+//            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outId);
+
+            List<? extends DistributionInterface> distList = null;
+            if (outId.startsWith("TW")){
+                distList = this.twDistributionDAO.queryEntityBeansByFK(outId);
+            } else{
+                distList = distributionDAO.queryEntityBeansByFK(outId);
+            }
             
             request.setAttribute("distBeanList", distList);
         }
@@ -2825,7 +2836,7 @@ public class OutAction extends ParentOutAction
 
                 List<OutBean> refBuyList = queryRefOut4(request, outId);
 
-                List<BaseBean> baseList = bean.getBaseList();
+                List<BaseBean> baseList = ((OutBean)bean).getBaseList();
 
                 // 计算出已经退货的数量
                 for (BaseBean baseBean : baseList)
@@ -2948,7 +2959,7 @@ public class OutAction extends ParentOutAction
                 List<OutBean> refBuyList = queryRefOut(request, outId);
 
                 // 这里是归类统计的哦
-                List<BaseBean> baseList = OutHelper.trimBaseList2(bean.getBaseList());
+                List<BaseBean> baseList = OutHelper.trimBaseList2(((OutBean)bean).getBaseList());
 
                 // 是否可以看到真实的成本
                 boolean containAuth = userManager.containAuth(user.getId(),
@@ -3005,7 +3016,7 @@ public class OutAction extends ParentOutAction
                 }
 
                 // 合并后的列表
-                bean.setBaseList(baseList);
+                ((OutBean)bean).setBaseList(baseList);
 
                 return mapping.findForward("handerOutBack2");
             }
@@ -3135,13 +3146,14 @@ public class OutAction extends ParentOutAction
 
         if (OATools.isChangeToV5())
         {
-            List<BaseBean> baseList = bean.getBaseList();
+//            List<BaseBean> baseList = bean.getBaseList();
+            List<? extends BaseInterface>  baseList = bean.getBaseList();
 
             if ( !containAuth)
             {
                 if (bean.getType() == OutConstant.OUT_TYPE_OUTBILL)
                 {
-                    for (BaseBean baseBean : baseList)
+                    for (BaseInterface baseBean : baseList)
                     {
                         // 显示成本(输入成本)
                         baseBean.setCostPrice(baseBean.getInputPrice());
@@ -3156,7 +3168,7 @@ public class OutAction extends ParentOutAction
                     // 查询自己的退库单
                     if ("7".equals(queryType))
                     {
-                        for (BaseBean baseBean : baseList)
+                        for (BaseInterface baseBean : baseList)
                         {
                             // 显示成本(输入成本)
                             baseBean.setCostPrice(baseBean.getInputPrice());
@@ -3167,7 +3179,7 @@ public class OutAction extends ParentOutAction
                     else
                     {
                         // 这里是入库单
-                        for (BaseBean baseBean : baseList)
+                        for (BaseInterface baseBean : baseList)
                         {
                             baseBean.setDescription(MathTools.formatNum(baseBean.getCostPrice()));
                         }
@@ -3176,7 +3188,7 @@ public class OutAction extends ParentOutAction
             }
             else
             {
-                for (BaseBean baseBean : baseList)
+                for (BaseInterface baseBean : baseList)
                 {
                     baseBean.setDescription(MathTools.formatNum(baseBean.getCostPrice()) + " / "
                                             + MathTools.formatNum(baseBean.getIprice()) + " / "
@@ -3292,9 +3304,9 @@ public class OutAction extends ParentOutAction
             if (bean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
                 || bean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)
             {
-                List<BaseBean> baseList = bean.getBaseList();
-
-                for (BaseBean baseBean : baseList)
+//                List<BaseBean> baseList = bean.getBaseList();
+                List<? extends BaseInterface> baseList = bean.getBaseList();
+                for (BaseInterface baseBean : baseList)
                 {
                     // 显示成本(输入成本)
                     baseBean.setCostPrice(baseBean.getInputPrice());
@@ -4995,11 +5007,14 @@ public class OutAction extends ParentOutAction
     {
     	String id = request.getParameter("id");
 
-    	DistributionVO distributionVO = distributionDAO.findVO(id);
+    	DistributionVOInterface distributionVO = distributionDAO.findVO(id);
     	
     	if (null == distributionVO)
     	{
-    		request.setAttribute(KeyConstant.MESSAGE, "【配送信息未填写】");
+            distributionVO = this.twDistributionDAO.findVO(id);
+            if (distributionVO == null){
+                request.setAttribute(KeyConstant.MESSAGE, "【配送信息未填写】");
+            }
     	}
     	
     	List<BaseVO> baseList = null; 
@@ -5042,7 +5057,13 @@ public class OutAction extends ParentOutAction
     	request.setAttribute("distributionBean", distributionVO);
 
         String outId = distributionVO.getOutId();
-    	OutVO outVO = outDAO.findVO(outId);
+
+        OutVOInterface outVO = null;
+        if (outId.startsWith("TW")){
+            outVO = twOutDAO.findVO(outId);
+        } else{
+            outVO = outDAO.findVO(outId);
+        }
     	
     	request.setAttribute("outBean", outVO);
 

@@ -604,7 +604,7 @@ public class PackageManagerImpl implements PackageManager {
 	}
 
     //2015/1/13 update
-    private void setInnerCondition(DistributionInterface distVO, String location, ConditionParse con)
+    private void setInnerCondition(DistributionVOInterface distVO, String location, ConditionParse con)
     {
        int shipping = distVO.getShipping();
        if (shipping == 0){
