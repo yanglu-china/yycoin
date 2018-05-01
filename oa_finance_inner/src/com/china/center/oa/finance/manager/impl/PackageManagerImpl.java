@@ -604,7 +604,8 @@ public class PackageManagerImpl implements PackageManager {
 	}
 
     //2015/1/13 update
-    private void setInnerCondition(DistributionVOInterface distVO, String location, ConditionParse con)
+    private void setInnerCondition(DistributionVOInterface distVO, String location, ConditionParse con,
+                                   String customerId)
     {
        int shipping = distVO.getShipping();
        if (shipping == 0){
@@ -618,7 +619,7 @@ public class PackageManagerImpl implements PackageManager {
 
             //#225
 		   con.addCondition("PackageBean.locationId", "=", location);
-
+            this.checkZjgh(customerId, con);
 		   con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
 		   con.addCondition(" and PackageBean.status in(0,5)");
         } else if (shipping == 2){
@@ -652,6 +653,7 @@ public class PackageManagerImpl implements PackageManager {
            con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 			//#225
 		   con.addCondition("PackageBean.locationId", "=", location);
+           this.checkZjgh(customerId, con);
 		   con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
 		   con.addCondition(" and PackageBean.status in(0,5)");
         } else{
@@ -671,6 +673,8 @@ public class PackageManagerImpl implements PackageManager {
 
            con.addCondition("PackageBean.locationId", "=", location);
 
+           this.checkZjgh(customerId, con);
+
            con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
 
            con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
@@ -678,6 +682,17 @@ public class PackageManagerImpl implements PackageManager {
 		   con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
 		   con.addCondition(" and PackageBean.status in(0,5)");
        }
+    }
+
+    /**
+     * #302 hard code 中金国华customerId
+     * @param customerId
+     * @param con
+     */
+    private void checkZjgh(String customerId, ConditionParse con){
+        if ("575852694".equals(customerId)){
+            con.addCondition("PackageBean.customerId", "=", customerId);
+        }
     }
 
 
@@ -733,7 +748,7 @@ public class PackageManagerImpl implements PackageManager {
 		
 		con.addWhereStr();
 		
-		setInnerCondition(distVO, location, con);
+		setInnerCondition(distVO, location, con, out.getCustomerId());
 		
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
@@ -943,7 +958,7 @@ public class PackageManagerImpl implements PackageManager {
 
 		con.addWhereStr();
 
-		setInnerCondition(distVO, location, con);
+		setInnerCondition(distVO, location, con, out.getCustomerId());
 
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
@@ -1154,7 +1169,7 @@ public class PackageManagerImpl implements PackageManager {
 		
 		con.addWhereStr();
 		
-		setInnerCondition(distVO, location, con);
+		setInnerCondition(distVO, location, con, ins.getCustomerId());
 		_logger.info("****con****"+con);
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
