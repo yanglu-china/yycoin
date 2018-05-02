@@ -394,7 +394,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			}
 			
 			if ("1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD_YES) {
-				if (!(invoiceId.equals("90000000000000000003") || "90000000000000000034".equals(invoiceId))) {
+				if (!(invoiceId.equals("90000000000000000003") || "90000000000000000034".equals(invoiceId)
+                        || "90000000000000000035".equals(invoiceId)
+                        || "90000000000000000036".equals(invoiceId)
+                        || "90000000000000000037".equals(invoiceId)
+                        || "90000000000000000038".equals(invoiceId)
+                        || "90000000000000000039".equals(invoiceId)
+                        || "90000000000000000040".equals(invoiceId))) {
 					throw new MYException("普通且是非旧货的商品 只能开具 增值税专用发票17 类型发票");
 				}
 			}
