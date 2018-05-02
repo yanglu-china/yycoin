@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.bean.BaseBean;
@@ -529,6 +530,7 @@ public abstract class OutHelper
      */
     public static String getShippingName(int shipping)
     {
+
     	if (shipping == OutConstant.OUT_SHIPPING_SELFSERVICE)
     	{
     		return "自提";
@@ -563,80 +565,88 @@ public abstract class OutHelper
     
     public static String getSailHead(int type, int outType)
     {
-    	String head = "SO";
+        String appName = ConfigLoader.getProperty("appName");
+        String postfix = "";
+        if (OutConstant.APP_NAME_TW.equals(appName)){
+            postfix = OutConstant.HEAD_TW;
+        } else if (OutConstant.APP_NAME_ZJGH.equals(appName)){
+            postfix = OutConstant.HEAD_ZJGH;
+        }
+
+    	String head = "SO"+postfix;
     	
     	if (type == OutConstant.OUT_TYPE_OUTBILL)
     	{
     		if (outType == OutConstant.OUTTYPE_OUT_COMMON)
     		{
-    			head = "SO";
+    			head = "SO"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_OUT_SWATCH || outType == OutConstant.OUTTYPE_OUT_SHOWSWATCH)
     		{
-    			head = "LY";
+    			head = "LY"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_OUT_CONSIGN)
     		{
-    			head = "DX";
+    			head = "DX"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_OUT_PRESENT)
     		{
-    			head = "ZS";
+    			head = "ZS"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_OUT_SHOW)
     		{
-    			head = "XZ";
+    			head = "XZ"+postfix;
     		}
             else if (outType == OutConstant.OUTTYPE_OUT_BANK_SWATCH)
             {
                 //2015/3/17 新增银行领样 （与银行铺货类拟）
-                head = "YL";
+                head = "YL"+postfix;
             }
     		else
     		{
-    			head = "SO";
+    			head = "SO"+postfix;
     		}
     	}
     	else if (type == OutConstant.OUT_TYPE_INBILL)
     	{
     		if (outType == OutConstant.OUTTYPE_IN_MOVEOUT || outType == OutConstant.OUTTYPE_OUT_APPLY)
     		{
-    			head = "DB";
+    			head = "DB"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_IN_DROP)
     		{
-    			head = "BF";
+    			head = "BF"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_IN_ERRORP)
     		{
-    			head = "JZ";
+    			head = "JZ"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_IN_STOCK)
     		{
-    			head = "CT";
+    			head = "CT"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_IN_OTHER)
     		{
-    			head = "QT";
+    			head = "QT"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_IN_OUTBACK)
     		{
-    			head = "XT";
+    			head = "XT"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_IN_SWATCH)
     		{
-    			head = "LT";
+    			head = "LT"+postfix;
     		}
     		else if (outType == OutConstant.OUTTYPE_IN_PRESENT) {
-    			head = "ZT";
+    			head = "ZT"+postfix;
     		}
             else if (outType == OutConstant.OUTTYPE_IN_EXCHANGE){
                 //2015/10/22 新增入库换货
-                head = "TH";
+                head = "TH"+postfix;
             }
     		else
     		{
-    			head = "SO";
+    			head = "SO"+postfix;
     		}
     	}
     	
