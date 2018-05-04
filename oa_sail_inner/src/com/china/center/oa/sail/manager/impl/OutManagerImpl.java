@@ -9017,6 +9017,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         if(bean == null){
             outDAO.modifyOutStatus(newOutBean.getFullId(), OutConstant.BUY_STATUS_SEC_PASS);
+            outDAO.updatePay(newOutBean.getFullId(), OutConstant.PAY_YES);
         }else{
             outDAO.modifyOutStatus(newOutBean.getFullId(), OutConstant.BUY_STATUS_PASS);
         }
