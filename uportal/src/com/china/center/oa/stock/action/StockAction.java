@@ -1308,6 +1308,67 @@ public class StockAction extends DispatchAction
     }
 
     /**
+     * #306
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward batchFetchProduct(ActionMapping mapping, ActionForm form,
+                                     HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+
+        _logger.info("***batchFetchProduct***");
+        // LOCK 采购拿货变动库存
+        synchronized (PublicLock.PRODUCT_CORE)
+        {
+            String[] itemIds = request.getParameterValues("itemId");
+
+            String depotpartId = request.getParameter("depotpartId");
+
+            String[] batchWarehouseNums = request.getParameterValues("batchWarehouseNum");
+            String[] to_be_warehouses = request.getParameterValues("to_be_warehouse");
+            _logger.info(itemIds+"***warehouseNum*********"+batchWarehouseNums+"***to_be_warehouse"+to_be_warehouses);
+
+            boolean result = true;
+            String msg = "成功拿货,且自动生成入库单";
+            try
+            {
+                User user = Helper.getUser(request);
+
+                for (int i=0;i<=itemIds.length-1; i++){
+                    String itemId = itemIds[i];
+                    int warehouseNumber = Integer.valueOf(batchWarehouseNums[i]);
+                    int toBeWarehouseNum = Integer.valueOf(to_be_warehouses[i]);
+                    result = stockManager.fetchProductByArrivalBean(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum);
+                }
+
+                request.setAttribute(KeyConstant.MESSAGE, msg);
+            }
+            catch (MYException e)
+            {
+                e.printStackTrace();
+                _logger.warn(e, e);
+                msg = e.getErrorContent();
+                result = false;
+            } finally{
+                if (!result){
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "拿货失败:"+msg);
+                }
+            }
+
+            CommonTools.removeParamers(request);
+
+            request.setAttribute("forward", "1");
+
+            return queryStock(mapping, form, request, reponse);
+        }
+    }
+
+    /**
      * fechProduct
      * 
      * @param mapping

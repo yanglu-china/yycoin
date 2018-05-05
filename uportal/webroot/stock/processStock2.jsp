@@ -42,6 +42,16 @@ function fech(id,amount,totalWarehouseNum)
 	$('#dlg').dialog({closed:false});
 }
 
+function showBatchDlg()
+{
+//    console.log("id:"+id);
+//    console.log("amount:"+amount);
+//    console.log("totalWarehouseNum:"+totalWarehouseNum);
+//    console.log("to_be_warehouse:"+to_be_warehouse);
+
+    $('#dlg2').dialog({closed:false});
+}
+
 function load()
 {
     tooltip.init();
@@ -60,6 +70,21 @@ function load()
      });
      
      $ESC('dlg');
+
+    $('#dlg2').dialog({
+        modal:true,
+        closed:true,
+        buttons:{
+            '确 定':function(){
+                batchFetchProduct();
+            },
+            '取 消':function(){
+                $('#dlg2').dialog({closed:true});
+            }
+        }
+    });
+
+    $ESC('dlg2');
 }
 
 function updatePrice()
@@ -82,11 +107,22 @@ function updatePrice()
             + '&to_be_warehouse=' + to_be_warehouse;
 }
 
+function batchFetchProduct()
+{
+    if ($$('depotpartId') == '')
+    {
+        alert('请选择仓区');
+        return false;
+    }
+    formEntry.method.value = 'batchFetchProduct';
+    formEntry.submit();
+}
+
 </script>
 
 </head>
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../stock/stock.do" method="post">
+<form name="formEntry" id="formEntry" action="../stock/stock.do" method="post">
 <input type="hidden" name="method" value="updateStockStatus">
 <input type="hidden" name="id" value="${bean.id}">
 <input type="hidden" name="pass" value="1">
@@ -198,6 +234,7 @@ function updatePrice()
 				<td width="15%" align="center">供应商</td>
 				<td width="5%" align="center">合计金额</td>
 				<td width="10%" align="center">描述</td>
+				<td width="10%" align="center">拿货数量</td>
 				<td width="10%" align="center">拿货人</td>
 				<td width="10%" align="center">拿 货</td>
 			</tr>
@@ -224,8 +261,13 @@ function updatePrice()
 
 						<td align="center">${item.description}</td>
 
-						<td align="center">${item.stafferName}</td>
+						<td align="center">
+							<input type="number" name="batchWarehouseNum" placeholder="批量拿货数量">
+						</td>
 
+						<td align="center">${item.stafferName}</td>
+						<input type="hidden" name="itemId" value="${item.id}">
+						<input type="hidden" name="to_be_warehouse" value="${item.amount-item.totalWarehouseNum}">
 						<td align="center">
 							<c:if test="${item.fechProduct == 0 || item.fechProduct == 2}">
 								<a title="拿货"
@@ -244,8 +286,12 @@ function updatePrice()
 	<p:button leftWidth="100%" rightWidth="0%">
 		<div align="right">
 			<input type="button" class="button_class"
+				   onclick="showBatchDlg()"
+				   value="&nbsp;&nbsp;批量拿货&nbsp;&nbsp;">
+			<input type="button" class="button_class"
 			onclick="javascript:history.go(-1)"
-			value="&nbsp;&nbsp;返 回&nbsp;&nbsp;"></div>
+			value="&nbsp;&nbsp;返 回&nbsp;&nbsp;">
+		</div>
 	</p:button>
 
 	<p:message2/>
@@ -260,6 +306,13 @@ function updatePrice()
             <input type="text" id="warehouseNum" name="warehouseNum" placeholder="此次入库数量">
         </label>
    </div>
+</div>
+<div id="dlg2" title="选择到货的仓区" style="width:320px;">
+	<div style="padding:20px;height:200px;" id="dia_inner2" title="">
+		<c:forEach items="${depotpartList}" var="item" varStatus="vs">
+			<input type="radio" name="depotpartId" value="${item.id}"  ${vs.index == 0 ? 'checked=checked' : '' }>${item.name}<br>
+		</c:forEach>
+	</div>
 </div>
 </form>
 </body>
