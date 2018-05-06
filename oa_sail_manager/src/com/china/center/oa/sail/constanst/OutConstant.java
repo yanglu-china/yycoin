@@ -336,6 +336,12 @@ public interface OutConstant
     int INVOICESTATUS_END = 1;
 
     /**
+     * 部分开票
+     */
+    @Defined(key = "invoiceStatus", value = "部分开票")
+    int INVOICESTATUS_PART = 2;
+
+    /**
      * 提交
      */
     @Defined(key = "outBalanceStatus", value = "提交")
