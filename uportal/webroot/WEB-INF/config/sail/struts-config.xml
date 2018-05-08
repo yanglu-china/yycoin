@@ -105,6 +105,7 @@
             <forward name="addGiftConfig" path="/giftconfig/addGiftConfig.jsp" />
             <forward name="updateGiftConfig" path="/giftconfig/updateGiftConfig.jsp" />
             <forward name="detailGiftConfig" path="/giftconfig/detailGiftConfig.jsp" />
+            <forward name="importGiftConfig" path="/giftconfig/importGiftConfig.jsp" />
         </action>
         
          <action path="/sail/tran" parameter="method"
