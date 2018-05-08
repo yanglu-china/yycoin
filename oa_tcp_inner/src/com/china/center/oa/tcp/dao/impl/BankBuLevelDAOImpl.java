@@ -80,6 +80,7 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
 
     @Override
     public String queryHighLevelManagerId(String flowKey, int bearType, String stafferId) {
+        System.out.println("****"+flowKey+bearType+"***"+stafferId);
         List<String> result = new ArrayList<String>();
         if (TcpFlowConstant.WORK_PAY_MARKETING.equals(flowKey)
                 || TcpFlowConstant.WORK_APPLY_MARKETING.equals(flowKey)){

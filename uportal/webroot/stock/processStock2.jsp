@@ -49,6 +49,16 @@ function showBatchDlg()
 //    console.log("totalWarehouseNum:"+totalWarehouseNum);
 //    console.log("to_be_warehouse:"+to_be_warehouse);
 
+    var amountElements = document.querySelectorAll('input[name="batchWarehouseNum"]')
+    for (var i=0;i<=amountElements.length-1;i++){
+        var element = amountElements[i];
+        if(element && element.value){
+            continue;
+		} else{
+            alert("批量拿货数量字段必填!");
+            return false;
+		}
+    }
     $('#dlg2').dialog({closed:false});
 }
 
@@ -114,6 +124,7 @@ function batchFetchProduct()
         alert('请选择仓区');
         return false;
     }
+
     formEntry.method.value = 'batchFetchProduct';
     formEntry.submit();
 }

@@ -1343,10 +1343,17 @@ public class StockAction extends DispatchAction
                     String itemId = itemIds[i];
                     int warehouseNumber = Integer.valueOf(batchWarehouseNums[i]);
                     int toBeWarehouseNum = Integer.valueOf(to_be_warehouses[i]);
-                    result = stockManager.fetchProductByArrivalBean(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum);
+                    if (warehouseNumber!= 0){
+                        result = stockManager.fetchProductByArrivalBean(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum);
+                    }
                 }
 
                 request.setAttribute(KeyConstant.MESSAGE, msg);
+            }
+            catch(NumberFormatException e){
+                _logger.warn(e, e);
+                msg = "批量拿货数量每行必填";
+                result = false;
             }
             catch (MYException e)
             {
