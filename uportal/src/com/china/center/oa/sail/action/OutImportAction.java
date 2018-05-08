@@ -3708,13 +3708,12 @@
                              _logger.info(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
                              if (base.getInputPrice() == 0)
                              {
-                                 String msg = base.getProductName() + " 业务员结算价不能为0";
+                                 String msg = bean.getOutId()+ "结算价不能为0:"+base.getProductName() ;
                                  _logger.warn(msg);
                                  request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
-                                 return mapping.findForward("error");
+                                 throw new MYException(msg);
                              }  else{
                                  _logger.debug(base.getProductName()+"更新结算价");
- //                                this.baseDAO.updateEntityBean(base);
                                  try{
                                      this.outManager.updateBase(base);
                                  }catch(Exception e){
