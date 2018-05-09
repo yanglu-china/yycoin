@@ -2,6 +2,7 @@ package com.china.center.oa.publics;
 
 import com.china.center.tools.StringTools;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -70,6 +71,41 @@ public class StringUtils {
         String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
 
         return date+String.format("%03d", sn);
+    }
+
+    public static String[] fillObj(String[] obj, int length)
+    {
+        String[] result = new String[length];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * check date is valid format
+     * @param date
+     * @param format
+     * @return
+     */
+    public static boolean isDateValid(String date, String format){
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        try{
+            sdf.parse(date);
+            return true;
+        }catch(ParseException e){
+            return false;
+        }
     }
 
     public static void main(String[] args){

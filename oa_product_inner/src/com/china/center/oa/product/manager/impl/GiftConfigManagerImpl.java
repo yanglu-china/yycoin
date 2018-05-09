@@ -106,6 +106,7 @@ public class GiftConfigManagerImpl implements GiftConfigManager
     }
 
     @Override
+    @Transactional(rollbackFor = MYException.class)
     public boolean importBeans(User user, List<ProductVSGiftBean> beans) throws MYException {
         for (ProductVSGiftBean bean: beans){
             this.addBean(user, bean);

@@ -22,10 +22,12 @@ import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProductVSGiftBean;
 import com.china.center.oa.product.constant.ProductConstant;
+import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductVSGiftDAO;
 import com.china.center.oa.product.manager.GiftConfigManager;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.sail.bean.SailConfBean;
 import com.china.center.tools.*;
@@ -59,6 +61,8 @@ public class GiftConfigAction extends DispatchAction
     private ProductVSGiftDAO productVSGiftDAO = null;
 
     private GiftConfigManager giftConfigManager = null;
+
+    private ProductDAO productDAO = null;
 
     private static final String QUERYSAILCONFIG = "queryGiftConfig";
 
@@ -126,6 +130,7 @@ public class GiftConfigAction extends DispatchAction
         StringBuilder builder = new StringBuilder();
 
         final String url = "importGiftConfig";
+
         try
         {
             rds.parser();
@@ -154,7 +159,7 @@ public class GiftConfigAction extends DispatchAction
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next());
+                String[] obj = StringUtils.fillObj((String[])reader.next(), 34);
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -178,6 +183,13 @@ public class GiftConfigAction extends DispatchAction
                     {
                         String activity = obj[0].trim();
                         item.setActivity(activity);
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("活动描述必填")
+                                .append("<br>");
+
+                        importError = true;
                     }
 
                     // 适用银行
@@ -334,11 +346,176 @@ public class GiftConfigAction extends DispatchAction
                         item.setStafferShare(Integer.valueOf(stafferShare));
                     }
 
+                    if (item.getCompanyShare()+ item.getStafferShare()!= 100 &&
+                            item.getCompanyShare()+item.getStafferShare()!= 0){
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("公司和个人承担比例之和必须为100或者0!")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 开始日期
+                    if ( !StringTools.isNullOrNone(obj[23]))
+                    {
+                        String beginDate = obj[23].trim();
+                        item.setBeginDate(beginDate);
+                        if (!StringUtils.isDateValid(beginDate, "yyyy-MM-dd")){
+                            builder.append("第[" + currentNumber + "]错误:")
+                                    .append("开始日期必须为XXXX-XX-XX格式")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    }
+
+                    // 结束日期
+                    if ( !StringTools.isNullOrNone(obj[24]))
+                    {
+                        String endDate = obj[24].trim();
+                        item.setEndDate(endDate);
+                        if (!StringUtils.isDateValid(endDate, "yyyy-MM-dd")){
+                            builder.append("第[" + currentNumber + "]错误:")
+                                    .append("结束日期必须为XXXX-XX-XX格式")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    }
+
+                    // 销售商品品名
+                    if ( !StringTools.isNullOrNone(obj[25]))
+                    {
+                        String productName = obj[25].trim();
+                        ProductBean productBean = this.productDAO.findByName(productName);
+                        if (productBean == null){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("销售商品品名不存在:"+productName)
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            item.setProductId(productBean.getId());
+                        }
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("销售商品品名必填")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+
+                    // 销售商品数量
+                    if ( !StringTools.isNullOrNone(obj[26]))
+                    {
+                        String sailAmount = obj[26].trim();
+                        item.setSailAmount(Integer.valueOf(sailAmount));
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("销售商品数量必填")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 赠送商品品名
+                    if ( !StringTools.isNullOrNone(obj[27]))
+                    {
+                        String giftProductName = obj[27].trim();
+                        ProductBean productBean = this.productDAO.findByName(giftProductName);
+                        if (productBean == null){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("赠送商品品名不存在:"+giftProductName)
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            item.setGiftProductId(productBean.getId());
+                        }
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("赠送商品品名必填")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+
+                    // 赠送商品数量
+                    if ( !StringTools.isNullOrNone(obj[28]))
+                    {
+                        String amount = obj[28].trim();
+                        item.setAmount(Integer.valueOf(amount));
+                    } else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("赠送商品数量必填")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    // 赠送商品品名2
+                    if ( !StringTools.isNullOrNone(obj[29]))
+                    {
+                        String giftProductName2 = obj[29].trim();
+                        ProductBean productBean = this.productDAO.findByName(giftProductName2);
+                        if (productBean == null){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("赠送商品品名2不存在:"+giftProductName2)
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            item.setGiftProductId2(productBean.getId());
+                        }
+                    }
+
+
+                    // 赠送商品数量2
+                    if ( !StringTools.isNullOrNone(obj[30]))
+                    {
+                        String amount2 = obj[30].trim();
+                        item.setAmount2(Integer.valueOf(amount2));
+                    }
+
+                    // 赠送商品品名3
+                    if ( !StringTools.isNullOrNone(obj[31]))
+                    {
+                        String giftProductName3 = obj[31].trim();
+                        ProductBean productBean = this.productDAO.findByName(giftProductName3);
+                        if (productBean == null){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("赠送商品品名3不存在:"+giftProductName3)
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            item.setGiftProductId3(productBean.getId());
+                        }
+                    }
+
+
+                    // 赠送商品数量3
+                    if ( !StringTools.isNullOrNone(obj[32]))
+                    {
+                        String amount3 = obj[32].trim();
+                        item.setAmount3(Integer.valueOf(amount3));
+                    }
 
                     //描述
-                    if ( !StringTools.isNullOrNone(obj[6]))
+                    if ( !StringTools.isNullOrNone(obj[33]))
                     {
-                        String description = obj[6].trim();
+                        String description = obj[33].trim();
                         item.setDescription(description);
                     }
 
@@ -396,24 +573,6 @@ public class GiftConfigAction extends DispatchAction
         return mapping.findForward(url);
     }
 
-    private String[] fillObj(String[] obj)
-    {
-        String[] result = new String[9];
-
-        for (int i = 0; i < result.length; i++ )
-        {
-            if (i < obj.length)
-            {
-                result[i] = obj[i];
-            }
-            else
-            {
-                result[i] = "";
-            }
-        }
-
-        return result;
-    }
 
     /**
      * preForAddGiftConfig
@@ -617,5 +776,13 @@ public class GiftConfigAction extends DispatchAction
 
     public void setGiftConfigManager(GiftConfigManager giftConfigManager) {
         this.giftConfigManager = giftConfigManager;
+    }
+
+    public ProductDAO getProductDAO() {
+        return productDAO;
+    }
+
+    public void setProductDAO(ProductDAO productDAO) {
+        this.productDAO = productDAO;
     }
 }
