@@ -27,6 +27,8 @@ import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 /**
  * GiftConfigManagerImpl
@@ -101,6 +103,14 @@ public class GiftConfigManagerImpl implements GiftConfigManager
         }
 
         return obj;
+    }
+
+    @Override
+    public boolean importBeans(User user, List<ProductVSGiftBean> beans) throws MYException {
+        for (ProductVSGiftBean bean: beans){
+            this.addBean(user, bean);
+        }
+        return true;
     }
 
     /**

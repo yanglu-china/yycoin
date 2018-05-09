@@ -38,4 +38,6 @@ public interface GiftConfigManager
     boolean updateBean(User user, ProductVSGiftBean bean)
         throws MYException;
 
+    boolean importBeans(User user, List<ProductVSGiftBean> beans)
+            throws MYException;
 }

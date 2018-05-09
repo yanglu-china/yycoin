@@ -1,3 +1,4 @@
+
 /**
  * File Name: SailConfigAction.java<br>
  * CopyRight: Copyright by www.center.china<br>
@@ -10,19 +11,24 @@ package com.china.center.oa.sail.action;
 
 
 import com.center.china.osgi.publics.User;
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.actionhelper.common.ActionTools;
 import com.china.center.actionhelper.common.JSONTools;
 import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProductVSGiftBean;
+import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.ProductVSGiftDAO;
 import com.china.center.oa.product.manager.GiftConfigManager;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.publics.Helper;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
+import com.china.center.oa.publics.bean.PrincipalshipBean;
+import com.china.center.oa.sail.bean.SailConfBean;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -33,6 +39,9 @@ import org.apache.struts.actions.DispatchAction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -91,6 +100,319 @@ public class GiftConfigAction extends DispatchAction
             });
         _logger.info("queryGiftConfig********************"+jsonstr);
         return JSONTools.writeResponse(response, jsonstr);
+    }
+
+    /**
+     * #310
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward importGiftConfig(ActionMapping mapping, ActionForm form,
+                                          HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<ProductVSGiftBean> importItemList = new ArrayList<ProductVSGiftBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        final String url = "importGiftConfig";
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward(url);
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward(url);
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    ProductVSGiftBean item = new ProductVSGiftBean();
+
+                    // 活动描述
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String activity = obj[0].trim();
+                        item.setActivity(activity);
+                    }
+
+                    // 适用银行
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        String bank = obj[1].trim();
+                        item.setBank(bank);
+                    }
+
+                    // 不适用银行
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        String excludeBank = obj[2].trim();
+                        item.setExcludeBank(excludeBank);
+                    }
+
+                    // 适用分行
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        String branch = obj[3].trim();
+                        item.setBranchName(branch);
+                    }
+
+                    // 不适用分行
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        String excludeBranch = obj[4].trim();
+                        item.setExcludeBranchName(excludeBranch);
+                    }
+
+                    // 适用支行
+                    if ( !StringTools.isNullOrNone(obj[5]))
+                    {
+                        String customerName = obj[5].trim();
+                        item.setCustomerName(customerName);
+                    }
+
+                    // 不适用支行
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        String excludeCustomer = obj[6].trim();
+                        item.setExcludeCustomerName(excludeCustomer);
+                    }
+
+                    // 适用渠道
+                    if ( !StringTools.isNullOrNone(obj[7]))
+                    {
+                        String channel = obj[7].trim();
+                        item.setChannel(channel);
+                    }
+
+                    // 不适用渠道
+                    if ( !StringTools.isNullOrNone(obj[8]))
+                    {
+                        String excludeChannel = obj[8].trim();
+                        item.setExcludeChannel(excludeChannel);
+                    }
+
+                    // 适用事业部
+                    if ( !StringTools.isNullOrNone(obj[9]))
+                    {
+                        String industryName = obj[9].trim();
+                        item.setIndustryName(industryName);
+                    }
+
+                    // 不适用事业部
+                    if ( !StringTools.isNullOrNone(obj[10]))
+                    {
+                        String excludeIndustryName = obj[10].trim();
+                        item.setExcludeIndustryName(excludeIndustryName);
+                    }
+
+                    // 适用大区
+                    if ( !StringTools.isNullOrNone(obj[11]))
+                    {
+                        String industryName2 = obj[11].trim();
+                        item.setIndustryName2(industryName2);
+                    }
+
+                    // 不适用大区
+                    if ( !StringTools.isNullOrNone(obj[12]))
+                    {
+                        String excludeIndustryName2 = obj[12].trim();
+                        item.setExcludeIndustryName2(excludeIndustryName2);
+                    }
+
+                    // 适用部门
+                    if ( !StringTools.isNullOrNone(obj[13]))
+                    {
+                        String industryName3 = obj[13].trim();
+                        item.setIndustryName3(industryName3);
+                    }
+
+                    // 不适用部门
+                    if ( !StringTools.isNullOrNone(obj[14]))
+                    {
+                        String excludeIndustryName3 = obj[14].trim();
+                        item.setExcludeIndustryName3(excludeIndustryName3);
+                    }
+
+                    // 适用人员
+                    if ( !StringTools.isNullOrNone(obj[15]))
+                    {
+                        String stafferName = obj[15].trim();
+                        item.setStafferName(stafferName);
+                    }
+
+                    // 不适用人员
+                    if ( !StringTools.isNullOrNone(obj[16]))
+                    {
+                        String excludeStafferName = obj[16].trim();
+                        item.setExcludeStafferName(excludeStafferName);
+                    }
+
+                    // 适用省份
+                    if ( !StringTools.isNullOrNone(obj[17]))
+                    {
+                        String province = obj[17].trim();
+                        item.setProvince(province);
+                    }
+
+                    // 不适用省份
+                    if ( !StringTools.isNullOrNone(obj[18]))
+                    {
+                        String excludeProvince = obj[18].trim();
+                        item.setExcludeProvince(excludeProvince);
+                    }
+
+                    // 适用城市
+                    if ( !StringTools.isNullOrNone(obj[19]))
+                    {
+                        String city = obj[19].trim();
+                        item.setCity(city);
+                    }
+
+                    // 不适用城市
+                    if ( !StringTools.isNullOrNone(obj[20]))
+                    {
+                        String excludeCity = obj[20].trim();
+                        item.setExcludeCity(excludeCity);
+                    }
+
+                    // 公司承担比例
+                    if ( !StringTools.isNullOrNone(obj[21]))
+                    {
+                        String companyShare = obj[21].trim();
+                        item.setCompanyShare(Integer.valueOf(companyShare));
+                    }
+
+                    // 个人承担比例
+                    if ( !StringTools.isNullOrNone(obj[22]))
+                    {
+                        String stafferShare = obj[22].trim();
+                        item.setStafferShare(Integer.valueOf(stafferShare));
+                    }
+
+
+                    //描述
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        String description = obj[6].trim();
+                        item.setDescription(description);
+                    }
+
+                    importItemList.add(item);
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足2格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward(url);
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward(url);
+        } else{
+            try{
+                this.giftConfigManager.importBeans(user,importItemList);
+                request.setAttribute(KeyConstant.MESSAGE, "导入成功");
+            }catch(Exception e){
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getMessage());
+
+                return mapping.findForward(url);
+            }
+        }
+
+        return mapping.findForward(url);
+    }
+
+    private String[] fillObj(String[] obj)
+    {
+        String[] result = new String[9];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
     }
 
     /**
