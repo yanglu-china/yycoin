@@ -375,28 +375,60 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     }
 
     /**
+     * #301 跳过由同一个人处理的多个审批环节,递归找到下一环节处理人
      * get High level manager Id from  bank level table
      * @param stafferId
      * @param nextStatus
      * @return
      */
-    private String getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
+    private TcpFlowBean getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
+        TcpFlowBean result = new TcpFlowBean();
+        String nextProcessor = "";
         try {
             if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                return this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId);
-            }else {
-                return "";
+                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId);
+                if (stafferId.equals(nextProcessor)){
+                    TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
+                    _logger.info("***next token***"+token);
+                    return getNextProcessor(nextProcessor, flowKey, token.getNextStatus());
+                } else{
+                    result.setNextProcessor(nextProcessor);
+                    result.setNextStatus(nextStatus);
+                }
             }
         }catch(Exception e){
             _logger.error(e);
             throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
         }
+
+        return result;
     }
 
-    
+//    private String getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
+//        String nextProcessor = "";
+//        try {
+//            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
+//                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId);
+//                if (stafferId.equals(nextProcessor)){
+//                    TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
+//                    _logger.info("***next token***"+token);
+//                    return getNextProcessor(nextProcessor, flowKey, token.getNextStatus());
+//                }
+//                return nextProcessor;
+//            }else {
+//                return "";
+//            }
+//        }catch(Exception e){
+//            _logger.error(e);
+//            throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
+//        }
+//    }
     
     /**
      * 获取部门负责人
@@ -755,13 +787,14 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     || token.getNextPlugin().equalsIgnoreCase("plugin:regionalCEO"))
             {
                 List<String> processList = new ArrayList();
-                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+//                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+                TcpFlowBean nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
                 if (!StringTools.isNullOrNone(nextProcessor)){
-                    processList.add(nextProcessor);
+                    processList.add(nextProcessor.getNextProcessor());
                 }
                 _logger.info("***processList***"+processList.size());
 
-                int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
+                int newStatus = saveApprove(user, processList, bean, nextProcessor.getNextStatus(),
                         TcpConstanst.TCP_POOL_COMMON);
 
                 bean.setStatus(newStatus);
@@ -2073,8 +2106,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         _logger.info("***appList***"+appList.size());
         if (token == null || appList.size() == 0 || token.getSingeAll() == 0)
         {
-            String nextProcessor = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
-            if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
+//            String nextProcessor = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+            TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+            String nextProcessor = nextToken.getNextProcessor();
+            if (!StringTools.isNullOrNone(nextToken) && !processList.contains(nextProcessor)){
                 processList.add(nextProcessor);
             }
             _logger.info("***processList***"+processList.size());

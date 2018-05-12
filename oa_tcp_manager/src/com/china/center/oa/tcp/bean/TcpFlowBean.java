@@ -11,11 +11,7 @@ package com.china.center.oa.tcp.bean;
 
 import java.io.Serializable;
 
-import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.FK;
-import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Table;
-import com.china.center.jdbc.annotation.Unique;
+import com.china.center.jdbc.annotation.*;
 
 
 /**
@@ -64,6 +60,8 @@ public class TcpFlowBean implements Serializable
 
     private int ending = 0;
 
+    @Ignore
+    private String nextProcessor = "";
     /**
      * default constructor
      */
@@ -256,6 +254,14 @@ public class TcpFlowBean implements Serializable
     public void setRejectToPre(int rejectToPre)
     {
         this.rejectToPre = rejectToPre;
+    }
+
+    public String getNextProcessor() {
+        return nextProcessor;
+    }
+
+    public void setNextProcessor(String nextProcessor) {
+        this.nextProcessor = nextProcessor;
     }
 
     /**
