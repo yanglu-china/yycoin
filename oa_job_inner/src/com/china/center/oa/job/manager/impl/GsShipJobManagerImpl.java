@@ -32,8 +32,7 @@ public class GsShipJobManagerImpl extends ShipJobManagerImpl{
 
     @Override
     protected String getAttachmentFileName(BranchRelationBean bean) {
-        String fileName = getShippingAttachmentPath() + "/甘肃银行"
-                + "_" +bean.getSubBranchMail()+"_"+ TimeTools.now("yyyyMMddHHmmss") + ".xls";
+        String fileName = getShippingAttachmentPath() + "/甘肃银行"+"_"+ TimeTools.now("yyyyMMddHHmmss") + ".xls";
         return fileName;
     }
 
