@@ -383,6 +383,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
      */
     private TcpFlowBean getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
         TcpFlowBean result = new TcpFlowBean();
+        result.setNextProcessor(stafferId);
+        result.setNextStatus(nextStatus);
         String nextProcessor = "";
         try {
             if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
@@ -393,10 +395,15 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 if (stafferId.equals(nextProcessor)){
                     TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
                     _logger.info("***next token***"+token);
+                    // 下一环节如果已经是pool,直接返回
+                    if (token!= null && token.getNextPlugin().contains("pool")){
+                        return token;
+                    }
                     return getNextProcessor(nextProcessor, flowKey, token.getNextStatus());
                 } else{
                     result.setNextProcessor(nextProcessor);
                     result.setNextStatus(nextStatus);
+                    _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
                 }
             }
         }catch(Exception e){
@@ -710,45 +717,46 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	    // 共享池模式
 	    if (token.getNextPlugin().startsWith("pool"))
 	    {
-	        String groupId = token.getNextPlugin().substring(5);
-	
-	        List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
-	
-	        if (ListTools.isEmptyOrNull(vsList))
-	        {
-	            throw new MYException("当前群组内没有人员,请确认操作");
-	        }
-	
-	        List<String> processList = new ArrayList();
-	
-	        for (GroupVSStafferBean groupVSStafferBean : vsList)
-	        {
-	            processList.add(groupVSStafferBean.getStafferId());
-	        }
-	
-	        int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
-	            TcpConstanst.TCP_POOL_POOL);
-	
-	        if (newStatus != oldStatus)
-	        {
-	            bean.setStatus(newStatus);
-	            
-	            // 会签结束，且没有借款的情况，后续状态直接置为结束
-	            if (bean.getBorrow() == TcpConstanst.TRAVELAPPLY_BORROW_NO && newStatus == TcpConstanst.TCP_STATUS_WAIT_PAY )
-	            {
-	                newStatus = TcpConstanst.TCP_STATUS_END;
-	                
-	                // 结束了要清空
-	                tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
-	                
-	                bean.setStatus(newStatus);
-	            }
-	
-	            travelApplyDAO.updateStatus(bean.getId(), newStatus);
-	        }
-	
-	        // 记录操作日志
-	        saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
+	        this.pool(token, user, bean, oldStatus, reason);
+//	        String groupId = token.getNextPlugin().substring(5);
+//
+//	        List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
+//
+//	        if (ListTools.isEmptyOrNull(vsList))
+//	        {
+//	            throw new MYException("当前群组内没有人员,请确认操作");
+//	        }
+//
+//	        List<String> processList = new ArrayList();
+//
+//	        for (GroupVSStafferBean groupVSStafferBean : vsList)
+//	        {
+//	            processList.add(groupVSStafferBean.getStafferId());
+//	        }
+//
+//	        int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
+//	            TcpConstanst.TCP_POOL_POOL);
+//
+//	        if (newStatus != oldStatus)
+//	        {
+//	            bean.setStatus(newStatus);
+//
+//	            // 会签结束，且没有借款的情况，后续状态直接置为结束
+//	            if (bean.getBorrow() == TcpConstanst.TRAVELAPPLY_BORROW_NO && newStatus == TcpConstanst.TCP_STATUS_WAIT_PAY )
+//	            {
+//	                newStatus = TcpConstanst.TCP_STATUS_END;
+//
+//	                // 结束了要清空
+//	                tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
+//
+//	                bean.setStatus(newStatus);
+//	            }
+//
+//	            travelApplyDAO.updateStatus(bean.getId(), newStatus);
+//	        }
+//
+//	        // 记录操作日志
+//	        saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
 	    }
 	    // 插件模式
 	    else if (token.getNextPlugin().startsWith("plugin"))
@@ -789,22 +797,27 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 List<String> processList = new ArrayList();
 //                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
                 TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
-                int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
-                String nextProcessor = nextToken.getNextProcessor();
-                if (!StringTools.isNullOrNone(nextProcessor)){
-                    processList.add(nextProcessor);
+                _logger.info("****next Token***"+nextToken);
+                if (nextToken!= null && nextToken.getNextPlugin().contains("pool")){
+                    this.pool(nextToken, user,bean,oldStatus,reason);
+                } else{
+                    int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
+                    String nextProcessor = nextToken.getNextProcessor();
+                    if (!StringTools.isNullOrNone(nextProcessor)){
+                        processList.add(nextProcessor);
+                    }
+                    _logger.info("***processList***"+processList.size());
+
+                    int newStatus = saveApprove(user, processList, bean, nextStatusIgnoreDuplicate,
+                            TcpConstanst.TCP_POOL_COMMON);
+
+                    bean.setStatus(newStatus);
+
+                    travelApplyDAO.updateStatus(bean.getId(), newStatus);
+
+                    // 记录操作日志
+                    saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
                 }
-                _logger.info("***processList***"+processList.size());
-
-                int newStatus = saveApprove(user, processList, bean, nextStatusIgnoreDuplicate,
-                        TcpConstanst.TCP_POOL_COMMON);
-
-                bean.setStatus(newStatus);
-
-                travelApplyDAO.updateStatus(bean.getId(), newStatus);
-
-                // 记录操作日志
-                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
             }
 	    }
 	    // 结束模式
@@ -824,6 +837,49 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
 	    return true;
 	}
+
+	private void pool(TcpFlowBean token, User user, TravelApplyVO bean, int oldStatus, String reason) throws MYException
+    {
+        String groupId = token.getNextPlugin().substring(5);
+
+        List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
+
+        if (ListTools.isEmptyOrNull(vsList))
+        {
+            throw new MYException("当前群组内没有人员,请确认操作");
+        }
+
+        List<String> processList = new ArrayList();
+
+        for (GroupVSStafferBean groupVSStafferBean : vsList)
+        {
+            processList.add(groupVSStafferBean.getStafferId());
+        }
+
+        int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
+                TcpConstanst.TCP_POOL_POOL);
+
+        if (newStatus != oldStatus)
+        {
+            bean.setStatus(newStatus);
+
+            // 会签结束，且没有借款的情况，后续状态直接置为结束
+            if (bean.getBorrow() == TcpConstanst.TRAVELAPPLY_BORROW_NO && newStatus == TcpConstanst.TCP_STATUS_WAIT_PAY )
+            {
+                newStatus = TcpConstanst.TCP_STATUS_END;
+
+                // 结束了要清空
+                tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
+
+                bean.setStatus(newStatus);
+            }
+
+            travelApplyDAO.updateStatus(bean.getId(), newStatus);
+        }
+
+        // 记录操作日志
+        saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
+    }
     
     
 
