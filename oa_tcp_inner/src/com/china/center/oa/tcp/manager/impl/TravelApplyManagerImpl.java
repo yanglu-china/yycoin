@@ -2108,11 +2108,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         {
 //            String nextProcessor = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
             TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+            int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
             String nextProcessor = nextToken.getNextProcessor();
             if (!StringTools.isNullOrNone(nextToken) && !processList.contains(nextProcessor)){
                 processList.add(nextProcessor);
             }
-            _logger.info("***processList***"+processList.size());
+            _logger.info(nextStatus+"***nextStatusIgnoreDuplicate***"+nextStatusIgnoreDuplicate+"***processList***"+processList.size());
             for (String processId : processList)
             {
                 // 进入审批状态
@@ -2126,7 +2127,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 approve.setLogTime(TimeTools.now());
                 approve.setDepartmentId(bean.getDepartmentId());
                 approve.setName(bean.getName());
-                approve.setStatus(nextStatus);
+//                approve.setStatus(nextStatus);
+                approve.setStatus(nextStatusIgnoreDuplicate);
                 approve.setTotal(bean.getTotal());
                 approve.setCheckTotal(bean.getBorrowTotal());
                 approve.setType(bean.getType());
