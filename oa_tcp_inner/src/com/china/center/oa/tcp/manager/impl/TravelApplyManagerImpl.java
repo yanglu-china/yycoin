@@ -788,13 +788,15 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             {
                 List<String> processList = new ArrayList();
 //                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
-                TcpFlowBean nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+                TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+                int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
+                String nextProcessor = nextToken.getNextProcessor();
                 if (!StringTools.isNullOrNone(nextProcessor)){
-                    processList.add(nextProcessor.getNextProcessor());
+                    processList.add(nextProcessor);
                 }
                 _logger.info("***processList***"+processList.size());
 
-                int newStatus = saveApprove(user, processList, bean, nextProcessor.getNextStatus(),
+                int newStatus = saveApprove(user, processList, bean, nextStatusIgnoreDuplicate,
                         TcpConstanst.TCP_POOL_COMMON);
 
                 bean.setStatus(newStatus);
