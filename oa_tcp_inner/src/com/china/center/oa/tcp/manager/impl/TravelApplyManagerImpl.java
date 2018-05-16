@@ -383,8 +383,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
      */
     private TcpFlowBean getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
         TcpFlowBean result = new TcpFlowBean();
-        result.setNextProcessor(stafferId);
-        result.setNextStatus(nextStatus);
+
         String nextProcessor = "";
         try {
             if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
@@ -668,6 +667,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	public boolean passTravelApplyBean(User user, TcpParamWrap param)
 	    throws MYException
 	{
+	    _logger.info("****passTravelApplyBean****"+param);
 	    String id = param.getId();
 	    String processId = param.getProcessId();
 	    String reason = param.getReason();
@@ -2168,10 +2168,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
             int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
             String nextProcessor = nextToken.getNextProcessor();
-            if (!StringTools.isNullOrNone(nextToken) && !processList.contains(nextProcessor)){
+            if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
                 processList.add(nextProcessor);
             }
-            _logger.info(nextStatus+"***nextStatusIgnoreDuplicate***"+nextStatusIgnoreDuplicate+"***processList***"+processList.size());
+            _logger.info(nextStatus+"***nextStatusIgnoreDuplicate***"+nextStatusIgnoreDuplicate+"***processList***"+processList.size()+"***nextProcessor***"+nextProcessor);
             for (String processId : processList)
             {
                 // 进入审批状态
@@ -3123,9 +3123,11 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //销售退库
         con1.addCondition("OutBean.outType", "=", OutConstant.OUTTYPE_IN_OUTBACK);
         //“待核对”状态
-        con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
+//        con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
         con1.addCondition("outTime",">",beginDate);
         con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0)");
+        //#315 “待核对”和结束状态
+        con1.addCondition(" and OutBean.status in(3,4)");
         List<OutBean> outList2 = this.outDAO.queryEntityBeansByCondition(con1);
         if (!ListTools.isEmptyOrNull(outList2)){
             _logger.info("ibReport outList2 size:"+outList2.size());
