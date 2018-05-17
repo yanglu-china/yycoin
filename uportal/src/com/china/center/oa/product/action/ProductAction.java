@@ -1372,6 +1372,7 @@ public class ProductAction extends DispatchAction
 
         String name = request.getParameter("name");
         String code = request.getParameter("code");
+        String depotpartId = request.getParameter("depotpartId");
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
         if (!StringTools.isNullOrNone(name)){
@@ -1399,7 +1400,7 @@ public class ProductAction extends DispatchAction
                     ConditionParse condition = new ConditionParse();
 
                     // TODO
-                    condition.addCondition("StorageRelationBean.depotpartId", "=", "A1201606211663545389");
+                    condition.addCondition("StorageRelationBean.depotpartId", "=", depotpartId);
 
                     // 公共的库存
                     condition.addCondition("StorageRelationBean.stafferId", "=", "0");
@@ -1415,12 +1416,11 @@ public class ProductAction extends DispatchAction
                             vo.setId(composeProduct.getId());
                             vo.setProductId(productId);
                             vo.setProductName(productBean.getName());
-                            vo.setAmount(composeProduct.getAmount());
+
 
                             int preassign = storageRelationManager.sumPreassignByStorageRelation(storageRelationVO);
-                            //TODO
-//                            vo.setPamount(vo.getAmount()-preassign);
-                            vo.setPrice(this.roundDouble(vo.getPrice()));
+                            vo.setAmount(storageRelationVO.getAmount()-preassign);
+                            vo.setPrice(this.roundDouble(storageRelationVO.getPrice()));
 
                             List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
                             for (ComposeItemVO item: itemList){

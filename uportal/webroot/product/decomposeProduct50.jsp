@@ -131,8 +131,10 @@ function selectProduct(obj)
 //        window.common.modal('../depot/storage.do?method=rptQueryStorageRelationInDepot&load=1&selectMode=1&depotId='
 //            + $$('depot') + '&depotpartId=' + $$('depotpart') + '&ctype=1' + '&init=1');
 //    }
+    var depotpartId = $$('depotpart')
+    console.log(depotpartId);
    //查询拆分产品列表
-    window.common.modal('../product/product.do?method=rptQueryLatestComposeProduct&load=1&selectMode=1');
+    window.common.modal('../product/product.do?method=rptQueryLatestComposeProduct&load=1&selectMode=1&depotpartId='+depotpartId);
 }
 
 var amountList = [];
@@ -141,12 +143,12 @@ var srcPriceList = [];
 
 function getProductBom(oos)
 {
-//    console.log(oos);
     //从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
     var table = $O("tables");
+    console.log(table);
     //删除原有两行,没删除一行后index会变化
-    table.deleteRow(1);
-    table.deleteRow(1);
+    // table.deleteRow(1);
+    // table.deleteRow(1);
 //    var table = document.getElementById("tables");
 //    while(table.rows.length > 0) {
 //        table.deleteRow(0);
@@ -155,9 +157,11 @@ function getProductBom(oos)
 
     // console.log(oos);
     var oo = oos[0];
-//    console.log(oo);
+   console.log(oo);
     $O('productName').value = oo.pname;
     $O('productId').value = oo.value;
+
+
     var url = "../product/product.do?method=findCompose&id="+oo.id;
 //    console.log(url);
     var html = "<strong>最近合成:</strong>"+"<a href='"+url+"'>"+oo.id+"</a>";
@@ -165,6 +169,9 @@ function getProductBom(oos)
     $O('composeId').innerHTML = html;
     // console.log(bomjson);
     var amount = oo.pamount;
+    var price = oo.pprice;
+    document.getElementById("amount").value = amount;
+    document.getElementById("price").value = _.round(price,2);
     var bomjson = JSON.parse(oo.pbomjson);
     // console.log(bomjson);
     for (var j = 0; j < bomjson.length; j++)
@@ -197,61 +204,6 @@ function getProductBom(oos)
     }
 }
 
-/**
- * callback when select from bom
- * @param oos
- */
-// function getProductBom(oos)
-// {
-// //    console.log(oos);
-//     //从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
-//     var table = $O("tables");
-//     //删除原有两行,没删除一行后index会变化
-//     table.deleteRow(1);
-//     table.deleteRow(1);
-// //    var table = document.getElementById("tables");
-// //    while(table.rows.length > 0) {
-// //        table.deleteRow(0);
-// //    }
-// //    table.deleteRow(2);
-//     var oo = oos[0];
-// 	console.log(oo);
-//     current.value = oo.pname;
-// //
-// //    $O("mtype").value = oo.pmtype;
-// //    $O("oldproduct").value = oo.poldproduct;
-// //    $O("dirProductId").value = oo.value;
-//
-//     var bomjson = JSON.parse(oo.pbomjson);
-//    // console.log(bomjson);
-//     for (var j = 0; j < bomjson.length; j++)
-//     {
-//         var item = bomjson[j];
-//         // console.log(item);
-//         var trow = addTrInner();
-//
-//         var stype = getEle(trow.getElementsByTagName('select'), "stype");
-//         setSelect(stype, "0");
-//         var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
-//         setSelect(srcDe1, "A1201606211663545335");
-//         setInputValueInTr(trow, 'srcProductName', item.subProductName);
-//         setInputValueInTr(trow, 'srcProductId', item.subProductId);
-// //        setInputValueInTr(trow, 'srcAmount', item.pamount);
-// //        setInputValueInTr(trow, 'srcPrice', item.price);
-//         amountList.push(item.bomAmount);
-//         srcPriceList.push(item.lastPrice);
-//         var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
-//         //add new option
-//         for (var k = 0; k < dList.length; k++)
-//         {
-//             if (dList[k].locationId == "A1201606211663545335")
-//             {
-//                 setOption(srcDepotpart, dList[k].id, dList[k].name);
-//             }
-//         }
-//         setSelect(srcDepotpart, "A1201606211663545389");
-//     }
-// }
 
 function getEle(eles, name)
 {
@@ -407,16 +359,6 @@ function srcDepotChange(obj)
     }
 }
 
-//function round(number, precision) {
-//    var shift = function (number, precision, reverseShift) {
-//        if (reverseShift) {
-//            precision = -precision;
-//        }
-//        var numArray = ("" + number).split("e");
-//        return +(numArray[0] + "e" + (numArray[1] ? (+numArray[1] + precision) : precision));
-//    };
-//    return shift(Math.round(shift(number, precision, false)), precision, true);
-//}
 
 function amountChange(){
     var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
@@ -441,7 +383,7 @@ function amountChange(){
     }
     // console.log("***");
     // console.log(total);
-    document.getElementById("price").value = _.round(total/amount.value,2);
+    // document.getElementById("price").value = _.round(total/amount.value,2);
 }
 
 //TODO

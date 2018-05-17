@@ -127,7 +127,8 @@ function pop(obj)
 					<td align="center">
 						<input type='${selectMode == 1 ? "radio" : "checkbox"}' name="beans"
 							   id="${item.id}" value="${item.productId}"
-							   pamount="${item.amount}" pname="${item.productName}" pbomjson='${item.bomJson}'/>
+							   pamount="${item.amount}" pname="${item.productName}"  pprice="${item.price}"
+							   pbomjson='${item.bomJson}'/>
 					</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.productName}</td>
 				    <td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.amount}</td>
@@ -137,6 +138,8 @@ function pop(obj)
 					<c:forEach items="${item.itemVOList}" var="item1">
 						<tr class="content">
 							<td align="center"></td>
+							<td align="center" onclick="hrefAndSelect(this)" ></td>
+							<td align="center" onclick="hrefAndSelect(this)" ></td>
 							<td align="center" onclick="hrefAndSelect(this)" ></td>
 							<td align="center" onclick="hrefAndSelect(this)" >${item1.productName}</td>
 							<td align="center" onclick="hrefAndSelect(this)" >${item1.productCode}</td>
