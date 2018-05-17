@@ -1395,22 +1395,46 @@ public class ProductAction extends DispatchAction
                 String productId = productBean.getId();
                 ComposeProductBean composeProduct = composeProductDAO.queryLatestByProduct(productId);
                 if (null != composeProduct) {
-                    ComposeProductVO vo = new ComposeProductVO();
-                    vo.setId(composeProduct.getId());
-                    vo.setProductId(productId);
-                    vo.setProductName(productBean.getName());
-                    vo.setAmount(composeProduct.getAmount());
-                    List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
-                    for (ComposeItemVO item: itemList){
-                        item.setPrice(NumberUtils.roundDouble(item.getPrice()));
+                    //同一产品多个库存就显示多行
+                    ConditionParse condition = new ConditionParse();
+
+                    // TODO
+                    condition.addCondition("StorageRelationBean.depotpartId", "=", "A1201606211663545389");
+
+                    // 公共的库存
+                    condition.addCondition("StorageRelationBean.stafferId", "=", "0");
+
+                    condition.addCondition("StorageRelationBean.productId", "=", productId);
+
+                    condition.addCondition("StorageRelationBean.amount", ">", 0);
+
+                    List<StorageRelationVO> eachList = storageRelationDAO.queryEntityVOsByCondition(condition);
+                    if (!ListTools.isEmptyOrNull(eachList)){
+                        for (StorageRelationVO storageRelationVO: eachList){
+                            ComposeProductVO vo = new ComposeProductVO();
+                            vo.setId(composeProduct.getId());
+                            vo.setProductId(productId);
+                            vo.setProductName(productBean.getName());
+                            vo.setAmount(composeProduct.getAmount());
+
+                            int preassign = storageRelationManager.sumPreassignByStorageRelation(storageRelationVO);
+                            //TODO
+//                            vo.setPamount(vo.getAmount()-preassign);
+                            vo.setPrice(this.roundDouble(vo.getPrice()));
+
+                            List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
+                            for (ComposeItemVO item: itemList){
+                                item.setPrice(NumberUtils.roundDouble(item.getPrice()));
+                            }
+                            vo.setItemVOList(itemList);
+
+                            JSONArray shows = new JSONArray(itemList, true);
+
+                            vo.setBomJson(shows.toString());
+                            _logger.info("***bom json***"+vo.getBomJson());
+                            result.add(vo);
+                        }
                     }
-                    vo.setItemVOList(itemList);
-
-                    JSONArray shows = new JSONArray(itemList, true);
-
-                    vo.setBomJson(shows.toString());
-                    _logger.info("***bom json***"+vo.getBomJson());
-                    result.add(vo);
                 }
             }
         }

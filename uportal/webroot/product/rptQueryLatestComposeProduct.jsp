@@ -116,6 +116,8 @@ function pop(obj)
 			<tr align=center class="content0">
 				<td align="center">选择</td>
 				<td align="center" class="td_class"><strong>名称</strong></td>
+				<td align="center" class="td_class"><strong>数量</strong></td>
+				<td align="center" class="td_class"><strong>成本</strong></td>
 				<td align="center" class="td_class"><strong>配件名称</strong></td>
 				<td align="center" class="td_class"><strong>配件编码</strong></td>
 			</tr>
@@ -128,14 +130,16 @@ function pop(obj)
 							   pamount="${item.amount}" pname="${item.productName}" pbomjson='${item.bomJson}'/>
 					</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.productName}</td>
+				    <td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.amount}</td>
+					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.price}</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()"></td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()"></td>
 					<c:forEach items="${item.itemVOList}" var="item1">
 						<tr class="content">
-						<td align="center"></td>
-						<td align="center" onclick="hrefAndSelect(this)" ></td>
-						<td align="center" onclick="hrefAndSelect(this)" >${item1.productName}</td>
-						<td align="center" onclick="hrefAndSelect(this)" >${item1.productCode}</td>
+							<td align="center"></td>
+							<td align="center" onclick="hrefAndSelect(this)" ></td>
+							<td align="center" onclick="hrefAndSelect(this)" >${item1.productName}</td>
+							<td align="center" onclick="hrefAndSelect(this)" >${item1.productCode}</td>
 						</tr>
 					</c:forEach>
 				</tr>
