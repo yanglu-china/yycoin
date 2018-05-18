@@ -11,11 +11,7 @@ package com.china.center.oa.product.bean;
 
 import java.io.Serializable;
 
-import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.FK;
-import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Join;
-import com.china.center.jdbc.annotation.Table;
+import com.china.center.jdbc.annotation.*;
 import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
@@ -70,6 +66,12 @@ public class ComposeItemBean implements Serializable
      * 产品分拆时标明是库存还是费用
      */
     private int stype = ProductConstant.DECOMPOSE_PRODUCT_STORAGE;
+
+    /**
+     * #313
+     */
+    @Ignore
+    private int assemblyRate = 0;
     
     /**
      * default constructor
@@ -297,7 +299,15 @@ public class ComposeItemBean implements Serializable
 		this.stype = stype;
 	}
 
-	/**
+    public int getAssemblyRate() {
+        return assemblyRate;
+    }
+
+    public void setAssemblyRate(int assemblyRate) {
+        this.assemblyRate = assemblyRate;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

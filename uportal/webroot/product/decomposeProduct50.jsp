@@ -137,70 +137,74 @@ function selectProduct(obj)
     window.common.modal('../product/product.do?method=rptQueryLatestComposeProduct&load=1&selectMode=1&depotpartId='+depotpartId);
 }
 
-var amountList = [];
+var rateList = [];
 var srcPriceList = [];
 
 
 function getProductBom(oos)
 {
-    //从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
-    var table = $O("tables");
-    console.log(table);
-    //删除原有两行,没删除一行后index会变化
-    // table.deleteRow(1);
-    // table.deleteRow(1);
+    try {
+        //从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
+        var table = $O("tables");
+        console.log(table);
+        //删除原有两行,没删除一行后index会变化
+        table.deleteRow(1);
+        table.deleteRow(1);
 //    var table = document.getElementById("tables");
 //    while(table.rows.length > 0) {
 //        table.deleteRow(0);
 //    }
 //    table.deleteRow(2);
 
-    // console.log(oos);
-    var oo = oos[0];
-   console.log(oo);
-    $O('productName').value = oo.pname;
-    $O('productId').value = oo.value;
+        // console.log(oos);
+        var oo = oos[0];
+        console.log(oo);
+        $O('productName').value = oo.pname;
+        $O('productId').value = oo.value;
 
 
-    var url = "../product/product.do?method=findCompose&id="+oo.id;
+        var url = "../product/product.do?method=findCompose&id=" + oo.id;
 //    console.log(url);
-    var html = "<strong>最近合成:</strong>"+"<a href='"+url+"'>"+oo.id+"</a>";
+        var html = "<strong>最近合成:</strong>" + "<a href='" + url + "'>" + oo.id + "</a>";
 //    console.log(html);
-    $O('composeId').innerHTML = html;
-    // console.log(bomjson);
-    var amount = oo.pamount;
-    var price = oo.pprice;
-    document.getElementById("amount").value = amount;
-    document.getElementById("price").value = _.round(price,2);
-    var bomjson = JSON.parse(oo.pbomjson);
-    // console.log(bomjson);
-    for (var j = 0; j < bomjson.length; j++)
-    {
-        var item = bomjson[j];
-        // console.log(item);
-        var trow = addTrInner();
+        $O('composeId').innerHTML = html;
+        // console.log(bomjson);
+        var amount = oo.pamount;
+        var price = oo.pprice;
+        console.log(amount);
+        console.log(price);
+        document.getElementById("amount").value = amount;
+        document.getElementById("price").value = _.round(price, 2);
+        var bomjson = JSON.parse(oo.pbomjson);
+         console.log(bomjson);
+        for (var j = 0; j < bomjson.length; j++) {
+            var item = bomjson[j];
+            // console.log(item);
+            var trow = addTrInner();
 
-        var stype = getEle(trow.getElementsByTagName('select'), "stype");
-        setSelect(stype, "0");
-        var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
-        setSelect(srcDe1, "A1201606211663545335");
-        setInputValueInTr(trow, 'srcProductName', item.productName);
-        setInputValueInTr(trow, 'srcProductId', item.productId);
+            var stype = getEle(trow.getElementsByTagName('select'), "stype");
+            setSelect(stype, "0");
+            var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
+            setSelect(srcDe1, "A1201606211663545335");
+            setInputValueInTr(trow, 'srcProductName', item.productName);
+            setInputValueInTr(trow, 'srcProductId', item.productId);
 //        setInputValueInTr(trow, 'srcAmount', item.pamount);
 //        setInputValueInTr(trow, 'srcPrice', item.price);
-        //配件使用率
-        amountList.push(item.amount/amount);
-        srcPriceList.push(item.price);
-        var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
-        //add new option
-        for (var k = 0; k < dList.length; k++)
-        {
-            if (dList[k].locationId == "A1201606211663545335")
-            {
-                setOption(srcDepotpart, dList[k].id, dList[k].name);
+            //配件使用率
+//            rateList.push(item.amount / amount);
+            rateList.push(item.assemblyRate);
+            srcPriceList.push(item.price);
+            var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
+            //add new option
+            for (var k = 0; k < dList.length; k++) {
+                if (dList[k].locationId == "A1201606211663545335") {
+                    setOption(srcDepotpart, dList[k].id, dList[k].name);
+                }
             }
+            setSelect(srcDepotpart, "A1201606211663545389");
         }
-        setSelect(srcDepotpart, "A1201606211663545389");
+    }catch(error){
+        console.log(error);
     }
 }
 
@@ -365,17 +369,17 @@ function amountChange(){
     var srcPrice = document.querySelectorAll('input[name="srcPrice"]');
 //    console.log(srcAmount);
     var amount = document.querySelector('input[name="amount"]');
-//    console.log(amount.value);
-//    console.log(amountList);
+    console.log(amount.value);
+    console.log(rateList);
     var total = 0;
     for (var i = 0 ; i < srcAmount.length; i++)
     {
         var oo = srcAmount[i];
-        oo.value = parseInt(amount.value)*parseInt(amountList[i]);
+        oo.value = parseInt(amount.value)*parseInt(rateList[i]);
 
         var oo2 = srcPrice[i];
         oo2.value = parseFloat(srcPriceList[i]);
-        var temp = parseInt(amount.value)*parseInt(amountList[i])*parseFloat(srcPriceList[i]);
+        var temp = parseInt(amount.value)*parseInt(rateList[i])*parseFloat(srcPriceList[i]);
         if (!isNaN(temp)){
             total += temp;
             // console.log(total);
@@ -508,7 +512,7 @@ function addTr1()
 			onclick="selectProduct(this)">
                 <%--<strong>从BOM中选择:</strong><input type="checkbox" name='cbom' id ='cbom' />--%>
          <input type="hidden" name="productId" value="">
-         	数量：<input type="text" style="width: 5%" name="amount" value="" oncheck="notNone;isNumber;" onblur="amountChange();">
+         	数量：<input type="text" style="width: 5%" name="amount" id="amount" value="" oncheck="notNone;isNumber;" onblur="amountChange();">
                     <input type="hidden" name="mayAmount" value=""/>
 			成本：<input type="text" style="width: 6%"  name="price" id="price" value="1" oncheck="notNone;isFloat">
 			</p:tr>

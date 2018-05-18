@@ -1416,7 +1416,7 @@ public class ProductAction extends DispatchAction
                             vo.setId(composeProduct.getId());
                             vo.setProductId(productId);
                             vo.setProductName(productBean.getName());
-
+                            int amount = vo.getAmount();
 
                             int preassign = storageRelationManager.sumPreassignByStorageRelation(storageRelationVO);
                             vo.setAmount(storageRelationVO.getAmount()-preassign);
@@ -1425,6 +1425,7 @@ public class ProductAction extends DispatchAction
                             List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
                             for (ComposeItemVO item: itemList){
                                 item.setPrice(NumberUtils.roundDouble(item.getPrice()));
+                                item.setAssemblyRate(item.getAmount()/amount);
                             }
                             vo.setItemVOList(itemList);
 

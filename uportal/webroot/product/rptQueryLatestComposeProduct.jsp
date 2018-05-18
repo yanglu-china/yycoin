@@ -23,6 +23,7 @@ function sures()
 function add()
 {
     var opener = window.common.opener();
+    console.log(opener);
     
     var oo = getCheckBox("beans");
     
@@ -31,7 +32,7 @@ function add()
         alert('请选择产品');
         return;
     }
-    
+    console.log(oo);
     if (oo)
     opener.getProductBom(oo);
 }
