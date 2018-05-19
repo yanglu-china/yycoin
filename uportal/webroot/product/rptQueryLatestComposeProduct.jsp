@@ -23,7 +23,6 @@ function sures()
 function add()
 {
     var opener = window.common.opener();
-    console.log(opener);
     
     var oo = getCheckBox("beans");
     
@@ -32,7 +31,7 @@ function add()
         alert('请选择产品');
         return;
     }
-    console.log(oo);
+
     if (oo)
     opener.getProductBom(oo);
 }
@@ -129,11 +128,12 @@ function pop(obj)
 						<input type='${selectMode == 1 ? "radio" : "checkbox"}' name="beans"
 							   id="${item.id}" value="${item.productId}"
 							   pamount="${item.amount}" pname="${item.productName}"  pprice="${item.price}"
+                               sprice="${item.storagePrice}"
 							   pbomjson='${item.bomJson}'/>
 					</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.productName}</td>
 				    <td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.amount}</td>
-					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.price}</td>
+					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.storagePrice}</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()"></td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()"></td>
 					<c:forEach items="${item.itemVOList}" var="item1">

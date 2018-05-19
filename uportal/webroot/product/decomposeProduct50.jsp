@@ -18,6 +18,7 @@ function addBean()
     submit('确定拆分产品?', null, checks);
 }
 
+
 function getPrices(){
     var srs = document.getElementsByName('srcProductId');
     var stypes = document.getElementsByName('stype');
@@ -26,7 +27,7 @@ function getPrices(){
     var srcAmounts = document.getElementsByName('srcAmount');
     var srcPrices = document.getElementsByName('srcPrice');
 
-    var total = 0;
+    var parts = 0;
 
     for (var i = 0; i < srs.length - 1; i++)
     {
@@ -43,14 +44,12 @@ function getPrices(){
             srcDepotparts[i].value = '';
         }
 
-        total += parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value);
+        parts += parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value);
     }
 
-    var money = 0;
+    var finishedProduct = parseFloat($$('amount')) * parseFloat($$('price'));
 
-    money = parseFloat($$('amount')) * parseFloat($$('price'));
-
-    return [total, money]
+    return [parts, finishedProduct]
 }
 
 
@@ -66,47 +65,35 @@ function checks()
 
 		return !ret;
 	}
-	
-    // var stypes = document.getElementsByName('stype');
-    // var srcDepots = document.getElementsByName('srcDepot');
-    // var srcDepotparts = document.getElementsByName('srcDepotpart');
-    // var srcAmounts = document.getElementsByName('srcAmount');
-    // var srcPrices = document.getElementsByName('srcPrice');
-    //
-    // var total = 0;
-    //
-    // for (var i = 0; i < srs.length - 1; i++)
-    // {
-    //     // 库存类型
-    //     if (stypes[i].value == '0')
-    //     {
-    //         if (srcDepots[i].value == '' || srcDepotparts[i].value == '')
-    //         {
-    //         	alert('库存类型时,请选择仓库及仓区');
-    //             return false;
-    //         }
-    //     }else{
-    //     	srcDepots[i].value = '';
-    //     	srcDepotparts[i].value = '';
-    //     }
-    //
-    //     total += parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value);
-    // }
-    //
-    // var money = 0;
-    //
-    // money = parseFloat($$('amount')) * parseFloat($$('price'));
-    var prices = getPrices();
-	var total = prices[0];
-	var money = prices[1];
 
-    if (compareDouble(total, money) != 0)
+    var prices = getPrices();
+	var parts = prices[0];
+	var finishedProduct = prices[1];
+
+    if (compareDouble(parts, finishedProduct) != 0)
     {
-    	alert('配件成本之和:'+total+'要与成品成本一致:'+money);
+    	alert('配件成本之和:'+parts+'要与成品成本一致:'+finishedProduct);
         return false;
     }
     
     return true;
+}
+
+
+function adjustPrice(){
+    var prices = getPrices();
+    var parts = prices[0];
+    var finishedProduct = prices[1];
+    var diff = finishedProduct-parts;
+    // console.log(diff);
+
+    var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
+    var srcPrice = document.querySelectorAll('input[name="srcPrice"]');
+    //auto adjust the first part product's price
+    var price0 = srcPrice[0];
+    var price = parseFloat(price0.value)+diff/parseInt(srcAmount[0].value);
+    // console.log(price);
+    price0.value = _.round(price, 4);
 }
 
 var current;
@@ -132,13 +119,13 @@ function selectProduct(obj)
 //            + $$('depot') + '&depotpartId=' + $$('depotpart') + '&ctype=1' + '&init=1');
 //    }
     var depotpartId = $$('depotpart')
-    console.log(depotpartId);
+    // console.log(depotpartId);
    //查询拆分产品列表
     window.common.modal('../product/product.do?method=rptQueryLatestComposeProduct&load=1&selectMode=1&depotpartId='+depotpartId);
 }
 
 var rateList = [];
-var srcPriceList = [];
+// var srcPriceList = [];
 
 
 function getProductBom(oos)
@@ -146,7 +133,7 @@ function getProductBom(oos)
     try {
         //从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
         var table = $O("tables");
-        console.log(table);
+        // console.log(table);
         //删除原有两行,没删除一行后index会变化
         table.deleteRow(1);
         table.deleteRow(1);
@@ -158,7 +145,7 @@ function getProductBom(oos)
 
         // console.log(oos);
         var oo = oos[0];
-        console.log(oo);
+        // console.log(oo);
         $O('productName').value = oo.pname;
         $O('productId').value = oo.value;
 
@@ -168,46 +155,90 @@ function getProductBom(oos)
         var html = "<strong>最近合成:</strong>" + "<a href='" + url + "'>" + oo.id + "</a>";
 //    console.log(html);
         $O('composeId').innerHTML = html;
+
+
         // console.log(bomjson);
         var amount = oo.pamount;
         var price = oo.pprice;
-        console.log(amount);
-        console.log(price);
-        document.getElementById("amount").value = amount;
-        document.getElementById("price").value = _.round(price, 2);
-        var bomjson = JSON.parse(oo.pbomjson);
-         console.log(bomjson);
-        for (var j = 0; j < bomjson.length; j++) {
-            var item = bomjson[j];
-            // console.log(item);
-            var trow = addTrInner();
+        var html2 = "<strong>最近合成成本:</strong>" + price;
+        $O('composePrice').innerHTML = html2;
 
-            var stype = getEle(trow.getElementsByTagName('select'), "stype");
-            setSelect(stype, "0");
-            var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
-            setSelect(srcDe1, "A1201606211663545335");
-            setInputValueInTr(trow, 'srcProductName', item.productName);
-            setInputValueInTr(trow, 'srcProductId', item.productId);
-//        setInputValueInTr(trow, 'srcAmount', item.pamount);
-//        setInputValueInTr(trow, 'srcPrice', item.price);
-            //配件使用率
+        var storagePrice = oo.sprice;
+        // console.log(amount);
+        // console.log(price);
+        // console.log(storagePrice);
+        document.getElementById("amount").value = amount;
+        document.getElementById("price").value = _.round(storagePrice, 4);
+        var bomJson = oo.pbomjson;
+        // console.log(bomJson);
+        if (bomJson){
+            var bomElements = JSON.parse(bomJson);
+            // console.log(bomElements);
+            var srcPriceElements = document.querySelectorAll('input[name="srcPrice"]');
+            for (var j = 0; j < bomElements.length; j++) {
+                var item = bomElements[j];
+                // console.log(item);
+                var trow = addTrInner();
+
+                var stype = getEle(trow.getElementsByTagName('select'), "stype");
+                setSelect(stype, "0");
+                var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
+                setSelect(srcDe1, "A1201606211663545335");
+                setInputValueInTr(trow, 'srcProductName', item.productName);
+                setInputValueInTr(trow, 'srcProductId', item.productId);
+                //成品数量*配件装配率
+               setInputValueInTr(trow, 'srcAmount', parseInt(amount)*parseInt(item.assemblyRate));
+               setInputValueInTr(trow, 'srcPrice', item.price);
+                //配件使用率
 //            rateList.push(item.amount / amount);
-            rateList.push(item.assemblyRate);
-            srcPriceList.push(item.price);
-            var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
-            //add new option
-            for (var k = 0; k < dList.length; k++) {
-                if (dList[k].locationId == "A1201606211663545335") {
-                    setOption(srcDepotpart, dList[k].id, dList[k].name);
+                rateList.push(item.assemblyRate);
+                // srcPriceList.push(item.price);
+
+                //set part product's price
+                // var oo2 = srcPriceElements[j];
+                // if(oo2){
+                //     oo2.value = parseFloat(item.price);
+                // }
+
+                var srcDepotpart = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
+                //add new option
+                for (var k = 0; k < dList.length; k++) {
+                    if (dList[k].locationId == "A1201606211663545335") {
+                        setOption(srcDepotpart, dList[k].id, dList[k].name);
+                    }
                 }
+                setSelect(srcDepotpart, "A1201606211663545389");
             }
-            setSelect(srcDepotpart, "A1201606211663545389");
         }
     }catch(error){
-        console.log(error);
+        // console.log(error);
     }
 }
 
+
+function amountChange(){
+    var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
+    var srcPrice = document.querySelectorAll('input[name="srcPrice"]');
+//    console.log(srcAmount);
+    var amount = document.querySelector('input[name="amount"]');
+    // console.log(amount.value);
+    // console.log(rateList);
+    // var total = 0;
+    for (var i = 0 ; i < srcAmount.length; i++)
+    {
+        var oo = srcAmount[i];
+        //成品数量*配件装配率
+        oo.value = parseInt(amount.value)*parseInt(rateList[i]);
+
+        // var oo2 = srcPrice[i];
+        // oo2.value = parseFloat(srcPriceList[i]);
+        // var temp = parseInt(amount.value)*parseInt(rateList[i])*parseFloat(srcPriceList[i]);
+        // if (!isNaN(temp)){
+        //     total += temp;
+        //     // console.log(total);
+        // }
+    }
+}
 
 function getEle(eles, name)
 {
@@ -364,45 +395,6 @@ function srcDepotChange(obj)
 }
 
 
-function amountChange(){
-    var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
-    var srcPrice = document.querySelectorAll('input[name="srcPrice"]');
-//    console.log(srcAmount);
-    var amount = document.querySelector('input[name="amount"]');
-    console.log(amount.value);
-    console.log(rateList);
-    var total = 0;
-    for (var i = 0 ; i < srcAmount.length; i++)
-    {
-        var oo = srcAmount[i];
-        oo.value = parseInt(amount.value)*parseInt(rateList[i]);
-
-        var oo2 = srcPrice[i];
-        oo2.value = parseFloat(srcPriceList[i]);
-        var temp = parseInt(amount.value)*parseInt(rateList[i])*parseFloat(srcPriceList[i]);
-        if (!isNaN(temp)){
-            total += temp;
-            // console.log(total);
-        }
-    }
-    // console.log("***");
-    // console.log(total);
-    // document.getElementById("price").value = _.round(total/amount.value,2);
-}
-
-//TODO
-function priceChange(){
-    var prices = getPrices();
-    var total = prices[0];
-    var money = prices[1];
-    var diff = total - money;
-    console.log(diff);
-
-    var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
-    var srcPrice = document.querySelectorAll('input[name="srcPrice"]');
-    var price0 = srcPrice[0];
-    price0.value = parseFloat(price0.value)+diff/parseFloat(srcAmount[0].value);
-}
 
 function selectSrcProduct()
 {
@@ -514,7 +506,7 @@ function addTr1()
          <input type="hidden" name="productId" value="">
          	数量：<input type="text" style="width: 5%" name="amount" id="amount" value="" oncheck="notNone;isNumber;" onblur="amountChange();">
                     <input type="hidden" name="mayAmount" value=""/>
-			成本：<input type="text" style="width: 6%"  name="price" id="price" value="1" oncheck="notNone;isFloat">
+			成本：<input type="text" style="width: 6%"  name="price" id="price" value="1" oncheck="notNone;isFloat" readonly>
 			</p:tr>
             <%--<p:tr align="right">--%>
                 <%--<input type="button" class="button_class" id="ref_b"--%>
@@ -529,6 +521,9 @@ function addTr1()
         </td>
         <td>
             <div id="composeId"></div>
+        </td>
+        <td>
+            <div id="composePrice"></div>
         </td>
     </p:title>
 	
@@ -561,6 +556,8 @@ function addTr1()
 
 	<p:button leftWidth="100%" rightWidth="0%">
 		<div align="right">
+            <input type="button" class="button_class"
+                   value="&nbsp;&nbsp;自动调整配件成本&nbsp;&nbsp;" onclick="adjustPrice()">
 		  <input type="button" class="button_class" id="sub_b"
             value="&nbsp;&nbsp;提 交&nbsp;&nbsp;" onclick="addBean()">
         </div>

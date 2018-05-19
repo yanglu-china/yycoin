@@ -55,8 +55,14 @@ public class ComposeProductVO extends ComposeProductBean
     @Ignore
     private List<ComposeFeeVO> feeVOList = null;
 
+    /**
+     * #313
+     */
     @Ignore
     private String bomJson = "";
+
+    @Ignore
+    private double storagePrice = 0.0d;
 
     /**
      * default constructor
@@ -224,6 +230,14 @@ public class ComposeProductVO extends ComposeProductBean
 
     public void setBomJson(String bomJson) {
         this.bomJson = bomJson;
+    }
+
+    public double getStoragePrice() {
+        return storagePrice;
+    }
+
+    public void setStoragePrice(double storagePrice) {
+        this.storagePrice = storagePrice;
     }
 
     /**

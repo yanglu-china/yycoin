@@ -1395,48 +1395,56 @@ public class ProductAction extends DispatchAction
             for (ProductBean productBean: productBeans){
                 String productId = productBean.getId();
                 ComposeProductBean composeProduct = composeProductDAO.queryLatestByProduct(productId);
+                List<ComposeItemVO> itemList = new ArrayList<ComposeItemVO>();
                 if (null != composeProduct) {
-                    //同一产品多个库存就显示多行
-                    ConditionParse condition = new ConditionParse();
+                    int amount = composeProduct.getAmount();
+                    itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
+                    for (ComposeItemVO item: itemList){
+                        item.setPrice(NumberUtils.roundDouble(item.getPrice()));
+                        item.setAssemblyRate(item.getAmount()/amount);
+                    }
+                }
 
-                    // TODO
-                    condition.addCondition("StorageRelationBean.depotpartId", "=", depotpartId);
+                //同一产品多个库存就显示多行
+                ConditionParse condition = new ConditionParse();
 
-                    // 公共的库存
-                    condition.addCondition("StorageRelationBean.stafferId", "=", "0");
+                // TODO
+                condition.addCondition("StorageRelationBean.depotpartId", "=", depotpartId);
 
-                    condition.addCondition("StorageRelationBean.productId", "=", productId);
+                // 公共的库存
+                condition.addCondition("StorageRelationBean.stafferId", "=", "0");
 
-                    condition.addCondition("StorageRelationBean.amount", ">", 0);
+                condition.addCondition("StorageRelationBean.productId", "=", productId);
 
-                    List<StorageRelationVO> eachList = storageRelationDAO.queryEntityVOsByCondition(condition);
-                    if (!ListTools.isEmptyOrNull(eachList)){
-                        for (StorageRelationVO storageRelationVO: eachList){
-                            ComposeProductVO vo = new ComposeProductVO();
+                condition.addCondition("StorageRelationBean.amount", ">", 0);
+
+                List<StorageRelationVO> eachList = storageRelationDAO.queryEntityVOsByCondition(condition);
+                if (!ListTools.isEmptyOrNull(eachList)){
+                    for (StorageRelationVO storageRelationVO: eachList){
+                        ComposeProductVO vo = new ComposeProductVO();
+                        if (null != composeProduct) {
                             vo.setId(composeProduct.getId());
-                            vo.setProductId(productId);
-                            vo.setProductName(productBean.getName());
-                            int amount = vo.getAmount();
-
-                            int preassign = storageRelationManager.sumPreassignByStorageRelation(storageRelationVO);
-                            vo.setAmount(storageRelationVO.getAmount()-preassign);
-                            vo.setPrice(this.roundDouble(storageRelationVO.getPrice()));
-
-                            List<ComposeItemVO> itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
-                            for (ComposeItemVO item: itemList){
-                                item.setPrice(NumberUtils.roundDouble(item.getPrice()));
-                                item.setAssemblyRate(item.getAmount()/amount);
-                            }
+                            vo.setPrice(this.roundDouble(composeProduct.getPrice()));
                             vo.setItemVOList(itemList);
 
                             JSONArray shows = new JSONArray(itemList, true);
-
                             vo.setBomJson(shows.toString());
                             _logger.info("***bom json***"+vo.getBomJson());
-                            result.add(vo);
                         }
+
+                        vo.setProductId(productId);
+                        vo.setProductName(productBean.getName());
+
+                        int preassign = storageRelationManager.sumPreassignByStorageRelation(storageRelationVO);
+                        //可用库存
+                        vo.setAmount(storageRelationVO.getAmount()-preassign);
+                        //库存成本
+                        vo.setStoragePrice(this.roundDouble(storageRelationVO.getPrice()));
+
+                        result.add(vo);
                     }
                 }
+
             }
         }
 
