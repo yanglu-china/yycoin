@@ -2093,12 +2093,19 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         					double refMoneys = outBalanceDAO.sumByOutBalanceId(each.getId());
                             double mayMoneys = balance.getTotal() - refMoneys - balance.getInvoiceMoney();
 							//TODO
-        					if (MathTools.compare(each.getInvoiceMoney(), mayMoneys) != 0) {
-	    						sb.append("销售单");
-	            				sb.append(each.getOutId());
-	            				sb.append("导入的开票金额"+each.getInvoiceMoney()+"须等于可开票金额"+mayMoneys);
-	            				sb.append("<br>");
-	    					}
+//        					if (MathTools.compare(each.getInvoiceMoney(), mayMoneys) != 0) {
+//	    						sb.append("销售单");
+//	            				sb.append(each.getOutId());
+//	            				sb.append("导入的开票金额"+each.getInvoiceMoney()+"须等于可开票金额"+mayMoneys);
+//	            				sb.append("<br>");
+//	    					}
+
+                            if (MathTools.compare(each.getInvoiceMoney(),mayMoneys ) == 1) {
+                                sb.append("销售单");
+                                sb.append(each.getOutId());
+                                sb.append("导入的开票金额"+each.getInvoiceMoney()+"须小于等于可开票金额"+mayMoneys);
+                                sb.append("<br>");
+                            }
         				}
 //        				else {
 //        					sb.append("结算单");
@@ -2191,12 +2198,19 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				}
 				double retTotal = outDAO.sumOutBackValueIgnoreStatus(outId);
                 double mayMoneys = out.getTotal() - retTotal - out.getInvoiceMoney();
-				if (MathTools.compare(invoiceMoneyTotal,mayMoneys ) != 0) {
-					sb.append("销售单");
-					sb.append(key);
-					sb.append("导入的开票金额"+invoiceMoneyTotal+"须等于可开票金额"+mayMoneys);
-					sb.append("<br>");
-				}
+//				if (MathTools.compare(invoiceMoneyTotal,mayMoneys ) != 0) {
+////					sb.append("销售单");
+////					sb.append(key);
+////					sb.append("导入的开票金额"+invoiceMoneyTotal+"须等于可开票金额"+mayMoneys);
+////					sb.append("<br>");
+////				}
+
+                if (MathTools.compare(invoiceMoneyTotal,mayMoneys ) == 1) {
+                    sb.append("销售单");
+                    sb.append(key);
+                    sb.append("导入的开票金额"+invoiceMoneyTotal+"须小于等于可开票金额"+mayMoneys);
+                    sb.append("<br>");
+                }
 
                 List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
                 //根据productId汇总
@@ -2216,9 +2230,15 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 for (String productId : productToAmountMap.keySet()){
                     int amount = productToAmountMap.get(productId);
                     int amount2 = this.getProductAmount(baseList, productId);
-                    if ( amount != amount2){
+//                    if ( amount != amount2){
+//                        sb.append("商品").append(productMap.get(productId))
+//                                .append("数量").append(amount).append("必须等于销售单").append(outId)
+//                                .append("中对应数量").append(amount2).append("<br>");
+//                    }
+
+                    if ( amount > amount2){
                         sb.append("商品").append(productMap.get(productId))
-                                .append("数量").append(amount).append("必须等于销售单").append(outId)
+                                .append("数量").append(amount).append("必须小于等于销售单").append(outId)
                                 .append("中对应数量").append(amount2).append("<br>");
                     }
                 }
