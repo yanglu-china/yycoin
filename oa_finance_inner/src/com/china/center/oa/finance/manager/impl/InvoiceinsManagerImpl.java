@@ -2035,8 +2035,10 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		//同一个SO可对应多个开票申请
 		Map<String ,List<InvoiceinsImportBean>> outToInvoicesMap = new HashMap<String, List<InvoiceinsImportBean>>();
 
-        //根据productId汇总 <outId_productId,amount>
+        //开票信息根据productId汇总 <outId_productId,amount>
         Map<String, Integer> productToAmountMap = new HashMap<String, Integer>();
+        //销售单中产品数量汇总
+        Map<String, Integer> productToAmountMap2 = new HashMap<String, Integer>();
     	//1.没有发生过开票，可开票部分 = 原单 - 退货
     	//2.须符合票、款一致原则
     	for (InvoiceinsImportBean each : list) {
@@ -2212,6 +2214,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     int amount = productToAmountMap.get(key2);
                     String productId = key2.split("_")[1];
                     int amount2 = this.getProductAmount(baseList, productId);
+                    productToAmountMap2.put(key2, amount2);
 //                    if ( amount != amount2){
 //                        sb.append("商品").append(productMap.get(productId))
 //                                .append("数量").append(amount).append("必须等于销售单").append(outId)
@@ -2228,7 +2231,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		}
 
         //#393 设置开票申请拆分标记
-        _logger.info(outToInvoicesMap+"***outToInvoicesMap****"+productToAmountMap);
+        _logger.info(productToAmountMap2+"***outToInvoicesMap****"+outToInvoicesMap);
         for (InvoiceinsImportBean each : list) {
             String outId = each.getOutId();
             List<InvoiceinsImportBean> beans = outToInvoicesMap.get(outId);
@@ -2240,8 +2243,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             //case2 导入模板只有一单,但部分开票
             else{
                 String key = outId+"_"+each.getProductId();
-                int amount = productToAmountMap.get(key);
-                if (amount > each.getAmount()){
+                int amount = productToAmountMap2.get(key);
+                if (each.getAmount() < amount){
                     _logger.info("***set split flag***"+each);
                     each.setSplitFlag(true);
                 }
