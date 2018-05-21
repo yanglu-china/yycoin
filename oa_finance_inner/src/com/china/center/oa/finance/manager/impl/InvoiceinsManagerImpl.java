@@ -689,11 +689,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 						OutConstant.INVOICESTATUS_END);
             }
 
-            if (MathTools.compare(insVSOutBean.getMoneys() + out.getInvoiceMoney(), out.getTotal()) < 0)
+            else if (MathTools.compare(insVSOutBean.getMoneys() + out.getInvoiceMoney(), out.getTotal()) < 0)
             {
                 // 更新开票状态-过程
+//                outDAO.updateInvoiceStatus(out.getFullId(), (insVSOutBean.getMoneys() + out
+//                    .getInvoiceMoney()), OutConstant.INVOICESTATUS_INIT);
                 outDAO.updateInvoiceStatus(out.getFullId(), (insVSOutBean.getMoneys() + out
-                    .getInvoiceMoney()), OutConstant.INVOICESTATUS_INIT);
+                        .getInvoiceMoney()), OutConstant.INVOICESTATUS_PART);
             }
         }
         else
@@ -723,9 +725,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             if (MathTools.compare(insVSOutBean.getMoneys() + balance.getInvoiceMoney(), balance.getTotal()) < 0)
             {
                 // 更新开票状态-过程
+//                outBalanceDAO.updateInvoiceStatus(balance.getId(),
+//						(insVSOutBean.getMoneys() + balance.getInvoiceMoney()),
+//						OutConstant.INVOICESTATUS_INIT);
                 outBalanceDAO.updateInvoiceStatus(balance.getId(),
-						(insVSOutBean.getMoneys() + balance.getInvoiceMoney()),
-						OutConstant.INVOICESTATUS_INIT);
+                        (insVSOutBean.getMoneys() + balance.getInvoiceMoney()),
+                        OutConstant.INVOICESTATUS_PART);
             }
         }
     }
@@ -890,7 +895,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         else
         {
             // 更新开票状态-过程
-            outDAO.updateInvoiceStatus(out.getFullId(), total, OutConstant.INVOICESTATUS_INIT);
+//            outDAO.updateInvoiceStatus(out.getFullId(), total, OutConstant.INVOICESTATUS_INIT);
+            outDAO.updateInvoiceStatus(out.getFullId(), total, OutConstant.INVOICESTATUS_PART);
         }
     }
 
@@ -2029,6 +2035,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		//同一个SO可对应多个开票申请
 		Map<String ,List<InvoiceinsImportBean>> outToInvoicesMap = new HashMap<String, List<InvoiceinsImportBean>>();
 
+        //根据productId汇总 <outId_productId,amount>
+        Map<String, Integer> productToAmountMap = new HashMap<String, Integer>();
     	//1.没有发生过开票，可开票部分 = 原单 - 退货
     	//2.须符合票、款一致原则
     	for (InvoiceinsImportBean each : list) {
@@ -2063,36 +2071,30 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     				sb.append("不存在");
     				sb.append("<br>");
     			} else {
-    				if (balance.getInvoiceMoney() > 0) {
-        				sb.append("结算单");
-        				sb.append(each.getOutId());
-        				sb.append("已部分开过发票，不能批量导入，请用[开票申请]功能");
-        				sb.append("<br>");
-        			} else {
-        				List<BaseBalanceBean> balanceList = baseBalanceDAO.queryEntityBeansByFK(balance.getId());
+                    List<BaseBalanceBean> balanceList = baseBalanceDAO.queryEntityBeansByFK(balance.getId());
 
-        				if (!ListTools.isEmptyOrNull(balanceList)) {
-        					for (BaseBalanceBean eachbb : balanceList) {
-        						BaseBean base = baseDAO.find(eachbb.getBaseId());
+                    if (!ListTools.isEmptyOrNull(balanceList)) {
+                        for (BaseBalanceBean eachbb : balanceList) {
+                            BaseBean base = baseDAO.find(eachbb.getBaseId());
 
-        						if (null != base) {
-        							try {
-										checkProductAttrInner(each.getInvoiceId(), base.getProductId());
-									} catch (MYException e) {
-										sb.append("结算单");
-				        				sb.append(each.getOutId());
-				        				sb.append(e.getErrorContent());
-				        				sb.append("<br>");
-									}
-        						}
-        					}
-        				}
+                            if (null != base) {
+                                try {
+                                    checkProductAttrInner(each.getInvoiceId(), base.getProductId());
+                                } catch (MYException e) {
+                                    sb.append("结算单");
+                                    sb.append(each.getOutId());
+                                    sb.append(e.getErrorContent());
+                                    sb.append("<br>");
+                                }
+                            }
+                        }
+                    }
 
-        				if (StringTools.isNullOrNone(balance.getPiDutyId()) || (balance.getPiMtype() == 1 && balance.getPiStatus() == 1)) {
-							//TODO each.getId()应该为空，这段代码有问题！
-        					double refMoneys = outBalanceDAO.sumByOutBalanceId(each.getId());
-                            double mayMoneys = balance.getTotal() - refMoneys - balance.getInvoiceMoney();
-							//TODO
+                    if (StringTools.isNullOrNone(balance.getPiDutyId()) || (balance.getPiMtype() == 1 && balance.getPiStatus() == 1)) {
+                        //TODO each.getId()应该为空，这段代码有问题！
+                        double refMoneys = outBalanceDAO.sumByOutBalanceId(each.getId());
+                        double mayMoneys = balance.getTotal() - refMoneys - balance.getInvoiceMoney();
+                        //TODO
 //        					if (MathTools.compare(each.getInvoiceMoney(), mayMoneys) != 0) {
 //	    						sb.append("销售单");
 //	            				sb.append(each.getOutId());
@@ -2100,45 +2102,32 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 //	            				sb.append("<br>");
 //	    					}
 
-                            if (MathTools.compare(each.getInvoiceMoney(),mayMoneys ) == 1) {
-                                sb.append("销售单");
-                                sb.append(each.getOutId());
-                                sb.append("导入的开票金额"+each.getInvoiceMoney()+"须小于等于可开票金额"+mayMoneys);
-                                sb.append("<br>");
-                            }
-        				}
-//        				else {
-//        					sb.append("结算单");
-//            				sb.append(each.getOutId());
-//            				sb.append("违反票、款一致，可能是非普通或勾款审批未结束");
-//            				sb.append("<br>");
-//        				}
-        			}
+                        if (MathTools.compare(each.getInvoiceMoney(),mayMoneys ) == 1) {
+                            sb.append("销售单");
+                            sb.append(each.getOutId());
+                            sb.append("导入的开票金额"+each.getInvoiceMoney()+"须小于等于可开票金额"+mayMoneys);
+                            sb.append("<br>");
+                        }
+                    }
 
     				fullId = balance.getOutId();
     			}
     		} else {
-    			if (out.getInvoiceStatus() == OutConstant.INVOICESTATUS_END || out.getInvoiceMoney() > 0) {
-    				sb.append("销售单");
-    				sb.append(each.getOutId());
-    				sb.append("已部分开过发票，不能批量导入，请用[开票申请]功能");
-    				sb.append("<br>");
-    			} else {
-    				List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
-    				
-    				if (!ListTools.isEmptyOrNull(baseList)) {
-    					for (BaseBean eachb : baseList) {
-    						try {
-								checkProductAttrInner(each.getInvoiceId(), eachb.getProductId());
-							} catch (MYException e) {
-								sb.append("销售单");
-		        				sb.append(each.getOutId());
-		        				sb.append(e.getErrorContent());
-		        				sb.append("<br>");
-							}
-    					}
-    				}
-    				
+                List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
+
+                if (!ListTools.isEmptyOrNull(baseList)) {
+                    for (BaseBean eachb : baseList) {
+                        try {
+                            checkProductAttrInner(each.getInvoiceId(), eachb.getProductId());
+                        } catch (MYException e) {
+                            sb.append("销售单");
+                            sb.append(each.getOutId());
+                            sb.append(e.getErrorContent());
+                            sb.append("<br>");
+                        }
+                    }
+                }
+
 //    				if (StringTools.isNullOrNone(out.getPiDutyId()) || (out.getPiMtype() == 1 && out.getPiStatus() == 1)) {
 //    					// 检查 导入的开票金额是全部的可开票金额
 //						String key = each.getOutId();
@@ -2151,24 +2140,16 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 //						}
 //    				}
 
-                    //#84 2017/6/28 拆单开票和非拆单开票一起导入时，有时开票有问题
-                    String key = each.getOutId();
-                    if (outToInvoicesMap.containsKey(key)){
-                        outToInvoicesMap.get(key).add(each);
-                    } else{
-                        List<InvoiceinsImportBean> beans = new ArrayList<InvoiceinsImportBean>();
-                        beans.add(each);
-                        outToInvoicesMap.put(key, beans);
-                    }
-//    				else {
-//    					sb.append("销售单");
-//        				sb.append(each.getOutId());
-//        				sb.append("违反票、款一致，可能是非普通或勾款审批未结束");
-//        				sb.append("<br>");
-//    				}
-    			}
-    			
-    			fullId = out.getFullId();
+                //#84 2017/6/28 拆单开票和非拆单开票一起导入时，有时开票有问题
+                String key = each.getOutId();
+                if (outToInvoicesMap.containsKey(key)){
+                    outToInvoicesMap.get(key).add(each);
+                } else{
+                    List<InvoiceinsImportBean> beans = new ArrayList<InvoiceinsImportBean>();
+                    beans.add(each);
+                    outToInvoicesMap.put(key, beans);
+                }
+                fullId = out.getFullId();
     		}
     		
     		if (!StringTools.isNullOrNone(fullId) && each.getAddrType() == InvoiceinsConstants.INVOICEINS_DIST_SAME) {
@@ -2213,22 +2194,23 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 }
 
                 List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
-                //根据productId汇总
-                Map<String, Integer> productToAmountMap = new HashMap<String, Integer>();
+
                 Map<String, String> productMap = new HashMap<String ,String>();
                 for (InvoiceinsImportBean bean : beans){
                     String productId = bean.getProductId();
+                    String key2 = bean.getOutId()+"_"+productId;
                     productMap.put(productId, bean.getProductName());
-                    if (productToAmountMap.containsKey(productId)){
-                        int amount = bean.getAmount()+productToAmountMap.get(productId);
-                        productToAmountMap.put(productId, amount);
+                    if (productToAmountMap.containsKey(key2)){
+                        int amount = bean.getAmount()+productToAmountMap.get(key2);
+                        productToAmountMap.put(key2, amount);
                     } else{
-                        productToAmountMap.put(productId, bean.getAmount());
+                        productToAmountMap.put(key2, bean.getAmount());
                     }
                 }
 
-                for (String productId : productToAmountMap.keySet()){
-                    int amount = productToAmountMap.get(productId);
+                for (String key2 : productToAmountMap.keySet()){
+                    int amount = productToAmountMap.get(key2);
+                    String productId = key2.split("_")[1];
                     int amount2 = this.getProductAmount(baseList, productId);
 //                    if ( amount != amount2){
 //                        sb.append("商品").append(productMap.get(productId))
@@ -2246,11 +2228,23 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		}
 
         //#393 设置开票申请拆分标记
-        _logger.info("***outToInvoicesMap****"+outToInvoicesMap);
+        _logger.info(outToInvoicesMap+"***outToInvoicesMap****"+productToAmountMap);
         for (InvoiceinsImportBean each : list) {
-            List<InvoiceinsImportBean> beans = outToInvoicesMap.get(each.getOutId());
+            String outId = each.getOutId();
+            List<InvoiceinsImportBean> beans = outToInvoicesMap.get(outId);
+            //case1 导入模板中同一单分拆
             if (!ListTools.isEmptyOrNull(beans) && beans.size()>=2){
+                _logger.info("***set split flag***"+each);
                 each.setSplitFlag(true);
+            }
+            //case2 导入模板只有一单,但部分开票
+            else{
+                String key = outId+"_"+each.getProductId();
+                int amount = productToAmountMap.get(key);
+                if (amount > each.getAmount()){
+                    _logger.info("***set split flag***"+each);
+                    each.setSplitFlag(true);
+                }
             }
         }
     }
