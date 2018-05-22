@@ -2035,8 +2035,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		//同一个SO可对应多个开票申请
 		Map<String ,List<InvoiceinsImportBean>> outToInvoicesMap = new HashMap<String, List<InvoiceinsImportBean>>();
 
-        //开票信息根据productId汇总 <outId_productId,amount>
-        Map<String, Integer> productToAmountMap = new HashMap<String, Integer>();
         //销售单中产品数量汇总
         Map<String, Integer> productToAmountMap2 = new HashMap<String, Integer>();
     	//1.没有发生过开票，可开票部分 = 原单 - 退货
@@ -2197,6 +2195,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
                 List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
 
+                //开票信息根据productId汇总 <outId_productId,amount>
+                Map<String, Integer> productToAmountMap = new HashMap<String, Integer>();
                 Map<String, String> productMap = new HashMap<String ,String>();
                 for (InvoiceinsImportBean bean : beans){
                     String productId = bean.getProductId();
@@ -2210,21 +2210,25 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     }
                 }
 
+                _logger.info("***productToAmountMap***"+productToAmountMap);
                 for (String key2 : productToAmountMap.keySet()){
                     int amount = productToAmountMap.get(key2);
-                    String productId = key2.split("_")[1];
-                    int amount2 = this.getProductAmount(baseList, productId);
-                    productToAmountMap2.put(key2, amount2);
+                    String[] array = key2.split("_");
+                    if (array.length == 2){
+                        String productId = array[1];
+                        int amount2 = this.getProductAmount(baseList, productId);
+                        productToAmountMap2.put(key2, amount2);
 //                    if ( amount != amount2){
 //                        sb.append("商品").append(productMap.get(productId))
 //                                .append("数量").append(amount).append("必须等于销售单").append(outId)
 //                                .append("中对应数量").append(amount2).append("<br>");
 //                    }
 
-                    if ( amount > amount2){
-                        sb.append("商品").append(productMap.get(productId))
-                                .append("数量").append(amount).append("必须小于等于销售单").append(outId)
-                                .append("中对应数量").append(amount2).append("<br>");
+                        if ( amount > amount2){
+                            sb.append("商品").append(productMap.get(productId))
+                                    .append("数量").append(amount).append("必须小于等于销售单").append(outId)
+                                    .append("中对应数量").append(amount2).append("<br>");
+                        }
                     }
                 }
 			}
@@ -2243,10 +2247,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             //case2 导入模板只有一单,但部分开票
             else{
                 String key = outId+"_"+each.getProductId();
-                int amount = productToAmountMap2.get(key);
-                if (each.getAmount() < amount){
-                    _logger.info("***set split flag***"+each);
-                    each.setSplitFlag(true);
+                if (productToAmountMap2.get(key)!= null){
+                    int amount = productToAmountMap2.get(key);
+                    if (each.getAmount() < amount){
+                        _logger.info("***set split flag***"+each);
+                        each.setSplitFlag(true);
+                    }
                 }
             }
         }
