@@ -422,6 +422,12 @@ public class ProductBean implements Serializable
     @Html(title = "销项发票", type = Element.SELECT)
     private String sailInvoice = "";
 
+    /**
+     * enum 234
+     */
+    @Html(title = "采购类型", type = Element.SELECT, must = true)
+    private String stype = 0;
+
     @Ignore
     private List<ProductCombinationBean> vsList = null;
 
@@ -1579,6 +1585,14 @@ public class ProductBean implements Serializable
 
     public void setReserve9(String reserve9) {
         this.reserve9 = reserve9;
+    }
+
+    public String getStype() {
+        return stype;
+    }
+
+    public void setStype(String stype) {
+        this.stype = stype;
     }
 
     /**

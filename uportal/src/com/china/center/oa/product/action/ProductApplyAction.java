@@ -1587,6 +1587,29 @@ public class ProductApplyAction extends DispatchAction {
                                 .append("<br>");
                     }
 
+                    // #316 采购类型
+                    if ( !StringTools.isNullOrNone(obj[13]))
+                    {
+                        String stype = obj[13].trim();
+
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("type", "=", "234");
+                        conditionParse.addCondition("val", "=", stype);
+
+                        List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(enumBeans)){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("采购类型只能是"+EnumBean.join(enumBeans))
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+                            bean.setStype(stype);
+                        }
+                    }
+
                     importItemList.add(bean);
                 }
                 else

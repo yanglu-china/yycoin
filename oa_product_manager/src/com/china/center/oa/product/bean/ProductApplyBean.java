@@ -269,6 +269,12 @@ public class ProductApplyBean implements Serializable {
      */
     @Html(title = "分类品名", must = true, maxLength = 100)
     private String className = "";
+
+    /**
+     * enum 234
+     */
+    @Html(title = "采购类型", type = Element.SELECT, must = true)
+    private String stype = "";
     
     @Ignore
     private List<ProductSubApplyBean> productSubApplyList = null;
@@ -687,6 +693,14 @@ public class ProductApplyBean implements Serializable {
 
     public void setSecondhandGoodsName(String secondhandGoodsName) {
         this.secondhandGoodsName = secondhandGoodsName;
+    }
+
+    public String getStype() {
+        return stype;
+    }
+
+    public void setStype(String stype) {
+        this.stype = stype;
     }
 
     public String toString()
