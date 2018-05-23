@@ -426,7 +426,7 @@ public class ProductBean implements Serializable
      * enum 234
      */
     @Html(title = "采购类型", type = Element.SELECT, must = true)
-    private String stype = 0;
+    private String stype = "";
 
     @Ignore
     private List<ProductCombinationBean> vsList = null;

@@ -482,6 +482,9 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         productBean.setReserve8("在售常规");
         productBean.setReserve9("常规");
 
+        //#316
+        productBean.setStype(applyBean.getStype());
+
         Expression exp = new Expression(productBean, this);
 
         exp.check("#name &unique @productDAO", "名称已经存在");

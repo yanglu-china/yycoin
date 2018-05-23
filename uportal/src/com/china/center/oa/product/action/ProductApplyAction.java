@@ -29,6 +29,7 @@ import com.china.center.oa.product.vo.ProductApplyVO;
 import com.china.center.oa.product.vo.ProductSubApplyVO;
 import com.china.center.oa.product.vo.ProductVSStafferVO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.EnumBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.InvoiceBean;
@@ -1208,7 +1209,7 @@ public class ProductApplyAction extends DispatchAction {
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next());
+                String[] obj = StringUtils.fillObj((String[])reader.next(), 14);
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -1599,6 +1600,12 @@ public class ProductApplyAction extends DispatchAction {
 
                         List<EnumBean> enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse);
                         if (ListTools.isEmptyOrNull(enumBeans)){
+                            ConditionParse conditionParse2 = new ConditionParse();
+                            conditionParse2.addWhereStr();
+                            conditionParse2.addCondition("type", "=", "234");
+
+                            enumBeans = this.enumDAO.queryEntityBeansByCondition(conditionParse2);
+
                             builder
                                     .append("第[" + currentNumber + "]错误:")
                                     .append("采购类型只能是"+EnumBean.join(enumBeans))
@@ -1734,24 +1741,6 @@ public class ProductApplyAction extends DispatchAction {
         }
     }
 
-    private String[] fillObj(String[] obj)
-    {
-        String[] result = new String[13];
-
-        for (int i = 0; i < result.length; i++ )
-        {
-            if (i < obj.length)
-            {
-                result[i] = obj[i];
-            }
-            else
-            {
-                result[i] = "";
-            }
-        }
-
-        return result;
-    }
 
     private String[] fillObj(String[] obj, int length)
     {

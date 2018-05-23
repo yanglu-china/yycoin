@@ -102,6 +102,10 @@
 			<p:pro field="nature" cell="0">
 				<p:option type="natureType" empty="true" />
 			</p:pro>
+
+			<p:pro field="stype" cell="0">
+				<p:option type="234" empty="true" />
+			</p:pro>
 			
 			<p:pro field="dutyType" cell="0">
 				<p:option type="114" empty="true"></p:option>

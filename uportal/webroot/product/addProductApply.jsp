@@ -198,6 +198,10 @@ function load()
 			<p:pro field="nature" innerString="onchange='natureChange()'" cell="0">
 				<p:option type="natureType" empty="true" />
 			</p:pro>
+
+			<p:pro field="stype" cell="0">
+				<p:option type="234" empty="true" />
+			</p:pro>
 			
 			<p:pro field="inputInvoice" innerString="style='width: 300px'">
 				<option value="">--</option>
