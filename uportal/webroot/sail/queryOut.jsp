@@ -514,7 +514,7 @@ function check()
                 return false;
             }
         }
-        $.messager.prompt('通过', '请输入意见', '同意', function(r){
+        $.messager.prompt('通过', '请输入意见', '', function(r){
                     if (r)
                     {
                         $Dbuttons(true);

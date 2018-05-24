@@ -634,13 +634,13 @@ public interface TcpConstanst
     /**
      * 增值税可抵扣17%"
      */
-    @Defined(key = "preInvoiceType", value = "增值税可抵扣17%")
+    @Defined(key = "preInvoiceType", value = "增值税可抵扣16%")
     int PREINVOICE_TAX17_YES = 0;
 
     /**
      * 增值税不可抵扣17%
      */
-    @Defined(key = "preInvoiceType", value = "增值税不可抵扣17%")
+    @Defined(key = "preInvoiceType", value = "增值税不可抵扣16%")
     int PREINVOICE_TAX17_NO = 1;
     
     /**

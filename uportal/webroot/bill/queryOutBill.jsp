@@ -42,7 +42,8 @@ function load()
              {display: '创建', name : 'createType', cc: 'billCreateType', width : '5%'},
              {display: '职员', name : 'ownerName', sortable : true, cname: 'ownerId', width : '5%'},
              {display: '状态', name : 'status', cc: 'outbillStatus', width : '8%'},
-             {display: '时间', name : 'logTime', sortable : true, width : 'auto'}
+             {display: '时间', name : 'logTime', sortable : true, width : '10%'},
+             {display: '备注', name : 'description', sortable : true, width : 'auto'}
              ],
          extAtt: {
              id : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}' + checkStr + '>', end : '</a>'}
