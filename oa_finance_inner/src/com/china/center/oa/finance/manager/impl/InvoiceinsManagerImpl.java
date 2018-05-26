@@ -895,8 +895,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         else
         {
             // 更新开票状态-过程
-//            outDAO.updateInvoiceStatus(out.getFullId(), total, OutConstant.INVOICESTATUS_INIT);
-            outDAO.updateInvoiceStatus(out.getFullId(), total, OutConstant.INVOICESTATUS_PART);
+            if (total == 0.0d){
+                outDAO.updateInvoiceStatus(out.getFullId(), total, OutConstant.INVOICESTATUS_INIT);
+            } else{
+                outDAO.updateInvoiceStatus(out.getFullId(), total, OutConstant.INVOICESTATUS_PART);
+            }
         }
     }
 
