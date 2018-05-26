@@ -195,7 +195,8 @@ function load()
 
 	<p:button leftWidth="100%" rightWidth="0%">
 		<div align="right">
-		<input type="button" accesskey="A"
+            <input type="button" class="button_class" value="返回" onclick="javascript:history.go(-1)" >&nbsp;&nbsp;
+		    <input type="button" accesskey="A"
                             value="追加凭证项" class="button_class" onclick="addTr()">&nbsp;&nbsp;
 		  <input type="button" class="button_class" id="sub_b"
             value="&nbsp;&nbsp;提交${showName}凭证&nbsp;&nbsp;" onclick="addBean()">&nbsp;&nbsp;

@@ -1860,7 +1860,7 @@ public class ExpenseAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("日期,标识,关联申请,目的,申请人,系列,类型,状态,申请费用,申请事由");
+            write.writeLine("日期,标识,关联申请,目的,申请人,系列,类型,状态,申请费用,申请事由,费用开始日期,费用结束日期,承担人");
 
             PageSeparate page = new PageSeparate();
 
@@ -1893,6 +1893,24 @@ public class ExpenseAction extends DispatchAction
 
                     //2015/6/16 把中收、申请的查询导出结果中增加字段“申请事由"
                     line.writeColumn(vo.getDescription());
+
+                    //费用开始日期和费用结束日期
+                    List<TravelApplyItemVO> itemVOList = travelApplyItemDAO.queryEntityVOsByFK(vo.getId());
+                    if (ListTools.isEmptyOrNull(itemVOList)){
+                        line.writeColumn("");
+                        line.writeColumn("");
+                    } else{
+                        line.writeColumn(itemVOList.get(0).getBeginDate());
+                        line.writeColumn(itemVOList.get(0).getEndDate());
+                    }
+
+                    //取费用分担里面“承担人”字段
+                    List<TcpShareVO> shareVOList = tcpShareDAO.queryEntityVOsByFK(vo.getId());
+                    if(ListTools.isEmptyOrNull(shareVOList)){
+                        line.writeColumn("");
+                    } else{
+                        line.writeColumn(shareVOList.get(0).getBearName());
+                    }
 
                     line.writeLine();
                 }

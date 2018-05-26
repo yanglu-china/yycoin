@@ -1964,7 +1964,7 @@ public class TravelApplyAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("日期,标识,目的,申请人,系列,类型,状态,借款,关联报销,借款金额,申请费用");
+            write.writeLine("日期,标识,目的,申请人,系列,类型,状态,借款,关联报销,借款金额,申请费用,费用开始日期,费用结束日期,承担人");
 
             PageSeparate page = new PageSeparate();
 
@@ -1997,6 +1997,23 @@ public class TravelApplyAction extends DispatchAction
                     line.writeColumn(changeString(vo.getShowBorrowTotal()));
                     line.writeColumn(changeString(vo.getShowTotal()));
 
+                    //费用开始日期和费用结束日期
+                    List<TravelApplyItemVO> itemVOList = travelApplyItemDAO.queryEntityVOsByFK(vo.getId());
+                    if (ListTools.isEmptyOrNull(itemVOList)){
+                        line.writeColumn("");
+                        line.writeColumn("");
+                    } else{
+                        line.writeColumn(itemVOList.get(0).getBeginDate());
+                        line.writeColumn(itemVOList.get(0).getEndDate());
+                    }
+
+                    //取费用分担里面“承担人”字段
+                    List<TcpShareVO> shareVOList = tcpShareDAO.queryEntityVOsByFK(vo.getId());
+                    if(ListTools.isEmptyOrNull(shareVOList)){
+                        line.writeColumn("");
+                    } else{
+                        line.writeColumn(shareVOList.get(0).getBearName());
+                    }
                     line.writeLine();
                 }
             }
