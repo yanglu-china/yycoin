@@ -256,7 +256,7 @@ function checkTotal()
 	{
 		window.parent.location.reload();
 
-		return false
+		return false;
 	}
 
     messk = '';
@@ -270,6 +270,19 @@ function checkTotal()
     }
 
 
+    var outType = $$('outType');
+    if (parseInt(outType) == 1){
+        var amountElements = document.getElementsByName('amount');
+        for (var i=0;i< amountElements.length;i++){
+            var amount = parseInt(amountElements[i].value);
+            if(isNaN(amount)){
+                continue;
+            } else if(amount > 0){
+                alert("调拨单数量必须为负数!");
+                return false;
+            }
+        }
+    }
     if ($O('saves').value == 'save')
     {
          if (window.confirm("入库单所有类型都是正数增加库存，负数减少库存，您确认填写的调出符合实际情形,确定保存入库单?" + messk))
