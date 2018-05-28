@@ -29,6 +29,7 @@ import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.StafferConstant;
 import com.china.center.oa.publics.constant.SysConfigConstant;
 import com.china.center.oa.publics.dao.DutyDAO;
 import com.china.center.oa.publics.dao.ParameterDAO;
@@ -3092,7 +3093,7 @@ public class ParentQueryFinaAction extends DispatchAction
      * @param stafferId
      * @return
      */
-    private String getStafferId(String[] obj)
+    private String getStafferId(String[] obj) throws MYException
     {
         String stafferId = "";
 
@@ -3103,6 +3104,9 @@ public class ParentQueryFinaAction extends DispatchAction
             if (sb != null)
             {
                 stafferId = sb.getId();
+                if (sb.getStatus() == StafferConstant.STATUS_DROP){
+                    throw new MYException("制单人已废弃:"+obj[1]);
+                }
             }
         }
 
