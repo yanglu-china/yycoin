@@ -3210,6 +3210,13 @@ public class ParentQueryFinaAction extends DispatchAction
                         .append("</font><br>");
 
                     return false;
+                } else if (bean.getStatus() == StafferConstant.STATUS_DROP){
+                    builder
+                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+                            .append("职员已废弃:"+name)
+                            .append("</font><br>");
+
+                    return false;
                 }
 
                 item.setStafferId(bean.getId());
