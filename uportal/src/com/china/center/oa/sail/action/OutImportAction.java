@@ -4067,7 +4067,13 @@
                      // 商品
                      if ( !StringTools.isNullOrNone(obj[2]))
                      {
-                         bean.setProductName(obj[2]);
+                         String productName = obj[2].trim();
+                         ProductBean productBean = this.productDAO.findByName(productName);
+                         if (productBean == null){
+                             throw new MYException("产品不存在:"+productName);
+                         } else{
+                             bean.setProductName(productName);
+                         }
                      }else
                      {
                          throw new MYException("商品不能为空");
