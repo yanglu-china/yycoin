@@ -45,7 +45,7 @@ public class BatchSwatchBean implements Serializable
 	/**
 	 * 检查结果
 	 */
-	private String result = "产品不存在或数量不足";
+	private String result = "数量不足,剩余0";
 	
 	private String customerId = "";
 	

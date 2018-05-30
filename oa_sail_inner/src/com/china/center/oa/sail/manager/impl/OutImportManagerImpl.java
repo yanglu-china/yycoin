@@ -2161,7 +2161,7 @@ public class OutImportManagerImpl implements OutImportManager
 				map.put(key, blist);
 			}
 		}
-		
+
 		// 确定 退货明细的有效性 - 一单一单的检查
 		for(Entry<String, List<BatchSwatchBean>> entry : map.entrySet())
 		{
@@ -2171,14 +2171,12 @@ public class OutImportManagerImpl implements OutImportManager
 			
 			//evalueSwatch
 			List<BaseBean> baseList = evalueSwatch(outId);
-            
             // 再与导入的数据进行匹配
             for (BatchSwatchBean each : bList)
             {
             	for(BaseBean eachBase : baseList)
             	{
             		int canUseAmount = eachBase.getAmount() - eachBase.getInway();
-            		
             		if (each.getProductName().equals(eachBase.getProductName()) && each.getAmount() <= canUseAmount)
             		{
             			each.setRet(0);
@@ -2187,7 +2185,10 @@ public class OutImportManagerImpl implements OutImportManager
             			each.setBaseId(eachBase.getId());
             			
             			break;
-            		}
+            		} else if (each.getProductName().equals(eachBase.getProductName()) && each.getAmount() > canUseAmount){
+            			each.setRet(1);
+            			each.setResult(each.getProductName()+"数量不足,剩余:"+canUseAmount);
+					}
             	}
             }
             
