@@ -134,17 +134,15 @@ public class XznsShipJobManagerImpl extends AbstractShipJobManager{
                 int i = 0, j = 0, i1 = 1;
 
                 //set column width
-                ws.setColumnView(0, 5);
+                ws.setColumnView(0, 40);
                 ws.setColumnView(1, 40);
                 ws.setColumnView(2, 40);
-                ws.setColumnView(3, 40);
 
 
                 // 正文表格
-                ws.addCell(new Label(0, i, "序号", format3));
-                ws.addCell(new Label(1, i, "交易流水号", format3));
-                ws.addCell(new Label(2, i, "快递公司", format3));
-                ws.addCell(new Label(3, i, "快递单号", format3));
+                ws.addCell(new Label(0, i, "交易流水号", format3));
+                ws.addCell(new Label(1, i, "快递公司", format3));
+                ws.addCell(new Label(2, i, "快递单号", format3));
 
 
                 for (PackageItemBean each : beans)
@@ -153,38 +151,32 @@ public class XznsShipJobManagerImpl extends AbstractShipJobManager{
                     if (ignoreLyOrders && each.getOutId().startsWith("LY")){
                         continue;
                     }
+                    i++;
 
-                    for (int number = 0;number< each.getAmount();number++){
-                        i++;
-                        ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
-                        setWS(ws, i, 300, false);
-
-                        //银行订单号
-                        ConditionParse con3 = new ConditionParse();
-                        con3.addWhereStr();
-                        con3.addCondition("OutImportBean.oano", "=", each.getOutId());
-                        List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
-                        String citicNo = "";
-                        if (!ListTools.isEmptyOrNull(importBeans)){
-                            for (OutImportBean b: importBeans){
-                                if (!StringTools.isNullOrNone(b.getCiticNo())){
-                                    citicNo = b.getCiticNo();
-                                }
+                    //交易流水号取银行订单号
+                    ConditionParse con3 = new ConditionParse();
+                    con3.addWhereStr();
+                    con3.addCondition("OutImportBean.oano", "=", each.getOutId());
+                    List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
+                    String citicNo = "";
+                    if (!ListTools.isEmptyOrNull(importBeans)){
+                        for (OutImportBean b: importBeans){
+                            if (!StringTools.isNullOrNone(b.getCiticNo())){
+                                citicNo = b.getCiticNo();
                             }
                         }
-                        ws.addCell(new Label(j++, i, citicNo, format3));
-
-
-                        //快递公司
-                        ws.addCell(new Label(j++, i, each.getTransportName1(), format3));
-                        //2016/4/5 #2 快递单号改取package表的transportNo
-                        String transportNo = each.getTransportNo();
-                        ws.addCell(new Label(j++, i, transportNo, format3));
-
-                        j = 0;
-                        result = true;
                     }
+                    ws.addCell(new Label(j++, i, citicNo, format3));
 
+
+                    //快递公司
+                    ws.addCell(new Label(j++, i, each.getTransportName1(), format3));
+                    //2016/4/5 #2 快递单号改取package表的transportNo
+                    String transportNo = each.getTransportNo();
+                    ws.addCell(new Label(j++, i, transportNo, format3));
+
+                    j = 0;
+                    result = true;
                 }
 
             }

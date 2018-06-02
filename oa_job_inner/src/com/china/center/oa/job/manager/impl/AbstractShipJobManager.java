@@ -409,7 +409,7 @@ public abstract class AbstractShipJobManager implements JobManager {
     protected BranchRelationBean getRelationByCustomerId(String customerId,String channel){
         ConditionParse con2 = new ConditionParse();
         con2.addWhereStr();
-        con2.addCondition("BranchRelationBean.id", "=", customerId);
+        con2.addCondition("BranchRelationBean.customerId", "=", customerId);
         if (StringTools.isNullOrNone(channel)){
             con2.addCondition(" and (BranchRelationBean.channel is null or BranchRelationBean.channel='')");
         } else{

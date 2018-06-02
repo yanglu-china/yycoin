@@ -54,7 +54,8 @@ public class ShipJobManagerImpl extends AbstractShipJobManager{
         if(customerName.indexOf("浦发银行") == -1
                 //#259
                 && customerName.indexOf("甘肃银行") == -1
-                && customerName.indexOf("南京银行") == -1){
+                && customerName.indexOf("南京银行") == -1
+                && customerName.indexOf("新郑农商") == -1){
             return true;
         }
         return false;
