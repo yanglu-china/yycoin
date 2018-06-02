@@ -34,6 +34,11 @@ function addBean()
 	submit('确定后系统将只处理结果为OK的订单', null, null);
 }
 
+function exports2(){
+    if (window.confirm("确定导出当前结果?")){
+        document.location.href = '../sail/outImport.do?method=exportBatchSwatch&batchId='+'${batchId}';
+    }
+}
 </script>
 
 </head>
@@ -96,6 +101,11 @@ function addBean()
             id="ok_add" style="cursor: pointer" value="&nbsp;&nbsp;确 定&nbsp;&nbsp;"
             onclick="addBean()">&nbsp;&nbsp;
         </c:if>
+		<c:if test="${flag == 1}">
+			<input type="button" class="button_class"
+				   id="ok_add" style="cursor: pointer" value="&nbsp;&nbsp;导 出&nbsp;&nbsp;"
+				   onclick="exports2()">&nbsp;&nbsp;
+		</c:if>
         <input type="button" class="button_class"
             id="ok_b" style="cursor: pointer" value="&nbsp;&nbsp;返 回&nbsp;&nbsp;"
             onclick="javaScript:window.history.go(-1);"></div>

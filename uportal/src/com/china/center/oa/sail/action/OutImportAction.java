@@ -3941,6 +3941,102 @@
          return queryBatchSwatch(mapping, form, request, response);
      }
 
+     public ActionForward exportBatchSwatch(ActionMapping mapping, ActionForm form,
+                                 HttpServletRequest request, HttpServletResponse response)
+             throws ServletException
+     {
+         String batchId = request.getParameter("batchId");
+
+         OutputStream out = null;
+
+         String filenName = "ExportBatchSwatch_" + TimeTools.now("MMddHHmmss") + ".csv";
+
+         User user = (User) request.getSession().getAttribute("user");
+
+         ConditionParse con = new ConditionParse();
+
+         List<BatchSwatchBean> batchSwatchBeans = this.batchSwatchDAO.queryEntityBeansByFK(batchId);
+
+         if (ListTools.isEmptyOrNull(batchSwatchBeans))
+         {
+             return null;
+         }
+
+         response.setContentType("application/x-dbf");
+
+         response.setHeader("Content-Disposition", "attachment; filename="
+                 + filenName);
+
+         WriteFile write = null;
+
+         try
+         {
+             out = response.getOutputStream();
+
+             write = WriteFileFactory.getMyTXTWriter();
+
+             write.openFile(out);
+
+             WriteFileBuffer line = new WriteFileBuffer(write);
+             line.writeColumn("类型");
+             line.writeColumn("单号");
+             line.writeColumn("商品名");
+             line.writeColumn("数量");
+             line.writeColumn("客户");
+             line.writeColumn("目的仓库");
+             line.writeColumn("备注");
+             line.writeColumn("快递单号");
+
+             line.writeLine();
+
+             for (Iterator<BatchSwatchBean> iter = batchSwatchBeans.iterator(); iter.hasNext();)
+             {
+                 BatchSwatchBean ib = iter.next();
+                 line.writeColumn(ib.getAction());
+                 line.writeColumn(ib.getOutId());
+                 line.writeColumn(ib.getProductName());
+                 line.writeColumn(ib.getAmount());
+                 line.writeColumn(ib.getCustomerName());
+                 line.writeColumn(ib.getDirDeport());
+                 line.writeColumn(ib.getDescription());
+                 line.writeColumn(ib.getTransportNo());
+
+                 line.writeLine();
+
+             }
+         }
+         catch (Exception e)
+         {
+             _logger.error(e, e);
+             return null;
+         }
+         finally
+         {
+             if (write != null)
+             {
+                 try
+                 {
+                     write.close();
+                 }
+                 catch (Exception e1)
+                 {
+                 }
+             }
+             if (out != null)
+             {
+                 try
+                 {
+                     out.close();
+                 }
+                 catch (IOException e1)
+                 {
+                 }
+             }
+         }
+
+         return null;
+     }
+
      /**
       * 领样/巡展 导入式生成退货或销售
       * @param mapping
@@ -4114,8 +4210,10 @@
                          {
                              throw new MYException(cust+ " 客户不存在");
                          }
-                         else
+                         else {
+                             bean.setCustomerName(cust);
                              bean.setCustomerId(cbeans.get(0).getId());
+                         }
                      }else
                      {
                          throw new MYException("客户不能为空");
