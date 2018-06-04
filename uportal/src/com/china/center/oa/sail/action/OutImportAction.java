@@ -3978,11 +3978,13 @@
              write.openFile(out);
 
              WriteFileBuffer line = new WriteFileBuffer(write);
-             line.writeColumn("类型");
+             line.writeColumn("批次");
              line.writeColumn("单号");
              line.writeColumn("商品名");
              line.writeColumn("数量");
+             line.writeColumn("动作");
              line.writeColumn("客户");
+             line.writeColumn("处理结果");
              line.writeColumn("目的仓库");
              line.writeColumn("备注");
              line.writeColumn("快递单号");
@@ -3992,11 +3994,13 @@
              for (Iterator<BatchSwatchBean> iter = batchSwatchBeans.iterator(); iter.hasNext();)
              {
                  BatchSwatchBean ib = iter.next();
-                 line.writeColumn(ib.getAction());
+                 line.writeColumn(ib.getBatchId());
                  line.writeColumn(ib.getOutId());
                  line.writeColumn(ib.getProductName());
                  line.writeColumn(ib.getAmount());
+                 line.writeColumn(ib.getAction());
                  line.writeColumn(ib.getCustomerName());
+                 line.writeColumn(ib.getResult());
                  line.writeColumn(ib.getDirDeport());
                  line.writeColumn(ib.getDescription());
                  line.writeColumn(ib.getTransportNo());

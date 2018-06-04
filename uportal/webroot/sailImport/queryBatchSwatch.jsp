@@ -100,12 +100,10 @@ function exports2(){
         <input type="button" class="button_class"
             id="ok_add" style="cursor: pointer" value="&nbsp;&nbsp;确 定&nbsp;&nbsp;"
             onclick="addBean()">&nbsp;&nbsp;
-        </c:if>
-		<c:if test="${flag == 1}">
 			<input type="button" class="button_class"
 				   id="ok_add" style="cursor: pointer" value="&nbsp;&nbsp;导 出&nbsp;&nbsp;"
 				   onclick="exports2()">&nbsp;&nbsp;
-		</c:if>
+        </c:if>
         <input type="button" class="button_class"
             id="ok_b" style="cursor: pointer" value="&nbsp;&nbsp;返 回&nbsp;&nbsp;"
             onclick="javaScript:window.history.go(-1);"></div>
