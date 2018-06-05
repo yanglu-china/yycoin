@@ -1433,7 +1433,7 @@ public class OutImportManagerImpl implements OutImportManager
 		if (!StringTools.isNullOrNone(excludeChannel)){
 			String channel1 = out.getChannel();
 			String[] channels = excludeChannel.split(";");
-			if (StringTools.isNullOrNone(channel1) || this.contains2(channels, channel1)){
+			if (!StringTools.isNullOrNone(channel1) && this.contains2(channels, channel1)){
 				_logger.warn(channel1+" excludeChannel is not suitable:"+excludeChannel);
 				return -1;
 			}else{
@@ -1491,7 +1491,7 @@ public class OutImportManagerImpl implements OutImportManager
 			if (customerBean!= null){
 				String branchName1 = customerBean.getReserve1();
 				String[] branchNames = excludeBranchName.split(";");
-				if (StringTools.isNullOrNone(branchName1) || this.contains2(branchNames, branchName1)){
+				if (!StringTools.isNullOrNone(branchName1) && this.contains2(branchNames, branchName1)){
 					_logger.warn(branchName1+" bank is not suitable:"+excludeBranchName);
 					return -1;
 				}else{
