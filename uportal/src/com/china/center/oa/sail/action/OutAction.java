@@ -3895,9 +3895,8 @@ public class OutAction extends ParentOutAction
         	
             condtion.addCondition("and OutBean.status in (1, 3, 4, 6, 7, 8, 9)");
 
-            // 过滤委托代销&领样&巡展
-//            condtion.addIntCondition("OutBean.outType", "<>", OutConstant.OUTTYPE_OUT_CONSIGN);
-            condtion.addCondition("and OutBean.outType not in (1, 3, 5, 6)");
+            // #303 过滤委托代销&领样&巡展&银行领样
+            condtion.addCondition("and OutBean.outType not in (1, 3, 5, 6, 7)");
         }
 
         // 需要开票的销售单
