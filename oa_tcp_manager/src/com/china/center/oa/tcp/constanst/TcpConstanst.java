@@ -168,10 +168,10 @@ public interface TcpConstanst
     int TCP_STATUS_PROVINCE_MANAGER = 32;
 
 //    @Defined(key = "tcpStatus", value = "待区域经理审批")
-    @Defined(key = "tcpStatus", value = "待营销总监审批")
+    @Defined(key = "tcpStatus", value = "待总监审批")
     int TCP_STATUS_REGIONAL_MANAGER = 33;
 
-    @Defined(key = "tcpStatus", value = "待大区总监审批")
+    @Defined(key = "tcpStatus", value = "待大区总经理审批")
     int TCP_STATUS_REGIONAL_DIRECTOR = 34;
 
     @Defined(key = "tcpStatus", value = "待营销管理部审批")
