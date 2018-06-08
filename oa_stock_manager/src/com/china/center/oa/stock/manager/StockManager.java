@@ -52,14 +52,6 @@ public interface StockManager extends ListenerManager<StockListener>
     boolean stockItemAskChange(String itemId, String providerId)
         throws MYException;
 
-    @Deprecated
-    boolean fechProduct(User user, String itemId, String depotpartId)
-        throws MYException;
-
-    @Deprecated
-    boolean fetchProduct(User user, String itemId, String depotpartId, int warehouseNum, int toBeWarehouse)
-            throws MYException;
-
     /**
      * 2015/12/5 根据到货信息拿货
      * @param user

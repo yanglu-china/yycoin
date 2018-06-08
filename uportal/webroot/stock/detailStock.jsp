@@ -170,7 +170,7 @@ function showDiv(id)
 			<tr align="center" class="content0">
 				<td width="10%" align="center">采购产品</td>
 				<td width="5%" align="center">采购数量</td>
-				<td width="5%" align="center">当前数量</td>
+				<td width="5%" align="center">当前库存</td>
 				<td width="5%" align="center">是否询价</td>
 				<td width="5%" align="center">是否拿货</td>
 				<td width="10%" align="center">参考/实际价格</td>
@@ -275,19 +275,18 @@ function showDiv(id)
 		<table width="100%" border="0" cellspacing='1' id="tables">
 			<tr align="center" class="content0">
 				<td width="30%" align="center">采购产品</td>
-				<td width="20%" align="center">拿货数量</td>
-				<td width="30%" align="center">出货日期</td>
-				<td width="20%" align="center">预计到货日期</td>
+				<td width="10%" align="center">采购数量</td>
+				<td width="10%" align="center">已拿货数量</td>
+				<td width="25%" align="center">出货日期</td>
+				<td width="25%" align="center">预计到货日期</td>
 			</tr>
 
 			<c:forEach items="${bean.stockItemArrivalVOs}" var="item" varStatus="vs">
 				<tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
 					<td align="center">${item.productName}</td>
-
 					<td align="center">${item.amount}</td>
-
+					<td align="center">${item.totalWarehouseNum}</td>
 					<td align="center">${item.deliveryDate}</td>
-
 					<td align="center">${item.arrivalDate}</td>
 				</tr>
 			</c:forEach>
