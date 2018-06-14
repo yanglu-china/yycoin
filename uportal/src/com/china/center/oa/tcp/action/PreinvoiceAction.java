@@ -807,6 +807,32 @@ public class PreinvoiceAction extends DispatchAction
 
         return false;
     }
+
+    public ActionForward cancelPreInvoice(ActionMapping mapping, ActionForm form,
+                                          HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        AjaxResult ajax = new AjaxResult();
+
+        try
+        {
+            String id = request.getParameter("id");
+
+            User user = Helper.getUser(request);
+
+            preInvoiceManager.cancelPreInvoiceBean(user, id);
+
+            ajax.setSuccess("成功操作");
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            ajax.setError("操作失败:" + e.getMessage());
+        }
+
+        return JSONTools.writeResponse(response, ajax);
+    }
     
 	/**
 	 * @return the stafferDAO

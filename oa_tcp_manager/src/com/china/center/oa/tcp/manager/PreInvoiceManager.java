@@ -30,4 +30,6 @@ public interface PreInvoiceManager
      */
     boolean deletePreInvoiceBean(User user, String id)
         throws MYException;
+
+	boolean cancelPreInvoiceBean(User user, String id) throws MYException;
 }

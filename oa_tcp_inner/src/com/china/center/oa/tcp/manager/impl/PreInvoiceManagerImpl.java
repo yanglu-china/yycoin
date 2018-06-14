@@ -957,8 +957,24 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
 
         return false;
     }
-	
-	/**
+
+    @Override
+    public boolean cancelPreInvoiceBean(User user, String id) throws MYException {
+	    PreInvoiceApplyBean bean = this.preInvoiceApplyDAO.find(id);
+	    if (bean!= null && bean.getStatus() != 99){
+	        throw new MYException("状态必须为结束才可以退票!");
+        }
+
+        List<PreInvoiceVSOutBean> preInvoiceVSOutBeans = this.preInvoiceVSOutDAO.queryEntityBeansByFK(id);
+	    if (ListTools.isEmptyOrNull(preInvoiceVSOutBeans)){
+            throw new MYException("未关联销售单不可以退票!");
+        }
+
+        //TODO
+        return true;
+    }
+
+    /**
 	 * @return the commonDAO
 	 */
 	public CommonDAO getCommonDAO()
