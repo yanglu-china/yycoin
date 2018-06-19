@@ -333,7 +333,6 @@ public class PackageManagerImpl implements PackageManager {
 			List<? extends BaseInterface> baseList, DistributionInterface distVO, String fullAddress, String location)
 	{
         _logger.info("**************createNewPackage for Out now "+outBean.getFullId());
-
         String id = commonDAO.getSquenceString20("CK");
 		
 		int allAmount = 0;
@@ -445,7 +444,7 @@ public class PackageManagerImpl implements PackageManager {
 		vsBean.setIndexPos(1);
 
 		packBean.setPrintInvoiceinsStatus(itemList);
-		this.savePackage(packBean);
+		this.savePackage(packBean, itemList);
 		packageItemDAO.saveAllEntityBeans(itemList);
 
 		packageVSCustomerDAO.saveEntityBean(vsBean);
@@ -556,7 +555,7 @@ public class PackageManagerImpl implements PackageManager {
 
 		packBean.setPrintInvoiceinsStatus(itemList);
 
-		this.savePackage(packBean);
+		this.savePackage(packBean, itemList);
 
 		packageItemDAO.saveAllEntityBeans(itemList);
 		
@@ -1448,20 +1447,20 @@ public class PackageManagerImpl implements PackageManager {
         vsBean.setIndexPos(1);
 
 		packBean.setPrintInvoiceinsStatus(itemList);
-		this.savePackage(packBean);
+		this.savePackage(packBean, itemList);
         packageItemDAO.saveAllEntityBeans(itemList);
 
         packageVSCustomerDAO.saveEntityBean(vsBean);
     }
 
-	private void savePackage(PackageBean packageBean){
-		if (this.isDirectShipped(packageBean.getItemList())){
+	private void savePackage(PackageBean packageBean, List<PackageItemBean> itemList){
+		if (this.isDirectShipped(itemList)){
 			packageBean.setDirect(1);
 		}
 
 		packageDAO.saveEntityBean(packageBean);
 		this.addLog(packageBean.getId(), ShipConstant.SHIP_STATUS_INIT, ShipConstant.SHIP_STATUS_INIT,"生成CK单");
-		_logger.info(String.format("生成CK单:%s",packageBean.getId()));
+		_logger.info(String.format("生成CK单:%s direct:%s",packageBean.getId(), String.valueOf(packageBean.getDirect())));
 	}
 
     /**
