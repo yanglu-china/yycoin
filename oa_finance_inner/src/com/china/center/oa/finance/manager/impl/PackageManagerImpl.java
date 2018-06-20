@@ -1245,7 +1245,11 @@ public class PackageManagerImpl implements PackageManager {
 				_logger.info(insId+"***merge to exist package***"+packBean.getId());
 
 				if (!ListTools.isEmptyOrNull(itemList)) {
-					packageItemDAO.saveAllEntityBeans(itemList);
+					try {
+						packageItemDAO.saveAllEntityBeans(itemList);
+					}catch (Exception e){
+						_logger.error(e);
+					}
 				}
 				
 				// 包与客户关系
@@ -1261,13 +1265,16 @@ public class PackageManagerImpl implements PackageManager {
 					newvsBean.setCustomerId(ins.getCustomerId());
 					newvsBean.setCustomerName(ins.getCustomerName());
 					newvsBean.setIndexPos(count + 1);
-					
-					packageVSCustomerDAO.saveEntityBean(newvsBean);
+					try {
+						packageVSCustomerDAO.saveEntityBean(newvsBean);
+					}catch (Exception e){
+						_logger.error(e);
+					}
 				}
 			}
 		}
 
-		_logger.info("***delete preconsign***"+pre.getId());
+		_logger.info("***delete preconsign***"+pre.getOutId());
 		preConsignDAO.deleteEntityBean(pre.getId());
 	}
 
