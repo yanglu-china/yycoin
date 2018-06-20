@@ -1179,7 +1179,7 @@ public class PackageManagerImpl implements PackageManager {
 			String id = packageList.get(0).getId();
 			
 			PackageBean packBean = packageDAO.find(id);
-			
+
 			// 不存在或已不是初始状态(可能已被拣配)
 			if (null == packBean ||
 					(packBean.getStatus() != 0 && packBean.getStatus()!= ShipConstant.SHIP_STATUS_PRINT_INVOICEINS))
@@ -1187,16 +1187,18 @@ public class PackageManagerImpl implements PackageManager {
 				createNewInsPackage(ins, numList, distVO, fullAddress, location);
 			}else
 			{
+				_logger.info("***package already exists***"+id);
 				//#200 合并入现有CK单时检查是否有重复outId
 				List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
-				
+
 				int allAmount = 0;
 				double total = 0;
 				
 				StringBuilder sb = getPrintTextForIns(ins);
 				
 				boolean first = false;
-				
+
+				_logger.info("***loop1111***"+id);
 				for (InsVSInvoiceNumBean base : numList)
 				{
 					if (this.contains(itemList, insId)){
@@ -1223,7 +1225,7 @@ public class PackageManagerImpl implements PackageManager {
 					first = true;
 					
 					itemList.add(item);
-					
+					_logger.info("***create package item***"+item);
 					allAmount += item.getAmount();
 					total += base.getMoneys();
 				}
@@ -1231,11 +1233,15 @@ public class PackageManagerImpl implements PackageManager {
 				packBean.setAmount(packBean.getAmount() + allAmount);
 				packBean.setTotal(packBean.getTotal() + total);
 				packBean.setProductCount(packBean.getProductCount() + numList.size());
-
+				_logger.info("***loop***222222"+itemList);
 				if(this.isDirectShipped(itemList)){
 					packBean.setDirect(1);
 				}
-				packageDAO.updateEntityBean(packBean);
+				try {
+					packageDAO.updateEntityBean(packBean);
+				}catch (Exception e){
+					_logger.error(e);
+				}
 				_logger.info(insId+"***merge to exist package***"+packBean.getId());
 
 				if (!ListTools.isEmptyOrNull(itemList)) {
