@@ -539,30 +539,31 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         }
         // 共享池模式
         if (token.getNextPlugin().startsWith("pool")) {
-            String groupId = token.getNextPlugin().substring(5);
-
-            List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
-
-            if (ListTools.isEmptyOrNull(vsList)) {
-                throw new MYException("当前群组内没有人员,请确认操作");
-            }
-
-            List<String> processList = new ArrayList();
-
-            for (GroupVSStafferBean groupVSStafferBean : vsList) {
-                processList.add(groupVSStafferBean.getStafferId());
-            }
-
-            int newStatus = saveApprove(user, processList, bean, token.getNextStatus(), 1);
-
-            if (newStatus != oldStatus) {
-                bean.setStatus(newStatus);
-
-                expenseApplyDAO.updateStatus(bean.getId(), newStatus);
-            }
-
-            // 记录操作日志
-            saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
+            this.pool(token, user, bean, oldStatus, reason);
+//            String groupId = token.getNextPlugin().substring(5);
+//
+//            List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
+//
+//            if (ListTools.isEmptyOrNull(vsList)) {
+//                throw new MYException("当前群组内没有人员,请确认操作");
+//            }
+//
+//            List<String> processList = new ArrayList();
+//
+//            for (GroupVSStafferBean groupVSStafferBean : vsList) {
+//                processList.add(groupVSStafferBean.getStafferId());
+//            }
+//
+//            int newStatus = saveApprove(user, processList, bean, token.getNextStatus(), 1);
+//
+//            if (newStatus != oldStatus) {
+//                bean.setStatus(newStatus);
+//
+//                expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+//            }
+//
+//            // 记录操作日志
+//            saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
         }
         // 插件模式
         else if (token.getNextPlugin().startsWith("plugin")) {
@@ -598,8 +599,30 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     || token.getNextPlugin().equalsIgnoreCase("plugin:regionalCEO"))
             {
                 List<String> processList = new ArrayList();
-                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
-                if (!StringTools.isNullOrNone(nextProcessor)){
+//                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+                TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+                _logger.info("****next Token***"+nextToken);
+                if (nextToken!= null && nextToken.getNextPlugin().contains("pool")){
+                    this.pool(nextToken, user,bean,oldStatus,reason);
+                } else{
+                    int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
+                    String nextProcessor = nextToken.getNextProcessor();
+                    if (!StringTools.isNullOrNone(nextProcessor)){
+                        processList.add(nextProcessor);
+                    }
+                    _logger.info("***processList***"+processList.size());
+
+                    int newStatus = saveApprove(user, processList, bean, nextStatusIgnoreDuplicate,
+                            TcpConstanst.TCP_POOL_COMMON);
+
+                    bean.setStatus(newStatus);
+
+                    travelApplyDAO.updateStatus(bean.getId(), newStatus);
+
+                    // 记录操作日志
+                    saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
+                }
+/*                if (!StringTools.isNullOrNone(nextProcessor)){
                     processList.add(nextProcessor);
                 }
                 _logger.info("***processList***"+processList.size());
@@ -612,7 +635,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 expenseApplyDAO.updateStatus(bean.getId(), newStatus);
 
                 // 记录操作日志
-                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
+                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);*/
             }
         }
         // 结束模式
@@ -649,20 +672,87 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         return true;
     }
 
-    private String getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
+    /**
+     * #301 跳过由同一个人处理的多个审批环节,递归找到下一环节处理人
+     * get High level manager Id from  bank level table
+     * @param stafferId
+     * @param nextStatus
+     * @return
+     */
+    private TcpFlowBean getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
+        TcpFlowBean result = new TcpFlowBean();
+
+        String nextProcessor = "";
         try {
             if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                return this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId);
-            }else {
-                return "";
+                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId);
+                if (stafferId.equals(nextProcessor)){
+                    TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
+                    _logger.info("***next token***"+token);
+                    // 下一环节如果已经是pool,直接返回
+                    if (token!= null && token.getNextPlugin().contains("pool")){
+                        return token;
+                    }
+                    return getNextProcessor(nextProcessor, flowKey, token.getNextStatus());
+                } else{
+                    result.setNextProcessor(nextProcessor);
+                    result.setNextStatus(nextStatus);
+                    _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
+                }
             }
         }catch(Exception e){
             _logger.error(e);
-            throw new MYException(stafferId+"在T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
+            throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
         }
+
+        return result;
+    }
+
+//    private String getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
+//        try {
+//            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
+//                return this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId);
+//            }else {
+//                return "";
+//            }
+//        }catch(Exception e){
+//            _logger.error(e);
+//            throw new MYException(stafferId+"在T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
+//        }
+//    }
+
+    private void pool(TcpFlowBean token, User user, ExpenseApplyVO bean, int oldStatus, String reason) throws MYException
+    {
+        String groupId = token.getNextPlugin().substring(5);
+
+        List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
+
+        if (ListTools.isEmptyOrNull(vsList)) {
+            throw new MYException("当前群组内没有人员,请确认操作");
+        }
+
+        List<String> processList = new ArrayList();
+
+        for (GroupVSStafferBean groupVSStafferBean : vsList) {
+            processList.add(groupVSStafferBean.getStafferId());
+        }
+
+        int newStatus = saveApprove(user, processList, bean, token.getNextStatus(), 1);
+
+        if (newStatus != oldStatus) {
+            bean.setStatus(newStatus);
+
+            expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+        }
+
+        // 记录操作日志
+        saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
     }
 
     /**
@@ -1167,11 +1257,15 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         List<TcpApproveBean> appList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
 
         if (appList.size() == 0 || token.getSingeAll() == 0) {
-            String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+//            String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+            TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+            int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
+            String nextProcessor = nextToken.getNextProcessor();
             if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
                 processList.add(nextProcessor);
             }
-            _logger.info("***processList***"+processList.size());
+            _logger.info(nextStatus+"***nextStatusIgnoreDuplicate***"+nextStatusIgnoreDuplicate+"***processList***"+processList.size()+"***nextProcessor***"+nextProcessor);
+
             for (String processId : processList) {
                 // 进入审批状态
                 TcpApproveBean approve = new TcpApproveBean();
@@ -1184,7 +1278,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 approve.setLogTime(TimeTools.now());
                 approve.setDepartmentId(bean.getDepartmentId());
                 approve.setName(bean.getName());
-                approve.setStatus(nextStatus);
+//                approve.setStatus(nextStatus);
                 approve.setTotal(bean.getTotal());
                 approve.setCheckTotal(bean.getBorrowTotal());
                 approve.setType(bean.getType());
