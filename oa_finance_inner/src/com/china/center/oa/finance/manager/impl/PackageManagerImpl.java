@@ -10,6 +10,7 @@ import java.util.Set;
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
 import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
+import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.FlowLogDAO;
@@ -510,7 +511,7 @@ public class PackageManagerImpl implements PackageManager {
 		packBean.setStatus(0);
 		packBean.setLogTime(TimeTools.now());
 		
-		StringBuilder sb = getPrintTextForIns(ins);
+		String sb = getPrintTextForIns(ins);
 		
 		List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
 		
@@ -532,7 +533,7 @@ public class PackageManagerImpl implements PackageManager {
 			item.setDescription(ins.getDescription());
 			item.setCustomerId(ins.getCustomerId());
 			if (!first) {
-				item.setPrintText(sb.toString());	
+				item.setPrintText(sb);
 			}
 			
 			first = true;
@@ -571,7 +572,7 @@ public class PackageManagerImpl implements PackageManager {
 	 * @see [相关类/方法](可选)
 	 * @since [产品/模块版本](可选)
 	 */
-	private StringBuilder getPrintTextForIns(InvoiceinsVO ins) {
+	private String getPrintTextForIns(InvoiceinsVO ins) {
 		StringBuilder sb = new StringBuilder();
 		
 		List<InvoiceinsItemVO> insVOList = invoiceinsItemDAO.queryEntityVOsByFK(ins.getId());
@@ -599,7 +600,12 @@ public class PackageManagerImpl implements PackageManager {
 				}
 			}
 		}
-		return sb;
+		String result = sb.toString();
+		if (result.length() >2000){
+			return StringUtils.subString(result, 1995)+"...";
+		} else{
+			return result;
+		}
 	}
 
     //2015/1/13 update
@@ -1194,7 +1200,7 @@ public class PackageManagerImpl implements PackageManager {
 				int allAmount = 0;
 				double total = 0;
 				
-				StringBuilder sb = getPrintTextForIns(ins);
+				String sb = getPrintTextForIns(ins);
 				
 				boolean first = false;
 
@@ -1219,7 +1225,7 @@ public class PackageManagerImpl implements PackageManager {
 					item.setDescription(ins.getDescription());
 					item.setCustomerId(ins.getCustomerId());
 					if (!first) {
-						item.setPrintText(sb.toString());	
+						item.setPrintText(sb);
 					}
 					
 					first = true;
