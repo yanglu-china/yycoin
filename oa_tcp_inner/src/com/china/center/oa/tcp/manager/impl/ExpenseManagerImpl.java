@@ -1279,6 +1279,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 approve.setDepartmentId(bean.getDepartmentId());
                 approve.setName(bean.getName());
 //                approve.setStatus(nextStatus);
+                approve.setStatus(nextStatusIgnoreDuplicate);
                 approve.setTotal(bean.getTotal());
                 approve.setCheckTotal(bean.getBorrowTotal());
                 approve.setType(bean.getType());
@@ -1287,6 +1288,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 approve.setPayType(bean.getPayType());
 
                 tcpApproveDAO.saveEntityBean(approve);
+                _logger.info("***save TcpApproveBean***"+approve);
             }
 
             // 如果是共享的不发送邮件
