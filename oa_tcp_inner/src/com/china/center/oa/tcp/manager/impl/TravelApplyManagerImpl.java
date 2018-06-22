@@ -384,7 +384,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
      */
     private TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException{
         String template = "getNextProcessor with originator:%s stafferId:%s flowKey:%s nextStatus:%s";
-        _logger.info(String.format(originator, stafferId, flowKey, String.valueOf(nextStatus)));
+        _logger.info(String.format(template, originator, stafferId, flowKey, String.valueOf(nextStatus)));
         TcpFlowBean result = new TcpFlowBean();
 
         String nextProcessor = "";
