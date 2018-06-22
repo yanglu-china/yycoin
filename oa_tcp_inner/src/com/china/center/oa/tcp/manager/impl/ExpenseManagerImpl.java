@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,15 +61,6 @@ import com.china.center.oa.publics.helper.UserHelper;
 import com.china.center.oa.publics.manager.NotifyManager;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.StafferVO;
-import com.china.center.oa.tcp.bean.ExpenseApplyBean;
-import com.china.center.oa.tcp.bean.TcpApplyBean;
-import com.china.center.oa.tcp.bean.TcpApproveBean;
-import com.china.center.oa.tcp.bean.TcpFlowBean;
-import com.china.center.oa.tcp.bean.TcpHandleHisBean;
-import com.china.center.oa.tcp.bean.TcpShareBean;
-import com.china.center.oa.tcp.bean.TravelApplyBean;
-import com.china.center.oa.tcp.bean.TravelApplyItemBean;
-import com.china.center.oa.tcp.bean.TravelApplyPayBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.helper.TCPHelper;
 import com.china.center.oa.tcp.listener.TcpPayListener;
@@ -600,7 +592,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             {
                 List<String> processList = new ArrayList();
 //                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
-                TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+                TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(), token.getFlowKey(), token.getNextStatus());
                 _logger.info("****next Token***"+nextToken);
                 if (nextToken!= null && nextToken.getNextPlugin().contains("pool")){
                     this.pool(nextToken, user,bean,oldStatus,reason);
@@ -679,7 +671,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
      * @param nextStatus
      * @return
      */
-    private TcpFlowBean getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
+    private TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException{
         TcpFlowBean result = new TcpFlowBean();
 
         String nextProcessor = "";
@@ -688,7 +680,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId);
+                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
                 if (stafferId.equals(nextProcessor)){
                     TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
                     _logger.info("***next token***"+token);
@@ -696,7 +688,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     if (token!= null && token.getNextPlugin().contains("pool")){
                         return token;
                     }
-                    return getNextProcessor(nextProcessor, flowKey, token.getNextStatus());
+                    return getNextProcessor(originator, nextProcessor, flowKey, token.getNextStatus());
                 } else{
                     result.setNextProcessor(nextProcessor);
                     result.setNextStatus(nextStatus);
@@ -1258,7 +1250,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
         if (appList.size() == 0 || token.getSingeAll() == 0) {
 //            String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
-            TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+            TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(),token.getFlowKey(), token.getNextStatus());
             int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
             String nextProcessor = nextToken.getNextProcessor();
             if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){

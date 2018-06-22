@@ -377,11 +377,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     /**
      * #301 跳过由同一个人处理的多个审批环节,递归找到下一环节处理人
      * get High level manager Id from  bank level table
-     * @param stafferId
+     * @param originator 发起人
+     * @param stafferId 当前环节处理人
      * @param nextStatus
      * @return
      */
-    private TcpFlowBean getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
+    private TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException{
         TcpFlowBean result = new TcpFlowBean();
 
         String nextProcessor = "";
@@ -390,7 +391,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId);
+                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
                 if (stafferId.equals(nextProcessor)){
                     TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
                     _logger.info("***next token***"+token);
@@ -398,7 +399,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     if (token!= null && token.getNextPlugin().contains("pool")){
                         return token;
                     }
-                    return getNextProcessor(nextProcessor, flowKey, token.getNextStatus());
+                    return getNextProcessor(originator, nextProcessor, flowKey, token.getNextStatus());
                 } else{
                     result.setNextProcessor(nextProcessor);
                     result.setNextStatus(nextStatus);
@@ -796,7 +797,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             {
                 List<String> processList = new ArrayList();
 //                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
-                TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+                TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(), token.getFlowKey(), token.getNextStatus());
                 _logger.info("****next Token***"+nextToken);
                 if (nextToken!= null && nextToken.getNextPlugin().contains("pool")){
                     this.pool(nextToken, user,bean,oldStatus,reason);
@@ -2165,7 +2166,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         if (token == null || appList.size() == 0 || token.getSingeAll() == 0)
         {
 //            String nextProcessor = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
-            TcpFlowBean nextToken = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+            TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(),token.getFlowKey(), token.getNextStatus());
             int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
             String nextProcessor = nextToken.getNextProcessor();
             if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
