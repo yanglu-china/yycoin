@@ -80,48 +80,22 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
 
     @Override
     public String queryHighLevelManagerId(String flowKey, int bearType, String stafferId) {
-        System.out.println("****"+flowKey+bearType+"***"+stafferId);
         List<String> result = new ArrayList<String>();
-        if (TcpFlowConstant.WORK_PAY_MARKETING.equals(flowKey)
-                || TcpFlowConstant.WORK_APPLY_MARKETING.equals(flowKey)){
-            if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER){
-                //regionalManager
-                result = jdbcOperation.queryObjectsBySql(
-                        "select regionalManagerId from T_CENTER_BANKBU_LEVEL where id='"+stafferId+"'")
-                        .setMaxResults(600).list(String.class);
-            } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR){
-                //regionalDirector
-                result = jdbcOperation.queryObjectsBySql(
-                        "select regionalDirectorId from T_CENTER_BANKBU_LEVEL where regionalManagerId='"+stafferId+"'")
-                        .setMaxResults(600).list(String.class);
-            } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_CEO){
-                //manager
-                result = jdbcOperation.queryObjectsBySql(
-                        "select managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='"+stafferId+"'")
-                        .setMaxResults(600).list(String.class);
-            }
-        } else{
-            if (bearType == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER){
-                //provinceManager
-                result = jdbcOperation.queryObjectsBySql(
-                        "select provinceManagerId from T_CENTER_BANKBU_LEVEL where id='"+stafferId+"'")
-                        .setMaxResults(600).list(String.class);
-            } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER){
-                //regionalManager
-                result = jdbcOperation.queryObjectsBySql(
-                        "select regionalManagerId from T_CENTER_BANKBU_LEVEL where provinceManagerId='"+stafferId+"'")
-                        .setMaxResults(600).list(String.class);
-            } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR){
-                //regionalDirector
-                result = jdbcOperation.queryObjectsBySql(
-                        "select regionalDirectorId from T_CENTER_BANKBU_LEVEL where regionalManagerId='"+stafferId+"'")
-                        .setMaxResults(600).list(String.class);
-            } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_CEO){
-                //manager
-                result = jdbcOperation.queryObjectsBySql(
-                        "select managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='"+stafferId+"'")
-                        .setMaxResults(600).list(String.class);
-            }
+        if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER){
+            //regionalManager
+            result = jdbcOperation.queryObjectsBySql(
+                    "select regionalManagerId from T_CENTER_BANKBU_LEVEL where id='"+stafferId+"'")
+                    .setMaxResults(600).list(String.class);
+        } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR){
+            //regionalDirector
+            result = jdbcOperation.queryObjectsBySql(
+                    "select regionalDirectorId from T_CENTER_BANKBU_LEVEL where regionalManagerId='"+stafferId+"'")
+                    .setMaxResults(600).list(String.class);
+        } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_CEO){
+            //manager
+            result = jdbcOperation.queryObjectsBySql(
+                    "select managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='"+stafferId+"'")
+                    .setMaxResults(600).list(String.class);
         }
 
         return result.get(0);
