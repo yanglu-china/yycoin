@@ -383,6 +383,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
      * @return
      */
     private TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException{
+        String template = "getNextProcessor with originator:%s stafferId:%s flowKey:%s nextStatus:%s";
+        _logger.info(String.format(originator, stafferId, flowKey, String.valueOf(nextStatus)));
         TcpFlowBean result = new TcpFlowBean();
 
         String nextProcessor = "";
@@ -397,6 +399,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     _logger.info("***next token***"+token);
                     // 下一环节如果已经是pool,直接返回
                     if (token!= null && token.getNextPlugin().contains("pool")){
+                        token.setNextProcessor(nextProcessor);
+                        _logger.info("***return token***"+token);
                         return token;
                     }
                     return getNextProcessor(originator, nextProcessor, flowKey, token.getNextStatus());
