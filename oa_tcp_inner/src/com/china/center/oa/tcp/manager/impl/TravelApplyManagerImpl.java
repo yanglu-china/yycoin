@@ -30,6 +30,7 @@ import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
+import com.china.center.oa.tcp.manager.TcpFlowManager;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -133,6 +134,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     private OrgManager orgManager = null;
 
     private BillManager billManager = null;
+
+    private TcpFlowManager tcpFlowManager = null;
 
     private BudgetItemDAO budgetItemDAO = null;
 
@@ -357,7 +360,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
 
         // 进入审批状态
-        int newStatus = saveApprove(user, processId, bean, token.getNextStatus(), 0);
+        int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, token.getNextStatus(), 0);
 
         int oldStatus = bean.getStatus();
 
@@ -374,49 +377,49 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         return true;
     }
 
-    /**
-     * #301 跳过由同一个人处理的多个审批环节,递归找到下一环节处理人
-     * get High level manager Id from  bank level table
-     * @param originator 发起人
-     * @param stafferId 当前环节处理人
-     * @param nextStatus
-     * @return
-     */
-    private TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException{
-        String template = "getNextProcessor with originator:%s stafferId:%s flowKey:%s nextStatus:%s";
-        _logger.info(String.format(template, originator, stafferId, flowKey, String.valueOf(nextStatus)));
-        TcpFlowBean result = new TcpFlowBean();
-
-        String nextProcessor = "";
-        try {
-            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
-                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
-                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
-                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
-                if (stafferId.equals(nextProcessor)){
-                    TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
-                    _logger.info("***next token***"+token);
-                    // 下一环节如果已经是pool,直接返回
-                    if (token!= null && token.getNextPlugin().contains("pool")){
-                        token.setNextProcessor(nextProcessor);
-                        _logger.info("***return token***"+token);
-                        return token;
-                    }
-                    return getNextProcessor(originator, nextProcessor, flowKey, token.getNextStatus());
-                } else{
-                    result.setNextProcessor(nextProcessor);
-                    result.setNextStatus(nextStatus);
-                    _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
-                }
-            }
-        }catch(Exception e){
-            _logger.error(e);
-            throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
-        }
-
-        return result;
-    }
+//    /**
+//     * #301 跳过由同一个人处理的多个审批环节,递归找到下一环节处理人
+//     * get High level manager Id from  bank level table
+//     * @param originator 发起人
+//     * @param stafferId 当前环节处理人
+//     * @param nextStatus
+//     * @return
+//     */
+//    private TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException{
+//        String template = "getNextProcessor with originator:%s stafferId:%s flowKey:%s nextStatus:%s";
+//        _logger.info(String.format(template, originator, stafferId, flowKey, String.valueOf(nextStatus)));
+//        TcpFlowBean result = new TcpFlowBean();
+//
+//        String nextProcessor = "";
+//        try {
+//            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
+//                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
+//                if (stafferId.equals(nextProcessor)){
+//                    TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
+//                    _logger.info("***next token***"+token);
+//                    // 下一环节如果已经是pool,直接返回
+//                    if (token!= null && token.getNextPlugin().contains("pool")){
+//                        token.setNextProcessor(nextProcessor);
+//                        _logger.info("***return token***"+token);
+//                        return token;
+//                    }
+//                    return getNextProcessor(originator, nextProcessor, flowKey, token.getNextStatus());
+//                } else{
+//                    result.setNextProcessor(nextProcessor);
+//                    result.setNextStatus(nextStatus);
+//                    _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
+//                }
+//            }
+//        }catch(Exception e){
+//            _logger.error(e);
+//            throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
+//        }
+//
+//        return result;
+//    }
 
 //    private String getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
 //        String nextProcessor = "";
@@ -655,7 +658,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         }
 
         // 进入审批状态
-        saveApprove(user, processId, bean, bean.getStatus(), 0);
+        this.tcpFlowManager.saveApprove(user, processId, bean, bean.getStatus(), 0);
 
         int oldStatus = bean.getStatus();
 
@@ -708,7 +711,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	    // 群组模式
 	    if (token.getNextPlugin().startsWith("group"))
 	    {
-	        int newStatus = saveApprove(user, processId, bean, token.getNextStatus(), 0);
+	        int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, token.getNextStatus(), 0);
 	        if (newStatus != oldStatus)
 	        {
 	            bean.setStatus(newStatus);
@@ -784,7 +787,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	                processList.add(tcpShareVO.getApproverId());
 	            }
 	
-	            int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
+	            int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
 	                TcpConstanst.TCP_POOL_COMMON);
 	
 	            bean.setStatus(newStatus);                
@@ -801,7 +804,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             {
                 List<String> processList = new ArrayList();
 //                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
-                TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+                TcpFlowBean nextToken = this.tcpFlowManager.getNextProcessor(bean.getStafferId(), user.getStafferId(), token.getFlowKey(), token.getNextStatus());
                 _logger.info("****next Token***"+nextToken);
                 if (nextToken!= null && nextToken.getNextPlugin().contains("pool")){
                     this.pool(nextToken, user,bean,oldStatus,reason);
@@ -813,7 +816,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     }
                     _logger.info("***processList***"+processList.size());
 
-                    int newStatus = saveApprove(user, processList, bean, nextStatusIgnoreDuplicate,
+                    int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, nextStatusIgnoreDuplicate,
                             TcpConstanst.TCP_POOL_COMMON);
 
                     bean.setStatus(newStatus);
@@ -861,7 +864,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             processList.add(groupVSStafferBean.getStafferId());
         }
 
-        int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
+        int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
                 TcpConstanst.TCP_POOL_POOL);
 
         if (newStatus != oldStatus)
@@ -958,7 +961,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         // 群组模式
         if (token.getNextPlugin().startsWith("group"))
         {
-            int newStatus = saveApprove(user, processId, bean, token.getNextStatus(), 0);
+            int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, token.getNextStatus(), 0);
             
             if (newStatus != oldStatus)
             {
@@ -989,7 +992,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 processList.add(groupVSStafferBean.getStafferId());
             }
 
-            int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
+            int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
                 TcpConstanst.TCP_POOL_POOL);
 
             if (newStatus != oldStatus)
@@ -1034,7 +1037,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     processList.add(tcpShareVO.getApproverId());
                 }
 
-                int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
+                int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
                     TcpConstanst.TCP_POOL_COMMON);
 
                 bean.setStatus(newStatus);
@@ -1097,7 +1100,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
       		}
       		else if(null != processBean && processBean.getPostId().equals("20"))
       		{
-      			int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);//直接提交到徐景(人事部)
+      			int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);//直接提交到徐景(人事部)
                 
                 if (newStatus != oldStatus)
                 {
@@ -1116,7 +1119,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
       			
       		if(days >= 0 && days < 3)
 	      		{
-	      			int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+	      			int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
 	                
 	                if (newStatus != oldStatus)
 	                {
@@ -1137,7 +1140,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	      		{
       				if(bean.getStatus() == 4)
       				{
-      					int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+      					int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
       	                
       	                if (newStatus != oldStatus)
       	                {
@@ -1153,7 +1156,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
       				}
       				else
       				{
-      					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
+      					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
 		                
 		                if (newStatus != oldStatus)
 		                {
@@ -1173,7 +1176,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
       		if((null != postid && postid.equals("17") && days > 2 && days < 6) 
       				|| (null != postid && postid.equals("17") && days > 5))
 	      		{
-	      			int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+	      			int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
 	                
 	                if (newStatus != oldStatus)
 	                {
@@ -1190,7 +1193,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
       		
       		if(null != postid && postid.equals("18") && days > 2 && days < 6)
       		{
-      			int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+      			int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
                 
                 if (newStatus != oldStatus)
                 {
@@ -1209,7 +1212,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
       		{
       			if(bean.getStatus() == 28)
   				{
-      				int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+      				int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
                     
                     if (newStatus != oldStatus)
                     {
@@ -1225,7 +1228,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
   				}
   				else
   				{
-  					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
+  					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
 	                
 	                if (newStatus != oldStatus)
 	                {
@@ -1243,7 +1246,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
       		if((null != postid && postid.equals("16") && days > 2 && days < 6) || 
       				(null != postid && postid.equals("16") && days > 5))
       		{
-      			int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+      			int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
                 
                 if (newStatus != oldStatus)
                 {
@@ -1300,7 +1303,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 		      		}
 		    		else if(null != processBean && processBean.getPostId().equals("20"))
 		      		{
-		    			int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
+		    			int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
 		                
 		                if (newStatus != oldStatus)
 		                {
@@ -1320,7 +1323,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 				      		{
 			      				if(bean.getStatus() == TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO)//待总裁审批
 			      				{
-			      					int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+			      					int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
 			      	                
 			      	                if (newStatus != oldStatus)
 			      	                {
@@ -1336,7 +1339,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			      				}
 			      				else if(processBean.getPostId().equals("16"))//待事业部经理审批
 			      				{
-			      					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
+			      					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
 					                if (newStatus != oldStatus)
 					                {
 					                    bean.setStatus(newStatus);
@@ -1351,7 +1354,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			      				}
 			      				else if(processBean.getPostId().equals("20"))
 			      				{
-			      					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
+			      					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
 					                
 					                if (newStatus != oldStatus)
 					                {
@@ -1372,7 +1375,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			      		{
 			  				if(bean.getStatus() == 28)
 			  				{
-			  					int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
 			  	                
 			  	                if (newStatus != oldStatus)
 			  	                {
@@ -1388,7 +1391,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			  				}
 			  				else if(processBean.getPostId().equals("16"))
 			  				{
-			  					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
 				                
 				                if (newStatus != oldStatus)
 				                {
@@ -1404,7 +1407,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			  				}
 			  				else if(processBean.getPostId().equals("20"))
 			  				{
-			  					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
 				                
 				                if (newStatus != oldStatus)
 				                {
@@ -1425,7 +1428,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			      		{
 			  				if(bean.getStatus() == 28)
 			  				{
-			  					int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
 			  	                
 			  	                if (newStatus != oldStatus)
 			  	                {
@@ -1441,7 +1444,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			  				}
 			  				else if(processBean.getPostId().equals("16"))
 			  				{
-			  					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
 				                
 				                if (newStatus != oldStatus)
 				                {
@@ -1457,7 +1460,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			  				}
 			  				else if(processBean.getPostId().equals("20"))
 			  				{
-			  					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
 				                
 				                if (newStatus != oldStatus)
 				                {
@@ -1478,7 +1481,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			      		{
 			  				if(bean.getStatus() == 28)
 			  				{
-			  					int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
 			  	                
 			  	                if (newStatus != oldStatus)
 			  	                {
@@ -1494,7 +1497,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			  				}
 			  				else if(processBean.getPostId().equals("16"))
 			  				{
-			  					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
 				                
 				                if (newStatus != oldStatus)
 				                {
@@ -1510,7 +1513,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			  				}
 			  				else if(processBean.getPostId().equals("20"))
 			  				{
-			  					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
 				                
 				                if (newStatus != oldStatus)
 				                {
@@ -1531,7 +1534,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			      		{
 			  				if(bean.getStatus() == 28)
 			  				{
-			  					int newStatus = saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, "103565", bean, TcpConstanst.TCP_STATUS_HR, 0);
 			  	                
 			  	                if (newStatus != oldStatus)
 			  	                {
@@ -1547,7 +1550,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			  				}
 			  				else if(processBean.getPostId().equals("16"))
 			  				{
-			  					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_LOCATION, 0);
 				                
 				                if (newStatus != oldStatus)
 				                {
@@ -1563,7 +1566,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 			  				}
 			  				else if(processBean.getPostId().equals("20"))
 			  				{
-			  					int newStatus = saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
+			  					int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, TcpConstanst.TCP_STATUS_WAIT_DEPUTYCEO, 0);
 				                
 				                if (newStatus != oldStatus)
 				                {
@@ -1899,7 +1902,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
             int nextStatus = lastLog.getAfterStatus();
 
-            int newStatus = saveApprove(user, actorId, bean, nextStatus,
+            int newStatus = this.tcpFlowManager.saveApprove(user, actorId, bean, nextStatus,
                     TcpConstanst.TCP_POOL_COMMON);
 
             int oldStatus = bean.getStatus();
@@ -2096,7 +2099,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
             int nextStatus = lastLog.getAfterStatus();
 
-            saveApprove(user, actorId, bean, nextStatus,
+            this.tcpFlowManager.saveApprove(user, actorId, bean, nextStatus,
                 TcpConstanst.TCP_POOL_COMMON);
 
             int oldStatus = bean.getStatus();
@@ -2129,136 +2132,123 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     
 
 
-    /**
-     * saveApprove
-     * 
-     * @param user
-     * @param processList
-     * @param bean
-     * @param nextStatus
-     * @param pool
-     * @return
-     * @throws MYException
-     */
-    private int saveApprove(User user, List<String> processList, TravelApplyVO bean,
-                            int nextStatus, int pool)
-        throws MYException
-    {
-        // 获得当前的处理环节
-        TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
-        if (token == null || token.getSingeAll() == 0 )
-        {
-            // 清除之前的处理人
-            tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
-        }
-        else
-        {
-            // 仅仅删除自己的
-            List<TcpApproveBean> approveList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
-            _logger.info("***approveList***"+approveList.size());
-            for (TcpApproveBean tcpApproveBean : approveList)
-            {
-                if (tcpApproveBean.getApproverId().equals(user.getStafferId()))
-                {
-                    tcpApproveDAO.deleteEntityBean(tcpApproveBean.getId());
-                }
-            }
-        }
-
-        List<TcpApproveBean> appList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
-        _logger.info("***appList***"+appList.size());
-        if (token == null || appList.size() == 0 || token.getSingeAll() == 0)
-        {
-//            String nextProcessor = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
-            TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(),token.getFlowKey(), token.getNextStatus());
-            int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
-            String nextProcessor = nextToken.getNextProcessor();
-            if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
-                processList.add(nextProcessor);
-            }
-            _logger.info(nextStatus+"***nextStatusIgnoreDuplicate***"+nextStatusIgnoreDuplicate+"***processList***"+processList.size()+"***nextProcessor***"+nextProcessor);
-            for (String processId : processList)
-            {
-                // 进入审批状态
-                TcpApproveBean approve = new TcpApproveBean();
-
-                approve.setId(commonDAO.getSquenceString20());
-                approve.setApplyerId(bean.getStafferId());
-                approve.setApplyId(bean.getId());
-                approve.setApproverId(processId);
-                approve.setFlowKey(bean.getFlowKey());
-                approve.setLogTime(TimeTools.now());
-                approve.setDepartmentId(bean.getDepartmentId());
-                approve.setName(bean.getName());
+//    /**
+//     * saveApprove
+//     *
+//     * @param user
+//     * @param processList
+//     * @param bean
+//     * @param nextStatus
+//     * @param pool
+//     * @return
+//     * @throws MYException
+//     */
+//    private int saveApprove(User user, List<String> processList, TravelApplyVO bean,
+//                            int nextStatus, int pool)
+//        throws MYException
+//    {
+//        // 获得当前的处理环节
+//        TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
+//        if (token == null || token.getSingeAll() == 0 )
+//        {
+//            // 清除之前的处理人
+//            tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
+//        }
+//        else
+//        {
+//            // 仅仅删除自己的
+//            List<TcpApproveBean> approveList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
+//            _logger.info("***approveList***"+approveList.size());
+//            for (TcpApproveBean tcpApproveBean : approveList)
+//            {
+//                if (tcpApproveBean.getApproverId().equals(user.getStafferId()))
+//                {
+//                    tcpApproveDAO.deleteEntityBean(tcpApproveBean.getId());
+//                }
+//            }
+//        }
+//
+//        List<TcpApproveBean> appList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
+//        _logger.info("***appList***"+appList.size());
+//        if (token == null || appList.size() == 0 || token.getSingeAll() == 0)
+//        {
+////            String nextProcessor = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+//            TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+//            int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
+//            String nextProcessor = nextToken.getNextProcessor();
+//            if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
+//                processList.add(nextProcessor);
+//            }
+//            _logger.info(nextStatus+"***nextStatusIgnoreDuplicate***"+nextStatusIgnoreDuplicate+"***processList***"+processList.size()+"***nextProcessor***"+nextProcessor);
+//            if (nextStatusIgnoreDuplicate!= 0){
+//                nextStatus = nextStatusIgnoreDuplicate;
+//            }
+//            for (String processId : processList)
+//            {
+//                // 进入审批状态
+//                TcpApproveBean approve = new TcpApproveBean();
+//
+//                approve.setId(commonDAO.getSquenceString20());
+//                approve.setApplyerId(bean.getStafferId());
+//                approve.setApplyId(bean.getId());
+//                approve.setApproverId(processId);
+//                approve.setFlowKey(bean.getFlowKey());
+//                approve.setLogTime(TimeTools.now());
+//                approve.setDepartmentId(bean.getDepartmentId());
+//                approve.setName(bean.getName());
 //                approve.setStatus(nextStatus);
-                approve.setStatus(nextStatusIgnoreDuplicate);
-                approve.setTotal(bean.getTotal());
-                approve.setCheckTotal(bean.getBorrowTotal());
-                approve.setType(bean.getType());
-                approve.setStype(bean.getStype());
-                approve.setPool(pool);
-                approve.setPayType(TcpConstanst.PAYTYPE_GPAY_BO);
+////                approve.setStatus(nextStatusIgnoreDuplicate);
+//                approve.setTotal(bean.getTotal());
+//                approve.setCheckTotal(bean.getBorrowTotal());
+//                approve.setType(bean.getType());
+//                approve.setStype(bean.getStype());
+//                approve.setPool(pool);
+//                approve.setPayType(TcpConstanst.PAYTYPE_GPAY_BO);
+//
+//                tcpApproveDAO.saveEntityBean(approve);
+//                _logger.info("***save TcpApproveBean***"+approve);
+//
+//            }
+//
+//            // 如果是共享的不发送邮件
+//            if (pool == TcpConstanst.TCP_POOL_COMMON)
+//            {
+//                MailBean mail = new MailBean();
+//
+//                mail.setTitle(bean.getStafferName() + "的"
+//                              + DefinedCommon.getValue("tcpType", bean.getType()) + "申请["
+//                              + bean.getName() + "]等待您的处理.");
+//
+//                mail.setContent(mail.getContent());
+//
+//                mail.setSenderId(StafferConstant.SUPER_STAFFER);
+//
+//                mail.setReveiveIds(listToString(processList));
+//
+//                mail.setReveiveIds2(bean.getStafferId());
+//
+//                if(bean.getType()== TcpConstanst.VOCATION_WORK)
+//                {
+//                	mail.setHref(TcpConstanst.TCP_COMMIS_PROCESS_URL + bean.getId());
+//                }
+//                else
+//                {
+//                	mail.setHref(TcpConstanst.TCP_TRAVELAPPLY_PROCESS_URL + bean.getId());
+//                }
+//                // send mail
+//                mailMangaer.addMailWithoutTransactional(UserHelper.getSystemUser(), mail);
+//            }
+//        }
+//        else
+//        {
+//            // 会签
+//            nextStatus = bean.getStatus();
+//            _logger.info("***nextStatus***"+nextStatus);
+//        }
+//
+//        return nextStatus;
+//    }
 
-                tcpApproveDAO.saveEntityBean(approve);
-                _logger.info("***save TcpApproveBean***"+approve);
-
-            }
-
-            // 如果是共享的不发送邮件
-            if (pool == TcpConstanst.TCP_POOL_COMMON)
-            {
-                MailBean mail = new MailBean();
-
-                mail.setTitle(bean.getStafferName() + "的"
-                              + DefinedCommon.getValue("tcpType", bean.getType()) + "申请["
-                              + bean.getName() + "]等待您的处理.");
-
-                mail.setContent(mail.getContent());
-
-                mail.setSenderId(StafferConstant.SUPER_STAFFER);
-
-                mail.setReveiveIds(listToString(processList));
-
-                mail.setReveiveIds2(bean.getStafferId());
-                
-                if(bean.getType()== TcpConstanst.VOCATION_WORK)
-                {
-                	mail.setHref(TcpConstanst.TCP_COMMIS_PROCESS_URL + bean.getId());	
-                }
-                else
-                {
-                	mail.setHref(TcpConstanst.TCP_TRAVELAPPLY_PROCESS_URL + bean.getId());
-                }
-                // send mail
-                mailMangaer.addMailWithoutTransactional(UserHelper.getSystemUser(), mail);
-            }
-        }
-        else
-        {
-            // 会签
-            nextStatus = bean.getStatus();
-            _logger.info("***nextStatus***"+nextStatus);
-        }
-
-        return nextStatus;
-    }
-    
-
-    /**
-     * @param processers
-     * @return
-     */
-    private String listToString(List<String> processers)
-    {
-        StringBuilder builder = new StringBuilder();
-
-        for (String string : processers)
-        {
-            builder.append(string).append(';');
-        }
-
-        return builder.toString();
-    }
 
     /**
      * 进入审批状态
@@ -2268,17 +2258,17 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
      * @param pool
      * @throws MYException
      */
-    private int saveApprove(User user, String processId, TravelApplyVO bean, int nextStatus,
-                            int pool)
-        throws MYException
-    {
-        List<String> processList = new ArrayList();
-
-        processList.add(processId);
-
-        return saveApprove(user, processList, bean, nextStatus, pool);
-    }
-    
+//    private int saveApprove(User user, String processId, TravelApplyVO bean, int nextStatus,
+//                            int pool)
+//        throws MYException
+//    {
+//        List<String> processList = new ArrayList();
+//
+//        processList.add(processId);
+//
+//        return saveApprove(user, processList, bean, nextStatus, pool);
+//    }
+//
 
     /**
      * 校验预算(且占用预算)
@@ -3966,5 +3956,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
     public void setBankBuLevelDAO(BankBuLevelDAO bankBuLevelDAO) {
         this.bankBuLevelDAO = bankBuLevelDAO;
+    }
+
+    public TcpFlowManager getTcpFlowManager() {
+        return tcpFlowManager;
+    }
+
+    public void setTcpFlowManager(TcpFlowManager tcpFlowManager) {
+        this.tcpFlowManager = tcpFlowManager;
     }
 }

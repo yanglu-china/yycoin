@@ -16,6 +16,7 @@ import com.china.center.jdbc.annotation.Html;
 import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.jdbc.annotation.enums.Element;
+import com.china.center.oa.tcp.bean.TcpInterface;
 import com.china.center.oa.tcp.bean.TravelApplyBean;
 
 
@@ -28,7 +29,7 @@ import com.china.center.oa.tcp.bean.TravelApplyBean;
  * @since 3.0
  */
 @Entity(inherit = true)
-public class TravelApplyVO extends TravelApplyBean
+public class TravelApplyVO extends TravelApplyBean implements TcpInterface
 {
     @Relationship(relationField = "stafferId")
     private String stafferName = "";

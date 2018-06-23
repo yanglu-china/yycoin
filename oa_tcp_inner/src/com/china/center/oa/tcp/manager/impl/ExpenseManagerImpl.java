@@ -17,6 +17,7 @@ import java.util.List;
 
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
+import com.china.center.oa.tcp.manager.TcpFlowManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -113,6 +114,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
     private ExpenseApplyDAO    expenseApplyDAO    = null;
 
     private TcpHandleHisDAO    tcpHandleHisDAO    = null;
+
+    private TcpFlowManager tcpFlowManager = null;
 
     private MailMangaer        mailMangaer        = null;
 
@@ -277,7 +280,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
 
         // 进入审批状态
-        int newStatus = saveApprove(user, processId, bean, token.getNextStatus(), 0);
+        int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, token.getNextStatus(), 0);
 
         int oldStatus = bean.getStatus();
 
@@ -518,7 +521,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         _logger.info("*****passExpenseBean token.getNextPlugin() "+token);
         // 群组模式
         if (token.getNextPlugin().startsWith("group")) {
-            int newStatus = saveApprove(user, processId, bean, token.getNextStatus(), 0);
+            int newStatus = this.tcpFlowManager.saveApprove(user, processId, bean, token.getNextStatus(), 0);
 
             if (newStatus != oldStatus) {
                 bean.setStatus(newStatus);
@@ -577,7 +580,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     }
                 }
 
-                int newStatus = saveApprove(user, processList, bean, token.getNextStatus(), 0);
+                int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(), 0);
 
                 bean.setStatus(newStatus);
 
@@ -592,7 +595,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             {
                 List<String> processList = new ArrayList();
 //                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
-                TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+                TcpFlowBean nextToken = this.tcpFlowManager.getNextProcessor(bean.getStafferId(), user.getStafferId(), token.getFlowKey(), token.getNextStatus());
                 _logger.info("****next Token***"+nextToken);
                 if (nextToken!= null && nextToken.getNextPlugin().contains("pool")){
                     this.pool(nextToken, user,bean,oldStatus,reason);
@@ -604,7 +607,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     }
                     _logger.info("***processList***"+processList.size());
 
-                    int newStatus = saveApprove(user, processList, bean, nextStatusIgnoreDuplicate,
+                    int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, nextStatusIgnoreDuplicate,
                             TcpConstanst.TCP_POOL_COMMON);
 
                     bean.setStatus(newStatus);
@@ -664,48 +667,48 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         return true;
     }
 
-    /**
-     * #301 跳过由同一个人处理的多个审批环节,递归找到下一环节处理人
-     * get High level manager Id from  bank level table
-     * @param stafferId
-     * @param nextStatus
-     * @return
-     */
-    private TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException{
-        String template = "getNextProcessor with originator:%s stafferId:%s flowKey:%s nextStatus:%s";
-        _logger.info(String.format(template, originator, stafferId, flowKey, String.valueOf(nextStatus)));
-        TcpFlowBean result = new TcpFlowBean();
-
-        String nextProcessor = "";
-        try {
-            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
-                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
-                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
-                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
-                if (stafferId.equals(nextProcessor)){
-                    TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
-                    _logger.info("***next token***"+token);
-                    // 下一环节如果已经是pool,直接返回
-                    if (token!= null && token.getNextPlugin().contains("pool")){
-                        token.setNextProcessor(nextProcessor);
-                        _logger.info("***return token***"+token);
-                        return token;
-                    }
-                    return getNextProcessor(originator, nextProcessor, flowKey, token.getNextStatus());
-                } else{
-                    result.setNextProcessor(nextProcessor);
-                    result.setNextStatus(nextStatus);
-                    _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
-                }
-            }
-        }catch(Exception e){
-            _logger.error(e);
-            throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
-        }
-
-        return result;
-    }
+//    /**
+//     * #301 跳过由同一个人处理的多个审批环节,递归找到下一环节处理人
+//     * get High level manager Id from  bank level table
+//     * @param stafferId
+//     * @param nextStatus
+//     * @return
+//     */
+//    private TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException{
+//        String template = "getNextProcessor with originator:%s stafferId:%s flowKey:%s nextStatus:%s";
+//        _logger.info(String.format(template, originator, stafferId, flowKey, String.valueOf(nextStatus)));
+//        TcpFlowBean result = new TcpFlowBean();
+//
+//        String nextProcessor = "";
+//        try {
+//            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
+//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
+//                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
+//                if (stafferId.equals(nextProcessor)){
+//                    TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
+//                    _logger.info("***next token***"+token);
+//                    // 下一环节如果已经是pool,直接返回
+//                    if (token!= null && token.getNextPlugin().contains("pool")){
+//                        token.setNextProcessor(nextProcessor);
+//                        _logger.info("***return token***"+token);
+//                        return token;
+//                    }
+//                    return getNextProcessor(originator, nextProcessor, flowKey, token.getNextStatus());
+//                } else{
+//                    result.setNextProcessor(nextProcessor);
+//                    result.setNextStatus(nextStatus);
+//                    _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
+//                }
+//            }
+//        }catch(Exception e){
+//            _logger.error(e);
+//            throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
+//        }
+//
+//        return result;
+//    }
 
 //    private String getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
 //        try {
@@ -739,7 +742,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             processList.add(groupVSStafferBean.getStafferId());
         }
 
-        int newStatus = saveApprove(user, processList, bean, token.getNextStatus(), 1);
+        int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(), 1);
 
         if (newStatus != oldStatus) {
             bean.setStatus(newStatus);
@@ -1117,7 +1120,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
             int nextStatus = lastLog.getAfterStatus();
 
-            int newStatus = saveApprove(user, actorId, bean, nextStatus, 0);
+            int newStatus = this.tcpFlowManager.saveApprove(user, actorId, bean, nextStatus, 0);
 
             int oldStatus = bean.getStatus();
 
@@ -1220,136 +1223,123 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
     }
 
-    /**
-     * saveApprove
-     * 
-     * @param user
-     * @param processList
-     * @param bean
-     * @param nextStatus
-     * @param pool
-     * @return
-     * @throws MYException
-     */
-    private int saveApprove(User user, List<String> processList, ExpenseApplyVO bean,
-            int nextStatus, int pool) throws MYException {
-        // 获得当前的处理环节
-        TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
-
-        if (token.getSingeAll() == 0) {
-            // 清除之前的处理人
-            tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
-        } else {
-            // 仅仅删除自己的
-            List<TcpApproveBean> approveList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
-
-            for (TcpApproveBean tcpApproveBean : approveList) {
-                if (tcpApproveBean.getApproverId().equals(user.getStafferId())) {
-                    tcpApproveDAO.deleteEntityBean(tcpApproveBean.getId());
-                }
-            }
-        }
-
-        List<TcpApproveBean> appList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
-
-        if (appList.size() == 0 || token.getSingeAll() == 0) {
-//            String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
-            TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(),token.getFlowKey(), token.getNextStatus());
-            int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
-            String nextProcessor = nextToken.getNextProcessor();
-            if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
-                processList.add(nextProcessor);
-            }
-            _logger.info(nextStatus+"***nextStatusIgnoreDuplicate***"+nextStatusIgnoreDuplicate+"***processList***"+processList.size()+"***nextProcessor***"+nextProcessor);
-
-            for (String processId : processList) {
-                // 进入审批状态
-                TcpApproveBean approve = new TcpApproveBean();
-
-                approve.setId(commonDAO.getSquenceString20());
-                approve.setApplyerId(bean.getStafferId());
-                approve.setApplyId(bean.getId());
-                approve.setApproverId(processId);
-                approve.setFlowKey(bean.getFlowKey());
-                approve.setLogTime(TimeTools.now());
-                approve.setDepartmentId(bean.getDepartmentId());
-                approve.setName(bean.getName());
-//                approve.setStatus(nextStatus);
-                approve.setStatus(nextStatusIgnoreDuplicate);
-                approve.setTotal(bean.getTotal());
-                approve.setCheckTotal(bean.getBorrowTotal());
-                approve.setType(bean.getType());
-                approve.setStype(bean.getStype());
-                approve.setPool(pool);
-                approve.setPayType(bean.getPayType());
-
-                tcpApproveDAO.saveEntityBean(approve);
-                _logger.info("***save TcpApproveBean***"+approve);
-            }
-
-            // 如果是共享的不发送邮件
-            if (pool == TcpConstanst.TCP_POOL_COMMON) {
-                MailBean mail = new MailBean();
-
-                mail.setTitle(bean.getStafferName() + "的"
-                        + DefinedCommon.getValue("tcpType", bean.getType()) + "申请["
-                        + bean.getName() + "]等待您的处理.");
-
-                mail.setContent(mail.getContent());
-
-                mail.setSenderId(StafferConstant.SUPER_STAFFER);
-
-                mail.setReveiveIds(listToString(processList));
-
-                mail.setReveiveIds2(bean.getStafferId());
-
-                mail.setHref(TcpConstanst.TCP_EXPENSE_PROCESS_URL + bean.getId());
-
-                // send mail
-                mailMangaer.addMailWithoutTransactional(UserHelper.getSystemUser(), mail);
-            }
-        } else {
-            // 会签
-            nextStatus = bean.getStatus();
-        }
-
-        return nextStatus;
-    }
-
-    /**
-     * @param processers
-     * @return
-     */
-    private String listToString(List<String> processers) {
-        StringBuilder builder = new StringBuilder();
-
-        for (String string : processers) {
-            builder.append(string).append(';');
-        }
-
-        return builder.toString();
-    }
-
-    /**
-     * 进入审批状态
-     * 
-     * @param processId
-     * @param bean
-     * @param pool
-     * @throws MYException
-     */
-    private int saveApprove(User user, String processId, ExpenseApplyVO bean, int nextStatus,
-            int pool) throws MYException {
-        List<String> processList = new ArrayList();
-
-//        if (StringTools.isNullOrNone(processId)) {
-//            throw new MYException("审批的人不能为空");
+//    /**
+//     * saveApprove
+//     *
+//     * @param user
+//     * @param processList
+//     * @param bean
+//     * @param nextStatus
+//     * @param pool
+//     * @return
+//     * @throws MYException
+//     */
+//    private int saveApprove(User user, List<String> processList, ExpenseApplyVO bean,
+//            int nextStatus, int pool) throws MYException {
+//        // 获得当前的处理环节
+//        TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
+//
+//        if (token.getSingeAll() == 0) {
+//            // 清除之前的处理人
+//            tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
+//        } else {
+//            // 仅仅删除自己的
+//            List<TcpApproveBean> approveList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
+//
+//            for (TcpApproveBean tcpApproveBean : approveList) {
+//                if (tcpApproveBean.getApproverId().equals(user.getStafferId())) {
+//                    tcpApproveDAO.deleteEntityBean(tcpApproveBean.getId());
+//                }
+//            }
 //        }
+//
+//        List<TcpApproveBean> appList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
+//
+//        if (appList.size() == 0 || token.getSingeAll() == 0) {
+////            String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
+//            TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+//            int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
+//            String nextProcessor = nextToken.getNextProcessor();
+//            if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
+//                processList.add(nextProcessor);
+//            }
+//            _logger.info(nextStatus+"***nextStatusIgnoreDuplicate***"+nextStatusIgnoreDuplicate+"***processList***"+processList.size()+"***nextProcessor***"+nextProcessor);
+//
+//            for (String processId : processList) {
+//                // 进入审批状态
+//                TcpApproveBean approve = new TcpApproveBean();
+//
+//                approve.setId(commonDAO.getSquenceString20());
+//                approve.setApplyerId(bean.getStafferId());
+//                approve.setApplyId(bean.getId());
+//                approve.setApproverId(processId);
+//                approve.setFlowKey(bean.getFlowKey());
+//                approve.setLogTime(TimeTools.now());
+//                approve.setDepartmentId(bean.getDepartmentId());
+//                approve.setName(bean.getName());
+////                approve.setStatus(nextStatus);
+//                approve.setStatus(nextStatusIgnoreDuplicate);
+//                approve.setTotal(bean.getTotal());
+//                approve.setCheckTotal(bean.getBorrowTotal());
+//                approve.setType(bean.getType());
+//                approve.setStype(bean.getStype());
+//                approve.setPool(pool);
+//                approve.setPayType(bean.getPayType());
+//
+//                tcpApproveDAO.saveEntityBean(approve);
+//                _logger.info("***save TcpApproveBean***"+approve);
+//            }
+//
+//            // 如果是共享的不发送邮件
+//            if (pool == TcpConstanst.TCP_POOL_COMMON) {
+//                MailBean mail = new MailBean();
+//
+//                mail.setTitle(bean.getStafferName() + "的"
+//                        + DefinedCommon.getValue("tcpType", bean.getType()) + "申请["
+//                        + bean.getName() + "]等待您的处理.");
+//
+//                mail.setContent(mail.getContent());
+//
+//                mail.setSenderId(StafferConstant.SUPER_STAFFER);
+//
+//                mail.setReveiveIds(listToString(processList));
+//
+//                mail.setReveiveIds2(bean.getStafferId());
+//
+//                mail.setHref(TcpConstanst.TCP_EXPENSE_PROCESS_URL + bean.getId());
+//
+//                // send mail
+//                mailMangaer.addMailWithoutTransactional(UserHelper.getSystemUser(), mail);
+//            }
+//        } else {
+//            // 会签
+//            nextStatus = bean.getStatus();
+//        }
+//
+//        return nextStatus;
+//    }
 
-        processList.add(processId);
-
-        return saveApprove(user, processList, bean, nextStatus, pool);
-    }
+//
+//    /**
+//     * 进入审批状态
+//     *
+//     * @param processId
+//     * @param bean
+//     * @param pool
+//     * @throws MYException
+//     */
+//    private int saveApprove(User user, String processId, ExpenseApplyVO bean, int nextStatus,
+//            int pool) throws MYException {
+//        List<String> processList = new ArrayList();
+//
+////        if (StringTools.isNullOrNone(processId)) {
+////            throw new MYException("审批的人不能为空");
+////        }
+//
+//        processList.add(processId);
+//
+//        return saveApprove(user, processList, bean, nextStatus, pool);
+//    }
 
     /**
      * 校验预算(且占用预算)/报销的时候先冻结申请的预算,然后重新规划处当前的预算
@@ -2694,5 +2684,13 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
     public void setBankBuLevelDAO(BankBuLevelDAO bankBuLevelDAO) {
         this.bankBuLevelDAO = bankBuLevelDAO;
+    }
+
+    public TcpFlowManager getTcpFlowManager() {
+        return tcpFlowManager;
+    }
+
+    public void setTcpFlowManager(TcpFlowManager tcpFlowManager) {
+        this.tcpFlowManager = tcpFlowManager;
     }
 }

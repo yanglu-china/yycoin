@@ -17,6 +17,7 @@ import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.oa.tcp.bean.ExpenseApplyBean;
+import com.china.center.oa.tcp.bean.TcpInterface;
 
 
 /**
@@ -28,7 +29,7 @@ import com.china.center.oa.tcp.bean.ExpenseApplyBean;
  * @since 3.0
  */
 @Entity(inherit = true)
-public class ExpenseApplyVO extends ExpenseApplyBean
+public class ExpenseApplyVO extends ExpenseApplyBean implements TcpInterface
 {
     @Relationship(relationField = "stafferId")
     private String stafferName = "";

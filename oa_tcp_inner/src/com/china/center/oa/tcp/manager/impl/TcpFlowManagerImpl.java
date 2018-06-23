@@ -12,6 +12,18 @@ package com.china.center.oa.tcp.manager.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.china.center.common.taglib.DefinedCommon;
+import com.china.center.oa.mail.bean.MailBean;
+import com.china.center.oa.mail.manager.MailMangaer;
+import com.china.center.oa.publics.StringUtils;
+import com.china.center.oa.publics.constant.StafferConstant;
+import com.china.center.oa.publics.helper.UserHelper;
+import com.china.center.oa.tcp.bean.*;
+import com.china.center.oa.tcp.dao.*;
+import com.china.center.oa.tcp.vo.TravelApplyVO;
+import com.china.center.tools.StringTools;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,16 +37,8 @@ import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.tcp.bean.AbstractTcpBean;
-import com.china.center.oa.tcp.bean.ExpenseApplyBean;
-import com.china.center.oa.tcp.bean.TcpApproveBean;
-import com.china.center.oa.tcp.bean.TcpFlowBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
-import com.china.center.oa.tcp.dao.ExpenseApplyDAO;
-import com.china.center.oa.tcp.dao.TcpApproveDAO;
-import com.china.center.oa.tcp.dao.TcpFlowDAO;
-import com.china.center.oa.tcp.dao.TravelApplyDAO;
 import com.china.center.oa.tcp.manager.TcpFlowManager;
 import com.china.center.tools.JudgeTools;
 import com.china.center.tools.ListTools;
@@ -52,6 +56,10 @@ import com.china.center.tools.TimeTools;
 @IntegrationAOP
 public class TcpFlowManagerImpl implements TcpFlowManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
+    private MailMangaer mailMangaer = null;
+
     private TcpApproveDAO tcpApproveDAO = null;
 
     private CommonDAO commonDAO = null;
@@ -67,6 +75,8 @@ public class TcpFlowManagerImpl implements TcpFlowManager
     private PreInvoiceApplyDAO preInvoiceApplyDAO = null;
     
     private FlowLogDAO flowLogDAO = null;
+
+    private BankBuLevelDAO bankBuLevelDAO = null;
 
     /**
      * default constructor
@@ -276,7 +286,170 @@ public class TcpFlowManagerImpl implements TcpFlowManager
     	
     	return true;
     }
-    
+
+    @Override
+    public int saveApprove(User user, String processId, TcpInterface bean, int nextStatus, int pool) throws MYException{
+        List<String> processList = new ArrayList();
+
+        processList.add(processId);
+
+        return this.saveApprove(user, processList, bean, nextStatus, pool);
+    }
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public int saveApprove(User user, List<String> processList, TcpInterface bean, int nextStatus, int pool) throws MYException {
+        // 获得当前的处理环节
+        TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
+        if (token == null || token.getSingeAll() == 0 )
+        {
+            // 清除之前的处理人
+            tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
+        }
+        else
+        {
+            // 仅仅删除自己的
+            List<TcpApproveBean> approveList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
+            _logger.info("***approveList***"+approveList.size());
+            for (TcpApproveBean tcpApproveBean : approveList)
+            {
+                if (tcpApproveBean.getApproverId().equals(user.getStafferId()))
+                {
+                    tcpApproveDAO.deleteEntityBean(tcpApproveBean.getId());
+                }
+            }
+        }
+
+        List<TcpApproveBean> appList = tcpApproveDAO.queryEntityBeansByFK(bean.getId());
+        _logger.info("***appList***"+appList.size());
+        if (token == null || appList.size() == 0 || token.getSingeAll() == 0)
+        {
+//            String nextProcessor = this.getNextProcessor(user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+            TcpFlowBean nextToken = this.getNextProcessor(bean.getStafferId(), user.getStafferId(),token.getFlowKey(), token.getNextStatus());
+            int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
+            String nextProcessor = nextToken.getNextProcessor();
+            if (!StringTools.isNullOrNone(nextProcessor) && !processList.contains(nextProcessor)){
+                processList.add(nextProcessor);
+            }
+            _logger.info(nextStatus+"***nextStatusIgnoreDuplicate***"+nextStatusIgnoreDuplicate+"***processList***"+processList.size()+"***nextProcessor***"+nextProcessor);
+            if (nextStatusIgnoreDuplicate!= 0){
+                nextStatus = nextStatusIgnoreDuplicate;
+            }
+            for (String processId : processList)
+            {
+                // 进入审批状态
+                TcpApproveBean approve = new TcpApproveBean();
+
+                approve.setId(commonDAO.getSquenceString20());
+                approve.setApplyerId(bean.getStafferId());
+                approve.setApplyId(bean.getId());
+                approve.setApproverId(processId);
+                approve.setFlowKey(bean.getFlowKey());
+                approve.setLogTime(TimeTools.now());
+                approve.setDepartmentId(bean.getDepartmentId());
+                approve.setName(bean.getName());
+                approve.setStatus(nextStatus);
+//                approve.setStatus(nextStatusIgnoreDuplicate);
+                approve.setTotal(bean.getTotal());
+                approve.setCheckTotal(bean.getBorrowTotal());
+                approve.setType(bean.getType());
+                approve.setStype(bean.getStype());
+                approve.setPool(pool);
+                approve.setPayType(TcpConstanst.PAYTYPE_GPAY_BO);
+
+                tcpApproveDAO.saveEntityBean(approve);
+                _logger.info("***save TcpApproveBean***"+approve);
+
+            }
+
+            // 如果是共享的不发送邮件
+            if (pool == TcpConstanst.TCP_POOL_COMMON)
+            {
+                MailBean mail = new MailBean();
+
+                mail.setTitle(bean.getStafferName() + "的"
+                        + DefinedCommon.getValue("tcpType", bean.getType()) + "申请["
+                        + bean.getName() + "]等待您的处理.");
+
+                mail.setContent(mail.getContent());
+
+                mail.setSenderId(StafferConstant.SUPER_STAFFER);
+
+                mail.setReveiveIds(StringUtils.listToString(processList,";"));
+
+                mail.setReveiveIds2(bean.getStafferId());
+
+                if(bean.getType()== TcpConstanst.VOCATION_WORK)
+                {
+                    mail.setHref(TcpConstanst.TCP_COMMIS_PROCESS_URL + bean.getId());
+                }
+                else
+                {
+                    mail.setHref(TcpConstanst.TCP_TRAVELAPPLY_PROCESS_URL + bean.getId());
+                }
+                // send mail
+                mailMangaer.addMailWithoutTransactional(UserHelper.getSystemUser(), mail);
+            }
+        }
+        else
+        {
+            // 会签
+            nextStatus = bean.getStatus();
+            _logger.info("***nextStatus***"+nextStatus);
+        }
+
+        return nextStatus;
+    }
+
+    /**
+     * #301 跳过由同一个人处理的多个审批环节,递归找到下一环节处理人
+     * get High level manager Id from  bank level table
+     * @param originator 发起人
+     * @param stafferId 当前环节处理人
+     * @param nextStatus
+     * @return
+     */
+    public TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException{
+        String template = "getNextProcessor with originator:%s stafferId:%s flowKey:%s nextStatus:%s";
+        _logger.info(String.format(template, originator, stafferId, flowKey, String.valueOf(nextStatus)));
+        TcpFlowBean result = new TcpFlowBean();
+
+        String nextProcessor = "";
+        try {
+            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
+                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
+                //CEO这个环节如果和发起人一致不能跳过,财务审批前必须有有个人处理下
+                if (originator.equals(nextProcessor) && nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO){
+                    result.setNextProcessor(nextProcessor);
+                    result.setNextStatus(nextStatus);
+                    _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
+                } else if (stafferId.equals(nextProcessor)){
+                    TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
+                    _logger.info("***next token***"+token);
+                    // 下一环节如果已经是pool,直接返回
+                    if (token!= null && token.getNextPlugin().contains("pool")){
+                        token.setNextProcessor(nextProcessor);
+                        _logger.info("***return token***"+token);
+                        return token;
+                    }
+                    return getNextProcessor(originator, nextProcessor, flowKey, token.getNextStatus());
+                } else{
+                    result.setNextProcessor(nextProcessor);
+                    result.setNextStatus(nextStatus);
+                    _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
+                }
+            }
+        }catch(Exception e){
+            _logger.error(e);
+            throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
+        }
+
+        return result;
+    }
+
     /**
      * @return the tcpApproveDAO
      */
@@ -398,4 +571,20 @@ public class TcpFlowManagerImpl implements TcpFlowManager
 	{
 		this.flowLogDAO = flowLogDAO;
 	}
+
+    public MailMangaer getMailMangaer() {
+        return mailMangaer;
+    }
+
+    public void setMailMangaer(MailMangaer mailMangaer) {
+        this.mailMangaer = mailMangaer;
+    }
+
+    public BankBuLevelDAO getBankBuLevelDAO() {
+        return bankBuLevelDAO;
+    }
+
+    public void setBankBuLevelDAO(BankBuLevelDAO bankBuLevelDAO) {
+        this.bankBuLevelDAO = bankBuLevelDAO;
+    }
 }

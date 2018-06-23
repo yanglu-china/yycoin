@@ -11,6 +11,9 @@ package com.china.center.oa.tcp.manager;
 
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
+import com.china.center.oa.tcp.bean.TcpFlowBean;
+import com.china.center.oa.tcp.bean.TcpInterface;
+import java.util.List;
 
 
 /**
@@ -47,4 +50,12 @@ public interface TcpFlowManager
     
     boolean endApprove(User user, String id)
     throws MYException;
+
+    int saveApprove(User user, String processId, TcpInterface bean, int nextStatus,
+                            int pool) throws MYException;
+
+    int saveApprove(User user, List<String> processList, TcpInterface bean,
+                            int nextStatus, int pool) throws MYException;
+
+    TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException;
 }

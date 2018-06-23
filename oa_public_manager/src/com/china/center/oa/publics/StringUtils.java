@@ -5,6 +5,7 @@ import com.china.center.tools.StringTools;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class StringUtils {
@@ -106,6 +107,18 @@ public class StringUtils {
         }catch(ParseException e){
             return false;
         }
+    }
+
+    public static String listToString(List<String> list, String deliminator1)
+    {
+        StringBuilder builder = new StringBuilder();
+
+        for (String str : list)
+        {
+            builder.append(str).append(deliminator1);
+        }
+
+        return builder.toString();
     }
 
     public static void main(String[] args){
