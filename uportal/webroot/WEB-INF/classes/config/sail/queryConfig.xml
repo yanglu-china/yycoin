@@ -56,6 +56,14 @@
             <type>date</type>
             <inner></inner>
         </condtion>
+        <condtion name="productName" filed="name"  caption="销售商品品名" pfix="P1">
+            <opr>like</opr>
+            <type>text</type>
+        </condtion>
+        <condtion name="giftProductName" filed="name" caption="赠送商品品名" pfix="P2">
+            <opr>like</opr>
+            <type>text</type>
+        </condtion>
     </item>
     
     <item name="querySelfSailTranApply" deaultpfix="SailTranApplyBean">
