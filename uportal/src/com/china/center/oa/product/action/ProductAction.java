@@ -433,12 +433,30 @@ public class ProductAction extends DispatchAction
     {
         String foward = request.getParameter("foward");
 
+        // 条件查询
+        String alogTime = request.getParameter("alogTime");
+
+        String blogTime = request.getParameter("blogTime");
+
+
         final ConditionParse condtion = new ConditionParse();
 
         condtion.addWhereStr();
 
         //#283
 //        condtion.addCondition(" and ComposeProductBean.parentId = ''");
+
+        if ( !StringTools.isNullOrNone(alogTime))
+        {
+            condtion.addCondition("ComposeProductBean.logTime", ">=", alogTime);
+        }
+
+
+        if ( !StringTools.isNullOrNone(blogTime))
+        {
+            condtion.addCondition("ComposeProductBean.logTime", "<=", blogTime);
+        }
+
 
         if ("1".equals(foward))
         {
@@ -1771,6 +1789,26 @@ public class ProductAction extends DispatchAction
         final ConditionParse condtion = new ConditionParse();
 
         condtion.addWhereStr();
+
+        // 条件查询
+        String alogTime = request.getParameter("alogTime");
+
+        String blogTime = request.getParameter("blogTime");
+
+        //#283
+//        condtion.addCondition(" and ComposeProductBean.parentId = ''");
+
+        if ( !StringTools.isNullOrNone(alogTime))
+        {
+            condtion.addCondition("DecomposeProductBean.logTime", ">=", alogTime);
+        }
+
+
+        if ( !StringTools.isNullOrNone(blogTime))
+        {
+            condtion.addCondition("DecomposeProductBean.logTime", "<=", blogTime);
+        }
+
 
         if ("1".equals(foward))
         {

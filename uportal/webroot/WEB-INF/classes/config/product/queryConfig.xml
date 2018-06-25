@@ -443,6 +443,16 @@
             <type>select</type>
             <option>$pubManagerType</option>
         </condtion>
+		<condtion name="alogTime" filed="logTime" caption="开始时间">
+			<opr>&gt;=</opr>
+			<type>date</type>
+			<inner></inner>
+		</condtion>
+		<condtion name="blogTime" filed="logTime" caption="结束时间">
+			<opr>&lt;=</opr>
+			<type>date</type>
+			<inner></inner>
+		</condtion>
 	</item>
 	
 	<item name="queryDecompose" deaultpfix="DecomposeProductBean">
@@ -461,6 +471,16 @@
 		<condtion name="stafferId" filed="name" caption="操作人" pfix="StafferBean">
 			<opr>like</opr>
 			<type>text</type>
+		</condtion>
+		<condtion name="alogTime" filed="logTime" caption="开始时间">
+			<opr>&gt;=</opr>
+			<type>date</type>
+			<inner></inner>
+		</condtion>
+		<condtion name="blogTime" filed="logTime" caption="结束时间">
+			<opr>&lt;=</opr>
+			<type>date</type>
+			<inner></inner>
 		</condtion>
 	</item>
 	
