@@ -808,7 +808,7 @@ public class PreinvoiceAction extends DispatchAction
         return false;
     }
 
-    public ActionForward cancelPreInvoice(ActionMapping mapping, ActionForm form,
+    public ActionForward backPreInvoice(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
@@ -820,7 +820,7 @@ public class PreinvoiceAction extends DispatchAction
 
             User user = Helper.getUser(request);
 
-            preInvoiceManager.cancelPreInvoiceBean(user, id);
+            preInvoiceManager.backPreInvoiceBean(user, id);
 
             ajax.setSuccess("成功操作");
         }

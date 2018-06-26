@@ -121,8 +121,14 @@ public interface TcpFlowConstant
     /***
      * 预开票
      */
-    String PREINVOICE_APPLY = "preinvoice-apply"; 
-    
+    String PREINVOICE_APPLY = "preinvoice-apply";
+
+
+    /***
+     * 预开票退票
+     */
+    String PREINVOICE_APPLY_BACK = "preinvoice-apply-back";
+
     /**
      * 加班、请假审批流
      */

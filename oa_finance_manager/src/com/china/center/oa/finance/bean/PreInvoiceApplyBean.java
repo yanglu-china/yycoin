@@ -3,12 +3,7 @@ package com.china.center.oa.finance.bean;
 import java.io.Serializable;
 import java.util.List;
 
-import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.Html;
-import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Ignore;
-import com.china.center.jdbc.annotation.Join;
-import com.china.center.jdbc.annotation.Table;
+import com.china.center.jdbc.annotation.*;
 import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.finance.constant.FinanceConstant;
@@ -31,6 +26,12 @@ public class PreInvoiceApplyBean implements Serializable
     private String name = "";
 
     private String flowKey = "";
+
+	/**
+	 * 退票时关联原票ID
+	 */
+	@FK
+	private String refId = "";
 
     @Html(title = "申请人", name = "stafferName", must = true, maxLength = 40, readonly = true)
     @Join(tagClass = StafferBean.class)
@@ -433,4 +434,13 @@ public class PreInvoiceApplyBean implements Serializable
     public void setInvoiceNumber(String invoiceNumber) {
         this.invoiceNumber = invoiceNumber;
     }
+
+	public String getRefId() {
+		return refId;
+	}
+
+	public void setRefId(String refId) {
+		this.refId = refId;
+	}
+
 }

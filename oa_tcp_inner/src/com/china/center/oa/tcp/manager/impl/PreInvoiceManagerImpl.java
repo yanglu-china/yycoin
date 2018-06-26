@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.china.center.oa.sail.bean.PreConsignBean;
 import com.china.center.oa.sail.dao.PreConsignDAO;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,11 +57,8 @@ import com.china.center.oa.tcp.helper.TCPHelper;
 import com.china.center.oa.tcp.manager.PreInvoiceManager;
 import com.china.center.oa.tcp.vo.TcpApproveVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
-import com.china.center.tools.JudgeTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
+
+import static com.china.center.oa.finance.constant.FinanceConstant.INVOICEINS_TYPE_IN;
 
 public class PreInvoiceManagerImpl implements PreInvoiceManager
 {
@@ -959,7 +957,7 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
     }
 
     @Override
-    public boolean cancelPreInvoiceBean(User user, String id) throws MYException {
+    public boolean backPreInvoiceBean(User user, String id) throws MYException {
 	    PreInvoiceApplyBean bean = this.preInvoiceApplyDAO.find(id);
 	    if (bean!= null && bean.getStatus() != 99){
 	        throw new MYException("状态必须为结束才可以退票!");
@@ -971,6 +969,20 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         }
 
         //TODO
+        //生成一个负数的预开票申请
+
+        //生成一条预开票退票待审批的数据，财务进行审批
+        PreInvoiceApplyBean backBean = new PreInvoiceApplyBean();
+        BeanUtil.copyProperties(backBean, bean);
+        backBean.setRefId(bean.getId());
+        backBean.setLogTime(TimeTools.now());
+        backBean.setOtype(INVOICEINS_TYPE_IN);
+        backBean.setFlowKey(TcpFlowConstant.PREINVOICE_APPLY_BACK);
+        this.preInvoiceApplyDAO.saveEntityBean(backBean);
+
+        saveApply(user, bean);
+        saveFlowLog(user, TcpConstanst.TCP_STATUS_INIT, bean, "自动提交保存", PublicConstant.OPRMODE_SAVE);
+
         return true;
     }
 

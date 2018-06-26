@@ -501,11 +501,15 @@ public class TravelApplyAction extends DispatchAction
         }
         
         if (mode.equals("0")){
-        	condtion.addCondition(" and TcpApproveBean.type not in (22, 23)"); // 预开票与预收退款
+            // 预开票与预收退款及退票
+        	condtion.addCondition(" and TcpApproveBean.type not in (22, 23, 24)");
         } else if ("999".equals(mode)) {
+            //23 预收退款
         	condtion.addIntCondition("TcpApproveBean.type", "=", TcpConstanst.TCP_BACKPREPAY);
         }else{
-        	condtion.addIntCondition("TcpApproveBean.type", "=", TcpConstanst.TCP_PREINVOICE);
+//        	condtion.addIntCondition("TcpApproveBean.type", "=", TcpConstanst.TCP_PREINVOICE);
+            //预开票及退票
+            condtion.addCondition(" and TcpApproveBean.type in('22,24') ");
         }
 
         condtion.addIntCondition("TcpApproveBean.pool", "=", TcpConstanst.TCP_POOL_COMMON);

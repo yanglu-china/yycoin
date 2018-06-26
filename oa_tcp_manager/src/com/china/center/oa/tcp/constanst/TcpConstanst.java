@@ -433,6 +433,12 @@ public interface TcpConstanst
      */
     @Defined(key = "tcpType", value = "预开票")
     int TCP_PREINVOICE = 22;
+
+    /**
+     * 预开票开票
+     */
+    @Defined(key = "tcpType", value = "预开票退票")
+    int TCP_PREINVOICE_BACK = 24;
     
     /**
      * 申请预收退款

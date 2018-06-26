@@ -44,7 +44,7 @@ function load()
              {id: 'update', bclass: 'update', onpress : updateBean, auth: '0000'},
              {id: 'del', bclass: 'del',  onpress : delBean, auth: '0000'},
              {id: 'search', bclass: 'search', onpress : doSearch},
-             {id: 'cancel', caption: '退票', bclass: 'del', onpress : cancelBean, auth: '0000'}
+             {id: 'cancel', caption: '退票', bclass: 'del', onpress : backBean, auth: '0000'}
              ],
         <p:conf/>
      };
@@ -86,12 +86,12 @@ function updateBean()
 	$error('不能操作');
 }
 
-function cancelBean(opr, grid)
+function backBean(opr, grid)
 {
     if (getRadio('checkb') && (getRadio('checkb').lstatus == 0 || getRadio('checkb').lstatus == 1))
     {
         if(window.confirm('确定退票?'))
-            $ajax(gurl + 'cancel' + ukey + '&id=' + getRadioValue('checkb'), callBackFun);
+            $ajax(gurl + 'back' + ukey + '&id=' + getRadioValue('checkb'), callBackFun);
     }
     else
         $error('不能操作');
