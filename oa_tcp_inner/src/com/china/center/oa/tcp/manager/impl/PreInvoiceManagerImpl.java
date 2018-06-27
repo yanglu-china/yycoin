@@ -429,134 +429,143 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
             throw new MYException("数据错误,请确认操作");
         }
 
-        // 权限
-        //checkAuth(user, id);
+        // #343 退票
+        if (bean.getOtype() == FinanceConstant.INVOICEINS_TYPE_IN) {
+            // 删除原单关联的销售单数据
+            List<PreInvoiceVSOutBean> preInvoiceVSOutBeans = this.preInvoiceVSOutDAO.queryEntityBeansByFK(id);
 
-        int oldStatus = bean.getStatus();
-        _logger.info("************passPreInvoiceBean oldStatus***"+oldStatus);
-        // 分支处理
-        logicProcess(user, param, bean, oldStatus);
-        
-        if (oldStatus == TcpConstanst.TCP_STATUS_APPLY_RELATE){
-        	
-        	if (bean.getInvoiceMoney() < bean.getTotal())
-        	{
-        		// 记录操作日志
-                saveFlowLog(user, oldStatus, bean, "提交", PublicConstant.OPRMODE_PASS);
-                
-        		return true;
-        	}else{
-        		// 当关联的金额满足时，判断关联的销售单的纳税实体是不是预开票申请中填写的
-        		String applyDuty = bean.getDutyId();
-        		
-        		List<PreInvoiceVSOutBean> vsList = preInvoiceVSOutDAO.queryEntityBeansByFK(bean.getId());
-        		
-        		for (PreInvoiceVSOutBean vs : vsList)
-        		{
-        			OutBean outBean = outDAO.find(vs.getOutId());
-        			
-        			if (null == outBean){
-        				throw new MYException("数据错误,请确认操作");
-        			}else{
-        				if (!outBean.getDutyId().equals(applyDuty))
-        				{
-        					//throw new MYException("关联的销售单[%s]的纳税实体与申请单上的纳税实体不一致", outBean.getFullId());
-        					saveFlowLog(user, oldStatus, bean, "关联的销售单"+outBean.getFullId()+"的纳税实体与申请单上的纳税实体不一致", PublicConstant.OPRMODE_PASS);
-        	                
-        	        		return true;
-        				}
-        			}
-        		}
-        	}
-        }
+            //TODO
+        } else{
 
-        // 获得当前的处理环节
-        TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
+            // 权限
+            //checkAuth(user, id);
 
-        if (token == null) {
-            throw new MYException("数据错误,请确认操作");
-        }
+            int oldStatus = bean.getStatus();
+            _logger.info("************passPreInvoiceBean oldStatus***"+oldStatus);
+            // 分支处理
+            logicProcess(user, param, bean, oldStatus);
 
-        _logger.info("****flowKey:"+bean.getFlowKey()+"***status***"+bean.getStatus()+"***nextPlugin***"+token.getNextPlugin()+"**nextStatus***"+token.getNextStatus());
-        // 群组模式
-        if (token.getNextPlugin().startsWith("group")) {
-            int newStatus = saveApprove(user, processId, bean, token.getNextStatus(), 0);
+            if (oldStatus == TcpConstanst.TCP_STATUS_APPLY_RELATE){
 
-            if (newStatus != oldStatus) {
-                bean.setStatus(newStatus);
+                if (bean.getInvoiceMoney() < bean.getTotal())
+                {
+                    // 记录操作日志
+                    saveFlowLog(user, oldStatus, bean, "提交", PublicConstant.OPRMODE_PASS);
 
-                preInvoiceApplyDAO.updateStatus(bean.getId(), newStatus);
+                    return true;
+                }else{
+                    // 当关联的金额满足时，判断关联的销售单的纳税实体是不是预开票申请中填写的
+                    String applyDuty = bean.getDutyId();
 
+                    List<PreInvoiceVSOutBean> vsList = preInvoiceVSOutDAO.queryEntityBeansByFK(bean.getId());
+
+                    for (PreInvoiceVSOutBean vs : vsList)
+                    {
+                        OutBean outBean = outDAO.find(vs.getOutId());
+
+                        if (null == outBean){
+                            throw new MYException("数据错误,请确认操作");
+                        }else{
+                            if (!outBean.getDutyId().equals(applyDuty))
+                            {
+                                //throw new MYException("关联的销售单[%s]的纳税实体与申请单上的纳税实体不一致", outBean.getFullId());
+                                saveFlowLog(user, oldStatus, bean, "关联的销售单"+outBean.getFullId()+"的纳税实体与申请单上的纳税实体不一致", PublicConstant.OPRMODE_PASS);
+
+                                return true;
+                            }
+                        }
+                    }
+                }
             }
 
-            // 记录操作日志
-            saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
-        }
-        // 共享池模式
-        if (token.getNextPlugin().startsWith("pool")) {
-            String groupId = token.getNextPlugin().substring(5);
+            // 获得当前的处理环节
+            TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
 
-            List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
-
-            if (ListTools.isEmptyOrNull(vsList)) {
-                throw new MYException("当前群组内没有人员,请确认操作");
+            if (token == null) {
+                throw new MYException("数据错误,请确认操作");
             }
 
-            List<String> processList = new ArrayList<String>();
+            _logger.info("****flowKey:"+bean.getFlowKey()+"***status***"+bean.getStatus()+"***nextPlugin***"+token.getNextPlugin()+"**nextStatus***"+token.getNextStatus());
+            // 群组模式
+            if (token.getNextPlugin().startsWith("group")) {
+                int newStatus = saveApprove(user, processId, bean, token.getNextStatus(), 0);
 
-            for (GroupVSStafferBean groupVSStafferBean : vsList) {
-                processList.add(groupVSStafferBean.getStafferId());
+                if (newStatus != oldStatus) {
+                    bean.setStatus(newStatus);
+
+                    preInvoiceApplyDAO.updateStatus(bean.getId(), newStatus);
+
+                }
+
+                // 记录操作日志
+                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
             }
+            // 共享池模式
+            if (token.getNextPlugin().startsWith("pool")) {
+                String groupId = token.getNextPlugin().substring(5);
 
-            int newStatus = saveApprove(user, processList, bean, token.getNextStatus(), 1);
+                List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
 
-            if (newStatus != oldStatus) {
-                bean.setStatus(newStatus);
+                if (ListTools.isEmptyOrNull(vsList)) {
+                    throw new MYException("当前群组内没有人员,请确认操作");
+                }
 
-                preInvoiceApplyDAO.updateStatus(bean.getId(), newStatus);
+                List<String> processList = new ArrayList<String>();
+
+                for (GroupVSStafferBean groupVSStafferBean : vsList) {
+                    processList.add(groupVSStafferBean.getStafferId());
+                }
+
+                int newStatus = saveApprove(user, processList, bean, token.getNextStatus(), 1);
+
+                if (newStatus != oldStatus) {
+                    bean.setStatus(newStatus);
+
+                    preInvoiceApplyDAO.updateStatus(bean.getId(), newStatus);
+                }
+
+                // 记录操作日志
+                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
             }
-
-            // 记录操作日志
-            saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
-        }
-        // 插件模式
-        else if (token.getNextPlugin().startsWith("plugin")) {
-        	int newStatus = saveApprove(user, bean.getStafferId(), bean, token.getNextStatus(), 0);
+            // 插件模式
+            else if (token.getNextPlugin().startsWith("plugin")) {
+                int newStatus = saveApprove(user, bean.getStafferId(), bean, token.getNextStatus(), 0);
 
 
-            //2015/3/1 当状态为“待财务开票”通过后，将此发票信息写入CK单中间表
-            if (TcpConstanst.TCP_STATUS_TAX_INVOICE == oldStatus){
-                PreConsignBean preConsign = new PreConsignBean();
+                //2015/3/1 当状态为“待财务开票”通过后，将此发票信息写入CK单中间表
+                if (TcpConstanst.TCP_STATUS_TAX_INVOICE == oldStatus){
+                    PreConsignBean preConsign = new PreConsignBean();
 
-                preConsign.setOutId(bean.getId());
+                    preConsign.setOutId(bean.getId());
 
-                preConsignDAO.saveEntityBean(preConsign);
-                this.logPreconsign(preConsign);
+                    preConsignDAO.saveEntityBean(preConsign);
+                    this.logPreconsign(preConsign);
 
-                this.preInvoiceApplyDAO.updateInvoiceNumber(bean.getId(),param.getInvoiceNumber());
-                _logger.info(bean.getId()+"*******save getInvoiceNumber for preinvoice****"+param.getInvoiceNumber());
+                    this.preInvoiceApplyDAO.updateInvoiceNumber(bean.getId(),param.getInvoiceNumber());
+                    _logger.info(bean.getId()+"*******save getInvoiceNumber for preinvoice****"+param.getInvoiceNumber());
+                }
+
+                if (newStatus != oldStatus) {
+                    bean.setStatus(newStatus);
+
+                    preInvoiceApplyDAO.updateStatus(bean.getId(), newStatus);
+                }
+
+                // 记录操作日志
+                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
             }
+            // 结束模式
+            else if (token.getNextPlugin().startsWith("end")) {
+                // 结束了需要清空
+                tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
 
-            if (newStatus != oldStatus) {
-                bean.setStatus(newStatus);
+                bean.setStatus(token.getNextStatus());
 
-                preInvoiceApplyDAO.updateStatus(bean.getId(), newStatus);
+                preInvoiceApplyDAO.updateStatus(bean.getId(), bean.getStatus());
+
+                // 记录操作日志
+                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
             }
-
-            // 记录操作日志
-            saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
-        }
-        // 结束模式
-        else if (token.getNextPlugin().startsWith("end")) {
-            // 结束了需要清空
-            tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
-
-            bean.setStatus(token.getNextStatus());
-
-            preInvoiceApplyDAO.updateStatus(bean.getId(), bean.getStatus());
-
-            // 记录操作日志
-            saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
         }
 
         return true;
@@ -957,6 +966,7 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
     }
 
     @Override
+    @Transactional(rollbackFor = MYException.class)
     public boolean backPreInvoiceBean(User user, String id) throws MYException {
 	    PreInvoiceApplyBean bean = this.preInvoiceApplyDAO.find(id);
 	    if (bean!= null && bean.getStatus() != 99){
@@ -974,14 +984,34 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         //生成一条预开票退票待审批的数据，财务进行审批
         PreInvoiceApplyBean backBean = new PreInvoiceApplyBean();
         BeanUtil.copyProperties(backBean, bean);
+        backBean.setId(commonDAO.getSquenceString20("FP"));
+        backBean.setStatus(TcpConstanst.TCP_STATUS_INIT);
         backBean.setRefId(bean.getId());
         backBean.setLogTime(TimeTools.now());
         backBean.setOtype(INVOICEINS_TYPE_IN);
         backBean.setFlowKey(TcpFlowConstant.PREINVOICE_APPLY_BACK);
         this.preInvoiceApplyDAO.saveEntityBean(backBean);
 
-        saveApply(user, bean);
-        saveFlowLog(user, TcpConstanst.TCP_STATUS_INIT, bean, "自动提交保存", PublicConstant.OPRMODE_SAVE);
+//        saveApply(user, backBean);
+//        saveFlowLog(user, TcpConstanst.TCP_STATUS_INIT, backBean, "自动提交保存", PublicConstant.OPRMODE_SAVE);
+
+        // 获得当前的处理环节
+        TcpFlowBean token = tcpFlowDAO.findByUnique(backBean.getFlowKey(), backBean.getStatus());
+
+        //TODO
+        String processId = "14839109";
+        // 进入审批状态
+        PreInvoiceApplyVO vo = this.findVO(backBean.getId());
+        int newStatus = this.saveApprove(user, processId, vo, token.getNextStatus(), 0);
+
+        int oldStatus = backBean.getStatus();
+
+        backBean.setStatus(newStatus);
+
+        preInvoiceApplyDAO.updateStatus(backBean.getId(), newStatus);
+
+        // 记录操作日志
+        saveFlowLog(user, oldStatus, backBean, "提交申请", PublicConstant.OPRMODE_SUBMIT);
 
         return true;
     }

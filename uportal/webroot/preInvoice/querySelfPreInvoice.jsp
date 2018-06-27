@@ -88,13 +88,13 @@ function updateBean()
 
 function backBean(opr, grid)
 {
-    if (getRadio('checkb') && (getRadio('checkb').lstatus == 0 || getRadio('checkb').lstatus == 1))
+    if (getRadio('checkb'))
     {
         if(window.confirm('确定退票?'))
             $ajax(gurl + 'back' + ukey + '&id=' + getRadioValue('checkb'), callBackFun);
     }
     else
-        $error('不能操作');
+        $error('未选择记录');
 }
 
 function doSearch()
