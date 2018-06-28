@@ -431,10 +431,11 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
 
         // #343 退票
         if (bean.getOtype() == FinanceConstant.INVOICEINS_TYPE_IN) {
-            // 删除原单关联的销售单数据
-            _logger.info("***delete original PreInvoiceVSOutBean***"+id);
-            this.preInvoiceVSOutDAO.deleteEntityBeansByFK(id);
-            //TODO
+            // TODO 删除原单关联的销售单数据?
+            _logger.info("***delete original PreInvoiceVSOutBean***"+bean.getRefId());
+            this.preInvoiceVSOutDAO.deleteEntityBeansByFK(bean.getRefId());
+
+            preInvoiceApplyDAO.updateStatus(bean.getId(), TcpConstanst.TCP_STATUS_END);
         } else{
 
             // 权限
@@ -980,18 +981,18 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
 
         //TODO
         //生成一个负数的预开票申请
-        PreInvoiceApplyBean newBean = new PreInvoiceApplyBean();
-        BeanUtil.copyProperties(newBean, bean);
-        newBean.setId(commonDAO.getSquenceString20("FP"));
-        newBean.setStatus(TcpConstanst.TCP_STATUS_INIT);
-        newBean.setRefId(bean.getId());
-        newBean.setLogTime(TimeTools.now());
-        newBean.setOtype(INVOICEINS_TYPE_IN);
+//        PreInvoiceApplyBean newBean = new PreInvoiceApplyBean();
+//        BeanUtil.copyProperties(newBean, bean);
+//        newBean.setId(commonDAO.getSquenceString20("FP"));
+//        newBean.setStatus(TcpConstanst.TCP_STATUS_INIT);
+//        newBean.setRefId(bean.getId());
+//        newBean.setLogTime(TimeTools.now());
+//        newBean.setOtype(INVOICEINS_TYPE_IN);
+//
+//        newBean.setDescription("退票,原票:"+bean.getId());
+//        this.preInvoiceApplyDAO.saveEntityBean(newBean);
 
-        newBean.setDescription("退票,原票:"+bean.getId());
-        this.preInvoiceApplyDAO.saveEntityBean(newBean);
-
-        //生成一条预开票退票待审批的数据，财务进行审批
+        //生成一条负数的预开票退票待审批的数据，财务进行审批
         PreInvoiceApplyBean backBean = new PreInvoiceApplyBean();
         BeanUtil.copyProperties(backBean, bean);
         backBean.setId(commonDAO.getSquenceString20("FP"));
@@ -1000,7 +1001,23 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         backBean.setLogTime(TimeTools.now());
         backBean.setOtype(INVOICEINS_TYPE_IN);
         backBean.setFlowKey(TcpFlowConstant.PREINVOICE_APPLY_BACK);
+        backBean.setDescription("退票,原票:"+bean.getId());
         this.preInvoiceApplyDAO.saveEntityBean(backBean);
+
+        List<PreInvoiceVSOutBean> itemList = this.preInvoiceVSOutDAO.queryEntityBeansByFK(id);
+
+        for (PreInvoiceVSOutBean each : itemList)
+        {
+            PreInvoiceVSOutBean newItem = new PreInvoiceVSOutBean();
+
+            BeanUtil.copyProperties(newItem, each);
+
+            newItem.setParentId(backBean.getId());
+
+            newItem.setInvoiceMoney(-each.getInvoiceMoney());
+
+            this.preInvoiceVSOutDAO.saveEntityBean(newItem);
+        }
 
 //        saveApply(user, backBean);
 //        saveFlowLog(user, TcpConstanst.TCP_STATUS_INIT, backBean, "自动提交保存", PublicConstant.OPRMODE_SAVE);
