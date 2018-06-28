@@ -432,8 +432,8 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         // #343 退票
         if (bean.getOtype() == FinanceConstant.INVOICEINS_TYPE_IN) {
             // 删除原单关联的销售单数据
-            List<PreInvoiceVSOutBean> preInvoiceVSOutBeans = this.preInvoiceVSOutDAO.queryEntityBeansByFK(id);
-
+            _logger.info("***delete original PreInvoiceVSOutBean***"+id);
+            this.preInvoiceVSOutDAO.deleteEntityBeansByFK(id);
             //TODO
         } else{
 
@@ -980,6 +980,16 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
 
         //TODO
         //生成一个负数的预开票申请
+        PreInvoiceApplyBean newBean = new PreInvoiceApplyBean();
+        BeanUtil.copyProperties(newBean, bean);
+        newBean.setId(commonDAO.getSquenceString20("FP"));
+        newBean.setStatus(TcpConstanst.TCP_STATUS_INIT);
+        newBean.setRefId(bean.getId());
+        newBean.setLogTime(TimeTools.now());
+        newBean.setOtype(INVOICEINS_TYPE_IN);
+
+        newBean.setDescription("退票,原票:"+bean.getId());
+        this.preInvoiceApplyDAO.saveEntityBean(newBean);
 
         //生成一条预开票退票待审批的数据，财务进行审批
         PreInvoiceApplyBean backBean = new PreInvoiceApplyBean();
