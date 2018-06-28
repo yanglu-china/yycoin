@@ -1009,10 +1009,25 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         TcpFlowBean token = tcpFlowDAO.findByUnique(backBean.getFlowKey(), backBean.getStatus());
 
         //TODO
-        String processId = "14839109";
+//        String processId = "14839109";
+        String groupId = token.getNextPlugin().substring(6);
+
+        List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
+
+        if (ListTools.isEmptyOrNull(vsList))
+        {
+            throw new MYException("当前群组内没有人员,请确认操作:"+groupId);
+        }
+
+        List<String> processList = new ArrayList();
+
+        for (GroupVSStafferBean groupVSStafferBean : vsList)
+        {
+            processList.add(groupVSStafferBean.getStafferId());
+        }
         // 进入审批状态
         PreInvoiceApplyVO vo = this.findVO(backBean.getId());
-        int newStatus = this.saveApprove(user, processId, vo, token.getNextStatus(), 0);
+        int newStatus = this.saveApprove(user, processList, vo, token.getNextStatus(), 0);
 
         int oldStatus = backBean.getStatus();
 
