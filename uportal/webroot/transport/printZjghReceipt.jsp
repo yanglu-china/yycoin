@@ -213,6 +213,14 @@ function callBackPrintFun()
 
 		</td>
 	</tr>
+
+	<tr id="qrCode">
+		<td width="92%">
+			<div align="center">
+				<img src="../images/zjgh_qrcode.jpg">
+			</div>
+		</td>
+	</tr>
 	
 	<tr id="ptr">
 		<td width="92%">
