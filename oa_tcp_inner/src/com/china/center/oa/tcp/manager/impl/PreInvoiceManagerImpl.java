@@ -436,6 +436,7 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
             this.preInvoiceVSOutDAO.deleteEntityBeansByFK(bean.getRefId());
 
             preInvoiceApplyDAO.updateStatus(bean.getId(), TcpConstanst.TCP_STATUS_END);
+            this.saveFlowLog(user, bean.getStatus(), bean, "通过", TcpConstanst.TCP_STATUS_END);
         } else{
 
             // 权限
@@ -608,7 +609,7 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
             List<PreInvoiceVSOutBean> vsList = null;
             if (param.getOther() == null){
                 _logger.warn("param.getOther is null**************");
-                throw new MYException("参数错误");
+                throw new MYException("销售单关联不能为空!");
             } else{
         	    vsList = (List<PreInvoiceVSOutBean>)param.getOther();
             }
@@ -979,19 +980,12 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
             throw new MYException("未关联销售单不可以退票!");
         }
 
-        //TODO
-        //生成一个负数的预开票申请
-//        PreInvoiceApplyBean newBean = new PreInvoiceApplyBean();
-//        BeanUtil.copyProperties(newBean, bean);
-//        newBean.setId(commonDAO.getSquenceString20("FP"));
-//        newBean.setStatus(TcpConstanst.TCP_STATUS_INIT);
-//        newBean.setRefId(bean.getId());
-//        newBean.setLogTime(TimeTools.now());
-//        newBean.setOtype(INVOICEINS_TYPE_IN);
-//
-//        newBean.setDescription("退票,原票:"+bean.getId());
-//        this.preInvoiceApplyDAO.saveEntityBean(newBean);
+        List<PreInvoiceApplyBean> backBeans = this.preInvoiceApplyDAO.queryEntityBeansByFK(id);
+	    if (!ListTools.isEmptyOrNull(backBeans) && backBeans.get(0).getStatus() == TcpConstanst.TCP_STATUS_END){
+            throw new MYException("已申请过退票!");
+        }
 
+        _logger.info("***backPreInvoiceBean for id***"+id);
         //生成一条负数的预开票退票待审批的数据，财务进行审批
         PreInvoiceApplyBean backBean = new PreInvoiceApplyBean();
         BeanUtil.copyProperties(backBean, bean);
@@ -1019,14 +1013,9 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
             this.preInvoiceVSOutDAO.saveEntityBean(newItem);
         }
 
-//        saveApply(user, backBean);
-//        saveFlowLog(user, TcpConstanst.TCP_STATUS_INIT, backBean, "自动提交保存", PublicConstant.OPRMODE_SAVE);
 
         // 获得当前的处理环节
         TcpFlowBean token = tcpFlowDAO.findByUnique(backBean.getFlowKey(), backBean.getStatus());
-
-        //TODO
-//        String processId = "14839109";
         String groupId = token.getNextPlugin().substring(6);
 
         List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);

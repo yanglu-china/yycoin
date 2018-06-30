@@ -350,6 +350,12 @@
 			<opr>=</opr>
 			<type>text</type>
 		</condtion>
+		<condtion name="type" caption="预开票类型">
+			<opr>=</opr>
+			<datatype>0</datatype>
+			<type>select</type>
+			<option>$invoiceinsOtype</option>
+		</condtion>
 		<condtion name="name" caption="目的">
 			<opr>like</opr>
 			<type>text</type>
