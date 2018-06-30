@@ -65,6 +65,7 @@ function addBean()
 				<td align="center" class="td_class" onclick="tableSort(this)"><strong>申请人</strong></td>
 				<td align="center" class="td_class" onclick="tableSort(this)"><strong>动作</strong></td>
 				<td align="center" class="td_class" onclick="tableSort(this)"><strong>审批意见</strong></td>
+				<td align="center" class="td_class" onclick="tableSort(this)"><strong>客户备注</strong></td>
 				<td align="center" class="td_class" onclick="tableSort(this, true)"><strong>处理结果</strong></td>	
 			</tr>
 
@@ -77,6 +78,7 @@ function addBean()
 					<td align="left">${my:get('outStatus',item.status)}</td>
 					<td align="left">${item.applyId}</td>										
 					<td align="left">${item.action}</td>
+					<td align="left">${item.description}</td>
 					<td align="left">${item.reason}</td>
 					<td align="left">${item.result}</td>
 				</tr>
