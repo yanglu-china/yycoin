@@ -3764,6 +3764,13 @@
                          bean.setReason(obj[3]);
                      }
 
+                     // 客户备注
+                     if ( !StringTools.isNullOrNone(obj[4]))
+                     {
+                         bean.setDescription(obj[4].trim());
+                     }
+
+
                      importItemList.add(bean);
 
                  }

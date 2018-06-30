@@ -59,6 +59,11 @@ public class BatchApproveBean implements Serializable
 	 */
 	private int type = -1;
 
+	/**#
+	 * 客户备注
+	 */
+	private String description = "";
+
 	/**
 	 * default construct
 	 */
@@ -224,5 +229,13 @@ public class BatchApproveBean implements Serializable
 	public void setType(int type)
 	{
 		this.type = type;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }
