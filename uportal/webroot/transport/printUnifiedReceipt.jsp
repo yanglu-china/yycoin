@@ -157,7 +157,8 @@ function callBackPrintFun()
 						<td width="8%"><table class="border1"><tr><td align="center">订单性质</td></tr></table></td>
 						<td width="16%"><table class="border1"><tr><td align="center">客户单号</td></tr></table></td>
 						<td width="16%"><table class="border1"><tr><td align="center">订单日期</td></tr></table></td>
-                        <td width="12%"><table class="border1"><tr><td align="center">顾客姓名</td></tr></table></td>
+                        <td width="8%"><table class="border1"><tr><td align="center">顾客姓名</td></tr></table></td>
+						<td width="12%"><table class="border1"><tr><td align="center">客户备注</td></tr></table></td>
 					</tr>
 					
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
@@ -169,6 +170,7 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td>${item.refId}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.poDate}</td></tr></table></td>
                         <td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
+						<td><table class="border1"><tr><td>${item.customerDescription}</td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
@@ -177,6 +179,7 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td></td></tr></table></td>
                         <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>

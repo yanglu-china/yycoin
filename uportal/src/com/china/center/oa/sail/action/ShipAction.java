@@ -2686,6 +2686,7 @@ public class ShipAction extends DispatchAction
             if (out!= null){
                 each.setPoDate(out.getPodate());
                 each.setOutType(out.getOutType());
+                each.setCustomerDescription(out.getCustomerDescription());
             }
             //#169
             else if(out == null && outId.startsWith("A")){
@@ -2984,6 +2985,7 @@ public class ShipAction extends DispatchAction
             if (out!= null){
                 each.setPoDate(out.getPodate());
                 each.setOutType(out.getOutType());
+                each.setCustomerDescription(out.getCustomerDescription());
             }            //#169
             else if(out == null && outId.startsWith("A")){
                 each.setPoDate(each.getOutTime());
@@ -3200,6 +3202,7 @@ public class ShipAction extends DispatchAction
             //2015/10/13 销售时间取out表中的podate
             if (out!= null){
                 each.setPoDate(out.getPodate());
+                each.setCustomerDescription(out.getCustomerDescription());
             }
 
             each.getProductId();
@@ -3428,6 +3431,7 @@ public class ShipAction extends DispatchAction
             //2015/10/13 销售时间取out表中的podate
             if (out!= null){
                 each.setPoDate(out.getPodate());
+                each.setCustomerDescription(out.getCustomerDescription());
             }
 
             each.getProductId();
@@ -3644,6 +3648,7 @@ public class ShipAction extends DispatchAction
             //2015/10/13 销售时间取out表中的podate
             if (out!= null){
                 each.setPoDate(out.getPodate());
+                each.setCustomerDescription(out.getCustomerDescription());
             }
 
             each.getProductId();

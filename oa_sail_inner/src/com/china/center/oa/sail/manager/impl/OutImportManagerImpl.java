@@ -1976,7 +1976,7 @@ public class OutImportManagerImpl implements OutImportManager
 			{
 				if (bean.getAction().equals("通过"))
 				{
-					outManager.pass(bean.getOutId(), user, OutConstant.STATUS_FLOW_PASS, bean.getReason(), "");
+					outManager.pass(bean.getOutId(), user, OutConstant.STATUS_FLOW_PASS, bean.getReason(), bean.getDescription(), "");
 				}else if (bean.getAction().equals("驳回")){
 					
 					outManager.reject(bean.getOutId(), user, bean.getReason());
@@ -1996,7 +1996,7 @@ public class OutImportManagerImpl implements OutImportManager
 			else
 				if (bean.getAction().equals("通过"))
 				{
-					outManager.pass(bean.getOutId(), user, OutConstant.STATUS_PASS, bean.getReason(), "");
+					outManager.pass(bean.getOutId(), user, OutConstant.STATUS_PASS, bean.getReason(), bean.getDescription(), "");
 					//#74
 					String fullId = bean.getOutId();
 					if (fullId.startsWith("ZS")){
@@ -2088,7 +2088,7 @@ public class OutImportManagerImpl implements OutImportManager
 				int resultStatus = -1;
 				try
 				{
-					resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null);
+					resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null,null);
 					OutBean newOut = outDAO.find(outId);
 					if(resultStatus == OutConstant.STATUS_PASS)
 					{

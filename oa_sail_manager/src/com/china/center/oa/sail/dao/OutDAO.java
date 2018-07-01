@@ -415,6 +415,8 @@ public interface OutDAO extends DAO<OutBean, OutVO>
 
     boolean updateSwbz(String fullId, String swbz);
 
+    boolean updateCustomerDescription(String fullId, String description);
+
     boolean updateOutbackStatus(String fullId, String outbackStatus);
 
     boolean updateCustomerCreated(String fullId, boolean customerCreated);

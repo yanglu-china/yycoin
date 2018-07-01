@@ -78,8 +78,8 @@ function addBean()
 					<td align="left">${my:get('outStatus',item.status)}</td>
 					<td align="left">${item.applyId}</td>										
 					<td align="left">${item.action}</td>
-					<td align="left">${item.description}</td>
 					<td align="left">${item.reason}</td>
+					<td align="left">${item.description}</td>
 					<td align="left">${item.result}</td>
 				</tr>
 			</c:forEach>

@@ -1639,7 +1639,7 @@ public class OutAction extends ParentOutAction
                     try
                     {
                         resultStatus = outManager.pass(fullId, user, OutConstant.BUY_STATUS_SUBMIT,
-                            reason, depotpartId);
+                            reason, null, depotpartId);
                     }
                     catch (MYException e)
                     {
@@ -1675,7 +1675,7 @@ public class OutAction extends ParentOutAction
                         try
                         {
                             resultStatus = outManager.pass(fullId, user,
-                                OutConstant.STATUS_LOCATION_MANAGER_CHECK, reason, depotpartId);
+                                OutConstant.STATUS_LOCATION_MANAGER_CHECK, reason, null, depotpartId);
                         }
                         catch (MYException e)
                         {
@@ -1693,7 +1693,7 @@ public class OutAction extends ParentOutAction
                         try
                         {
                             resultStatus = outManager.pass(fullId, user,
-                                OutConstant.STATUS_CEO_CHECK, reason, depotpartId);
+                                OutConstant.STATUS_CEO_CHECK, reason, null, depotpartId);
                         }
                         catch (MYException e)
                         {
@@ -1711,7 +1711,7 @@ public class OutAction extends ParentOutAction
                         try
                         {
                             resultStatus = outManager.pass(fullId, user,
-                                OutConstant.STATUS_CHAIRMA_CHECK, reason, depotpartId);
+                                OutConstant.STATUS_CHAIRMA_CHECK, reason, null, depotpartId);
                         }
                         catch (MYException e)
                         {
@@ -1729,7 +1729,7 @@ public class OutAction extends ParentOutAction
                         try
                         {
                             resultStatus = outManager.pass(fullId, user, OutConstant.STATUS_PASS,
-                                reason, depotpartId);
+                                reason, null, depotpartId);
                         }
                         catch (MYException e)
                         {
@@ -1793,7 +1793,7 @@ public class OutAction extends ParentOutAction
                         	}
                         	
                             resultStatus = outManager.pass(fullId, user, nextStatus,
-                                reason, depotpartId);
+                                reason, null, depotpartId);
                         }
                         catch (MYException e)
                         {
@@ -1983,7 +1983,7 @@ public class OutAction extends ParentOutAction
 
                         try
                         {
-                            resultStatus = outManager.pass(fullId, user, statuss, reason, depotpartId);
+                            resultStatus = outManager.pass(fullId, user, statuss, reason, null, depotpartId);
                             OutBean newOut = outDAO.find(fullId);
                             if(resultStatus == OutConstant.STATUS_PASS)
                             {

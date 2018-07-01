@@ -22,6 +22,8 @@ public interface OutInterface {
 
     void setDescription(String description);
 
+    String getCustomerDescription();
+
     int getEmergency();
 
     String getCustomerName();

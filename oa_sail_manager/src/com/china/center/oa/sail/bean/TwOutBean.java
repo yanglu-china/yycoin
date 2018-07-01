@@ -168,6 +168,8 @@ public class TwOutBean implements Serializable, OutInterface
 
     private String description = "";
 
+    private String customerDescription = "";
+
     /**
      * 总部核对信息
      */
@@ -2201,6 +2203,15 @@ public class TwOutBean implements Serializable, OutInterface
 
     public void setMotivationApplyId2(String motivationApplyId2) {
         this.motivationApplyId2 = motivationApplyId2;
+    }
+
+    @Override
+    public String getCustomerDescription() {
+        return customerDescription;
+    }
+
+    public void setCustomerDescription(String customerDescription) {
+        this.customerDescription = customerDescription;
     }
 
     /**

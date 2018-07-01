@@ -143,6 +143,12 @@ public class PackageItemBean implements Serializable
 
 	@Ignore
 	private String transportName1 = "";
+
+	/**
+	 * #352 客户备注
+	 */
+	@Ignore
+	private String customerDescription = "";
 	
 	public PackageItemBean()
 	{
@@ -484,6 +490,14 @@ public class PackageItemBean implements Serializable
 
 	public void setTransportName1(String transportName1) {
 		this.transportName1 = transportName1;
+	}
+
+	public String getCustomerDescription() {
+		return customerDescription;
+	}
+
+	public void setCustomerDescription(String customerDescription) {
+		this.customerDescription = customerDescription;
 	}
 
 	@Override

@@ -3746,7 +3746,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				int resultStatus = -1;
 				try
 				{
-					resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null);
+					resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null,null);
 					OutBean newOut = outDAO.find(outId);
 					if(resultStatus == OutConstant.STATUS_PASS)
 					{
@@ -3838,7 +3838,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 int resultStatus = -1;
                 try
                 {
-                    resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null);
+                    resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null,null);
                     OutBean newOut = outDAO.find(outId);
                     if(resultStatus == OutConstant.STATUS_PASS)
                     {

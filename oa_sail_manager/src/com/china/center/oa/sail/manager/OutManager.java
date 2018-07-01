@@ -218,6 +218,7 @@ public interface OutManager extends ListenerManager<OutListener>
      * @throws MYException
      */
     int pass(final String fullId, final User user, final int nextStatus, final String reason,
+             final String customerDescription,
              final String depotpartId)
         throws MYException;
 

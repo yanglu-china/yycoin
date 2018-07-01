@@ -3294,7 +3294,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      * @throws Exception
      */
     public int pass(final String fullId, final User user, final int nextStatus,
-                    final String reason, final String depotpartId)
+                    final String reason, final String customerDescription, final String depotpartId)
         throws MYException
     {
         final OutBean outBean = outDAO.find(fullId);
@@ -3470,6 +3470,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && newNextStatus == OutConstant.STATUS_FLOW_PASS){
                             _logger.info(outBean.getFullId()+"更新swbz字段:"+reason);
                             outDAO.updateSwbz(outBean.getFullId(), reason);
+                        }
+
+                        //#352 中信批量商务审批时更新"客户备注"字段
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && newNextStatus == OutConstant.STATUS_FLOW_PASS
+                                && !StringTools.isNullOrNone(customerDescription)){
+                            _logger.info(outBean.getFullId()+"update customer description:"+customerDescription);
+                            outDAO.updateCustomerDescription(outBean.getFullId(), customerDescription);
                         }
 
                         // #162 发货方式为“空发”的订单，在通过库管审批时，状态更新为“已发货”
@@ -6678,7 +6685,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     				else
     				{
     					try{
-    						this.pass(out.getFullId(), user, OutConstant.STATUS_FLOW_PASS, "根据系统排名,审批通过", "");
+    						this.pass(out.getFullId(), user, OutConstant.STATUS_FLOW_PASS, "根据系统排名,审批通过", null,"");
     						
     					}catch(MYException e)
     					{

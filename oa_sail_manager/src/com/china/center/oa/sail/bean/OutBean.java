@@ -185,6 +185,11 @@ public class OutBean implements Serializable, OutInterface
     private String description = "";
 
     /**
+     * #352 客户备注
+     */
+    private String customerDescription = "";
+
+    /**
      * 总部核对信息
      */
     private String checks = "";
@@ -2236,6 +2241,14 @@ public class OutBean implements Serializable, OutInterface
 
     public void setMotivationApplyId2(String motivationApplyId2) {
         this.motivationApplyId2 = motivationApplyId2;
+    }
+
+    public String getCustomerDescription() {
+        return customerDescription;
+    }
+
+    public void setCustomerDescription(String customerDescription) {
+        this.customerDescription = customerDescription;
     }
 
     /**
