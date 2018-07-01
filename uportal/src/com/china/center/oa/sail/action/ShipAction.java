@@ -2112,14 +2112,10 @@ public class ShipAction extends DispatchAction
             if (vo.getCustomerName().indexOf("吉林银行") != -1){
                 return mapping.findForward("printJlReceipt");
             } else if (vo.getCustomerName().indexOf("浦发银行") != -1){
-//                CustomerBean customer = customerMainDAO.find(customerId);
-//                if (customer!= null && "上海分行".equals(customer.getReserve1())){
-//                    this.mergeInvoiceNum(vo,request);
-//                    return mapping.findForward("printPfShReceipt");
-//                } else{
-//                    return mapping.findForward("printPfReceipt");
-//                }
                 return mapping.findForward("printPfReceipt");
+            } else if (vo.getCustomerName().indexOf("中金国华") != -1) {
+                request.setAttribute("title", "中金国华——发货清单");
+                return mapping.findForward("printZjghReceipt");
             } else{
                 return mapping.findForward("printUnifiedReceipt");
             }
