@@ -432,11 +432,22 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         // #343 退票
         if (bean.getOtype() == FinanceConstant.INVOICEINS_TYPE_IN) {
             // TODO 删除原单关联的销售单数据?
-            _logger.info("***delete original PreInvoiceVSOutBean***"+bean.getRefId());
-            this.preInvoiceVSOutDAO.deleteEntityBeansByFK(bean.getRefId());
+            // 获得当前的处理环节
+            TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
+            // 结束模式
+            if (token.getNextPlugin().startsWith("end")) {
+                // 结束了需要清空
+                tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
 
-            preInvoiceApplyDAO.updateStatus(bean.getId(), TcpConstanst.TCP_STATUS_END);
-            this.saveFlowLog(user, bean.getStatus(), bean, "通过", TcpConstanst.TCP_STATUS_END);
+                _logger.info(bean.getId()+"***delete original PreInvoiceVSOutBean***"+bean.getRefId());
+                this.preInvoiceVSOutDAO.deleteEntityBeansByFK(bean.getRefId());
+
+                int currentStatus = bean.getStatus();
+                bean.setStatus(TcpConstanst.TCP_STATUS_END);
+                preInvoiceApplyDAO.updateStatus(bean.getId(), bean.getStatus());
+                this.saveFlowLog(user, currentStatus, bean, reason, PublicConstant.OPRMODE_PASS);
+            }
+
         } else{
 
             // 权限
