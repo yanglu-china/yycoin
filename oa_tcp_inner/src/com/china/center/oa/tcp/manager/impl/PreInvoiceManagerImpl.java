@@ -431,7 +431,6 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
 
         // #343 退票
         if (bean.getOtype() == FinanceConstant.INVOICEINS_TYPE_IN) {
-            // TODO 删除原单关联的销售单数据?
             // 获得当前的处理环节
             TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
             // 结束模式
@@ -439,12 +438,22 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
                 // 结束了需要清空
                 tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
 
+               // 删除原单关联的销售单数据
                 _logger.info(bean.getId()+"***delete original PreInvoiceVSOutBean***"+bean.getRefId());
                 this.preInvoiceVSOutDAO.deleteEntityBeansByFK(bean.getRefId());
 
                 int currentStatus = bean.getStatus();
                 bean.setStatus(TcpConstanst.TCP_STATUS_END);
                 preInvoiceApplyDAO.updateStatus(bean.getId(), bean.getStatus());
+
+                //TODO 更新销售单开票状态
+                List<PreInvoiceVSOutBean> vsList = preInvoiceVSOutDAO.queryEntityBeansByFK(bean.getId());
+                for (PreInvoiceVSOutBean out: vsList){
+                    String outId = out.getOutId();
+                    OutBean outBean = this.outDAO.find(outId);
+                    this.updateOut2(outBean, out.getInvoiceMoney());
+                }
+
                 this.saveFlowLog(user, currentStatus, bean, reason, PublicConstant.OPRMODE_PASS);
             }
 
@@ -781,6 +790,24 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         {
             // 更新开票状态-过程
             outDAO.updateInvoiceStatus(out.getFullId(), total, OutConstant.INVOICESTATUS_INIT);
+        }
+    }
+
+    /**
+     * #343 退票用
+     * @param out
+     * @param invoiceMoney
+     */
+    private void updateOut2(OutBean out, double invoiceMoney)
+    {
+        //已开票金额
+        double hadInvoiceMoney = out.getInvoiceMoney() + invoiceMoney ;
+
+        // 更新开票状态-过程
+        if (hadInvoiceMoney == 0.0d){
+            outDAO.updateInvoiceStatus(out.getFullId(), hadInvoiceMoney, OutConstant.INVOICESTATUS_INIT);
+        } else{
+            outDAO.updateInvoiceStatus(out.getFullId(), hadInvoiceMoney, OutConstant.INVOICESTATUS_PART);
         }
     }
     
