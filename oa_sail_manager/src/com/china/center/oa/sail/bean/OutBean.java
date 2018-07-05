@@ -517,6 +517,16 @@ public class OutBean implements Serializable, OutInterface
     private int cashFlag = 0;
 
     private int profigFlag = 0;
+
+    /**#355
+     * 交货方式
+     */
+    private String delivery  = "";
+
+    /**
+     * pos付款方
+     */
+    private String posPayer = "";
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -2249,6 +2259,22 @@ public class OutBean implements Serializable, OutInterface
 
     public void setCustomerDescription(String customerDescription) {
         this.customerDescription = customerDescription;
+    }
+
+    public String getDelivery() {
+        return delivery;
+    }
+
+    public void setDelivery(String delivery) {
+        this.delivery = delivery;
+    }
+
+    public String getPosPayer() {
+        return posPayer;
+    }
+
+    public void setPosPayer(String posPayer) {
+        this.posPayer = posPayer;
     }
 
     /**

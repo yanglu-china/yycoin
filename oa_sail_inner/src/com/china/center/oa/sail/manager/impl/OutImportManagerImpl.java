@@ -685,7 +685,9 @@ public class OutImportManagerImpl implements OutImportManager
         if (!StringTools.isNullOrNone(bean.getCiticOrderDate())){
             newOutBean.setPodate(bean.getCiticOrderDate());
         }
-    	
+
+        newOutBean.setDelivery(bean.getDelivery());
+        newOutBean.setPosPayer(bean.getPosPayer());
     	newOutBean.setDescription("数据接口批量导入，银行单号" + bean.getCiticNo() + "." + bean.getDescription());
     	
     	final StafferBean stafferBean = stafferDAO.find(newOutBean.getStafferId());

@@ -1411,6 +1411,30 @@
              }
          }
 
+         //交货方式
+         if ( !StringTools.isNullOrNone(obj[45]))
+         {
+             String delivery = obj[45].trim();
+             if ("现货".equalsIgnoreCase(delivery)){
+                 bean.setDelivery(delivery);
+             } else if ("预售".equalsIgnoreCase(delivery)){
+                 bean.setDelivery(delivery);
+             } else {
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("交货方式只能为现货/预售")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         //pos付款方
+         if ( !StringTools.isNullOrNone(obj[46]))
+         {
+             String posPayer = obj[46].trim();
+             bean.setPosPayer(posPayer);
+         }
+
          return importError;
      }
 

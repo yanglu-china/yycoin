@@ -249,6 +249,16 @@ public class OutImportBean implements Serializable
 	 * 渠道
 	 */
 	private String channel = "";
+
+	/**
+	 * 交货方式
+	 */
+	private String delivery  = "";
+
+	/**
+	 * pos付款方
+	 */
+	private String posPayer = "";
     
     @Ignore
     private int mayAmount = 0;
@@ -958,6 +968,22 @@ public class OutImportBean implements Serializable
 
 	public void setMotivationMoney2(double motivationMoney2) {
 		this.motivationMoney2 = motivationMoney2;
+	}
+
+	public String getDelivery() {
+		return delivery;
+	}
+
+	public void setDelivery(String delivery) {
+		this.delivery = delivery;
+	}
+
+	public String getPosPayer() {
+		return posPayer;
+	}
+
+	public void setPosPayer(String posPayer) {
+		this.posPayer = posPayer;
 	}
 
 	@Override
