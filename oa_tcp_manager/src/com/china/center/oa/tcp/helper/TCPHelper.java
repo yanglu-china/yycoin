@@ -27,6 +27,7 @@ import com.china.center.oa.tcp.vo.TcpHandleHisVO;
 import com.china.center.oa.tcp.vo.TcpShareVO;
 import com.china.center.oa.tcp.vo.TravelApplyVO;
 import com.china.center.tools.BeanUtil;
+import com.china.center.tools.ListTools;
 import com.china.center.tools.MathTools;
 import com.china.center.tools.StringTools;
 
@@ -471,7 +472,7 @@ public abstract class TCPHelper
      */
     public static void ratioShare(List<TcpShareVO> shareVOList)
     {
-        if (shareVOList.get(0).getRatio() != 0)
+        if (ListTools.isEmptyOrNull(shareVOList) || shareVOList.get(0).getRatio() != 0)
         {
             return;
         }
