@@ -1439,24 +1439,6 @@
      }
 
 
-     /**
-      * days between today and day
-      * @param day
-      * @return
-      */
-     private int daysBetweenToday(String day){
-         Date date = null;
-         try {
-             date = new SimpleDateFormat("yy-MM-dd").parse(day);
-         } catch (ParseException e) {
-             e.printStackTrace();
-         }
-
-         DateTime start = new DateTime(date);
-         DateTime end = new DateTime(new Date());
-         return Days.daysBetween(start.toLocalDate(), end.toLocalDate()).getDays();
-     }
-
 
      /**
       * importOutForPufa

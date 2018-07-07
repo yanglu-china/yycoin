@@ -33,6 +33,7 @@ import com.china.center.oa.extsail.bean.ZJRCOutBean;
 import com.china.center.oa.extsail.dao.ZJRCOutDAO;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
+import com.china.center.oa.publics.DateTimeUtils;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.*;
@@ -3091,7 +3092,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL) {
             	if (outBean.getInvoiceMoney() > 0) {
             		throw new MYException("销售单已开票，请选退票再驳回");
-            	}
+            	} else{
+            	    //#356 在批量处理和商务审批及库管审批时做下控制，以PODATE为判断
+                    String podate = outBean.getPodate();
+                    if (!StringTools.isNullOrNone(podate)){
+                        int months = DateTimeUtils.monthsBetweenToday(podate);
+                        if (months >= 1){
+                            throw new MYException("不允许跨月驳回,银行订单日期:"+podate);
+                        }
+                    }
+                }
             }
 
             //#177 2016/2/14
