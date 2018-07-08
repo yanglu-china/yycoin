@@ -39,7 +39,9 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
 
     @Override
     protected boolean needSendMail(String customerName, String channel) {
-        if (customerName.indexOf("浦发银行") != -1 && !"小浦金店".equals(channel)){
+        //#219 浦发银行非小浦金店/电子渠道
+        if (customerName.indexOf("浦发银行") != -1 &&
+                !"小浦金店".equals(channel) && !"电子渠道".equals(channel)){
             return true;
         }
         return false;
@@ -49,7 +51,7 @@ public class PfShipJobManagerImpl extends AbstractShipJobManager{
     protected boolean createMailAttachment(int index, String customerName, String channel,List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders) {
         boolean result = false;
         //#219 浦发银行非小浦金店渠道
-        if (customerName.indexOf("浦发银行") != -1 && !"小浦金店".equals(channel)){
+        if (this.needSendMail(customerName, channel)){
             String template = "Job:%s createMailAttachmentPf with package:%s branch:%s file:%s channel:%s";
             _logger.info(String.format(template, this.getClass(),beans.toString(),branchName, fileName,channel));
             WritableWorkbook wwb = null;

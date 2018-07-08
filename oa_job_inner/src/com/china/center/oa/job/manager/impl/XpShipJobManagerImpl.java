@@ -18,7 +18,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * 浦发银行小浦金店邮件JOB
+ * 浦发银行小浦金店/电子渠道邮件JOB
  */
 public class XpShipJobManagerImpl extends AbstractShipJobManager{
     private final Log _logger = LogFactory.getLog(getClass());
@@ -38,7 +38,8 @@ public class XpShipJobManagerImpl extends AbstractShipJobManager{
 
     @Override
     protected String getAttachmentFileName(BranchRelationBean bean) {
-        String fileName = getShippingAttachmentPath() + "/小浦金店邮件"+"_"+ TimeTools.now("yyyyMMddHHmmss") + ".xls";
+        String channel = bean.getChannel();
+        String fileName = getShippingAttachmentPath() + "/"+channel+"_"+ TimeTools.now("yyyyMMddHHmmss") + ".xls";
         return fileName;
     }
 
@@ -48,8 +49,8 @@ public class XpShipJobManagerImpl extends AbstractShipJobManager{
     }
 
     @Override
-    protected String getTitle() {
-        return "小浦金店邮件";
+    protected String getTitle(String channel) {
+        return channel+"邮件";
     }
 
     @Override
@@ -75,7 +76,8 @@ public class XpShipJobManagerImpl extends AbstractShipJobManager{
 
     @Override
     protected boolean needSendMail(String customerName, String channel) {
-        if (customerName.indexOf("浦发银行") != -1 && "小浦金店".equals(channel)){
+        if (customerName.indexOf("浦发银行") != -1 &&
+                ("小浦金店".equals(channel) || "电子渠道".equals(channel))){
             return true;
         }
         return false;
@@ -84,7 +86,7 @@ public class XpShipJobManagerImpl extends AbstractShipJobManager{
     @Override
     protected boolean createMailAttachment(int index, String customerName, String channel,List<PackageItemBean> beans, String branchName, String fileName, boolean ignoreLyOrders) {
         boolean result = false;
-        if (customerName.indexOf("浦发银行") != -1 && "小浦金店".equals(channel)){
+        if (this.needSendMail(customerName, channel)){
             String template = "Job:%s createMailAttachmentXp with package:%s branch:%s file:%s channel:%s";
             _logger.info(String.format(template, this.getClass(),beans.toString(),branchName, fileName, channel));
             WritableWorkbook wwb = null;
