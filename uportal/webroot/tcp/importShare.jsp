@@ -88,6 +88,7 @@ function load()
                  <option value="1">业务招待申请</option>
                  <option value="2">办公采购申请</option>
                  <option value="3">对公业务申请</option>
+                 <option value="8">激励申请</option>
                  <option value="11">出差报销</option>
                  <option value="12">业务招待报销</option>
                  <option value="13">日常费用报销</option>
