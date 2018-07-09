@@ -2775,7 +2775,7 @@ public class TravelApplyAction extends DispatchAction
         request.setAttribute("imp", true);
         
         TravelApplyVO bean = new TravelApplyVO();
-        
+
         bean.setShareVOList(importItemList);
         
         request.setAttribute("bean", bean);
@@ -2783,10 +2783,14 @@ public class TravelApplyAction extends DispatchAction
         prepareInner(request);
         
         int itype = MathTools.parseInt(type);
-        
+
         if (itype <= 10)
         {
-        	return mapping.findForward("addTravelApply" + type);
+            if (itype == 8){
+                return mapping.findForward("addTravelApply8import");
+            } else{
+                return mapping.findForward("addTravelApply" + type);
+            }
         }
         
         return mapping.findForward("addExpense" + type);
