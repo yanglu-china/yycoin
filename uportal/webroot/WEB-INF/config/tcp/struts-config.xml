@@ -72,6 +72,7 @@
             <forward name="ibReport" path="/tcp/ibReport.jsp" />
             <forward name="ibReportDetail" path="/tcp/ibReportDetail.jsp" />
             <forward name="batchUpdateIbMoney" path="/tcp/batchUpdateIbMoney.jsp" />
+            <forward name="error" path="/error.jsp" />
 		</action>
 		
 		<action path="/tcp/expense" parameter="method"

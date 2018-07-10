@@ -2829,6 +2829,21 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         
         travelApplyDAO.updateEntityBean(bean);
 
+        if (bean.isMidOrMotivation()){
+            List<TcpIbBean> ibList = bean.getIbList();
+            if(!ListTools.isEmptyOrNull(ibList))
+            {
+                for (TcpIbBean ib : ibList)
+                {
+                    ib.setId(commonDAO.getSquenceString20());
+                    ib.setRefId(bean.getId());
+                    ib.setLogTime(TimeTools.now());
+                }
+                this.tcpIbDAO.saveAllEntityBeans(ibList);
+            }
+        }
+
+
         saveFlowLog(user, old.getStatus(), bean, "自动修改保存", PublicConstant.OPRMODE_SAVE);
 
         return true;

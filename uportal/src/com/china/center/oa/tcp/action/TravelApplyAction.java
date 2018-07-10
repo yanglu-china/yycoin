@@ -973,11 +973,533 @@ public class TravelApplyAction extends DispatchAction
         {
             changeTravel(bean, rds);
         }
-        ActionForward afor = parserAttachment(mapping, request, rds, bean);
 
-        if (afor != null)
-        {
-            return afor;
+        if (bean.isMidOrMotivation()){
+            String filePath = this.parserIbAttachment(request, rds, bean);
+            if ( StringTools.isNullOrNone(filePath))
+            {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "附件上传失败,请重新上传!");
+
+                return mapping.findForward("error");
+            }
+
+            //<customerName,ibMoneyTotal>
+            Map<String, Double>  customerToIbMap = new HashMap<String,Double>();
+            //<customerName,motivationMoneyTotal>
+            Map<String, Double>  customerToMotivationMap = new HashMap<String,Double>();
+
+            //<customerName,ibMoneyTotal2>
+            Map<String, Double>  customerToIbMap2 = new HashMap<String,Double>();
+            //<customerName,motivationMoneyTotal2>
+            Map<String, Double>  customerToMotivationMap2 = new HashMap<String,Double>();
+
+            //<customerName,List<outId>>
+            Map<String, List<String>>  customerToOutMap = new HashMap<String,List<String>>();
+
+            ReaderFile reader = ReadeFileFactory.getXLSReader();
+            int type = 0;
+            boolean importError = false;
+            StringBuilder builder = new StringBuilder();
+            List<TcpIbBean> importItemList = new ArrayList<TcpIbBean>();
+            bean.setIbList(importItemList);
+            try
+            {
+                FileInputStream fs = new FileInputStream(filePath);
+                reader.readFile(fs);
+
+                String ibType2 = "";
+
+                while (reader.hasNext())
+                {
+                    String[] obj = fillObj2((String[])reader.next());
+
+                    // 第一行忽略
+                    if (reader.getCurrentLineNumber() == 1)
+                    {
+                        continue;
+                    }
+
+                    if (StringTools.isNullOrNone(obj[0]))
+                    {
+                        continue;
+                    }
+
+                    int currentNumber = reader.getCurrentLineNumber();
+
+                    if (obj.length >= 2 )
+                    {
+                        TcpIbBean item = new TcpIbBean();
+
+                        // 申请类型
+                        if ( !StringTools.isNullOrNone(obj[0]))
+                        {
+                            String name = obj[0];
+
+                            if (currentNumber == 2){
+                                ibType2 = name;
+                            }
+
+                            //导入模板中申请类型必须一致
+                            if (!ibType2.equals(name)){
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("申请类型必须一致")
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
+
+                            if (TcpConstanst.IB_TYPE_STR.equals(name)){
+                                item.setType(TcpConstanst.IB_TYPE);
+                                type = TcpConstanst.IB_TYPE;
+                            } else if (TcpConstanst.MOTIVATION_TYPE_STR.equals(name)){
+                                item.setType(TcpConstanst.MOTIVATION_TYPE);
+                                type = TcpConstanst.MOTIVATION_TYPE;
+                            } else if (TcpConstanst.IB_TYPE_STR2.equals(name)){
+                                item.setType(TcpConstanst.IB_TYPE2);
+                                type = TcpConstanst.IB_TYPE2;
+                            } else if (TcpConstanst.MOTIVATION_TYPE_STR2.equals(name)){
+                                item.setType(TcpConstanst.MOTIVATION_TYPE2);
+                                type = TcpConstanst.MOTIVATION_TYPE2;
+                            } else{
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("申请类型只能为中收或激励")
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
+                        }else{
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("申请类型必填")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
+
+                        // 客户名
+                        if ( !StringTools.isNullOrNone(obj[1]))
+                        {
+                            String name = obj[1];
+                            ConditionParse con = new ConditionParse();
+                            con.addWhereStr();
+                            con.addCondition("name", "=",name);
+                            List<CustomerBean> cbeanList = customerMainDAO.queryEntityBeansByCondition(con);
+                            if (ListTools.isEmptyOrNull(cbeanList)){
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("客户名不存在")
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
+
+                            item.setCustomerName(name);
+
+
+                            // 订单号
+                            if ( !StringTools.isNullOrNone(obj[2]))
+                            {
+                                String outId = obj[2];
+                                item.setFullId(outId);
+                                OutBean out = this.outDAO.find(outId);
+                                if (out == null){
+                                    builder
+                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                            .append("订单号[").append(item.getFullId())
+                                            .append("]不存在")
+                                            .append("</font><br>");
+
+                                    importError = true;
+                                }else{
+                                    //同一个订单不能重复提交中收报销申请
+                                    if (out.getIbFlag() == 1){
+                                        if (type == TcpConstanst.IB_TYPE){
+                                            builder
+                                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                                    .append("订单号不能重复提交中收报销申请:"+outId)
+                                                    .append("</font><br>");
+
+                                            importError = true;
+                                        }
+                                    }
+
+                                    //同一个订单不能重复提交激励报销申请
+                                    if (out.getMotivationFlag() == 1){
+                                        if(type == TcpConstanst.MOTIVATION_TYPE){
+                                            builder
+                                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                                    .append("订单号不能重复提交激励报销申请:"+outId)
+                                                    .append("</font><br>");
+
+                                            importError = true;
+                                        }
+                                    }
+
+                                    //同一个订单不能重复提交中收2报销申请
+                                    if (out.getIbFlag2() == 1){
+                                        if (type == TcpConstanst.IB_TYPE2){
+                                            builder
+                                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                                    .append("订单号不能重复提交中收2报销申请:"+outId)
+                                                    .append("</font><br>");
+
+                                            importError = true;
+                                        }
+                                    }
+
+                                    //同一个订单不能重复提交激励2报销申请
+                                    if (out.getMotivationFlag2() == 1){
+                                        if(type == TcpConstanst.MOTIVATION_TYPE2){
+                                            builder
+                                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                                    .append("订单号不能重复提交激励2报销申请:"+outId)
+                                                    .append("</font><br>");
+
+                                            importError = true;
+                                        }
+                                    }
+
+                                    //检查订单的付款状态
+                                    if (out.getPay() == OutConstant.PAY_NOT){
+                                        builder
+                                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                                .append("订单未付款")
+                                                .append("</font><br>");
+
+                                        importError = true;
+                                    }
+
+                                    //#441 2017/3/29 再次检查是否已提交申请过
+                                    ConditionParse conditionParse1 = new ConditionParse();
+                                    conditionParse1.addWhereStr();
+                                    conditionParse1.addCondition("type","=",type);
+                                    conditionParse1.addCondition("fullId","like","%"+outId+"%");
+                                    List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByCondition(conditionParse1);
+                                    if(!ListTools.isEmptyOrNull(ibList)){
+                                        for (TcpIbBean ib:ibList){
+                                            TravelApplyBean apply = this.travelApplyDAO.find(ib.getRefId());
+                                            if (apply!= null && apply.getStatus()!=0 && apply.getStatus()!=1){
+                                                builder
+                                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                                        .append(outId+"订单号已提交激励报销申请:"+apply.getId())
+                                                        .append("</font><br>");
+
+                                                importError = true;
+                                            }
+                                        }
+                                    }
+
+                                    if (customerToOutMap.containsKey(item.getCustomerName())){
+                                        List<String> oudIds = customerToOutMap.get(item.getCustomerName());
+                                        oudIds.add(outId);
+                                    }else{
+                                        List<String> oudIds = new ArrayList<String>();
+                                        oudIds.add(outId);
+                                        customerToOutMap.put(item.getCustomerName(), oudIds);
+                                    }
+                                }
+                            } else{
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("订单号必填")
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
+
+                            //商品名
+                            if ( !StringTools.isNullOrNone(obj[3]))
+                            {
+                                String productName = obj[3];
+
+                                ConditionParse con2 = new ConditionParse();
+                                con2.addWhereStr();
+                                con2.addCondition("name", "=",productName);
+                                List<ProductBean> productList = this.productDAO.queryEntityBeansByCondition(con2);
+                                if (ListTools.isEmptyOrNull(productList)){
+                                    builder
+                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                            .append("商品名[").append(productName)
+                                            .append("]不存在")
+                                            .append("</font><br>");
+
+                                    importError = true;
+                                }
+                                item.setProductName(productName);
+
+                                //#401
+                                ConditionParse conditionParse = new ConditionParse();
+                                conditionParse.addCondition("fullId","=", item.getFullId());
+                                List<TcpIbReportItemBean> ibReportList = this.tcpIbReportItemDAO.queryEntityBeansByCondition(conditionParse);
+                                if (ListTools.isEmptyOrNull(ibReportList)){
+                                    builder.append("<font color=red>第[" + currentNumber + "]行错误:")
+                                            .append("订单号[").append(item.getFullId())
+                                            .append("]").append("不在中收激励统计清单中")
+                                            .append("<br>");
+                                    importError = true;
+                                } else {
+                                    //#383
+                                    ConditionParse conditionParse2 = new ConditionParse();
+                                    conditionParse2.addCondition("fullId", "=", item.getFullId());
+                                    conditionParse2.addCondition("productName", "=", productName);
+                                    List<TcpIbReportItemBean> ibReportList2 = this.tcpIbReportItemDAO.queryEntityBeansByCondition(conditionParse);
+                                    if (ListTools.isEmptyOrNull(ibReportList2)) {
+                                        builder.append("<font color=red>第[" + currentNumber + "]行错误:")
+                                                .append("订单号[").append(item.getFullId())
+                                                .append("]").append("和品名不符：" + productName)
+                                                .append("<br>");
+                                        importError = true;
+                                    }
+                                }
+                            }
+
+                            //数量
+                            if ( !StringTools.isNullOrNone(obj[4]))
+                            {
+                                String amount = obj[4];
+                                item.setAmount(Integer.valueOf(amount));
+                            }
+
+                            //中收/激励金额
+                            if ( !StringTools.isNullOrNone(obj[5]))
+                            {
+                                String money = obj[5];
+                                //导入时未检查申请金额是否等于系统记录的中收或激励金额，不等应该报错
+                                if (type == TcpConstanst.IB_TYPE){
+                                    item.setIbMoney(MathTools.parseDouble(money));
+                                    if (customerToIbMap.containsKey(item.getCustomerName())){
+                                        customerToIbMap.put(item.getCustomerName(),customerToIbMap.get(item.getCustomerName())+item.getIbMoney()*item.getAmount());
+                                    } else{
+                                        customerToIbMap.put(item.getCustomerName(), item.getIbMoney()*item.getAmount());
+                                    }
+                                } else if (type == TcpConstanst.MOTIVATION_TYPE){
+                                    item.setMotivationMoney(MathTools.parseDouble(money));
+                                    if(customerToMotivationMap.containsKey(item.getCustomerName())){
+                                        customerToMotivationMap.put(item.getCustomerName(),
+                                                customerToMotivationMap.get(item.getCustomerName())+item.getMotivationMoney()*item.getAmount());
+                                    }else{
+                                        customerToMotivationMap.put(item.getCustomerName(),item.getMotivationMoney()*item.getAmount());
+                                    }
+                                } else if (type == TcpConstanst.IB_TYPE2){
+                                    item.setIbMoney2(MathTools.parseDouble(money));
+                                    if (customerToIbMap2.containsKey(item.getCustomerName())){
+                                        customerToIbMap2.put(item.getCustomerName(),customerToIbMap2.get(item.getCustomerName())+item.getIbMoney2()*item.getAmount());
+                                    } else{
+                                        customerToIbMap2.put(item.getCustomerName(), item.getIbMoney2()*item.getAmount());
+                                    }
+                                }else if (type == TcpConstanst.MOTIVATION_TYPE2){
+                                    item.setMotivationMoney2(MathTools.parseDouble(money));
+                                    if(customerToMotivationMap2.containsKey(item.getCustomerName())){
+                                        customerToMotivationMap2.put(item.getCustomerName(),
+                                                customerToMotivationMap2.get(item.getCustomerName())+item.getMotivationMoney2()*item.getAmount());
+                                    }else{
+                                        customerToMotivationMap2.put(item.getCustomerName(),item.getMotivationMoney2()*item.getAmount());
+                                    }
+                                }
+                            } else{
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("中收或激励金额必填")
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
+                        }
+                        else
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("数据长度不足2格错误")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    }
+                }
+
+                _logger.info("***type**"+type+"***customerToIbMap2***"+customerToIbMap2);
+                //每个客户的申请金额不得大于统计的可申请的中收或激励金额
+                if (type == TcpConstanst.IB_TYPE){
+                    for(String customerName : customerToIbMap.keySet()){
+                        ConditionParse con = new ConditionParse();
+                        con.addWhereStr();
+                        con.addCondition("customerName","=",customerName);
+                        List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
+                        if (ListTools.isEmptyOrNull(ibReportList)){
+                            builder.append("客户[").append(customerName)
+                                    .append("]").append("可申请中收金额不足："+0)
+                                    .append("<br>");
+                            importError = true;
+                        } else {
+                            TcpIbReportBean ib = ibReportList.get(0);
+                            double currentIb = customerToIbMap.get(customerName);
+                            double currentIb2 = this.roundDouble(currentIb);
+                            if (currentIb2>ib.getIbMoneyTotal()){
+                                builder.append("客户[").append(customerName)
+                                        .append("]").append("当前申请金额：" + currentIb2 + "大于可申请中收金额：" + ib.getIbMoneyTotal())
+                                        .append("<br>");
+                                importError = true;
+                            }
+                        }
+                    }
+                } else if (type == TcpConstanst.MOTIVATION_TYPE){
+                    for(String customerName : customerToMotivationMap.keySet()){
+                        ConditionParse con = new ConditionParse();
+                        con.addWhereStr();
+                        con.addCondition("customerName","=",customerName);
+                        List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
+                        if (ListTools.isEmptyOrNull(ibReportList)){
+                            builder.append("客户[").append(customerName)
+                                    .append("]").append("可申请激励金额不足："+0)
+                                    .append("<br>");
+                            importError = true;
+                        } else {
+                            TcpIbReportBean ib = ibReportList.get(0);
+                            double currentMot = customerToMotivationMap.get(customerName);
+                            double currentMot2 = this.roundDouble(currentMot);
+                            if (currentMot2> ib.getMotivationMoneyTotal()){
+                                builder.append("客户[").append(customerName)
+                                        .append("]").append("当前申请金额："+currentMot2+"大于可申请激励金额："+ib.getMotivationMoneyTotal())
+                                        .append("<br>");
+                                importError = true;
+                            }
+                        }
+                    }
+                } else if (type == TcpConstanst.IB_TYPE2){
+                    for(String customerName : customerToIbMap2.keySet()){
+                        ConditionParse con = new ConditionParse();
+                        con.addWhereStr();
+                        con.addCondition("customerName","=",customerName);
+                        List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
+                        if (ListTools.isEmptyOrNull(ibReportList)){
+                            builder.append("客户[").append(customerName)
+                                    .append("]").append("可申请中收2金额不足："+0)
+                                    .append("<br>");
+                            importError = true;
+                        } else {
+                            TcpIbReportBean ib = ibReportList.get(0);
+                            double currentIb = customerToIbMap2.get(customerName);
+                            double currentIb2 = this.roundDouble(currentIb);
+                            if (currentIb2>ib.getIbMoneyTotal2()){
+                                builder.append("客户[").append(customerName)
+                                        .append("]").append("当前申请金额：" + currentIb2 + "大于可申请中收2金额：" + ib.getIbMoneyTotal2())
+                                        .append("<br>");
+                                importError = true;
+                            }
+                        }
+                    }
+                } else if (type == TcpConstanst.MOTIVATION_TYPE2){
+                    for(String customerName : customerToMotivationMap2.keySet()){
+                        ConditionParse con = new ConditionParse();
+                        con.addWhereStr();
+                        con.addCondition("customerName","=",customerName);
+                        List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
+                        if (ListTools.isEmptyOrNull(ibReportList)){
+                            builder.append("客户[").append(customerName)
+                                    .append("]").append("可申请其他费用金额不足："+0)
+                                    .append("<br>");
+                            importError = true;
+                        } else {
+                            TcpIbReportBean ib = ibReportList.get(0);
+                            double currentMot = customerToMotivationMap2.get(customerName);
+                            double currentMot2 = this.roundDouble(currentMot);
+                            if (currentMot2> ib.getMotivationMoneyTotal2()){
+                                builder.append("客户[").append(customerName)
+                                        .append("]").append("当前申请金额："+currentMot2+"大于可申请其他费用金额："+ib.getMotivationMoneyTotal2())
+                                        .append("<br>");
+                                importError = true;
+                            }
+                        }
+                    }
+                }
+
+                if (importError){
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+                    //remove the uploaded file
+                    File file = new File(filePath);
+                    if (file.exists()){
+                        boolean success = file.delete();
+                        _logger.info(filePath + " delete temp file:" + success);
+                    } else{
+                        _logger.info("***no temp file**************"+filePath);
+                    }
+
+                    return mapping.findForward("error");
+                }
+
+//        request.setAttribute("imp", true);
+                request.setAttribute("import", true);
+
+                //2015/5/12 根据客户分组
+                if (type == TcpConstanst.IB_TYPE){
+                    for (String name : customerToIbMap.keySet()){
+                        TcpIbBean item = new TcpIbBean();
+                        item.setCustomerName(name);
+                        item.setIbMoney(this.roundDouble(customerToIbMap.get(name)));
+                        item.setType(type);
+                        item.setFullId(this.listToString(customerToOutMap.get(name)));
+                        importItemList.add(item);
+                    }
+                } else if (type == TcpConstanst.MOTIVATION_TYPE){
+                    for (String name : customerToMotivationMap.keySet()){
+                        TcpIbBean item = new TcpIbBean();
+                        item.setCustomerName(name);
+                        item.setMotivationMoney(this.roundDouble(customerToMotivationMap.get(name)));
+                        item.setType(type);
+                        item.setFullId(this.listToString(customerToOutMap.get(name)));
+                        importItemList.add(item);
+                    }
+                } else if (type == TcpConstanst.IB_TYPE2){
+                    for (String name : customerToIbMap2.keySet()){
+                        TcpIbBean item = new TcpIbBean();
+                        item.setCustomerName(name);
+                        item.setIbMoney2(this.roundDouble(customerToIbMap2.get(name)));
+                        item.setType(type);
+                        item.setFullId(this.listToString(customerToOutMap.get(name)));
+                        importItemList.add(item);
+                    }
+                } else if (type == TcpConstanst.MOTIVATION_TYPE2) {
+                    for (String name : customerToMotivationMap2.keySet()) {
+                        TcpIbBean item = new TcpIbBean();
+                        item.setCustomerName(name);
+                        item.setMotivationMoney2(this.roundDouble(customerToMotivationMap2.get(name)));
+                        item.setType(type);
+                        item.setFullId(this.listToString(customerToOutMap.get(name)));
+                        importItemList.add(item);
+                    }
+                }
+                rds.close();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                _logger.error(e, e);
+
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+                return mapping.findForward("error");
+            }
+            finally
+            {
+                try
+                {
+                    reader.close();
+                }
+                catch (IOException e)
+                {
+                    _logger.error(e, e);
+                }
+            }
+
+        } else {
+            ActionForward afor = parserAttachment(mapping, request, rds, bean);
+
+            if (afor != null) {
+                return afor;
+            }
         }
 
         rds.close();
@@ -2345,7 +2867,6 @@ public class TravelApplyAction extends DispatchAction
         // 中收激励明细
         _logger.info("********read ib parameters***********");
         List<TcpIbBean> ibList = new ArrayList<TcpIbBean>();
-        bean.setIbList(ibList);
 
         List<String> typeList = rds.getParameters("ib_type");
         List<String> customerNameList = rds.getParameters("customerName");
@@ -2392,6 +2913,10 @@ public class TravelApplyAction extends DispatchAction
 
                 ibList.add(ib);
             }
+        }
+
+        if(!ListTools.isEmptyOrNull(ibList)){
+            bean.setIbList(ibList);
         }
         _logger.info("*********ibList size****"+ibList.size());
     }
@@ -3818,12 +4343,13 @@ public class TravelApplyAction extends DispatchAction
     private String parserIbAttachment( HttpServletRequest request,
                                            RequestDataStream rds, TravelApplyBean travelApply)
     {
+        _logger.info("***parseIbAttachment****");
         List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
 
         travelApply.setAttachmentList(attachmentList);
 
         Map<String, InputStream> streamMap = rds.getStreamMap();
-
+        _logger.info("***parseIbAttachment****"+streamMap);
         for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
         {
             AttachmentBean bean = new AttachmentBean();
