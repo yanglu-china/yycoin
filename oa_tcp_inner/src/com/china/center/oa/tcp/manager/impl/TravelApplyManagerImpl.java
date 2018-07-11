@@ -3142,6 +3142,11 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         if (!ListTools.isEmptyOrNull(outList2)){
             _logger.info("ibReport outList2 size:"+outList2.size());
             for (OutBean out: outList2){
+                // #361 XT单的原单如果是ZS单忽略掉
+                String refOutId = out.getRefOutFullId();
+                if (!StringTools.isNullOrNone(refOutId) && refOutId.startsWith("ZS")){
+                    continue;
+                }
                 String customerId = out.getCustomerId();
                 if (customerToOutMap.containsKey(customerId)){
                     List<OutBean> outVOs = customerToOutMap.get(customerId);
