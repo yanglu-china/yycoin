@@ -974,7 +974,8 @@ public class TravelApplyAction extends DispatchAction
             changeTravel(bean, rds);
         }
 
-        if (bean.isMidOrMotivation()){
+        // 更新中收激励申请时需要重新解析附件
+        if (bean.isMidOrMotivation() && "1".equals(addOrUpdate)){
             String filePath = this.parserIbAttachment(request, rds, bean);
             if ( StringTools.isNullOrNone(filePath))
             {
@@ -1500,9 +1501,8 @@ public class TravelApplyAction extends DispatchAction
             if (afor != null) {
                 return afor;
             }
+            rds.close();
         }
-
-        rds.close();
 
         StafferBean stafferBean = stafferDAO.find(bean.getStafferId());
         
@@ -4343,13 +4343,12 @@ public class TravelApplyAction extends DispatchAction
     private String parserIbAttachment( HttpServletRequest request,
                                            RequestDataStream rds, TravelApplyBean travelApply)
     {
-        _logger.info("***parseIbAttachment****");
         List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
 
         travelApply.setAttachmentList(attachmentList);
 
+        // rds.getStreamMap() 只能调用一次,Java中InputStream无法重复读取
         Map<String, InputStream> streamMap = rds.getStreamMap();
-        _logger.info("***parseIbAttachment****"+streamMap);
         for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
         {
             AttachmentBean bean = new AttachmentBean();
@@ -4379,28 +4378,7 @@ public class TravelApplyAction extends DispatchAction
 
                 out = new FileOutputStream(filePath);
 
-//                ustream = new UtilStream(entry.getValue(), out);
                 _logger.info("**********entry value******"+entry.getValue().available());
-
-//                InputStream uploadedStream = null;
-//                FileItemFactory factory = new DiskFileItemFactory();
-//                ServletFileUpload upload = new ServletFileUpload(factory);
-//                java.util.List items = upload.parseRequest(request);
-//                java.util.Iterator iter = items.iterator();
-//
-//                while (iter.hasNext()) {
-//                    FileItem item = (FileItem) iter.next();
-//                    if (!item.isFormField()) {
-//                        _logger.info("**********item size:"+item.getSize());
-//                        uploadedStream = item.getInputStream();
-//                        //CHANGE uploadedStreambyte = item.get()
-//                    }
-//                }
-
-//                InputStream in;
-//                IOUtils.copy(entry.getValue(), out);
-//                out.close();
-
 
                 ustream = new UtilStream(entry.getValue(), out);
                 ustream.copyStream();
