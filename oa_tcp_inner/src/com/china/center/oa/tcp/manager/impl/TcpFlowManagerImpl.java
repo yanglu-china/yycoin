@@ -299,6 +299,7 @@ public class TcpFlowManagerImpl implements TcpFlowManager
     @Override
     @Transactional(rollbackFor = MYException.class)
     public int saveApprove(User user, List<String> processList, TcpInterface bean, int nextStatus, int pool) throws MYException {
+        int result = nextStatus;
         // 获得当前的处理环节
         TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
         if (token == null || token.getSingeAll() == 0 )
@@ -333,7 +334,7 @@ public class TcpFlowManagerImpl implements TcpFlowManager
             }
             _logger.info(nextStatus+"***nextStatusIgnoreDuplicate***"+nextStatusIgnoreDuplicate+"***processList***"+processList.size()+"***nextProcessor***"+nextProcessor);
             if (nextStatusIgnoreDuplicate!= 0){
-                nextStatus = nextStatusIgnoreDuplicate;
+                result = nextStatusIgnoreDuplicate;
             }
             for (String processId : processList)
             {
@@ -348,7 +349,7 @@ public class TcpFlowManagerImpl implements TcpFlowManager
                 approve.setLogTime(TimeTools.now());
                 approve.setDepartmentId(bean.getDepartmentId());
                 approve.setName(bean.getName());
-                approve.setStatus(nextStatus);
+                approve.setStatus(result);
 //                approve.setStatus(nextStatusIgnoreDuplicate);
                 approve.setTotal(bean.getTotal());
                 approve.setCheckTotal(bean.getBorrowTotal());
@@ -394,11 +395,11 @@ public class TcpFlowManagerImpl implements TcpFlowManager
         else
         {
             // 会签
-            nextStatus = bean.getStatus();
-            _logger.info("***nextStatus***"+nextStatus);
+            result = bean.getStatus();
+            _logger.info("***nextStatus***"+result);
         }
 
-        return nextStatus;
+        return result;
     }
 
     /**

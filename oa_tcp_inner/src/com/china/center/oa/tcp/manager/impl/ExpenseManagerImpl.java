@@ -535,30 +535,6 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         // 共享池模式
         if (token.getNextPlugin().startsWith("pool")) {
             this.pool(token, user, bean, oldStatus, reason);
-//            String groupId = token.getNextPlugin().substring(5);
-//
-//            List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
-//
-//            if (ListTools.isEmptyOrNull(vsList)) {
-//                throw new MYException("当前群组内没有人员,请确认操作");
-//            }
-//
-//            List<String> processList = new ArrayList();
-//
-//            for (GroupVSStafferBean groupVSStafferBean : vsList) {
-//                processList.add(groupVSStafferBean.getStafferId());
-//            }
-//
-//            int newStatus = saveApprove(user, processList, bean, token.getNextStatus(), 1);
-//
-//            if (newStatus != oldStatus) {
-//                bean.setStatus(newStatus);
-//
-//                expenseApplyDAO.updateStatus(bean.getId(), newStatus);
-//            }
-//
-//            // 记录操作日志
-//            saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
         }
         // 插件模式
         else if (token.getNextPlugin().startsWith("plugin")) {
@@ -612,25 +588,11 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
                     bean.setStatus(newStatus);
 
-                    travelApplyDAO.updateStatus(bean.getId(), newStatus);
+                    expenseApplyDAO.updateStatus(bean.getId(), newStatus);
 
                     // 记录操作日志
                     saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
                 }
-/*                if (!StringTools.isNullOrNone(nextProcessor)){
-                    processList.add(nextProcessor);
-                }
-                _logger.info("***processList***"+processList.size());
-
-                int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
-                        TcpConstanst.TCP_POOL_COMMON);
-
-                bean.setStatus(newStatus);
-
-                expenseApplyDAO.updateStatus(bean.getId(), newStatus);
-
-                // 记录操作日志
-                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);*/
             }
         }
         // 结束模式
@@ -666,65 +628,6 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
         return true;
     }
-
-//    /**
-//     * #301 跳过由同一个人处理的多个审批环节,递归找到下一环节处理人
-//     * get High level manager Id from  bank level table
-//     * @param stafferId
-//     * @param nextStatus
-//     * @return
-//     */
-//    private TcpFlowBean getNextProcessor(String originator, String stafferId, String flowKey, int nextStatus) throws  MYException{
-//        String template = "getNextProcessor with originator:%s stafferId:%s flowKey:%s nextStatus:%s";
-//        _logger.info(String.format(template, originator, stafferId, flowKey, String.valueOf(nextStatus)));
-//        TcpFlowBean result = new TcpFlowBean();
-//
-//        String nextProcessor = "";
-//        try {
-//            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
-//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
-//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
-//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-//                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
-//                if (stafferId.equals(nextProcessor)){
-//                    TcpFlowBean token = tcpFlowDAO.findByUnique(flowKey, nextStatus);
-//                    _logger.info("***next token***"+token);
-//                    // 下一环节如果已经是pool,直接返回
-//                    if (token!= null && token.getNextPlugin().contains("pool")){
-//                        token.setNextProcessor(nextProcessor);
-//                        _logger.info("***return token***"+token);
-//                        return token;
-//                    }
-//                    return getNextProcessor(originator, nextProcessor, flowKey, token.getNextStatus());
-//                } else{
-//                    result.setNextProcessor(nextProcessor);
-//                    result.setNextStatus(nextStatus);
-//                    _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
-//                }
-//            }
-//        }catch(Exception e){
-//            _logger.error(e);
-//            throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
-//        }
-//
-//        return result;
-//    }
-
-//    private String getNextProcessor(String stafferId, String flowKey, int nextStatus) throws  MYException{
-//        try {
-//            if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
-//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
-//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
-//                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-//                return this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId);
-//            }else {
-//                return "";
-//            }
-//        }catch(Exception e){
-//            _logger.error(e);
-//            throw new MYException(stafferId+"在T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);
-//        }
-//    }
 
     private void pool(TcpFlowBean token, User user, ExpenseApplyVO bean, int oldStatus, String reason) throws MYException
     {
