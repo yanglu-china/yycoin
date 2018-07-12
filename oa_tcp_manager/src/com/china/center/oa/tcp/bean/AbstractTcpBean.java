@@ -35,7 +35,7 @@ import com.china.center.oa.tcp.constanst.TcpConstanst;
  */
 public abstract class AbstractTcpBean implements Serializable
 {
-    @Html(title = "目的", must = true, maxLength = 40)
+    @Html(title = "目的", must = true, maxLength = 60)
     protected String name = "";
 
     protected String flowKey = "";
