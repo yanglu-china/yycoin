@@ -3773,6 +3773,7 @@ public class TravelApplyAction extends DispatchAction
             return mapping.findForward("importIb");
         }
 
+        List<TcpShareVO> shareList = new ArrayList<TcpShareVO>();
         try
         {
             FileInputStream fs = new FileInputStream(filePath);
@@ -3869,6 +3870,7 @@ public class TravelApplyAction extends DispatchAction
                         item.setCustomerName(name);
 
 
+                    String stafferId = "";
                     // 订单号
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
@@ -3884,6 +3886,7 @@ public class TravelApplyAction extends DispatchAction
 
                             importError = true;
                         }else{
+                            stafferId = out.getStafferId();
                             //同一个订单不能重复提交中收报销申请
                             if (out.getIbFlag() == 1){
                                 if (type == TcpConstanst.IB_TYPE){
@@ -4098,7 +4101,60 @@ public class TravelApplyAction extends DispatchAction
                         importError = true;
                     }
 
-//                    importItemList.add(item);
+
+                    //预算
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        TcpShareVO share = new TcpShareVO();
+                        String budget = obj[6];
+                        share.setBudgetName(budget);
+                        BudgetBean budgetBean = this.budgetDAO.findByUnique(budget);
+                        if(budgetBean == null){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("预算项不存在")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        } else{
+                            share.setBudgetId(budgetBean.getId());
+                            share.setBudgetName(budget);
+                            share.setDepartmentId(budgetBean.getBudgetDepartment());
+
+                            PrincipalshipBean prin = principalshipDAO.find(budgetBean.getBudgetDepartment());
+                            if (null != prin)
+                                share.setDepartmentName(prin.getName());
+                            share.setApproverId(budgetBean.getSigner());
+                            StafferBean staffer = stafferDAO.find(budgetBean.getSigner());
+                            if (null != staffer)
+                                share.setApproverName(staffer.getName());
+
+                            _logger.info("***stafferId***"+stafferId);
+                            //开单人对应的省级经理
+                            if (!StringTools.isNullOrNone(stafferId)){
+                                String provinceManagerId = this.bankBuLevelDAO.queryHighLevelManagerId(TcpFlowConstant.TRAVELAPPLY_MOTIVATION,
+                                        TcpConstanst.TCP_STATUS_PROVINCE_MANAGER, stafferId, stafferId);
+                                _logger.info("****provinceManagerId***"+provinceManagerId+"***stafferId***"+stafferId);
+                                if(!StringTools.isNullOrNone(provinceManagerId)){
+                                    share.setBearId(provinceManagerId);
+                                    StafferBean provinceManager = stafferDAO.find(provinceManagerId);
+                                    if (provinceManager != staffer)
+                                        share.setBearName(provinceManager.getName());
+
+                                    double money = item.getAmount()*item.getMotivationMoney();
+                                    share.setRealMonery(TCPHelper.doubleToLong2(String.valueOf(money)));
+                                }
+                                shareList.add(share);
+                            }
+                        }
+                    } else if (type == TcpConstanst.MOTIVATION_TYPE){
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("激励申请预算项必填")
+                                .append("</font><br>");
+
+                        importError = true;
+                    }
 
                 }
                 else
@@ -4209,6 +4265,31 @@ public class TravelApplyAction extends DispatchAction
                 }
             }
 
+            //#357 激励费用根据单据对应的省级经理合并分担
+            Map<String,TcpShareVO> managerToMoney = new HashMap<String,TcpShareVO>();
+            if (type == TcpConstanst.MOTIVATION_TYPE){
+                for(TcpShareVO share: shareList){
+                    String bearId = share.getBearId();
+                    if (!StringTools.isNullOrNone(bearId)){
+                        TcpShareVO tcpShareVO = managerToMoney.get(bearId);
+                        if (tcpShareVO == null){
+                            managerToMoney.put(bearId, share);
+                        } else{
+                            tcpShareVO.setRealMonery(share.getRealMonery()+tcpShareVO.getRealMonery());
+                        }
+                    }
+                }
+                if(!managerToMoney.isEmpty()){
+                    List<TcpShareVO> tcpShareVOList = new ArrayList<TcpShareVO>();
+                    for(TcpShareVO tcpShareVO: managerToMoney.values()){
+                        tcpShareVO.setShowRealMonery(MathTools.longToDoubleStr2(tcpShareVO.getRealMonery()));
+                        tcpShareVOList.add(tcpShareVO);
+                    }
+                    _logger.info("***tcpShareVOList***"+tcpShareVOList);
+                    vo.setShareVOList(tcpShareVOList);
+                }
+            }
+
             if (importError){
                 request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
 
@@ -4224,7 +4305,7 @@ public class TravelApplyAction extends DispatchAction
                 return mapping.findForward("importIb");
             }
 
-//        request.setAttribute("imp", true);
+        request.setAttribute("imp", true);
             request.setAttribute("import", true);
 
             //2015/5/12 根据客户分组

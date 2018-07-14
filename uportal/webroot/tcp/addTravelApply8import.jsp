@@ -10,7 +10,7 @@
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
-<script language="JavaScript" src="../tcp_js/travelApply7.js"></script>
+<script language="JavaScript" src="../tcp_js/travelApply8.js"></script>
 <script language="javascript">
 
 function addBean(opr)
@@ -325,31 +325,6 @@ function load()
 
     <p:line flag="0" />
 
-    <!--
-    <tr id="sub_main_tr">
-        <td colspan='2' align='center'>
-        <table width="98%" border="0" cellpadding="0" cellspacing="0"
-            class="border">
-            <tr>
-                <td>
-                <table width="100%" border="0" cellspacing='1' id="tables_pay">
-                    <tr align="center" class="content0">
-                        <td width="15%" align="center">提交到</td>
-                        <td align="left">
-                        <input type="text" name="processer" readonly="readonly" oncheck="notNone" head="下环处理人"/>&nbsp;
-                        <font color=red>*</font>
-                        <input type="button" value="&nbsp;...&nbsp;" name="qout" id="qout"
-                            class="button_class" onclick="initSelectNext()">&nbsp;&nbsp;
-                        </td>
-                    </tr>
-                </table>
-                </td>
-            </tr>
-        </table>
-
-        </td>
-    </tr>
-    -->
     
     <p:line flag="1" />
     
@@ -448,17 +423,6 @@ function load()
             <input type="text" style="width: 100%" name="customerName" value="" required>
         </td>
 
-        <%--<td align="left">--%>
-            <%--<input type="text" style="width: 100%" name="fullId" value="" required>--%>
-        <%--</td>--%>
-
-        <%--<td align="left">--%>
-            <%--<input type="text" style="width: 100%" name="productName" value="" required>--%>
-        <%--</td>--%>
-
-        <%--<td align="left">--%>
-            <%--<input type="number" style="width: 100%" name="amount" value="" required>--%>
-        <%--</td>--%>
 
         <td align="left">
             <input type="number" style="width: 100%" name="ibMoney" value="" required>
