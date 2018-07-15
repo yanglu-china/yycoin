@@ -495,6 +495,9 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         }
 
         String name = "中收申请借款:" + bean.getId() + '.';
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
+            name = "激励申请借款:" + bean.getId() + '.';
+        }
 
         FinanceItemBean itemIn = new FinanceItemBean();
 
@@ -503,6 +506,9 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         itemIn.setPareId(pareId);
 
         itemIn.setName("营业费用-中收:" + name);
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
+            itemIn.setName("营业费用-激励"+name);
+        }
 
         itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
 
@@ -510,6 +516,10 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
         // 其他应收款_备用金(部门/职员)
         TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MID);
+
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
+            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MOTIVATIO);
+        }
 
         if (inTax == null)
         {
@@ -1233,8 +1243,6 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 	@Override
 	public void onSubmitMidTravelApply(User user, TravelApplyBean bean, int type)
 			throws MYException {
-
-        System.out.println("***************onSubmitMidTravelApply**********"+user);
         _logger.info("***************onSubmitMidTravelApply**********"+user);
 
 		
@@ -1286,7 +1294,6 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
                                 List<FinanceItemBean> itemList, int type)
         throws MYException
     {
-        System.out.println("****************bean class************"+bean.getClass()+"*****************");
         // 收款人
         StafferBean staffer = stafferDAO.find(bean.getStafferId());
 
@@ -1296,6 +1303,10 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         }
 
         String name = "中收申请金额:" + bean.getId() + '.';
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
+            name = "激励申请金额:" + bean.getId() + '.';
+        }
+
 
         FinanceItemBean itemIn = new FinanceItemBean();
 
@@ -1304,6 +1315,9 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         itemIn.setPareId(pareId);
 
         itemIn.setName("营业费用-中收 :" + name);
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
+            itemIn.setName("营业费用-激励 :" + name);
+        }
 
         itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
 
@@ -1311,6 +1325,10 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
         // 营业费用-中收
         TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MID);
+
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
+            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MOTIVATIO);
+        }
 
         if (inTax == null)
         {

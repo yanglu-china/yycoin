@@ -202,6 +202,12 @@ public interface TaxItemConstanst
      * 营业费用-中收
      */
     String SALE_FEE_MID = "5504-47";
+
+
+    /**
+     * 营业费用-激励
+     */
+    String SALE_FEE_MOTIVATIO = "5504-0001";
     
     /**
      * 预提费用
