@@ -10,12 +10,14 @@ package com.china.center.oa.publics.bean;
 
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.FK;
 import com.china.center.jdbc.annotation.Id;
 import com.china.center.jdbc.annotation.Table;
 import com.china.center.oa.publics.constant.PublicConstant;
+
 
 
 /**
@@ -316,5 +318,14 @@ public class FlowLogBean implements Serializable
         result = 31 * result + logTime.hashCode();
         result = 31 * result + description.hashCode();
         return result;
+    }
+
+    public static String getFinishTime(List<FlowLogBean> logs){
+        for (FlowLogBean log: logs){
+            if(log.getAfterStatus() == 99){
+                return log.getLogTime();
+            }
+        }
+        return "";
     }
 }

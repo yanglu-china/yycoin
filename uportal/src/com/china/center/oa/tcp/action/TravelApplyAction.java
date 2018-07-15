@@ -2490,7 +2490,7 @@ public class TravelApplyAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("日期,标识,目的,申请人,系列,类型,状态,借款,关联报销,借款金额,申请费用,费用开始日期,费用结束日期,承担人");
+            write.writeLine("日期,标识,目的,申请人,系列,类型,状态,借款,关联报销,借款金额,申请费用,费用开始日期,费用结束日期,承担人,流程结束日期");
 
             PageSeparate page = new PageSeparate();
 
@@ -2540,6 +2540,10 @@ public class TravelApplyAction extends DispatchAction
                     } else{
                         line.writeColumn(shareVOList.get(0).getBearName());
                     }
+
+                    //#370
+                    List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByFK(vo.getId());
+                    line.writeColumn(FlowLogBean.getFinishTime(logs));
                     line.writeLine();
                 }
             }
