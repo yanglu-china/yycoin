@@ -367,6 +367,12 @@ public interface FinanceConstant
      */
     @Defined(key = "outbillType", value = "采购预付款")
     int OUTBILL_TYPE_STOCKPREPAY = 15;
+
+    /**
+     * 工资
+     */
+    @Defined(key = "outbillType", value = "工资")
+    int OUTBILL_TYPE_SALARY = 16;
     
     /**
      * 转账
