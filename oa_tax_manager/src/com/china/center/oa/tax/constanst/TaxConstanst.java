@@ -364,6 +364,12 @@ public interface TaxConstanst
      */
     @Defined(key = "financeCreateType", value = "资金-手续费/转账付款")
     int FINANCE_CREATETYPE_BILL_OUTPAY = 69;
+
+    /**
+     * 资金-工资
+     */
+    @Defined(key = "financeCreateType", value = "资金-工资")
+    int FINANCE_CREATETYPE_BILL_SALARY = 97;
     /**
      * 报销-出差借款
      */

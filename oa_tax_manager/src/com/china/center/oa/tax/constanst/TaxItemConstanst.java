@@ -213,4 +213,9 @@ public interface TaxItemConstanst
      * 预提费用
      */
     String PRE_FEE = "2191";
+
+    /**
+     * 应付职工薪酬-工资-工资-工资 #371
+     */
+    String SALARY = "2151-01-01-01";
 }
