@@ -4134,8 +4134,8 @@ public class TravelApplyAction extends DispatchAction
                                 share.setApproverName(staffer.getName());
 
                             _logger.info("***stafferId***"+stafferId);
-                            //开单人对应的省级经理
-                            if (!StringTools.isNullOrNone(stafferId)){
+                            //激励申请取开单人对应的省级经理
+                            if (type == TcpConstanst.MOTIVATION_TYPE && !StringTools.isNullOrNone(stafferId)){
                                 String provinceManagerId = this.bankBuLevelDAO.queryHighLevelManagerId(TcpFlowConstant.TRAVELAPPLY_MOTIVATION,
                                         TcpConstanst.TCP_STATUS_PROVINCE_MANAGER, stafferId, stafferId);
                                 _logger.info("****provinceManagerId***"+provinceManagerId+"***stafferId***"+stafferId);
@@ -4148,8 +4148,9 @@ public class TravelApplyAction extends DispatchAction
                                     double money = item.getAmount()*item.getMotivationMoney();
                                     share.setRealMonery(TCPHelper.doubleToLong2(String.valueOf(money)));
                                 }
-                                shareList.add(share);
                             }
+
+                            shareList.add(share);
                         }
                     } else if (type == TcpConstanst.MOTIVATION_TYPE){
                         builder
@@ -4292,6 +4293,8 @@ public class TravelApplyAction extends DispatchAction
                     _logger.info("***tcpShareVOList***"+tcpShareVOList);
                     vo.setShareVOList(tcpShareVOList);
                 }
+            } else if (type == TcpConstanst.IB_TYPE && shareList.size()>=1){
+                vo.setShareVOList(shareList.subList(0,1));
             }
 
             if (importError){
