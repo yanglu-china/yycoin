@@ -13,36 +13,75 @@ public class PurchaseBjBean implements Serializable {
     @Id(autoIncrement = true)
     private int id;
 
+    /**
+     * 比价单号
+     */
     private String bjNo;
 
+    /**
+     * 比价流程状态；1信息填写完毕给肖东柯；2肖东柯审批结束
+     */
     private String bjStatus;
 
+    /**
+     * 需求确认单号
+     */
     private String demandQRId;
 
+    /**
+     * 需求单号
+     */
     private String demandId;
 
+    /**
+     * 配件
+     */
     private int pjId;
 
+    /**
+     * 配件ID
+     */
     private String pj;
 
     private String changeTime;
 
+    /**
+     * 供应商
+     */
     private String supplier;
 
     private double price;
 
+    /**
+     * 发票类型
+     */
     private String invoiceType;
 
+    /**
+     * 纳税实体
+     */
     private String taxableEntity;
 
+    /**
+     * 建议供应商
+     */
     private String adviseSupplier;
 
+    /**
+     * 确认供应商
+     */
     private String confirmSupplier;
 
     private String remarks;
 
+    /**
+     * 三方比价审批状态；1通过0驳回
+     */
     private int spStatus;
 
+    /**
+     * 审批备注
+     */
     private String spRemarks;
 
     public int getId() {

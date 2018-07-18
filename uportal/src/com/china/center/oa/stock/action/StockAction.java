@@ -170,10 +170,11 @@ public class StockAction extends DispatchAction
         StockBean bean = new StockBean();
 
         String oprMode = request.getParameter("oprMode");
-
+        String bjNo = request.getParameter("bjNo");
         try
         {
             BeanUtil.getBean(bean, request);
+            bean.setBjNo(bjNo);
             setStockBean(bean, request);
             setCommerceOperator(request, user, bean);
             bean.setUserId(user.getId());

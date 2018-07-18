@@ -810,114 +810,46 @@ public class StockBean implements Serializable
 
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("StockBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("userId = ")
-            .append(this.userId)
-            .append(TAB)
-            .append("stafferId = ")
-            .append(this.stafferId)
-            .append(TAB)
-            .append("owerId = ")
-            .append(this.owerId)
-            .append(TAB)
-            .append("dutyId = ")
-            .append(this.dutyId)
-            .append(TAB)
-            .append("locationId = ")
-            .append(this.locationId)
-            .append(TAB)
-            .append("industryId = ")
-            .append(this.industryId)
-            .append(TAB)
-            .append("status = ")
-            .append(this.status)
-            .append(TAB)
-            .append("exceptStatus = ")
-            .append(this.exceptStatus)
-            .append(TAB)
-            .append("needTime = ")
-            .append(this.needTime)
-            .append(TAB)
-            .append("willDate = ")
-            .append(this.willDate)
-            .append(TAB)
-            .append("nearlyPayDate = ")
-            .append(this.nearlyPayDate)
-            .append(TAB)
-            .append("type = ")
-            .append(this.type)
-            .append(TAB)
-            .append("mtype = ")
-            .append(this.mtype)
-            .append(TAB)
-            .append("mode = ")
-            .append(this.mode)
-            .append(TAB)
-            .append("stype = ")
-            .append(this.stype)
-            .append(TAB)
-            .append("stockType = ")
-            .append(this.stockType)
-            .append(TAB)
-            .append("logTime = ")
-            .append(this.logTime)
-            .append(TAB)
-            .append("flow = ")
-            .append(this.flow)
-            .append(TAB)
-            .append("total = ")
-            .append(this.total)
-            .append(TAB)
-            .append("pay = ")
-            .append(this.pay)
-            .append(TAB)
-            .append("invoice = ")
-            .append(this.invoice)
-            .append(TAB)
-            .append("invoiceType = ")
-            .append(this.invoiceType)
-            .append(TAB)
-            .append("areaId = ")
-            .append(this.areaId)
-            .append(TAB)
-            .append("consign = ")
-            .append(this.consign)
-            .append(TAB)
-            .append("description = ")
-            .append(this.description)
-            .append(TAB)
-            .append("checks = ")
-            .append(this.checks)
-            .append(TAB)
-            .append("checkStatus = ")
-            .append(this.checkStatus)
-            .append(TAB)
-            .append("operator = ")
-            .append(this.operator)
-            .append(TAB)
-            .append("operatorName = ")
-            .append(this.operatorName)
-            .append(TAB)
-            .append("item = ")
-            .append(this.item)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "StockBean{" +
+                "id='" + id + '\'' +
+                ", userId='" + userId + '\'' +
+                ", stafferId='" + stafferId + '\'' +
+                ", owerId='" + owerId + '\'' +
+                ", dutyId='" + dutyId + '\'' +
+                ", locationId='" + locationId + '\'' +
+                ", industryId='" + industryId + '\'' +
+                ", status=" + status +
+                ", exceptStatus=" + exceptStatus +
+                ", needTime='" + needTime + '\'' +
+                ", willDate=" + willDate +
+                ", nearlyPayDate='" + nearlyPayDate + '\'' +
+                ", type=" + type +
+                ", mtype=" + mtype +
+                ", mode=" + mode +
+                ", stype=" + stype +
+                ", stockType=" + stockType +
+                ", logTime='" + logTime + '\'' +
+                ", flow='" + flow + '\'' +
+                ", total=" + total +
+                ", pay=" + pay +
+                ", invoice=" + invoice +
+                ", invoiceType='" + invoiceType + '\'' +
+                ", areaId='" + areaId + '\'' +
+                ", consign='" + consign + '\'' +
+                ", description='" + description + '\'' +
+                ", checks='" + checks + '\'' +
+                ", checkStatus=" + checkStatus +
+                ", operator='" + operator + '\'' +
+                ", operatorName='" + operatorName + '\'' +
+                ", ptype=" + ptype +
+                ", target='" + target + '\'' +
+                ", bjNo='" + bjNo + '\'' +
+                ", extraStatus=" + extraStatus +
+                '}';
     }
 }
