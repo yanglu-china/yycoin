@@ -173,6 +173,9 @@ public class StockBean implements Serializable
 
     @Html(title = "采购目标", type = Element.TEXTAREA, maxLength = 300, must = true)
     private String target = "";
+
+    @Html(title = "比价标识", type = Element.SELECT,  must = false)
+    private String bjNo;
     
     /**
      * 预确认状态（额外干预）
@@ -795,6 +798,14 @@ public class StockBean implements Serializable
 
     public void setArrivalBeans(List<StockItemArrivalBean> arrivalBeans) {
         this.arrivalBeans = arrivalBeans;
+    }
+
+    public String getBjNo() {
+        return bjNo;
+    }
+
+    public void setBjNo(String bjNo) {
+        this.bjNo = bjNo;
     }
 
     /**

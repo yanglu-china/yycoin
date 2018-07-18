@@ -26,9 +26,9 @@
 
     <bean id="stockItemArrivalDAO" class="com.china.center.oa.stock.dao.impl.StockItemArrivalDAOImpl" />
 
-	<bean id="purchaseBjDAOImpl" class="com.china.center.oa.stock.dao.impl.PurchaseBjDAOImpl" />
+	<bean id="purchaseBjDAO" class="com.china.center.oa.stock.dao.impl.PurchaseBjDAOImpl" />
 
-	<bean id="purchaseXqqrDAOImpl" class="com.china.center.oa.stock.dao.impl.PurchaseXqqrDAOImpl" />
+	<bean id="purchaseXqqrDAO" class="com.china.center.oa.stock.dao.impl.PurchaseXqqrDAOImpl" />
 
 	<bean id="stockManager" class="com.china.center.oa.stock.manager.impl.StockManagerImpl" />
 

@@ -471,6 +471,13 @@ function checkCurrentUser()
             </p:pro>
 
 			<p:pro field="target"  innerString="cols=80 rows=3" />
+
+			<p:pro field="bjNo">
+				<option value="">--</option>
+				<c:forEach items='${bjList}' var="item">
+					<option value="${item}">${item}</option>
+				</c:forEach>
+			</p:pro>
 			
 			<p:pro field="description"  innerString="cols=80 rows=3" />
 

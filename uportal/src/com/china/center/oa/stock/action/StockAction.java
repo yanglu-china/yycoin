@@ -132,6 +132,8 @@ public class StockAction extends DispatchAction
 
     private ProviderDAO providerDAO = null;
 
+    private PurchaseBjDAO purchaseBjDAO = null;
+
     private static String RPTQUERYSTOCKITEM = "rptQueryStockItem";
 
     /**
@@ -2093,6 +2095,15 @@ public class StockAction extends DispatchAction
 
         String type = request.getParameter("type");
 
+        List<PurchaseBjBean> bjBeans = this.purchaseBjDAO.listEntityBeans();
+
+        List<String> bjList = new ArrayList<String>();
+        for (PurchaseBjBean bean : bjBeans){
+            if (!bjList.contains(bean.getBjNo())){
+                bjList.add(bean.getBjNo());
+            }
+        }
+        request.setAttribute("bjList", bjList);
         if ("0".equals(type))
         {
             //销售采购
@@ -3899,5 +3910,13 @@ public class StockAction extends DispatchAction
 
     public void setProductBOMDAO(ProductBOMDAO productBOMDAO) {
         this.productBOMDAO = productBOMDAO;
+    }
+
+    public PurchaseBjDAO getPurchaseBjDAO() {
+        return purchaseBjDAO;
+    }
+
+    public void setPurchaseBjDAO(PurchaseBjDAO purchaseBjDAO) {
+        this.purchaseBjDAO = purchaseBjDAO;
     }
 }
