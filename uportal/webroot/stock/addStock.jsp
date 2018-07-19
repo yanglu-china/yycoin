@@ -368,6 +368,29 @@ function natureChange()
 	}
 }
 
+function bjNoChange(obj){
+    var selectedBudget = $("#bjNo option:selected");
+    console.log("budget**"+selectedBudget);
+    var budgetId = selectedBudget.val();
+//    console.log("***budget name***"+budget);
+    console.log("***budget id***"+budgetId);
+    $ajax('../stock/stock.do?method=queryBjNo&bjNo='+budgetId,
+        function(data){
+			console.log(data);
+			var dataList = data.obj;
+			console.log(dataList);
+            for (var j = 0; j < dataList.length; j++)
+            {
+                var data = dataList[j];
+                console.log(data);
+                //TODO
+
+            }
+//        var obj = JSON.parse(data);
+//        console.log(obj);
+        });
+}
+
 function checkCurrentUser()
 {	
      // check
@@ -472,12 +495,14 @@ function checkCurrentUser()
 
 			<p:pro field="target"  innerString="cols=80 rows=3" />
 
-			<p:pro field="bjNo">
-				<option value="">--</option>
-				<c:forEach items='${bjList}' var="item">
-					<option value="${item}">${item}</option>
-				</c:forEach>
-			</p:pro>
+			<p:cell title="比价标识">
+                <select name="bjNo" id="bjNo" onchange="bjNoChange()">
+                    <option value="">--</option>
+                    <c:forEach items='${bjList}' var="item">
+                        <option value="${item}">${item}</option>
+                    </c:forEach>
+                </select>
+			</p:cell>
 			
 			<p:pro field="description"  innerString="cols=80 rows=3" />
 

@@ -31,6 +31,8 @@ import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.publics.vs.RoleAuthBean;
+import com.china.center.oa.sail.action.AppResult;
+import com.china.center.oa.sail.action.JsonMapper;
 import com.china.center.oa.stock.action.helper.PriceAskHelper;
 import com.china.center.oa.stock.action.helper.StockHelper;
 import com.china.center.oa.stock.bean.*;
@@ -133,6 +135,8 @@ public class StockAction extends DispatchAction
     private ProviderDAO providerDAO = null;
 
     private PurchaseBjDAO purchaseBjDAO = null;
+
+    private PurchaseXqqrDAO purchaseXqqrDAO = null;
 
     private static String RPTQUERYSTOCKITEM = "rptQueryStockItem";
 
@@ -313,6 +317,49 @@ public class StockAction extends DispatchAction
         }
 
         return stockItemArrivalBeans;
+    }
+
+    public ActionForward queryBjNo(ActionMapping mapping, ActionForm form,
+                                 HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        String bjNo = request.getParameter("bjNo");
+        _logger.info("***queryBjNo***"+bjNo);
+
+        JsonMapper mapper = new JsonMapper();
+        AppResult result = new AppResult();
+
+        try
+        {
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("bjNo","=",bjNo);
+            List<PurchaseBjBean> bjBeans = this.purchaseBjDAO.queryEntityBeansByCondition(conditionParse);
+            for (PurchaseBjBean bjBean: bjBeans){
+                //从需求确认表取得数量
+                ConditionParse conditionParse1 = new ConditionParse();
+                conditionParse1.addWhereStr();
+                conditionParse1.addCondition("demandQRId","=", bjBean.getDemandQRId());
+                conditionParse1.addCondition("pjid", "=", bjBean.getPjId());
+                List<PurchaseXqqrBean> xqqrBeans = this.purchaseXqqrDAO.queryEntityBeansByCondition(conditionParse1);
+                if (!ListTools.isEmptyOrNull(xqqrBeans)){
+                    bjBean.setAmount(xqqrBeans.get(0).getPurchaseAmount());
+                }
+            }
+            result.setSuccessAndObj("操作成功", bjBeans);
+        }
+        catch(Exception e)
+        {
+            _logger.warn(e, e);
+
+            result.setError("创建失败");
+        }
+
+        String jsonstr = mapper.toJson(result);
+
+        _logger.info("***queryBjNo result***" + jsonstr);
+
+        return JSONTools.writeResponse(reponse, jsonstr);
     }
 
     /**
@@ -2096,7 +2143,11 @@ public class StockAction extends DispatchAction
 
         String type = request.getParameter("type");
 
-        List<PurchaseBjBean> bjBeans = this.purchaseBjDAO.listEntityBeans();
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addIntCondition("bjStatus","=", 2);
+        conditionParse.addIntCondition("spStatus","=", 1);
+        List<PurchaseBjBean> bjBeans = this.purchaseBjDAO.queryEntityBeansByCondition(conditionParse);
 
         List<String> bjList = new ArrayList<String>();
         for (PurchaseBjBean bean : bjBeans){
@@ -3919,5 +3970,13 @@ public class StockAction extends DispatchAction
 
     public void setPurchaseBjDAO(PurchaseBjDAO purchaseBjDAO) {
         this.purchaseBjDAO = purchaseBjDAO;
+    }
+
+    public PurchaseXqqrDAO getPurchaseXqqrDAO() {
+        return purchaseXqqrDAO;
+    }
+
+    public void setPurchaseXqqrDAO(PurchaseXqqrDAO purchaseXqqrDAO) {
+        this.purchaseXqqrDAO = purchaseXqqrDAO;
     }
 }

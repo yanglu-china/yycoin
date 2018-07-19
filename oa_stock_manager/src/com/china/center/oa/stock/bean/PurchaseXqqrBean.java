@@ -6,36 +6,69 @@ import com.china.center.jdbc.annotation.Table;
 
 import java.io.Serializable;
 
-@Entity(name = "比价表")
+@Entity(name = "采购需求确认表")
 @Table(name = "T_PURCHASE_PJ_XQQR")
 public class PurchaseXqqrBean implements Serializable {
     @Id(autoIncrement = true)
     private int id;
 
+    /**
+     * 需求单号
+     */
     private String demandId;
 
+    /**
+     * 配件
+     */
     private int pjId;
 
     private String pj;
 
     private String changetime;
 
+    /**
+     * 需求确认单号
+     */
     private String demandQRId;
 
+    /**
+     * 采购数量
+     */
     private int purchaseAmount;
 
+    /**
+     * 预计采购到货时间
+     */
     private String arrivalDate;
 
+
+    /**
+     * 采购确认时间
+     */
+    private String purchaseQRTime;
+
+    /**
+     * 备注
+     */
     private String remarks;
 
+
+    /**
+     * 采购人
+     */
     private int purchaser;
 
+    /**
+     * 是否采购；0初始；99待三方比价；1比价；2不比价；3强制结束
+     */
     private int purchaseStatus;
 
-    private String purchaseQRTime;
 
     private int operator;
 
+    /**
+     * 比价流程状态；1信息填写完毕给肖东柯；2肖东柯审批结束
+     */
     private int bjStatus;
 
     public int getId() {
@@ -148,5 +181,25 @@ public class PurchaseXqqrBean implements Serializable {
 
     public void setBjStatus(int bjStatus) {
         this.bjStatus = bjStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "PurchaseXqqrBean{" +
+                "id=" + id +
+                ", demandId='" + demandId + '\'' +
+                ", pjId=" + pjId +
+                ", pj='" + pj + '\'' +
+                ", changetime='" + changetime + '\'' +
+                ", demandQRId='" + demandQRId + '\'' +
+                ", purchaseAmount=" + purchaseAmount +
+                ", arrivalDate='" + arrivalDate + '\'' +
+                ", purchaseQRTime='" + purchaseQRTime + '\'' +
+                ", remarks='" + remarks + '\'' +
+                ", purchaser=" + purchaser +
+                ", purchaseStatus=" + purchaseStatus +
+                ", operator=" + operator +
+                ", bjStatus=" + bjStatus +
+                '}';
     }
 }

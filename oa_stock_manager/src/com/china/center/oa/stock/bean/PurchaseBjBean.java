@@ -3,6 +3,7 @@ package com.china.center.oa.stock.bean;
 
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.Id;
+import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Table;
 
 import java.io.Serializable;
@@ -83,6 +84,11 @@ public class PurchaseBjBean implements Serializable {
      * 审批备注
      */
     private String spRemarks;
+
+    private String arrivalDate;
+
+    @Ignore
+    private int amount;
 
     public int getId() {
         return id;
@@ -218,5 +224,46 @@ public class PurchaseBjBean implements Serializable {
 
     public void setSpRemarks(String spRemarks) {
         this.spRemarks = spRemarks;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public String getArrivalDate() {
+        return arrivalDate;
+    }
+
+    public void setArrivalDate(String arrivalDate) {
+        this.arrivalDate = arrivalDate;
+    }
+
+    @Override
+    public String toString() {
+        return "PurchaseBjBean{" +
+                "id=" + id +
+                ", bjNo='" + bjNo + '\'' +
+                ", bjStatus='" + bjStatus + '\'' +
+                ", demandQRId='" + demandQRId + '\'' +
+                ", demandId='" + demandId + '\'' +
+                ", pjId=" + pjId +
+                ", pj='" + pj + '\'' +
+                ", changeTime='" + changeTime + '\'' +
+                ", supplier='" + supplier + '\'' +
+                ", price=" + price +
+                ", invoiceType='" + invoiceType + '\'' +
+                ", taxableEntity='" + taxableEntity + '\'' +
+                ", adviseSupplier='" + adviseSupplier + '\'' +
+                ", confirmSupplier='" + confirmSupplier + '\'' +
+                ", remarks='" + remarks + '\'' +
+                ", spStatus=" + spStatus +
+                ", spRemarks='" + spRemarks + '\'' +
+                ", arrivalDate='" + arrivalDate + '\'' +
+                ", amount=" + amount +
+                '}';
     }
 }
