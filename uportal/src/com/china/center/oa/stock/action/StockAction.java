@@ -345,6 +345,12 @@ public class StockAction extends DispatchAction
                 if (!ListTools.isEmptyOrNull(xqqrBeans)){
                     bjBean.setAmount(xqqrBeans.get(0).getPurchaseAmount());
                 }
+
+                ProviderBean providerBean = this.providerDAO.findByUnique(bjBean.getSupplier());
+                if(providerBean!= null){
+                    bjBean.setProviderId(providerBean.getId());
+                    bjBean.setProviderName(providerBean.getName());
+                }
             }
             result.setSuccessAndObj("操作成功", bjBeans);
         }

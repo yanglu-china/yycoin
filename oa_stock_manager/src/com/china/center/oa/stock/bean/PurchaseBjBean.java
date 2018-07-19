@@ -47,9 +47,15 @@ public class PurchaseBjBean implements Serializable {
     private String changeTime;
 
     /**
-     * 供应商
+     * 供应商编码
      */
     private String supplier;
+
+    @Ignore
+    private String providerId;
+
+    @Ignore
+    private String providerName;
 
     private double price;
 
@@ -242,6 +248,22 @@ public class PurchaseBjBean implements Serializable {
         this.arrivalDate = arrivalDate;
     }
 
+    public String getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(String providerId) {
+        this.providerId = providerId;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+    }
+
     @Override
     public String toString() {
         return "PurchaseBjBean{" +
@@ -254,6 +276,8 @@ public class PurchaseBjBean implements Serializable {
                 ", pj='" + pj + '\'' +
                 ", changeTime='" + changeTime + '\'' +
                 ", supplier='" + supplier + '\'' +
+                ", providerId='" + providerId + '\'' +
+                ", providerName='" + providerName + '\'' +
                 ", price=" + price +
                 ", invoiceType='" + invoiceType + '\'' +
                 ", taxableEntity='" + taxableEntity + '\'' +

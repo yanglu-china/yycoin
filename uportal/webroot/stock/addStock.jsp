@@ -379,12 +379,63 @@ function bjNoChange(obj){
 			console.log(data);
 			var dataList = data.obj;
 			console.log(dataList);
+			//默认配件类型
+            var ptypeSelector = 'select[name="ptype"]';
+            var ptypeElement = document.querySelector(ptypeSelector);
+            console.log(ptypeElement);
+            setSelect(ptypeElement, '0');
+			console.log(dataList.length);
             for (var j = 0; j < dataList.length; j++)
             {
                 var data = dataList[j];
                 console.log(data);
                 //TODO
+				var productSelector = 'input[name="productName_'+j+'"]';
+                var productElement = document.querySelector(productSelector);
+                console.log(productElement);
+                productElement.value = data.pj;
 
+                var productIdSelector = 'input[name="productId_'+j+'"]';
+                var productIdElement = document.querySelector(productIdSelector);
+                console.log(productIdElement);
+                productIdElement.value = data.pjId;
+
+                var providerSelector = 'input[name="providerName_'+j+'"]';
+                var providerElement = document.querySelector(providerSelector);
+                console.log(providerElement);
+                providerElement.value = data.providerName;
+
+                var providerIdSelector = 'input[name="providerId_'+j+'"]';
+                var providerIdElement = document.querySelector(providerIdSelector);
+                console.log(providerIdElement);
+                providerIdElement.value = data.providerId;
+
+                var priceSelector = 'input[name="price_'+j+'"]';
+                var priceElement = document.querySelector(priceSelector);
+                console.log(priceElement);
+                priceElement.value = data.price;
+
+                var amountSelector = 'input[name="amount_'+j+'"]';
+                var amountElement = document.querySelector(amountSelector);
+                console.log(amountElement);
+                amountElement.value = data.amount;
+
+                var invoiceTypeSelector = 'select[name="invoiceType_'+j+'"]';
+                var invoiceTypeElement = document.querySelector(invoiceTypeSelector);
+                console.log(invoiceTypeElement);
+                // invoiceTypeElement.value = data.invoiceType;
+				setSelect(invoiceTypeElement, data.invoiceType);
+
+                var dutyIdSelector = 'select[name="dutyId_'+j+'"]';
+                var dutyIdElement = document.querySelector(dutyIdSelector);
+                console.log(dutyIdElement);
+                // invoiceTypeElement.value = data.amount;
+                setSelect(dutyIdElement, data.taxableEntity);
+
+                var arrivalDateSelector = 'input[name="arrivalDate_'+j+'"]';
+                var arrivalDateElement = document.querySelector(arrivalDateSelector);
+                console.log(arrivalDateElement);
+                arrivalDateElement.value = data.arrivalDate;
             }
 //        var obj = JSON.parse(data);
 //        console.log(obj);
@@ -528,7 +579,7 @@ function checkCurrentUser()
 								value="&nbsp;选 择&nbsp;" name="qout_${item}" class="button_class"
 								onclick="selectProduct(${item})">&nbsp;
 							产品:
-                            <input type="text" name="productName_${item}" value="" size="20" readonly="readonly" >
+                            <input type="text" name="productName_${item}" id="productName_${item}" value="" size="20" readonly="readonly" >
 							<input type="hidden" name="productId_${item}" value="">&nbsp;
                             <input type="button" value="&nbsp;选 择供应商&nbsp;" name="btn_provider_${item}" class="button_class"
                                    onclick="selectProvider(${item})">&nbsp;
