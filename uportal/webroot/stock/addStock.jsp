@@ -14,6 +14,7 @@
 <script language="JavaScript" src="../stock_js/jquery.fileupload.js"></script>
 <%--<script language="JavaScript" src="../stock_js/polyfiller.js"></script>--%>
 <script src="../stock_js/sweetalert.min.js"></script>
+<script language="JavaScript" src="../js/lodash.min.js"></script>
 <script language="JavaScript" src="../stock_js/addStock.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
 <link rel="stylesheet" href="../stock_js/sweetalert.css"/>
@@ -370,75 +371,66 @@ function natureChange()
 
 function bjNoChange(obj){
     var selectedBudget = $("#bjNo option:selected");
-    console.log("budget**"+selectedBudget);
     var budgetId = selectedBudget.val();
-//    console.log("***budget name***"+budget);
-    console.log("***budget id***"+budgetId);
     $ajax('../stock/stock.do?method=queryBjNo&bjNo='+budgetId,
         function(data){
-			console.log(data);
+			// console.log(data);
 			var dataList = data.obj;
-			console.log(dataList);
 			//默认配件类型
             var ptypeSelector = 'select[name="ptype"]';
             var ptypeElement = document.querySelector(ptypeSelector);
-            console.log(ptypeElement);
+            // console.log(ptypeElement);
             setSelect(ptypeElement, '0');
-			console.log(dataList.length);
+
             for (var j = 0; j < dataList.length; j++)
             {
                 var data = dataList[j];
-                console.log(data);
-                //TODO
+                // console.log(data);
+
+                var checkElement = document.querySelector("#check_init_"+j);
+                if (_.isNil(checkElement)){
+                    break;
+                }
+                checkElement.checked = true;
+
 				var productSelector = 'input[name="productName_'+j+'"]';
                 var productElement = document.querySelector(productSelector);
-                console.log(productElement);
                 productElement.value = data.pj;
 
                 var productIdSelector = 'input[name="productId_'+j+'"]';
                 var productIdElement = document.querySelector(productIdSelector);
-                console.log(productIdElement);
                 productIdElement.value = data.pjId;
 
                 var providerSelector = 'input[name="providerName_'+j+'"]';
                 var providerElement = document.querySelector(providerSelector);
-                console.log(providerElement);
                 providerElement.value = data.providerName;
 
                 var providerIdSelector = 'input[name="providerId_'+j+'"]';
                 var providerIdElement = document.querySelector(providerIdSelector);
-                console.log(providerIdElement);
                 providerIdElement.value = data.providerId;
 
                 var priceSelector = 'input[name="price_'+j+'"]';
                 var priceElement = document.querySelector(priceSelector);
-                console.log(priceElement);
                 priceElement.value = data.price;
+                $d('price_' + j, false);
 
                 var amountSelector = 'input[name="amount_'+j+'"]';
                 var amountElement = document.querySelector(amountSelector);
-                console.log(amountElement);
                 amountElement.value = data.amount;
+                $d('amount_' + j, false);
 
                 var invoiceTypeSelector = 'select[name="invoiceType_'+j+'"]';
                 var invoiceTypeElement = document.querySelector(invoiceTypeSelector);
-                console.log(invoiceTypeElement);
-                // invoiceTypeElement.value = data.invoiceType;
 				setSelect(invoiceTypeElement, data.invoiceType);
 
                 var dutyIdSelector = 'select[name="dutyId_'+j+'"]';
                 var dutyIdElement = document.querySelector(dutyIdSelector);
-                console.log(dutyIdElement);
-                // invoiceTypeElement.value = data.amount;
                 setSelect(dutyIdElement, data.taxableEntity);
 
                 var arrivalDateSelector = 'input[name="arrivalDate_'+j+'"]';
                 var arrivalDateElement = document.querySelector(arrivalDateSelector);
-                console.log(arrivalDateElement);
                 arrivalDateElement.value = data.arrivalDate;
             }
-//        var obj = JSON.parse(data);
-//        console.log(obj);
         });
 }
 
