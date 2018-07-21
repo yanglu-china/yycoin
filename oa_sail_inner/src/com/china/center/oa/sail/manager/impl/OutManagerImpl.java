@@ -8921,7 +8921,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         LocationBean location = locationDAO.find(out.getLocationId());
 
         //String flag = location.getCode();
-        String flag = OutHelper.getSailHead(OutConstant.OUT_TYPE_INBILL, OutConstant.OUTTYPE_IN_OUTBACK);
+        //# 373
+        String refOutId = out.getFullId();
+        int outType = OutConstant.OUTTYPE_IN_OUTBACK;
+        if ( refOutId.startsWith("ZS") ){
+            outType = OutConstant.OUTTYPE_IN_PRESENT;
+        }
+        String flag = OutHelper.getSailHead(OutConstant.OUT_TYPE_INBILL, outType);
 
         String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
 
@@ -8933,34 +8939,34 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	
     	newOutBean.setOutTime(TimeTools.now_short());
     	
-    	newOutBean.setOutType(OutConstant.OUTTYPE_IN_OUTBACK);
+    	newOutBean.setOutType(outType);
 
     	if(bean == null){
             newOutBean.setDescription("空出空进销售退库,销售单号:" + out.getFullId() + ". 销售退库");
         }else{
             newOutBean.setDescription("空开空退销售退库,销售单号:" + out.getFullId() + ". 销售退库");
         }
-    	
+
+        //#373 退单的中收激励标识也复制了原单的信息，应该是置空的
+        newOutBean.setIbApplyId("");
+    	newOutBean.setIbFlag(0);
+    	newOutBean.setIbApplyId2("");
+    	newOutBean.setIbFlag2(0);
+    	newOutBean.setMotivationApplyId("");
+    	newOutBean.setMotivationFlag(0);
+    	newOutBean.setMotivationApplyId2("");
+    	newOutBean.setMotivationFlag2(0);
+
     	newOutBean.setType(OutConstant.OUT_TYPE_INBILL);
-    	
     	newOutBean.setStatus(OutConstant.BUY_STATUS_SAVE);
-    	
     	newOutBean.setHasInvoice(0);
-    	
     	newOutBean.setPay(0);
-    	
     	newOutBean.setTempType(0);
-    	
     	newOutBean.setPhone("");
-    	
     	newOutBean.setConnector("");
-    	
     	newOutBean.setReday(0);
-    	
     	newOutBean.setRedate("");
-    	
     	newOutBean.setArriveDate("");
-    	
     	newOutBean.setRefOutFullId(out.getFullId());
     	
     	newOutBean.setReserve1(0);
@@ -8978,11 +8984,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	newOutBean.setCurcredit(0);
     	newOutBean.setStaffcredit(0);
     	newOutBean.setManagercredit(0);
-    	
     	newOutBean.setChangeTime(TimeTools.now());
     	
     	newOutBean.setRatio("");
-    	
     	newOutBean.setPayTime("");
     	newOutBean.setLastModified("");
 
