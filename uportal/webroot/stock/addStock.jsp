@@ -157,6 +157,9 @@ function init()
 			$d('amount_' + index);
 		}
 	}
+
+    var mtypeElement = document.querySelector("#mtype");
+    setSelect(mtypeElement, "1");
 }
 
 function selectProduct(index)
@@ -382,6 +385,7 @@ function bjNoChange(obj){
             // console.log(ptypeElement);
             setSelect(ptypeElement, '0');
 
+            var today = new Date().toJSON().slice(0,10);
             for (var j = 0; j < dataList.length; j++)
             {
                 var data = dataList[j];
@@ -426,6 +430,10 @@ function bjNoChange(obj){
                 var dutyIdSelector = 'select[name="dutyId_'+j+'"]';
                 var dutyIdElement = document.querySelector(dutyIdSelector);
                 setSelect(dutyIdElement, data.taxableEntity);
+
+                var deliveryDateSelector = 'input[name="deliveryDate_'+j+'"]';
+                var deliveryDateElement = document.querySelector(deliveryDateSelector);
+                deliveryDateElement.value = today;
 
                 var arrivalDateSelector = 'input[name="arrivalDate_'+j+'"]';
                 var arrivalDateElement = document.querySelector(arrivalDateSelector);
@@ -499,7 +507,6 @@ function checkCurrentUser()
 
 		<p:table cells="1">
 			<p:pro field="stype" outString="代销采购不占用自有资金,付款方式使用委托代销清单付款,无需询价" innerString="onchange=change()">
-				<option value="">--</option>
                <p:option type="stockStype"></p:option>
             </p:pro>
 
@@ -513,13 +520,13 @@ function checkCurrentUser()
 
 			<p:pro field="flow" innerString="quick='true'" outString="支持简拼选择">
 			<option value="">--</option>
-			<c:forEach items="${departementList}" var="item">
-			<option value="${item.name}">${item.name}</option>
-			</c:forEach>
+                <c:forEach items="${departementList}" var="item">
+                <option value="${item.name}">${item.name}</option>
+                </c:forEach>
 			</p:pro>
 			
-			--><p:pro field="stockType" outString="公卖是全公司的都可销售 自卖是只有自己可以销售" innerString="onchange=change()">
-				<option value="">--</option>
+			-->
+            <p:pro field="stockType" outString="公卖是全公司的都可销售 自卖是只有自己可以销售" innerString="onchange=change()">
                <p:option type="stockSailType"></p:option>
             </p:pro>
             
