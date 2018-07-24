@@ -2546,6 +2546,9 @@ public class ParentOutAction extends DispatchAction
 				{
 					line.reset();
 
+					// 下面是base里面的数据
+					base = (BaseBean) iterator.next();
+
 					line.writeColumn(element.getOutTime());
 
 //					line.writeColumn(element.getCustomerCode());
@@ -2576,6 +2579,8 @@ public class ParentOutAction extends DispatchAction
 
 					line.writeColumn(element.getRedate());
 					line.writeColumn(element.getReday());
+
+
 
 					// 退库原销售日期
 					if (element.getType() == 1)
@@ -2644,8 +2649,8 @@ public class ParentOutAction extends DispatchAction
 								//#376 退货数量,找reffullid为此销售单号+商品+成本价 与原销售单相同的的记录的数量合计
 								List<BaseBean> refBaseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
 								for(BaseBean baseBean: refBaseBeans){
-									if (baseBean.getProductId().equals(base.getProductId()) &&
-											baseBean.getCostPriceKey().equals(base.getCostPriceKey())){
+									if (!StringTools.isNullOrNone(baseBean.getProductId()) && baseBean.getProductId().equals(base.getProductId()) &&
+											!StringTools.isNullOrNone(baseBean.getCostPriceKey()) && baseBean.getCostPriceKey().equals(base.getCostPriceKey())){
 										backAmount += baseBean.getAmount();
 									}
 								}
@@ -2705,9 +2710,6 @@ public class ParentOutAction extends DispatchAction
 					} else{
 						line.writeColumn(presentFlagBeans.get(0).getName());
 					}
-
-					// 下面是base里面的数据
-					base = (BaseBean) iterator.next();
 
 					ProductBean pb = productDAO.find(base.getProductId());
 					// 产品编码

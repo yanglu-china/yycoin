@@ -30,6 +30,7 @@ import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.facade.ProductFacade;
+import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.manager.ComposeProductManager;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.ProductManager;
@@ -46,7 +47,12 @@ import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.bean.SailConfBean;
+import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
@@ -139,6 +145,10 @@ public class ProductAction extends DispatchAction
     private CiticVSOAProductDAO citicVSOAProductDAO = null;
 
     private StorageRelationManager storageRelationManager = null;
+
+    private OutDAO outDAO = null;
+
+    private BaseDAO baseDAO = null;
 
     private static String QUERYPRODUCT = "queryProduct";
 
@@ -1636,6 +1646,18 @@ public class ProductAction extends DispatchAction
             bean.setType(ComposeConstant.COMPOSE_TYPE_COMPOSE);
 
             _logger.info(user.getId()+" compose product***"+bean);
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addIntCondition("type","=", OutConstant.OUT_TYPE_INBILL);
+            conditionParse.addIntCondition("outType","=", OutConstant.OUTTYPE_IN_MOVEOUT);
+            conditionParse.addIntCondition("inway","=", OutConstant.IN_WAY);
+            List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
+            for(ComposeItemBean item: bean.getItemList()){
+                if(this.isInway(item, outBeans)){
+                    _logger.error("合成产品失败,调拨在途："+item);
+                    throw new MYException("合成产品失败,调拨在途,产品ID："+item.getProductId());
+                }
+            }
             productFacade.addComposeProduct(user.getId(), bean);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功合成产品,合成后均价:"
@@ -1649,6 +1671,22 @@ public class ProductAction extends DispatchAction
         }
 
         return preForCompose(mapping, form, request, response);
+    }
+
+
+    // # 367 按仓区找同一品名和成本有没在途状态的调拨单，有就不让合成
+    private boolean isInway(ComposeItemBean item, List<OutBean> dbList){
+        for (OutBean outBean: dbList){
+            List<com.china.center.oa.sail.bean.BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
+            for(BaseBean baseBean: baseBeans){
+                if (!StringTools.isNullOrNone(baseBean.getDepotpartId()) && baseBean.getDepotpartId().equals(item.getDepotpartId())
+                        && !StringTools.isNullOrNone(baseBean.getCostPriceKey())
+                        && baseBean.getCostPriceKey().equals(StorageRelationHelper.getPriceKey(item.getPrice()))){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -4946,5 +4984,21 @@ public class ProductAction extends DispatchAction
 
     public void setStorageRelationManager(StorageRelationManager storageRelationManager) {
         this.storageRelationManager = storageRelationManager;
+    }
+
+    public OutDAO getOutDAO() {
+        return outDAO;
+    }
+
+    public void setOutDAO(OutDAO outDAO) {
+        this.outDAO = outDAO;
+    }
+
+    public BaseDAO getBaseDAO() {
+        return baseDAO;
+    }
+
+    public void setBaseDAO(BaseDAO baseDAO) {
+        this.baseDAO = baseDAO;
     }
 }
