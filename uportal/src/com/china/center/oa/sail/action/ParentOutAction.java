@@ -2398,6 +2398,7 @@ public class ParentOutAction extends DispatchAction
 			line.writeColumn("退库原销售回款");
 			line.writeColumn("原销售是否回款");
 			line.writeColumn("是否退库");
+			line.writeColumn("退货数量");
 			line.writeColumn("相关退库");
 
 			line.writeColumn("库管通过日期");
@@ -2636,11 +2637,19 @@ public class ParentOutAction extends DispatchAction
 						{
 							StringBuffer sb = new StringBuffer();
 
+							int backAmount = 0;
 							for (OutBean outBean : refBuyList)
 							{
 								sb.append(outBean.getFullId()).append(';');
+								//#376 退货数量,找reffullid为此销售单号+商品+成本价 与原销售单相同的的记录的数量合计
+								List<BaseBean> refBaseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
+								for(BaseBean baseBean: refBaseBeans){
+									if (baseBean.getProductId().equals(base.getProductId()) &&
+											baseBean.getCostPriceKey().equals(base.getCostPriceKey())){
+										backAmount += baseBean.getAmount();
+									}
+								}
 							}
-
 
 							boolean payFlag = this.getPayFlag(element);
 							if (payFlag){
@@ -2649,6 +2658,8 @@ public class ParentOutAction extends DispatchAction
 								line.writeColumn("");
 							}
 							line.writeColumn("存在退货");
+							//#376 退货数量
+							line.writeColumn(backAmount);
 							line.writeColumn(sb.toString());
 						}
 						else
@@ -2656,6 +2667,7 @@ public class ParentOutAction extends DispatchAction
 							//原销售是否回款
 							line.writeColumn("");
 							line.writeColumn("未退货");
+							line.writeColumn("0");
 							line.writeColumn("");
 						}
 					}
