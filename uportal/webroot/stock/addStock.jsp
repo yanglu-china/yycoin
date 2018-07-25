@@ -373,6 +373,7 @@ function natureChange()
 }
 
 function bjNoChange(obj){
+    resetProduct();
     var selectedBudget = $("#bjNo option:selected");
     var budgetId = selectedBudget.val();
     $ajax('../stock/stock.do?method=queryBjNo&bjNo='+budgetId,
@@ -440,6 +441,57 @@ function bjNoChange(obj){
                 arrivalDateElement.value = data.arrivalDate;
             }
         });
+}
+
+function resetProduct(){
+    for (var j = 0; j < 20; j++)
+    {
+
+        var checkElement = document.querySelector("#check_init_"+j);
+        checkElement.checked = false;
+
+        var productSelector = 'input[name="productName_'+j+'"]';
+        var productElement = document.querySelector(productSelector);
+        productElement.value = "";
+
+        var productIdSelector = 'input[name="productId_'+j+'"]';
+        var productIdElement = document.querySelector(productIdSelector);
+        productIdElement.value = "";
+
+        var providerSelector = 'input[name="providerName_'+j+'"]';
+        var providerElement = document.querySelector(providerSelector);
+        providerElement.value = "";
+
+        var providerIdSelector = 'input[name="providerId_'+j+'"]';
+        var providerIdElement = document.querySelector(providerIdSelector);
+        providerIdElement.value = "";
+
+        var priceSelector = 'input[name="price_'+j+'"]';
+        var priceElement = document.querySelector(priceSelector);
+        priceElement.value = "";
+        $d('price_' + j, true);
+
+        var amountSelector = 'input[name="amount_'+j+'"]';
+        var amountElement = document.querySelector(amountSelector);
+        amountElement.value = "";
+        $d('amount_' + j, true);
+
+        var invoiceTypeSelector = 'select[name="invoiceType_'+j+'"]';
+        var invoiceTypeElement = document.querySelector(invoiceTypeSelector);
+        setSelect(invoiceTypeElement, "--");
+
+        var dutyIdSelector = 'select[name="dutyId_'+j+'"]';
+        var dutyIdElement = document.querySelector(dutyIdSelector);
+        setSelect(dutyIdElement, "--");
+
+        var deliveryDateSelector = 'input[name="deliveryDate_'+j+'"]';
+        var deliveryDateElement = document.querySelector(deliveryDateSelector);
+        deliveryDateElement.value = "";
+
+        var arrivalDateSelector = 'input[name="arrivalDate_'+j+'"]';
+        var arrivalDateElement = document.querySelector(arrivalDateSelector);
+        arrivalDateElement.value = "";
+    }
 }
 
 function checkCurrentUser()
