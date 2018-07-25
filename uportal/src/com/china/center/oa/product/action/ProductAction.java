@@ -1678,7 +1678,7 @@ public class ProductAction extends DispatchAction
     }
 
 
-    // # 367 按仓区找同一品名和成本有没在途状态的调拨单，有就不让合成
+    // # 367 同仓区、同品名、同成本如果有在途状态的调拨单，就不让合成
 
     /**
      * 返回在途状态的调拨单
@@ -1691,6 +1691,8 @@ public class ProductAction extends DispatchAction
             List<com.china.center.oa.sail.bean.BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
             for(BaseBean baseBean: baseBeans){
                 if (!StringTools.isNullOrNone(baseBean.getDepotpartId()) && baseBean.getDepotpartId().equals(item.getDepotpartId())
+                        && !StringTools.isNullOrNone(baseBean.getProductId())
+                        && baseBean.getProductId().equals(item.getProductId())
                         && !StringTools.isNullOrNone(baseBean.getCostPriceKey())
                         && baseBean.getCostPriceKey().equals(StorageRelationHelper.getPriceKey(item.getPrice()))){
                     return baseBean.getOutId();
