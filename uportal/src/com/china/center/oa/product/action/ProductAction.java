@@ -1653,9 +1653,13 @@ public class ProductAction extends DispatchAction
             conditionParse.addIntCondition("inway","=", OutConstant.IN_WAY);
             List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
             for(ComposeItemBean item: bean.getItemList()){
-                if(this.isInway(item, outBeans)){
-                    _logger.error("合成产品失败,调拨在途："+item);
-                    throw new MYException("合成产品失败,调拨在途,产品ID："+item.getProductId());
+                String dbOutId = this.isInway(item, outBeans);
+                if(dbOutId!= null){
+                    ProductBean productBean = this.productDAO.find(item.getProductId());
+                    _logger.error(dbOutId+"合成产品失败,调拨在途："+item);
+                    throw new MYException(String.format("调拨在途:%s 产品:%s",
+                            "<a href='../sail/out.do?method=findOut&radioIndex=0&fow=99&outId="+dbOutId+ "'>" + dbOutId + "</a>",
+                            productBean.getName()));
                 }
             }
             productFacade.addComposeProduct(user.getId(), bean);
@@ -1675,18 +1679,25 @@ public class ProductAction extends DispatchAction
 
 
     // # 367 按仓区找同一品名和成本有没在途状态的调拨单，有就不让合成
-    private boolean isInway(ComposeItemBean item, List<OutBean> dbList){
+
+    /**
+     * 返回在途状态的调拨单
+     * @param item
+     * @param dbList
+     * @return
+     */
+    private String isInway(ComposeItemBean item, List<OutBean> dbList){
         for (OutBean outBean: dbList){
             List<com.china.center.oa.sail.bean.BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
             for(BaseBean baseBean: baseBeans){
                 if (!StringTools.isNullOrNone(baseBean.getDepotpartId()) && baseBean.getDepotpartId().equals(item.getDepotpartId())
                         && !StringTools.isNullOrNone(baseBean.getCostPriceKey())
                         && baseBean.getCostPriceKey().equals(StorageRelationHelper.getPriceKey(item.getPrice()))){
-                    return true;
+                    return baseBean.getOutId();
                 }
             }
         }
-        return false;
+        return null;
     }
 
     /**
