@@ -335,24 +335,29 @@ public class StockAction extends DispatchAction
             conditionParse.addWhereStr();
             conditionParse.addCondition("bjNo","=",bjNo);
             List<PurchaseBjBean> bjBeans = this.purchaseBjDAO.queryEntityBeansByCondition(conditionParse);
+            List<PurchaseBjBean> filteredBjBeans = new ArrayList<PurchaseBjBean>();
             for (PurchaseBjBean bjBean: bjBeans){
-                //从需求确认表取得数量
-                ConditionParse conditionParse1 = new ConditionParse();
-                conditionParse1.addWhereStr();
-                conditionParse1.addCondition("demandQRId","=", bjBean.getDemandQRId());
-                conditionParse1.addCondition("pjid", "=", bjBean.getPjId());
-                List<PurchaseXqqrBean> xqqrBeans = this.purchaseXqqrDAO.queryEntityBeansByCondition(conditionParse1);
-                if (!ListTools.isEmptyOrNull(xqqrBeans)){
-                    bjBean.setAmount(xqqrBeans.get(0).getPurchaseAmount());
-                }
+                if (bjBean.getSupplier()!= null && bjBean.getSupplier().equals(bjBean.getConfirmSupplier())){
+                    //从需求确认表取得数量
+                    ConditionParse conditionParse1 = new ConditionParse();
+                    conditionParse1.addWhereStr();
+                    conditionParse1.addCondition("demandQRId","=", bjBean.getDemandQRId());
+                    conditionParse1.addCondition("pjid", "=", bjBean.getPjId());
+                    List<PurchaseXqqrBean> xqqrBeans = this.purchaseXqqrDAO.queryEntityBeansByCondition(conditionParse1);
+                    if (!ListTools.isEmptyOrNull(xqqrBeans)){
+                        bjBean.setAmount(xqqrBeans.get(0).getPurchaseAmount());
+                    }
 
-                ProviderBean providerBean = this.providerDAO.findByUnique(bjBean.getSupplier());
-                if(providerBean!= null){
-                    bjBean.setProviderId(providerBean.getId());
-                    bjBean.setProviderName(providerBean.getName());
+                    // 仅带出“确认供应商”字段等于“供应商”字段的商品信息
+                    ProviderBean providerBean = this.providerDAO.findByUnique(bjBean.getConfirmSupplier());
+                    if(providerBean!= null){
+                        bjBean.setProviderId(providerBean.getId());
+                        bjBean.setProviderName(providerBean.getName());
+                    }
+                    filteredBjBeans.add(bjBean);
                 }
             }
-            result.setSuccessAndObj("操作成功", bjBeans);
+            result.setSuccessAndObj("操作成功", fil);
         }
         catch(Exception e)
         {
