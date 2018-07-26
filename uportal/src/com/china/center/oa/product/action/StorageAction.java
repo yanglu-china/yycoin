@@ -48,6 +48,7 @@ import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.sail.bean.SailConfBean;
 import com.china.center.oa.sail.bean.SailConfigBean;
 import com.china.center.oa.sail.constanst.SailConstant;
+import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.dao.SailConfigDAO;
 import com.china.center.oa.sail.manager.AuditRuleManager;
 import com.china.center.oa.sail.manager.OutManager;
@@ -136,6 +137,8 @@ public class StorageAction extends DispatchAction
     private FlowLogDAO flowLogDAO = null;
     
     private FinanceDAO financeDAO = null;
+
+    private OutDAO outDAO = null;
     
     private static final String QUERYSTORAGE = "queryStorage";
 
@@ -1607,7 +1610,9 @@ public class StorageAction extends DispatchAction
         String smtype = request.getParameter("mtype");
         
         String soldproduct = request.getParameter("oldproduct");
-        
+
+        String compose = request.getParameter("compose");
+
         if (!StringTools.isNullOrNone(smtype))
         {
         	mtype = MathTools.parseInt(smtype);
@@ -1667,6 +1672,15 @@ public class StorageAction extends DispatchAction
                 	}
                 }
             }*/
+
+            if(!StringTools.isNullOrNone(compose)){
+                //#367 产品合成时扣掉在途商品
+                int sumInOut = outDAO.sumNotEndProductInOutByStorageRelation(vo.getProductId(), vo
+                        .getDepotpartId(), vo.getPriceKey(), vo.getStafferId());
+                _logger.info(vo+"***sumInOut***"+sumInOut);
+                vo.setAmount(vo.getAmount()-sumInOut);
+                request.setAttribute("compose", 1);
+            }
         }
 
         request.setAttribute("beanList", list);
@@ -4074,5 +4088,11 @@ public class StorageAction extends DispatchAction
 		this.financeDAO = financeDAO;
 	}
 
+    public OutDAO getOutDAO() {
+        return outDAO;
+    }
 
+    public void setOutDAO(OutDAO outDAO) {
+        this.outDAO = outDAO;
+    }
 }

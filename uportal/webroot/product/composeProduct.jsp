@@ -202,7 +202,7 @@ function selectDepotpartProduct(obj)
     
     var srcProductCode = getInputInTr(tr, "srcProductCode").value;
     
-   	window.common.modal('../depot/storage.do?method=rptQueryProductInDepot&load=1&stafferId=0&selectMode=0&locationId='+ $$('srcDepot') 
+   	window.common.modal('../depot/storage.do?method=rptQueryProductInDepot&load=1&compose=1&stafferId=0&selectMode=0&locationId='+ $$('srcDepot')
 		   + "&code="+ srcProductCode +"&mtype=" + $$('mtype' + "&oldproduct=" + $$('oldproduct')));
 }
 

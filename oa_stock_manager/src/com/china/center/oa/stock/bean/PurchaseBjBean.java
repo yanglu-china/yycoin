@@ -93,6 +93,9 @@ public class PurchaseBjBean implements Serializable {
 
     private String arrivalDate;
 
+    //0: 未申请 1：已申请
+    private int isUsed = 0;
+
     @Ignore
     private int amount;
 
@@ -264,6 +267,14 @@ public class PurchaseBjBean implements Serializable {
         this.providerName = providerName;
     }
 
+    public int getIsUsed() {
+        return isUsed;
+    }
+
+    public void setIsUsed(int isUsed) {
+        this.isUsed = isUsed;
+    }
+
     @Override
     public String toString() {
         return "PurchaseBjBean{" +
@@ -287,6 +298,7 @@ public class PurchaseBjBean implements Serializable {
                 ", spStatus=" + spStatus +
                 ", spRemarks='" + spRemarks + '\'' +
                 ", arrivalDate='" + arrivalDate + '\'' +
+                ", isUsed=" + isUsed +
                 ", amount=" + amount +
                 '}';
     }

@@ -15,5 +15,6 @@ import com.china.center.oa.stock.bean.PurchaseBjBean;
 
 public interface PurchaseBjDAO extends DAO<PurchaseBjBean, PurchaseBjBean>
 {
+    boolean updateIsUsed(String bjNo,int isUsed);
 
 }

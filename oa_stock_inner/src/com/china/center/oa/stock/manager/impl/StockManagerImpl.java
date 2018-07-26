@@ -72,6 +72,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 {
     private StockDAO stockDAO = null;
 
+    private PurchaseBjDAO purchaseBjDAO = null;
+
     private CommonDAO commonDAO = null;
     
     private final Log _logger = LogFactory.getLog(getClass());
@@ -743,6 +745,10 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
         updateStockStatus(user, id, nextStatus, PublicConstant.OPRMODE_PASS, reason);
 
+        if(!StringTools.isNullOrNone(sb.getBjNo())){
+            this.purchaseBjDAO.updateIsUsed(sb.getBjNo(), 1);
+        }
+
         return true;
     }
 
@@ -1049,6 +1055,10 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         int nextStatus = StockConstant.STOCK_STATUS_REJECT;
 
         recoverStockItemAsk(id);
+
+        if(!StringTools.isNullOrNone(sb.getBjNo())){
+            this.purchaseBjDAO.updateIsUsed(sb.getBjNo(), 0);
+        }
 
         return updateStockStatus(user, id, nextStatus, PublicConstant.OPRMODE_REJECT, reason);
     }
@@ -1956,17 +1966,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     public void setStockItemArrivalDAO(StockItemArrivalDAO stockItemArrivalDAO) {
         this.stockItemArrivalDAO = stockItemArrivalDAO;
     }
-//    /**
-//     * @return the outDAO
-//     */
-//    public OutDAO getOutDAO() {
-//        return outDAO;
-//    }
-//
-//    /**
-//     * @param outDAO the outDAO to set
-//     */
-//    public void setOutDAO(OutDAO outDAO) {
-//        this.outDAO = outDAO;
-//    }
+
+    public PurchaseBjDAO getPurchaseBjDAO() {
+        return purchaseBjDAO;
+    }
+
+    public void setPurchaseBjDAO(PurchaseBjDAO purchaseBjDAO) {
+        this.purchaseBjDAO = purchaseBjDAO;
+    }
 }

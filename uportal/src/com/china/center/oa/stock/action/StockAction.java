@@ -2158,6 +2158,7 @@ public class StockAction extends DispatchAction
         conditionParse.addWhereStr();
         conditionParse.addIntCondition("bjStatus","=", 2);
         conditionParse.addIntCondition("spStatus","=", 1);
+        conditionParse.addIntCondition("isUsed","=", 0);
         List<PurchaseBjBean> bjBeans = this.purchaseBjDAO.queryEntityBeansByCondition(conditionParse);
 
         List<String> bjList = new ArrayList<String>();

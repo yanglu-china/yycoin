@@ -17,5 +17,13 @@ import com.china.center.oa.stock.dao.PurchaseBjDAO;
 
 public class PurchaseBjDAOImpl extends BaseDAO<PurchaseBjBean, PurchaseBjBean> implements PurchaseBjDAO
 {
+    @Override
+    public boolean updateIsUsed(String bjNo, int isUsed) {
+        String sql = "update T_PURCHASE_BJ set isUsed = ? " +
+                " where bjNo = ?";
 
+        int i = jdbcOperation.update(sql, isUsed, bjNo);
+
+        return i != 0;
+    }
 }

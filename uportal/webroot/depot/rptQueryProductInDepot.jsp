@@ -71,6 +71,7 @@ function closesd()
 <input type="hidden" value="${stafferId}" name="stafferId">
 <input type="hidden" value="${locationId}" name=locationId>
 <input type="hidden" value="${selectMode}" name="selectMode">
+	<input type="hidden" value="${compose}" name="compose">
 <p:navigation
 	height="22">
 	<td width="550" class="navigation">产品库存管理</td>
