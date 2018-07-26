@@ -357,7 +357,7 @@ public class StockAction extends DispatchAction
                     filteredBjBeans.add(bjBean);
                 }
             }
-            result.setSuccessAndObj("操作成功", fil);
+            result.setSuccessAndObj("操作成功", filteredBjBeans);
         }
         catch(Exception e)
         {
