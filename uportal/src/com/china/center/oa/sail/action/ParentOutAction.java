@@ -2581,7 +2581,6 @@ public class ParentOutAction extends DispatchAction
 					line.writeColumn(element.getReday());
 
 
-
 					// 退库原销售日期
 					if (element.getType() == 1)
 					{
@@ -2609,6 +2608,7 @@ public class ParentOutAction extends DispatchAction
 							}
 						}
 
+						line.writeColumn("");
 						line.writeColumn("");
 						line.writeColumn("");
 					}
