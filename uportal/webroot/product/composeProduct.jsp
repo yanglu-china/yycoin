@@ -52,7 +52,21 @@ function checks()
 	{
 		alert('相同产品不能在同一个储位');
 	}
-	
+
+	//用量不能超过可用数量
+    var useAmountElements = document.querySelectorAll('input[name="useAmount"]');
+    var srcAmountElements = document.querySelectorAll('input[name="srcAmount"]');
+    var targerNameElements = document.querySelectorAll('input[name="targerName"]');
+    for (var i=0;i<=useAmountElements.length-1;i++){
+        var useAmountElement = useAmountElements[i];
+        var srcAmountElement = srcAmountElements[i];
+        var targerNameElement = targerNameElements[i];
+        if(useAmountElement && srcAmountElement && targerNameElement
+        && useAmountElement.value> srcAmountElement.value){
+            alert(targerNameElement.value+"使用数量不能超过可用数量!");
+            return false;
+        }
+    }
     return !ret;
 }
 
