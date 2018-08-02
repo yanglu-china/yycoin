@@ -11,7 +11,8 @@ public class GsShipJobManagerImpl extends ShipJobManagerImpl{
 
     @Override
     protected boolean needSendMail(String customerName, String channel) {
-        if (customerName.indexOf("甘肃银行") != -1 ){
+        if (customerName.indexOf("甘肃银行") != -1 &&
+                ("网上商城".equals(channel) || "天猫商城".equals(channel))){
             return true;
         }
         return false;

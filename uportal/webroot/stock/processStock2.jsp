@@ -16,6 +16,7 @@
 
 var g_id;
 var to_be_warehouse;
+var xqqrBeans;
 
 <%--var jmap = new Object();--%>
 <%--<c:forEach items="${bean.itemVO}" var="item">--%>
@@ -30,16 +31,53 @@ var to_be_warehouse;
 //    tooltip.showTable(jmap[id]);
 //}
 
-function fech(id,amount,totalWarehouseNum)
+function fech(id,productId, amount,totalWarehouseNum)
 {
     g_id = id;
     to_be_warehouse = parseInt(amount)-parseInt(totalWarehouseNum);
-//    console.log("id:"+id);
+   console.log("id:"+id);
 //    console.log("amount:"+amount);
 //    console.log("totalWarehouseNum:"+totalWarehouseNum);
 //    console.log("to_be_warehouse:"+to_be_warehouse);
-    
+	resetNhNum();
+	var bjNo = $O('bjNo').value;
+    $ajax('../stock/stock.do?method=queryXqqr&bjNo=' + bjNo+"&productId="+productId, function(data){
+        console.log(data);
+        xqqrBeans = data.msg;
+        var xqqrElement = document.querySelector('#xqqr');
+        removeAllItem(xqqrElement);
+        setOption(xqqrElement,'-','-');
+        for (var i=0;i<xqqrBeans.length;i++){
+            var obj = xqqrBeans[i];
+            console.log(obj);
+            setOption(xqqrElement,obj.demandQRId,obj.demandQRId);
+		}
+	});
 	$('#dlg').dialog({closed:false});
+}
+
+function xqqrChange(){
+    //TODO
+    var xqqrElement = document.querySelector('#xqqr');
+    var xqqr = xqqrElement.value;
+    console.log(xqqr);
+    for (var i=0;i<xqqrBeans.length;i++){
+        var obj = xqqrBeans[i];
+        console.log(obj);
+        if (obj.demandQRId === xqqr){
+            var purchaseAmountElement = document.querySelector('#purchaseAmount');
+            purchaseAmountElement.value = obj.purchaseAmount;
+            var nhNumElement = document.querySelector('#nhNum');
+            nhNumElement.value = obj.nhNum;
+		}
+    }
+}
+
+function resetNhNum(){
+    var purchaseAmountElement = document.querySelector('#purchaseAmount');
+    purchaseAmountElement.value = '';
+    var nhNumElement = document.querySelector('#nhNum');
+    nhNumElement.value = '';
 }
 
 function showBatchDlg()
@@ -111,10 +149,12 @@ function updatePrice()
         alert('此次入库数量不能大于待入库数量');
         return false;
     }
-    
+
+    var xqqrElement = document.querySelector('#xqqr');
+    var demandQRId = xqqrElement.value;
     document.location.href = '../stock/stock.do?method=fechProduct&id=${bean.id}&itemId='
             + g_id + '&depotpartId=' + $$('depotpartId')+ '&warehouseNum=' + $$('warehouseNum')
-            + '&to_be_warehouse=' + to_be_warehouse;
+            + '&to_be_warehouse=' + to_be_warehouse+'&demandQRId='+demandQRId;
 }
 
 function batchFetchProduct()
@@ -129,6 +169,7 @@ function batchFetchProduct()
     formEntry.submit();
 }
 
+
 </script>
 
 </head>
@@ -136,6 +177,7 @@ function batchFetchProduct()
 <form name="formEntry" id="formEntry" action="../stock/stock.do" method="post">
 <input type="hidden" name="method" value="updateStockStatus">
 <input type="hidden" name="id" value="${bean.id}">
+<input type="hidden" name="bjNo" value="${bean.bjNo}">
 <input type="hidden" name="pass" value="1">
 <input type="hidden" name="nearlyPayDate" value="">
 <input type="hidden" name="reject" value="">
@@ -163,6 +205,10 @@ function batchFetchProduct()
             <p:cell title="采购人">
             ${bean.userName}
             </p:cell>
+
+			<p:cell title="比价标示">
+				${bean.bjNo}
+			</p:cell>
             
             <p:cell title="库存人">
             ${bean.owerName}
@@ -282,7 +328,7 @@ function batchFetchProduct()
 						<td align="center">
 							<c:if test="${item.fechProduct == 0 || item.fechProduct == 2}">
 								<a title="拿货"
-								   href="javascript:fech('${item.id}','${item.amount}','${item.totalWarehouseNum}')">
+								   href="javascript:fech('${item.id}','${item.productId}','${item.amount}','${item.totalWarehouseNum}')">
 									<img src="../images/opr/change.gif" border="0" height="15" width="15"></a>
 							</c:if>
 						</td>
@@ -310,11 +356,26 @@ function batchFetchProduct()
 </p:body>
 <div id="dlg" title="选择到货的仓区" style="width:320px;">
     <div style="padding:20px;height:200px;" id="dia_inner1" title="">
-    <c:forEach items="${depotpartList}" var="item" varStatus="vs">
-     <input type="radio" name="depotpartId" value="${item.id}"  ${vs.index == 0 ? 'checked=checked' : '' }>${item.name}<br>
-    </c:forEach>
+        <c:forEach items="${depotpartList}" var="item" varStatus="vs">
+         <input type="radio" name="depotpartId" value="${item.id}"  ${vs.index == 0 ? 'checked=checked' : '' }>${item.name}<br>
+        </c:forEach>
+		<label for="xqqr">
+			需求确认单号
+			<select id="xqqr" name="xqqr" onchange="xqqrChange()">
+				<option value="-">-</option>
+			</select>
+		</label><br>
+		<label for="purchaseAmount">
+			此需求确认单采购数量
+			<input type="text" id="purchaseAmount" name="purchaseAmount" placeholder="采购数量" disabled>
+		</label><br>
+		<label for="nhNum">
+			此需求确认单已拿货数量
+			<input type="text" id="nhNum" name="nhNum" placeholder="已拿货数量" disabled>
+		</label><br>
         <label for="warehouseNum">
-            <input type="text" id="warehouseNum" name="warehouseNum" placeholder="此次入库数量">
+			此次入库数量
+            <input type="text" id="warehouseNum" name="warehouseNum" placeholder="此次入库数量" required>
         </label>
    </div>
 </div>

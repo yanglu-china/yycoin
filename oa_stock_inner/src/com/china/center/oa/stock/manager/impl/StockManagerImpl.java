@@ -109,6 +109,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
     private StockItemArrivalDAO stockItemArrivalDAO = null;
 
+    private PurchaseXqqrDAO purchaseXqqrDAO = null;
+
 //    private OutDAO outDAO = null;
 
     /*
@@ -1239,7 +1241,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     @Transactional(rollbackFor = {MYException.class})
     @Override
     public boolean fetchProductByArrivalBean(User user, String arrivalItemId, String depotpartId,
-                                             int warehouseNum, int toBeWarehouse) throws MYException {
+                                             int warehouseNum, int toBeWarehouse,
+                                             String demandQRId) throws MYException {
         StockItemArrivalBean item = this.stockItemArrivalDAO.find(arrivalItemId);
 
         if (item == null)
@@ -1297,6 +1300,24 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 _logger.warn("****not found stock item bean***"+item);
             }
             item.setWarehouseNum(warehouseNum);
+
+
+            // 根据productId和demandQRId找到对应的需求采购确认行,<productId,demandQRId>组合必须唯一
+            if (!StringTools.isNullOrNone(demandQRId)){
+                ConditionParse conditionParse1 = new ConditionParse();
+                conditionParse1.addCondition("demandQRId","=", demandQRId);
+                conditionParse1.addCondition("pjId", "=", item.getProductId());
+                List<PurchaseXqqrBean> xqqrBeans = this.purchaseXqqrDAO.queryEntityBeansByCondition(conditionParse1);
+                if (!ListTools.isEmptyOrNull(xqqrBeans)){
+                    PurchaseXqqrBean itemBean = xqqrBeans.get(0);
+                    itemBean.setNhNum(warehouseNum+itemBean.getNhNum());
+                    this.purchaseXqqrDAO.updateEntityBean(itemBean);
+                    _logger.info("***update PurchaseXqqrBean***"+itemBean);
+                } else{
+                    _logger.warn(demandQRId+"****not foundPurchaseXqqrBean***"+item);
+                }
+            }
+
 
             // 采购入库
             Collection<StockListener> listenerMapValues = this.listenerMapValues();
@@ -1973,5 +1994,13 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
     public void setPurchaseBjDAO(PurchaseBjDAO purchaseBjDAO) {
         this.purchaseBjDAO = purchaseBjDAO;
+    }
+
+    public PurchaseXqqrDAO getPurchaseXqqrDAO() {
+        return purchaseXqqrDAO;
+    }
+
+    public void setPurchaseXqqrDAO(PurchaseXqqrDAO purchaseXqqrDAO) {
+        this.purchaseXqqrDAO = purchaseXqqrDAO;
     }
 }

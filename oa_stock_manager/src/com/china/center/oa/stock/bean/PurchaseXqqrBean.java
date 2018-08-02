@@ -37,6 +37,11 @@ public class PurchaseXqqrBean implements Serializable {
     private int purchaseAmount;
 
     /**
+     * 已采购数量
+     */
+    private int nhNum;
+
+    /**
      * 预计采购到货时间
      */
     private String arrivalDate;
@@ -183,6 +188,14 @@ public class PurchaseXqqrBean implements Serializable {
         this.bjStatus = bjStatus;
     }
 
+    public int getNhNum() {
+        return nhNum;
+    }
+
+    public void setNhNum(int nhNum) {
+        this.nhNum = nhNum;
+    }
+
     @Override
     public String toString() {
         return "PurchaseXqqrBean{" +
@@ -193,6 +206,7 @@ public class PurchaseXqqrBean implements Serializable {
                 ", changetime='" + changetime + '\'' +
                 ", demandQRId='" + demandQRId + '\'' +
                 ", purchaseAmount=" + purchaseAmount +
+                ", nhNum=" + nhNum +
                 ", arrivalDate='" + arrivalDate + '\'' +
                 ", purchaseQRTime='" + purchaseQRTime + '\'' +
                 ", remarks='" + remarks + '\'' +

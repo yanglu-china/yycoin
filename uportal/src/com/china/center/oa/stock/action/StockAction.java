@@ -1405,7 +1405,8 @@ public class StockAction extends DispatchAction
                     int warehouseNumber = Integer.valueOf(batchWarehouseNums[i]);
                     int toBeWarehouseNum = Integer.valueOf(to_be_warehouses[i]);
                     if (warehouseNumber!= 0){
-                        result = stockManager.fetchProductByArrivalBean(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum);
+                        result = stockManager.fetchProductByArrivalBean(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum,
+                                null);
                     }
                 }
 
@@ -1459,7 +1460,8 @@ public class StockAction extends DispatchAction
 
             String warehouseNum = request.getParameter("warehouseNum");
             String to_be_warehouse = request.getParameter("to_be_warehouse");
-           _logger.info("warehouseNum*********"+warehouseNum+"****to_be_warehouse*****"+to_be_warehouse);
+            String demandQRId = request.getParameter("demandQRId");
+           _logger.info("warehouseNum*********"+warehouseNum+"****to_be_warehouse*****"+to_be_warehouse+"**demandQRId***"+demandQRId);
             int  warehouseNumber = 0;
             int toBeWarehouseNum = Integer.valueOf(to_be_warehouse);
             if (StringTools.isNullOrNone(warehouseNum)){
@@ -1475,7 +1477,8 @@ public class StockAction extends DispatchAction
             {
                 User user = Helper.getUser(request);
 
-                result = stockManager.fetchProductByArrivalBean(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum);
+                result = stockManager.fetchProductByArrivalBean(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum,
+                        demandQRId);
 
                 request.setAttribute(KeyConstant.MESSAGE, msg);
             }
@@ -2009,8 +2012,9 @@ public class StockAction extends DispatchAction
             List<StockItemArrivalVO> stockItemArrivalBeans = this.stockItemArrivalDAO.queryEntityVOsByFK(vo.getId());
             vo.setStockItemArrivalVOs(stockItemArrivalBeans);
             _logger.info("***stockItemArrivalBeans***"+stockItemArrivalBeans.size());
-            if ("2".equals(process))
-            	return mapping.findForward("processStock2");
+            if ("2".equals(process)) {
+                return mapping.findForward("processStock2");
+            }
             else {
             	return mapping.findForward("processStock21");
             }
@@ -2087,6 +2091,41 @@ public class StockAction extends DispatchAction
         else {
             return mapping.findForward("detailStock");
         }
+    }
+
+
+    /**
+     * 拿货时找到对应的需求确认单
+     */
+    public ActionForward queryXqqr(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+                        HttpServletResponse response) throws ServletException{
+        String bjNo = request.getParameter("bjNo");
+        String productId = request.getParameter("productId");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("bjNo","=", bjNo);
+        conditionParse.addCondition("pjId","=", productId);
+        conditionParse.addCondition(" and supplier=confirmSupplier");
+        List<PurchaseBjBean> bjBeans = this.purchaseBjDAO.queryEntityBeansByCondition(conditionParse);
+        _logger.info("***bjBeans***"+bjBeans);
+        List<PurchaseXqqrBean> result = new ArrayList<PurchaseXqqrBean>();
+        for(PurchaseBjBean bjBean: bjBeans){
+            ConditionParse conditionParse1 = new ConditionParse();
+            conditionParse1.addWhereStr();
+            conditionParse1.addCondition("demandQRId","=", bjBean.getDemandQRId());
+            conditionParse1.addCondition("pjId","=", bjBean.getPjId());
+            List<PurchaseXqqrBean> purchaseXqqrBeans = this.purchaseXqqrDAO.queryEntityBeansByCondition(conditionParse1);
+            _logger.info("***xqqrBeans***"+purchaseXqqrBeans);
+            if (!ListTools.isEmptyOrNull(purchaseXqqrBeans)){
+                result.addAll(purchaseXqqrBeans);
+            }
+        }
+
+        AjaxResult ajaxResult = new AjaxResult();
+        ajaxResult.setRet(0);
+        ajaxResult.setMsg(result);
+
+        return JSONTools.writeResponse(response, ajaxResult);
     }
 
     /**
