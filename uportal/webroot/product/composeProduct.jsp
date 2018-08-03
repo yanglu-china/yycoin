@@ -62,7 +62,7 @@ function checks()
         var srcAmountElement = srcAmountElements[i];
         var targerNameElement = targerNameElements[i];
         if(useAmountElement && srcAmountElement && targerNameElement
-        && useAmountElement.value> srcAmountElement.value){
+        && parseInt(useAmountElement.value)> parseInt(srcAmountElement.value)){
             alert(targerNameElement.value+"使用数量:"+useAmountElement.value+"不能超过可用数量:"+srcAmountElement.value);
             return false;
         }
