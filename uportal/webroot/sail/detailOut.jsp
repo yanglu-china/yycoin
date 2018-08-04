@@ -539,6 +539,13 @@ function checkBean()
                        </td>
                     </tr>
 
+					<tr class="content2">
+						<td align="right">pos付款方：</td>
+						<td colspan="1">${bean.posPayer}</td>
+						<td align="right">推荐标示：</td>
+						<td colspan="1">${bean.recommendation}</td>
+					</tr>
+
 				</table>
 				</td>
 			</tr>

@@ -259,6 +259,11 @@ public class OutImportBean implements Serializable
 	 * pos付款方
 	 */
 	private String posPayer = "";
+
+	/**
+	 * 推荐标示
+	 */
+	private String recommendation = "";
     
     @Ignore
     private int mayAmount = 0;
@@ -984,6 +989,14 @@ public class OutImportBean implements Serializable
 
 	public void setPosPayer(String posPayer) {
 		this.posPayer = posPayer;
+	}
+
+	public String getRecommendation() {
+		return recommendation;
+	}
+
+	public void setRecommendation(String recommendation) {
+		this.recommendation = recommendation;
 	}
 
 	@Override

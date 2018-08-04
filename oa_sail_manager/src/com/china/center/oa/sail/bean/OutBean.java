@@ -527,7 +527,12 @@ public class OutBean implements Serializable, OutInterface
      * pos付款方
      */
     private String posPayer = "";
-    
+
+    /**
+     * 推荐标示
+     */
+    private String recommendation = "";
+
     @Ignore
     private List<BaseBean> baseList = null;
 
@@ -2275,6 +2280,14 @@ public class OutBean implements Serializable, OutInterface
 
     public void setPosPayer(String posPayer) {
         this.posPayer = posPayer;
+    }
+
+    public String getRecommendation() {
+        return recommendation;
+    }
+
+    public void setRecommendation(String recommendation) {
+        this.recommendation = recommendation;
     }
 
     /**

@@ -643,8 +643,16 @@
          if ( !StringTools.isNullOrNone(obj[14]))
          {
              int invoiceNature = OutImportHelper.getInvoiceNature(obj[14]);
+            if (invoiceNature == -1){
+                builder
+                        .append("第[" + currentNumber + "]错误:")
+                        .append("开票性质只能为:"+OutImportHelper.getInvoiceNature())
+                        .append("<br>");
 
-             bean.setInvoiceNature(invoiceNature);
+                importError = true;
+            } else{
+                bean.setInvoiceNature(invoiceNature);
+            }
          }
 
          // 开票抬头
@@ -1426,6 +1434,13 @@
              bean.setPosPayer(posPayer);
          }
 
+         //推荐标示
+         if ( !StringTools.isNullOrNone(obj[47]))
+         {
+             String recommendation = obj[47].trim();
+             bean.setRecommendation(recommendation);
+         }
+
          return importError;
      }
 
@@ -1904,8 +1919,16 @@
          if ( !StringTools.isNullOrNone(obj[14]))
          {
              int invoiceNature = OutImportHelper.getInvoiceNature(obj[14]);
+             if (invoiceNature == -1){
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("开票性质只能为:"+OutImportHelper.getInvoiceNature())
+                         .append("<br>");
 
-             bean.setInvoiceNature(invoiceNature);
+                 importError = true;
+             } else{
+                 bean.setInvoiceNature(invoiceNature);
+             }
          }
 
          // 开票抬头
@@ -2579,6 +2602,37 @@
                      importError = true;
                  }
              }
+         }
+
+         //交货方式
+         if ( !StringTools.isNullOrNone(obj[45]))
+         {
+             String delivery = obj[45].trim();
+             if ("现货".equalsIgnoreCase(delivery)){
+                 bean.setDelivery(delivery);
+             } else if ("预售".equalsIgnoreCase(delivery)){
+                 bean.setDelivery(delivery);
+             } else {
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("交货方式只能为现货/预售")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         //pos付款方
+         if ( !StringTools.isNullOrNone(obj[46]))
+         {
+             String posPayer = obj[46].trim();
+             bean.setPosPayer(posPayer);
+         }
+
+         //推荐标示
+         if ( !StringTools.isNullOrNone(obj[47]))
+         {
+             String recommendation = obj[47].trim();
+             bean.setRecommendation(recommendation);
          }
 
          return importError;

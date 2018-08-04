@@ -173,4 +173,8 @@ public interface OutImportConstant
      */
     @Defined(key = "zjrcOutStatus", value = "结束")
     int STATUS_CUSTOMER_END = 99;
+
+    String SINGLE_INVOICEINS = "一张开票";
+
+    String ONE_INVOICEINS = "单张开票";
 }
