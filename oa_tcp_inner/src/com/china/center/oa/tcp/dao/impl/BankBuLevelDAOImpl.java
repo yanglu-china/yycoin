@@ -81,8 +81,7 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
     @Override
     public String queryHighLevelManagerId(String flowKey, int bearType, String stafferId, String originator) {
         List<BankBuLevelBean> result = new ArrayList<BankBuLevelBean>();
-        if (TcpFlowConstant.WORK_PAY_MARKETING.equals(flowKey)
-                || TcpFlowConstant.WORK_APPLY_MARKETING.equals(flowKey)) {
+        if (TcpFlowConstant.WORK_APPLY_MARKETING.equals(flowKey)) {
             if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER) {
                 //regionalManager
                 result = jdbcOperation.queryObjectsBySql(
