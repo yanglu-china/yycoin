@@ -1687,18 +1687,37 @@ public class ProductAction extends DispatchAction
      * @return
      */
     private String isInway(ComposeItemBean item, List<OutBean> dbList){
-        for (OutBean outBean: dbList){
-            List<com.china.center.oa.sail.bean.BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
-            for(BaseBean baseBean: baseBeans){
-                if (!StringTools.isNullOrNone(baseBean.getDepotpartId()) && baseBean.getDepotpartId().equals(item.getDepotpartId())
-                        && !StringTools.isNullOrNone(baseBean.getProductId())
-                        && baseBean.getProductId().equals(item.getProductId())
-                        && !StringTools.isNullOrNone(baseBean.getCostPriceKey())
-                        && baseBean.getCostPriceKey().equals(StorageRelationHelper.getPriceKey(item.getPrice()))){
-                    return baseBean.getOutId();
+        //TODO 该产品全部库存-在途库存>=合成数量，就可以正常合成
+        String stafferId = "0";
+        String priceKey = StorageRelationHelper.getPriceKey(item.getPrice());
+        StorageRelationBean relation = storageRelationDAO
+                .findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(item.getDepotpartId(), item
+                        .getProductId(), priceKey, stafferId);
+        if (relation == null){
+            return null;
+        } else{
+            //在途数量
+            int zt = 0;
+            String outId = null;
+            for (OutBean outBean: dbList){
+                List<com.china.center.oa.sail.bean.BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
+                for(BaseBean baseBean: baseBeans){
+                    if (!StringTools.isNullOrNone(baseBean.getDepotpartId()) && baseBean.getDepotpartId().equals(item.getDepotpartId())
+                            && !StringTools.isNullOrNone(baseBean.getProductId())
+                            && baseBean.getProductId().equals(item.getProductId())
+                            && !StringTools.isNullOrNone(baseBean.getCostPriceKey())
+                            && baseBean.getCostPriceKey().equals(priceKey)){
+                        zt += Math.abs(baseBean.getAmount());
+                        outId = baseBean.getOutId();
+                    }
                 }
             }
+            _logger.info("relation.getAmount()***"+relation.getAmount()+"***zt**"+zt);
+            if(relation.getAmount() - zt < item.getAmount()){
+                return outId;
+            }
         }
+
         return null;
     }
 
