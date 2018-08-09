@@ -42,6 +42,7 @@ import com.china.center.oa.tax.helper.FinanceHelper;
 import com.china.center.oa.tax.manager.FinanceManager;
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
+import com.china.center.oa.tcp.dao.TcpShareDAO;
 import com.china.center.oa.tcp.listener.TcpPayListener;
 import com.china.center.oa.tcp.vo.TcpShareVO;
 import com.china.center.oa.tcp.vo.TravelApplyVO;
@@ -91,6 +92,8 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
     private FinanceMonthDAO financeMonthDAO = null;
     
     private FinanceItemDAO financeItemDAO = null;
+
+    private TcpShareDAO tcpShareDAO = null;
 
     /**
      * default constructor
@@ -499,20 +502,6 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
             name = "激励申请借款:" + bean.getId() + '.';
         }
 
-        FinanceItemBean itemIn = new FinanceItemBean();
-
-        String pareId = commonDAO.getSquenceString();
-
-        itemIn.setPareId(pareId);
-
-        itemIn.setName("营业费用-中收:" + name);
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
-            itemIn.setName("营业费用-激励"+name);
-        }
-
-        itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
-
-        FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
         // 其他应收款_备用金(部门/职员)
         TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MID);
@@ -526,25 +515,75 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
             throw new MYException("数据错误,请确认操作");
         }
 
-        // 科目拷贝
-        FinanceHelper.copyTax(inTax, itemIn);
+        List<TcpShareBean> tcpShareBeans = this.tcpShareDAO.queryEntityBeansByFK(bean.getId());
+        String pareId = commonDAO.getSquenceString();
 
-        // 当前发生额
-        double inMoney = outBillBean.getMoneys();
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
+            for (TcpShareBean tcpShareBean: tcpShareBeans){
+                FinanceItemBean itemIn = new FinanceItemBean();
 
-        itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
+                itemIn.setPareId(pareId);
 
-        itemIn.setOutmoney(0);
+                itemIn.setName("营业费用-激励:" + name);
 
-        itemIn.setDescription(itemIn.getName());
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
 
-        // 辅助核算 部门和职员
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+
+                // 科目拷贝
+                FinanceHelper.copyTax(inTax, itemIn);
+
+                // 当前发生额
+                double inMoney = outBillBean.getMoneys();
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 部门和职员
 //        itemIn.setDepartmentId(staffer.getPrincipalshipId());
 //        itemIn.setStafferId(staffer.getId());
 
-        //#308 2016/9/12 使用承担人替换掉当前登录帐号
-        this.setStafferId(bean, itemIn);
-        itemList.add(itemIn);
+                //#357 TODO 使用承担人替换掉当前登录帐号
+                this.setStafferId(bean, itemIn);
+                itemList.add(itemIn);
+            }
+        } else{
+            FinanceItemBean itemIn = new FinanceItemBean();
+
+            itemIn.setPareId(pareId);
+
+            itemIn.setName("营业费用-中收:" + name);
+
+            itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+            FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+            // 科目拷贝
+            FinanceHelper.copyTax(inTax, itemIn);
+
+            // 当前发生额
+            double inMoney = outBillBean.getMoneys();
+
+            itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
+
+            itemIn.setOutmoney(0);
+
+            itemIn.setDescription(itemIn.getName());
+
+            // 辅助核算 部门和职员
+//        itemIn.setDepartmentId(staffer.getPrincipalshipId());
+//        itemIn.setStafferId(staffer.getId());
+
+            //#308 2016/9/12 使用承担人替换掉当前登录帐号
+            this.setStafferId(bean, itemIn);
+            itemList.add(itemIn);
+        }
+
+
 
         // 贷方
         FinanceItemBean itemOut = new FinanceItemBean();
@@ -1655,4 +1694,12 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 	public void setFinanceItemDAO(FinanceItemDAO financeItemDAO) {
 		this.financeItemDAO = financeItemDAO;
 	}
+
+    public TcpShareDAO getTcpShareDAO() {
+        return tcpShareDAO;
+    }
+
+    public void setTcpShareDAO(TcpShareDAO tcpShareDAO) {
+        this.tcpShareDAO = tcpShareDAO;
+    }
 }
