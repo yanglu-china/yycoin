@@ -1824,15 +1824,16 @@ public class ShipAction extends DispatchAction
             }
 
             //#171 批量打印时多打印一份直邮单据,batchPrint为0代表批量打印，否则为空
-            if("0".equals(batchPrint) && vo.getDirect() == 1){
-                if (directFlag == null){
-                    request.setAttribute("directFlag", "1");
-                    request.setAttribute("title", "永银文化——发货清单（客户留存联）");
-                } else{
-                    request.setAttribute("directFlag", "0");
-                    request.setAttribute("title", "永银文化——发货清单（寄回发件公司联）");
-                }
-            }
+            //#381 20180808 这个功能又不要了!!!
+//            if("0".equals(batchPrint) && vo.getDirect() == 1){
+//                if (directFlag == null){
+//                    request.setAttribute("directFlag", "1");
+//                    request.setAttribute("title", "永银文化——发货清单（客户留存联）");
+//                } else{
+//                    request.setAttribute("directFlag", "0");
+//                    request.setAttribute("title", "永银文化——发货清单（寄回发件公司联）");
+//                }
+//            }
 
             if (vo.getCustomerName().indexOf("吉林银行") != -1) {
                 return mapping.findForward("printJlReceipt");
