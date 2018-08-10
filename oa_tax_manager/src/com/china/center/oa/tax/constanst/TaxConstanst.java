@@ -429,6 +429,12 @@ public interface TaxConstanst
      */
     @Defined(key = "financeCreateType", value = "中收申请")
     int FINANCE_CREATETYPE_MID_APPLY = 85;
+
+    /**
+     * 激励
+     */
+    @Defined(key = "financeCreateType", value = "激励申请")
+    int FINANCE_CREATETYPE_MOTIVATION_APPLY = 86;
     
     /**
      * 开票-确认付款

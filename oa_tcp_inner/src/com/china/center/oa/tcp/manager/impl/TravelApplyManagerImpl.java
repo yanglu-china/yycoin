@@ -1696,8 +1696,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
             for (TcpPayListener tcpPayListener : listenerMapValues)
             {
-            	// 中收，在支付确认后，红冲提交时产生的凭证
-            	if (bean.isMidOrMotivation()) {
+            	// 只有中收申请，在支付确认后，红冲提交时产生的凭证
+            	if (bean.getIbType() == TcpConstanst.IB_TYPE
+                        || bean.getIbType() == TcpConstanst.IB_TYPE2) {
             		tcpPayListener.onSubmitMidTravelApply(user, bean, -1);
             	}
             	

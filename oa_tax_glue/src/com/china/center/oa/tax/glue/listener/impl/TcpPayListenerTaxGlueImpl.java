@@ -209,6 +209,10 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         {
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_EXPENSE_COMMON);
         }
+        else if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION)
+        {
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_MOTIVATION_APPLY);
+        }
         else
         {
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_TCP_BORROW);
