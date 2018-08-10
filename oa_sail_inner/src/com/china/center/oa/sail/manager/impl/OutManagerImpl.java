@@ -8816,7 +8816,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         bean.setList(repaireList);
         
         // Core 一退一销，脏数据利用，安全性
-        processBlankBuyAndOut(bean, out, user);
+        processBlankBuyAndOut(bean, out, user, null);
         
         bean.setStatus(OutConstant.OUT_REPAIRE_END);
 
@@ -8859,11 +8859,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	 * @param out
 	 * @throws MYException
 	 */
-	private void processBlankBuyAndOut(OutRepaireBean bean, OutBean out, User user) throws MYException
+	private void processBlankBuyAndOut(OutRepaireBean bean, OutBean out, User user, String reason) throws MYException
 	{
-		String newBuyId = createNewBuyBean(bean, out, user);
+		String newBuyId = createNewBuyBean(bean, out, user, reason);
 
-		OutBean newOutBean = createNewOutBean(bean, out, user);
+		OutBean newOutBean = createNewOutBean(bean, out, user, reason);
 		
 		// 新单的配送地址，复制原销售单
 		DistributionBean dist = null;
@@ -8908,7 +8908,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
 	}
 
-	private String createNewBuyBean(OutRepaireBean bean, OutBean out, User user) throws MYException
+	private String createNewBuyBean(OutRepaireBean bean, OutBean out, User user, String reason) throws MYException
 	{
 		String newBuyId;
 		
@@ -9049,7 +9049,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         log.setActor("系统");
 
         if(bean == null){
-            log.setDescription("空出空进系统自动审批");
+            StringBuilder sb = new StringBuilder();
+            sb.append("空出空进系统自动审批");
+            if (!StringTools.isNullOrNone(reason)){
+                sb.append(":"+reason);
+            }
+            log.setDescription(sb.toString());
         }else{
             log.setDescription("空开空退系统自动审批");
         }
@@ -9078,7 +9083,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	 * @return
 	 * @throws MYException
 	 */
-	private OutBean createNewOutBean(OutRepaireBean bean, OutBean out, User user) throws MYException
+	private OutBean createNewOutBean(OutRepaireBean bean, OutBean out, User user, String reason) throws MYException
 	{
         // #226 直接出库,触发产生退货凭证 TAX_ADD,不需要生成新单
         if (bean == null){
@@ -9251,8 +9256,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         log.setActor("系统");
 
         if (bean  == null){
+            StringBuilder sb = new StringBuilder();
+            sb.append("空出空进系统自动审批");
+            if (!StringTools.isNullOrNone(reason)){
+                sb.append(":"+reason);
+            }
+            log.setDescription(sb.toString());
             log.setFullId(out.getFullId());
-            log.setDescription("空出空进系统自动审批");
             log.setAfterStatus(OutConstant.STATUS_PASS);
         } else{
             log.setDescription("空开空退系统自动审批");
@@ -9271,8 +9281,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     @Override
     @Transactional(rollbackFor = MYException.class)
-    public boolean kckj(User user, String fullId) throws MYException {
-        JudgeTools.judgeParameterIsNull(user, fullId);
+    public boolean kckj(User user, String fullId, String reason) throws MYException {
+        JudgeTools.judgeParameterIsNull(user, fullId, reason);
 
         OutBean out = outDAO.find(fullId);
 
@@ -9286,7 +9296,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
 
         // Core 一退一销，脏数据利用，安全性
-        processBlankBuyAndOut(null, out, user);
+        processBlankBuyAndOut(null, out, user, reason);
 
         // 验证(销售单)是否可以全部回款
         this.payOut(user, out.getFullId(), "自动核对付款");

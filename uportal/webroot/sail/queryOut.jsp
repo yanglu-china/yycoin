@@ -551,9 +551,15 @@ function check()
 
 function kckj()
 {
-    if(window.confirm('确定空出空进?')){
-        $ajax('../sail/out.do?method=kckj&outId=' + getRadioValue("fullId"), callbackKckj);
-	}
+    $.messager.prompt('确定空出空进', '请输入意见', '', function(r){
+        if (r)
+        {
+            $ajax('../sail/out.do?method=kckj&outId=' + getRadioValue("fullId")+"&reason="+r, callbackKckj);
+        }
+    });
+    // if(window.confirm('确定空出空进?')){
+     //    $ajax('../sail/out.do?method=kckj&outId=' + getRadioValue("fullId"), callbackKckj);
+	// }
 }
 
 function callbackKckj(data){

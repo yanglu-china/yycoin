@@ -4759,10 +4759,11 @@ public class OutAction extends ParentOutAction
         try
         {
             String outId = request.getParameter("outId");
+            String reason = request.getParameter("reason");
 
             User user = Helper.getUser(request);
             
-            outManager.kckj(user, outId);
+            outManager.kckj(user, outId, reason);
 
             ajax.setSuccess("成功操作");
         }
