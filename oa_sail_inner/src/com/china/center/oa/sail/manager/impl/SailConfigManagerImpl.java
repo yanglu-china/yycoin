@@ -11,7 +11,7 @@ package com.china.center.oa.sail.manager.impl;
 
 import java.util.List;
 
-import com.china.center.tools.ListTools;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -36,9 +36,6 @@ import com.china.center.oa.sail.dao.SailConfigDAO;
 import com.china.center.oa.sail.helper.SailConfigHelper;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.sail.vo.SailConfigVO;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.JudgeTools;
-import com.china.center.tools.StringTools;
 
 
 /**
@@ -130,7 +127,8 @@ public class SailConfigManagerImpl implements SailConfigManager
         JudgeTools.judgeParameterIsNull(user, bean);
 
         bean.setId(commonDAO.getSquenceString20());
-
+        bean.setOperator(user.getStafferName());
+        bean.setLogTime(TimeTools.now());
         if ( !StringTools.isNullOrNone(bean.getProductId()) && !"0".equals(bean.getProductId()))
         {
             bean.setType(SailConstant.SAILCONFIG_ONLYPRODUCT);
@@ -179,6 +177,8 @@ public class SailConfigManagerImpl implements SailConfigManager
                 old.setPratio(bean.getPratio());
                 old.setIratio(bean.getIratio());
                 old.setDescription(bean.getDescription());
+                old.setLogTime(bean.getLogTime());
+                old.setOperator(bean.getOperator());
                 return this.sailConfDAO.updateEntityBean(old);
             }
         } else{
@@ -194,9 +194,14 @@ public class SailConfigManagerImpl implements SailConfigManager
     @Override
     @Transactional(rollbackFor = MYException.class)
     public boolean importSailConfig(User user, List<SailConfBean> beans) throws MYException {
-        for (SailConfBean bean: beans){
-            this.addBean(user, bean,true);
+        if(ListTools.isEmptyOrNull(beans)){
+            throw new MYException("导入内容为空,请确认模板!");
+        } else{
+            for (SailConfBean bean: beans){
+                this.addBean(user, bean,true);
+            }
         }
+
         return true;
     }
 

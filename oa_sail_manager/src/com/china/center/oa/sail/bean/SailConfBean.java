@@ -79,6 +79,11 @@ public class SailConfBean implements DataClone<SailConfBean>, Serializable
     @Html(title = "描述", maxLength = 100, type = Element.TEXTAREA)
     private String description = "";
 
+    @Html(title = "更新时间", type = Element.INPUT)
+    private String logTime = "";
+
+    @Html(title = "更新人", type = Element.INPUT)
+    private String operator = "";
     /**
      * Copy Constructor
      * 
@@ -279,6 +284,22 @@ public class SailConfBean implements DataClone<SailConfBean>, Serializable
     public SailConfBean clones()
     {
         return new SailConfBean(this);
+    }
+
+    public String getLogTime() {
+        return logTime;
+    }
+
+    public void setLogTime(String logTime) {
+        this.logTime = logTime;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
     }
 
     /**
