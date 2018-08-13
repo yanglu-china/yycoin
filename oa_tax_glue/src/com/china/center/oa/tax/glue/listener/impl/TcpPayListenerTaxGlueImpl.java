@@ -546,7 +546,12 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
                 // 当前发生额
 //                double inMoney = outBillBean.getMoneys();
 //                itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
-                itemIn.setInmoney(tcpShareBean.getRealMonery()*100);
+
+                if (tcpShareBean.getRatio()>0 ){
+                    itemIn.setInmoney(tcpShareBean.getRatio()*bean.getTotal());
+                } else{
+                    itemIn.setInmoney(tcpShareBean.getRealMonery()*100);
+                }
 
                 itemIn.setOutmoney(0);
 
@@ -1375,7 +1380,13 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
                 // 当前发生额
 //                itemIn.setInmoney(type * bean.getTotal() * 100);
-                itemIn.setInmoney(type * tcpShareBean.getRealMonery()*100);
+//                itemIn.setInmoney(type * tcpShareBean.getRealMonery()*100);
+
+                if (tcpShareBean.getRatio()>0 ){
+                    itemIn.setInmoney(type*tcpShareBean.getRatio()*bean.getTotal());
+                } else{
+                    itemIn.setInmoney(type*tcpShareBean.getRealMonery()*100);
+                }
 
                 itemIn.setOutmoney(0);
 

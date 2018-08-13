@@ -4760,7 +4760,7 @@ public class OutAction extends ParentOutAction
         {
             String outId = request.getParameter("outId");
             String reason = request.getParameter("reason");
-
+            _logger.info("***kckj***"+outId+"***reason***"+reason);
             User user = Helper.getUser(request);
             
             outManager.kckj(user, outId, reason);
