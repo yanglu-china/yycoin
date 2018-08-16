@@ -114,6 +114,7 @@
                                 <td width="10%"><table class="border1"><tr><td align="center">数量(套)</td></tr></table></td>
                                 <td width="20%"><table class="border1"><tr><td align="center">订单类型</td></tr></table></td>
                                 <td width="10%"><table class="border1"><tr><td align="center">顾客姓名</td></tr></table></td>
+                                <td width="12%"><table class="border1"><tr><td align="center">客户备注</td></tr></table></td>
                             </tr>
 
                             <c:forEach items="${bean.itemList}" var="item" varStatus="vs">
@@ -125,6 +126,7 @@
                                     <td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.itemType}</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.customerName}</td></tr></table></td>
+                                    <td><table class="border1"><tr><td>${item.customerDescription}</td></tr></table></td>
                                 </tr>
                             </c:forEach>
 
