@@ -180,6 +180,7 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 				</table>

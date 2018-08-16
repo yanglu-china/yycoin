@@ -500,7 +500,7 @@ public class TravelApplyAction extends DispatchAction
         	condtion.addCondition("TcpApproveBean.approverId", "=", user.getStafferId());
         }
         
-        if (mode.equals("0")){
+        if ("0".equals(mode) || StringTools.isNullOrNone(mode)){
             // 预开票与预收退款及退票
         	condtion.addCondition(" and TcpApproveBean.type not in (22, 23, 24)");
         } else if ("999".equals(mode)) {
