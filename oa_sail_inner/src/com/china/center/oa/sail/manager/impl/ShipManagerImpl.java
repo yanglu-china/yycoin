@@ -3107,16 +3107,17 @@ public class ShipManagerImpl implements ShipManager
         //To change body of implemented methods use File | Settings | File Templates.
         _logger.info("import branch relation***"+branchRelationBeans);
         for (BranchRelationBean bean : branchRelationBeans){
-            BranchRelationBean beanInDb = this.branchRelationDAO.findByUnique(bean.getSubBranchName(),bean.getBranchName(), bean.getChannel());
+            BranchRelationBean beanInDb = this.branchRelationDAO.findByUnique(bean.getSubBranchName(), bean.getChannel());
             if (beanInDb == null){
-//                _logger.info("***save***"+bean);
+                _logger.info("***create BranchRelationBean***"+bean);
                 this.branchRelationDAO.saveEntityBean(bean);
             } else{
-//                _logger.info("***update***"+bean);
+                _logger.info("***update BranchRelationBean***"+bean);
                 beanInDb.setBranchMail(bean.getBranchMail());
                 beanInDb.setSubBranchMail(bean.getSubBranchMail());
                 beanInDb.setSendMailFlag(bean.getSendMailFlag());
                 beanInDb.setCopyToBranchFlag(bean.getCopyToBranchFlag());
+                beanInDb.setBranchName(bean.getBranchName());
                 this.branchRelationDAO.updateEntityBean(beanInDb);
             }
         }

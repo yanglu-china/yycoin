@@ -27,7 +27,7 @@ public class BranchRelationBean implements Serializable
      * 支行名称
      * 同客户名称
      */
-    @Unique(dependFields = {"branchName","channel"})
+    @Unique(dependFields = "channel")
     private String subBranchName = "";
 
     /**
