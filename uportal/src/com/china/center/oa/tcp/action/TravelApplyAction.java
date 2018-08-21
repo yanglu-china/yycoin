@@ -1889,7 +1889,7 @@ public class TravelApplyAction extends DispatchAction
     	//此处参数标识是不是带附件提交，如有附件则参数为null,走if逻辑处理
     	String tempStatus = request.getParameter("status");
     	//货比三家存有上传附件
-    	if(null == tempStatus || tempStatus == "")
+    	if(null == tempStatus || tempStatus == "" )
     	{
     		
 	        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
@@ -1920,7 +1920,7 @@ public class TravelApplyAction extends DispatchAction
         String processId = rds.getParameter("processId");
         String compliance = rds.getParameter("compliance");
         TravelApplyVO travelApplyVo = travelApplyManager.findVO(id);
-
+        _logger.info("***travelApplyVO****"+travelApplyVo);
         Map<String, InputStream> streamMap = rds.getStreamMap();
         List<AttachmentBean> attachmentList = travelApplyVo.getAttachmentList() == null ?new ArrayList<AttachmentBean>():travelApplyVo.getAttachmentList();
         	if(!streamMap.isEmpty())
@@ -1999,8 +1999,14 @@ public class TravelApplyAction extends DispatchAction
 	            param.setReason(reason);
 	            param.setProcessId(processId);
 	            param.setCompliance(compliance);
-	            // 组装参数
-	            fillWrap(request, param);
+	            if (travelApplyVo.getType() == TcpConstanst.TCP_APPLYTYPE_MID){
+                    // #394 中收申请待财务支付时需要上传附件，改为从RDS中获取表单数据,form页面也改为multipart/form-data
+                    fillWrap(rds, param);
+                } else{
+                    // 组装参数
+                    fillWrap(request, param);
+                }
+
 	            travelApplyVo.setAttachmentList(attachmentList);
 	            travelApplyManager.updateAttachmentList(user, travelApplyVo);
 	            // 提交
@@ -2222,6 +2228,104 @@ public class TravelApplyAction extends DispatchAction
             param.setOther(outBillList);
         }
         String dutyId = request.getParameter("dutyId");
+
+        if (dutyId != null)
+        {
+            param.setDutyId(dutyId);
+        }
+    }
+
+    private void fillWrap(RequestDataStream rds, TcpParamWrap param)
+            throws MYException
+    {
+        _logger.info("****fillWrap***");
+        List<String> ppid = rds.getParameters("p_cid");
+        // 稽核处理
+        if (ppid != null && ppid.size() > 0)
+        {
+            List<String> pcmoneysList = rds.getParameters("p_cmoneys");
+            List<String> pcdescriptionList = rds.getParameters("p_cdescription");
+            List<TravelApplyPayBean> payList = travelApplyPayDAO
+                    .queryEntityBeansByFK(param.getId());
+            for (int i = 0; i < ppid.size(); i++ )
+            {
+                for (TravelApplyPayBean travelApplyPayBean : payList)
+                {
+                    if (travelApplyPayBean.getId().equals(ppid.get(i)))
+                    {
+                        travelApplyPayBean.setCmoneys(MathTools.doubleToLong2(pcmoneysList.get(i)));
+                        travelApplyPayBean.setCdescription(pcdescriptionList.get(i));
+                    }
+                }
+            }
+
+            param.setOther(payList);
+        }
+
+        // 处理采购货比三家
+        List<String> cids = rds.getParameters("i_cid");
+
+        if (cids != null && cids.size() > 0)
+        {
+            List<String> checkPrices = rds.getParameters("i_checkPrices");
+            List<String> moneys = rds.getParameters("i_moneys");
+            List<String> purpose = rds.getParameters("i_purpose");
+
+            List<TravelApplyItemBean> list = new ArrayList();
+
+            long m1 = 0L;
+            for (int i = 0; i < cids.size(); i++ )
+            {
+                if (StringTools.isNullOrNone(cids.get(i)))
+                {
+                    continue;
+                }
+
+                TravelApplyItemBean item = new TravelApplyItemBean();
+
+                item.setId(cids.get(i));
+                item.setCheckPrices(MathTools.doubleToLong2(checkPrices.get(i)));
+                item.setMoneys(MathTools.doubleToLong2(moneys.get(i)));
+                item.setPurpose(purpose.get(i));
+
+                m1 += item.getMoneys();
+
+                list.add(item);
+            }
+
+            param.setOther2(list);
+        }
+
+        List<String> bankIds = rds.getParameters("bankId");
+        // 财务付款
+        if (bankIds != null && bankIds.size() > 0)
+        {
+            List<String> payTypes = rds.getParameters("payType");
+            List<String> moneys = rds.getParameters("money");
+
+            List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
+
+            for (int i = 0; i < bankIds.size(); i++ )
+            {
+                if (StringTools.isNullOrNone(bankIds.get(i)))
+                {
+                    continue;
+                }
+
+                OutBillBean outBill = new OutBillBean();
+
+                outBill.setBankId(bankIds.get(i));
+
+                outBill.setPayType(MathTools.parseInt(payTypes.get(i)));
+
+                outBill.setMoneys(MathTools.parseDouble(moneys.get(i)));
+
+                outBillList.add(outBill);
+            }
+
+            param.setOther(outBillList);
+        }
+        String dutyId = rds.getParameter("dutyId");
 
         if (dutyId != null)
         {
