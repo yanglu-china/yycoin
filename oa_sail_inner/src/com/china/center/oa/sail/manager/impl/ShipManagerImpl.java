@@ -3118,6 +3118,8 @@ public class ShipManagerImpl implements ShipManager
                 beanInDb.setSendMailFlag(bean.getSendMailFlag());
                 beanInDb.setCopyToBranchFlag(bean.getCopyToBranchFlag());
                 beanInDb.setBranchName(bean.getBranchName());
+                beanInDb.setLogTime(TimeTools.now());
+                beanInDb.setOperator(bean.getOperator());
                 this.branchRelationDAO.updateEntityBean(beanInDb);
             }
         }
