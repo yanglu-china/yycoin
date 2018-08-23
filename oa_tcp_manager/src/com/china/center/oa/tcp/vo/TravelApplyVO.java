@@ -18,6 +18,7 @@ import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.oa.tcp.bean.TcpInterface;
 import com.china.center.oa.tcp.bean.TravelApplyBean;
+import com.china.center.oa.tcp.constanst.TcpConstanst;
 
 
 /**
@@ -422,6 +423,11 @@ public class TravelApplyVO extends TravelApplyBean implements TcpInterface
     public void setDutyName(String dutyName)
     {
         this.dutyName = dutyName;
+    }
+
+    @Override
+    public int getPayType() {
+        return TcpConstanst.PAYTYPE_GPAY_BO;
     }
 
     /**

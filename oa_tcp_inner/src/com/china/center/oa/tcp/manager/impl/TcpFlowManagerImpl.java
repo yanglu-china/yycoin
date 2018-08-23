@@ -357,12 +357,8 @@ public class TcpFlowManagerImpl implements TcpFlowManager
                 approve.setStype(bean.getStype());
                 approve.setPool(pool);
 
-                if (bean instanceof ExpenseApplyBean){
-                    //#394 payType字段和报销单一致
-                    approve.setPayType(bean.getPayType());
-                } else{
-                    approve.setPayType(TcpConstanst.PAYTYPE_GPAY_BO);
-                }
+                //#394 payType字段和报销单一致
+                approve.setPayType(bean.getPayType());
 
                 tcpApproveDAO.saveEntityBean(approve);
                 _logger.info("***save TcpApproveBean***"+approve);
