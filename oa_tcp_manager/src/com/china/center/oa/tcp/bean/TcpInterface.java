@@ -23,5 +23,5 @@ public interface TcpInterface {
 
     int getStype();
 
-
+    int getPayType();
 }
