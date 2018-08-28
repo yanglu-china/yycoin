@@ -595,9 +595,10 @@ function recives()
             <input type="button" name="oi"
             class="button_class" onclick="invokeOther()"
             value="&nbsp;转调其他区域&nbsp;">&nbsp;&nbsp;
-            <input type="button"  name="re"
-            class="button_class" onclick="rejects()"
-            value="&nbsp;&nbsp;全部驳回&nbsp;&nbsp;">&nbsp;&nbsp;<input
+            <%--<input type="button"  name="re"--%>
+            <%--class="button_class" onclick="rejects()"--%>
+            <%--value="&nbsp;&nbsp;全部驳回&nbsp;&nbsp;">&nbsp;&nbsp;--%>
+			<input
             type="button" name="ba" class="button_class"
             onclick="javascript:history.go(-1)"
             value="&nbsp;&nbsp;返 回&nbsp;&nbsp;"></div>

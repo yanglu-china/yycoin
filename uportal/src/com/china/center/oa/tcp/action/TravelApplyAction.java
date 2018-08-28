@@ -19,6 +19,7 @@ import com.china.center.actionhelper.common.*;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
+import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
@@ -5089,6 +5090,8 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("订单状态");
             line.writeColumn("申请人");
             line.writeColumn("银行销售日期");
+            line.writeColumn("付款状态");
+            line.writeColumn("付款时间");
 
             line.writeLine();
 
@@ -5124,11 +5127,21 @@ public class TravelApplyAction extends DispatchAction
 
                     //2015/7/11导出申请人和银行销售日期
                     OutBean outBean = this.outDAO.find(ib.getFullId());
-                    if (outBean!= null){
+                    if (outBean == null){
+                        line.writeColumn("");
+                        line.writeColumn("");
+                        line.writeColumn("");
+                        line.writeColumn("");
+                        line.writeColumn("");
+                    } else{
                         line.writeColumn(OutHelper.getOutStatus(outBean));
                         line.writeColumn(outBean.getStafferName());
                         line.writeColumn(outBean.getPodate());
+                        line.writeColumn(DefinedCommon.getValue("outPay",
+                                outBean.getPay()));
+                        line.writeColumn(outBean.getPayTime());
                     }
+
                     line.writeLine();
 
 //                    orders.add(fullId);

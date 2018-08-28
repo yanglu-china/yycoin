@@ -172,6 +172,24 @@ function sub()
 	}
 }
 
+function cancel()
+{
+    if (getRadio('fullId').statuss == '3'  && getRadio('fullId').outtype == '1')
+    {
+        if(window.confirm('确定撤回调拨申请?')){
+            $O('method').value = 'processInvoke';
+            $O('flag').value = 3;
+            $O('outId').value = getRadioValue("fullId");
+
+            disableAllButton();
+            adminForm.submit();
+		}
+    }
+    else{
+        alert('此状态不能撤回调拨申请!');
+	}
+}
+
 function query()
 {
 	if (comp())
@@ -234,6 +252,8 @@ function load()
     name="oldStatus">
 	<input type="hidden" value=""
 	name="statuss">
+	<input type="hidden" value=""
+		   name="flag">
 <c:set var="fg" value='入库'/>
 
 <p:navigation
@@ -434,9 +454,13 @@ function load()
 		<div align="right">
 		<input
 			type="button" class="button_class"
-			value="&nbsp;&nbsp;修 改&nbsp;&nbsp;" onclick="modfiy()" />&nbsp;&nbsp;<input
+			value="&nbsp;&nbsp;修 改&nbsp;&nbsp;" onclick="modfiy()" />&nbsp;&nbsp;
+			<input
 			type="button" class="button_class"
-			value="&nbsp;&nbsp;提 交&nbsp;&nbsp;" onclick="sub()" />&nbsp;&nbsp; 
+			value="&nbsp;&nbsp;提 交&nbsp;&nbsp;" onclick="sub()" />&nbsp;&nbsp;
+			<input
+					type="button" class="button_class"
+					value="&nbsp;&nbsp;撤回调拨申请&nbsp;&nbsp;" onclick="cancel()" />&nbsp;&nbsp;
 			<input
 			type="button" class="button_class"
 			value="&nbsp;&nbsp;删 除&nbsp;&nbsp;" onclick="del()" />&nbsp;&nbsp;
