@@ -55,6 +55,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static com.china.center.oa.tcp.constanst.TcpConstanst.TCP_STATUS_FINANCE;
+
 /**
  * 
  * 预收退款
@@ -632,11 +634,98 @@ public class BackPrePayAction extends DispatchAction
             HttpServletRequest request, HttpServletResponse response)
 	throws ServletException
 	{
-        String id = request.getParameter("id");
-        String oprType = request.getParameter("oprType");
-        String reason = request.getParameter("reason");
-        String processId = request.getParameter("processId");
-        
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
+        try
+        {
+            rds.parser();
+        }
+        catch (FileUploadBase.SizeLimitExceededException e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过10M");
+
+            return mapping.findForward("error");
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败");
+
+            return mapping.findForward("error");
+        }
+
+        String id = rds.getParameter("id");
+        String oprType = rds.getParameter("oprType");
+        String reason = rds.getParameter("reason");
+        String processId = rds.getParameter("processId");
+
+        BackPrePayApplyVO backPrePayApplyVO = this.backPrePayApplyDAO.findVO(id);
+        Map<String, InputStream> streamMap = rds.getStreamMap();
+        List<AttachmentBean> attachmentList = backPrePayApplyVO.getAttachmentList() == null ?new ArrayList<AttachmentBean>():backPrePayApplyVO.getAttachmentList();
+        if(!streamMap.isEmpty())
+        {
+
+            for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
+            {
+                AttachmentBean attachmentBean = new AttachmentBean();
+
+                FileOutputStream out = null;
+
+                UtilStream ustream = null;
+
+                try
+                {
+                    String savePath = mkdir(this.getAttachmentPath());
+
+                    String fileAlais = SequenceTools.getSequence();
+
+                    String fileName = FileTools.getFileName(rds.getFileName(entry.getKey()));
+
+                    String rabsPath = '/' + savePath + '/' + fileAlais + "."
+                            + FileTools.getFilePostfix(fileName).toLowerCase();
+
+                    String filePath = this.getAttachmentPath() + '/' + rabsPath;
+
+                    attachmentBean.setName(fileName);
+
+                    attachmentBean.setPath(rabsPath);
+
+                    attachmentBean.setLogTime(TimeTools.now());
+
+                    out = new FileOutputStream(filePath);
+
+                    ustream = new UtilStream(entry.getValue(), out);
+
+                    ustream.copyStream();
+
+                    attachmentList.add(attachmentBean);
+                }
+                catch (IOException e)
+                {
+                    _logger.error(e, e);
+
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存失败");
+
+                }
+                finally
+                {
+                    if (ustream != null)
+                    {
+                        try
+                        {
+                            ustream.close();
+                        }
+                        catch (IOException e)
+                        {
+                            _logger.error(e, e);
+                        }
+                    }
+                }
+            }
+        }
+
         try
         {
             User user = Helper.getUser(request);
@@ -649,11 +738,17 @@ public class BackPrePayAction extends DispatchAction
             param.setProcessId(processId);
 
             // 组装参数
-            fillWrap(request, param);
+//            fillWrap(request, param);
+            this.fillWrap(rds, param);
             
             // 提交
             if ("0".equals(oprType))
             {
+                //#394 出纳审核环节可上传附件
+                if(backPrePayApplyVO.getStatus() == TCP_STATUS_FINANCE){
+                    backPrePayApplyVO.setAttachmentList(attachmentList);
+                    this.backPrePayManager.updateAttachmentList(user, backPrePayApplyVO);
+                }
                 backPrePayManager.passBackPrePayBean(user, param);
             }
             else
@@ -706,6 +801,37 @@ public class BackPrePayAction extends DispatchAction
             }
         	
         	param.setOther(outBillList);
+        }
+    }
+
+    private void fillWrap(RequestDataStream rds, TcpParamWrap param)
+    {
+        List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
+
+        List<String> bankIds = rds.getParameters("bankId");
+        List<String> payTypes = rds.getParameters("payType");
+        List<String> moneys = rds.getParameters("money");
+
+        if (null != bankIds && bankIds.size() > 0) {
+            for (int i = 0; i < bankIds.size(); i++ )
+            {
+                if (StringTools.isNullOrNone(bankIds.get(i)))
+                {
+                    continue;
+                }
+
+                OutBillBean outBill = new OutBillBean();
+
+                outBill.setBankId(bankIds.get(i));
+
+                outBill.setPayType(MathTools.parseInt(payTypes.get(i)));
+
+                outBill.setMoneys(MathTools.parseDouble(moneys.get(i)));
+
+                outBillList.add(outBill);
+            }
+
+            param.setOther(outBillList);
         }
     }
     

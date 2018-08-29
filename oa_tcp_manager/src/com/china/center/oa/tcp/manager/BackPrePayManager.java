@@ -32,4 +32,6 @@ public interface BackPrePayManager extends ListenerManager<BackPayApplyListener>
      */
     boolean deleteBackPrePayBean(User user, String id)
         throws MYException;
+
+	boolean updateAttachmentList(User user, BackPrePayApplyVO bean)throws MYException;
 }

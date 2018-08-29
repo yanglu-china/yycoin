@@ -117,7 +117,7 @@ function load()
 </head>
 
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../tcp/backprepay.do?method=processBackPrePayBean" method="post">
+<form name="formEntry" action="../tcp/backprepay.do?method=processBackPrePayBean" enctype="multipart/form-data" method="post">
 <input type="hidden" name="oprType" value="0"> 
 <input type="hidden" name="processId" value=""> 
 <input type="hidden" name="id" value="${bean.id}"> 
@@ -196,12 +196,18 @@ function load()
             </p:cell>
             
             <p:cell title="附件" width="8" end="true">
-            <c:forEach items="${bean.attachmentList}" var="item">
-            <a href="../tcp/backprepay.do?method=downAttachmentFile&id=${item.id}" title="点击下载附件">${item.name}</a>
-            <br>
-            <br>
-            </c:forEach>
+                <c:forEach items="${bean.attachmentList}" var="item">
+                <a href="../tcp/backprepay.do?method=downAttachmentFile&id=${item.id}" title="点击下载附件">${item.name}</a>
+                <br>
+                <br>
+                </c:forEach>
             </p:cell>
+
+            <c:if test="${bean.status == 29}">
+                <p:cell title="附件" width="8" end="true">
+                    <input type="file" name="atts" size="70" >
+                </p:cell>
+            </c:if>
             
             <c:if test="${bean.status == 29}">
 	            <p:cell title="申请退款金额" end="true">

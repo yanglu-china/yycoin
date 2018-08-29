@@ -281,7 +281,23 @@ public class BackPrePayManagerImpl extends AbstractListenerManager<BackPayApplyL
         return true;
     }
 
-	@Transactional(rollbackFor = MYException.class)
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean updateAttachmentList(User user, BackPrePayApplyVO bean) throws MYException {
+        List<AttachmentBean> attachmentList = bean.getAttachmentList();
+
+        attachmentDAO.deleteByEntityBeans(attachmentList);
+
+        for (AttachmentBean attachmentBean : attachmentList)
+        {
+            attachmentBean.setId(commonDAO.getSquenceString20());
+            attachmentBean.setRefId(bean.getId());
+        }
+        boolean b = attachmentDAO.saveAllEntityBeans(attachmentList);
+        return b;
+    }
+
+    @Transactional(rollbackFor = MYException.class)
 	public boolean submitBackPrePayBean(User user, String id, String processId)
 			throws MYException
 	{
