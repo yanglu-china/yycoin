@@ -187,7 +187,7 @@ function getBank(obj)
 				<p:option type="outbillType"/>
 			</p:pro>
 			
-			<p:cell title="选择目的帐户" id="destBankId">
+			<p:cell title="选择目的帐户">
                 <input name="destBankName" type="text" readonly="readonly" size="60">
                  <font color="red">*</font>
                 <input type="button"
