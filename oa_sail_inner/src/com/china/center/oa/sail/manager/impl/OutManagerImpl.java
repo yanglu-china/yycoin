@@ -8926,6 +8926,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         int outType = OutConstant.OUTTYPE_IN_OUTBACK;
         if ( refOutId.startsWith("ZS") ){
             outType = OutConstant.OUTTYPE_IN_PRESENT;
+        } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
+                || out.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
+                || out.getOutType() == OutConstant.OUTTYPE_OUT_SHOW){
+            // #403 “个人领样、银行领样、客户铺货”这3种类型的订单入库类型为“领样退库”
+            outType = OutConstant.OUTTYPE_IN_SWATCH;
         }
         String flag = OutHelper.getSailHead(OutConstant.OUT_TYPE_INBILL, outType);
 
