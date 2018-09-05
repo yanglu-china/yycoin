@@ -294,6 +294,48 @@ public interface TaxConstanst
     int FINANCE_CREATETYPE_SAIL_TRAN = 50;
 
     /**
+     * 采购过账
+     */
+    @Defined(key = "financeCreateType", value = "采购过账")
+    int FINANCE_CREATETYPE_CGGZ = 51;
+
+    /**
+     * 永银付款
+     */
+    @Defined(key = "financeCreateType", value = "永银付款")
+    int FINANCE_CREATETYPE_YYPAY = 52;
+
+    /**
+     * 金银料来款
+     */
+    @Defined(key = "financeCreateType", value = "金银料来款")
+    int FINANCE_CREATETYPE_MATERIAL_IN = 53;
+
+    /**
+     * 回购
+     */
+    @Defined(key = "financeCreateType", value = "回购")
+    int FINANCE_CREATETYPE_RE_PURCHASE = 54;
+
+    /**
+     * 集邮走账
+     */
+    @Defined(key = "financeCreateType", value = "集邮走账")
+    int FINANCE_CREATETYPE_STAMP = 55;
+
+    /**
+     * 拍卖
+     */
+    @Defined(key = "financeCreateType", value = "拍卖")
+    int FINANCE_CREATETYPE_AUCTION = 56;
+
+    /**
+     * 特殊订单款
+     */
+    @Defined(key = "financeCreateType", value = "特殊订单款")
+    int FINANCE_CREATETYPE_SPECIAL = 57;
+
+    /**
      * 资金-回款新增
      */
     @Defined(key = "financeCreateType", value = "资金-回款新增")

@@ -218,4 +218,14 @@ public interface TaxItemConstanst
      * 应付职工薪酬-工资-工资-工资 #371
      */
     String SALARY = "2151-01-01-01";
+
+    String CGGZ = "2181-99";
+
+    String YYPAY = "2181-98";
+
+    String MATERIAL = "2181-97";
+
+    String RE_PURCHASE = "2181-96";
+
+    String STAMP = "2181-95";
 }

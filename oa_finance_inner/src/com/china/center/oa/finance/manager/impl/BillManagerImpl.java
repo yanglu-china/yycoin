@@ -395,7 +395,14 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
         if ((bean.getType() == FinanceConstant.OUTBILL_TYPE_HANDLING
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_STOCK
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_TRANSFER
-                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SALARY)
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SALARY
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_CGGZ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_YYPAY
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_MATERIAL_IN
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_RE_PURCHASE
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_STAMP
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_AUCTION
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SPECIAL)
                 && bean.getCreateType() == FinanceConstant.BILL_CREATETYPE_HAND)
         {
         	// 转账一步到位

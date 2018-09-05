@@ -373,6 +373,48 @@ public interface FinanceConstant
      */
     @Defined(key = "outbillType", value = "工资")
     int OUTBILL_TYPE_SALARY = 16;
+
+    /**
+     * 采购过账
+     */
+    @Defined(key = "outbillType", value = "采购过账")
+    int OUTBILL_TYPE_CGGZ = 17;
+
+    /**
+     * 永银付款
+     */
+    @Defined(key = "outbillType", value = "永银付款")
+    int OUTBILL_TYPE_YYPAY = 18;
+
+    /**
+     * 金银料来款
+     */
+    @Defined(key = "outbillType", value = "金银料来款")
+    int OUTBILL_TYPE_MATERIAL_IN = 19;
+
+    /**
+     * 回购
+     */
+    @Defined(key = "outbillType", value = "回购")
+    int OUTBILL_TYPE_RE_PURCHASE = 20;
+
+    /**
+     * 集邮走账
+     */
+    @Defined(key = "outbillType", value = "集邮走账")
+    int OUTBILL_TYPE_STAMP = 21;
+
+    /**
+     * 拍卖
+     */
+    @Defined(key = "outbillType", value = "拍卖")
+    int OUTBILL_TYPE_AUCTION = 22;
+
+    /**
+     * 特殊订单款
+     */
+    @Defined(key = "outbillType", value = "特殊订单款")
+    int OUTBILL_TYPE_SPECIAL = 23;
     
     /**
      * 转账
