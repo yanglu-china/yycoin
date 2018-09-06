@@ -1383,13 +1383,13 @@ public class BillListenerTaxGlueImpl implements BillListener
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_STAMP);
             taxId = TaxItemConstanst.STAMP;
         } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_AUCTION){
-            name = "其他应付款-拍卖:" + bean.getId() + '.';
+            name = "其他应收款-拍卖:" + bean.getId() + '.';
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_AUCTION);
-            //TODO
+            taxId = TaxItemConstanst.AUCTION;
         } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SPECIAL){
-            name = "其他应付款-特殊订单:" + bean.getId() + '.';
+            name = "其他应收款-特殊订单:" + bean.getId() + '.';
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_SPECIAL);
-            //TODO
+            taxId = TaxItemConstanst.SPECIAL;
         }
 
         TaxBean inTax = null;

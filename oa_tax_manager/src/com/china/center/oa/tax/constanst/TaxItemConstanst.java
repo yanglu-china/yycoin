@@ -228,4 +228,8 @@ public interface TaxItemConstanst
     String RE_PURCHASE = "2181-96";
 
     String STAMP = "2181-95";
+
+    String AUCTION = "1133-17";
+
+    String SPECIAL = "1133-16";
 }
