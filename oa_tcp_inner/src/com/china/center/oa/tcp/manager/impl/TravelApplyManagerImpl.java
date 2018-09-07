@@ -3184,6 +3184,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             item.setProductId(base.getProductId());
                             item.setProductName(base.getProductName());
                             item.setAmount(base.getAmount());
+                            item.setPrice(base.getPrice());
                             //销售退库
                             if (out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK) {
 //                                item.setIbMoney(this.roundDouble(-base.getAmount()*base.getIbMoney()));
