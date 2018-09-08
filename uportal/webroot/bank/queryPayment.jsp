@@ -32,6 +32,7 @@ function load()
              {display: '状态', name : 'status', cc: 'paymentStatus', width : '5%'},
              {display: '认领人', name : 'stafferName', cc: 'paymentStatus', width : '5%'},
              {display: '回款来源', name : 'fromer', width : '8%'},
+             {display: '回款账号', name : 'fromerNo', width : '10%'},
              {display: '客户', name : 'customerName', width : '8%'},
              {display: '回款/手续费', name : 'money', content: '{money}/{handling}',  width : '8%', toFixed: 2},
              {display: '回款时间', name : 'receiveTime', width : '8%', sortable : true},

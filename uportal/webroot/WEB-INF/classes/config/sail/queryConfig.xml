@@ -281,13 +281,13 @@
     </item>	
 	
 	<item name="queryPackage" deaultpfix="PackageBean">
-        <condtion name="alogTime" filed="logTime" caption="导入时间从">
+        <condtion name="alogTime" filed="createTime" caption="导入时间从">
             <opr>&gt;=</opr>
             <type>date</type>
             <datatype>2</datatype>
             <inner></inner>
         </condtion>
-        <condtion name="blogTime" filed="logTime" caption="到">
+        <condtion name="blogTime" filed="createTime" caption="到">
             <opr>&lt;=</opr>
             <type>date</type>
             <datatype>3</datatype>

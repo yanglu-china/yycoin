@@ -145,7 +145,9 @@ public class ShipManagerImpl implements ShipManager
 
         packBean.setTotal(outBean.getTotal());
         packBean.setStatus(0);
-        packBean.setLogTime(TimeTools.now());
+        String now = TimeTools.now();
+        packBean.setCreateTime(now);
+        packBean.setLogTime(now);
 
         List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
 
@@ -591,8 +593,9 @@ public class ShipManagerImpl implements ShipManager
             packBean.setStafferName(firstPack.getStafferName());
             packBean.setIndustryName(firstPack.getIndustryName());
             packBean.setDepartName(firstPack.getDepartName());
-            packBean.setLogTime(TimeTools.now());
-
+            String now = TimeTools.now();
+            packBean.setCreateTime(now);
+            packBean.setLogTime(now);
 
             // 包与客户关系
             PackageVSCustomerBean vsBean = packageVSCustomerDAO.findByUnique(id, customerId);

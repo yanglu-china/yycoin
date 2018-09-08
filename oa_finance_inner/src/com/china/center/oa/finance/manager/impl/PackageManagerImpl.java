@@ -360,7 +360,9 @@ public class PackageManagerImpl implements PackageManager {
 		
 		packBean.setTotal(outBean.getTotal());
 		packBean.setStatus(0);
-		packBean.setLogTime(TimeTools.now());
+		String now = TimeTools.now();
+		packBean.setCreateTime(now);
+		packBean.setLogTime(now);
 		
 		List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
 		
@@ -509,7 +511,9 @@ public class PackageManagerImpl implements PackageManager {
 		
 		packBean.setTotal(ins.getMoneys());
 		packBean.setStatus(0);
-		packBean.setLogTime(TimeTools.now());
+		String now = TimeTools.now();
+		packBean.setCreateTime(now);
+		packBean.setLogTime(now);
 		
 		String sb = getPrintTextForIns(ins);
 		
@@ -1427,7 +1431,9 @@ public class PackageManagerImpl implements PackageManager {
 
         packBean.setTotal(ins.getTotal());
         packBean.setStatus(0);
-        packBean.setLogTime(TimeTools.now());
+		String now = TimeTools.now();
+		packBean.setCreateTime(now);
+		packBean.setLogTime(now);
 
 //        StringBuilder sb = getPrintTextForIns(ins);
 

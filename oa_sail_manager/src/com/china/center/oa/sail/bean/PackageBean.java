@@ -114,6 +114,11 @@ public class PackageBean implements Serializable
     @Join(tagClass = PrincipalshipBean.class, type = JoinType.LEFT)
     private String locationId = "";
 
+    /**
+     * #408 生成时间
+     */
+    private String createTime = "";
+
     private String logTime = "";
 
     /**
@@ -618,6 +623,14 @@ public class PackageBean implements Serializable
 
     public void setDirect(int direct) {
         this.direct = direct;
+    }
+
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
     }
 
     @Override
