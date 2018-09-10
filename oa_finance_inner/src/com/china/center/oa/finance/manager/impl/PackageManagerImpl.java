@@ -1416,7 +1416,10 @@ public class PackageManagerImpl implements PackageManager {
 
 		//#410
 		packBean.setLocationId("99");
-        packBean.setAddress(ins.getAddress());
+		//#411
+		String fullAddress = ins.getProvinceName()+ins.getCityName()+ins.getAddress();
+        packBean.setAddress(fullAddress.trim());
+
         packBean.setReceiver(ins.getReceiver());
         packBean.setMobile(ins.getMobile());
 
