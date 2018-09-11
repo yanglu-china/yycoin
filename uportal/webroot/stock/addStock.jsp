@@ -630,9 +630,9 @@ function checkCurrentUser()
 								value="&nbsp;选 择&nbsp;" name="qout_${item}" class="button_class"
 								onclick="selectProduct(${item})">&nbsp;
 							产品:
-                            <input type="text" name="productName_${item}" id="productName_${item}" value="" size="20" readonly="readonly" >
+                            <input type="text" name="productName_${item}" id="productName_${item}" value="" size="50" readonly="readonly" >
 							<input type="hidden" name="productId_${item}" value="">&nbsp;
-                            <input type="button" value="&nbsp;选 择供应商&nbsp;" name="btn_provider_${item}" class="button_class"
+                            <input type="button" value="&nbsp;供应商&nbsp;" name="btn_provider_${item}" class="button_class"
                                    onclick="selectProvider(${item})">&nbsp;
                             供应商:
                             <input type="text" name="providerName_${item}" value="" size="20" readonly="readonly" >
@@ -655,8 +655,8 @@ function checkCurrentUser()
                                     <option value="${dutyItem.id}">${dutyItem.name}</option>
                                 </c:forEach>
                             </select>
-							<input type="text" id="deliveryDate_${item}" name="deliveryDate_${item}" value=""><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "deliveryDate_${item}");' height='20px' width='20px'/>&nbsp;
-							<input type="text" id="arrivalDate_${item}" name="arrivalDate_${item}" value=""><img src='../images/calendar.gif' style='cursor: pointer' title='请选择时间' align='top' onclick='return calDateInner(this, "arrivalDate_${item}");' height='20px' width='20px'/>&nbsp;
+							<input type="text" id="deliveryDate_${item}" name="deliveryDate_${item}" value=""><img src='../images/calendar.gif' style='cursor: pointer' title='请选择出货日期' align='top' onclick='return calDateInner(this, "deliveryDate_${item}");' height='20px' width='20px'/>&nbsp;
+							<input type="text" id="arrivalDate_${item}" name="arrivalDate_${item}" value=""><img src='../images/calendar.gif' style='cursor: pointer' title='请选择预计到货日期' align='top' onclick='return calDateInner(this, "arrivalDate_${item}");' height='20px' width='20px'/>&nbsp;
 							<input type="button" value="&nbsp;清 空&nbsp;"
                     			class="button_class" onclick="sclearValues(${item})">
 							</td>

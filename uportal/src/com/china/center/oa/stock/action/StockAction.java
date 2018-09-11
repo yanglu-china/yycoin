@@ -337,6 +337,7 @@ public class StockAction extends DispatchAction
             List<PurchaseBjBean> bjBeans = this.purchaseBjDAO.queryEntityBeansByCondition(conditionParse);
             List<PurchaseBjBean> filteredBjBeans = new ArrayList<PurchaseBjBean>();
             for (PurchaseBjBean bjBean: bjBeans){
+                // 仅带出“确认供应商”字段等于“供应商”字段的商品信息
                 if (bjBean.getSupplier()!= null && bjBean.getSupplier().equals(bjBean.getConfirmSupplier())){
                     //从需求确认表取得数量
                     ConditionParse conditionParse1 = new ConditionParse();
@@ -348,7 +349,6 @@ public class StockAction extends DispatchAction
                         bjBean.setAmount(xqqrBeans.get(0).getPurchaseAmount());
                     }
 
-                    // 仅带出“确认供应商”字段等于“供应商”字段的商品信息
                     ProviderBean providerBean = this.providerDAO.findByUnique(bjBean.getConfirmSupplier());
                     if(providerBean!= null){
                         bjBean.setProviderId(providerBean.getId());
@@ -357,7 +357,21 @@ public class StockAction extends DispatchAction
                     filteredBjBeans.add(bjBean);
                 }
             }
-            result.setSuccessAndObj("操作成功", filteredBjBeans);
+
+            //#389 同一供应商+商品+价格合并
+            Map<String,PurchaseBjBean> supplierMap = new HashMap<String,PurchaseBjBean>();
+            List<PurchaseBjBean> filteredBjBeansIgnoreDuplicate = new ArrayList<PurchaseBjBean>();
+            for (PurchaseBjBean bjBean: filteredBjBeans){
+                String key = bjBean.getConfirmSupplier()+"_"+bjBean.getPjId()+"_"+String.valueOf(bjBean.getPrice());
+                PurchaseBjBean value = supplierMap.get(key);
+                if (value == null){
+                    supplierMap.put(key, bjBean);
+                    filteredBjBeansIgnoreDuplicate.add(bjBean);
+                } else{
+                    value.setAmount(bjBean.getAmount()+value.getAmount());
+                }
+            }
+            result.setSuccessAndObj("操作成功", filteredBjBeansIgnoreDuplicate);
         }
         catch(Exception e)
         {
