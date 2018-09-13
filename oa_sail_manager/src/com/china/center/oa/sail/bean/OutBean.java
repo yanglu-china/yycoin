@@ -484,6 +484,13 @@ public class OutBean implements Serializable, OutInterface
 
     private String motivationApplyId2 = "";
 
+    /**
+     * 平台手续费标记
+     */
+    private int platformFlag = 0;
+
+    private String platformApplyId = "";
+
     //2015/8/5 异地调拨标志: 1-需异地调拨 0-否
     private int remoteAllocate = 0;
 
@@ -2288,6 +2295,22 @@ public class OutBean implements Serializable, OutInterface
 
     public void setRecommendation(String recommendation) {
         this.recommendation = recommendation;
+    }
+
+    public int getPlatformFlag() {
+        return platformFlag;
+    }
+
+    public void setPlatformFlag(int platformFlag) {
+        this.platformFlag = platformFlag;
+    }
+
+    public String getPlatformApplyId() {
+        return platformApplyId;
+    }
+
+    public void setPlatformApplyId(String platformApplyId) {
+        this.platformApplyId = platformApplyId;
     }
 
     /**

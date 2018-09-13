@@ -232,6 +232,12 @@ public class OutImportBean implements Serializable
 	 * 激励2金额
 	 */
 	private double motivationMoney2 = 0.0d;
+
+
+	/**
+	 * 平台手续费
+	 */
+	private double platformFee = 0.0d;
 	/**
 	 * #231
 	 */
@@ -997,6 +1003,14 @@ public class OutImportBean implements Serializable
 
 	public void setRecommendation(String recommendation) {
 		this.recommendation = recommendation;
+	}
+
+	public double getPlatformFee() {
+		return platformFee;
+	}
+
+	public void setPlatformFee(double platformFee) {
+		this.platformFee = platformFee;
 	}
 
 	@Override

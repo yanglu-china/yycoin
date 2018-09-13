@@ -70,6 +70,11 @@ public class TcpIbBean implements Serializable
      */
     private double motivationMoney2 = 0.0d;
 
+    /**
+     * 平台手续费
+     */
+    private double platformFee = 0.0d;
+
     private String logTime = "";
 
     /**
@@ -201,6 +206,14 @@ public class TcpIbBean implements Serializable
 
     public void setLogTime(String logTime) {
         this.logTime = logTime;
+    }
+
+    public double getPlatformFee() {
+        return platformFee;
+    }
+
+    public void setPlatformFee(double platformFee) {
+        this.platformFee = platformFee;
     }
 
     @Override

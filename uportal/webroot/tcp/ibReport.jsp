@@ -86,6 +86,7 @@
                             <td align="center" onclick="tableSort(this)" class="td_class">激励金额</td>
                             <td align="center" onclick="tableSort(this)" class="td_class">中收2金额</td>
                             <td align="center" onclick="tableSort(this)" class="td_class">其他费用金额</td>
+                            <td align="center" onclick="tableSort(this)" class="td_class">平台手续费</td>
                             <td align="center" onclick="tableSort(this)" class="td_class">统计时间</td>
                         </tr>
 
@@ -96,6 +97,7 @@
                                 <td align="center"><a href="../tcp/apply.do?method=ibReportDetail&ibReportId=${item.id}">${item.motivationMoneyTotal}</a></td>
                                 <td align="center"><a href="../tcp/apply.do?method=ibReportDetail&ibReportId=${item.id}">${item.ibMoneyTotal2}</a></td>
                                 <td align="center"><a href="../tcp/apply.do?method=ibReportDetail&ibReportId=${item.id}">${item.motivationMoneyTotal2}</a></td>
+                                <td align="center"><a href="../tcp/apply.do?method=ibReportDetail&ibReportId=${item.id}">${item.platformFeeTotal}</a></td>
                                 <td align="center">${item.logTime}</td>
                             </tr>
                         </c:forEach>

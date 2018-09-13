@@ -743,6 +743,8 @@ public class OutImportManagerImpl implements OutImportManager
             base.setMotivationMoney(each.getMotivationMoney());
             base.setIbMoney2(each.getIbMoney2());
             base.setMotivationMoney2(each.getMotivationMoney2());
+            base.setPlatformFee(each.getPlatformFee());
+
             base.setCash(each.getCash());
             base.setGrossProfit(each.getGrossProfit());
 
@@ -4064,6 +4066,7 @@ public void offlineStorageInJob() {
 							baseBean.setMotivationMoney(refBaseBean.getMotivationMoney());
 							baseBean.setIbMoney2(refBaseBean.getIbMoney2());
 							baseBean.setMotivationMoney2(refBaseBean.getMotivationMoney2());
+							baseBean.setPlatformFee(refBaseBean.getPlatformFee());
 
                             baseBean.setOwner("0");
                             baseBean.setOwnerName("公共");

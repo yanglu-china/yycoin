@@ -8961,6 +8961,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	newOutBean.setMotivationFlag(0);
     	newOutBean.setMotivationApplyId2("");
     	newOutBean.setMotivationFlag2(0);
+    	newOutBean.setPlatformFlag(0);
+    	newOutBean.setPlatformApplyId("");
 
     	newOutBean.setType(OutConstant.OUT_TYPE_INBILL);
     	newOutBean.setStatus(OutConstant.BUY_STATUS_SAVE);

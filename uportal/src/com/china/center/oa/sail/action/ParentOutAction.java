@@ -4137,6 +4137,7 @@ public class ParentOutAction extends DispatchAction
                         //2015/5/12 销售退库需要记录中收激励金额
                         baseBean.setIbMoney(each.getIbMoney());
                         baseBean.setMotivationMoney(each.getMotivationMoney());
+                        baseBean.setPlatformFee(each.getPlatformFee());
 
 						newBaseList.add(baseBean);
 

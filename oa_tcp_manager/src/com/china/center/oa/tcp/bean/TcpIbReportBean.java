@@ -56,6 +56,11 @@ public class TcpIbReportBean implements Serializable
      */
     private double motivationMoneyTotal2 = 0.0d;
 
+    /**
+     * 该客户的平台手续费总数
+     */
+    private double platformFeeTotal = 0.0d;
+
     private String logTime = TimeTools.now();
 
 
@@ -129,6 +134,14 @@ public class TcpIbReportBean implements Serializable
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public double getPlatformFeeTotal() {
+        return platformFeeTotal;
+    }
+
+    public void setPlatformFeeTotal(double platformFeeTotal) {
+        this.platformFeeTotal = platformFeeTotal;
     }
 
     public String getLogTime() {

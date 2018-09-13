@@ -393,6 +393,12 @@ public interface TcpConstanst
     int TCP_APPLYTYPE_MOTIVATION2 = 10;
 
     /**
+     * 平台手续费申请
+     */
+    @Defined(key = "tcpType", value = "平台手续费")
+    int TCP_APPLYTYPE_PLATFORM = 11;
+
+    /**
      * 差旅费报销
      */
     @Defined(key = "tcpType", value = "差旅费报销")
@@ -685,11 +691,16 @@ public interface TcpConstanst
     @Defined(key = "type", value = "其他费用")
     int MOTIVATION_TYPE2 = 3;
 
+    @Defined(key = "type", value = "平台手续费")
+    int PLATFORM_TYPE = 4;
+
     String IB_TYPE_STR = "中收";
     String MOTIVATION_TYPE_STR = "激励";
 
     String IB_TYPE_STR2 = "中收2";
     String MOTIVATION_TYPE_STR2 = "其他费用";
+
+    String PLATFORM_TYPE_STR = "平台手续费";
 
     @Defined(key = "marketingFlag", value = "营销")
     int TCP_MARKETING_FLAG_YES = 1;

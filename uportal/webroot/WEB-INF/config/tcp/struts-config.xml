@@ -14,6 +14,7 @@
             <forward name="addTravelApply8import" path="/tcp/addTravelApply8import.jsp" />
             <forward name="addTravelApply9import" path="/tcp/addTravelApply9import.jsp" />
             <forward name="addTravelApply10import" path="/tcp/addTravelApply10import.jsp" />
+            <forward name="addTravelApply11import" path="/tcp/addTravelApply11import.jsp" />
 
 			<forward name="addVocationAndWork" path="/tcp/addVocationAndWork.jsp" />
 			<forward name="addCommission" path="/tcp/addCommission.jsp" />

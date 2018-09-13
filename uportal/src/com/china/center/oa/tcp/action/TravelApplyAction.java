@@ -3862,6 +3862,9 @@ public class TravelApplyAction extends DispatchAction
         //<customerName,motivationMoneyTotal2>
         Map<String, Double>  customerToMotivationMap2 = new HashMap<String,Double>();
 
+        //<customerName,platformFeeTotal>
+        Map<String, Double>  customerToPlatformMap = new HashMap<String,Double>();
+
         //<customerName,List<outId>>
         Map<String, List<String>>  customerToOutMap = new HashMap<String,List<String>>();
 
@@ -3942,6 +3945,9 @@ public class TravelApplyAction extends DispatchAction
                         } else if (TcpConstanst.MOTIVATION_TYPE_STR2.equals(name)){
                             item.setType(TcpConstanst.MOTIVATION_TYPE2);
                             type = TcpConstanst.MOTIVATION_TYPE2;
+                        } else if (TcpConstanst.PLATFORM_TYPE_STR.equals(name)){
+                            item.setType(TcpConstanst.PLATFORM_TYPE);
+                            type = TcpConstanst.PLATFORM_TYPE;
                         } else{
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -4038,6 +4044,18 @@ public class TravelApplyAction extends DispatchAction
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
                                             .append("订单号不能重复提交激励2报销申请:"+outId)
+                                            .append("</font><br>");
+
+                                    importError = true;
+                                }
+                            }
+
+                            //同一个订单不能重复提交平台手续费报销申请
+                            if (out.getPlatformFlag() == 1){
+                                if(type == TcpConstanst.PLATFORM_TYPE){
+                                    builder
+                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                            .append("订单号不能重复提交平台手续费报销申请:"+outId)
                                             .append("</font><br>");
 
                                     importError = true;
@@ -4199,6 +4217,14 @@ public class TravelApplyAction extends DispatchAction
                                         customerToMotivationMap2.get(item.getCustomerName())+item.getMotivationMoney2()*item.getAmount());
                             }else{
                                 customerToMotivationMap2.put(item.getCustomerName(),item.getMotivationMoney2()*item.getAmount());
+                            }
+                        } else if (type == TcpConstanst.PLATFORM_TYPE){
+                            item.setPlatformFee(MathTools.parseDouble(money));
+                            if(customerToPlatformMap.containsKey(item.getCustomerName())){
+                                customerToPlatformMap.put(item.getCustomerName(),
+                                        customerToPlatformMap.get(item.getCustomerName())+item.getPlatformFee()*item.getAmount());
+                            } else{
+                                customerToPlatformMap.put(item.getCustomerName(),item.getPlatformFee()*item.getAmount());
                             }
                         }
                     } else{
@@ -4373,6 +4399,29 @@ public class TravelApplyAction extends DispatchAction
                         }
                     }
                 }
+            } else if (type == TcpConstanst.PLATFORM_TYPE){
+                for(String customerName : customerToPlatformMap.keySet()){
+                    ConditionParse con = new ConditionParse();
+                    con.addWhereStr();
+                    con.addCondition("customerName","=",customerName);
+                    List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
+                    if (ListTools.isEmptyOrNull(ibReportList)){
+                        builder.append("客户[").append(customerName)
+                                .append("]").append("可申请平台手续费不足："+0)
+                                .append("<br>");
+                        importError = true;
+                    } else {
+                        TcpIbReportBean ib = ibReportList.get(0);
+                        double currentMot = customerToPlatformMap.get(customerName);
+                        double currentMot2 = this.roundDouble(currentMot);
+                        if (currentMot2> ib.getPlatformFeeTotal()){
+                            builder.append("客户[").append(customerName)
+                                    .append("]").append("当前申请金额："+currentMot2+"大于平台手续费金额："+ib.getPlatformFeeTotal())
+                                    .append("<br>");
+                            importError = true;
+                        }
+                    }
+                }
             }
 
             //#357 激励费用根据单据对应的省级经理合并分担
@@ -4457,6 +4506,15 @@ public class TravelApplyAction extends DispatchAction
                     bean.setFullId(this.listToString(customerToOutMap.get(name)));
                     importItemList.add(bean);
                 }
+            } else if (type == TcpConstanst.PLATFORM_TYPE){
+                for (String name : customerToPlatformMap.keySet()){
+                    TcpIbBean bean = new TcpIbBean();
+                    bean.setCustomerName(name);
+                    bean.setPlatformFee(this.roundDouble(customerToPlatformMap.get(name)));
+                    bean.setType(type);
+                    bean.setFullId(this.listToString(customerToOutMap.get(name)));
+                    importItemList.add(bean);
+                }
             }
 
             vo.setIbType(type);
@@ -4498,8 +4556,10 @@ public class TravelApplyAction extends DispatchAction
         } else if (type == TcpConstanst.MOTIVATION_TYPE) {
             return mapping.findForward("addTravelApply8import");
         } else if (type == TcpConstanst.MOTIVATION_TYPE2) {
-        return mapping.findForward("addTravelApply10import");
-         } else{
+            return mapping.findForward("addTravelApply10import");
+        } else if (type == TcpConstanst.PLATFORM_TYPE) {
+            return mapping.findForward("addTravelApply11import");
+        }else{
             return mapping.findForward("addTravelApply7import");
         }
     }

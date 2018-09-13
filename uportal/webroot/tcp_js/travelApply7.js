@@ -231,6 +231,16 @@ function sumIb()
         }
     );
 
+    $("input[name='platformFee']").each(
+        function()
+        {
+            if (this.value != '')
+            {
+                total += parseFloat(this.value);
+            }
+        }
+    );
+
     return total;
 }
 

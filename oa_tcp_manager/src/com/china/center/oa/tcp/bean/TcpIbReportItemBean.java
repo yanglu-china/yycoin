@@ -73,6 +73,11 @@ public class TcpIbReportItemBean implements Serializable
     private double motivationMoney2 = 0.0d;
 
     /**
+     * 平台手续费
+     */
+    private double platformFee = 0.0d;
+
+    /**
      * default constructor
      */
     public TcpIbReportItemBean()
@@ -185,6 +190,14 @@ public class TcpIbReportItemBean implements Serializable
         this.motivationMoney2 = motivationMoney2;
     }
 
+    public double getPlatformFee() {
+        return platformFee;
+    }
+
+    public void setPlatformFee(double platformFee) {
+        this.platformFee = platformFee;
+    }
+
     @Override
     public String toString() {
         return "TcpIbReportItemBean{" +
@@ -200,6 +213,7 @@ public class TcpIbReportItemBean implements Serializable
                 ", motivationMoney=" + motivationMoney +
                 ", ibMoney2=" + ibMoney2 +
                 ", motivationMoney2=" + motivationMoney2 +
+                ", platformFee=" + platformFee +
                 '}';
     }
 

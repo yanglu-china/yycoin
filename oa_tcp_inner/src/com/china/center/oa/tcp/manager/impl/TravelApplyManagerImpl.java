@@ -1952,6 +1952,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE2){
                                         out.setMotivationFlag2(1);
                                         out.setMotivationApplyId2(bean.getId());
+                                    } else if (bean.getIbType() == TcpConstanst.PLATFORM_TYPE){
+                                        out.setPlatformFlag(1);
+                                        out.setPlatformApplyId(bean.getId());
                                     }
 
                                     _logger.info(out+" OutBean set IB flag**********");
@@ -2010,6 +2013,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE2){
                                     out.setMotivationFlag2(0);
                                     out.setMotivationApplyId2("");
+                                } else if (bean.getIbType() == TcpConstanst.PLATFORM_TYPE){
+                                    out.setPlatformFlag(0);
+                                    out.setPlatformApplyId("");
                                 }
 
                                 _logger.info(out+" OutBean reset IB flag before delete bean**********"+bean.getId());
@@ -3099,7 +3105,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         con.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
         //销售出库
         con.addCondition("OutBean.outType","=", OutConstant.OUTTYPE_OUT_COMMON);
-
+        con.addCondition("OutBean.fullId","=","SO1509251906243933296");
         //2015/8/11 把中收激励统计中，把关于订单出库状态的校验去掉
         // “已出库”、“已发货”状态的订单
 //        con.addCondition("and OutBean.status in (3,4)");
@@ -3107,7 +3113,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //#148
         con.addCondition(" and OutBean.status !=2 ");
         con.addCondition("outTime", ">", beginDate);
-        con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0 or OutBean.ibFlag2 =0 or OutBean.motivationFlag2=0)");
+        con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0 or OutBean.ibFlag2 =0 or OutBean.motivationFlag2=0 or OutBean.platformFlag=0)");
         List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(con);
         if (!ListTools.isEmptyOrNull(outList)){
             _logger.info("ibReport outList1 size:"+outList.size());
@@ -3128,6 +3134,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         //退库订单的状态均为“待核对”状态
         ConditionParse con1 = new ConditionParse();
+        con1.addCondition("OutBean.fullId","=","111222");
         //入库单
         con1.addCondition("OutBean.type", "=", OutConstant.OUT_TYPE_INBILL);
         //add begin time
@@ -3174,6 +3181,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 double moTotal = 0.0d;
                 double ibTotal2 = 0.0d;
                 double moTotal2 = 0.0d;
+                double platformTotal = 0.0d;
                 for (OutBean out: outVOs){
                     List<BaseBean> baseList = this.baseDAO.queryEntityBeansByFK(out.getFullId());
                     if (!ListTools.isEmptyOrNull(baseList)){
@@ -3213,6 +3221,11 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     item.setMotivationMoney2(this.roundDouble(-base.getAmount()*base.getMotivationMoney2()));
                                     moTotal2 -= base.getAmount()*base.getMotivationMoney2();
                                 }
+
+                                if(out.getPlatformFlag() == 0){
+                                    item.setPlatformFee(this.roundDouble(-base.getAmount()*base.getPlatformFee()));
+                                    platformTotal -= base.getAmount()*base.getPlatformFee();
+                                }
                             } else{
                                 //出库
                                 if (out.getIbFlag() == 0){
@@ -3234,6 +3247,11 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     item.setMotivationMoney2(this.roundDouble(base.getAmount()*base.getMotivationMoney2()));
                                     moTotal2 += base.getAmount()*base.getMotivationMoney2();
                                 }
+
+                                if(out.getPlatformFlag() ==0){
+                                    item.setPlatformFee(this.roundDouble(base.getAmount()*base.getPlatformFee()));
+                                    platformTotal += base.getAmount()*base.getPlatformFee();
+                                }
                             }
 
                             if (Math.abs(item.getIbMoney()) > zero || Math.abs(item.getMotivationMoney())> zero
@@ -3250,6 +3268,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 ibReport.setMotivationMoneyTotal(this.roundDouble((moTotal)));
                 ibReport.setIbMoneyTotal2(this.roundDouble(ibTotal2));
                 ibReport.setMotivationMoneyTotal2(this.roundDouble((moTotal2)));
+                ibReport.setPlatformFeeTotal(this.roundDouble(platformTotal));
             }
 
 //            //中收或激励只要一个有值就生成
