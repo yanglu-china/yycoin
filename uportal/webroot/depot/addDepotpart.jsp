@@ -51,6 +51,10 @@ function addBean()
 				<p:option type="depotpartType"/>
 			</p:pro>
 
+			<p:pro field="type">
+				<p:option type="depotType"/>
+			</p:pro>
+
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 
 		</p:table>

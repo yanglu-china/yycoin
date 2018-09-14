@@ -110,6 +110,11 @@ public class ProductImportBean implements Serializable
     private double motivationMoney2 = 0.0d;
 
     /**
+     * 平台手续费
+     */
+    private double platformFee = 0.0d;
+
+    /**
      * 可支配毛利
      */
     private double grossProfit = 0.0d;
@@ -403,6 +408,14 @@ public class ProductImportBean implements Serializable
 
     public void setMotivationMoney2(double motivationMoney2) {
         this.motivationMoney2 = motivationMoney2;
+    }
+
+    public double getPlatformFee() {
+        return platformFee;
+    }
+
+    public void setPlatformFee(double platformFee) {
+        this.platformFee = platformFee;
     }
 
     @Override

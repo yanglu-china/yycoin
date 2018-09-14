@@ -1321,6 +1321,8 @@
                     bean.setMotivationMoney(productImportBean.getMotivationMoney());
                     bean.setIbMoney2(productImportBean.getIbMoney2());
                     bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
+                    bean.setPlatformFee(productImportBean.getPlatformFee());
+
                     bean.setCash(productImportBean.getCash());
                     bean.setGrossProfit(productImportBean.getGrossProfit());
                 }

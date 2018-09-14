@@ -9395,6 +9395,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 base.setMotivationMoney(productImportBean.getMotivationMoney());
                                 base.setIbMoney2(productImportBean.getIbMoney2());
                                 base.setMotivationMoney2(productImportBean.getMotivationMoney2());
+                                base.setPlatformFee(productImportBean.getPlatformFee());
                             }
                         }
                     }

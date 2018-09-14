@@ -810,7 +810,8 @@ public abstract class AbstractTcpBean implements Serializable
         return this.type == TcpConstanst.TCP_APPLYTYPE_MID
                 || this.type == TcpConstanst.TCP_APPLYTYPE_MID2
                 || this.type == TcpConstanst.TCP_APPLYTYPE_MOTIVATION
-                || this.type == TcpConstanst.TCP_APPLYTYPE_MOTIVATION2;
+                || this.type == TcpConstanst.TCP_APPLYTYPE_MOTIVATION2
+                || this.type == TcpConstanst.TCP_APPLYTYPE_PLATFORM;
     }
 
     /**

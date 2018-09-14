@@ -67,6 +67,12 @@ public class DepotBean implements Serializable
      */
     @Html(title = "状态 ", type = Element.SELECT)
     private int status = 0;
+
+    /**
+     * #415 “全部”，“体外”，“体内”
+     */
+    @Html(title = "所属系统")
+    private int item = 0;
     
     /**
      * default constructor
@@ -179,7 +185,15 @@ public class DepotBean implements Serializable
 		this.status = status;
 	}
 
-	/**
+    public int getItem() {
+        return item;
+    }
+
+    public void setItem(int item) {
+        this.item = item;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

@@ -217,4 +217,15 @@ public interface StorageConstant
      */
     @Defined(key = "storageAmountType1", value = "小于或等于0")
     int STORAGE_AMOUNT_NEGATIVE = 0;
+
+
+    @Defined(key = "storageItemType", value = "体内")
+    int STORAGE_ITEM_TYPE_TN = 1;
+
+    @Defined(key = "storageItemType", value = "体外")
+    int STORAGE_ITEM_TYPE_TW = 2;
+
+    @Defined(key = "storageItemType", value = "全部")
+    int STORAGE_ITEM_TYPE_ALL = 3;
+
 }

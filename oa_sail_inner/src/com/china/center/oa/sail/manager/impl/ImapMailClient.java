@@ -1028,11 +1028,12 @@ public class ImapMailClient {
 //                bean.setProductCode(code);
                 //激励金额取t_center_product_import中的motivationmoney
                 bean.setMotivationMoney(productImportBean.getMotivationMoney());
-                //TODO 中收金额
+                // 中收金额
                 bean.setIbMoney(productImportBean.getIbMoney());
 
                 bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
                 bean.setIbMoney2(productImportBean.getIbMoney2());
+                bean.setPlatformFee(productImportBean.getPlatformFee());
 
                 //购买日期必须满足(上线时间，下线时间)
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

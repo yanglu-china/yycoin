@@ -43,6 +43,10 @@ function addBean()
 			<p:pro field="type">
 				<p:option type="depotType"/>
 			</p:pro>
+
+			<p:pro field="item">
+				<p:option type="storageItemType"/>
+			</p:pro>
 			
 			<p:pro field="industryId" innerString="style='width:240px'">
 				<p:option type="$industryList" empty="true"/>

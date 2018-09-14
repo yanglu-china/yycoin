@@ -50,6 +50,12 @@ public class DepotpartBean implements Serializable
     @Html(title = "描述", type = Element.TEXTAREA)
     private String description = "";
 
+    /**
+     * #415 “全部”，“体外”，“体内”
+     */
+    @Html(title = "所属系统")
+    private int item = 0;
+
     public DepotpartBean()
     {
     }
@@ -132,6 +138,14 @@ public class DepotpartBean implements Serializable
     public void setType(int type)
     {
         this.type = type;
+    }
+
+    public int getItem() {
+        return item;
+    }
+
+    public void setItem(int item) {
+        this.item = item;
     }
 
     /**

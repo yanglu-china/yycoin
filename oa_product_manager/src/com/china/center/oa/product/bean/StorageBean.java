@@ -42,6 +42,12 @@ public class StorageBean implements Serializable
     @Html(title = "描述", type = Element.TEXTAREA, maxLength = 200)
     private String description = "";
 
+    /**
+     * #415 “全部”，“体外”，“体内”
+     */
+    @Html(title = "所属系统")
+    private int item = 0;
+
     public StorageBean()
     {
     }
@@ -129,6 +135,14 @@ public class StorageBean implements Serializable
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public int getItem() {
+        return item;
+    }
+
+    public void setItem(int item) {
+        this.item = item;
     }
 
     /**
