@@ -71,8 +71,8 @@ public class DepotBean implements Serializable
     /**
      * #415 “全部”，“体外”，“体内”
      */
-    @Html(title = "所属系统")
-    private int item = 0;
+    @Html(title = "所属系统",  type = Element.SELECT)
+    private String item = "";
     
     /**
      * default constructor
@@ -185,11 +185,11 @@ public class DepotBean implements Serializable
 		this.status = status;
 	}
 
-    public int getItem() {
+    public String getItem() {
         return item;
     }
 
-    public void setItem(int item) {
+    public void setItem(String item) {
         this.item = item;
     }
 

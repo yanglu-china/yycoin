@@ -220,12 +220,12 @@ public interface StorageConstant
 
 
     @Defined(key = "storageItemType", value = "体内")
-    int STORAGE_ITEM_TYPE_TN = 1;
+    String STORAGE_ITEM_TYPE_TN = "体内";
 
     @Defined(key = "storageItemType", value = "体外")
-    int STORAGE_ITEM_TYPE_TW = 2;
+    String STORAGE_ITEM_TYPE_TW = "体外";
 
     @Defined(key = "storageItemType", value = "全部")
-    int STORAGE_ITEM_TYPE_ALL = 3;
+    String STORAGE_ITEM_TYPE_ALL = "全部";
 
 }

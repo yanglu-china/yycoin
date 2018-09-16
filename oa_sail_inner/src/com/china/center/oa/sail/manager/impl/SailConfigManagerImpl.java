@@ -11,6 +11,10 @@ package com.china.center.oa.sail.manager.impl;
 
 import java.util.List;
 
+import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.constant.ModuleConstant;
+import com.china.center.oa.publics.constant.OperationConstant;
+import com.china.center.oa.publics.dao.LogDAO;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,6 +64,8 @@ public class SailConfigManagerImpl implements SailConfigManager
     private CommonDAO commonDAO = null;
 
     private ShowDAO showDAO = null;
+
+    private LogDAO logDAO          = null;
 
     /**
      * default constructor
@@ -174,11 +180,18 @@ public class SailConfigManagerImpl implements SailConfigManager
                 SailConfBean old = sailConfDAO.find(beans.get(0).getId());
                 _logger.info("update sail conf,old:" + old);
 
+                StringBuilder sb = new StringBuilder();
+                sb.append("修改人:").append(user.getStafferName())
+                        .append(".原结算价信息:").append(old.toString());
+                //日志
+                this.log(user, bean.getId(), OperationConstant.OPERATION_UPDATE,sb.toString());
+
                 old.setPratio(bean.getPratio());
                 old.setIratio(bean.getIratio());
                 old.setDescription(bean.getDescription());
                 old.setLogTime(bean.getLogTime());
                 old.setOperator(bean.getOperator());
+
                 return this.sailConfDAO.updateEntityBean(old);
             }
         } else{
@@ -188,7 +201,27 @@ public class SailConfigManagerImpl implements SailConfigManager
                     "结算价格配置组合已经存在");
         }
 
+        StringBuilder sb = new StringBuilder();
+        sb.append("创建人:").append(user.getStafferName());
+        //日志
+        this.log(user, bean.getId(), OperationConstant.OPERATION_NEW,sb.toString());
         return sailConfDAO.saveEntityBean(bean);
+    }
+
+    private void log(User user, String id,String operation, String reason) {
+        // 记录审批日志
+        LogBean log = new LogBean();
+
+        log.setFkId(id);
+
+        log.setLocationId(user.getLocationId());
+        log.setStafferId(user.getStafferId());
+        log.setLogTime(TimeTools.now());
+        log.setModule(ModuleConstant.MODULE_PRICE_CONFIG);
+        log.setOperation(operation);
+        log.setLog(reason);
+
+        logDAO.saveEntityBean(log);
     }
 
     @Override
@@ -488,4 +521,11 @@ public class SailConfigManagerImpl implements SailConfigManager
         this.sailConfDAO = sailConfDAO;
     }
 
+    public LogDAO getLogDAO() {
+        return logDAO;
+    }
+
+    public void setLogDAO(LogDAO logDAO) {
+        this.logDAO = logDAO;
+    }
 }

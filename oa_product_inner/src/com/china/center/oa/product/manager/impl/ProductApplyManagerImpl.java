@@ -5,6 +5,10 @@ import java.util.List;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
+import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.constant.ModuleConstant;
+import com.china.center.oa.publics.constant.OperationConstant;
+import com.china.center.oa.publics.dao.LogDAO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +45,8 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
     private ProductVSStafferDAO   productVSStafferDAO   = null;
 
     private FlowLogDAO            flowLogDAO            = null;
+
+    private LogDAO logDAO          = null;
 
     private CommonDAO             commonDAO             = null;
 
@@ -651,11 +657,22 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
                     bean.setId(id);
                     _logger.info("***save product import bean***"+bean);
                     this.productImportDAO.saveEntityBean(bean);
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("创建人:").append(user.getStafferName());
+                    //日志
+                    this.log(user, bean.getId(), OperationConstant.OPERATION_NEW,sb.toString());
                 } else{
                     ProductImportBean bean2 = beans.get(0);
                     bean.setId(bean2.getId());
                     _logger.info("***update product import**"+bean);
                     this.productImportDAO.updateEntityBean(bean);
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("修改人:").append(user.getStafferName())
+                            .append(".原商品信息:").append(bean2.toString());
+                    //日志
+                    this.log(user, bean.getId(), OperationConstant.OPERATION_UPDATE,sb.toString());
                 }
             }
         }catch(Exception e){
@@ -665,6 +682,22 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         }
 
         return true;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    private void log(User user, String id,String operation, String reason) {
+        // 记录审批日志
+        LogBean log = new LogBean();
+
+        log.setFkId(id);
+
+        log.setLocationId(user.getLocationId());
+        log.setStafferId(user.getStafferId());
+        log.setLogTime(TimeTools.now());
+        log.setModule(ModuleConstant.MODULE_PRODUCT_IMPORT);
+        log.setOperation(operation);
+        log.setLog(reason);
+
+        logDAO.saveEntityBean(log);
     }
 
     public ProductApplyDAO getProductApplyDAO() {
@@ -759,5 +792,13 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
     public void setProductImportDAO(ProductImportDAO productImportDAO) {
         this.productImportDAO = productImportDAO;
+    }
+
+    public LogDAO getLogDAO() {
+        return logDAO;
+    }
+
+    public void setLogDAO(LogDAO logDAO) {
+        this.logDAO = logDAO;
     }
 }

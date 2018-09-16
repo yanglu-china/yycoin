@@ -42,6 +42,8 @@ public interface OperationConstant
      */
     String OPERATION_UPDATE = "更新";
 
+    String OPERATION_NEW = "新增";
+
     /**
      * 结束
      */

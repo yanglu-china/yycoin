@@ -78,9 +78,8 @@ function getDepotpart(objs)
                     class="button_class" onclick="selectDepotpart(this)">&nbsp;&nbsp;
 			</p:pro>
 
-
-			<p:pro field="type">
-				<p:option type="depotType"/>
+			<p:pro field="item">
+				<p:option type="storageItemType"/>
 			</p:pro>
 
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />

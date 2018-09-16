@@ -624,7 +624,7 @@ public class ProductApplyAction extends DispatchAction {
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next(), 28);
+                String[] obj = fillObj((String[])reader.next(), 29);
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -1096,6 +1096,21 @@ public class ProductApplyAction extends DispatchAction {
                             builder
                                     .append("第[" + currentNumber + "]错误:")
                                     .append("其他费用必须为数值")
+                                    .append("<br>");
+                        }
+                    }
+
+                    // 平台手续费
+                    if ( !StringTools.isNullOrNone(obj[28]))
+                    {
+                        try{
+                            bean.setPlatformFee(Double.valueOf(obj[28]));
+                        }catch(Exception e){
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("平台手续费必须为数值")
                                     .append("<br>");
                         }
                     }

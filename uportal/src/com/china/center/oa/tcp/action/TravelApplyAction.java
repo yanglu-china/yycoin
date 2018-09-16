@@ -995,6 +995,8 @@ public class TravelApplyAction extends DispatchAction
             //<customerName,motivationMoneyTotal2>
             Map<String, Double>  customerToMotivationMap2 = new HashMap<String,Double>();
 
+            Map<String, Double>  customerToPlatformMap = new HashMap<String,Double>();
+
             //<customerName,List<outId>>
             Map<String, List<String>>  customerToOutMap = new HashMap<String,List<String>>();
 
@@ -1063,6 +1065,9 @@ public class TravelApplyAction extends DispatchAction
                             } else if (TcpConstanst.MOTIVATION_TYPE_STR2.equals(name)){
                                 item.setType(TcpConstanst.MOTIVATION_TYPE2);
                                 type = TcpConstanst.MOTIVATION_TYPE2;
+                            } else if (TcpConstanst.PLATFORM_TYPE_STR.equals(name)){
+                                item.setType(TcpConstanst.PLATFORM_TYPE);
+                                type = TcpConstanst.PLATFORM_TYPE;
                             } else{
                                 builder
                                         .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -1157,6 +1162,18 @@ public class TravelApplyAction extends DispatchAction
                                             builder
                                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
                                                     .append("订单号不能重复提交激励2报销申请:"+outId)
+                                                    .append("</font><br>");
+
+                                            importError = true;
+                                        }
+                                    }
+
+                                    //同一个订单不能重复提交平台手续费报销申请
+                                    if (out.getPlatformFlag() == 1){
+                                        if(type == TcpConstanst.PLATFORM_TYPE){
+                                            builder
+                                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                                    .append("订单号不能重复提交平台手续费报销申请:"+outId)
                                                     .append("</font><br>");
 
                                             importError = true;
@@ -1299,6 +1316,14 @@ public class TravelApplyAction extends DispatchAction
                                     }else{
                                         customerToMotivationMap2.put(item.getCustomerName(),item.getMotivationMoney2()*item.getAmount());
                                     }
+                                }else if (type == TcpConstanst.PLATFORM_TYPE){
+                                    item.setPlatformFee(MathTools.parseDouble(money));
+                                    if(customerToPlatformMap.containsKey(item.getCustomerName())){
+                                        customerToPlatformMap.put(item.getCustomerName(),
+                                                customerToPlatformMap.get(item.getCustomerName())+item.getPlatformFee()*item.getAmount());
+                                    }else{
+                                        customerToPlatformMap.put(item.getCustomerName(),item.getPlatformFee()*item.getAmount());
+                                    }
                                 }
                             } else{
                                 builder
@@ -1415,6 +1440,29 @@ public class TravelApplyAction extends DispatchAction
                             }
                         }
                     }
+                } else if (type == TcpConstanst.PLATFORM_TYPE){
+                    for(String customerName : customerToPlatformMap.keySet()){
+                        ConditionParse con = new ConditionParse();
+                        con.addWhereStr();
+                        con.addCondition("customerName","=",customerName);
+                        List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
+                        if (ListTools.isEmptyOrNull(ibReportList)){
+                            builder.append("客户[").append(customerName)
+                                    .append("]").append("可申请平台收费金额不足："+0)
+                                    .append("<br>");
+                            importError = true;
+                        } else {
+                            TcpIbReportBean ib = ibReportList.get(0);
+                            double currentMot = customerToPlatformMap.get(customerName);
+                            double currentMot2 = this.roundDouble(currentMot);
+                            if (currentMot2> ib.getPlatformFeeTotal()){
+                                builder.append("客户[").append(customerName)
+                                        .append("]").append("当前申请金额："+currentMot2+"大于可申请平台手续费金额："+ib.getPlatformFeeTotal())
+                                        .append("<br>");
+                                importError = true;
+                            }
+                        }
+                    }
                 }
 
                 if (importError){
@@ -1468,6 +1516,15 @@ public class TravelApplyAction extends DispatchAction
                         TcpIbBean item = new TcpIbBean();
                         item.setCustomerName(name);
                         item.setMotivationMoney2(this.roundDouble(customerToMotivationMap2.get(name)));
+                        item.setType(type);
+                        item.setFullId(this.listToString(customerToOutMap.get(name)));
+                        importItemList.add(item);
+                    }
+                } else if (type == TcpConstanst.PLATFORM_TYPE) {
+                    for (String name : customerToMotivationMap2.keySet()) {
+                        TcpIbBean item = new TcpIbBean();
+                        item.setCustomerName(name);
+                        item.setPlatformFee(this.roundDouble(customerToMotivationMap2.get(name)));
                         item.setType(type);
                         item.setFullId(this.listToString(customerToOutMap.get(name)));
                         importItemList.add(item);

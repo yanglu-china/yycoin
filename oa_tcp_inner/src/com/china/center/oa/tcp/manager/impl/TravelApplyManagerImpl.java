@@ -3098,18 +3098,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         Map<String, List<OutBean>>  customerToOutMap = new HashMap<String,List<OutBean>>();
 
         final String beginDate = "2015-04-01";
-        //所有中收激励统计均为“已出库”、“已发货”状态的销售出库订单
+        //所有中收激励统计均为销售出库订单
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         //销售单
         con.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
         //销售出库
         con.addCondition("OutBean.outType","=", OutConstant.OUTTYPE_OUT_COMMON);
-        con.addCondition("OutBean.fullId","=","SO1509251906243933296");
-        //2015/8/11 把中收激励统计中，把关于订单出库状态的校验去掉
-        // “已出库”、“已发货”状态的订单
-//        con.addCondition("and OutBean.status in (3,4)");
-
         //#148
         con.addCondition(" and OutBean.status !=2 ");
         con.addCondition("outTime", ">", beginDate);
@@ -3122,26 +3117,21 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                  if (customerToOutMap.containsKey(customerId)){
                      List<OutBean> outVOs = customerToOutMap.get(customerId);
                      outVOs.add(out);
-//                     _logger.info(out.getFullId()+" add to customerToOutMap:"+customerId);
                  }else{
                      List<OutBean> outVOList = new ArrayList<OutBean>();
                      outVOList.add(out);
                      customerToOutMap.put(customerId, outVOList);
-//                     _logger.info(out.getFullId()+" first put to customerToOutMap:"+customerId);
                  }
              }
         }
 
         //退库订单的状态均为“待核对”状态
         ConditionParse con1 = new ConditionParse();
-        con1.addCondition("OutBean.fullId","=","111222");
         //入库单
         con1.addCondition("OutBean.type", "=", OutConstant.OUT_TYPE_INBILL);
         //add begin time
         //销售退库
         con1.addCondition("OutBean.outType", "=", OutConstant.OUTTYPE_IN_OUTBACK);
-        //“待核对”状态
-//        con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
         con1.addCondition("outTime",">",beginDate);
         con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0)");
         //#315 “待核对”和结束状态
@@ -3270,23 +3260,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 ibReport.setMotivationMoneyTotal2(this.roundDouble((moTotal2)));
                 ibReport.setPlatformFeeTotal(this.roundDouble(platformTotal));
             }
-
-//            //中收或激励只要一个有值就生成
-//            if (Math.abs(ibReport.getIbMoneyTotal()) > zero || Math.abs(ibReport.getMotivationMoneyTotal())> zero){
-//                this.tcpIbReportDAO.saveEntityBean(ibReport);
-//                _logger.info("****save ibReport**********"+ibReport);
-//
-//                if (ListTools.isEmptyOrNull(itemList)){
-//                    _logger.error("***No item created***"+ibReport);
-//                } else {
-//                    for (TcpIbReportItemBean item : itemList) {
-//                        item.setId(commonDAO.getSquenceString20());
-//                        item.setRefId(ibReport.getId());
-//                        _logger.info("****create TcpIbReportItemBean***"+item);
-//                    }
-//                    this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
-//                }
-//            }
 
             if (ListTools.isEmptyOrNull(itemList)){
                 _logger.error("***No item created***"+ibReport);

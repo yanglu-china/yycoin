@@ -45,6 +45,7 @@
             <forward name="querySelfTravelApply8" path="/tcp/querySelfTravelApply8.jsp" />
             <forward name="querySelfTravelApply9" path="/tcp/querySelfTravelApply9.jsp" />
             <forward name="querySelfTravelApply10" path="/tcp/querySelfTravelApply10.jsp" />
+            <forward name="querySelfTravelApply11" path="/tcp/querySelfTravelApply11.jsp" />
 			
 			<forward name="detailTravelApply0" path="/tcp/detailTravelApply0.jsp" />
 			<forward name="detailTravelApply1" path="/tcp/detailTravelApply1.jsp" />
@@ -54,6 +55,7 @@
             <forward name="detailTravelApply8" path="/tcp/detailTravelApply8.jsp" />
             <forward name="detailTravelApply9" path="/tcp/detailTravelApply9.jsp" />
             <forward name="detailTravelApply10" path="/tcp/detailTravelApply10.jsp" />
+            <forward name="detailTravelApply11" path="/tcp/detailTravelApply11.jsp" />
 			
 			<forward name="processTravelApply0" path="/tcp/processTravelApply0.jsp" />
 			<forward name="processTravelApply1" path="/tcp/processTravelApply1.jsp" />

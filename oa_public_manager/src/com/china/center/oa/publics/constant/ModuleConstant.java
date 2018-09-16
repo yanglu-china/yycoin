@@ -32,4 +32,8 @@ public interface ModuleConstant
      * 定制产品模块
      */
     String MODULE_MAKE = "定制产品";
+
+    String MODULE_PRODUCT_IMPORT = "产品主数据";
+
+    String MODULE_PRICE_CONFIG = "结算价";
 }

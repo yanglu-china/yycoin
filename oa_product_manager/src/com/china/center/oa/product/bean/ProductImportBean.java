@@ -440,6 +440,7 @@ public class ProductImportBean implements Serializable
                 ", motivationMoney=" + motivationMoney +
                 ", ibMoney2=" + ibMoney2 +
                 ", motivationMoney2=" + motivationMoney2 +
+                ", platformFee=" + platformFee +
                 ", grossProfit=" + grossProfit +
                 ", buyBack=" + buyBack +
                 ", onMarketDate='" + onMarketDate + '\'' +
