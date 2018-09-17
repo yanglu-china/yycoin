@@ -298,11 +298,12 @@ function showDiv(id)
 	<p:subBody width="100%">
 		<table width="100%" border="0" cellspacing='1' id="tables">
 			<tr align="center" class="content0">
-				<td width="10%" align="center">审批人</td>
-				<td width="10%" align="center">审批动作</td>
-				<td width="10%" align="center">前状态</td>
-				<td width="10%" align="center">后状态</td>
-				<td width="45%" align="center">意见</td>
+				<td width="8%" align="center">审批人</td>
+				<td width="8%" align="center">审批动作</td>
+				<td width="8%" align="center">前状态</td>
+				<td width="8%" align="center">后状态</td>
+				<td width="28%" align="center">产品</td>
+				<td width="25%" align="center">意见</td>
 				<td width="15%" align="center">时间</td>
 			</tr>
 
@@ -315,6 +316,8 @@ function showDiv(id)
 					<td align="center">${item.preStatusName}</td>
 
 					<td align="center">${item.afterStatusName}</td>
+
+					<td align="center">${item.reserved1}</td>
 
 					<td align="center">${item.description}</td>
 

@@ -227,7 +227,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 }
             }
 
-            this.addLog(user, stockBean.getId(), StockConstant.STOCK_STATUS_STOCKMANAGERPASS, stockBean, -1, bean.toString());
+            this.addLog(user, stockBean.getId(), StockConstant.STOCK_STATUS_STOCKMANAGERPASS, stockBean, -1, bean.toString(), null);
         }
 
 
@@ -365,7 +365,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             stockDAO.updateEntityBean(old);
         }
 
-        addLog(user, id, nextStatus, old, oprMode, reason);
+        addLog(user, id, nextStatus, old, oprMode, reason, null);
 
         return true;
     }
@@ -379,7 +379,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
      * @param sb
      */
     private void addLog(final User user, final String id, int status, StockBean sb, int oprMode,
-                        String reason)
+                        String reason, String reserved1)
     {
         FlowLogBean log = new FlowLogBean();
 
@@ -397,6 +397,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         log.setAfterStatus(status);
 
         log.setDescription(reason);
+
+        log.setReserved1(reserved1);
 
         flowLogDAO.saveEntityBean(log);
     }
@@ -1243,7 +1245,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     public boolean fetchProductByArrivalBean(User user, String arrivalItemId, String depotpartId,
                                              int warehouseNum, int toBeWarehouse,
                                              String demandQRId) throws MYException {
-        StockItemArrivalBean item = this.stockItemArrivalDAO.find(arrivalItemId);
+        StockItemArrivalVO item = this.stockItemArrivalDAO.findVO(arrivalItemId);
 
         if (item == null)
         {
@@ -1350,7 +1352,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
 
             addLog(user, item.getStockId(), stock.getStatus(), stock, PublicConstant.OPRMODE_PASS,
-                    "询价人拿货数量:"+warehouseNum);
+                    "询价人拿货数量:"+warehouseNum, item.getProductName());
 
 
             //所有商品结束入库时，将采购单状态置为“待结束采购”

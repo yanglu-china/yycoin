@@ -64,6 +64,11 @@ public class FlowLogBean implements Serializable
     private String description = "";
 
     /**
+     * 预留字段
+     */
+    private String reserved1 = "";
+
+    /**
      * default constructor
      */
     public FlowLogBean()
@@ -240,54 +245,34 @@ public class FlowLogBean implements Serializable
         this.actorId = actorId;
     }
 
+    public String getReserved1() {
+        return reserved1;
+    }
+
+    public void setReserved1(String reserved1) {
+        this.reserved1 = reserved1;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("FlowLogBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("fullId = ")
-            .append(this.fullId)
-            .append(TAB)
-            .append("actor = ")
-            .append(this.actor)
-            .append(TAB)
-            .append("actorId = ")
-            .append(this.actorId)
-            .append(TAB)
-            .append("oprMode = ")
-            .append(this.oprMode)
-            .append(TAB)
-            .append("oprAmount = ")
-            .append(this.oprAmount)
-            .append(TAB)
-            .append("preStatus = ")
-            .append(this.preStatus)
-            .append(TAB)
-            .append("afterStatus = ")
-            .append(this.afterStatus)
-            .append(TAB)
-            .append("logTime = ")
-            .append(this.logTime)
-            .append(TAB)
-            .append("description = ")
-            .append(this.description)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "FlowLogBean{" +
+                "id='" + id + '\'' +
+                ", fullId='" + fullId + '\'' +
+                ", actor='" + actor + '\'' +
+                ", actorId='" + actorId + '\'' +
+                ", oprMode=" + oprMode +
+                ", oprAmount=" + oprAmount +
+                ", preStatus=" + preStatus +
+                ", afterStatus=" + afterStatus +
+                ", logTime='" + logTime + '\'' +
+                ", description='" + description + '\'' +
+                ", reserved1='" + reserved1 + '\'' +
+                '}';
     }
 
     @Override
