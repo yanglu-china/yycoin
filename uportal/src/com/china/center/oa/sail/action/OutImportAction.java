@@ -1239,9 +1239,12 @@
              if  (!StringTools.isNullOrNone(customerName)){
                  conditionParse.addCondition("customerName", "=", customerName);
              }
-             if  (!StringTools.isNullOrNone(bean.getChannel())){
+             if  (StringTools.isNullOrNone(bean.getChannel())){
+                 conditionParse.addCondition("channel", "=", "");
+             } else{
                  conditionParse.addCondition("channel", "=", bean.getChannel());
              }
+
              if(!StringTools.isNullOrNone(bank)) {
                  conditionParse.addCondition("bank", "=", bank);
              }
@@ -1303,6 +1306,7 @@
                              _logger.error(bean+" citicDate out of date:"+pib);
                          } else{
                              productImportBean = pib;
+                             break;
                          }
                      }catch(Exception e){
                          _logger.error(" Exception parse Date:",e);
