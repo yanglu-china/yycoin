@@ -317,7 +317,7 @@ function showDiv(id)
 
 					<td align="center">${item.afterStatusName}</td>
 
-					<td align="center">${item.reserved1}</td>
+					<td align="center">${item.productName}</td>
 
 					<td align="center">${item.description}</td>
 

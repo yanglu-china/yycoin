@@ -1352,7 +1352,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
 
             addLog(user, item.getStockId(), stock.getStatus(), stock, PublicConstant.OPRMODE_PASS,
-                    "询价人拿货数量:"+warehouseNum, item.getProductName());
+                    "询价人拿货数量:"+warehouseNum, item.getProductId());
 
 
             //所有商品结束入库时，将采购单状态置为“待结束采购”

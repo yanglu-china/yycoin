@@ -2041,7 +2041,15 @@ public class StockAction extends DispatchAction
 
         for (FlowLogBean flowLogBean : logs)
         {
-            logsVO.add(StockHelper.getStockFlowLogVO(flowLogBean));
+            FlowLogVO flowLogVO = StockHelper.getStockFlowLogVO(flowLogBean);
+            if (!StringTools.isNullOrNone(flowLogBean.getReserved1())){
+                ProductBean productBean = this.productDAO.find(flowLogBean.getReserved1());
+                if(productBean!= null){
+                    flowLogVO.setProductName(productBean.getName());
+                }
+            }
+
+            logsVO.add(flowLogVO);
         }
 
         // 获得询价的列表

@@ -28,6 +28,8 @@ public class FlowLogVO extends FlowLogBean
 
     private String afterStatusName = "";
 
+    private String productName = "";
+
     /**
      * default constructor
      */
@@ -86,4 +88,11 @@ public class FlowLogVO extends FlowLogBean
         this.afterStatusName = afterStatusName;
     }
 
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
 }
