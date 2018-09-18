@@ -396,7 +396,7 @@ public interface TcpConstanst
      * 平台手续费申请
      */
     @Defined(key = "tcpType", value = "平台手续费")
-    int TCP_APPLYTYPE_PLATFORM = 11;
+    int TCP_APPLYTYPE_PLATFORM = 16;
 
     /**
      * 差旅费报销
