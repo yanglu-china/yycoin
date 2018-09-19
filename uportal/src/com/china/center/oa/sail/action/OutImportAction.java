@@ -1224,6 +1224,80 @@
 //             bean.setMotivationMoney(MathTools.parseDouble(obj[42].trim()));
 //         }
 
+
+         // 2015/09/29 客户姓名
+         if ( !StringTools.isNullOrNone(obj[41]))
+         {
+             bean.setCustomerName(obj[41].trim());
+         }
+
+         // #426 2017/2/28 固定电话
+         if ( !StringTools.isNullOrNone(obj[42]))
+         {
+             bean.setTelephone(obj[42].trim());
+             if (bean.getTelephone().length() != 12) {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("固定电话号码不是12位")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         // #62 2017/6/13 是否直邮,状态默认为0 输入值为N时为0，Y时为1
+         if ( !StringTools.isNullOrNone(obj[43]))
+         {
+             String direct = obj[43].trim();
+             if ("Y".equalsIgnoreCase(direct)){
+                 bean.setDirect(1);
+             } else if ("N".equalsIgnoreCase(direct)){
+                 bean.setDirect(0);
+             } else {
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("是否直邮只能为Y或N")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         } else{
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("是否直邮不能为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+
+         if ( !StringTools.isNullOrNone(obj[44]))
+         {
+             String channel = obj[44].trim();
+
+             if (channel.length()>4){
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("渠道不超过4个字符")
+                         .append("<br>");
+
+                 importError = true;
+             } else {
+                 final String type = "311";
+                 EnumBean enumBean = new EnumBean();
+                 enumBean.setType(type);
+                 enumBean.setValue(channel);
+                 List<EnumBean> enumBeans = this.enumDAO.findByType(type);
+                 if (!ListTools.isEmptyOrNull(enumBeans) && enumBeans.contains(enumBean)){
+                     bean.setChannel(channel);
+                 } else{
+                     builder.append("第[" + currentNumber + "]错误:")
+                             .append("渠道只能是"+EnumBean.join(enumBeans))
+                             .append("<br>");
+
+                     importError = true;
+                 }
+             }
+         }
+
          //#65 中收激励从Product import表读取
          if (bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON
                  //#108 原招商银行导入不需要设置中收激励金额
@@ -1324,23 +1398,23 @@
                      }
                  }
 
-                if (productImportBean == null){
-                    builder
-                            .append("第[" + currentNumber + "]错误:")
-                            .append(bean.getCiticOrderDate()+"银行订单日期不在产品主数据配置范围内:"+productImportBeans.get(0).getOnMarketDate()+"至"+productImportBeans.get(0).getOfflineDate())
-                            .append("<br>");
+                 if (productImportBean == null){
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append(bean.getCiticOrderDate()+"银行订单日期不在产品主数据配置范围内:"+productImportBeans.get(0).getOnMarketDate()+"至"+productImportBeans.get(0).getOfflineDate())
+                             .append("<br>");
 
-                    importError = true;
-                } else{
-                    bean.setIbMoney(productImportBean.getIbMoney());
-                    bean.setMotivationMoney(productImportBean.getMotivationMoney());
-                    bean.setIbMoney2(productImportBean.getIbMoney2());
-                    bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
-                    bean.setPlatformFee(productImportBean.getPlatformFee());
+                     importError = true;
+                 } else{
+                     bean.setIbMoney(productImportBean.getIbMoney());
+                     bean.setMotivationMoney(productImportBean.getMotivationMoney());
+                     bean.setIbMoney2(productImportBean.getIbMoney2());
+                     bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
+                     bean.setPlatformFee(productImportBean.getPlatformFee());
 
-                    bean.setCash(productImportBean.getCash());
-                    bean.setGrossProfit(productImportBean.getGrossProfit());
-                }
+                     bean.setCash(productImportBean.getCash());
+                     bean.setGrossProfit(productImportBean.getGrossProfit());
+                 }
              } else{
                  String msg = "客户+银行产品编码未配置产品主数据映射关系:"+bean.getComunicatonBranchName()+"+"+bean.getProductCode();
                  _logger.error(msg);
@@ -1350,80 +1424,6 @@
                          .append("<br>");
 
                  importError = true;
-             }
-         }
-
-
-         // 2015/09/29 客户姓名
-         if ( !StringTools.isNullOrNone(obj[41]))
-         {
-             bean.setCustomerName(obj[41].trim());
-         }
-
-         // #426 2017/2/28 固定电话
-         if ( !StringTools.isNullOrNone(obj[42]))
-         {
-             bean.setTelephone(obj[42].trim());
-             if (bean.getTelephone().length() != 12) {
-                 builder
-                         .append("第[" + currentNumber + "]错误:")
-                         .append("固定电话号码不是12位")
-                         .append("<br>");
-
-                 importError = true;
-             }
-         }
-
-         // #62 2017/6/13 是否直邮,状态默认为0 输入值为N时为0，Y时为1
-         if ( !StringTools.isNullOrNone(obj[43]))
-         {
-             String direct = obj[43].trim();
-             if ("Y".equalsIgnoreCase(direct)){
-                 bean.setDirect(1);
-             } else if ("N".equalsIgnoreCase(direct)){
-                 bean.setDirect(0);
-             } else {
-                 builder.append("第[" + currentNumber + "]错误:")
-                         .append("是否直邮只能为Y或N")
-                         .append("<br>");
-
-                 importError = true;
-             }
-         } else{
-             builder
-                     .append("第[" + currentNumber + "]错误:")
-                     .append("是否直邮不能为空")
-                     .append("<br>");
-
-             importError = true;
-         }
-
-
-         if ( !StringTools.isNullOrNone(obj[44]))
-         {
-             String channel = obj[44].trim();
-
-             if (channel.length()>4){
-                 builder.append("第[" + currentNumber + "]错误:")
-                         .append("渠道不超过4个字符")
-                         .append("<br>");
-
-                 importError = true;
-             } else {
-                 final String type = "311";
-                 EnumBean enumBean = new EnumBean();
-                 enumBean.setType(type);
-                 enumBean.setValue(channel);
-                 List<EnumBean> enumBeans = this.enumDAO.findByType(type);
-                 if (!ListTools.isEmptyOrNull(enumBeans) && enumBeans.contains(enumBean)){
-                     bean.setChannel(channel);
-                 } else{
-                     builder.append("第[" + currentNumber + "]错误:")
-                             .append("渠道只能是"+EnumBean.join(enumBeans))
-                             .append("<br>");
-
-                     importError = true;
-                 }
              }
          }
 
