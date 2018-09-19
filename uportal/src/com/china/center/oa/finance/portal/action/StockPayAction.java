@@ -677,7 +677,7 @@ public class StockPayAction extends DispatchAction
 
         CommonTools.removeParamers(request);
 
-        request.setAttribute("mode", "2");
+        request.setAttribute("mode", "5");
 
         return mapping.findForward("queryCEOStockPayApply");
     }
