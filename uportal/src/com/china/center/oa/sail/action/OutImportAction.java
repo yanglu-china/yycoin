@@ -1250,19 +1250,26 @@
              }
 
              List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+             _logger.info("***productImportBeans1***"+productImportBeans);
              if (ListTools.isEmptyOrNull(productImportBeans) && !StringTools.isNullOrNone(bean.getBranchName())){
                  //如果支行无法匹配，就对比分行+代码+渠道+银行
                  conditionParse = new ConditionParse();
                  conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
                  conditionParse.addCondition("branchName", "=", bean.getBranchName());
-                 if (!StringTools.isNullOrNone(bean.getChannel())){
+
+                 if  (StringTools.isNullOrNone(bean.getChannel())){
+                     conditionParse.addCondition("channel", "=", "");
+                 } else{
                      conditionParse.addCondition("channel", "=", bean.getChannel());
                  }
+
                  if(!StringTools.isNullOrNone(bank)) {
                      conditionParse.addCondition("bank", "=", bank);
                  }
                  productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                 _logger.info("***productImportBeans2***"+productImportBeans);
              }
+
              if(ListTools.isEmptyOrNull(productImportBeans)){
                  //如果支行和分行都无法匹配，就根据银行+代码+渠道
                  conditionParse = new ConditionParse();
@@ -1271,10 +1278,13 @@
                  }
 
                  conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
-                 if (!StringTools.isNullOrNone(bean.getChannel())){
+                 if  (StringTools.isNullOrNone(bean.getChannel())){
+                     conditionParse.addCondition("channel", "=", "");
+                 } else{
                      conditionParse.addCondition("channel", "=", bean.getChannel());
                  }
                  productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                 _logger.info("***productImportBeans3***"+productImportBeans);
              }
 
              if(ListTools.isEmptyOrNull(productImportBeans)){
@@ -1286,6 +1296,7 @@
 
                  conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
                  productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                 _logger.info("***productImportBeans4***"+productImportBeans);
              }
 
              ProductImportBean productImportBean = null;
