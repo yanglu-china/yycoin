@@ -44,6 +44,8 @@ public interface OperationConstant
 
     String OPERATION_NEW = "新增";
 
+    String OPERATION_DELETE = "删除";
+
     /**
      * 结束
      */

@@ -2,6 +2,11 @@ package com.china.center.oa.product.manager.impl;
 
 import java.util.List;
 
+import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.constant.ModuleConstant;
+import com.china.center.oa.publics.constant.OperationConstant;
+import com.china.center.oa.publics.dao.LogDAO;
+import com.china.center.tools.TimeTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +37,8 @@ public class PriceConfigManagerImpl implements PriceConfigManager
 	private CommonDAO commonDAO = null;
 	
 	private ProductDAO productDAO = null;
+
+	private LogDAO logDAO = null;
 	
 	public PriceConfigManagerImpl()
 	{
@@ -52,8 +59,28 @@ public class PriceConfigManagerImpl implements PriceConfigManager
 		priceConfigDAO.saveEntityBean(bean);
 		
 		operationLog.info(user.getStafferName()+".将产品价格配置增加："+ bean);
+		StringBuilder sb = new StringBuilder();
+		sb.append("创建人:").append(user.getStafferName());
+		//日志
+		this.log(user, bean.getId(), OperationConstant.OPERATION_NEW,sb.toString());
 		
 		return true;
+	}
+
+	private void log(User user, String id,String operation, String reason) {
+		// 记录审批日志
+		LogBean log = new LogBean();
+
+		log.setFkId(id);
+
+		log.setLocationId(user.getLocationId());
+		log.setStafferId(user.getStafferId());
+		log.setLogTime(TimeTools.now());
+		log.setModule(ModuleConstant.MODULE_PRICE_CONFIG);
+		log.setOperation(operation);
+		log.setLog(reason);
+
+		logDAO.saveEntityBean(log);
 	}
 
 	@Transactional(rollbackFor=MYException.class)
@@ -75,7 +102,13 @@ public class PriceConfigManagerImpl implements PriceConfigManager
 		
 		priceConfigDAO.saveEntityBean(bean);
 		
-		operationLog.info(user.getStafferName()+".将产品价格配置更新，旧的价格."+ oldBean + ".新的价格."+bean);		
+		operationLog.info(user.getStafferName()+".将产品价格配置更新，旧的价格."+ oldBean + ".新的价格."+bean);
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("修改人:").append(user.getStafferName())
+				.append(".原产品价格配置:").append(oldBean.toString());
+		//日志
+		this.log(user, bean.getId(), OperationConstant.OPERATION_UPDATE,sb.toString());
 		
 		return true;
 	}
@@ -166,6 +199,10 @@ public class PriceConfigManagerImpl implements PriceConfigManager
 		priceConfigDAO.deleteEntityBean(id);
 		
 		operationLog.info(user.getStafferName()+".将产品价格配置删除："+ bean);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("删除人:").append(user.getStafferName()).append(".原产品价格配置:").append(bean.toString());;
+        this.log(user, id, OperationConstant.OPERATION_DELETE,sb.toString());
 		
 		return true;
 	}
@@ -269,5 +306,13 @@ public class PriceConfigManagerImpl implements PriceConfigManager
 	public void setProductDAO(ProductDAO productDAO)
 	{
 		this.productDAO = productDAO;
+	}
+
+	public LogDAO getLogDAO() {
+		return logDAO;
+	}
+
+	public void setLogDAO(LogDAO logDAO) {
+		this.logDAO = logDAO;
 	}
 }
