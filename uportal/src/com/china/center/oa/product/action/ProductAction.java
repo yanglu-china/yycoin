@@ -1401,6 +1401,7 @@ public class ProductAction extends DispatchAction
         String name = request.getParameter("name");
         String code = request.getParameter("code");
         String depotpartId = request.getParameter("depotpartId");
+        _logger.info("***rptQueryLatestComposeProduct with depotpartId***"+depotpartId);
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
         if (!StringTools.isNullOrNone(name)){
@@ -1436,7 +1437,7 @@ public class ProductAction extends DispatchAction
                 //同一产品多个库存就显示多行
                 ConditionParse condition = new ConditionParse();
 
-                // TODO
+                //
                 condition.addCondition("StorageRelationBean.depotpartId", "=", depotpartId);
 
                 // 公共的库存
@@ -1464,6 +1465,7 @@ public class ProductAction extends DispatchAction
                         vo.setProductName(productBean.getName());
 
                         int preassign = storageRelationManager.sumPreassignByStorageRelation(storageRelationVO);
+                        _logger.info(storageRelationVO.getAmount()+"***"+preassign);
                         //可用库存
                         vo.setAmount(storageRelationVO.getAmount()-preassign);
                         //库存成本
@@ -1478,7 +1480,7 @@ public class ProductAction extends DispatchAction
 
         _logger.info("***beanList is***"+result);
         request.setAttribute("beanList", result);
-
+        request.setAttribute("depotpartId",depotpartId);
         return mapping.findForward("rptQueryLatestComposeProduct");
     }
 

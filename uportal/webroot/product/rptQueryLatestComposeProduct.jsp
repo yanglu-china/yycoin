@@ -76,6 +76,7 @@ function pop(obj)
 <input type="hidden" value="${mtype}" name="mtype">
 <input type="hidden" value="${flag }" name = "flag" />
 <input type="hidden" value="${stock}" name = "stock" />
+	<input type="hidden" value="${depotpartId}" name = "depotpartId" />
 
 <p:navigation
 	height="22">
