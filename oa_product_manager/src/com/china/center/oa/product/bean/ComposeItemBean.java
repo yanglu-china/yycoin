@@ -71,7 +71,7 @@ public class ComposeItemBean implements Serializable
      * #313
      */
     @Ignore
-    private int assemblyRate = 0;
+    private double assemblyRate = 0.0;
     
     /**
      * default constructor
@@ -299,11 +299,11 @@ public class ComposeItemBean implements Serializable
 		this.stype = stype;
 	}
 
-    public int getAssemblyRate() {
+    public double getAssemblyRate() {
         return assemblyRate;
     }
 
-    public void setAssemblyRate(int assemblyRate) {
+    public void setAssemblyRate(double assemblyRate) {
         this.assemblyRate = assemblyRate;
     }
 

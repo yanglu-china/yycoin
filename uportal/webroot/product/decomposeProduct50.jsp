@@ -187,7 +187,7 @@ function getProductBom(oos)
                 setInputValueInTr(trow, 'srcProductName', item.productName);
                 setInputValueInTr(trow, 'srcProductId', item.productId);
                 //成品数量*配件装配率
-               setInputValueInTr(trow, 'srcAmount', parseInt(amount)*parseInt(item.assemblyRate));
+               setInputValueInTr(trow, 'srcAmount', Math.round(parseInt(amount)*parseFloat(item.assemblyRate)));
                setInputValueInTr(trow, 'srcPrice', item.price);
                 //配件使用率
 //            rateList.push(item.amount / amount);
