@@ -59,6 +59,11 @@ public class OlBaseBean implements Serializable
 
     private double motivationMoney2 = 0.0d;
 
+    /**
+     * 平台手续费
+     */
+    private double platformFee = 0.0d;
+
     private String changeTime = "";
 
     private String depot = "";
@@ -194,6 +199,14 @@ public class OlBaseBean implements Serializable
         this.motivationMoney2 = motivationMoney2;
     }
 
+    public double getPlatformFee() {
+        return platformFee;
+    }
+
+    public void setPlatformFee(double platformFee) {
+        this.platformFee = platformFee;
+    }
+
     @Override
     public String toString() {
         return "OlBaseBean{" +
@@ -208,6 +221,7 @@ public class OlBaseBean implements Serializable
                 ", motivationMoney=" + motivationMoney +
                 ", ibMoney2=" + ibMoney2 +
                 ", motivationMoney2=" + motivationMoney2 +
+                ", platformFee=" + platformFee +
                 ", changeTime='" + changeTime + '\'' +
                 ", depot='" + depot + '\'' +
                 ", cash=" + cash +
