@@ -3,7 +3,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<p:link title="中收申请管理" link="true" guid="true" cal="true" dialog="true" />
+<p:link title="中收激励/平台手续费申请管理" link="true" guid="true" cal="true" dialog="true" />
 <script src="../js/common.js"></script>
 <script src="../js/public.js"></script>
 <script src="../js/pop.js"></script>
@@ -22,8 +22,8 @@ function load()
      preload();
      
      guidMap = {
-         title: '中收申请列表',
-         url: gurl + 'querySelfTravelApply&type=7',
+         title: '中收激励/平台手续费申请列表',
+         url: gurl + 'querySelfIb',
          colModel : [
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status}>', width : 40, align: 'center'},
              {display: '标识', name : 'id', width : '15%'},
@@ -31,6 +31,7 @@ function load()
              {display: '申请人', name : 'stafferName', width : '8%'},
              {display: '处理人', name : 'processer', width : '8%'},
              {display: '系列', name : 'stype', cc: 'tcpStype', width : '5%'},
+             {display: '类型', name : 'type', cc: 'tcpType', width : '12%'},
              {display: '状态', name : 'status', cc: 'tcpStatus', width : '10%'},
              {display: '是否借款', name : 'borrow', cc: 'travelApplyBorrow', width : '5%'},
              {display: '报销', name : 'feedback', cc: 'tcpApplyFeedback', width : '8%'},

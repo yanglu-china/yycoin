@@ -253,6 +253,63 @@ public class TravelApplyAction extends DispatchAction
 
         return JSONTools.writeResponse(response, jsonstr);
     }
+
+
+    /**
+     * 所有的中收/激励/平台手续费申请
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward querySelfIb(ActionMapping mapping, ActionForm form,
+                                              HttpServletRequest request,
+                                              HttpServletResponse response)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+
+        ConditionParse condtion = new ConditionParse();
+
+        condtion.addWhereStr();
+
+        ActionTools.processJSONQueryCondition(QUERYSELFTRAVELAPPLY, request, condtion);
+
+        condtion.addCondition("TravelApplyBean.stafferId", "=", user.getStafferId());
+        condtion.addCondition(" and TravelApplyBean.type in(7,8,9,10,16)");
+        condtion.addCondition(" and TravelApplyBean.purposeType not in (21,31,22,12,32)");
+
+        condtion.addCondition("order by TravelApplyBean.logTime desc");
+
+
+        request.getSession().setAttribute(JSONPageSeparateTools.getConditionAttributeNameInSession(request, QUERYSELFTRAVELAPPLY), condtion);
+        request.getSession().setAttribute("A_condtion", condtion);
+
+        String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYSELFTRAVELAPPLY, request,
+                condtion, this.travelApplyDAO, new HandleResult<TravelApplyVO>()
+                {
+                    public void handle(TravelApplyVO vo)
+                    {
+                        TCPHelper.chageVO(vo);
+
+                        // 当前处理人
+                        List<TcpApproveVO> approveList = tcpApproveDAO.queryEntityVOsByFK(vo.getId());
+
+                        for (TcpApproveVO tcpApproveVO : approveList)
+                        {
+                            if (tcpApproveVO.getPool() == TcpConstanst.TCP_POOL_COMMON)
+                            {
+                                vo.setProcesser(vo.getProcesser() + tcpApproveVO.getApproverName()
+                                        + ';');
+                            }
+                        }
+                    }
+                });
+
+        return JSONTools.writeResponse(response, jsonstr);
+    }
     
     /**
      * queryAllVocationAndWork
