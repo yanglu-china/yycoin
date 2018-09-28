@@ -2,6 +2,7 @@ package com.china.center.oa.product.manager.impl;
 
 import java.util.List;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
@@ -424,10 +425,16 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 	    		midName = StringTools.formatString(String.valueOf(maxMidName + 1), 7);
 	    	}
 	    }
-	    
-	    String fullName = firstName + midName + " " + bean.getName();
-	    
-	    bean.setMidName(midName);
+
+        String fullName = firstName + midName + " " + bean.getName();
+
+	    //#432
+        String appName = ConfigLoader.getProperty("appName");
+        if ("永银ERP(体外)".equals(appName)){
+            fullName = "TW"+fullName;
+        }
+
+        bean.setMidName(midName);
 	    
 	    bean.setFullName(fullName);
 	}

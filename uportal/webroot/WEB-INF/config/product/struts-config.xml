@@ -102,6 +102,8 @@
             <forward name="importProductApply" path="/product/importProductApply.jsp" />
             <forward name="importProductForMailOut" path="/product/importProductForMailOut.jsp" />
 			<forward name="addProductApply" path="/product/addProductApply.jsp" />
+			<forward name="detailProductApply" path="/product/detailProductApply.jsp" />
+			<forward name="queryProductApply" path="/product/queryProductApply.jsp" />
 		</action>
 		
 		<action path="/product/priceConfig" parameter="method"
