@@ -1430,7 +1430,7 @@ public class ProductAction extends DispatchAction
                     itemList = composeItemDAO.queryEntityVOsByFK(composeProduct.getId());
                     for (ComposeItemVO item: itemList){
                         item.setPrice(NumberUtils.roundDouble(item.getPrice()));
-                        item.setAssemblyRate(item.getAmount()/amount);
+                        item.setAssemblyRate((double)item.getAmount()/amount);
                     }
                 }
 
