@@ -453,13 +453,22 @@ function checkBean()
 					<tr class="content2">
 						<td align="right">其他费用标志：</td>
 						<td colspan="1">${my:get('ibMotivationFlag', bean.motivationFlag2)}</td>
-						<td align="right">其他费用：</td>
+						<td align="right">其他费用申请：</td>
 						<td colspan="1">
 							<a href="../tcp/apply.do?method=findTravelApply&id=${bean.motivationApplyId2}">${bean.motivationApplyId2}</a>
 						</td>
 					</tr>
+
+					<tr class="content1">
+						<td align="right">平台手续费标志：</td>
+						<td colspan="1">${my:get('ibMotivationFlag', bean.platformFlag)}</td>
+						<td align="right">平台手续费申请：</td>
+						<td colspan="1">
+							<a href="../tcp/apply.do?method=findTravelApply&id=${bean.platformApplyId}">${bean.platformApplyId}</a>
+						</td>
+					</tr>
                         
-                    <tr class="content1">
+                    <tr class="content2">
                         <td align="right">信用描述：</td>
                         <td colspan="3">
                         <font color="red">
@@ -468,7 +477,7 @@ function checkBean()
                        </td>
                     </tr>
                     
-                    <tr class="content2">
+                    <tr class="content1">
                         <td align="right">信用担保人：</td>
                         <td colspan="3">
                         <font color="red">
@@ -477,14 +486,14 @@ function checkBean()
                        </td>
                     </tr>
                     
-                     <tr class="content1">
+                     <tr class="content2">
                         <td align="right">信用担保：</td>
                         <td colspan="3">
                        客户:${my:formatNum(bean.curcredit)}/${bean.stafferName}:${my:formatNum(bean.staffcredit)}/事业部经理:${my:formatNum(bean.managercredit)}
                        </td>
                     </tr>
 
-					<tr class="content2" id="pdesc">
+					<tr class="content1" id="pdesc">
 						<td align="right">销售单备注：</td>
 						<td colspan="3"><textarea rows="3" cols="55" oncheck="notNone;"
 							name="description"><c:out value="${bean.description}"/></textarea>
@@ -492,7 +501,7 @@ function checkBean()
 							</td>
 					</tr>
 					
-					 <tr class="content1">
+					 <tr class="content2">
                         <td align="right">总部核对：</td>
                         <td colspan="1">
                        		${bean.checks}
@@ -501,14 +510,14 @@ function checkBean()
 						 <td colspan="1">${bean.channel}</td>
                     </tr>
                     
-                    <tr class="content2">
+                    <tr class="content1">
                         <td align="right">付款备注：</td>
                         <td colspan="3">
                        ${checkOutPayStatus.message}
                        </td>
                     </tr>
                     
-                    <tr class="content1">
+                    <tr class="content2">
                         <td align="right">配送单号：</td>
                         <td colspan="3">
                        		 <c:forEach items="${distBeanList}" var="item">
@@ -518,7 +527,7 @@ function checkBean()
                        </td>
                     </tr>
                     
-                     <tr class="content2" id="ppz">
+                     <tr class="content1" id="ppz">
                         <td align="right">关联凭证：</td>
                         <td colspan="3">
                        <c:forEach items="${financeBeanList}" var="item">
@@ -528,7 +537,7 @@ function checkBean()
                        </td>
                     </tr>
 
-					<tr class="content1">
+					<tr class="content2">
                         <td align="right">附件：</td>
                         <td colspan="3">
 			            <c:forEach items="${bean.attachmentList}" var="item">
@@ -539,7 +548,7 @@ function checkBean()
                        </td>
                     </tr>
 
-					<tr class="content2">
+					<tr class="content1">
 						<td align="right">pos付款方：</td>
 						<td colspan="1">${bean.posPayer}</td>
 						<td align="right">推荐标示：</td>

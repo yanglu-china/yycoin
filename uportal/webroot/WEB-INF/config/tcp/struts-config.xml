@@ -55,7 +55,7 @@
             <forward name="detailTravelApply8" path="/tcp/detailTravelApply8.jsp" />
             <forward name="detailTravelApply9" path="/tcp/detailTravelApply9.jsp" />
             <forward name="detailTravelApply10" path="/tcp/detailTravelApply10.jsp" />
-            <forward name="detailTravelApply11" path="/tcp/detailTravelApply11.jsp" />
+            <forward name="detailTravelApply16" path="/tcp/detailTravelApply16.jsp" />
 			
 			<forward name="processTravelApply0" path="/tcp/processTravelApply0.jsp" />
 			<forward name="processTravelApply1" path="/tcp/processTravelApply1.jsp" />

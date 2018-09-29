@@ -1844,7 +1844,10 @@ public class ShipAction extends DispatchAction
             } else if (vo.getCustomerName().indexOf("中金国华") != -1) {
                 request.setAttribute("title", "中金国华——发货清单");
                 return mapping.findForward("printZjghReceipt");
-            } else {
+            } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
+                return mapping.findForward("printNjReceipt");
+            }
+            else {
                 return mapping.findForward("printUnifiedReceipt");
             }
         }
@@ -2121,6 +2124,8 @@ public class ShipAction extends DispatchAction
             } else if (vo.getCustomerName().indexOf("中金国华") != -1) {
                 request.setAttribute("title", "中金国华——发货清单");
                 return mapping.findForward("printZjghReceipt");
+            } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
+                return mapping.findForward("printNjReceipt");
             } else{
                 return mapping.findForward("printUnifiedReceipt");
             }
