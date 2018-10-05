@@ -1416,6 +1416,9 @@ public class ShipAction extends DispatchAction
             subindexpos = MathTools.parseInt(subindex_pos);
         }
 
+        // 注意packageId代表下一个将要打印的CK单，不是当前打印的！
+        // index_pos 代表批次中的第几个CK单
+        // subindex_pos代表CK单中第几个客户
         String msg1 = "***batchPrint***" + batchPrint + "***print2***" + print2 + "***pickupId***" + pickupId +
                 "***packageId***" + packageId + "***index_pos***" + index_pos + "***printMode***" + printMode + "***printSmode***" +
                 printSmode+"***directFlag***"+directFlag+"***subindex_pos***"+subindex_pos;
@@ -1477,7 +1480,17 @@ public class ShipAction extends DispatchAction
 //        } else {
 //            subindexpos += 1;
 //        }
+
         subindexpos += 1;
+        //#439 南京银行CK单只打印一次
+        String nextPackageId = RequestTools.getValueFromRequest(request, "packageId");
+        if (!StringTools.isNullOrNone(nextPackageId)){
+            PackageVO temp = this.packageDAO.findVO(nextPackageId);
+            if (temp!= null && temp.getCustomerName().indexOf("南京银行") != -1){
+                //把sub index设置超大就会跳过该CK单后续客户
+                subindexpos = 9999;
+            }
+        }
 
         String customerId = "";
         String customerName = "";
@@ -2655,7 +2668,9 @@ public class ShipAction extends DispatchAction
 
         for (PackageItemBean each : itemList) {
             //只打印同一客户的
-            if (!each.getCustomerId().equals(vo.getCustomerId())) {
+            //#439 南京银行CK单需要合并打印
+            if (vo.getCustomerName().indexOf("南京银行") == -1 &&
+                    !each.getCustomerId().equals(vo.getCustomerId())) {
                 continue;
             } else {
                 _logger.info("****iterate package item:" + each);
