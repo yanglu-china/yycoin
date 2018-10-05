@@ -1660,7 +1660,11 @@ public class TravelApplyAction extends DispatchAction
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "操作费用申请失败:" + e.getMessage());
         }
 
-        return mapping.findForward("querySelfTravelApply" + bean.getType());
+        if (bean.isMidOrMotivation()){
+            return mapping.findForward("querySelfTravelApply7");
+        } else{
+            return mapping.findForward("querySelfTravelApply" + bean.getType());
+        }
     }
     
     
@@ -4672,7 +4676,7 @@ public class TravelApplyAction extends DispatchAction
         } else if (type == TcpConstanst.MOTIVATION_TYPE2) {
             return mapping.findForward("addTravelApply10import");
         } else if (type == TcpConstanst.PLATFORM_TYPE) {
-            return mapping.findForward("addTravelApply11import");
+            return mapping.findForward("addTravelApply16import");
         }else{
             return mapping.findForward("addTravelApply7import");
         }

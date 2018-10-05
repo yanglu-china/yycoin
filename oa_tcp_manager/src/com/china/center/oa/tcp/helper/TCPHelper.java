@@ -57,12 +57,13 @@ public abstract class TCPHelper
                     bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_MOTIVATION);
                     return;
                 } else if (apply.getIbType() == TcpConstanst.IB_TYPE
-                        || apply.getIbType() == TcpConstanst.IB_TYPE2)  {
+                        || apply.getIbType() == TcpConstanst.IB_TYPE2
+                        || apply.getIbType() == TcpConstanst.PLATFORM_TYPE)  {
                     bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_IB);
                     return;
                 }
             }
-    		bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_0_5000);
+    		bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_IB);
     		
     		return;
     	}
@@ -372,7 +373,7 @@ public abstract class TCPHelper
         vo.setShowTotal(MathTools.formatNum(MathTools.longToDouble2(vo.getTotal())));
         vo.setShowCheckTotal(MathTools.formatNum(MathTools.longToDouble2(vo.getCheckTotal())));
 
-        if (vo.getType() <= 10)
+        if (vo.getType() <= 10 || vo.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM)
         {
             vo.setUrl(TcpConstanst.TCP_TRAVELAPPLY_PROCESS_URL + vo.getApplyId());
         }

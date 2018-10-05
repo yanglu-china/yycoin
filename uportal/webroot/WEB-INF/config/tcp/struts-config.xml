@@ -14,7 +14,7 @@
             <forward name="addTravelApply8import" path="/tcp/addTravelApply8import.jsp" />
             <forward name="addTravelApply9import" path="/tcp/addTravelApply9import.jsp" />
             <forward name="addTravelApply10import" path="/tcp/addTravelApply10import.jsp" />
-            <forward name="addTravelApply11import" path="/tcp/addTravelApply11import.jsp" />
+            <forward name="addTravelApply16import" path="/tcp/addTravelApply16import.jsp" />
 
 			<forward name="addVocationAndWork" path="/tcp/addVocationAndWork.jsp" />
 			<forward name="addCommission" path="/tcp/addCommission.jsp" />
@@ -30,6 +30,7 @@
             <forward name="updateTravelApply8" path="/tcp/updateTravelApply8.jsp" />
             <forward name="updateTravelApply9" path="/tcp/updateTravelApply9.jsp" />
             <forward name="updateTravelApply10" path="/tcp/updateTravelApply10.jsp" />
+            <forward name="updateTravelApply16" path="/tcp/updateTravelApply16.jsp" />
 
 			<forward name="processVocationAndWork" path="/tcp/processVocationAndWork.jsp" />
 			<forward name="detailVocationAndWork" path="/tcp/detailVocationAndWork.jsp" />
@@ -45,7 +46,7 @@
             <forward name="querySelfTravelApply8" path="/tcp/querySelfTravelApply8.jsp" />
             <forward name="querySelfTravelApply9" path="/tcp/querySelfTravelApply9.jsp" />
             <forward name="querySelfTravelApply10" path="/tcp/querySelfTravelApply10.jsp" />
-            <forward name="querySelfTravelApply11" path="/tcp/querySelfTravelApply11.jsp" />
+            <forward name="querySelfTravelApply16" path="/tcp/querySelfTravelApply16.jsp" />
 			
 			<forward name="detailTravelApply0" path="/tcp/detailTravelApply0.jsp" />
 			<forward name="detailTravelApply1" path="/tcp/detailTravelApply1.jsp" />
@@ -65,6 +66,7 @@
             <forward name="processTravelApply8" path="/tcp/processTravelApply8.jsp" />
             <forward name="processTravelApply9" path="/tcp/processTravelApply9.jsp" />
             <forward name="processTravelApply10" path="/tcp/processTravelApply10.jsp" />
+            <forward name="processTravelApply16" path="/tcp/processTravelApply16.jsp" />
 			
 			<forward name="querySelfApprove" path="/tcp/querySelfApprove.jsp" />
 			<forward name="rptQueryTravelApply" path="/tcp/rptQueryTravelApply.jsp" />
