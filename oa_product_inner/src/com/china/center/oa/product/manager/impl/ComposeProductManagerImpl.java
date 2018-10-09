@@ -18,6 +18,10 @@ import java.util.Map;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.vs.StorageRelationBean;
+import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.constant.ModuleConstant;
+import com.china.center.oa.publics.constant.OperationConstant;
+import com.china.center.oa.publics.dao.LogDAO;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,6 +94,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
     private FlowLogDAO flowLogDAO = null;
 
     private StorageRelationDAO storageRelationDAO = null;
+
+    private LogDAO logDAO = null;
 
     /**
      * default constructor
@@ -1081,6 +1087,71 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
             storageRelationManager.changeStorageRelationWithoutTransaction(user, eachWrap, true);
         }
+
+        // #440 合成时修改产品总部结算价
+        int type = 0;
+        final String KTKC_DEFAULT = "A1201310151011526377";
+        double sailPrice = -1;
+        double virtualProductPrice = 0;
+        for (ComposeItemBean composeItemBean : itemList)
+        {
+            // 如果合成单中“源仓区”为“空退空开库（仅限商务部操作）”，则忽略，不读取这种情况下合成单的产品价格
+            if (KTKC_DEFAULT.equals(composeItemBean.getDepotpartId())){
+                type = 1;
+                break;
+            }
+
+            //  如果合成单中源仓区不是空退空开库，但是含有虚料，计算公式为：总部结算价=合成单对应的最终价格-（虚料产品对应的数量/合成单合成总数量）*虚料产品单价
+            if (this.isVirtualProduct(composeItemBean.getProductId())){
+                type = 2;
+                virtualProductPrice += ((double)composeItemBean.getAmount()/bean.getAmount())*composeItemBean.getPrice();
+            }
+        }
+
+        if (type == 0){
+            // 如果合成单中源仓区不是空退空开库，并且不含虚料，则直接取合成单对应的产品“最终价格”
+            sailPrice = bean.getPrice();
+        } else if (type == 2){
+            // 如果合成单中源仓区不是空退空开库，但是含有虚料
+            sailPrice = bean.getPrice() - virtualProductPrice;
+        }
+
+        if (sailPrice > 0){
+            ProductBean productBean = this.productDAO.find(bean.getProductId());
+            if (productBean!= null){
+                // 日志
+                StringBuilder sb = new StringBuilder();
+                sb.append("修改人:").append(user.getStafferName())
+                        .append(".原产品结算价:").append(productBean.getSailPrice());
+
+                productBean.setSailPrice(sailPrice);
+                this.productDAO.updateEntityBean(productBean);
+
+                this.log(user, bean.getProductId(), OperationConstant.OPERATION_UPDATE, sb.toString());
+            }
+        }
+    }
+
+    //TODO
+    // #430 检查是否虚料
+    private boolean isVirtualProduct(String productId){
+        return false;
+    }
+
+    private void log(User user, String id,String operation, String reason) {
+        // 记录审批日志
+        LogBean log = new LogBean();
+
+        log.setFkId(id);
+
+        log.setLocationId(user.getLocationId());
+        log.setStafferId(user.getStafferId());
+        log.setLogTime(TimeTools.now());
+        log.setModule(ModuleConstant.MODULE_PRICE_CONFIG);
+        log.setOperation(operation);
+        log.setLog(reason);
+
+        logDAO.saveEntityBean(log);
     }
 
     private void processDecompose(User user, ComposeProductBean bean)
@@ -1577,5 +1648,13 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
     public void setStorageRelationDAO(StorageRelationDAO storageRelationDAO) {
         this.storageRelationDAO = storageRelationDAO;
+    }
+
+    public LogDAO getLogDAO() {
+        return logDAO;
+    }
+
+    public void setLogDAO(LogDAO logDAO) {
+        this.logDAO = logDAO;
     }
 }
