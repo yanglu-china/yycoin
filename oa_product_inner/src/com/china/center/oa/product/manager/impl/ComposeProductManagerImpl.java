@@ -1118,7 +1118,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
         if (sailPrice > 0){
             ProductBean productBean = this.productDAO.find(bean.getProductId());
-            if (productBean!= null){
+            if (productBean!= null && productBean.getSailPriceFlag() ==  1){
                 // 日志
                 StringBuilder sb = new StringBuilder();
                 sb.append("修改人:").append(user.getStafferName())
@@ -1132,9 +1132,19 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         }
     }
 
-    //TODO
     // #430 检查是否虚料
     private boolean isVirtualProduct(String productId){
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addIntCondition("virtualFlag","=", "1");
+        List<ProductBean> productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
+        if(productBeans != null){
+            for(ProductBean productBean: productBeans){
+                if (productId.equals(productBean.getId())){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 

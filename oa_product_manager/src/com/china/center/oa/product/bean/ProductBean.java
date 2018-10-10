@@ -428,6 +428,16 @@ public class ProductBean implements Serializable
     @Html(title = "采购类型", type = Element.SELECT, must = true)
     private String stype = "";
 
+    /**
+     * #440 可修改结算价标识
+     */
+    private int sailPriceFlag = 0;
+
+    /**
+     * #440 虚料标识
+     */
+    private int virtualFlag = 0;
+
     @Ignore
     private List<ProductCombinationBean> vsList = null;
 
@@ -1593,6 +1603,22 @@ public class ProductBean implements Serializable
 
     public void setStype(String stype) {
         this.stype = stype;
+    }
+
+    public int getSailPriceFlag() {
+        return sailPriceFlag;
+    }
+
+    public void setSailPriceFlag(int sailPriceFlag) {
+        this.sailPriceFlag = sailPriceFlag;
+    }
+
+    public int getVirtualFlag() {
+        return virtualFlag;
+    }
+
+    public void setVirtualFlag(int virtualFlag) {
+        this.virtualFlag = virtualFlag;
     }
 
     /**
