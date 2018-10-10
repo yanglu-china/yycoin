@@ -1410,7 +1410,12 @@
                      bean.setMotivationMoney(productImportBean.getMotivationMoney());
                      bean.setIbMoney2(productImportBean.getIbMoney2());
                      bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
-                     bean.setPlatformFee(productImportBean.getPlatformFee());
+
+                     if (this.isOnlineCustomer(bean.getComunicatonBranchName())){
+                         bean.setPlatformFee(bean.getPrice()*0.01);
+                     } else{
+                         bean.setPlatformFee(productImportBean.getPlatformFee());
+                     }
 
                      bean.setCash(productImportBean.getCash());
                      bean.setGrossProfit(productImportBean.getGrossProfit());
@@ -1459,6 +1464,18 @@
          }
 
          return importError;
+     }
+
+     private boolean isOnlineCustomer(String customerName){
+         if ("永银文化-天猫".equals(customerName)
+                 || "钱币交易部-淘宝".equals(customerName)
+                 || "中金国华-天猫".equals(customerName)
+                || "钱币交易部-京东".equals(customerName)
+                ||"中金国华-京东".equals(customerName)){
+             return true;
+         } else{
+             return false;
+         }
      }
 
 
