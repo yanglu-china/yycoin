@@ -343,6 +343,7 @@ function load()
           <input type="button" name="pr"
             class="button_class" onclick="pagePrint()"
             value="&nbsp;&nbsp;打 印&nbsp;&nbsp;">
+            <input type="button" class="button_class" value="返回" onclick="javascript:history.go(-1)" >&nbsp;&nbsp;
         </div>
     </p:button>
 	
