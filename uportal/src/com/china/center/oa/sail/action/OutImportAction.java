@@ -2578,6 +2578,10 @@
              bean.setCustomerName(obj[41].trim());
          }
 
+         if (this.isOnlineCustomer(bean.getComunicatonBranchName())){
+             bean.setPlatformFee(bean.getPrice()*0.01);
+         }
+
          // #426 2017/2/28 固定电话
          if ( !StringTools.isNullOrNone(obj[42]))
          {
