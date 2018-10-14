@@ -14,6 +14,10 @@ import java.util.Collection;
 import java.util.List;
 
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.constant.ModuleConstant;
+import com.china.center.oa.publics.constant.OperationConstant;
+import com.china.center.oa.publics.dao.LogDAO;
 import com.china.center.oa.stock.bean.StockItemArrivalBean;
 import com.china.center.oa.stock.dao.StockItemArrivalDAO;
 import com.china.center.oa.stock.vo.StockItemArrivalVO;
@@ -73,6 +77,8 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
     private ProductDAO productDAO = null;
     
     private InvoiceDAO invoiceDAO = null;
+
+    private LogDAO logDAO = null;
 
     /**
      * default constructor
@@ -389,8 +395,15 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
 
                 if(product.getSailType()==ProductConstant.SAILTYPE_REPLACE)
                 {
+                    // 日志
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("修改人:").append(user.getStafferName())
+                            .append(".原产品结算价:").append(product.getSailPrice());
+
                     product.setSailPrice(each.getPrice());//采购商品的结算价更新为此张采购单的成本价
                     productDAO.updateEntityBean(product);
+
+                    this.log(user, each.getProductId(), OperationConstant.OPERATION_UPDATE, sb.toString());
                 }
             }
             else
@@ -508,6 +521,22 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
             }
     }
 
+    private void log(User user, String id,String operation, String reason) {
+        // 记录审批日志
+        LogBean log = new LogBean();
+
+        log.setFkId(id);
+
+        log.setLocationId(user.getLocationId());
+        log.setStafferId(user.getStafferId());
+        log.setLogTime(TimeTools.now());
+        log.setModule(ModuleConstant.MODULE_PRICE_CONFIG);
+        log.setOperation(operation);
+        log.setLog(reason);
+
+        logDAO.saveEntityBean(log);
+    }
+
     @Override
 	public void onWaitFetchStock(User user, StockBean bean, StockItemBean item)
 			throws MYException
@@ -608,5 +637,13 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
 
     public void setStockItemArrivalDAO(StockItemArrivalDAO stockItemArrivalDAO) {
         this.stockItemArrivalDAO = stockItemArrivalDAO;
+    }
+
+    public LogDAO getLogDAO() {
+        return logDAO;
+    }
+
+    public void setLogDAO(LogDAO logDAO) {
+        this.logDAO = logDAO;
     }
 }

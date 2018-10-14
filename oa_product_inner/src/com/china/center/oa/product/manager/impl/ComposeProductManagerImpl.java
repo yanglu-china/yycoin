@@ -1269,10 +1269,11 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             throw new MYException("产品不存在："+productId);
         }
 
-        if (compose.getCtype() != ProductConstant.CTYPE_YES)
-        {
-            throw new MYException("目的产品不是合成产品,请确认操作");
-        }
+        // #433 产品分拆配件不能拆分的控制去掉
+//        if (compose.getCtype() != ProductConstant.CTYPE_YES)
+//        {
+//            throw new MYException("目的产品不是合成产品,请确认操作");
+//        }
 
         // MANAGER 合成产品增加的管理逻辑
         if (OATools.isCommon(compose.getReserve4()))
