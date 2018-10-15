@@ -76,6 +76,10 @@ function getDepotpart(objs)
 			
 			<p:pro field="depotpartId" innerString="readonly=true" value="${bean.depotpartName}"/>
 
+			<p:pro field="item">
+				<p:option type="storageItemType"/>
+			</p:pro>
+
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 
 		</p:table>
