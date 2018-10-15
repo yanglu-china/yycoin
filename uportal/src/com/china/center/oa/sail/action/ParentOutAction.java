@@ -10,6 +10,8 @@ package com.china.center.oa.sail.action;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
 import com.china.center.actionhelper.common.ActionTools;
@@ -44,6 +46,7 @@ import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.*;
 import com.china.center.oa.publics.dao.*;
@@ -1088,6 +1091,313 @@ public class ParentOutAction extends DispatchAction
 		request.setAttribute("backError", error);
 
 		return mapping.findForward("addBatchBack");
+	}
+
+	/**
+	 * #441 批量退货
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward batchBack2(ActionMapping mapping, ActionForm form,
+											  HttpServletRequest request, HttpServletResponse response)
+			throws ServletException
+	{
+		RequestDataStream rds = new RequestDataStream(request);
+
+		User user = (User) request.getSession().getAttribute("user");
+
+		boolean importError = false;
+
+		List<BranchRelationBean> importItemList = new ArrayList<BranchRelationBean>();
+
+		StringBuilder builder = new StringBuilder();
+		try
+		{
+			rds.parser();
+		}
+		catch (Exception e1)
+		{
+			_logger.error(e1, e1);
+
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+			return mapping.findForward("batchBack2");
+		}
+
+		if ( !rds.haveStream())
+		{
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+			return mapping.findForward("batchBack2");
+		}
+
+		ReaderFile reader = ReadeFileFactory.getXLSReader();
+		try
+		{
+			reader.readFile(rds.getUniqueInputStream());
+
+			while (reader.hasNext())
+			{
+				String[] obj = StringUtils.fillObj((String[])reader.next(), 10);
+
+				// 第一行忽略
+				if (reader.getCurrentLineNumber() == 1)
+				{
+					continue;
+				}
+
+				if (StringTools.isNullOrNone(obj[0]))
+				{
+					continue;
+				}
+
+				int currentNumber = reader.getCurrentLineNumber();
+
+				if (obj.length >= 2 )
+				{
+					BranchRelationBean bean = new BranchRelationBean();
+					bean.setOperator(user.getStafferName());
+					bean.setLogTime(TimeTools.now());
+
+					// 类型
+					if ( !StringTools.isNullOrNone(obj[0]))
+					{
+						String type = obj[0].trim();
+
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("类型不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					//单号
+					if ( !StringTools.isNullOrNone(obj[1]))
+					{
+						String outId = obj[1].trim();
+						OutBean out = this.outDAO.find(outId);
+						if (out == null){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("单号不存在:"+outId)
+									.append("<br>");
+
+							importError = true;
+						}
+					} else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("单号不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					//客户
+					if ( !StringTools.isNullOrNone(obj[2]))
+					{
+						bean.setBranchName(obj[2]);
+						String customerName = obj[2].trim();
+						List<CustomerBean> customerBeans = this.customerMainDAO.queryByName(customerName);
+						if (ListTools.isEmptyOrNull(customerBeans)){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("客户不存在:"+customerName)
+									.append("<br>");
+
+							importError = true;
+						}
+					}  else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("客户不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					//商品名
+					if ( !StringTools.isNullOrNone(obj[3]))
+					{
+						String productName = obj[3].trim();
+					} else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("商品名不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+
+					//成本
+					if ( !StringTools.isNullOrNone(obj[4]))
+					{
+						String cost = obj[4].trim();
+
+					}
+
+					//数量
+					if ( !StringTools.isNullOrNone(obj[5]))
+					{
+						String amount = obj[5].trim();
+
+					}else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("原开单数量不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					//销售价
+					if ( !StringTools.isNullOrNone(obj[6]))
+					{
+						String price = obj[6].trim();
+					} else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("销售价不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					//退货数量
+					if ( !StringTools.isNullOrNone(obj[7]))
+					{
+						String amount = obj[7].trim();
+					} else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("退货数量不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					//目的仓库
+					if ( !StringTools.isNullOrNone(obj[8]))
+					{
+						String depot = obj[8].trim();
+						DepotpartBean depotpartBean = depotpartDAO.findDefaultOKDepotpart(depot);
+
+						if (depotpartBean == null)
+						{
+							importError = true;
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("仓库下没有良品仓:"+depot)
+									.append("<br>");
+						}
+					} else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("目的仓库不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					//快递单号
+					if ( !StringTools.isNullOrNone(obj[9]))
+					{
+						String transportNo = obj[9].trim();
+
+					} else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("快递单号不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					//退货备注
+					if ( !StringTools.isNullOrNone(obj[10]))
+					{
+						String description = obj[10].trim();
+
+					} else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("退货备注不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					importItemList.add(bean);
+				}
+				else
+				{
+					builder
+							.append("第[" + currentNumber + "]错误:")
+							.append("数据长度不足11格错误")
+							.append("<br>");
+
+					importError = true;
+				}
+			}
+		}catch (Exception e)
+		{
+			_logger.error(e, e);
+
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+			return mapping.findForward("batchBack2");
+		}
+		finally
+		{
+			try
+			{
+				reader.close();
+			}
+			catch (IOException e)
+			{
+				_logger.error(e, e);
+			}
+		}
+
+		rds.close();
+		if (importError){
+
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+			return mapping.findForward("batchBack2");
+		}
+
+		try
+		{
+			//TODO
+			request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getMessage());
+
+			return mapping.findForward("batchBack2");
+		}
+		return mapping.findForward("batchBack2");
 	}
 
 	/**
