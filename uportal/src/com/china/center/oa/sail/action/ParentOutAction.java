@@ -1112,7 +1112,7 @@ public class ParentOutAction extends DispatchAction
 
 		boolean importError = false;
 
-		List<BranchRelationBean> importItemList = new ArrayList<BranchRelationBean>();
+		List<BatchBackWrap> importItemList = new ArrayList<BatchBackWrap>();
 
 		StringBuilder builder = new StringBuilder();
 		try
@@ -1136,13 +1136,14 @@ public class ParentOutAction extends DispatchAction
 		}
 
 		ReaderFile reader = ReadeFileFactory.getXLSReader();
+
 		try
 		{
 			reader.readFile(rds.getUniqueInputStream());
 
 			while (reader.hasNext())
 			{
-				String[] obj = StringUtils.fillObj((String[])reader.next(), 10);
+				String[] obj = StringUtils.fillObj((String[])reader.next(), 11);
 
 				// 第一行忽略
 				if (reader.getCurrentLineNumber() == 1)
@@ -1159,15 +1160,13 @@ public class ParentOutAction extends DispatchAction
 
 				if (obj.length >= 2 )
 				{
-					BranchRelationBean bean = new BranchRelationBean();
-					bean.setOperator(user.getStafferName());
-					bean.setLogTime(TimeTools.now());
+                    BatchBackWrap bean = new BatchBackWrap();
 
 					// 类型
 					if ( !StringTools.isNullOrNone(obj[0]))
 					{
 						String type = obj[0].trim();
-
+                        //TODO
 					}
 					else
 					{
@@ -1191,7 +1190,9 @@ public class ParentOutAction extends DispatchAction
 									.append("<br>");
 
 							importError = true;
-						}
+						} else{
+						    bean.setRefOutFullId(outId);
+                        }
 					} else
 					{
 						builder
@@ -1205,7 +1206,6 @@ public class ParentOutAction extends DispatchAction
 					//客户
 					if ( !StringTools.isNullOrNone(obj[2]))
 					{
-						bean.setBranchName(obj[2]);
 						String customerName = obj[2].trim();
 						List<CustomerBean> customerBeans = this.customerMainDAO.queryByName(customerName);
 						if (ListTools.isEmptyOrNull(customerBeans)){
@@ -1230,6 +1230,17 @@ public class ParentOutAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[3]))
 					{
 						String productName = obj[3].trim();
+						ProductBean productBean = this.productDAO.findByName(productName);
+						if (productBean == null){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("商品名不存在:"+productName)
+                                    .append("<br>");
+
+                            importError = true;
+                        } else{
+						    bean.setProductId(productBean.getId());
+                        }
 					} else
 					{
 						builder
@@ -1245,14 +1256,14 @@ public class ParentOutAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[4]))
 					{
 						String cost = obj[4].trim();
-
+                        bean.setCostPriceKey(StorageRelationHelper.getPriceKey(Double.valueOf(cost)));
 					}
 
 					//数量
 					if ( !StringTools.isNullOrNone(obj[5]))
 					{
 						String amount = obj[5].trim();
-
+						//TODO check
 					}else
 					{
 						builder
@@ -1267,6 +1278,7 @@ public class ParentOutAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[6]))
 					{
 						String price = obj[6].trim();
+						//TODO
 					} else
 					{
 						builder
@@ -1281,6 +1293,7 @@ public class ParentOutAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[7]))
 					{
 						String amount = obj[7].trim();
+                        bean.setAmount(Integer.valueOf(amount));
 					} else
 					{
 						builder
@@ -1295,16 +1308,29 @@ public class ParentOutAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[8]))
 					{
 						String depot = obj[8].trim();
-						DepotpartBean depotpartBean = depotpartDAO.findDefaultOKDepotpart(depot);
+						DepotBean depotBean = this.depotDAO.findByUnique(depot);
+						if (depotBean == null){
+                            importError = true;
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("目的仓库不存在:"+depot)
+                                    .append("<br>");
+                        } else{
+                            DepotpartBean depotpartBean = depotpartDAO.findDefaultOKDepotpart(depotBean.getId());
 
-						if (depotpartBean == null)
-						{
-							importError = true;
-							builder
-									.append("第[" + currentNumber + "]错误:")
-									.append("仓库下没有良品仓:"+depot)
-									.append("<br>");
-						}
+                            if (depotpartBean == null)
+                            {
+                                importError = true;
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("仓库下没有良品仓:"+depot)
+                                        .append("<br>");
+                            } else{
+                                bean.setDepotId(depotpartBean.getLocationId());
+                                bean.setDepotpartId(depotpartBean.getId());
+                                bean.setDepotpartName(depotpartBean.getName());
+                            }
+                        }
 					} else
 					{
 						builder
@@ -1319,7 +1345,7 @@ public class ParentOutAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[9]))
 					{
 						String transportNo = obj[9].trim();
-
+                        bean.setTransportNo(transportNo);
 					} else
 					{
 						builder
@@ -1334,7 +1360,7 @@ public class ParentOutAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[10]))
 					{
 						String description = obj[10].trim();
-
+                        bean.setDescription(description);
 					} else
 					{
 						builder
@@ -1387,8 +1413,11 @@ public class ParentOutAction extends DispatchAction
 
 		try
 		{
-			//TODO
-			request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
+            List<OutBean> outBeans = this.batchBack(user, importItemList);
+            outManager.addBatchOut(user, outBeans, StorageConstant.OPR_STORAGE_OUTBACK);
+
+            request.setAttribute(KeyConstant.MESSAGE,
+                    "批量退货申请成功,共生成" + importItemList.size() +"张退货单");
 		}
 		catch(Exception e)
 		{
@@ -1399,6 +1428,150 @@ public class ParentOutAction extends DispatchAction
 		}
 		return mapping.findForward("batchBack2");
 	}
+
+	private List<OutBean> batchBack(User user, List<BatchBackWrap> beans) throws MYException{
+	    _logger.info("***batchBack beans***"+beans);
+	    List<OutBean> outBeans = new ArrayList<OutBean>();
+	    for (BatchBackWrap wrap: beans){
+	        OutBean bean = new OutBean();
+
+            String outId = wrap.getRefOutFullId();
+
+            OutBean oriOut = outDAO.find(outId);
+
+            if (oriOut == null)
+            {
+                throw new MYException("单据不存在："+outId);
+            }
+
+            bean.setStatus(OutConstant.STATUS_SAVE);
+
+            bean.setType(OutConstant.OUT_TYPE_INBILL);
+
+            bean.setOutTime(TimeTools.now_short());
+
+            bean.setDepartment(oriOut.getDepartment());
+
+            bean.setCustomerId(oriOut.getCustomerId());
+
+            bean.setCustomerName(oriOut.getCustomerName());
+
+            bean.setStafferName(oriOut.getStafferName());
+
+            bean.setStafferId(oriOut.getStafferId());
+
+            bean.setTransportNo(wrap.getTransportNo());
+
+            StafferVSCustomerVO vsCus = stafferVSCustomerDAO.findVOByUnique(oriOut.getCustomerId());
+
+            if (null != vsCus){
+
+                if (!vsCus.getStafferId().equals(oriOut.getStafferId()))
+                {
+                    bean.setStafferId(vsCus.getStafferId());
+                    bean.setStafferName(vsCus.getStafferName());
+                }
+            }
+
+            bean.setDutyId(oriOut.getDutyId());
+
+            bean.setInvoiceId(oriOut.getInvoiceId());
+
+            // 所在区域
+            bean.setLocationId(user.getLocationId());
+
+            // 目的仓库
+            bean.setLocation(wrap.getDepotId());
+
+            bean.setInway(OutConstant.IN_WAY_NO);
+
+            bean.setOutType(OutConstant.OUTTYPE_IN_OUTBACK);
+
+            bean.setRefOutFullId(outId);
+
+            bean.setDescription("销售退库,销售单号:" + outId + ". " + wrap.getDescription());
+
+            bean.setOperator(user.getStafferId());
+            bean.setOperatorName(user.getStafferName());
+
+            double total = 0.0d;
+
+            List<BaseBean> newBaseList = new ArrayList<BaseBean>();
+
+            BaseBean oribase = this.getBaseBean(outId,wrap.getProductId(), wrap.getCostPriceKey());
+
+            // 增加base
+            BaseBean baseBean = new BaseBean();
+
+            // 卖出价 * 数量
+            baseBean.setLocationId(bean.getLocation());
+            baseBean.setAmount(wrap.getAmount());
+            baseBean.setProductName(oribase.getProductName());
+            baseBean.setUnit("套");
+            baseBean.setShowId(oribase.getShowId());
+            baseBean.setProductId(oribase.getProductId());
+
+            baseBean.setPrice(oribase.getPrice());
+            baseBean.setCostPrice(oribase.getCostPrice());
+            baseBean.setPprice(oribase.getPprice());
+            baseBean.setIprice(oribase.getIprice());
+            baseBean.setInputPrice(oribase.getInputPrice());
+            baseBean.setCostPriceKey(StorageRelationHelper
+                    .getPriceKey(oribase.getCostPrice()));
+
+            baseBean.setOwner(oribase.getOwner());
+            baseBean.setOwnerName(oribase.getOwnerName());
+
+            if (oriOut.getLocation().equals(bean.getLocation()))
+            {
+                baseBean.setDepotpartId(oribase.getDepotpartId());
+            }
+            else
+            {
+                baseBean.setDepotpartId(wrap.getDepotpartId());
+            }
+
+            if (oriOut.getLocation().equals(bean.getLocation()))
+            {
+                baseBean.setDepotpartName(oribase.getDepotpartName());
+            }
+            else
+            {
+                baseBean.setDepotpartName(wrap.getDepotpartName());
+            }
+
+            baseBean.setValue(oribase.getPrice() * wrap.getAmount());
+
+            // 成本
+            baseBean.setDescription(String.valueOf(oribase
+                    .getCostPrice()));
+
+            newBaseList.add(baseBean);
+
+            total += baseBean.getValue();
+            bean.setTotal(total);
+
+            bean.setBaseList(newBaseList);
+
+	        outBeans.add(bean);
+        }
+
+	    return outBeans;
+    }
+
+    private BaseBean getBaseBean(String outId, String productId, String costPriceKey) throws MYException{
+	    List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outId);
+	    if (ListTools.isEmptyOrNull(baseBeans)){
+	        throw new MYException("BaseBean不存在:"+outId);
+        } else{
+	        for (BaseBean baseBean : baseBeans){
+	            if (productId.equals(baseBean) && baseBean.getCostPriceKey().equals(costPriceKey)){
+	                return baseBean;
+                }
+            }
+	        return baseBeans.get(0);
+        }
+    }
 
 	/**
 	 * addDiaoBo

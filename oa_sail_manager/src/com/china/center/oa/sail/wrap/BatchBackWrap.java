@@ -25,6 +25,21 @@ public class BatchBackWrap implements Serializable
 	/** 产品 */
 	private String productName = "";
 
+	/**#441
+	 * 成本的string值
+	 */
+	private String costPriceKey = "";
+
+	private String depotId = "";
+
+	private String depotpartId = "";
+
+	private String depotpartName = "";
+
+	private String transportNo = "";
+
+	private String description = "";
+
 	public BatchBackWrap()
 	{
 		
@@ -98,5 +113,72 @@ public class BatchBackWrap implements Serializable
 	public void setProductName(String productName)
 	{
 		this.productName = productName;
+	}
+
+	public String getCostPriceKey() {
+		return costPriceKey;
+	}
+
+	public void setCostPriceKey(String costPriceKey) {
+		this.costPriceKey = costPriceKey;
+	}
+
+	public String getDepotId() {
+		return depotId;
+	}
+
+	public void setDepotId(String depotId) {
+		this.depotId = depotId;
+	}
+
+	public String getTransportNo() {
+		return transportNo;
+	}
+
+	public void setTransportNo(String transportNo) {
+		this.transportNo = transportNo;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getDepotpartId() {
+		return depotpartId;
+	}
+
+	public void setDepotpartId(String depotpartId) {
+		this.depotpartId = depotpartId;
+	}
+
+	public String getDepotpartName() {
+		return depotpartName;
+	}
+
+	public void setDepotpartName(String depotpartName) {
+		this.depotpartName = depotpartName;
+	}
+
+	@Override
+	public String toString() {
+		return "BatchBackWrap{" +
+				"productId='" + productId + '\'' +
+				", baseId='" + baseId + '\'' +
+				", refOutFullId='" + refOutFullId + '\'' +
+				", refId='" + refId + '\'' +
+				", type=" + type +
+				", amount=" + amount +
+				", productName='" + productName + '\'' +
+				", costPriceKey='" + costPriceKey + '\'' +
+				", depotId='" + depotId + '\'' +
+				", depotpartId='" + depotpartId + '\'' +
+				", depotpartName='" + depotpartName + '\'' +
+				", transportNo='" + transportNo + '\'' +
+				", description='" + description + '\'' +
+				'}';
 	}
 }
