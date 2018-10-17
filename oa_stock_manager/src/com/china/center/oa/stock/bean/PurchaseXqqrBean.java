@@ -64,7 +64,7 @@ public class PurchaseXqqrBean implements Serializable {
     private int purchaser;
 
     /**
-     * 是否采购；0初始；99待三方比价；1比价；2不比价；3强制结束
+     * 是否采购；0初始；99待三方比价；1比价；2不比价；3强制结束; 4拆单
      */
     private int purchaseStatus;
 
@@ -75,6 +75,11 @@ public class PurchaseXqqrBean implements Serializable {
      * 比价流程状态；1信息填写完毕给肖东柯；2肖东柯审批结束
      */
     private int bjStatus;
+
+    /**
+     * 建议供应商
+     */
+    private String adviseSupplier;
 
     public int getId() {
         return id;
@@ -196,6 +201,14 @@ public class PurchaseXqqrBean implements Serializable {
         this.nhNum = nhNum;
     }
 
+    public String getAdviseSupplier() {
+        return adviseSupplier;
+    }
+
+    public void setAdviseSupplier(String adviseSupplier) {
+        this.adviseSupplier = adviseSupplier;
+    }
+
     @Override
     public String toString() {
         return "PurchaseXqqrBean{" +
@@ -214,6 +227,7 @@ public class PurchaseXqqrBean implements Serializable {
                 ", purchaseStatus=" + purchaseStatus +
                 ", operator=" + operator +
                 ", bjStatus=" + bjStatus +
+                ", adviseSupplier='" + adviseSupplier + '\'' +
                 '}';
     }
 }

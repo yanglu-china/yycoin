@@ -61,6 +61,24 @@ function load()
 
 function checks()
 {
+
+    var stotal = sumTotal();
+    //s_ratio
+    var total = sumRatio();
+    if (total == 0)
+    {
+        alert('分担之和不能为0');
+
+        return false;
+    }
+
+    if (total != 100 && compareNumber(stotal, total) != 0)
+    {
+        alert('费用分担金额之和必须等于预算项之和:' + stotal);
+
+        return false;
+    }
+
     if ($$('specialType') == 0)
     {
 		if ($$('payType') == 0)
