@@ -344,10 +344,23 @@ public class StockAction extends DispatchAction
                     conditionParse1.addWhereStr();
                     conditionParse1.addCondition("demandQRId","=", bjBean.getDemandQRId());
                     conditionParse1.addCondition("pjid", "=", bjBean.getPjId());
-                    conditionParse1.addCondition("adviseSupplier", "=", bjBean.getAdviseSupplier());
+
                     List<PurchaseXqqrBean> xqqrBeans = this.purchaseXqqrDAO.queryEntityBeansByCondition(conditionParse1);
                     if (!ListTools.isEmptyOrNull(xqqrBeans)){
-                        bjBean.setAmount(xqqrBeans.get(0).getPurchaseAmount());
+                        // 拆单
+                        boolean cdFlag = false;
+                        for (PurchaseXqqrBean xqqrBean: xqqrBeans){
+                            // 拆单
+                            if (xqqrBean.getPurchaseStatus() == 4
+                                    && bjBean.getAdviseSupplier()!= null && bjBean.getAdviseSupplier().equals(xqqrBean.getAdviseSupplier())){
+                                bjBean.setAmount(xqqrBean.getPurchaseAmount());
+                                cdFlag = true;
+                                break;
+                            }
+                        }
+                        if (!cdFlag){
+                            bjBean.setAmount(xqqrBeans.get(0).getPurchaseAmount());
+                        }
                     }
 
                     ProviderBean providerBean = this.providerDAO.findByUnique(bjBean.getConfirmSupplier());
