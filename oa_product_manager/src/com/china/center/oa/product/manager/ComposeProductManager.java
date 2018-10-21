@@ -13,11 +13,14 @@ import com.center.china.osgi.publics.ListenerManager;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.product.bean.ComposeFeeDefinedBean;
+import com.china.center.oa.product.bean.ComposeItemBean;
 import com.china.center.oa.product.bean.ComposeProductBean;
 import com.china.center.oa.product.bean.DecomposeProductBean;
 import com.china.center.oa.product.listener.ComposeProductListener;
 import com.china.center.oa.product.vo.ComposeFeeDefinedVO;
 import com.china.center.oa.product.vo.ComposeProductVO;
+
+import java.util.List;
 
 
 /**
@@ -125,4 +128,6 @@ public interface ComposeProductManager extends ListenerManager<ComposeProductLis
     
     boolean rejectDecomposeProduct(User user, String id, String reason)
     throws MYException;
+
+    void updateSailPrice(User user, ComposeProductBean bean, List<ComposeItemBean> itemList) throws MYException;
 }

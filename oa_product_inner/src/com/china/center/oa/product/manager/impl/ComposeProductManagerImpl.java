@@ -1066,8 +1066,6 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
         storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
 
-        
-
         for (ComposeItemBean composeItemBean : itemList)
         {
             ProductChangeWrap eachWrap = new ProductChangeWrap();
@@ -1088,6 +1086,9 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             storageRelationManager.changeStorageRelationWithoutTransaction(user, eachWrap, true);
         }
 
+    }
+
+    public void updateSailPrice(User user, ComposeProductBean bean, List<ComposeItemBean> itemList){
         // #440 合成时修改产品总部结算价
         int type = 0;
         final String KTKC_DEFAULT = "A1201310151011526377";
