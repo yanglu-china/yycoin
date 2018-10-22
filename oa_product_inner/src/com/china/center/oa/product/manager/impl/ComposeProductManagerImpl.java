@@ -1122,8 +1122,14 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             if (productBean!= null && productBean.getSailPriceFlag() ==  1){
                 // 日志
                 StringBuilder sb = new StringBuilder();
-                sb.append("修改人:").append(user.getStafferName())
-                        .append(".原产品结算价:").append(productBean.getSailPrice());
+                if (user == null){
+                    sb.append("修改人:系统JOB")
+                            .append(".原产品结算价:").append(productBean.getSailPrice());
+                } else{
+                    sb.append("修改人:").append(user.getStafferName())
+                            .append(".原产品结算价:").append(productBean.getSailPrice());
+                }
+
 
                 productBean.setSailPrice(sailPrice);
                 this.productDAO.updateEntityBean(productBean);
@@ -1154,9 +1160,14 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         LogBean log = new LogBean();
 
         log.setFkId(id);
+        if (user == null){
+            log.setLocationId("系统");
+            log.setStafferId("系统");
+        } else{
+            log.setLocationId(user.getLocationId());
+            log.setStafferId(user.getStafferId());
+        }
 
-        log.setLocationId(user.getLocationId());
-        log.setStafferId(user.getStafferId());
         log.setLogTime(TimeTools.now());
         log.setModule(ModuleConstant.MODULE_PRICE_CONFIG);
         log.setOperation(operation);
