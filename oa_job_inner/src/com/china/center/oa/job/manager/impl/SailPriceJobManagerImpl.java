@@ -5,13 +5,11 @@ import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.job.manager.JobManager;
 import com.china.center.oa.product.bean.ComposeItemBean;
 import com.china.center.oa.product.bean.ComposeProductBean;
-import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ComposeConstant;
 import com.china.center.oa.product.dao.ComposeItemDAO;
 import com.china.center.oa.product.dao.ComposeProductDAO;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.manager.ComposeProductManager;
-import com.china.center.oa.publics.constant.OperationConstant;
 import com.china.center.tools.ListTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,11 +87,12 @@ public class SailPriceJobManagerImpl implements JobManager {
 
             _logger.info("productId2LatestCompose values***"+productId2LatestCompose.values());
             for (ComposeProductBean bean: productId2LatestCompose.values()){
-                //TODO
                 List<ComposeItemBean> items = this.composeItemDAO.queryEntityBeansByFK(bean.getId());
                 this.composeProductManager.updateSailPrice(null, bean, items);
             }
         }
+
+        //TODO 今天通过的采购单
 
     }
 }
