@@ -343,8 +343,8 @@ public class StockAction extends DispatchAction
                     ConditionParse conditionParse1 = new ConditionParse();
                     conditionParse1.addWhereStr();
                     conditionParse1.addCondition("demandQRId","=", bjBean.getDemandQRId());
-                    conditionParse1.addCondition("pjid", "=", bjBean.getDemandId());
-                    conditionParse1.addCondition("demandId", "=", bjBean.getPjId());
+                    conditionParse1.addCondition("pjid", "=", bjBean.getPjId());
+                    conditionParse1.addCondition("demandId", "=", bjBean.getDemandId());
 
                     List<PurchaseXqqrBean> xqqrBeans = this.purchaseXqqrDAO.queryEntityBeansByCondition(conditionParse1);
                     if (!ListTools.isEmptyOrNull(xqqrBeans)){

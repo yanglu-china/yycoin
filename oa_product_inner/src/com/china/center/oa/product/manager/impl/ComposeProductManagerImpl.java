@@ -1123,8 +1123,9 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
                 // 日志
                 StringBuilder sb = new StringBuilder();
                 if (user == null){
-                    sb.append("修改人:系统JOB")
-                            .append(".原产品结算价:").append(productBean.getSailPrice());
+                    sb.append("取自合成单:"+bean.getId()+".修改人:系统JOB合成")
+                            .append(".原产品结算价:").append(productBean.getSailPrice())
+                            .append(".更新为:").append(sailPrice);
                 } else{
                     sb.append("修改人:").append(user.getStafferName())
                             .append(".原产品结算价:").append(productBean.getSailPrice());

@@ -16,4 +16,6 @@
 	<bean id="gsShipJobManager" class="com.china.center.oa.job.manager.impl.GsShipJobManagerImpl" />
 
 	<bean id="xznsShipJobManager" class="com.china.center.oa.job.manager.impl.XznsShipJobManagerImpl" />
+
+	<bean id="sailPriceJobManager" class="com.china.center.oa.job.manager.impl.SailPriceJobManagerImpl" />
 </beans>
