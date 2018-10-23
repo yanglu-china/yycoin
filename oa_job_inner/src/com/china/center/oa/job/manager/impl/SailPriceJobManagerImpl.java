@@ -11,6 +11,7 @@ import com.china.center.oa.product.constant.ComposeConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.ComposeItemDAO;
 import com.china.center.oa.product.dao.ComposeProductDAO;
+import com.china.center.oa.product.dao.PriceConfigDAO;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.manager.ComposeProductManager;
 import com.china.center.oa.publics.bean.LogBean;
@@ -42,6 +43,8 @@ public class SailPriceJobManagerImpl implements JobManager {
     private ComposeItemDAO composeItemDAO = null;
 
     private ProductDAO productDAO = null;
+
+    private PriceConfigDAO priceConfigDAO = null;
 
     private OutDAO outDAO = null;
 
@@ -107,6 +110,14 @@ public class SailPriceJobManagerImpl implements JobManager {
         this.logDAO = logDAO;
     }
 
+    public PriceConfigDAO getPriceConfigDAO() {
+        return priceConfigDAO;
+    }
+
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
+        this.priceConfigDAO = priceConfigDAO;
+    }
+
     @Override
     @Transactional(rollbackFor = MYException.class)
     public void run() throws MYException {
@@ -164,6 +175,7 @@ public class SailPriceJobManagerImpl implements JobManager {
 
                             product.setSailPrice(baseBean.getPrice());//采购商品的结算价更新为此张采购单的成本价
                             productDAO.updateEntityBean(product);
+                            this.priceConfigDAO.updatePrice(productId, baseBean.getPrice());
 
                             this.log(productId, OperationConstant.OPERATION_UPDATE, sb.toString());
                         }

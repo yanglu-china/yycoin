@@ -215,12 +215,12 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
                 baseBean.setOwnerName("公共");
                 baseBean.setOwner("0");
                 
-                if(product.getSailType()==ProductConstant.SAILTYPE_REPLACE)
-                {
-                	product.setSailPrice(each.getPrice());//采购商品的结算价更新为此张采购单的成本价
-//                	each.setPrice(productVo.getSailPrice());
-                	productDAO.updateEntityBean(product);
-                }
+//                if(product.getSailType()==ProductConstant.SAILTYPE_REPLACE)
+//                {
+//                	product.setSailPrice(each.getPrice());//采购商品的结算价更新为此张采购单的成本价
+////                	each.setPrice(productVo.getSailPrice());
+//                	productDAO.updateEntityBean(product);
+//                }
 //                stockItemDAO.saveEntityBean(each);
             }
             else
@@ -393,18 +393,18 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
                 baseBean.setOwnerName("公共");
                 baseBean.setOwner("0");
 
-                if(product.getSailType()==ProductConstant.SAILTYPE_REPLACE)
-                {
-                    // 日志
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("修改人:").append(user.getStafferName())
-                            .append(".原产品结算价:").append(product.getSailPrice());
-
-                    product.setSailPrice(each.getPrice());//采购商品的结算价更新为此张采购单的成本价
-                    productDAO.updateEntityBean(product);
-
-                    this.log(user, each.getProductId(), OperationConstant.OPERATION_UPDATE, sb.toString());
-                }
+//                if(product.getSailType()==ProductConstant.SAILTYPE_REPLACE)
+//                {
+//                    // 日志
+//                    StringBuilder sb = new StringBuilder();
+//                    sb.append("修改人:").append(user.getStafferName())
+//                            .append(".原产品结算价:").append(product.getSailPrice());
+//
+//                    product.setSailPrice(each.getPrice());//采购商品的结算价更新为此张采购单的成本价
+//                    productDAO.updateEntityBean(product);
+//
+//                    this.log(user, each.getProductId(), OperationConstant.OPERATION_UPDATE, sb.toString());
+//                }
             }
             else
             {

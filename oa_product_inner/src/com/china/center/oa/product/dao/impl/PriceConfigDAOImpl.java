@@ -8,6 +8,7 @@ import com.china.center.oa.product.bean.PriceConfigBean;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.PriceConfigDAO;
 import com.china.center.oa.product.vo.PriceConfigVO;
+import com.china.center.tools.TimeTools;
 
 public class PriceConfigDAOImpl extends BaseDAO<PriceConfigBean, PriceConfigVO> implements PriceConfigDAO
 {
@@ -39,5 +40,13 @@ public class PriceConfigDAOImpl extends BaseDAO<PriceConfigBean, PriceConfigVO> 
 		
 		return this.queryEntityBeansByCondition(con);
 	}
-	
+
+	@Override
+	public boolean updatePrice(String productId, double price) {
+		String sql = "update T_CENTER_PRICE_CONFIG set price = ? where productId = ?";
+
+		int i = jdbcOperation.update(sql, price, productId);
+
+		return i != 0;
+	}
 }

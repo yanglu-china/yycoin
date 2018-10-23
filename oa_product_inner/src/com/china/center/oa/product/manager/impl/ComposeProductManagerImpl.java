@@ -95,6 +95,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
     private StorageRelationDAO storageRelationDAO = null;
 
+    private PriceConfigDAO priceConfigDAO = null;
+
     private LogDAO logDAO = null;
 
     /**
@@ -1118,7 +1120,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         }
 
         if (sailPrice > 0){
-            ProductBean productBean = this.productDAO.find(bean.getProductId());
+            String productId = bean.getProductId();
+            ProductBean productBean = this.productDAO.find(productId);
             if (productBean!= null && productBean.getSailPriceFlag() ==  1){
                 // 日志
                 StringBuilder sb = new StringBuilder();
@@ -1134,6 +1137,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
                 productBean.setSailPrice(sailPrice);
                 this.productDAO.updateEntityBean(productBean);
+                this.priceConfigDAO.updatePrice(productId, sailPrice);
 
                 this.log(user, bean.getProductId(), OperationConstant.OPERATION_UPDATE, sb.toString());
             }
@@ -1680,5 +1684,13 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
     public void setLogDAO(LogDAO logDAO) {
         this.logDAO = logDAO;
+    }
+
+    public PriceConfigDAO getPriceConfigDAO() {
+        return priceConfigDAO;
+    }
+
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
+        this.priceConfigDAO = priceConfigDAO;
     }
 }
