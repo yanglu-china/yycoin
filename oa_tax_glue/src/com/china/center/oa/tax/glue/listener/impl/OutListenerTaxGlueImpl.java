@@ -4519,9 +4519,8 @@ public class OutListenerTaxGlueImpl implements OutListener
 
                 // 辅助核算 单位/部门/职员/纳税实体
                 itemIn.setUnitId(outBean.getCustomerId());
-//                copyDepartment(outBean, itemIn);
-//                itemIn.setStafferId(outBean.getStafferId());
-                this.setBearStaffer(outBean, itemIn);
+                copyDepartment(outBean, itemIn);
+                itemIn.setStafferId(outBean.getStafferId());
                 itemIn.setDuty2Id(outBean.getDutyId());
 
                 itemList.add(itemIn);
@@ -4562,9 +4561,8 @@ public class OutListenerTaxGlueImpl implements OutListener
 
             // 辅助核算 单位/部门/职员/纳税实体
             itemIn.setUnitId(outBean.getCustomerId());
-//            copyDepartment(outBean, itemIn);
-//            itemIn.setStafferId(outBean.getStafferId());
-            this.setBearStaffer(outBean, itemIn);
+            copyDepartment(outBean, itemIn);
+            itemIn.setStafferId(outBean.getStafferId());
             itemIn.setDuty2Id(outBean.getDutyId());
 
             itemList.add(itemIn);
