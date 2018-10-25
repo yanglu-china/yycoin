@@ -545,11 +545,12 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         // 库存数量符合
         relation.setAmount(updateNew.getAmount());
 
-        if (updateNew.getAmount() == 0 && deleteZeroRelation)
-        {
-            // 变动后产品数量为0，清除在储位的关系
-            storageRelationDAO.deleteEntityBean(relation.getId());
-        }
+        // #458
+//        if (updateNew.getAmount() == 0 && deleteZeroRelation)
+//        {
+//            // 变动后产品数量为0，清除在储位的关系
+//            storageRelationDAO.deleteEntityBean(relation.getId());
+//        }
 
         // 如果脏读有小于0的数据异常抛出
         //#374 只有出库减少库存才需要检查
@@ -838,11 +839,12 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         // 库存数量符合
         relation.setAmount(updateNew.getAmount());
 
-        if (updateNew.getAmount() == 0 && deleteZeroRelation)
-        {
-            // 变动后产品数量为0，清除在储位的关系
-            storageRelationDAO.deleteEntityBean(relation.getId());
-        }
+        // #458
+//        if (updateNew.getAmount() == 0 && deleteZeroRelation)
+//        {
+//            // 变动后产品数量为0，清除在储位的关系
+//            storageRelationDAO.deleteEntityBean(relation.getId());
+//        }
         // 如果脏读有小于0的数据异常抛出
         if (updateNew.getAmount() < 0)
         {
