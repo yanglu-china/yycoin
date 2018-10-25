@@ -46,6 +46,8 @@ public class InvoiceinsImportBean implements Serializable
 	 */
 	private String invoiceNum = "";
 
+	private String invoiceCode = "";
+
     /**
      * #169 虚拟发票号
      */
@@ -594,6 +596,14 @@ public class InvoiceinsImportBean implements Serializable
 		this.spmc = spmc;
 	}
 
+	public String getInvoiceCode() {
+		return invoiceCode;
+	}
+
+	public void setInvoiceCode(String invoiceCode) {
+		this.invoiceCode = invoiceCode;
+	}
+
 	@Override
 	public String toString() {
 		return "InvoiceinsImportBean{" +
@@ -605,6 +615,7 @@ public class InvoiceinsImportBean implements Serializable
 				", type=" + type +
 				", invoiceMoney=" + invoiceMoney +
 				", invoiceNum='" + invoiceNum + '\'' +
+				", invoiceCode='" + invoiceCode + '\'' +
 				", virtualInvoiceNum='" + virtualInvoiceNum + '\'' +
 				", invoiceId='" + invoiceId + '\'' +
 				", invoiceHead='" + invoiceHead + '\'' +
@@ -632,6 +643,7 @@ public class InvoiceinsImportBean implements Serializable
 				", amount=" + amount +
 				", zzsInfo='" + zzsInfo + '\'' +
 				", splitFlag=" + splitFlag +
+				", spmc='" + spmc + '\'' +
 				'}';
 	}
 }

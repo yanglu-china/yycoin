@@ -24,6 +24,11 @@ public class InsVSInvoiceNumBean implements Serializable
 	private String insId = "";
 	
 	private String invoiceNum = "";
+
+	/** #456
+	 * 发票代码
+	 */
+	private String invoiceCode = "";
 	
 	private double moneys = 0.0d;
 
@@ -95,12 +100,21 @@ public class InsVSInvoiceNumBean implements Serializable
 		this.moneys = moneys;
 	}
 
+	public String getInvoiceCode() {
+		return invoiceCode;
+	}
+
+	public void setInvoiceCode(String invoiceCode) {
+		this.invoiceCode = invoiceCode;
+	}
+
 	@Override
 	public String toString() {
 		return "InsVSInvoiceNumBean{" +
 				"id='" + id + '\'' +
 				", insId='" + insId + '\'' +
 				", invoiceNum='" + invoiceNum + '\'' +
+				", invoiceCode='" + invoiceCode + '\'' +
 				", moneys=" + moneys +
 				'}';
 	}

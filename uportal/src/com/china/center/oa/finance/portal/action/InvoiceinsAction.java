@@ -5079,6 +5079,20 @@ public class InvoiceinsAction extends DispatchAction
 
             			importError = true;
             		}
+
+                    // 发票代码
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        bean.setInvoiceCode(obj[2].trim());
+                    }
+                    else{
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发票代码不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
             		
             		importItemList.add(bean);
                 }

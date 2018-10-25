@@ -1955,6 +1955,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     }
 
 					insNum.setInvoiceNum(newnum.getInvoiceNum());
+                    insNum.setInvoiceCode(newnum.getInvoiceCode());
 					insVSInvoiceNumDAO.updateEntityBean(insNum);
 					_logger.info(String.format("%s更新发票号码:%s",id, insNum));
 					//2016/2/17 #169 生成CK单
