@@ -1245,6 +1245,16 @@
              }
          }
 
+         // #461 手机和电话不能都为空
+         if (StringTools.isNullOrNone(bean.getHandPhone()) && StringTools.isNullOrNone(bean.getTelephone())){
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("收货人手机或固定电话不能都为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
          // #62 2017/6/13 是否直邮,状态默认为0 输入值为N时为0，Y时为1
          if ( !StringTools.isNullOrNone(obj[43]))
          {
@@ -2594,6 +2604,16 @@
 
                  importError = true;
              }
+         }
+
+         // #461 手机和电话不能都为空
+         if (StringTools.isNullOrNone(bean.getHandPhone()) && StringTools.isNullOrNone(bean.getTelephone())){
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("收货人手机或固定电话不能都为空")
+                     .append("<br>");
+
+             importError = true;
          }
 
          // #62 2017/6/13 是否直邮,状态默认为0 输入值为N时为0，Y时为1
