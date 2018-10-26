@@ -1163,16 +1163,17 @@
                      importError = true;
                  }
              }
-         } else {
-             if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
-                 builder
-                 .append("第[" + currentNumber + "]错误:")
-                 .append("快递、货运时收货人手机不能为空")
-                 .append("<br>");
-
-                 importError = true;
-             }
          }
+//         else {
+//             if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+//                 builder
+//                 .append("第[" + currentNumber + "]错误:")
+//                 .append("快递、货运时收货人手机不能为空")
+//                 .append("<br>");
+//
+//                 importError = true;
+//             }
+//         }
 
          // 回款天数
          if ( !StringTools.isNullOrNone(obj[39]))
@@ -2474,16 +2475,17 @@
                      importError = true;
                  }
              }
-         } else {
-             if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
-                 builder
-                 .append("第[" + currentNumber + "]错误:")
-                 .append("快递、货运时收货人手机不能为空")
-                 .append("<br>");
-
-                 importError = true;
-             }
          }
+//         else {
+//             if (bean.getShipping() == 2 || bean.getShipping() == 3 || bean.getShipping() == 4) {
+//                 builder
+//                 .append("第[" + currentNumber + "]错误:")
+//                 .append("快递、货运时收货人手机不能为空")
+//                 .append("<br>");
+//
+//                 importError = true;
+//             }
+//         }
 
          // 回款天数
          if ( !StringTools.isNullOrNone(obj[39]))
