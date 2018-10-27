@@ -1236,14 +1236,14 @@
          if ( !StringTools.isNullOrNone(obj[42]))
          {
              bean.setTelephone(obj[42].trim());
-             if (bean.getTelephone().length() != 12) {
-                 builder
-                         .append("第[" + currentNumber + "]错误:")
-                         .append("固定电话号码不是12位")
-                         .append("<br>");
-
-                 importError = true;
-             }
+//             if (bean.getTelephone().length() != 12) {
+//                 builder
+//                         .append("第[" + currentNumber + "]错误:")
+//                         .append("固定电话号码不是12位")
+//                         .append("<br>");
+//
+//                 importError = true;
+//             }
          }
 
          // #461 手机和电话不能都为空
@@ -2598,14 +2598,14 @@
          if ( !StringTools.isNullOrNone(obj[42]))
          {
              bean.setTelephone(obj[42].trim());
-             if (bean.getTelephone().length() != 12) {
-                 builder
-                         .append("第[" + currentNumber + "]错误:")
-                         .append("固定电话号码不是12位")
-                         .append("<br>");
-
-                 importError = true;
-             }
+//             if (bean.getTelephone().length() != 12) {
+//                 builder
+//                         .append("第[" + currentNumber + "]错误:")
+//                         .append("固定电话号码不是12位")
+//                         .append("<br>");
+//
+//                 importError = true;
+//             }
          }
 
          // #461 手机和电话不能都为空

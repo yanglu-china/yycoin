@@ -30,7 +30,7 @@ function addBean(opr)
         }
     }
     
-    submit('确定日常费用报销?', null, checks);
+    submit('确定日常费用报销?', null, checks2);
 }
 
 $(document).ready(function (){

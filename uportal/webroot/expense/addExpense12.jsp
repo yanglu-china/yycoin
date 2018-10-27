@@ -30,7 +30,7 @@ function addBean(opr)
         }
     }
     
-    submit('确定业务招待费报销?', null, checks);
+    submit('确定业务招待费报销?', null, checks2);
 }
 
 $(document).ready(function (){

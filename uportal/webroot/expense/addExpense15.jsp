@@ -27,7 +27,7 @@ function addBean(opr)
         $O('processer').oncheck = 'notNone';
     }
     
-    submit('确定中收报销?', null, checks);
+    submit('确定中收报销?', null, checks2);
 }
 
 function load()

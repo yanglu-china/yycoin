@@ -30,7 +30,7 @@ function addBean(opr)
         }
     }
     
-    submit('确定通用费用报销?', null, checks);
+    submit('确定通用费用报销?', null, checks2);
 }
 
 $(document).ready(function (){
@@ -57,60 +57,6 @@ function load()
 	payTypeChange();
 
     loadBudget();
-}
-
-function checks()
-{
-
-    var stotal = sumTotal();
-    //s_ratio
-    var total = sumRatio();
-    if (total == 0)
-    {
-        alert('分担之和不能为0');
-
-        return false;
-    }
-
-    if (total != 100 && compareNumber(stotal, total) != 0)
-    {
-        alert('费用分担金额之和必须等于预算项之和:' + stotal);
-
-        return false;
-    }
-
-    if ($$('specialType') == 0)
-    {
-		if ($$('payType') == 0)
-	    {
-	        var borrow = 0;
-	            
-	        var stotal = sumTotal();
-	        
-	        if (compareNumber(borrow, stotal) != 0)
-	        {
-	            alert('收支平衡下报销金额必须等于借款金额:' + borrow);
-	            
-	            return false;
-	        }
-	    }
-	    
-		if ($$('payType') == 1)
-		{
-		    var borrow = sumborrowTotal();
-		        
-		    var stotal = sumTotal();
-		    
-		    if (compareNumber(borrow, stotal) != 0)
-		    {
-		        alert('公司付款给员工下报销金额: '+ stotal +',必须等于公司的付款总金额:' + borrow);
-		        
-		        return false;
-		    }
-		}
-	}
-	
-    return true;
 }
 
 </script>
