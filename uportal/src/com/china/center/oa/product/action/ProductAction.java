@@ -1280,10 +1280,11 @@ public class ProductAction extends DispatchAction
         condtion.addIntCondition("ProductBean.status", "=", ProductConstant.STATUS_COMMON);
 //        }
 
-        if ( !StringTools.isNullOrNone(ctype))
-        {
-            condtion.addIntCondition("ProductBean.ctype", "=", ProductConstant.CTYPE_YES);
-        }
+        //#457 配件也可合成
+//        if ( !StringTools.isNullOrNone(ctype))
+//        {
+//            condtion.addIntCondition("ProductBean.ctype", "=", ProductConstant.CTYPE_YES);
+//        }
 
         if (OATools.getManagerFlag() && !StringTools.isNullOrNone(mtype))
         {

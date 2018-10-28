@@ -179,10 +179,11 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             }
         }
 
-        if (compose.getCtype() != ProductConstant.CTYPE_YES)
-        {
-            throw new MYException("目的产品不是合成产品,请确认操作");
-        }
+        // #457
+//        if (compose.getCtype() != ProductConstant.CTYPE_YES)
+//        {
+//            throw new MYException("目的产品不是合成产品,请确认操作");
+//        }
 
         // MANAGER 合成产品增加的管理逻辑
         /*if (OATools.isCommon(compose.getReserve4()))
@@ -259,10 +260,11 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             throw new MYException("数据错误,请确认操作");
         }
 
-        if (compose.getCtype() != ProductConstant.CTYPE_YES)
+        // #457
+/*        if (compose.getCtype() != ProductConstant.CTYPE_YES)
         {
             throw new MYException("目的产品不是合成产品,请确认操作");
-        }
+        }*/
 
 
         int counter = 0;
