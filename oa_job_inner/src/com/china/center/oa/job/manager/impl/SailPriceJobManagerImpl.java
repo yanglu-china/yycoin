@@ -165,8 +165,7 @@ public class SailPriceJobManagerImpl implements JobManager {
                     for(BaseBean baseBean: baseBeans){
                         String productId = baseBean.getProductId();
                         ProductBean product = this.productDAO.find(productId);
-                        if(product.getSailType()==ProductConstant.SAILTYPE_REPLACE)
-                        {
+                        if (product!= null){
                             // 日志
                             StringBuilder sb = new StringBuilder();
                             sb.append("取自采购入库单:"+outBean.getFullId()+".修改人:系统JOB采购")
