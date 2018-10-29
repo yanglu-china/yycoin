@@ -757,7 +757,14 @@ public class ClientAction extends DispatchAction
 
 								importError = true;
 							}
-						}
+						} else if(bean.getType() == NATURE_INDIVIDUAL && !name.startsWith("永银")){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("个人客户名必须以永银开头:"+name)
+                                    .append("<br>");
+
+                            importError = true;
+                        }
 					}
 					else
 					{
