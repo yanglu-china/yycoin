@@ -926,20 +926,21 @@ public class ClientAction extends DispatchAction
 						bean.setHandphone(mobile);
 
 						//#175 个人类型手机号不能重复
-						if(bean.getType() == NATURE_INDIVIDUAL){
-							ConditionParse conditionParse = new ConditionParse();
-							conditionParse.addWhereStr();
-							conditionParse.addCondition("handPhone","=",mobile);
-							 List<CustomerIndividualBean> customerIndividualBeans = this.customerIndividualDAO.queryEntityBeansByCondition(conditionParse);
-							 if (!ListTools.isEmptyOrNull(customerIndividualBeans)){
-								 builder
-										 .append("第[" + currentNumber + "]错误:")
-										 .append("个人客户手机号已存在:"+mobile)
-										 .append("<br>");
-
-								 importError = true;
-							 }
-						}
+						// #464 取消验证
+//						if(bean.getType() == NATURE_INDIVIDUAL){
+//							ConditionParse conditionParse = new ConditionParse();
+//							conditionParse.addWhereStr();
+//							conditionParse.addCondition("handPhone","=",mobile);
+//							 List<CustomerIndividualBean> customerIndividualBeans = this.customerIndividualDAO.queryEntityBeansByCondition(conditionParse);
+//							 if (!ListTools.isEmptyOrNull(customerIndividualBeans)){
+//								 builder
+//										 .append("第[" + currentNumber + "]错误:")
+//										 .append("个人客户手机号已存在:"+mobile)
+//										 .append("<br>");
+//
+//								 importError = true;
+//							 }
+//						}
 
 					}
 					else if(bean.getType() == NATURE_INDIVIDUAL)
