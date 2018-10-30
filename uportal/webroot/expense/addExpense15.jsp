@@ -50,7 +50,6 @@ function getTravelApply(oos)
     var oo = oos[0];
     
     $("#refMoney").val(oo.pbtotal);
-    
     $("#refId").val(oo.value);
 }
 

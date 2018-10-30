@@ -179,6 +179,7 @@ function calDateInner(obj, name)
 	return calDate(el)
 }
 
+// deprecated
 function checks()
 {
     var fileName = $O('atts').value;
@@ -270,7 +271,8 @@ function checks2()
     {
         if ($$('payType') == 0)
         {
-            var borrow = 0;
+            var borrow = parseFloat($$('refMoney'));
+            // var refMoney = $O('refMoney').value;
 
             var stotal = sumTotal();
 
