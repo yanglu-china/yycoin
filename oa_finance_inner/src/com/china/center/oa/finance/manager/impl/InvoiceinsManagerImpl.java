@@ -3141,12 +3141,16 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			double invoicemoney = 0.0d;
 			StringBuilder sb = new StringBuilder();
 
+            StringBuilder sb2 = new StringBuilder();
 
 			for (InvoiceinsImportBean eachb : elist) {
 
 				invoicemoney += eachb.getInvoiceMoney();
 				sb.append(eachb.getOutId());
 				sb.append(";");
+
+				sb2.append(eachb.getDescription());
+				sb2.append(";");
 
 				if (eachb.getType() == FinanceConstant.INSVSOUT_TYPE_OUT) {
 					String outId = eachb.getOutId();
@@ -3382,7 +3386,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			bean.setRefIds(sb.toString());
 			bean.setFillType(0);
 
-			bean.setDescription(first.getDescription());
+//			bean.setDescription(first.getDescription());
+            bean.setDescription(sb2.toString());
 			// fill distribution
 			if (first.getAddrType() == InvoiceinsConstants.INVOICEINS_DIST_NEW) {
 				bean.setShipping(first.getShipping());
