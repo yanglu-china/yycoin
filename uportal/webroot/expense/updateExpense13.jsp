@@ -35,17 +35,17 @@ function addBean(opr)
     
     if ("0" == opr)
     {
-        submit('确定修改日常费用报销?', null, checks);
+        submit('确定修改日常费用报销?', null, checks2);
     }
     
     if ("1" == opr)
     {
-        submit('确定提交日常费用报销?', null, checks);
+        submit('确定提交日常费用报销?', null, checks2);
     }
     
     if ("2" == opr)
     {
-        submit('稽核修改费用,每项费用只能减少.确定提交稽核修改日常费用报销?', null, checks);
+        submit('稽核修改费用,每项费用只能减少.确定提交稽核修改日常费用报销?', null, checks2);
     }
 }
 

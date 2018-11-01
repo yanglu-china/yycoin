@@ -1259,7 +1259,19 @@ public class InvoiceinsAction extends DispatchAction
                         ws.addCell(new Label(j++ , i, element.getZzsInfo()));
                         ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getVal())));
                         ws.addCell(new Label(j++ , i, MathTools.formatNum(element.getMoneys())));
-                        ws.addCell(new Label(j++ , i, element.getDescription()));
+
+                        // #466
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("outId","=", outId);
+                        conditionParse.addCondition("refInsId","=", eachVS.getParentId());
+                        List<InvoiceinsImportBean> importBeans = this.invoiceinsImportDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(importBeans)){
+                            ws.addCell(new Label(j++ , i, element.getDescription()));
+                        } else{
+                            ws.addCell(new Label(j++ , i, importBeans.get(0).getDescription()));
+                        }
+
                         ws.addCell(new Label(j++ , i, element.getOperatorName()));
                         ws.addCell(new Label(j++ , i, eachVS.getOutId()));
                         ws.addCell(new Label(j++ , i, this.getCiticNoFromOutImport(outId)));
