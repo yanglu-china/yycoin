@@ -5270,6 +5270,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("银行销售日期");
             line.writeColumn("付款状态");
             line.writeColumn("付款时间");
+            line.writeColumn("渠道");
 
             line.writeLine();
 
@@ -5311,6 +5312,7 @@ public class TravelApplyAction extends DispatchAction
                         line.writeColumn("");
                         line.writeColumn("");
                         line.writeColumn("");
+                        line.writeColumn("");
                     } else{
                         line.writeColumn(OutHelper.getOutStatus(outBean));
                         line.writeColumn(outBean.getStafferName());
@@ -5318,6 +5320,7 @@ public class TravelApplyAction extends DispatchAction
                         line.writeColumn(DefinedCommon.getValue("outPay",
                                 outBean.getPay()));
                         line.writeColumn(outBean.getPayTime());
+                        line.writeColumn(outBean.getChannel());
                     }
 
                     line.writeLine();
