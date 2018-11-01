@@ -216,14 +216,14 @@ public class ProductAction extends DispatchAction
                     public void handle(ProductVO obj)
                     {
                         // 根据配置获取结算价
-                        List<PriceConfigBean> list = priceConfigDAO.querySailPricebyProductId(obj.getId());
-
-                        if (!ListTools.isEmptyOrNull(list))
-                        {
-                            PriceConfigBean cb = priceConfigManager.calcSailPrice(list.get(0));
-
-                            obj.setSailPrice(cb.getSailPrice());
-                        }
+//                        List<PriceConfigBean> list = priceConfigDAO.querySailPricebyProductId(obj.getId());
+//
+//                        if (!ListTools.isEmptyOrNull(list))
+//                        {
+//                            PriceConfigBean cb = priceConfigManager.calcSailPrice(list.get(0));
+//
+//                            obj.setSailPrice(cb.getSailPrice());
+//                        }
 
                         if ( !"0".equals(src))
                         {
