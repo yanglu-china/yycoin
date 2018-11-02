@@ -934,22 +934,32 @@ public class ClientAction extends DispatchAction
 						bean.setHandphone(mobile);
 
 						//#175 个人类型手机号不能重复
-						// #464 TODO 手机号必填，去除“停用”，“重复”状态，手机号唯一
 						if(bean.getType() == NATURE_INDIVIDUAL){
 							ConditionParse conditionParse = new ConditionParse();
 							conditionParse.addWhereStr();
 							conditionParse.addCondition("handPhone","=",mobile);
 							 List<CustomerIndividualBean> customerIndividualBeans = this.customerIndividualDAO.queryEntityBeansByCondition(conditionParse);
 							 if (!ListTools.isEmptyOrNull(customerIndividualBeans)){
-								 builder
-										 .append("第[" + currentNumber + "]错误:")
-										 .append("个人客户手机号已存在:"+mobile)
-										 .append("<br>");
+							 	for (CustomerIndividualBean customerIndividualBean : customerIndividualBeans){
+									// #464 检查存在的用户是否在“停用”，“重复”名下，如果在其他用户名下，则不允许重复
+									StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(customerIndividualBean.getId());
+									if (vsBean!= null){
+										StafferBean stafferBean = this.stafferDAO.find(vsBean.getStafferId());
+										if (stafferBean!= null &&
+												!"停用".equals(stafferBean.getName())
+												&& !"重复".equals(stafferBean.getName())){
+											builder
+													.append("第[" + currentNumber + "]错误:")
+													.append("个人客户手机号已存在:" + mobile+",客户名:"+customerIndividualBean.getName())
+													.append("<br>");
 
-								 importError = true;
+											importError = true;
+											break;
+										}
+									}
+								}
 							 }
 						}
-
 					}
 					else if(bean.getType() == NATURE_INDIVIDUAL)
 					{
