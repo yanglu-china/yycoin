@@ -407,7 +407,7 @@ public class StockAction extends DispatchAction
 
     private boolean belongToStaffer(String stafferId, List<PurchaseXqqrBean> xqqrBeans){
         for (PurchaseXqqrBean bean: xqqrBeans){
-            if (stafferId.equals(bean.getPurchaser())){
+            if (stafferId.equals(String.valueOf(bean.getPurchaser()))){
                 return true;
             }
         }
