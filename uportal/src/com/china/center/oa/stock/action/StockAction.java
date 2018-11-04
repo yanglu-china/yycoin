@@ -352,7 +352,7 @@ public class StockAction extends DispatchAction
 
                     if (!ListTools.isEmptyOrNull(xqqrBeans) 
                         // #467 只显示职员的比价单
-                        && this.belongToStaffer(stafferid, xqqrBeans)){
+                        && this.belongToStaffer(stafferId, xqqrBeans)){
                         // 拆单
                         boolean cdFlag = false;
                         for (PurchaseXqqrBean xqqrBean: xqqrBeans){
