@@ -323,8 +323,10 @@ public class StockAction extends DispatchAction
                                  HttpServletRequest request, HttpServletResponse reponse)
             throws ServletException
     {
+        User user = Helper.getUser(request);
+        String stafferId = user.getStafferId();
         String bjNo = request.getParameter("bjNo");
-        _logger.info("***queryBjNo***"+bjNo);
+        _logger.info("***queryBjNo***"+bjNo+"***stafferid***"+stafferId);
 
         JsonMapper mapper = new JsonMapper();
         AppResult result = new AppResult();
@@ -347,7 +349,10 @@ public class StockAction extends DispatchAction
                     conditionParse1.addCondition("demandId", "=", bjBean.getDemandId());
 
                     List<PurchaseXqqrBean> xqqrBeans = this.purchaseXqqrDAO.queryEntityBeansByCondition(conditionParse1);
-                    if (!ListTools.isEmptyOrNull(xqqrBeans)){
+
+                    if (!ListTools.isEmptyOrNull(xqqrBeans) 
+                        // #467 只显示职员的比价单
+                        && this.belongToStaffer(stafferid, xqqrBeans)){
                         // 拆单
                         boolean cdFlag = false;
                         for (PurchaseXqqrBean xqqrBean: xqqrBeans){
@@ -362,14 +367,14 @@ public class StockAction extends DispatchAction
                         if (!cdFlag){
                             bjBean.setAmount(xqqrBeans.get(0).getPurchaseAmount());
                         }
-                    }
 
-                    ProviderBean providerBean = this.providerDAO.findByUnique(bjBean.getConfirmSupplier());
-                    if(providerBean!= null){
-                        bjBean.setProviderId(providerBean.getId());
-                        bjBean.setProviderName(providerBean.getName());
-                    }
-                    filteredBjBeans.add(bjBean);
+                        ProviderBean providerBean = this.providerDAO.findByUnique(bjBean.getConfirmSupplier());
+                        if(providerBean!= null){
+                            bjBean.setProviderId(providerBean.getId());
+                            bjBean.setProviderName(providerBean.getName());
+                        }
+                        filteredBjBeans.add(bjBean);
+                    } 
                 }
             }
 
@@ -400,6 +405,15 @@ public class StockAction extends DispatchAction
         _logger.info("***queryBjNo result***" + jsonstr);
 
         return JSONTools.writeResponse(reponse, jsonstr);
+    }
+
+    private boolean belongToStaffer(String stafferId, List<PurchaseXqqrBean> xqqrBeans){
+        for (PurchaseXqqrBean bean: xqqrBeans){
+            if (stafferId.equals(bean.getPurchaser())){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
