@@ -27,7 +27,7 @@ import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.PublicLock;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.helper.OATools;
-import com.china.center.oa.publics.manager.CommonMailManager;
+import com.china.center.oa.publics.manager.CommonMailManager;45
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.publics.vs.RoleAuthBean;
@@ -350,9 +350,7 @@ public class StockAction extends DispatchAction
 
                     List<PurchaseXqqrBean> xqqrBeans = this.purchaseXqqrDAO.queryEntityBeansByCondition(conditionParse1);
 
-                    if (!ListTools.isEmptyOrNull(xqqrBeans) 
-                        // #467 只显示职员的比价单
-                        && this.belongToStaffer(stafferId, xqqrBeans)){
+                    if (!ListTools.isEmptyOrNull(xqqrBeans)){
                         // 拆单
                         boolean cdFlag = false;
                         for (PurchaseXqqrBean xqqrBean: xqqrBeans){
@@ -2252,10 +2250,22 @@ public class StockAction extends DispatchAction
         List<PurchaseBjBean> bjBeans = this.purchaseBjDAO.queryEntityBeansByCondition(conditionParse);
 
         List<String> bjList = new ArrayList<String>();
+        String stafferId = user.getStafferId();
         for (PurchaseBjBean bean : bjBeans){
-            if (!bjList.contains(bean.getBjNo())){
+            ConditionParse conditionParse1 = new ConditionParse();
+            conditionParse1.addWhereStr();
+            conditionParse1.addCondition("demandQRId","=", bean.getDemandQRId());
+            conditionParse1.addCondition("pjid", "=", bean.getPjId());
+            conditionParse1.addCondition("demandId", "=", bean.getDemandId());
+
+            List<PurchaseXqqrBean> xqqrBeans = this.purchaseXqqrDAO.queryEntityBeansByCondition(conditionParse1);
+            
+            if(!bjList.contains(bean.getBjNo())
+                // #467 只显示职员的比价单
+                && this.belongToStaffer(stafferId, xqqrBeans)){
                 bjList.add(bean.getBjNo());
             }
+
         }
         request.setAttribute("bjList", bjList);
         if ("0".equals(type))
