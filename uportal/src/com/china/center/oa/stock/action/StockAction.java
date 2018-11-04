@@ -27,7 +27,7 @@ import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.PublicLock;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.helper.OATools;
-import com.china.center.oa.publics.manager.CommonMailManager;45
+import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.publics.vs.RoleAuthBean;
@@ -2265,7 +2265,6 @@ public class StockAction extends DispatchAction
                 && this.belongToStaffer(stafferId, xqqrBeans)){
                 bjList.add(bean.getBjNo());
             }
-
         }
         request.setAttribute("bjList", bjList);
         if ("0".equals(type))
