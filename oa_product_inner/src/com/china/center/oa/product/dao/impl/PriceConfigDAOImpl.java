@@ -49,4 +49,13 @@ public class PriceConfigDAOImpl extends BaseDAO<PriceConfigBean, PriceConfigVO> 
 
 		return i != 0;
 	}
+
+	@Override
+	public boolean updateGsPriceUp(String productId, double gsPriceUp) {
+		String sql = "update T_CENTER_PRICE_CONFIG set gsPriceUp = ? where productId = ?";
+
+		int i = jdbcOperation.update(sql, gsPriceUp, productId);
+
+		return i != 0;
+	}
 }

@@ -13,4 +13,6 @@ public interface PriceConfigDAO extends DAO<PriceConfigBean, PriceConfigVO>
 	List<PriceConfigBean> queryMinPricebyProductIdAndIndustryId(String productId, String industryId);
 
 	boolean updatePrice(String productId, double price);
+
+	boolean updateGsPriceUp(String productId, double gsPriceUp);
 }

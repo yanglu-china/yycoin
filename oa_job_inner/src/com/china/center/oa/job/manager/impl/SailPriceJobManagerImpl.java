@@ -1,19 +1,19 @@
 package com.china.center.oa.job.manager.impl;
 
-import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.job.manager.JobManager;
 import com.china.center.oa.product.bean.ComposeItemBean;
 import com.china.center.oa.product.bean.ComposeProductBean;
+import com.china.center.oa.product.bean.PriceConfigBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ComposeConstant;
-import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.ComposeItemDAO;
 import com.china.center.oa.product.dao.ComposeProductDAO;
 import com.china.center.oa.product.dao.PriceConfigDAO;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.manager.ComposeProductManager;
+import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.publics.bean.LogBean;
 import com.china.center.oa.publics.constant.ModuleConstant;
 import com.china.center.oa.publics.constant.OperationConstant;
@@ -28,7 +28,6 @@ import com.china.center.tools.TimeTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -52,6 +51,8 @@ public class SailPriceJobManagerImpl implements JobManager {
 
     private LogDAO logDAO = null;
 
+    private PriceConfigManager priceConfigManager = null;
+
     private ComposeProductManager composeProductManager = null;
 
     public ComposeProductManager getComposeProductManager() {
@@ -68,6 +69,14 @@ public class SailPriceJobManagerImpl implements JobManager {
 
     public void setComposeProductDAO(ComposeProductDAO composeProductDAO) {
         this.composeProductDAO = composeProductDAO;
+    }
+
+    public PriceConfigManager getPriceConfigManager() {
+        return priceConfigManager;
+    }
+
+    public void setPriceConfigManager(PriceConfigManager priceConfigManager) {
+        this.priceConfigManager = priceConfigManager;
     }
 
     public ProductDAO getProductDAO() {
@@ -144,7 +153,7 @@ public class SailPriceJobManagerImpl implements JobManager {
             _logger.info("productId2LatestCompose values***"+productId2LatestCompose.values());
             for (ComposeProductBean bean: productId2LatestCompose.values()){
                 List<ComposeItemBean> items = this.composeItemDAO.queryEntityBeansByFK(bean.getId());
-                this.composeProductManager.updateSailPrice(null, bean, items);
+                this.updateSailPrice(bean, items);
             }
         }
 
@@ -165,18 +174,44 @@ public class SailPriceJobManagerImpl implements JobManager {
                     for(BaseBean baseBean: baseBeans){
                         String productId = baseBean.getProductId();
                         ProductBean product = this.productDAO.find(productId);
-                        if (product!= null){
-                            // 日志
-                            StringBuilder sb = new StringBuilder();
-                            sb.append("取自采购入库单:"+outBean.getFullId()+".修改人:系统JOB采购")
-                                    .append(".原产品结算价:").append(product.getSailPrice())
-                                    .append(".更新为:").append(baseBean.getPrice());
+                        if (product!= null && product.getSailPriceFlag() ==  1){
+                            List<PriceConfigBean> list1 = priceConfigDAO.querySailPricebyProductId(productId);
+                            if (ListTools.isEmptyOrNull(list1)){
+                                // 日志
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("取自采购入库单:"+outBean.getFullId()+".修改人:系统JOB采购")
+                                        .append(".原产品结算价:").append(product.getSailPrice())
+                                        .append(".更新为:").append(baseBean.getPrice());
+                                this.log(productId, OperationConstant.OPERATION_UPDATE, sb.toString(), ModuleConstant.MODULE_PRICE_CONFIG);
 
-                            product.setSailPrice(baseBean.getPrice());//采购商品的结算价更新为此张采购单的成本价
-                            productDAO.updateEntityBean(product);
-                            this.priceConfigDAO.updatePrice(productId, baseBean.getPrice());
+                                //如果没有config配置项，直接更新product的sailPrice
+                                product.setSailPrice(baseBean.getPrice());//采购商品的结算价更新为此张采购单的成本价
+                                productDAO.updateEntityBean(product);
+                            } else{
+                                PriceConfigBean first = list1.get(0);
+                                //有配置项，先更新配置项的辅料字段，然后通过公式算出结算价，然后更新回product的sailPrice
+                                this.priceConfigDAO.updateGsPriceUp(productId, baseBean.getPrice());
+                                //log
+                                StringBuilder sb2 = new StringBuilder();
+                                sb2.append("取自采购入库单:"+outBean.getFullId()+".修改人:系统JOB采购")
+                                        .append(".原产品辅料价:").append(first.getGsPriceUp())
+                                        .append(".更新为:").append(baseBean.getPrice());
+                                this.log(productId, OperationConstant.OPERATION_UPDATE, sb2.toString(), ModuleConstant.MODULE_PRICE_CONFIG2);
 
-                            this.log(productId, OperationConstant.OPERATION_UPDATE, sb.toString());
+                                first.setGsPriceUp(baseBean.getPrice());
+                                PriceConfigBean cb = this.priceConfigManager.calcSailPrice(first);
+                                if (cb!= null){
+                                    // 日志
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.append("取自采购入库单:"+outBean.getFullId()+".修改人:系统JOB采购")
+                                            .append(".原产品结算价:").append(product.getSailPrice())
+                                            .append(".更新为:").append(cb.getSailPrice());
+                                    this.log(productId, OperationConstant.OPERATION_UPDATE, sb.toString(), ModuleConstant.MODULE_PRICE_CONFIG);
+
+                                    product.setSailPrice(cb.getSailPrice());
+                                    productDAO.updateEntityBean(product);
+                                }
+                            }
                         }
                     }
                 }
@@ -184,16 +219,105 @@ public class SailPriceJobManagerImpl implements JobManager {
         }
     }
 
-    private void log(String id, String operation, String reason) {
+    // #430 检查是否虚料
+    private boolean isVirtualProduct(String productId){
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addIntCondition("virtualFlag","=", "1");
+        List<ProductBean> productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
+        if(productBeans != null){
+            for(ProductBean productBean: productBeans){
+                if (productId.equals(productBean.getId())){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void updateSailPrice(ComposeProductBean bean, List<ComposeItemBean> itemList){
+        // #440 合成时修改产品总部结算价
+        int type = 0;
+        final String KTKC_DEFAULT = "A1201310151011526377";
+        double sailPrice = -1;
+        double virtualProductPrice = 0;
+        for (ComposeItemBean composeItemBean : itemList)
+        {
+            // 如果合成单中“源仓区”为“空退空开库（仅限商务部操作）”，则忽略，不读取这种情况下合成单的产品价格
+            if (KTKC_DEFAULT.equals(composeItemBean.getDepotpartId())){
+                type = 1;
+                break;
+            }
+
+            //  如果合成单中源仓区不是空退空开库，但是含有虚料，计算公式为：总部结算价=合成单对应的最终价格-（虚料产品对应的数量/合成单合成总数量）*虚料产品单价
+            if (this.isVirtualProduct(composeItemBean.getProductId())){
+                type = 2;
+                virtualProductPrice += ((double)composeItemBean.getAmount()/bean.getAmount())*composeItemBean.getPrice();
+            }
+        }
+
+        if (type == 0){
+            // 如果合成单中源仓区不是空退空开库，并且不含虚料，则直接取合成单对应的产品“最终价格”
+            sailPrice = bean.getPrice();
+        } else if (type == 2){
+            // 如果合成单中源仓区不是空退空开库，但是含有虚料
+            sailPrice = bean.getPrice() - virtualProductPrice;
+        }
+
+        if (sailPrice > 0){
+            String productId = bean.getProductId();
+            ProductBean productBean = this.productDAO.find(productId);
+            if (productBean!= null && productBean.getSailPriceFlag() ==  1){
+                List<PriceConfigBean> list1 = priceConfigDAO.querySailPricebyProductId(productId);
+                if (ListTools.isEmptyOrNull(list1)){
+                    // 日志
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("取自合成单:"+bean.getId()+".修改人:系统JOB合成")
+                            .append(".原产品结算价:").append(productBean.getSailPrice())
+                            .append(".更新为:").append(sailPrice);
+                    this.log(bean.getProductId(), OperationConstant.OPERATION_UPDATE, sb.toString(), ModuleConstant.MODULE_PRICE_CONFIG);
+
+                    //如果没有config配置项，直接更新product的sailPrice
+                    productBean.setSailPrice(sailPrice);
+                    productDAO.updateEntityBean(productBean);
+                } else {
+                    PriceConfigBean first = list1.get(0);
+                    //有配置项，先更新配置项的辅料字段，然后通过公式算出结算价，然后更新回product的sailPrice
+                    this.priceConfigDAO.updateGsPriceUp(productId, sailPrice);
+                    //log
+                    StringBuilder sb2 = new StringBuilder();
+                    sb2.append("取自合成单:"+bean.getId()+".修改人:系统JOB采购")
+                            .append(".原产品辅料价:").append(first.getGsPriceUp())
+                            .append(".更新为:").append(sailPrice);
+                    this.log(bean.getProductId(), OperationConstant.OPERATION_UPDATE, sb2.toString(), ModuleConstant.MODULE_PRICE_CONFIG2);
+                    first.setGsPriceUp(sailPrice);
+                    PriceConfigBean cb = this.priceConfigManager.calcSailPrice(first);
+                    if (cb!= null){
+                        // 日志
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("取自合成单:"+bean.getId()+".修改人:系统JOB采购")
+                                .append(".原产品结算价:").append(productBean.getSailPrice())
+                                .append(".更新为:").append(cb.getSailPrice());
+                        this.log(bean.getProductId(), OperationConstant.OPERATION_UPDATE, sb.toString(), ModuleConstant.MODULE_PRICE_CONFIG);
+
+                        productBean.setSailPrice(cb.getSailPrice());
+                        productDAO.updateEntityBean(productBean);
+                    }
+                }
+
+            }
+        }
+    }
+
+    private void log(String id, String operation, String reason, String module) {
         // 记录审批日志
         LogBean log = new LogBean();
 
         log.setFkId(id);
-
         log.setLocationId("系统");
         log.setStafferId("系统");
         log.setLogTime(TimeTools.now());
-        log.setModule(ModuleConstant.MODULE_PRICE_CONFIG);
+        log.setModule(module);
         log.setOperation(operation);
         log.setLog(reason);
 

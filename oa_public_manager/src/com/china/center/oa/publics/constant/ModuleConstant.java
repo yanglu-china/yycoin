@@ -36,4 +36,6 @@ public interface ModuleConstant
     String MODULE_PRODUCT_IMPORT = "产品主数据";
 
     String MODULE_PRICE_CONFIG = "结算价";
+
+    String MODULE_PRICE_CONFIG2 = "产品价格配置";
 }

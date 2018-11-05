@@ -128,6 +128,4 @@ public interface ComposeProductManager extends ListenerManager<ComposeProductLis
     
     boolean rejectDecomposeProduct(User user, String id, String reason)
     throws MYException;
-
-    void updateSailPrice(User user, ComposeProductBean bean, List<ComposeItemBean> itemList) throws MYException;
 }
