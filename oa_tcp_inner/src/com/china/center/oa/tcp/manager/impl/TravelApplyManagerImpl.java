@@ -1966,7 +1966,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                         }
                     }
                 } else{
-                    _logger.info("***no TcpIbBean found for:"+bean.getId());
+                    _logger.error("***no TcpIbBean found for:"+bean.getId());
+                    throw new MYException("中收激励明细不能为空(表t_center_tcpib)!");
                 }
             }
 
