@@ -219,6 +219,11 @@ public class BaseBean implements Serializable, BaseInterface
      */
     private String refId = "";
 
+    /**
+     * #470 导入时产品匹配ID
+     */
+    private String productImportId = "";
+
 
     /**
      * 2016/3/29 # 导入同一SO单的同一商品行时临时校验用
@@ -935,6 +940,14 @@ public class BaseBean implements Serializable, BaseInterface
         this.platformFee = platformFee;
     }
 
+    public String getProductImportId() {
+        return productImportId;
+    }
+
+    public void setProductImportId(String productImportId) {
+        this.productImportId = productImportId;
+    }
+
     @Override
     public String toString() {
         return "BaseBean{" +
@@ -969,6 +982,7 @@ public class BaseBean implements Serializable, BaseInterface
                 ", motivationMoney=" + motivationMoney +
                 ", ibMoney2=" + ibMoney2 +
                 ", motivationMoney2=" + motivationMoney2 +
+                ", platformFee=" + platformFee +
                 ", cash=" + cash +
                 ", grossProfit=" + grossProfit +
                 ", deliverType=" + deliverType +
@@ -981,6 +995,7 @@ public class BaseBean implements Serializable, BaseInterface
                 ", tax=" + tax +
                 ", inputRate=" + inputRate +
                 ", refId='" + refId + '\'' +
+                ", productImportId='" + productImportId + '\'' +
                 ", tempInvoiceMoney=" + tempInvoiceMoney +
                 '}';
     }

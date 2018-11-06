@@ -270,6 +270,8 @@ public class OutImportBean implements Serializable
 	 * 推荐标示
 	 */
 	private String recommendation = "";
+
+	private String productImportId = "";
     
     @Ignore
     private int mayAmount = 0;
@@ -1013,6 +1015,14 @@ public class OutImportBean implements Serializable
 		this.platformFee = platformFee;
 	}
 
+	public String getProductImportId() {
+		return productImportId;
+	}
+
+	public void setProductImportId(String productImportId) {
+		this.productImportId = productImportId;
+	}
+
 	@Override
 	public String toString() {
 		return "OutImportBean{" +
@@ -1076,10 +1086,17 @@ public class OutImportBean implements Serializable
 				", presentFlag=" + presentFlag +
 				", ibMoney=" + ibMoney +
 				", motivationMoney=" + motivationMoney +
+				", ibMoney2=" + ibMoney2 +
+				", motivationMoney2=" + motivationMoney2 +
+				", platformFee=" + platformFee +
 				", cash=" + cash +
 				", grossProfit=" + grossProfit +
 				", direct=" + direct +
 				", channel='" + channel + '\'' +
+				", delivery='" + delivery + '\'' +
+				", posPayer='" + posPayer + '\'' +
+				", recommendation='" + recommendation + '\'' +
+				", productImportId='" + productImportId + '\'' +
 				", mayAmount=" + mayAmount +
 				'}';
 	}

@@ -12981,6 +12981,114 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 
     @Override
+    public ProductImportBean getProductImportBean(String customerName,String branchName, String productCode, String channel,
+                                                   String citicOrderDate) throws MYException {
+        String bank = "";
+        if (!StringTools.isNullOrNone(customerName)) {
+            bank = StringUtils.subString(customerName, 4);
+        }
+        //先根据支行+代码+渠道+银行匹配
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("bankProductCode", "=", productCode);
+        if (!StringTools.isNullOrNone(customerName)) {
+            conditionParse.addCondition("customerName", "=", customerName);
+        }
+        if (StringTools.isNullOrNone(channel)) {
+            conditionParse.addCondition("channel", "=", "");
+        } else {
+            conditionParse.addCondition("channel", "=", channel);
+        }
+
+        if (!StringTools.isNullOrNone(bank)) {
+            conditionParse.addCondition("bank", "=", bank);
+        }
+
+        List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+        _logger.info("***productImportBeans1***" + productImportBeans);
+        if (ListTools.isEmptyOrNull(productImportBeans) && !StringTools.isNullOrNone(branchName)) {
+            //如果支行无法匹配，就对比分行+代码+渠道+银行
+            conditionParse = new ConditionParse();
+            conditionParse.addCondition("bankProductCode", "=", productCode);
+            conditionParse.addCondition("branchName", "=", branchName);
+
+            if (StringTools.isNullOrNone(channel)) {
+                conditionParse.addCondition("channel", "=", "");
+            } else {
+                conditionParse.addCondition("channel", "=", channel);
+            }
+
+            if (!StringTools.isNullOrNone(bank)) {
+                conditionParse.addCondition("bank", "=", bank);
+            }
+            productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+            _logger.info("***productImportBeans2***" + productImportBeans);
+        }
+
+        if (ListTools.isEmptyOrNull(productImportBeans)) {
+            //如果支行和分行都无法匹配，就根据银行+代码+渠道
+            conditionParse = new ConditionParse();
+            if (!StringTools.isNullOrNone(bank)) {
+                conditionParse.addCondition("bank", "=", bank);
+            }
+
+            conditionParse.addCondition("bankProductCode", "=", productCode);
+            if (StringTools.isNullOrNone(channel)) {
+                conditionParse.addCondition("channel", "=", "");
+            } else {
+                conditionParse.addCondition("channel", "=", channel);
+            }
+            productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+            _logger.info("***productImportBeans3***" + productImportBeans);
+        }
+
+        if (ListTools.isEmptyOrNull(productImportBeans)) {
+            //最后只根据银行+代码
+            conditionParse = new ConditionParse();
+            if (!StringTools.isNullOrNone(bank)) {
+                conditionParse.addCondition("bank", "=", bank);
+            }
+
+            conditionParse.addCondition("bankProductCode", "=", productCode);
+            productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+            _logger.info("***productImportBeans4***" + productImportBeans);
+        }
+
+        ProductImportBean productImportBean = null;
+        if (!ListTools.isEmptyOrNull(productImportBeans)) {
+            //最后检查时间是否有效
+            for (ProductImportBean pib : productImportBeans) {
+                //分行必须对应，要么分行为空
+                if (!StringTools.isNullOrNone(branchName) && !StringTools.isNullOrNone(pib.getBranchName())
+                        && !branchName.equals(pib.getBranchName())) {
+                    continue;
+                }
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                try {
+                    Date end = sdf.parse(pib.getOfflineDate());
+                    Date begin = sdf.parse(pib.getOnMarketDate());
+                    Date citicDate = sdf.parse(citicOrderDate);
+                    if (citicDate.before(begin) || citicDate.after(end)) {
+                        _logger.error(" citicDate out of date:" + pib);
+                    } else {
+                        productImportBean = pib;
+                        break;
+                    }
+                } catch (Exception e) {
+                    _logger.error(" Exception parse Date:", e);
+                }
+            }
+
+            if (productImportBean == null) {
+                StringBuilder builder = new StringBuilder();
+                builder.append(citicOrderDate + "银行订单日期不在产品主数据配置范围内:" + productImportBeans.get(0).getOnMarketDate() + "至" + productImportBeans.get(0).getOfflineDate())
+                        .append("<br>");
+                throw new MYException(builder.toString());
+            }
+        }
+        return productImportBean;
+    }
+
+    @Override
     public double getGrossProfit(OutBean out, CustomerBean customerBean, String productId) {
         ProductImportBean productImportBean = this.getProductImportBean(out, customerBean, productId);
         if (productImportBean == null){

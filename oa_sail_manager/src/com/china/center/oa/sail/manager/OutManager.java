@@ -778,6 +778,17 @@ public interface OutManager extends ListenerManager<OutListener>
 
     ProductImportBean getProductImportBean(OutBean out, CustomerBean customerBean, String productId);
 
+    /**
+     * #470
+     * @param customerName
+     * @param productCode
+     * @param channel
+     * @param item
+     * @return
+     */
+    ProductImportBean getProductImportBean(String customerName, String branchName, String productCode, String channel,
+                                            String citicOrderDate) throws MYException;
+
     double getGrossProfit(OutBean out, CustomerBean customerBean,String productId);
 
     double getCash(OutBean out, CustomerBean customerBean,String productId);

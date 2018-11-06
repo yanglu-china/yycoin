@@ -162,6 +162,26 @@ public class ProductImportBean implements Serializable
 
     private String operator = "";
 
+    private String item = "";
+
+    private String isSell = "";
+
+    public String getIsSell() {
+        return isSell;
+    }
+
+    public void setIsSell(String isSell) {
+        this.isSell = isSell;
+    }
+
+    public String getItem() {
+        return item;
+    }
+
+    public void setItem(String item) {
+        this.item = item;
+    }
+
     public String getId() {
         return id;
     }
@@ -453,6 +473,8 @@ public class ProductImportBean implements Serializable
                 ", discription='" + discription + '\'' +
                 ", updateTime='" + updateTime + '\'' +
                 ", operator='" + operator + '\'' +
+                ", item='" + item + '\'' +
+                ", isSell='" + isSell + '\'' +
                 '}';
     }
 }
