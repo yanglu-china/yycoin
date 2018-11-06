@@ -3520,7 +3520,7 @@ public class OutImportManagerImpl implements OutImportManager
 					//check duplicate olbase bean
 					List<OlBaseBean> olBaseBeans = this.removeDuplicateOlBaseBeans(olBaseBeans2);
 					_logger.info(olOutBean.getOlFullId() + "***olBaseBeans " + olBaseBeans.size()+" after remove duplicate "+olBaseBeans.size());
-					if (olBaseBeans.size() >=50){
+					if (olBaseBeans.size() >=100){
 						_logger.error("Too many OlBaseBean found "+olOutBean.getOlFullId());
 						this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"olbase表记录太多");
 						continue;
