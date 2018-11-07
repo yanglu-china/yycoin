@@ -12985,12 +12985,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     @Override
     public ProductImportBean getProductImportBean(String customerName,String branchName, String productCode, String channel,
-                                                   String citicOrderDate) throws MYException {
+                                                   String citicOrderDate, int outType) throws MYException {
+        String appName = ConfigLoader.getProperty("appName");
         String bank = "";
         if (!StringTools.isNullOrNone(customerName)) {
             bank = StringUtils.subString(customerName, 4);
         }
-        //先根据支行+代码+渠道+银行匹配
+        //先根据支行+代码+渠道+银行+帐套+是否体内匹配
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("bankProductCode", "=", productCode);
         if (!StringTools.isNullOrNone(customerName)) {
@@ -13006,10 +13007,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             conditionParse.addCondition("bank", "=", bank);
         }
 
+        this.addCondition(conditionParse, outType, appName);
+
         List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
         _logger.info("***productImportBeans1***" + productImportBeans);
         if (ListTools.isEmptyOrNull(productImportBeans) && !StringTools.isNullOrNone(branchName)) {
-            //如果支行无法匹配，就对比分行+代码+渠道+银行
+            //如果支行无法匹配，就对比分行+代码+渠道+银行+帐套+是否体内
             conditionParse = new ConditionParse();
             conditionParse.addCondition("bankProductCode", "=", productCode);
             conditionParse.addCondition("branchName", "=", branchName);
@@ -13023,12 +13026,21 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             if (!StringTools.isNullOrNone(bank)) {
                 conditionParse.addCondition("bank", "=", bank);
             }
+
+            this.addCondition(conditionParse, outType, appName);
+
+            if (OutConstant.APP_NAME_TW.equals(appName)){
+                //体外
+                conditionParse.addCondition(" and item in('体外','全部')");
+            } else {
+                conditionParse.addCondition(" and item in('体内','全部')");
+            }
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans2***" + productImportBeans);
         }
 
         if (ListTools.isEmptyOrNull(productImportBeans)) {
-            //如果支行和分行都无法匹配，就根据银行+代码+渠道
+            //如果支行和分行都无法匹配，就根据银行+代码+渠道+帐套+是否体内
             conditionParse = new ConditionParse();
             if (!StringTools.isNullOrNone(bank)) {
                 conditionParse.addCondition("bank", "=", bank);
@@ -13040,18 +13052,20 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             } else {
                 conditionParse.addCondition("channel", "=", channel);
             }
+            this.addCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans3***" + productImportBeans);
         }
 
         if (ListTools.isEmptyOrNull(productImportBeans)) {
-            //最后只根据银行+代码
+            //最后只根据银行+代码+帐套+是否体内
             conditionParse = new ConditionParse();
             if (!StringTools.isNullOrNone(bank)) {
                 conditionParse.addCondition("bank", "=", bank);
             }
 
             conditionParse.addCondition("bankProductCode", "=", productCode);
+            this.addCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans4***" + productImportBeans);
         }
@@ -13089,6 +13103,28 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             }
         }
         return productImportBean;
+    }
+
+    private void addCondition(ConditionParse conditionParse, int outType, String appName){
+        if (outType == OutConstant.OUTTYPE_OUT_COMMON){
+            //销售出库
+            conditionParse.addCondition("isSell", "=", "在售");
+        } else if (outType == OutConstant.OUTTYPE_OUT_SWATCH
+                || outType == OutConstant.OUTTYPE_OUT_PRESENT){
+            //个人领样、赠送
+            conditionParse.addCondition(" and isSell in ('在售','非在售')");
+        } else if (outType == OutConstant.OUTTYPE_OUT_BANK_SWATCH
+                || outType == OutConstant.OUTTYPE_OUT_SHOW){
+            //银行领样、铺货
+            conditionParse.addCondition("isSell", "=", "非在售");
+        }
+
+        if (OutConstant.APP_NAME_TW.equals(appName)){
+            //体外
+            conditionParse.addCondition(" and item in('体外','全部')");
+        } else {
+            conditionParse.addCondition(" and item in('体内','全部')");
+        }
     }
 
     @Override
