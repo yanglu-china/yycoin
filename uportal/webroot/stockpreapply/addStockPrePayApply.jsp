@@ -65,6 +65,7 @@ function getProvider(id, name)
 			</p:pro>
 			
 			<p:pro field="invoiceId" innerString="style='width: 400px'">
+				<option value="">--</option>
 				<c:forEach items="${invoiceList}" var="item">
                     <option value="${item.id}">${item.fullName}</option>
                 </c:forEach>

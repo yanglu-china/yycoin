@@ -47,6 +47,7 @@ function load()
 			</p:pro>
 			
 			<p:pro field="invoiceId">
+				<option value=""></option>
 				<c:forEach items="${invoiceList}" var="item">
                     <option value="${item.id}">${item.fullName}</option>
                 </c:forEach>

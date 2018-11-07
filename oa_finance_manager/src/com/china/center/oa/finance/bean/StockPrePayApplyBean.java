@@ -34,7 +34,7 @@ public class StockPrePayApplyBean implements Serializable
 	 * 发票类型
 	 */
     @Join(tagClass = InvoiceBean.class, type = JoinType.LEFT)
-    @Html(title = "发票类型", must = true, type = Element.SELECT)
+    @Html(title = "发票类型", type = Element.SELECT)
     private String invoiceId = "";
 
     @FK
