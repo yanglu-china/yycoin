@@ -29,10 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SailPriceJobManagerImpl implements JobManager {
     private final Log _logger = LogFactory.getLog(getClass());
@@ -174,7 +171,8 @@ public class SailPriceJobManagerImpl implements JobManager {
                     for(BaseBean baseBean: baseBeans){
                         String productId = baseBean.getProductId();
                         ProductBean product = this.productDAO.find(productId);
-                        if (product!= null && product.getSailPriceFlag() ==  1){
+                        if (product!= null && product.getSailPriceFlag() ==  1
+                                && this.needUpdate(productId)){
                             List<PriceConfigBean> list1 = priceConfigDAO.querySailPricebyProductId(productId);
                             if (ListTools.isEmptyOrNull(list1)){
                                 // 日志
@@ -267,7 +265,8 @@ public class SailPriceJobManagerImpl implements JobManager {
         if (sailPrice > 0){
             String productId = bean.getProductId();
             ProductBean productBean = this.productDAO.find(productId);
-            if (productBean!= null && productBean.getSailPriceFlag() ==  1){
+            if (productBean!= null && productBean.getSailPriceFlag() ==  1
+                    && this.needUpdate(productId)){
                 List<PriceConfigBean> list1 = priceConfigDAO.querySailPricebyProductId(productId);
                 if (ListTools.isEmptyOrNull(list1)){
                     // 日志
@@ -307,6 +306,31 @@ public class SailPriceJobManagerImpl implements JobManager {
 
             }
         }
+    }
+
+    private boolean needUpdate(String productId){
+        // test only!
+        Set<String> productIds = new HashSet<String>();
+        productIds.add("635255280");
+        productIds.add("635255282");
+        productIds.add("635255284");
+        productIds.add("635255286");
+        productIds.add("635255288");
+        productIds.add("635255290");
+        productIds.add("635255292");
+        productIds.add("635255294");
+        productIds.add("635255296");
+        productIds.add("635255298");
+        productIds.add("15047423");
+        productIds.add("573333316");
+        productIds.add("598351394");
+        productIds.add("625888572");
+
+        if (!productIds.isEmpty()){
+            return productIds.contains(productId);
+        }
+
+        return true;
     }
 
     private void log(String id, String operation, String reason, String module) {
