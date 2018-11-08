@@ -143,7 +143,9 @@ public class PriceConfigManagerImpl implements PriceConfigManager
 		// 不受金银价波动影响
 		if (bean.getFtype() == 1)
 		{
-			sailPrice = bean.getPrice() + bean.getGsPriceUp();
+//			sailPrice = bean.getPrice() + bean.getGsPriceUp();
+			// #440 现改为不受波动，就是辅料
+			sailPrice =  bean.getGsPriceUp();
 		}
 			
 		bean.setGold(product.getCost() * gold);
