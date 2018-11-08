@@ -9732,7 +9732,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
 		con.addIntCondition("OutBean.reserve3", "=", OutConstant.OUT_SAIL_TYPE_MONEY);
 
-		//con.addCondition(" and OutBean.status not in (0, 2, 3, 4)");
+		//con.addItemCondition(" and OutBean.status not in (0, 2, 3, 4)");
         con.addIntCondition("OutBean.status", "=", OutConstant.STATUS_SUBMIT);
 
 		con.addIntCondition("OutBean.pay", "=", OutConstant.PAY_NOT);
@@ -12991,50 +12991,29 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (!StringTools.isNullOrNone(customerName)) {
             bank = StringUtils.subString(customerName, 4);
         }
+
+        if (StringTools.isNullOrNone(bank)){
+            throw new MYException("银行不能为空!");
+        }
         //先根据支行+代码+渠道+银行+帐套+是否体内匹配
         ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("customerName", "=", customerName);
         conditionParse.addCondition("bankProductCode", "=", productCode);
-        if (!StringTools.isNullOrNone(customerName)) {
-            conditionParse.addCondition("customerName", "=", customerName);
-        }
-        if (StringTools.isNullOrNone(channel)) {
-            conditionParse.addCondition("channel", "=", "");
-        } else {
-            conditionParse.addCondition("channel", "=", channel);
-        }
-
-        if (!StringTools.isNullOrNone(bank)) {
-            conditionParse.addCondition("bank", "=", bank);
-        }
-
-        this.addCondition(conditionParse, outType, appName);
+        this.addChannelCondition(conditionParse, channel);
+        conditionParse.addCondition("bank", "=", bank);
+        this.addItemCondition(conditionParse, outType, appName);
 
         List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
         _logger.info("***productImportBeans1***" + productImportBeans);
         if (ListTools.isEmptyOrNull(productImportBeans) && !StringTools.isNullOrNone(branchName)) {
             //如果支行无法匹配，就对比分行+代码+渠道+银行+帐套+是否体内
             conditionParse = new ConditionParse();
-            conditionParse.addCondition("bankProductCode", "=", productCode);
             conditionParse.addCondition("branchName", "=", branchName);
+            conditionParse.addCondition("bankProductCode", "=", productCode);
+            this.addChannelCondition(conditionParse, channel);
+            conditionParse.addCondition("bank", "=", bank);
+            this.addItemCondition(conditionParse, outType, appName);
 
-            if (StringTools.isNullOrNone(channel)) {
-                conditionParse.addCondition("channel", "=", "");
-            } else {
-                conditionParse.addCondition("channel", "=", channel);
-            }
-
-            if (!StringTools.isNullOrNone(bank)) {
-                conditionParse.addCondition("bank", "=", bank);
-            }
-
-            this.addCondition(conditionParse, outType, appName);
-
-            if (OutConstant.APP_NAME_TW.equals(appName)){
-                //体外
-                conditionParse.addCondition(" and item in('体外','全部')");
-            } else {
-                conditionParse.addCondition(" and item in('体内','全部')");
-            }
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans2***" + productImportBeans);
         }
@@ -13042,17 +13021,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (ListTools.isEmptyOrNull(productImportBeans)) {
             //如果支行和分行都无法匹配，就根据银行+代码+渠道+帐套+是否体内
             conditionParse = new ConditionParse();
-            if (!StringTools.isNullOrNone(bank)) {
-                conditionParse.addCondition("bank", "=", bank);
-            }
-
+            conditionParse.addCondition("bank", "=", bank);
             conditionParse.addCondition("bankProductCode", "=", productCode);
-            if (StringTools.isNullOrNone(channel)) {
-                conditionParse.addCondition("channel", "=", "");
-            } else {
-                conditionParse.addCondition("channel", "=", channel);
-            }
-            this.addCondition(conditionParse, outType, appName);
+            this.addChannelCondition(conditionParse, channel);
+            this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans3***" + productImportBeans);
         }
@@ -13060,17 +13032,15 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (ListTools.isEmptyOrNull(productImportBeans)) {
             //最后只根据银行+代码+帐套+是否体内
             conditionParse = new ConditionParse();
-            if (!StringTools.isNullOrNone(bank)) {
-                conditionParse.addCondition("bank", "=", bank);
-            }
-
+            conditionParse.addCondition("bank", "=", bank);
             conditionParse.addCondition("bankProductCode", "=", productCode);
-            this.addCondition(conditionParse, outType, appName);
+            this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans4***" + productImportBeans);
         }
 
         ProductImportBean productImportBean = null;
+        int count = 0;
         if (!ListTools.isEmptyOrNull(productImportBeans)) {
             //最后检查时间是否有效
             for (ProductImportBean pib : productImportBeans) {
@@ -13088,7 +13058,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         _logger.error(" citicDate out of date:" + pib);
                     } else {
                         productImportBean = pib;
-                        break;
+                        count++;
                     }
                 } catch (Exception e) {
                     _logger.error(" Exception parse Date:", e);
@@ -13100,12 +13070,25 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 builder.append(citicOrderDate + "银行订单日期不在产品主数据配置范围内:" + productImportBeans.get(0).getOnMarketDate() + "至" + productImportBeans.get(0).getOfflineDate())
                         .append("<br>");
                 throw new MYException(builder.toString());
+            } else if (count > 1) {
+                StringBuilder builder = new StringBuilder();
+                builder.append( "产品主数据配置不能超过1条:"+productImportBean.toString() )
+                        .append("<br>");
+                throw new MYException(builder.toString());
             }
         }
         return productImportBean;
     }
 
-    private void addCondition(ConditionParse conditionParse, int outType, String appName){
+    private void addChannelCondition(ConditionParse conditionParse, String channel){
+        if (StringTools.isNullOrNone(channel)) {
+            conditionParse.addCondition("channel", "=", "");
+        } else {
+            conditionParse.addCondition("channel", "=", channel);
+        }
+    }
+
+    private void addItemCondition(ConditionParse conditionParse, int outType, String appName){
         if (outType == OutConstant.OUTTYPE_OUT_COMMON){
             //销售出库
             conditionParse.addCondition("isSell", "=", "在售");
@@ -13154,8 +13137,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("type","=", OutConstant.OUT_TYPE_OUTBILL);
         conditionParse.addCondition("customerCreated","=", 0);
-//        conditionParse.addCondition("fullId","=","SO1612191143546540578");
-//        conditionParse.addCondition("outTime",">=", "2016-12-19");
+//        conditionParse.addItemCondition("fullId","=","SO1612191143546540578");
+//        conditionParse.addItemCondition("outTime",">=", "2016-12-19");
         conditionParse.addCondition(" and (customerName like '%钱币交易部%' or customerName like '%微店%' or customerName like '%天猫%' or customerName like '%永银藏品店%')");
 
         List<OutBean> outBeanList = this.outDAO.queryEntityBeansByCondition(conditionParse);

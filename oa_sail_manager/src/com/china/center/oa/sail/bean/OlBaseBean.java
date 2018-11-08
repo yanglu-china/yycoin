@@ -72,6 +72,8 @@ public class OlBaseBean implements Serializable
 
     private double grossProfit =0.0d;
 
+    private String productImportId = "";
+
     /**
      * default constructor
      */
@@ -207,6 +209,14 @@ public class OlBaseBean implements Serializable
         this.platformFee = platformFee;
     }
 
+    public String getProductImportId() {
+        return productImportId;
+    }
+
+    public void setProductImportId(String productImportId) {
+        this.productImportId = productImportId;
+    }
+
     @Override
     public String toString() {
         return "OlBaseBean{" +
@@ -226,6 +236,7 @@ public class OlBaseBean implements Serializable
                 ", depot='" + depot + '\'' +
                 ", cash=" + cash +
                 ", grossProfit=" + grossProfit +
+                ", productImportId='" + productImportId + '\'' +
                 '}';
     }
 
