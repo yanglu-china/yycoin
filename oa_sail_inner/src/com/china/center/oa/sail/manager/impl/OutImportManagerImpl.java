@@ -3743,6 +3743,7 @@ public class OutImportManagerImpl implements OutImportManager
 						baseBean.setIbMoney2(olBaseBean.getIbMoney2());
 						baseBean.setMotivationMoney2(olBaseBean.getMotivationMoney2());
 						baseBean.setPlatformFee(olBaseBean.getPlatformFee());
+						baseBean.setProductImportId(olBaseBean.getProductImportId());
 
 						baseBean.setOwner("0");
 						baseBean.setOwnerName("公共");

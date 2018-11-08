@@ -13041,7 +13041,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         ProductImportBean productImportBean = null;
         int count = 0;
-        if (!ListTools.isEmptyOrNull(productImportBeans)) {
+        if (ListTools.isEmptyOrNull(productImportBeans)) {
+            String msg = appName+"客户+银行产品编码未配置产品主数据映射关系:"+customerName+"+"+productCode;
+            _logger.error(msg);
+            throw new MYException(msg);
+        } else{
             //最后检查时间是否有效
             for (ProductImportBean pib : productImportBeans) {
                 //分行必须对应，要么分行为空
@@ -13077,6 +13081,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 throw new MYException(builder.toString());
             }
         }
+
         return productImportBean;
     }
 
