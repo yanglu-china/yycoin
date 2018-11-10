@@ -9391,14 +9391,20 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)){
                         for (BaseBean  base: outBean.getBaseList()){
                             CustomerBean customerBean = customerMainDAO.find(outBean.getCustomerId());
-                            ProductImportBean productImportBean = getProductImportBean(outBean ,customerBean, base.getProductId());
-                            _logger.info("****productImport***"+productImportBean);
-                            if (productImportBean!= null){
-                                base.setIbMoney(productImportBean.getIbMoney());
-                                base.setMotivationMoney(productImportBean.getMotivationMoney());
-                                base.setIbMoney2(productImportBean.getIbMoney2());
-                                base.setMotivationMoney2(productImportBean.getMotivationMoney2());
-                                base.setPlatformFee(productImportBean.getPlatformFee());
+                            try {
+                                ProductImportBean productImportBean = getProductImportBean(outBean, customerBean, base.getProductId());
+
+                                _logger.info("****productImport***" + productImportBean);
+                                if (productImportBean != null) {
+                                    base.setIbMoney(productImportBean.getIbMoney());
+                                    base.setMotivationMoney(productImportBean.getMotivationMoney());
+                                    base.setIbMoney2(productImportBean.getIbMoney2());
+                                    base.setMotivationMoney2(productImportBean.getMotivationMoney2());
+                                    base.setPlatformFee(productImportBean.getPlatformFee());
+                                    base.setProductImportId(productImportBean.getId());
+                                }
+                            }catch (MYException e){
+                                _logger.error(e);
                             }
                         }
                     }
@@ -12908,8 +12914,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
 
     @Override
-    public ProductImportBean getProductImportBean(OutBean out, CustomerBean customerBean,String productId) {
-        List<ProductImportBean> beans = null;
+    public ProductImportBean getProductImportBean(OutBean out, CustomerBean customerBean,String productId) throws MYException{
         ProductBean productBean = this.productDAO.find(productId);
         String customerName = out.getCustomerName();
         String channel = out.getChannel();
@@ -12917,7 +12922,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (customerBean!= null){
             branchName = customerBean.getReserve1();
         }
-        if (productBean!= null) {
+        return this.getProductImportBean(customerName, branchName, productBean.getCode(), channel,out.getPodate(), out.getOutType());
+        /*if (productBean!= null) {
+        List<ProductImportBean> beans = null;
             String productCode = productBean.getCode();
             //#291
             if (!StringTools.isNullOrNone(productCode)) {
@@ -12980,7 +12987,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 }
             }
             return null;
-        }
+        }*/
     }
 
     @Override
@@ -13042,7 +13049,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         ProductImportBean productImportBean = null;
         int count = 0;
         if (ListTools.isEmptyOrNull(productImportBeans)) {
-            String msg = appName+"客户+银行产品编码未配置产品主数据映射关系:"+customerName+"+"+productCode;
+            String msg = appName+"未配置产品主数据映射关系(客户+银行产品编码):"+customerName+"+"+productCode;
             _logger.error(msg);
             throw new MYException(msg);
         } else{
@@ -13073,15 +13080,18 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 StringBuilder builder = new StringBuilder();
                 builder.append(citicOrderDate + "银行订单日期不在产品主数据配置范围内:" + productImportBeans.get(0).getOnMarketDate() + "至" + productImportBeans.get(0).getOfflineDate())
                         .append("<br>");
+                _logger.error(citicOrderDate + "银行订单日期不在产品主数据配置范围内:" + productImportBeans.get(0).getOnMarketDate() + "至" + productImportBeans.get(0).getOfflineDate());
                 throw new MYException(builder.toString());
             } else if (count > 1) {
+                _logger.error("产品主数据配置不能超过1条:"+productImportBean.toString());
                 StringBuilder builder = new StringBuilder();
-                builder.append( "产品主数据配置不能超过1条:"+productImportBean.toString() )
+                builder.append( "产品主数据配置不能超过1条:"+customerName+"+"+productCode)
                         .append("<br>");
                 throw new MYException(builder.toString());
             }
         }
 
+        _logger.info("***find product import bean***"+productImportBean);
         return productImportBean;
     }
 
@@ -13117,22 +13127,28 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     @Override
     public double getGrossProfit(OutBean out, CustomerBean customerBean, String productId) {
-        ProductImportBean productImportBean = this.getProductImportBean(out, customerBean, productId);
-        if (productImportBean == null){
-            return 0;
-        } else{
-            return productImportBean.getGrossProfit();
+	    try {
+            ProductImportBean productImportBean = this.getProductImportBean(out, customerBean, productId);
+            if (productImportBean != null){
+                return productImportBean.getGrossProfit();
+            }
+        }catch (Exception e){
+	        _logger.error(e);
         }
+        return 0;
     }
 
     @Override
     public double getCash(OutBean out,CustomerBean customerBean,String productId) {
-        ProductImportBean productImportBean = this.getProductImportBean(out,customerBean, productId);
-        if (productImportBean == null){
-            return 0;
-        } else{
-            return productImportBean.getCash();
+        try {
+            ProductImportBean productImportBean = this.getProductImportBean(out, customerBean, productId);
+            if (productImportBean != null){
+                return productImportBean.getCash();
+            }
+        }catch (Exception e){
+            _logger.error(e);
         }
+        return 0;
     }
 
     @Override

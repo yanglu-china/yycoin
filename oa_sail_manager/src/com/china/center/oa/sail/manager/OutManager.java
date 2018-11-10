@@ -776,15 +776,18 @@ public interface OutManager extends ListenerManager<OutListener>
 
     OutBean createNewOutBean(OutBean out, OutBackItemBean item) throws MYException;
 
-    ProductImportBean getProductImportBean(OutBean out, CustomerBean customerBean, String productId);
+    ProductImportBean getProductImportBean(OutBean out, CustomerBean customerBean, String productId) throws MYException;
 
     /**
      * #470
      * @param customerName
+     * @param branchName
      * @param productCode
      * @param channel
-     * @param item
+     * @param citicOrderDate
+     * @param outType
      * @return
+     * @throws MYException
      */
     ProductImportBean getProductImportBean(String customerName, String branchName, String productCode, String channel,
                                             String citicOrderDate, int outType) throws MYException;

@@ -744,6 +744,7 @@ public class OutImportManagerImpl implements OutImportManager
             base.setIbMoney2(each.getIbMoney2());
             base.setMotivationMoney2(each.getMotivationMoney2());
             base.setPlatformFee(each.getPlatformFee());
+            base.setProductImportId(each.getProductImportId());
 
             base.setCash(each.getCash());
             base.setGrossProfit(each.getGrossProfit());
@@ -4170,7 +4171,6 @@ public void offlineStorageInJob() {
         }
     }
 
-    @Deprecated
     private void setGrossProfitAndCash(OutBean outBean,CustomerBean customerBean, BaseBean baseBean){
 		if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
 				||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
