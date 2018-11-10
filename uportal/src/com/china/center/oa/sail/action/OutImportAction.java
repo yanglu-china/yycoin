@@ -229,7 +229,7 @@
 
                      bean.setItype(MathTools.parseInt(itype));
 
-                     boolean error = innerAdd(bean, obj, builder, currentNumber);
+                     boolean error = innerAdd2(bean, obj, builder, currentNumber);
 
                      if (!importError)
                      {
@@ -2431,6 +2431,11 @@
 
          //#65 中收激励从Product import表读取
          // #470 TODO
+//         if ((bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON
+//                 || bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
+//                 || bean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
+//                 || bean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
+//                 || bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW)
          if (bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON
                  //#108 原招商银行导入不需要设置中收激励金额
                  && bean.getItype()!= 2){
@@ -2443,6 +2448,7 @@
                  bean.setMotivationMoney(productImportBean.getMotivationMoney());
                  bean.setIbMoney2(productImportBean.getIbMoney2());
                  bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
+                 bean.setProductImportId(productImportBean.getId());
 
                  if (this.isOnlineCustomer(bean.getComunicatonBranchName())){
                      bean.setPlatformFee(bean.getPrice()*0.01);
