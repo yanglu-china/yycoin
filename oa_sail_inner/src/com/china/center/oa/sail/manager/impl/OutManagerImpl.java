@@ -276,6 +276,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private CustomerDistAddrDAO customerDistAddrDAO = null;
 
     private CustomerContactDAO customerContactDAO = null;
+
+    private DhZjbDAO dhZjbDAO = null;
     
     /**
      * 短信最大停留时间
@@ -12755,6 +12757,81 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
+    public void dhDiaoboJob() {
+        _logger.info("***dhDiaoboJob running***");
+        List<DhZjbVO> dhZjbVOList = this.dhZjbDAO.queryDhInfo();
+        if (!ListTools.isEmptyOrNull(dhZjbVOList)){
+           _logger.info("***dhZjbVOList size***"+dhZjbVOList.size());
+            DepotpartBean depotpart = depotpartDAO.findByUnique("不良品仓");
+
+            for(DhZjbVO vo: dhZjbVOList){
+                //合格数量调拨单
+                OutBean outBean =  new OutBean();
+
+                //TODO
+                outBean.setLocationId("999");
+                outBean.setDestinationId(vo.getSccgRkfx());
+//                outBean.setDutyId(dutyId);
+                outBean.setDescription("合格到货调拨JOB:到货单号"+vo.getDhNo());
+                outBean.setType(OutConstant.OUT_TYPE_INBILL);
+                outBean.setOutType(OutConstant.OUTTYPE_OUT_APPLY);
+
+                String stafferId = vo.getCreateUser();
+                StafferBean stafferBean = this.stafferDAO.find(stafferId);
+                if (stafferBean == null){
+                    _logger.error("staffer not exists:"+stafferId);
+                    continue;
+                } else{
+                    outBean.setIndustryId(stafferBean.getIndustryId());
+                    // 增加职员的ID
+                    outBean.setStafferId(vo.getCreateUser());
+                    outBean.setStafferName(stafferBean.getName());
+                }
+
+                outBean.setOutTime(TimeTools.now());
+                outBean.setLogTime(TimeTools.now());
+
+                outBean.setReserve1(OutConstant.MOVEOUT_DIAOBO);
+                outBean.setStatus(OutConstant.STATUS_LOCATION_MANAGER_CHECK);
+//                this.diaoBo(outBean, map.getParameterMap(), null,
+//                        s_diaoBoproId, amount);
+//                int ttype = StorageConstant.OPR_STORAGE_REDEPLOY;
+//                this.submitDiaoBo(outBean.getFullId(), null, ttype);
+
+                if(depotpart!= null){
+                    //不合格数量调拨单
+                    OutBean outBean2 =  new OutBean();
+
+                    //TODO
+                    outBean2.setLocationId("999");
+                    outBean2.setDestinationId(depotpart.getId());
+//                outBean.setDutyId(dutyId);
+                    outBean2.setDescription("不合格到货调拨JOB:到货单号"+vo.getDhNo());
+                    outBean2.setType(OutConstant.OUT_TYPE_INBILL);
+                    outBean2.setOutType(OutConstant.OUTTYPE_OUT_APPLY);
+
+                    outBean2.setIndustryId(stafferBean.getIndustryId());
+                    // 增加职员的ID
+                    outBean2.setStafferId(vo.getCreateUser());
+                    outBean2.setStafferName(stafferBean.getName());
+
+                    outBean2.setOutTime(TimeTools.now());
+                    outBean2.setLogTime(TimeTools.now());
+
+                    outBean2.setReserve1(OutConstant.MOVEOUT_DIAOBO);
+                    outBean2.setStatus(OutConstant.STATUS_LOCATION_MANAGER_CHECK);
+                }
+
+
+                //TODO
+                this.dhZjbDAO.updateProcessedFlag(vo.getId());
+            }
+        }
+        _logger.info("***dhDiaoboJob finished***");
+    }
+
     public String createNewBuyBean(OutBean outBean) throws MYException {
         // 触发产生退货凭证 TAX_ADD
         Collection<OutListener> listenerMapValues = listenerMapValues();
@@ -13912,5 +13989,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
         this.priceConfigDAO = priceConfigDAO;
+    }
+
+    public DhZjbDAO getDhZjbDAO() {
+        return dhZjbDAO;
+    }
+
+    public void setDhZjbDAO(DhZjbDAO dhZjbDAO) {
+        this.dhZjbDAO = dhZjbDAO;
     }
 }
