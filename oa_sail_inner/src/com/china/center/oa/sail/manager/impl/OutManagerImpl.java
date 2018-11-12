@@ -13174,7 +13174,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     private void addChannelCondition(ConditionParse conditionParse, String channel){
         if (StringTools.isNullOrNone(channel)) {
-            conditionParse.addCondition("channel", "=", "");
+//            conditionParse.addCondition("channel", "=", "");
+            // 空格查询会被框架过滤掉!!!
+            conditionParse.addCondition(" and channel =''");
         } else {
             conditionParse.addCondition("channel", "=", channel);
         }
