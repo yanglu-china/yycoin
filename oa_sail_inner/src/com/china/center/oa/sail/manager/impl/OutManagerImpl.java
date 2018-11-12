@@ -13114,10 +13114,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
 
         if (ListTools.isEmptyOrNull(productImportBeans)) {
-            //最后只根据银行+代码+帐套+是否体内
+            //最后只根据银行+代码+帐套+是否体内+渠道为空
             conditionParse = new ConditionParse();
             conditionParse.addCondition("bank", "=", bank);
             conditionParse.addCondition("bankProductCode", "=", productCode);
+            conditionParse.addCondition(" and channel =''");
             this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans4***" + productImportBeans);
