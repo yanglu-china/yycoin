@@ -528,7 +528,8 @@ public class ProductManagerImpl extends AbstractListenerManager<ProductListener>
                     priceConfigBean.setType(ProductConstant.PRICECONFIG_SETTLE);
                     priceConfigBean.setProductId(bean.getProductId());
                     //邮票总价取T_CENTER_STORAGERALATION 表中最近入库的该产品price栏位
-                    priceConfigBean.setPrice(bean.getPrice());
+//                    priceConfigBean.setPrice(bean.getPrice());
+                    priceConfigBean.setGsPriceUp(bean.getPrice());
 
                     priceConfigDAO.saveEntityBean(priceConfigBean);
                     _logger.info("***auto create PriceConfigBean***"+priceConfigBean);
