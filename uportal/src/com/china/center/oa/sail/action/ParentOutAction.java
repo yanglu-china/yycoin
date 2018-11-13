@@ -1191,9 +1191,42 @@ public class ParentOutAction extends DispatchAction
 
 							importError = true;
 						} else{
-						    bean.setRefOutFullId(outId);
-                        }
-					} else
+						    int status = out.getStatus();
+						    if(status == OutConstant.STATUS_PASS
+                                    || status == OutConstant.STATUS_SEC_PASS){
+                                bean.setRefOutFullId(outId);
+                                //退货数量必须小于可退数量
+                                try {
+                                    outManager.checkOutBack(out.getRefOutFullId());
+                                }catch(MYException e){
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("退货数量大于可退数量:"+outId)
+                                            .append("<br>");
+
+                                    importError = true;
+                                }
+
+                                if (out.getType() == OutConstant.OUT_TYPE_OUTBILL) {
+                                    if (out.getInvoiceMoney() > 0) {
+                                        builder
+                                                .append("第[" + currentNumber + "]错误:")
+                                                .append("销售单已开票，请先退票:"+outId)
+                                                .append("<br>");
+
+                                        importError = true;
+                                    }
+                                }
+						    }else{
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("只有已出库或已发货的订单可以退货:"+outId)
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+					    }
+					}else
 					{
 						builder
 								.append("第[" + currentNumber + "]错误:")
@@ -1275,19 +1308,19 @@ public class ParentOutAction extends DispatchAction
 					}
 
 					//销售价
-					if ( !StringTools.isNullOrNone(obj[6]))
-					{
-						String price = obj[6].trim();
-						//TODO
-					} else
-					{
-						builder
-								.append("第[" + currentNumber + "]错误:")
-								.append("销售价不能为空")
-								.append("<br>");
-
-						importError = true;
-					}
+//					if ( !StringTools.isNullOrNone(obj[6]))
+//					{
+//						String price = obj[6].trim();
+//						//TODO
+//					} else
+//					{
+//						builder
+//								.append("第[" + currentNumber + "]错误:")
+//								.append("销售价不能为空")
+//								.append("<br>");
+//
+//						importError = true;
+//					}
 
 					//退货数量
 					if ( !StringTools.isNullOrNone(obj[7]))

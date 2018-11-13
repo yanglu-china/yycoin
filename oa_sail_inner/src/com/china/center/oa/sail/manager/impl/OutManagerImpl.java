@@ -3093,7 +3093,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             
             if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL) {
             	if (outBean.getInvoiceMoney() > 0) {
-            		throw new MYException("销售单已开票，请选退票再驳回");
+            		throw new MYException("销售单已开票，请先退票再驳回");
             	} else{
             	    //#356 在批量处理和商务审批及库管审批时做下控制，以PODATE为判断
                     String podate = outBean.getPodate();
