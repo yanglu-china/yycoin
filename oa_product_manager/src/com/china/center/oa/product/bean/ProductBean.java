@@ -431,7 +431,7 @@ public class ProductBean implements Serializable
     /**
      * #440 可修改结算价标识
      */
-    private int sailPriceFlag = 0;
+    private int sailPriceFlag = 1;
 
     /**
      * #440 虚料标识
