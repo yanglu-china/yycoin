@@ -5156,6 +5156,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("激励金额");
             line.writeColumn("中收2金额");
             line.writeColumn("其他费用金额");
+            line.writeColumn("平台手续费");
 
             line.writeLine();
 
@@ -5167,6 +5168,7 @@ public class TravelApplyAction extends DispatchAction
                 line.writeColumn(ib.getMotivationMoneyTotal());
                 line.writeColumn(ib.getIbMoneyTotal2());
                 line.writeColumn(ib.getMotivationMoneyTotal2());
+                line.writeColumn(ib.getPlatformFeeTotal());
 
                 line.writeLine();
 
@@ -5265,6 +5267,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("激励金额");
             line.writeColumn("中收2金额");
             line.writeColumn("其他费用金额");
+            line.writeColumn("平台手续费");
             line.writeColumn("订单状态");
             line.writeColumn("申请人");
             line.writeColumn("银行销售日期");
@@ -5298,11 +5301,12 @@ public class TravelApplyAction extends DispatchAction
                     line.writeColumn(this.getBankProductCode(ib));
                     line.writeColumn(ib.getPrice());
                     line.writeColumn(ib.getAmount());
+
                     line.writeColumn(ib.getIbMoney());
                     line.writeColumn(ib.getMotivationMoney());
-
                     line.writeColumn(ib.getIbMoney2());
                     line.writeColumn(ib.getMotivationMoney2());
+                    line.writeColumn(ib.getPlatformFee());
 
                     //2015/7/11导出申请人和银行销售日期
                     OutBean outBean = this.outDAO.find(ib.getFullId());
@@ -5460,6 +5464,7 @@ public class TravelApplyAction extends DispatchAction
             line.writeColumn("激励金额");
             line.writeColumn("中收2金额");
             line.writeColumn("其他费用金额");
+            line.writeColumn("平台手续费");
             line.writeColumn("订单状态");
             line.writeColumn("申请人");
             line.writeColumn("银行销售日期");
@@ -5481,6 +5486,7 @@ public class TravelApplyAction extends DispatchAction
                 line.writeColumn(ib.getMotivationMoney());
                 line.writeColumn(ib.getIbMoney2());
                 line.writeColumn(ib.getMotivationMoney2());
+                line.writeColumn(ib.getPlatformFee());
 
                 //2015/7/11导出申请人和银行销售日期
                 OutBean outBean = this.outDAO.find(ib.getFullId());
