@@ -2855,6 +2855,7 @@ public class OutImportManagerImpl implements OutImportManager
             if (!StringTools.isNullOrNone(each.getDistId())){
                 PackageBean packageBean = this.packageDAO.find(each.getDistId());
                 if (packageBean!= null){
+                	int currentStatus = packageBean.getStatus();
                     packageBean.setTransportNo(each.getTransportNo());
                     packageBean.setSfReceiveDate(each.getSfReceiveDate());
 					packageBean.setShipping(each.getShipping());
@@ -2874,7 +2875,7 @@ public class OutImportManagerImpl implements OutImportManager
                     }
 
                     this.packageDAO.updateEntityBean(packageBean);
-                    _logger.info("update packageBean to setSfReceiveDate ***" + packageBean);
+                    _logger.info(currentStatus+" update packageBean to setSfReceiveDate ***" + packageBean);
                 } else{
                     _logger.info("Do not find package for:"+each.getDistId());
                 }
