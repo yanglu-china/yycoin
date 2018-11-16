@@ -215,6 +215,7 @@ public class SailPriceJobManagerImpl implements JobManager {
                 }
             }
         }
+        _logger.info("****SailPriceJobManagerImpl finished*****");
     }
 
     // #430 检查是否虚料
@@ -223,17 +224,7 @@ public class SailPriceJobManagerImpl implements JobManager {
         if (productBean!= null && productBean.getVirtualFlag() == 1){
             return true;
         }
-//        ConditionParse conditionParse = new ConditionParse();
-//        conditionParse.addWhereStr();
-//        conditionParse.addIntCondition("virtualFlag","=", "1");
-//        List<ProductBean> productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
-//        if(productBeans != null){
-//            for(ProductBean productBean: productBeans){
-//                if (productId.equals(productBean.getId())){
-//                    return true;
-//                }
-//            }
-//        }
+
         return false;
     }
 
@@ -266,6 +257,7 @@ public class SailPriceJobManagerImpl implements JobManager {
             sailPrice = bean.getPrice() - virtualProductPrice;
         }
 
+        _logger.info(bean+"****updateSailPrice***"+sailPrice);
         if (sailPrice > 0){
             String productId = bean.getProductId();
             ProductBean productBean = this.productDAO.find(productId);
@@ -309,8 +301,6 @@ public class SailPriceJobManagerImpl implements JobManager {
                 }
 
             }
-        } else{
-            _logger.warn("sailPrice is 0:"+bean);
         }
     }
 

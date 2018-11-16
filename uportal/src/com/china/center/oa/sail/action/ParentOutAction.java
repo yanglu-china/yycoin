@@ -1182,6 +1182,7 @@ public class ParentOutAction extends DispatchAction
 					if ( !StringTools.isNullOrNone(obj[1]))
 					{
 						String outId = obj[1].trim();
+                        bean.setRefOutFullId(outId);
 						OutBean out = this.outDAO.find(outId);
 						if (out == null){
 							builder
@@ -1194,7 +1195,6 @@ public class ParentOutAction extends DispatchAction
 						    int status = out.getStatus();
 						    if(status == OutConstant.STATUS_PASS
                                     || status == OutConstant.STATUS_SEC_PASS){
-                                bean.setRefOutFullId(outId);
 
                                 if (out.getType() == OutConstant.OUT_TYPE_OUTBILL) {
                                     if (out.getInvoiceMoney() > 0) {

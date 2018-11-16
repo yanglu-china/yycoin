@@ -2909,7 +2909,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      * @param outId
      * @return
      */
-	protected List<OutBean> queryRefOut1(final String outId)
+	protected List<OutBean> queryRefOut1(final String outId, boolean checkStatus)
 	{
 		// 查询当前已经有多少个人领样
 		ConditionParse con = new ConditionParse();
@@ -2917,6 +2917,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 		con.addWhereStr();
 
 		con.addCondition("OutBean.refOutFullId", "=", outId);
+		if (checkStatus) {
+            con.addCondition(" and OutBean.status in (3, 4)");
+        }
 
 		con.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_INBILL);
 
@@ -7744,7 +7747,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	{
         List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
         
-        List<OutBean> refBuyList = queryRefOut1(outId);
+        List<OutBean> refBuyList = queryRefOut1(outId, false);
 
         // 计算出已经退货的数量
         for (BaseBean baseBean : baseList)
@@ -7779,7 +7782,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info("***checkOutBack***"+outId+"***"+productId+"**priceKey***"+priceKey+"***amount**"+amount);
         List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
 
-        List<OutBean> refBuyList = queryRefOut1(outId);
+        List<OutBean> refBuyList = queryRefOut1(outId, true);
 
         // 计算出已经退货的数量
         for (BaseBean baseBean : baseList)
@@ -11747,7 +11750,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 			
 			int backAmount = 0;
 			// 1.去掉已退货部分
-			List<OutBean> obList = this.queryRefOut1(each.getOutId());
+			List<OutBean> obList = this.queryRefOut1(each.getOutId(), false);
 			
 			for (OutBean eachob : obList)
 			{
@@ -11977,7 +11980,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             List<OutBean> refList = outDAO.queryEntityBeansByCondition(con1);
             
     		// 查询已退的退货
-            List<OutBean> refBuyList = queryRefOut1(each.getOutId());
+            List<OutBean> refBuyList = queryRefOut1(each.getOutId(), false);
             
     		// 计算出已经退货的数量
             for (OutBean ref : refBuyList)
