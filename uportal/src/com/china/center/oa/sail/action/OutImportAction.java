@@ -1619,32 +1619,39 @@
                  bean.setFirstName("N/A");
 
              // 根据产品映射关系获取OA产品编码
-             CiticVSOAProductBean vsbean = citicVSOAProductDAO.findByUnique(code, bean.getFirstName());
+             try {
+                 CiticVSOAProductBean vsbean = citicVSOAProductDAO.findByUnique(code, bean.getFirstName());
 
-             if (null == vsbean)
-             {
-                 builder
-                         .append("第[" + currentNumber + "]错误:")
-                         .append("没有配置产品编码为：" + code + "-" + bean.getFirstName() + " 对应的OA产品编码映射关系" )
-                         .append("<br>");
-
-                 importError = true;
-             }else{
-                 ProductBean pbean = productDAO.findByUnique(vsbean.getProductCode());
-
-                 if (null == pbean)
-                 {
+                 if (null == vsbean) {
                      builder
                              .append("第[" + currentNumber + "]错误:")
-                             .append("产品编码" + vsbean.getProductCode() + "的产品不存在,请创建")
+                             .append("没有配置产品编码为：" + code + "-" + bean.getFirstName() + " 对应的OA产品编码映射关系")
                              .append("<br>");
 
                      importError = true;
-                 }else{
-                     bean.setProductId(pbean.getId());
+                 } else {
+                     ProductBean pbean = productDAO.findByUnique(vsbean.getProductCode());
 
-                     bean.setProductName(pbean.getName());
+                     if (null == pbean) {
+                         builder
+                                 .append("第[" + currentNumber + "]错误:")
+                                 .append("产品编码" + vsbean.getProductCode() + "的产品不存在,请创建")
+                                 .append("<br>");
+
+                         importError = true;
+                     } else {
+                         bean.setProductId(pbean.getId());
+
+                         bean.setProductName(pbean.getName());
+                     }
                  }
+             }catch (Exception e){
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("产品编码重复配置：" + code + "-" + bean.getFirstName() + " 对应的OA产品编码映射关系")
+                         .append("<br>");
+
+                 importError = true;
              }
          }
          else
