@@ -7773,7 +7773,48 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         return true;
     }
-    
+
+    @Override
+    public boolean checkOutBack(String outId, String productId, String priceKey, int amount){
+        _logger.info("***checkOutBack***"+outId+"***"+productId+"**priceKey***"+priceKey+"***amount**"+amount);
+        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
+
+        List<OutBean> refBuyList = queryRefOut1(outId);
+
+        // 计算出已经退货的数量
+        for (BaseBean baseBean : baseList)
+        {
+            int hasBack = 0;
+
+            // 退库
+            for (OutBean ref : refBuyList)
+            {
+                List<BaseBean> refBaseList = ref.getBaseList();
+
+                for (BaseBean refBase : refBaseList)
+                {
+                    if (refBase.equals2(baseBean))
+                    {
+                        hasBack += refBase.getAmount();
+                    }
+                }
+            }
+
+            _logger.info(baseBean+"***hasBack***"+hasBack);
+            if (baseBean.getProductId().equals(productId) && baseBean.getCostPriceKey().equals(priceKey)
+                    && (hasBack + amount > baseBean.getAmount())){
+                return true;
+            }
+
+//            if (baseBean.getAmount() - hasBack < 0)
+//            {
+//                throw new MYException("[%s]退库数量溢出,请重新操作", baseBean.getProductName());
+//            }
+        }
+
+        return false;
+    }
+
     private double getIndustryIdCredit(String industryId, String managerStafferId)
     {
         List<InvoiceCreditBean> inList = invoiceCreditDAO.queryEntityBeansByFK(managerStafferId);
@@ -12898,10 +12939,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     //TODO
                     outBean2.setLocationId("999");
                     outBean2.setDestinationId(depotpart.getId());
-//                outBean.setDutyId(dutyId);
                     outBean2.setDescription("不合格到货调拨JOB:到货单号"+vo.getDhNo());
                     outBean2.setType(OutConstant.OUT_TYPE_INBILL);
-                    outBean2.setOutType(OutConstant.OUTTYPE_OUT_APPLY);
+                    outBean2.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
 
                     outBean2.setIndustryId(stafferBean.getIndustryId());
                     // 增加职员的ID
@@ -12914,7 +12954,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     outBean2.setReserve1(OutConstant.MOVEOUT_DIAOBO);
                     outBean2.setStatus(OutConstant.STATUS_LOCATION_MANAGER_CHECK);
                 }
-
 
                 //TODO
                 this.dhZjbDAO.updateProcessedFlag(vo.getId());

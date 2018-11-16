@@ -219,17 +219,21 @@ public class SailPriceJobManagerImpl implements JobManager {
 
     // #430 检查是否虚料
     private boolean isVirtualProduct(String productId){
-        ConditionParse conditionParse = new ConditionParse();
-        conditionParse.addWhereStr();
-        conditionParse.addIntCondition("virtualFlag","=", "1");
-        List<ProductBean> productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
-        if(productBeans != null){
-            for(ProductBean productBean: productBeans){
-                if (productId.equals(productBean.getId())){
-                    return true;
-                }
-            }
+        ProductBean productBean = this.productDAO.find(productId);
+        if (productBean!= null && productBean.getVirtualFlag() == 1){
+            return true;
         }
+//        ConditionParse conditionParse = new ConditionParse();
+//        conditionParse.addWhereStr();
+//        conditionParse.addIntCondition("virtualFlag","=", "1");
+//        List<ProductBean> productBeans = this.productDAO.queryEntityBeansByCondition(conditionParse);
+//        if(productBeans != null){
+//            for(ProductBean productBean: productBeans){
+//                if (productId.equals(productBean.getId())){
+//                    return true;
+//                }
+//            }
+//        }
         return false;
     }
 
@@ -305,6 +309,8 @@ public class SailPriceJobManagerImpl implements JobManager {
                 }
 
             }
+        } else{
+            _logger.warn("sailPrice is 0:"+bean);
         }
     }
 

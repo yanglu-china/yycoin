@@ -1195,17 +1195,6 @@ public class ParentOutAction extends DispatchAction
 						    if(status == OutConstant.STATUS_PASS
                                     || status == OutConstant.STATUS_SEC_PASS){
                                 bean.setRefOutFullId(outId);
-                                //退货数量必须小于可退数量
-                                try {
-                                    outManager.checkOutBack(out.getRefOutFullId());
-                                }catch(MYException e){
-                                    builder
-                                            .append("第[" + currentNumber + "]错误:")
-                                            .append("退货数量大于可退数量:"+outId)
-                                            .append("<br>");
-
-                                    importError = true;
-                                }
 
                                 if (out.getType() == OutConstant.OUT_TYPE_OUTBILL) {
                                     if (out.getInvoiceMoney() > 0) {
@@ -1292,7 +1281,7 @@ public class ParentOutAction extends DispatchAction
                         bean.setCostPriceKey(StorageRelationHelper.getPriceKey(Double.valueOf(cost)));
 					}
 
-					//数量
+					//数量 useless
 					if ( !StringTools.isNullOrNone(obj[5]))
 					{
 						String amount = obj[5].trim();
@@ -1332,6 +1321,19 @@ public class ParentOutAction extends DispatchAction
 						builder
 								.append("第[" + currentNumber + "]错误:")
 								.append("退货数量不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+
+					//退货数量必须小于可退数量
+					boolean result = this.outManager.checkOutBack(bean.getRefOutFullId(), bean.getProductId(), bean.getCostPriceKey(),
+							bean.getAmount());
+					if (result){
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("退货数量大于可退数量:"+bean.getRefOutFullId())
 								.append("<br>");
 
 						importError = true;
@@ -1522,7 +1524,7 @@ public class ParentOutAction extends DispatchAction
 
             bean.setRefOutFullId(outId);
 
-            bean.setDescription("销售退库,销售单号:" + outId + ". " + wrap.getDescription());
+            bean.setDescription("批量退库,销售单号:" + outId + ". " + wrap.getDescription());
 
             bean.setOperator(user.getStafferId());
             bean.setOperatorName(user.getStafferName());
@@ -1598,7 +1600,7 @@ public class ParentOutAction extends DispatchAction
 	        throw new MYException("BaseBean不存在:"+outId);
         } else{
 	        for (BaseBean baseBean : baseBeans){
-	            if (productId.equals(baseBean) && baseBean.getCostPriceKey().equals(costPriceKey)){
+	            if (productId.equals(baseBean.getProductId()) && baseBean.getCostPriceKey().equals(costPriceKey)){
 	                return baseBean;
                 }
             }
