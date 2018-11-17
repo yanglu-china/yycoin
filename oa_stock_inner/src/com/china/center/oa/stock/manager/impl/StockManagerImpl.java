@@ -1842,6 +1842,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     _logger.error("defaultOKDepotpart not found:"+depotId);
                     continue;
                 } else{
+                    //目的仓区
                     baseBean.setDepotpartId(defaultOKDepotpart.getId());
                     baseBean.setDepotpartName(defaultOKDepotpart.getName());
                 }
@@ -1908,14 +1909,17 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     continue;
                 }
 
-                // 仓库
+                // 源仓库
                 DepotBean depotBean = this.depotDAO.findByUnique("生产作业库");
                 if (depotBean == null){
                     _logger.error("生产作业库 not exist!");
                     continue;
                 }
-                outBean.setLocation(depotBean.getId());
+
                 outBean.setLocationId("999");
+                //源仓库
+                outBean.setLocation(depotBean.getId());
+                //目的仓库
                 outBean.setDestinationId(depotId);
 
                 outBean.setCustomerId("99");
@@ -1972,6 +1976,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
                     //目的仓库
                     baseBean2.setLocationId(depotpart.getLocationId());
+                    //目的仓区
                     baseBean2.setDepotpartId(depotpart.getId());
                     baseBean2.setDepotpartName(depotpart.getName());
 
@@ -2000,10 +2005,11 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     // 业务员结算价就是事业部结算价
                     baseBean2.setInputPrice(baseBean2.getIprice());
 
-                    //仓库
-                    outBean2.setLocation(depotpart.getLocationId());
                     outBean2.setLocationId("999");
-                    outBean2.setDestinationId(depotpart.getId());
+                    //源仓库
+                    outBean2.setLocation(depotBean.getId());
+                    //目的仓库
+                    outBean2.setDestinationId(depotpart.getLocationId());
 
                     outBean2.setCustomerId("99");
                     outBean2.setCustomerName("公共客户");
