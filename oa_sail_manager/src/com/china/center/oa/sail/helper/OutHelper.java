@@ -652,4 +652,21 @@ public abstract class OutHelper
     	
     	return head;
     }
+
+    public static String getAll(int i)
+    {
+        String s = "00000000" + i;
+
+        return s.substring(s.length() - 9);
+    }
+
+    public static String getOutId(String idStr)
+    {
+        while (idStr.length() > 0 && idStr.charAt(0) == '0')
+        {
+            idStr = idStr.substring(1);
+        }
+
+        return idStr;
+    }
 }

@@ -9,16 +9,28 @@
 package com.china.center.oa.stock.manager.impl;
 
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.customer.constant.CustomerConstant;
+import com.china.center.oa.product.bean.DepotBean;
+import com.china.center.oa.product.bean.DepotpartBean;
+import com.china.center.oa.product.bean.PriceConfigBean;
+import com.china.center.oa.product.dao.DepotDAO;
+import com.china.center.oa.product.dao.DepotpartDAO;
+import com.china.center.oa.product.dao.PriceConfigDAO;
+import com.china.center.oa.product.helper.StorageRelationHelper;
+import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.DhZjbVO;
 import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.SailConfBean;
+import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.DhZjbDAO;
 import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.helper.OutHelper;
+import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.stock.bean.*;
 import com.china.center.oa.stock.dao.*;
 import com.china.center.oa.stock.vo.StockItemArrivalVO;
@@ -105,13 +117,25 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     
     private StockWorkDAO stockWorkDAO = null;
 
+    private OutDAO outDAO = null;
+
     private BaseDAO baseDAO = null;
+
+    private DhZjbDAO dhZjbDAO = null;
+
+    private DepotDAO depotDAO = null;
+
+    private DepotpartDAO depotpartDAO = null;
 
     private StockItemArrivalDAO stockItemArrivalDAO = null;
 
     private PurchaseXqqrDAO purchaseXqqrDAO = null;
 
-//    private OutDAO outDAO = null;
+    private SailConfigManager sailConfigManager = null;
+
+    private PriceConfigDAO priceConfigDAO = null;
+
+    private PriceConfigManager priceConfigManager = null;
 
     /*
      * (non-Javadoc)
@@ -399,6 +423,28 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         log.setDescription(reason);
 
         log.setReserved1(reserved1);
+
+        flowLogDAO.saveEntityBean(log);
+    }
+
+    private void addLog2(final String id, int preStatus, int afterStatus, int oprMode,String reason)
+    {
+        FlowLogBean log = new FlowLogBean();
+
+        log.setActor("系统");
+
+        log.setLogTime(TimeTools.now());
+
+        log.setFullId(id);
+
+        // 操作类型
+        log.setOprMode(oprMode);
+
+        log.setPreStatus(preStatus);
+
+        log.setAfterStatus(afterStatus);
+
+        log.setDescription(reason);
 
         flowLogDAO.saveEntityBean(log);
     }
@@ -1731,6 +1777,268 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         shortMessageTaskDAO.saveEntityBean(sms);
     }
 
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
+    public void dhDiaoboJob() {
+        _logger.info("***dhDiaoboJob running***");
+        List<DhZjbVO> dhZjbVOList = this.dhZjbDAO.queryDhInfo();
+        if (!ListTools.isEmptyOrNull(dhZjbVOList)){
+            _logger.info("***dhZjbVOList size***"+dhZjbVOList.size());
+            DepotpartBean depotpart = depotpartDAO.findByUnique("不良品仓");
+
+            for(DhZjbVO vo: dhZjbVOList){
+                //合格数量调拨单
+                OutBean outBean =  new OutBean();
+
+                String depotId = vo.getSccgRkfx();
+
+                outBean.setDescription("到货调拨JOB(合格),到货单号:"+vo.getDhNo());
+                outBean.setType(OutConstant.OUT_TYPE_INBILL);
+                outBean.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
+
+                String id = OutHelper.getAll(commonDAO.getSquence());
+                String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+                String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
+
+                String fullId = flag + time + id;
+                outBean.setId(OutHelper.getOutId(id));
+                outBean.setFullId(fullId);
+
+                String stafferId = vo.getCreateUser();
+                StafferBean stafferBean = this.stafferDAO.find(stafferId);
+                if (stafferBean == null){
+                    _logger.error("staffer not exists:"+stafferId);
+                    continue;
+                } else{
+                    outBean.setIndustryId(stafferBean.getIndustryId());
+                    outBean.setIndustryId2(stafferBean.getIndustryId2());
+                    outBean.setIndustryId3(stafferBean.getIndustryId3());
+                    // 增加职员的ID
+                    outBean.setStafferId(vo.getCreateUser());
+                    outBean.setStafferName(stafferBean.getName());
+                }
+
+                String now = TimeTools.now();
+                String nowShort = TimeTools.now_short();
+                outBean.setOutTime(nowShort);
+                outBean.setLogTime(now);
+                outBean.setChangeTime(now);
+
+                outBean.setOperatorName("系统");
+                outBean.setReserve1(OutConstant.MOVEOUT_DIAOBO);
+
+                outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+                outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+
+                BaseBean baseBean = new BaseBean();
+
+                baseBean.setId(commonDAO.getSquenceString());
+                baseBean.setOutId(fullId);
+
+                //目的仓库
+                baseBean.setLocationId(depotId);
+                DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(depotId);
+                if (defaultOKDepotpart == null){
+                    _logger.error("defaultOKDepotpart not found:"+depotId);
+                    continue;
+                } else{
+                    baseBean.setDepotpartId(defaultOKDepotpart.getId());
+                    baseBean.setDepotpartName(defaultOKDepotpart.getName());
+                }
+
+                String productId = vo.getProductId();
+                ProductBean product = this.productDAO.find(productId);
+                if (product == null){
+                    _logger.error("No product found "+productId);
+                    continue;
+                }
+                baseBean.setProductId(productId);
+                baseBean.setProductName(product.getName());
+                baseBean.setUnit("套");
+                baseBean.setAmount(-vo.getZjHgAmount());
+
+                StockItemBean stockItemBean = this.getStockItem(vo.getStockId(), productId);
+                if (stockItemBean == null){
+                    _logger.error(vo.getStockId()+" No stock item found:"+productId);
+                    continue;
+                } else{
+                    baseBean.setPrice(stockItemBean.getPrice());
+                    baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
+                    baseBean.setCostPrice(stockItemBean.getPrice());
+                    baseBean.setCostPriceKey(StorageRelationHelper
+                            .getPriceKey(baseBean.getCostPrice()));
+                }
+
+                baseBean.setOwner("0");
+                baseBean.setOwnerName("公共");
+                baseBean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
+
+                // 业务员结算价，总部结算价
+                double sailPrice = product.getSailPrice();
+
+                // 根据配置获取结算价
+                List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+
+                if (!ListTools.isEmptyOrNull(pcblist))
+                {
+                    PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+                    sailPrice = cb.getSailPrice();
+                }
+
+                // 获取销售配置
+                SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+                        product);
+
+                // 总部结算价(产品结算价 * (1 + 总部结算率))
+                baseBean.setPprice(sailPrice
+                        * (1 + sailConf.getPratio() / 1000.0d));
+
+                // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                baseBean.setIprice(sailPrice
+                        * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                        .getPratio() / 1000.0d));
+
+                // 业务员结算价就是事业部结算价
+                baseBean.setInputPrice(baseBean.getIprice());
+
+                if (baseBean.getInputPrice() == 0)
+                {
+                    _logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
+                    continue;
+                }
+
+                // 仓库
+                DepotBean depotBean = this.depotDAO.findByUnique("生产作业库");
+                if (depotBean == null){
+                    _logger.error("生产作业库 not exist!");
+                    continue;
+                }
+                outBean.setLocation(depotBean.getId());
+                outBean.setLocationId("999");
+                outBean.setDestinationId(depotId);
+
+                outBean.setCustomerId("99");
+                outBean.setCustomerName("公共客户");
+                outBean.setDepartment("公共部门");
+
+                outBean.setDutyId("90201008080000000001");
+                outBean.setPmtype(PublicConstant.MANAGER_TYPE_COMMON);
+
+                outBean.setTotal(baseBean.getValue());
+                outBean.setStatus(OutConstant.BUY_STATUS_PASS);
+                outDAO.saveEntityBean(outBean);
+                baseDAO.saveEntityBean(baseBean);
+                this.addLog2(outBean.getFullId(),0, OutConstant.BUY_STATUS_PASS, 0,"提交");
+                _logger.info("create out in dhDiaboJob "+outBean+"***with base bean***"+baseBean);
+
+                if(depotpart!= null){
+                    //不合格数量调拨单
+                    OutBean outBean2 =  new OutBean();
+
+                    outBean2.setDestinationId(depotpart.getId());
+                    outBean2.setDescription("到货调拨JOB(不合格),到货单号:"+vo.getDhNo());
+
+                    outBean2.setType(OutConstant.OUT_TYPE_INBILL);
+                    outBean2.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
+
+                    String id2 = OutHelper.getAll(commonDAO.getSquence());
+                    String fullId2 = flag + time + id2;
+                    outBean2.setId(OutHelper.getOutId(id2));
+                    outBean2.setFullId(fullId2);
+
+                    outBean2.setIndustryId(stafferBean.getIndustryId());
+                    outBean2.setIndustryId2(stafferBean.getIndustryId2());
+                    outBean2.setIndustryId3(stafferBean.getIndustryId3());
+
+                    // 增加职员的ID
+                    outBean2.setStafferId(vo.getCreateUser());
+                    outBean2.setStafferName(stafferBean.getName());
+
+                    outBean2.setOutTime(nowShort);
+                    outBean2.setLogTime(now);
+                    outBean2.setChangeTime(now);
+
+                    outBean2.setOperatorName("系统");
+                    outBean2.setReserve1(OutConstant.MOVEOUT_DIAOBO);
+
+                    outBean2.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+                    outBean2.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+
+                    BaseBean baseBean2 = new BaseBean();
+
+                    baseBean2.setId(commonDAO.getSquenceString());
+                    baseBean2.setOutId(fullId2);
+
+                    //目的仓库
+                    baseBean2.setLocationId(depotpart.getLocationId());
+                    baseBean2.setDepotpartId(depotpart.getId());
+                    baseBean2.setDepotpartName(depotpart.getName());
+
+                    baseBean2.setProductId(productId);
+                    baseBean2.setProductName(product.getName());
+                    baseBean2.setUnit("套");
+                    baseBean2.setAmount(-vo.getZjBhgAmount());
+
+                    baseBean2.setPrice(stockItemBean.getPrice());
+                    baseBean2.setValue(baseBean2.getAmount() * baseBean2.getPrice());
+                    baseBean2.setCostPrice(stockItemBean.getPrice());
+                    baseBean2.setCostPriceKey(StorageRelationHelper
+                            .getPriceKey(baseBean2.getCostPrice()));
+
+                    baseBean2.setOwner("0");
+                    baseBean2.setOwnerName("公共");
+                    baseBean2.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
+
+                    // 总部结算价(产品结算价 * (1 + 总部结算率))
+                    baseBean2.setPprice(sailPrice
+                            * (1 + sailConf.getPratio() / 1000.0d));
+                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                    baseBean2.setIprice(sailPrice
+                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                            .getPratio() / 1000.0d));
+                    // 业务员结算价就是事业部结算价
+                    baseBean2.setInputPrice(baseBean2.getIprice());
+
+                    //仓库
+                    outBean2.setLocation(depotpart.getLocationId());
+                    outBean2.setLocationId("999");
+                    outBean2.setDestinationId(depotpart.getId());
+
+                    outBean2.setCustomerId("99");
+                    outBean2.setCustomerName("公共客户");
+                    outBean2.setDepartment("公共部门");
+
+                    outBean2.setDutyId("90201008080000000001");
+                    outBean2.setPmtype(PublicConstant.MANAGER_TYPE_COMMON);
+
+                    outBean2.setTotal(baseBean2.getValue());
+                    outBean2.setStatus(OutConstant.BUY_STATUS_PASS);
+                    outDAO.saveEntityBean(outBean2);
+                    baseDAO.saveEntityBean(baseBean2);
+                    this.addLog2(outBean2.getFullId(),0, OutConstant.BUY_STATUS_PASS, 0,"提交");
+                    _logger.info("create out2 in dhDiaboJob "+outBean2+"***with base bean2***"+baseBean2);
+                }
+
+                this.dhZjbDAO.updateProcessedFlag(vo.getId());
+            }
+        }
+        _logger.info("***dhDiaoboJob finished***");
+    }
+
+    private StockItemBean getStockItem(String stockId, String productId){
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("stockId","=",stockId);
+        conditionParse.addCondition("productId","=", productId);
+        List<StockItemBean> stockItemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
+        if (ListTools.isEmptyOrNull(stockItemBeans)){
+            return null;
+        } else{
+            return stockItemBeans.get(0);
+        }
+    }
+
     /**
      * @return the stockDAO
      */
@@ -2004,5 +2312,61 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
     public void setPurchaseXqqrDAO(PurchaseXqqrDAO purchaseXqqrDAO) {
         this.purchaseXqqrDAO = purchaseXqqrDAO;
+    }
+
+    public OutDAO getOutDAO() {
+        return outDAO;
+    }
+
+    public void setOutDAO(OutDAO outDAO) {
+        this.outDAO = outDAO;
+    }
+
+    public DhZjbDAO getDhZjbDAO() {
+        return dhZjbDAO;
+    }
+
+    public void setDhZjbDAO(DhZjbDAO dhZjbDAO) {
+        this.dhZjbDAO = dhZjbDAO;
+    }
+
+    public DepotpartDAO getDepotpartDAO() {
+        return depotpartDAO;
+    }
+
+    public void setDepotpartDAO(DepotpartDAO depotpartDAO) {
+        this.depotpartDAO = depotpartDAO;
+    }
+
+    public SailConfigManager getSailConfigManager() {
+        return sailConfigManager;
+    }
+
+    public void setSailConfigManager(SailConfigManager sailConfigManager) {
+        this.sailConfigManager = sailConfigManager;
+    }
+
+    public PriceConfigDAO getPriceConfigDAO() {
+        return priceConfigDAO;
+    }
+
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
+        this.priceConfigDAO = priceConfigDAO;
+    }
+
+    public PriceConfigManager getPriceConfigManager() {
+        return priceConfigManager;
+    }
+
+    public void setPriceConfigManager(PriceConfigManager priceConfigManager) {
+        this.priceConfigManager = priceConfigManager;
+    }
+
+    public DepotDAO getDepotDAO() {
+        return depotDAO;
+    }
+
+    public void setDepotDAO(DepotDAO depotDAO) {
+        this.depotDAO = depotDAO;
     }
 }

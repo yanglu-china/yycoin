@@ -769,11 +769,6 @@ public interface OutManager extends ListenerManager<OutListener>
     void statsExceptionalInBackJob();
 
     /**
-     * #460 到货调拨JOB
-     */
-    void dhDiaoboJob();
-
-    /**
      * #349
      * @param out
      * @return

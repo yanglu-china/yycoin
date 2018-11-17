@@ -112,4 +112,9 @@ public interface StockManager extends ListenerManager<StockListener>
     
     boolean endProduct(User user, String id, String reason)
     	throws MYException;
+
+    /**
+     * #460 到货调拨JOB
+     */
+    void dhDiaoboJob();
 }
