@@ -1931,6 +1931,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
                 outBean.setTotal(baseBean.getValue());
                 outBean.setStatus(OutConstant.BUY_STATUS_PASS);
+                outBean.setInway(OutConstant.IN_WAY);
                 outDAO.saveEntityBean(outBean);
                 baseDAO.saveEntityBean(baseBean);
                 this.addLog2(outBean.getFullId(),0, OutConstant.BUY_STATUS_PASS, 0,"提交");
@@ -2020,6 +2021,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
                     outBean2.setTotal(baseBean2.getValue());
                     outBean2.setStatus(OutConstant.BUY_STATUS_PASS);
+                    outBean2.setInway(OutConstant.IN_WAY);
                     outDAO.saveEntityBean(outBean2);
                     baseDAO.saveEntityBean(baseBean2);
                     this.addLog2(outBean2.getFullId(),0, OutConstant.BUY_STATUS_PASS, 0,"提交");
