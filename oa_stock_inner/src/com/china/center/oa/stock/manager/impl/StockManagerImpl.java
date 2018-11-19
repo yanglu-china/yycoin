@@ -1863,6 +1863,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     _logger.error(vo.getStockId()+" No stock item found:"+productId);
                     continue;
                 } else{
+                    _logger.info("get price from stock item:"+stockItemBean);
                     baseBean.setPrice(stockItemBean.getPrice());
                     baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
                     baseBean.setCostPrice(stockItemBean.getPrice());
@@ -2041,6 +2042,9 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         conditionParse.addCondition("productId","=", productId);
         List<StockItemBean> stockItemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
         if (ListTools.isEmptyOrNull(stockItemBeans)){
+            return null;
+        } else if (stockItemBeans.size()>1){
+            _logger.info(stockId+" vs "+productId+"***getStockItem more than 1:"+stockItemBeans.size());
             return null;
         } else{
             return stockItemBeans.get(0);
