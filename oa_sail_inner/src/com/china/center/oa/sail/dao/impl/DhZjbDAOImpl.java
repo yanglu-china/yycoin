@@ -20,7 +20,7 @@ import java.util.List;
 public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjbDAO {
     @Override
     public List<DhZjbVO> queryDhInfo() {
-        String sql = " select a.id,a.stockid,a.dhno,a.createUser,a.productId,a.cg_amount,a.ydh_amount,b.zj_hg_amount,a.ydh_amount-b.zj_hg_amount as bhg_amount,b.sccg_rkfx " +
+        String sql = " select a.id,a.stockid,a.dhno,a.createUser,a.productId,a.cg_amount,a.ydh_amount,b.sd_amount,b.zj_hg_amount,a.ydh_amount-b.zj_hg_amount as bhg_amount,b.sccg_rkfx " +
                 "from t_center_dh_zjb a left join t_center_dh_result b on a.dhno=b.dhno and a.productid=b.productid " +
                 "where a.status='结束' and a.processedFlag=0";
 
@@ -42,6 +42,7 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
                         int ydh_amount = rst.getInt("ydh_amount");
                         int zj_hg_amount = rst.getInt("zj_hg_amount");
                         int bhg_amount = rst.getInt("bhg_amount");
+                        int sdAmount = rst.getInt("sd_amount");
                         String sccg_rkfx = rst.getString("sccg_rkfx");
                         String createUser = rst.getString("createUser");
                         String stockId = rst.getString("stockid");
@@ -53,6 +54,7 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
                         wrap.setYdhAmount(ydh_amount);
                         wrap.setZjHgAmount(zj_hg_amount);
                         wrap.setZjBhgAmount(bhg_amount);
+                        wrap.setSdAmount(sdAmount);
                         wrap.setSccgRkfx(sccg_rkfx);
                         wrap.setCreateUser(createUser);
                         result.add(wrap);

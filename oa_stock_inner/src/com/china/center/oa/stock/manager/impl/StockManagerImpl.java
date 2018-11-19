@@ -1792,7 +1792,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
                 String depotId = vo.getSccgRkfx();
 
-                outBean.setDescription("到货调拨JOB(合格),到货单号:"+vo.getDhNo());
+                outBean.setDescription("到货调拨JOB,到货单号:"+vo.getDhNo()+",采购单:"+vo.getStockId());
                 outBean.setType(OutConstant.OUT_TYPE_INBILL);
                 outBean.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
 
@@ -1856,7 +1856,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 baseBean.setProductId(productId);
                 baseBean.setProductName(product.getName());
                 baseBean.setUnit("套");
-                baseBean.setAmount(-vo.getZjHgAmount());
+                //调拨数量取实到数量
+                baseBean.setAmount(-vo.getSdAmount());
 
                 StockItemBean stockItemBean = this.getStockItem(vo.getStockId(), productId);
                 if (stockItemBean == null){
@@ -1938,96 +1939,97 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 this.addLog2(outBean.getFullId(),0, OutConstant.BUY_STATUS_PASS, 0,"提交");
                 _logger.info("create out in dhDiaboJob "+outBean+"***with base bean***"+baseBean);
 
-                if(depotpart!= null){
-                    //不合格数量调拨单
-                    OutBean outBean2 =  new OutBean();
-
-                    outBean2.setDestinationId(depotpart.getId());
-                    outBean2.setDescription("到货调拨JOB(不合格),到货单号:"+vo.getDhNo());
-
-                    outBean2.setType(OutConstant.OUT_TYPE_INBILL);
-                    outBean2.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
-
-                    String id2 = OutHelper.getAll(commonDAO.getSquence());
-                    String fullId2 = flag + time + id2;
-                    outBean2.setId(OutHelper.getOutId(id2));
-                    outBean2.setFullId(fullId2);
-
-                    outBean2.setIndustryId(stafferBean.getIndustryId());
-                    outBean2.setIndustryId2(stafferBean.getIndustryId2());
-                    outBean2.setIndustryId3(stafferBean.getIndustryId3());
-
-                    // 增加职员的ID
-                    outBean2.setStafferId(vo.getCreateUser());
-                    outBean2.setStafferName(stafferBean.getName());
-
-                    outBean2.setOutTime(nowShort);
-                    outBean2.setLogTime(now);
-                    outBean2.setChangeTime(now);
-
-                    outBean2.setOperatorName("系统");
-                    outBean2.setReserve1(OutConstant.MOVEOUT_DIAOBO);
-
-                    outBean2.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
-                    outBean2.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
-
-                    BaseBean baseBean2 = new BaseBean();
-
-                    baseBean2.setId(commonDAO.getSquenceString());
-                    baseBean2.setOutId(fullId2);
-
-                    //目的仓库
-                    baseBean2.setLocationId(depotpart.getLocationId());
-                    //目的仓区
-                    baseBean2.setDepotpartId(depotpart.getId());
-                    baseBean2.setDepotpartName(depotpart.getName());
-
-                    baseBean2.setProductId(productId);
-                    baseBean2.setProductName(product.getName());
-                    baseBean2.setUnit("套");
-                    baseBean2.setAmount(-vo.getZjBhgAmount());
-
-                    baseBean2.setPrice(stockItemBean.getPrice());
-                    baseBean2.setValue(baseBean2.getAmount() * baseBean2.getPrice());
-                    baseBean2.setCostPrice(stockItemBean.getPrice());
-                    baseBean2.setCostPriceKey(StorageRelationHelper
-                            .getPriceKey(baseBean2.getCostPrice()));
-
-                    baseBean2.setOwner("0");
-                    baseBean2.setOwnerName("公共");
-                    baseBean2.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
-
-                    // 总部结算价(产品结算价 * (1 + 总部结算率))
-                    baseBean2.setPprice(sailPrice
-                            * (1 + sailConf.getPratio() / 1000.0d));
-                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                    baseBean2.setIprice(sailPrice
-                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                            .getPratio() / 1000.0d));
-                    // 业务员结算价就是事业部结算价
-                    baseBean2.setInputPrice(baseBean2.getIprice());
-
-                    outBean2.setLocationId("999");
-                    //源仓库
-                    outBean2.setLocation(depotBean.getId());
-                    //目的仓库
-                    outBean2.setDestinationId(depotpart.getLocationId());
-
-                    outBean2.setCustomerId("99");
-                    outBean2.setCustomerName("公共客户");
-                    outBean2.setDepartment("公共部门");
-
-                    outBean2.setDutyId("90201008080000000001");
-                    outBean2.setPmtype(PublicConstant.MANAGER_TYPE_COMMON);
-
-                    outBean2.setTotal(baseBean2.getValue());
-                    outBean2.setStatus(OutConstant.BUY_STATUS_PASS);
-                    outBean2.setInway(OutConstant.IN_WAY);
-                    outDAO.saveEntityBean(outBean2);
-                    baseDAO.saveEntityBean(baseBean2);
-                    this.addLog2(outBean2.getFullId(),0, OutConstant.BUY_STATUS_PASS, 0,"提交");
-                    _logger.info("create out2 in dhDiaboJob "+outBean2+"***with base bean2***"+baseBean2);
-                }
+                //不考虑不良情况
+//                if(depotpart!= null){
+//                    //不合格数量调拨单
+//                    OutBean outBean2 =  new OutBean();
+//
+//                    outBean2.setDestinationId(depotpart.getId());
+//                    outBean2.setDescription("到货调拨JOB(不合格),到货单号:"+vo.getDhNo());
+//
+//                    outBean2.setType(OutConstant.OUT_TYPE_INBILL);
+//                    outBean2.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
+//
+//                    String id2 = OutHelper.getAll(commonDAO.getSquence());
+//                    String fullId2 = flag + time + id2;
+//                    outBean2.setId(OutHelper.getOutId(id2));
+//                    outBean2.setFullId(fullId2);
+//
+//                    outBean2.setIndustryId(stafferBean.getIndustryId());
+//                    outBean2.setIndustryId2(stafferBean.getIndustryId2());
+//                    outBean2.setIndustryId3(stafferBean.getIndustryId3());
+//
+//                    // 增加职员的ID
+//                    outBean2.setStafferId(vo.getCreateUser());
+//                    outBean2.setStafferName(stafferBean.getName());
+//
+//                    outBean2.setOutTime(nowShort);
+//                    outBean2.setLogTime(now);
+//                    outBean2.setChangeTime(now);
+//
+//                    outBean2.setOperatorName("系统");
+//                    outBean2.setReserve1(OutConstant.MOVEOUT_DIAOBO);
+//
+//                    outBean2.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+//                    outBean2.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+//
+//                    BaseBean baseBean2 = new BaseBean();
+//
+//                    baseBean2.setId(commonDAO.getSquenceString());
+//                    baseBean2.setOutId(fullId2);
+//
+//                    //目的仓库
+//                    baseBean2.setLocationId(depotpart.getLocationId());
+//                    //目的仓区
+//                    baseBean2.setDepotpartId(depotpart.getId());
+//                    baseBean2.setDepotpartName(depotpart.getName());
+//
+//                    baseBean2.setProductId(productId);
+//                    baseBean2.setProductName(product.getName());
+//                    baseBean2.setUnit("套");
+//                    baseBean2.setAmount(-vo.getZjBhgAmount());
+//
+//                    baseBean2.setPrice(stockItemBean.getPrice());
+//                    baseBean2.setValue(baseBean2.getAmount() * baseBean2.getPrice());
+//                    baseBean2.setCostPrice(stockItemBean.getPrice());
+//                    baseBean2.setCostPriceKey(StorageRelationHelper
+//                            .getPriceKey(baseBean2.getCostPrice()));
+//
+//                    baseBean2.setOwner("0");
+//                    baseBean2.setOwnerName("公共");
+//                    baseBean2.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
+//
+//                    // 总部结算价(产品结算价 * (1 + 总部结算率))
+//                    baseBean2.setPprice(sailPrice
+//                            * (1 + sailConf.getPratio() / 1000.0d));
+//                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+//                    baseBean2.setIprice(sailPrice
+//                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
+//                            .getPratio() / 1000.0d));
+//                    // 业务员结算价就是事业部结算价
+//                    baseBean2.setInputPrice(baseBean2.getIprice());
+//
+//                    outBean2.setLocationId("999");
+//                    //源仓库
+//                    outBean2.setLocation(depotBean.getId());
+//                    //目的仓库
+//                    outBean2.setDestinationId(depotpart.getLocationId());
+//
+//                    outBean2.setCustomerId("99");
+//                    outBean2.setCustomerName("公共客户");
+//                    outBean2.setDepartment("公共部门");
+//
+//                    outBean2.setDutyId("90201008080000000001");
+//                    outBean2.setPmtype(PublicConstant.MANAGER_TYPE_COMMON);
+//
+//                    outBean2.setTotal(baseBean2.getValue());
+//                    outBean2.setStatus(OutConstant.BUY_STATUS_PASS);
+//                    outBean2.setInway(OutConstant.IN_WAY);
+//                    outDAO.saveEntityBean(outBean2);
+//                    baseDAO.saveEntityBean(baseBean2);
+//                    this.addLog2(outBean2.getFullId(),0, OutConstant.BUY_STATUS_PASS, 0,"提交");
+//                    _logger.info("create out2 in dhDiaboJob "+outBean2+"***with base bean2***"+baseBean2);
+//                }
 
                 this.dhZjbDAO.updateProcessedFlag(vo.getId());
             }

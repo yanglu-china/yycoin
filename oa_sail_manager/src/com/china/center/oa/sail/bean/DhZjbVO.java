@@ -16,6 +16,11 @@ public class DhZjbVO extends DhZjbBean {
     private int zjBhgAmount;
 
     /**
+     * 实到数量
+     */
+    private int sdAmount;
+
+    /**
      * 生产采购入库方向
      */
     private String sccgRkfx = "";
@@ -42,5 +47,13 @@ public class DhZjbVO extends DhZjbBean {
 
     public void setZjBhgAmount(int zjBhgAmount) {
         this.zjBhgAmount = zjBhgAmount;
+    }
+
+    public int getSdAmount() {
+        return sdAmount;
+    }
+
+    public void setSdAmount(int sdAmount) {
+        this.sdAmount = sdAmount;
     }
 }
