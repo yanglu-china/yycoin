@@ -21,6 +21,7 @@ import com.china.center.oa.product.dao.DepotpartDAO;
 import com.china.center.oa.product.dao.PriceConfigDAO;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.manager.PriceConfigManager;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.DhZjbVO;
 import com.china.center.oa.sail.bean.OutBean;
@@ -1865,9 +1866,9 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     continue;
                 } else{
                     _logger.info("get price from stock item:"+stockItemBean);
-                    baseBean.setPrice(stockItemBean.getPrice());
-                    baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
-                    baseBean.setCostPrice(stockItemBean.getPrice());
+                    baseBean.setPrice(NumberUtils.roundDouble(stockItemBean.getPrice()));
+                    baseBean.setValue(NumberUtils.roundDouble(baseBean.getAmount() * baseBean.getPrice()));
+                    baseBean.setCostPrice(NumberUtils.roundDouble(stockItemBean.getPrice()));
                     baseBean.setCostPriceKey(StorageRelationHelper
                             .getPriceKey(baseBean.getCostPrice()));
                 }
