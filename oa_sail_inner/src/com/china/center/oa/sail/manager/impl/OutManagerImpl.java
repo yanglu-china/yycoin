@@ -7778,9 +7778,27 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 
     @Override
-    public boolean checkOutBack(String outId, String productId, String priceKey, int amount){
+    public boolean checkOutBack(String outId, String productId, String priceKey, int amount) throws MYException{
         _logger.info("***checkOutBack***"+outId+"***"+productId+"**priceKey***"+priceKey+"***amount**"+amount);
+        if (StringTools.isNullOrNone(priceKey)) {
+            throw new MYException("[%s]成本不能为空", outId);
+        }
         List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
+
+        //先检查原单是否有该成本
+        boolean hasPriceKey = false;
+        if (!ListTools.isEmptyOrNull(baseList)){
+            for (BaseBean baseBean: baseList){
+                if (baseBean.getProductId().equals(productId) && baseBean.getCostPriceKey().equals(priceKey)){
+                    hasPriceKey = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasPriceKey){
+            throw new MYException("[%s]没有成本为[%s]的商品", outId, priceKey);
+        }
 
         List<OutBean> refBuyList = queryRefOut1(outId, true);
 
@@ -13405,6 +13423,22 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
 
         return sailPrice;
+    }
+
+    @Override
+    public String getCostPriceKey(String outId, String productId) throws MYException {
+	    ConditionParse conditionParse = new ConditionParse();
+	    conditionParse.addWhereStr();
+	    conditionParse.addCondition("outId","=", outId);
+	    conditionParse.addCondition("productId","=", productId);
+	    List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(conditionParse);
+	    if (ListTools.isEmptyOrNull(baseBeans)){
+	        throw new MYException("base表为空:"+outId);
+        } else if (baseBeans.size() >1){
+            throw new MYException(outId+"商品成本有多行:"+productId);
+        } else{
+	        return baseBeans.get(0).getCostPriceKey();
+        }
     }
 
     /**

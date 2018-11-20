@@ -709,7 +709,7 @@ public interface OutManager extends ListenerManager<OutListener>
     
     boolean checkOutBack(String outId) throws MYException;
 
-    boolean checkOutBack(String outId, String productId, String priceKey, int amount);
+    boolean checkOutBack(String outId, String productId, String priceKey, int amount) throws MYException;
 
     /**
      * 更新BaseBean
@@ -806,4 +806,6 @@ public interface OutManager extends ListenerManager<OutListener>
      * @return
      */
     double getSailConfigPrice(ProductBean productBean);
+
+    String getCostPriceKey(String outId, String productId) throws MYException;
 }

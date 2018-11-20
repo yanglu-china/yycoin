@@ -1273,13 +1273,26 @@ public class ParentOutAction extends DispatchAction
 						importError = true;
 					}
 
+					try {
+					    //自动获取成本
+                        String costPriceKey = this.outManager.getCostPriceKey(bean.getRefOutFullId(), bean.getProductId());
+                        bean.setCostPriceKey(costPriceKey);
+                    }catch(MYException e){
+                        //获取不到成本则必填
+                        if ( StringTools.isNullOrNone(obj[4]))
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("订单存在多个成本,必须填写退单成本:"+bean.getRefOutFullId())
+                                    .append("<br>");
 
-					//成本
-					if ( !StringTools.isNullOrNone(obj[4]))
-					{
-						String cost = obj[4].trim();
-                        bean.setCostPriceKey(StorageRelationHelper.getPriceKey(Double.valueOf(cost)));
-					}
+                            importError = true;
+                        } else{
+                            String cost = obj[4].trim();
+                            bean.setCostPriceKey(StorageRelationHelper.getPriceKey(Double.valueOf(cost)));
+                        }
+                    }
+
 
 					//数量 useless
 					if ( !StringTools.isNullOrNone(obj[5]))
