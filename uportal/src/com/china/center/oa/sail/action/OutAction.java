@@ -3883,7 +3883,10 @@ public class OutAction extends ParentOutAction
             condtion.addCondition("OutBean.stafferId", "=", stafferId);
         }
 
-        if ( !StringTools.isNullOrNone(invoiceStatus))
+        if("0".equals(invoiceStatus)){
+            // #484 需要包含部分开票状态
+            condtion.addCondition(" and OutBean.invoiceStatus in (0,2)");
+        } else if ( !StringTools.isNullOrNone(invoiceStatus))
         {
             condtion.addIntCondition("OutBean.invoiceStatus", "=", invoiceStatus);
         }
