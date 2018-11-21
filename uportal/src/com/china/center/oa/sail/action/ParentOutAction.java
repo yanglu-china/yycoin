@@ -1143,7 +1143,7 @@ public class ParentOutAction extends DispatchAction
 
 			while (reader.hasNext())
 			{
-				String[] obj = StringUtils.fillObj((String[])reader.next(), 11);
+				String[] obj = StringUtils.fillObj((String[])reader.next(), 9);
 
 				// 第一行忽略
 				if (reader.getCurrentLineNumber() == 1)
@@ -1293,41 +1293,10 @@ public class ParentOutAction extends DispatchAction
                         }
                     }
 
-
-					//数量 useless
+					//退货数量
 					if ( !StringTools.isNullOrNone(obj[5]))
 					{
 						String amount = obj[5].trim();
-						//TODO check
-					}else
-					{
-						builder
-								.append("第[" + currentNumber + "]错误:")
-								.append("原开单数量不能为空")
-								.append("<br>");
-
-						importError = true;
-					}
-
-					//销售价
-//					if ( !StringTools.isNullOrNone(obj[6]))
-//					{
-//						String price = obj[6].trim();
-//						//TODO
-//					} else
-//					{
-//						builder
-//								.append("第[" + currentNumber + "]错误:")
-//								.append("销售价不能为空")
-//								.append("<br>");
-//
-//						importError = true;
-//					}
-
-					//退货数量
-					if ( !StringTools.isNullOrNone(obj[7]))
-					{
-						String amount = obj[7].trim();
                         bean.setAmount(Integer.valueOf(amount));
 					} else
 					{
@@ -1353,9 +1322,9 @@ public class ParentOutAction extends DispatchAction
 					}
 
 					//目的仓库
-					if ( !StringTools.isNullOrNone(obj[8]))
+					if ( !StringTools.isNullOrNone(obj[6]))
 					{
-						String depot = obj[8].trim();
+						String depot = obj[6].trim();
 						DepotBean depotBean = this.depotDAO.findByUnique(depot);
 						if (depotBean == null){
                             importError = true;
@@ -1390,9 +1359,9 @@ public class ParentOutAction extends DispatchAction
 					}
 
 					//快递单号
-					if ( !StringTools.isNullOrNone(obj[9]))
+					if ( !StringTools.isNullOrNone(obj[7]))
 					{
-						String transportNo = obj[9].trim();
+						String transportNo = obj[7].trim();
                         bean.setTransportNo(transportNo);
 					} else
 					{
@@ -1405,9 +1374,9 @@ public class ParentOutAction extends DispatchAction
 					}
 
 					//退货备注
-					if ( !StringTools.isNullOrNone(obj[10]))
+					if ( !StringTools.isNullOrNone(obj[8]))
 					{
-						String description = obj[10].trim();
+						String description = obj[8].trim();
                         bean.setDescription(description);
 					} else
 					{
