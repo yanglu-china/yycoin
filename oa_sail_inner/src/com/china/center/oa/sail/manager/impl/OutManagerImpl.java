@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13057,6 +13058,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     @Override
     public ProductImportBean getProductImportBean(String customerName,String branchName, String productCode, String channel,
                                                    String citicOrderDate, int outType) throws MYException {
+        String template = "getProductImportBean with customerName:%s branchName:%s productCode:%s channel:%s citicOrderDate:%s outType:%d";
+        _logger.info(String.format(template, customerName, branchName, productCode, channel, citicOrderDate, outType));
         String appName = ConfigLoader.getProperty("appName");
         String bank = "";
         if (!StringTools.isNullOrNone(customerName)) {
@@ -13076,6 +13079,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
         _logger.info("***productImportBeans1***" + productImportBeans);
+        this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
+        _logger.info("***productImportBeans1 ignored***" + productImportBeans);
         if (ListTools.isEmptyOrNull(productImportBeans) && !StringTools.isNullOrNone(branchName)) {
             //如果支行无法匹配，就对比分行+代码+渠道+银行+帐套+是否体内
             conditionParse = new ConditionParse();
@@ -13087,6 +13092,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans2***" + productImportBeans);
+            this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
+            _logger.info("***productImportBeans2 ignored***" + productImportBeans);
         }
 
         if (ListTools.isEmptyOrNull(productImportBeans)) {
@@ -13098,6 +13105,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans3***" + productImportBeans);
+            this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
+            _logger.info("***productImportBeans3 ignored***" + productImportBeans);
         }
 
         if (ListTools.isEmptyOrNull(productImportBeans)) {
@@ -13105,21 +13114,88 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             conditionParse = new ConditionParse();
             conditionParse.addCondition("bank", "=", bank);
             conditionParse.addCondition("bankProductCode", "=", productCode);
-            conditionParse.addCondition(" and channel =''");
+            this.addChannelCondition(conditionParse, null);
             this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans4***" + productImportBeans);
+            this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
+            _logger.info("***productImportBeans4 ignored***" + productImportBeans);
         }
 
-        ProductImportBean productImportBean = null;
-        int count = 0;
+//        ProductImportBean productImportBean = null;
+//        int count = 0;
+//        if (ListTools.isEmptyOrNull(productImportBeans)) {
+//            String msg = appName+"未配置产品主数据映射关系(客户+银行产品编码):"+customerName+"+"+productCode;
+//            _logger.error(msg);
+//            throw new MYException(msg);
+//        } else{
+//            //最后检查时间是否有效
+//            for (ProductImportBean pib : productImportBeans) {
+//                //分行必须对应，要么分行为空
+//                if (!StringTools.isNullOrNone(branchName) && !StringTools.isNullOrNone(pib.getBranchName())
+//                        && !branchName.equals(pib.getBranchName())) {
+//                    continue;
+//                }
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//                try {
+//                    Date end = sdf.parse(pib.getOfflineDate());
+//                    Date begin = sdf.parse(pib.getOnMarketDate());
+//                    Date citicDate = sdf.parse(citicOrderDate);
+//                    if (citicDate.before(begin) || citicDate.after(end)) {
+//                        _logger.error(" citicDate out of date:" + pib);
+//                    } else {
+//                        productImportBean = pib;
+//                        count++;
+//                    }
+//                } catch (Exception e) {
+//                    _logger.error(" Exception parse Date:", e);
+//                }
+//            }
+//
+//            if (productImportBean == null) {
+//                StringBuilder builder = new StringBuilder();
+//                builder.append(citicOrderDate + "银行订单日期不在产品主数据配置范围内:" + productImportBeans.get(0).getOnMarketDate() + "至" + productImportBeans.get(0).getOfflineDate())
+//                        .append("<br>");
+//                _logger.error(citicOrderDate + "银行订单日期不在产品主数据配置范围内:" + productImportBeans.get(0).getOnMarketDate() + "至" + productImportBeans.get(0).getOfflineDate());
+//                throw new MYException(builder.toString());
+//            } else if (count > 1) {
+//                _logger.error("产品主数据配置不能超过1条:"+productImportBean.toString());
+//                StringBuilder builder = new StringBuilder();
+//                builder.append( "产品主数据配置不能超过1条:"+customerName+"+"+productCode)
+//                        .append("<br>");
+//                throw new MYException(builder.toString());
+//            }
+//        }
+
         if (ListTools.isEmptyOrNull(productImportBeans)) {
             String msg = appName+"未配置产品主数据映射关系(客户+银行产品编码):"+customerName+"+"+productCode;
             _logger.error(msg);
             throw new MYException(msg);
-        } else{
-            //最后检查时间是否有效
-            for (ProductImportBean pib : productImportBeans) {
+        } else if (productImportBeans.size() > 1) {
+            _logger.error("产品主数据配置不能超过1条:" + productImportBeans);
+            StringBuilder builder = new StringBuilder();
+            builder.append(appName+"产品主数据配置不能超过1条:" + customerName + "+" + productCode)
+                    .append("<br>");
+            throw new MYException(builder.toString());
+        } else {
+            ProductImportBean productImportBean = productImportBeans.get(0);
+            _logger.info("***find product import bean***"+productImportBean);
+            return productImportBean;
+        }
+    }
+
+    /**
+     * 去掉已经过期的产品配置
+     * @param productImportBeans
+     * @param branchName
+     * @param citicOrderDate
+     */
+    private void ignoreOutdated(List<ProductImportBean> productImportBeans,
+                            String branchName, String citicOrderDate){
+        if (!ListTools.isEmptyOrNull(productImportBeans)){
+            //检查时间是否有效
+            for (Iterator<ProductImportBean> iterator=productImportBeans.iterator();iterator.hasNext();){
+                ProductImportBean pib = iterator.next();
                 //分行必须对应，要么分行为空
                 if (!StringTools.isNullOrNone(branchName) && !StringTools.isNullOrNone(pib.getBranchName())
                         && !branchName.equals(pib.getBranchName())) {
@@ -13131,40 +13207,22 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     Date begin = sdf.parse(pib.getOnMarketDate());
                     Date citicDate = sdf.parse(citicOrderDate);
                     if (citicDate.before(begin) || citicDate.after(end)) {
-                        _logger.error(" citicDate out of date:" + pib);
-                    } else {
-                        productImportBean = pib;
-                        count++;
+                        _logger.warn(" citicDate out of date:" + pib);
+                        iterator.remove();
                     }
-                } catch (Exception e) {
+                } catch (ParseException e) {
                     _logger.error(" Exception parse Date:", e);
+                    iterator.remove();
                 }
             }
-
-            if (productImportBean == null) {
-                StringBuilder builder = new StringBuilder();
-                builder.append(citicOrderDate + "银行订单日期不在产品主数据配置范围内:" + productImportBeans.get(0).getOnMarketDate() + "至" + productImportBeans.get(0).getOfflineDate())
-                        .append("<br>");
-                _logger.error(citicOrderDate + "银行订单日期不在产品主数据配置范围内:" + productImportBeans.get(0).getOnMarketDate() + "至" + productImportBeans.get(0).getOfflineDate());
-                throw new MYException(builder.toString());
-            } else if (count > 1) {
-                _logger.error("产品主数据配置不能超过1条:"+productImportBean.toString());
-                StringBuilder builder = new StringBuilder();
-                builder.append( "产品主数据配置不能超过1条:"+customerName+"+"+productCode)
-                        .append("<br>");
-                throw new MYException(builder.toString());
-            }
         }
-
-        _logger.info("***find product import bean***"+productImportBean);
-        return productImportBean;
     }
 
     private void addChannelCondition(ConditionParse conditionParse, String channel){
         if (StringTools.isNullOrNone(channel)) {
 //            conditionParse.addCondition("channel", "=", "");
             // 空格查询会被框架过滤掉!!!
-            conditionParse.addCondition(" and channel =''");
+            conditionParse.addCondition(" and (channel='' or channel is null)");
         } else {
             conditionParse.addCondition("channel", "=", channel);
         }
