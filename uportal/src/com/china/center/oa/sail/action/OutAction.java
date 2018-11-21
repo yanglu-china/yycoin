@@ -4269,6 +4269,7 @@ public class OutAction extends ParentOutAction
         	each.setMayInvoiceMoneys(each.getTotal() - retTotal - hadInvoice);
         	
         	if (each.getMayInvoiceMoneys() <= 0) {
+        	    _logger.info(each.getFullId()+"***ignore out***"+each.getMayInvoiceMoneys());
                 iterator.remove();
             }
         }
