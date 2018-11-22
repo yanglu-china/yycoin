@@ -2090,9 +2090,7 @@ public class ParentOutAction extends DispatchAction
 				}
 
 				// 人为规定
-				if (depotBean.getName().indexOf("不可发") != -1
-						//486
-					|| "生产作业库".equals(depotBean.getName()))
+				if (depotBean.getName().indexOf("不可发") != -1)
 				{
 					iterator.remove();
 
@@ -2123,6 +2121,17 @@ public class ParentOutAction extends DispatchAction
 			}
 
 			setHasProm(request, staffer);
+		} else if ("1".equals(flag)){
+			for (Iterator iterator = locationList.iterator(); iterator
+					.hasNext();) {
+				DepotBean depotBean = (DepotBean) iterator.next();
+				// #486
+				if ("生产作业库".equals(depotBean.getName()))
+				{
+					iterator.remove();
+					break;
+				}
+			}
 		}
 
 		request.setAttribute("locationList", locationList);

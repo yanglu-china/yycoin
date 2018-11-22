@@ -498,7 +498,8 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
         // 查看库存大小
         if (relation == null){
-            _logger.error("****relation is null***");
+            String template = "储位关系不存在,仓区:%s,产品:%s,priceKey:%s,stafferId:%s";
+            _logger.error(String.format(template,bean.getDepotpartId(), bean.getProductId(), priceKey, bean.getStafferId() ));
             throw new MYException("储位关系不存在:仓区[%s]产品[%s]priceKey[%s]stafferId[%s]",
                     bean.getDepotpartId(), bean.getProductId(), priceKey, bean.getStafferId());
         }

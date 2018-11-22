@@ -116,5 +116,5 @@ public interface StockManager extends ListenerManager<StockListener>
     /**
      * #460 到货调拨JOB
      */
-    void dhDiaoboJob() throws MYException;
+    void dhDiaoboJob();
 }

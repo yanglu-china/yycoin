@@ -2119,14 +2119,17 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             OutBean moveOut = outDAO.find(moveOutFullId);
 
-            // 调出检查
-            if (moveOut.getInway() == OutConstant.IN_WAY_OVER)
-            {
-                throw new MYException("调出单据已在途结束状态，请确认操作");
+            if (moveOut!= null){
+                // 调出检查
+                if (moveOut.getInway() == OutConstant.IN_WAY_OVER)
+                {
+                    throw new MYException("调出单据已在途结束状态，请确认操作");
+                }
+
+                // 结束调出的单据
+                changeMoveOutToEnd(user, moveOut, "自动接收");
             }
-            
-            // 结束调出的单据
-            changeMoveOutToEnd(user, moveOut, "自动接收");
+
 
             // TAX_ADD 入库单-调拨（调入接受时）
             Collection<OutListener> listenerMapValues = listenerMapValues();
