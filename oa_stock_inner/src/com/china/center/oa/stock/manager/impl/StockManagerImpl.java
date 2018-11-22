@@ -1788,7 +1788,13 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         List<DhZjbVO> dhZjbVOList = this.dhZjbDAO.queryDhInfo();
         if (!ListTools.isEmptyOrNull(dhZjbVOList)){
             _logger.info("***dhZjbVOList size***"+dhZjbVOList.size());
-            DepotpartBean depotpart = depotpartDAO.findByUnique("不良品仓");
+//            DepotpartBean depotpart = depotpartDAO.findByUnique("不良品仓");
+            // 源仓库
+            DepotBean sourceDepot = this.depotDAO.findByUnique("生产作业库");
+            if (sourceDepot == null) {
+                _logger.error("生产作业库 not exist!");
+                return;
+            }
 
             for(DhZjbVO vo: dhZjbVOList){
                 try {
@@ -1843,15 +1849,27 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     baseBean.setOutId(fullId);
 
                     //目的仓库
-                    baseBean.setLocationId(depotId);
-                    DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(depotId);
-                    if (defaultOKDepotpart == null) {
+//                    baseBean.setLocationId(depotId);
+//                    DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(depotId);
+//                    if (defaultOKDepotpart == null) {
+//                        _logger.error("defaultOKDepotpart not found:" + depotId);
+//                        continue;
+//                    } else {
+//                        //目的仓区 源仓区？
+//                        baseBean.setDepotpartId(defaultOKDepotpart.getId());
+//                        baseBean.setDepotpartName(defaultOKDepotpart.getName());
+//                    }
+
+                    //源仓库
+                    baseBean.setLocationId(sourceDepot.getId());
+                    DepotpartBean defaultSourceDepotpart = depotpartDAO.findDefaultOKDepotpart(sourceDepot.getId());
+                    if (defaultSourceDepotpart == null) {
                         _logger.error("defaultOKDepotpart not found:" + depotId);
                         continue;
                     } else {
-                        //目的仓区
-                        baseBean.setDepotpartId(defaultOKDepotpart.getId());
-                        baseBean.setDepotpartName(defaultOKDepotpart.getName());
+                        //源仓区
+                        baseBean.setDepotpartId(defaultSourceDepotpart.getId());
+                        baseBean.setDepotpartName(defaultSourceDepotpart.getName());
                     }
 
                     String productId = vo.getProductId();
@@ -1917,16 +1935,11 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 //                    continue;
 //                }
 
-                    // 源仓库
-                    DepotBean depotBean = this.depotDAO.findByUnique("生产作业库");
-                    if (depotBean == null) {
-                        _logger.error("生产作业库 not exist!");
-                        continue;
-                    }
+
 
                     outBean.setLocationId("999");
                     //源仓库
-                    outBean.setLocation(depotBean.getId());
+                    outBean.setLocation(sourceDepot.getId());
                     //目的仓库
                     outBean.setDestinationId(depotId);
 
