@@ -13196,11 +13196,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             //检查时间是否有效
             for (Iterator<ProductImportBean> iterator=productImportBeans.iterator();iterator.hasNext();){
                 ProductImportBean pib = iterator.next();
-                //分行必须对应，要么分行为空
-                if (!StringTools.isNullOrNone(branchName) && !StringTools.isNullOrNone(pib.getBranchName())
-                        && !branchName.equals(pib.getBranchName())) {
-                    continue;
-                }
+//                //分行必须对应，要么分行为空
+//                if (!StringTools.isNullOrNone(branchName) && !StringTools.isNullOrNone(pib.getBranchName())
+//                        && !branchName.equals(pib.getBranchName())) {
+//                    continue;
+//                }
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 try {
                     Date end = sdf.parse(pib.getOfflineDate());
