@@ -13080,8 +13080,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (ListTools.isEmptyOrNull(productImportBeans) && !StringTools.isNullOrNone(branchName)) {
             //如果支行无法匹配，就对比分行+代码+渠道+银行+帐套+是否体内
             conditionParse = new ConditionParse();
-            conditionParse.addCondition("branchName", "=", branchName);
             conditionParse.addCondition("bankProductCode", "=", productCode);
+            this.addBranchCondition(conditionParse, branchName);
             this.addChannelCondition(conditionParse, channel);
             conditionParse.addCondition("bank", "=", bank);
             this.addItemCondition(conditionParse, outType, appName);
@@ -13097,6 +13097,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             conditionParse = new ConditionParse();
             conditionParse.addCondition("bank", "=", bank);
             conditionParse.addCondition("bankProductCode", "=", productCode);
+            this.addBranchCondition(conditionParse, null);
             this.addChannelCondition(conditionParse, channel);
             this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
@@ -13211,6 +13212,15 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     iterator.remove();
                 }
             }
+        }
+    }
+
+    private void addBranchCondition(ConditionParse conditionParse, String branchName){
+        if (StringTools.isNullOrNone(branchName)) {
+            // 空格查询会被框架过滤掉!!!
+            conditionParse.addCondition(" and (branchName='' or branchName is null)");
+        } else {
+            conditionParse.addCondition("branchName", "=", branchName);
         }
     }
 
