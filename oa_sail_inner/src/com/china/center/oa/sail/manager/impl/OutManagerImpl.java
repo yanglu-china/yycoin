@@ -2015,7 +2015,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      * @param outBean
      * @throws MYException
      */
-    private int processBuyOutInWay(final User user, final String fullId, final OutBean outBean)
+    public int processBuyOutInWay(final User user, final String fullId, final OutBean outBean)
         throws MYException
     {
         _logger.info(fullId+"***processBuyOutInWay**"+outBean);
@@ -2602,7 +2602,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         String stafferName = "";
         if (user == null){
-            stafferName = "票随货发Job";
+            stafferName = "系统Job";
         } else{
             unique.setRef(user.getStafferName());
         }

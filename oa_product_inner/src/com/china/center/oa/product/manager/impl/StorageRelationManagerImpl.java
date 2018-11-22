@@ -615,8 +615,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
         String stafferName = "";
         if (user == null){
-            stafferName = "票随货发Job";
-            _logger.warn("****null user*****");
+            stafferName = "系统Job";
         } else{
             stafferName = user.getStafferName();
         }

@@ -31,6 +31,7 @@ import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.DhZjbDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.helper.OutHelper;
+import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.stock.bean.*;
 import com.china.center.oa.stock.dao.*;
@@ -137,6 +138,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     private PriceConfigDAO priceConfigDAO = null;
 
     private PriceConfigManager priceConfigManager = null;
+
+    private OutManager outManager = null;
 
     /*
      * (non-Javadoc)
@@ -1780,7 +1783,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
     @Override
     @Transactional(rollbackFor = {MYException.class})
-    public void dhDiaoboJob() {
+    public void dhDiaoboJob() throws MYException{
         _logger.info("***dhDiaoboJob running***");
         List<DhZjbVO> dhZjbVOList = this.dhZjbDAO.queryDhInfo();
         if (!ListTools.isEmptyOrNull(dhZjbVOList)){
@@ -1939,6 +1942,10 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 baseDAO.saveEntityBean(baseBean);
                 this.addLog2(outBean.getFullId(),0, OutConstant.BUY_STATUS_PASS, 0,"提交");
                 _logger.info("create out in dhDiaboJob "+outBean+"***with base bean***"+baseBean);
+
+                //入库提交后直接变动库存
+                int result = this.outManager.processBuyOutInWay(null, fullId, outBean);
+                _logger.info("***result***"+result);
 
                 //不考虑不良情况
 //                if(depotpart!= null){
@@ -2383,5 +2390,13 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
     public void setDepotDAO(DepotDAO depotDAO) {
         this.depotDAO = depotDAO;
+    }
+
+    public OutManager getOutManager() {
+        return outManager;
+    }
+
+    public void setOutManager(OutManager outManager) {
+        this.outManager = outManager;
     }
 }

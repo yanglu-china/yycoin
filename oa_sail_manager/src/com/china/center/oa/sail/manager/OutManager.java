@@ -711,6 +711,9 @@ public interface OutManager extends ListenerManager<OutListener>
 
     boolean checkOutBack(String outId, String productId, String priceKey, int amount) throws MYException;
 
+    int processBuyOutInWay(final User user, final String fullId, final OutBean outBean)
+            throws MYException;
+
     /**
      * 更新BaseBean
      *
