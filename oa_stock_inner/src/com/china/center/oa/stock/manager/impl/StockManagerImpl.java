@@ -1829,7 +1829,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 outBean.setChangeTime(now);
 
                 outBean.setOperatorName("系统");
-                outBean.setReserve1(OutConstant.MOVEOUT_DIAOBO);
+                outBean.setReserve1(OutConstant.MOVEOUT_IN);
 
                 outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
                 outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);

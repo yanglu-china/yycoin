@@ -2090,7 +2090,9 @@ public class ParentOutAction extends DispatchAction
 				}
 
 				// 人为规定
-				if (depotBean.getName().indexOf("不可发") != -1)
+				if (depotBean.getName().indexOf("不可发") != -1
+						//486
+					|| "生产作业库".equals(depotBean.getName()))
 				{
 					iterator.remove();
 
