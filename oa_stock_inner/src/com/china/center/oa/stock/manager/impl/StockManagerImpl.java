@@ -1826,11 +1826,13 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     String now = TimeTools.now();
                     String nowShort = TimeTools.now_short();
                     outBean.setOutTime(nowShort);
+                    outBean.setPodate(nowShort);
                     outBean.setLogTime(now);
                     outBean.setChangeTime(now);
+                    outBean.setFlowTime(now);
 
                     outBean.setOperatorName("系统");
-                    outBean.setReserve1(OutConstant.MOVEOUT_IN);
+                    outBean.setReserve1(OutConstant.MOVEOUT_OUT);
 
                     outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
                     outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
@@ -1946,9 +1948,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     //入库提交后直接变动库存
                     int result = this.outManager.processBuyOutInWay(null, fullId, outBean);
                     _logger.info("***processBuyOutInWay result***" + result);
-                    if (result != -1) {
-                        this.dhZjbDAO.updateProcessedFlag(vo.getId());
-                    }
+                    this.dhZjbDAO.updateProcessedFlag(vo.getId());
                 }catch (MYException e){
                     _logger.error(e);
                     continue;
