@@ -3883,7 +3883,10 @@ public class OutAction extends ParentOutAction
             condtion.addCondition("OutBean.stafferId", "=", stafferId);
         }
 
-        if ( !StringTools.isNullOrNone(invoiceStatus))
+        if("0".equals(invoiceStatus)){
+            // #484 需要包含部分开票状态
+            condtion.addCondition(" and OutBean.invoiceStatus in (0,2)");
+        } else if ( !StringTools.isNullOrNone(invoiceStatus))
         {
             condtion.addIntCondition("OutBean.invoiceStatus", "=", invoiceStatus);
         }
@@ -4269,6 +4272,7 @@ public class OutAction extends ParentOutAction
         	each.setMayInvoiceMoneys(each.getTotal() - retTotal - hadInvoice);
         	
         	if (each.getMayInvoiceMoneys() <= 0) {
+        	    _logger.info(each.getFullId()+"***ignore out***"+each.getMayInvoiceMoneys());
                 iterator.remove();
             }
         }

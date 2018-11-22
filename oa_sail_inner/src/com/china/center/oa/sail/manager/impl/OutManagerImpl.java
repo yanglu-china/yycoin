@@ -7825,13 +7825,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             _logger.info(baseBean+"***hasBack***"+hasBack);
             if (baseBean.getProductId().equals(productId) && baseBean.getCostPriceKey().equals(priceKey)
                     && (hasBack + amount > baseBean.getAmount())){
+                _logger.error("outId exceed amount:"+outId);
                 return true;
             }
-
-//            if (baseBean.getAmount() - hasBack < 0)
-//            {
-//                throw new MYException("[%s]退库数量溢出,请重新操作", baseBean.getProductName());
-//            }
         }
 
         return false;
