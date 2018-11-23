@@ -2121,18 +2121,23 @@ public class ParentOutAction extends DispatchAction
 			}
 
 			setHasProm(request, staffer);
-		} else if ("1".equals(flag) && !"金加波".equals(username)){
+		} else if ("1".equals(flag)){
+			// # 486 只处理体内系统
+			String appName = ConfigLoader.getProperty("appName");
+			if ("永银ERP".equals(appName) && !"金加波".equals(username)){
 			//只有这个人给特殊权限能看到
-			for (Iterator iterator = locationList.iterator(); iterator
-					.hasNext();) {
-				DepotBean depotBean = (DepotBean) iterator.next();
-				// #486
-				if ("生产作业库".equals(depotBean.getName()))
-				{
-					iterator.remove();
-					break;
+				for (Iterator iterator = locationList.iterator(); iterator
+						.hasNext();) {
+					DepotBean depotBean = (DepotBean) iterator.next();
+					// #486
+					if ("生产作业库".equals(depotBean.getName()))
+					{
+						iterator.remove();
+						break;
+					}
 				}
 			}
+
 		}
 
 		request.setAttribute("locationList", locationList);
