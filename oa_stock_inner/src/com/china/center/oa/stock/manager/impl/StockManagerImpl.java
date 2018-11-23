@@ -1943,13 +1943,17 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     baseDAO.saveEntityBean(baseBean);
                     this.addLog2(outBean.getFullId(), 0, OutConstant.BUY_STATUS_PASS, 0, "提交");
                     _logger.info("create out in dhDiaboJob " + outBean + "***with base bean***" + baseBean);
+                    vo.setOutId(fullId);
 
                     //入库提交后直接变动库存
                     int result = this.outManager.processBuyOutInWay(null, fullId, outBean);
-                    vo.setOutId(fullId);
                     _logger.info(vo+"***processBuyOutInWay result***" + fullId);
                 }catch (MYException e){
                     _logger.error(e);
+                    //有问题回滚
+                    outDAO.deleteEntityBean(vo.getOutId());
+                    baseDAO.deleteEntityBeansByFK(vo.getOutId());
+                    _logger.info("****roollback DB***"+vo.getOutId());
                     continue;
                 } finally {
                     this.dhZjbDAO.updateProcessedFlag(vo.getId(), vo.getOutId());
