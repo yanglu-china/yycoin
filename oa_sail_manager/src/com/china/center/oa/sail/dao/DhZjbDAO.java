@@ -33,5 +33,5 @@ public interface DhZjbDAO extends DAO<DhZjbBean, DhZjbBean>
      */
     List<DhZjbVO> queryDhInfo();
 
-    boolean updateProcessedFlag(int id);
+    boolean updateProcessedFlag(int id, String outId);
 }

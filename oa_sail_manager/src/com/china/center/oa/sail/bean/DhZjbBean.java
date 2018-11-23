@@ -49,6 +49,8 @@ public class DhZjbBean implements Serializable {
      */
     private int processed = 0;
 
+    private String outId;
+
     public int getId() {
         return id;
     }
@@ -135,5 +137,31 @@ public class DhZjbBean implements Serializable {
 
     public void setProcessed(int processed) {
         this.processed = processed;
+    }
+
+    public String getOutId() {
+        return outId;
+    }
+
+    public void setOutId(String outId) {
+        this.outId = outId;
+    }
+
+    @Override
+    public String toString() {
+        return "DhZjbBean{" +
+                "id=" + id +
+                ", stockId='" + stockId + '\'' +
+                ", productId='" + productId + '\'' +
+                ", cgAmount=" + cgAmount +
+                ", ydhAmount=" + ydhAmount +
+                ", transportNo='" + transportNo + '\'' +
+                ", dhNo='" + dhNo + '\'' +
+                ", status='" + status + '\'' +
+                ", createTime='" + createTime + '\'' +
+                ", createUser='" + createUser + '\'' +
+                ", processed=" + processed +
+                ", outId='" + outId + '\'' +
+                '}';
     }
 }

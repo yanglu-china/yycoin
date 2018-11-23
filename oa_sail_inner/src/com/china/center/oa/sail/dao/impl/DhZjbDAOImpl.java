@@ -65,11 +65,11 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
     }
 
     @Override
-    public boolean updateProcessedFlag(int id) {
-        String sql = "update t_center_dh_zjb set processedFlag = 1 " +
+    public boolean updateProcessedFlag(int id, String outId) {
+        String sql = "update t_center_dh_zjb set processedFlag = 1, outId = ? " +
                 " where id = ?";
 
-        int i = jdbcOperation.update(sql, id);
+        int i = jdbcOperation.update(sql, outId, id);
 
         return i != 0;
     }

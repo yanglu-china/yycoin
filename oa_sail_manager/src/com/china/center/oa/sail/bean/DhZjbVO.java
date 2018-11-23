@@ -56,4 +56,14 @@ public class DhZjbVO extends DhZjbBean {
     public void setSdAmount(int sdAmount) {
         this.sdAmount = sdAmount;
     }
+
+    @Override
+    public String toString() {
+        return "DhZjbVO{" +
+                "zjHgAmount=" + zjHgAmount +
+                ", zjBhgAmount=" + zjBhgAmount +
+                ", sdAmount=" + sdAmount +
+                ", sccgRkfx='" + sccgRkfx + '\'' +
+                "} " + super.toString();
+    }
 }

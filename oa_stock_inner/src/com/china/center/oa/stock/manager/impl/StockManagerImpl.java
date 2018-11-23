@@ -1848,18 +1848,6 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     baseBean.setId(commonDAO.getSquenceString());
                     baseBean.setOutId(fullId);
 
-                    //目的仓库
-//                    baseBean.setLocationId(depotId);
-//                    DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(depotId);
-//                    if (defaultOKDepotpart == null) {
-//                        _logger.error("defaultOKDepotpart not found:" + depotId);
-//                        continue;
-//                    } else {
-//                        //目的仓区 源仓区？
-//                        baseBean.setDepotpartId(defaultOKDepotpart.getId());
-//                        baseBean.setDepotpartName(defaultOKDepotpart.getName());
-//                    }
-
                     //源仓库
                     baseBean.setLocationId(sourceDepot.getId());
                     DepotpartBean defaultSourceDepotpart = depotpartDAO.findDefaultOKDepotpart(sourceDepot.getId());
@@ -1960,8 +1948,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
                     //入库提交后直接变动库存
                     int result = this.outManager.processBuyOutInWay(null, fullId, outBean);
-                    _logger.info("***processBuyOutInWay result***" + result);
-                    this.dhZjbDAO.updateProcessedFlag(vo.getId());
+                    _logger.info(vo+"***processBuyOutInWay result***" + fullId);
+                    this.dhZjbDAO.updateProcessedFlag(vo.getId(), fullId);
                 }catch (MYException e){
                     _logger.error(e);
                     continue;
