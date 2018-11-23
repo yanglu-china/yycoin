@@ -1923,8 +1923,6 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 //                    continue;
 //                }
 
-
-
                     outBean.setLocationId("999");
                     //源仓库
                     outBean.setLocation(sourceDepot.getId());
@@ -1948,11 +1946,13 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
                     //入库提交后直接变动库存
                     int result = this.outManager.processBuyOutInWay(null, fullId, outBean);
+                    vo.setOutId(fullId);
                     _logger.info(vo+"***processBuyOutInWay result***" + fullId);
-                    this.dhZjbDAO.updateProcessedFlag(vo.getId(), fullId);
                 }catch (MYException e){
                     _logger.error(e);
                     continue;
+                } finally {
+                    this.dhZjbDAO.updateProcessedFlag(vo.getId(), vo.getOutId());
                 }
             }
         }
