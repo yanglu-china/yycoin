@@ -16,7 +16,10 @@ function passBean()
 {
     $O('method').value = 'passStockPrePayByCEO';
     
-	submit('确定通过付款申请?', null, null);
+	// submit('确定通过付款申请?', null, null);
+    if (window.confirm('确定通过付款申请?')) {
+        formEntry.submit();
+    }
 }
 
 function checkValue()

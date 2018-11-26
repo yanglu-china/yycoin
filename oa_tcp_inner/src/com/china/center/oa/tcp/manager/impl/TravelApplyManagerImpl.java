@@ -111,6 +111,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
     private TcpIbReportItemDAO tcpIbReportItemDAO = null;
 
+    private TcpVSOutDAO tcpVSOutDAO = null;
+
     private TravelApplyDAO travelApplyDAO = null;
 
     private TravelApplyItemDAO travelApplyItemDAO = null;
@@ -251,6 +253,20 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 ib.setLogTime(TimeTools.now());
             }
             this.tcpIbDAO.saveAllEntityBeans(ibList);
+        }
+
+        // #489
+        List<TcpVSOutBean> tcpVSOutBeans = bean.getTcpVSOutBeanList();
+
+        if(!ListTools.isEmptyOrNull(tcpVSOutBeans))
+        {
+            for (TcpVSOutBean ib : tcpVSOutBeans)
+            {
+                ib.setId(commonDAO.getSquenceString20());
+                ib.setRefId(bean.getId());
+                ib.setLogTime(TimeTools.now());
+            }
+            this.tcpVSOutDAO.saveAllEntityBeans(tcpVSOutBeans);
         }
 
         List<AttachmentBean> attachmentList = bean.getAttachmentList();
@@ -2030,6 +2046,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             }
 
             this.tcpIbDAO.deleteByApplyId(bean.getId());
+            this.tcpVSOutDAO.deleteByApplyId(bean.getId());
         }
     }
     
@@ -2848,6 +2865,20 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     ib.setLogTime(TimeTools.now());
                 }
                 this.tcpIbDAO.saveAllEntityBeans(ibList);
+            }
+
+            // #489
+            List<TcpVSOutBean> tcpVSOutBeans = bean.getTcpVSOutBeanList();
+
+            if(!ListTools.isEmptyOrNull(tcpVSOutBeans))
+            {
+                for (TcpVSOutBean ib : tcpVSOutBeans)
+                {
+                    ib.setId(commonDAO.getSquenceString20());
+                    ib.setRefId(bean.getId());
+                    ib.setLogTime(TimeTools.now());
+                }
+                this.tcpVSOutDAO.saveAllEntityBeans(tcpVSOutBeans);
             }
         }
 

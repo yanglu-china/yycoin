@@ -1797,6 +1797,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             }
 
             for(DhZjbVO vo: dhZjbVOList){
+                boolean created = true;
                 try {
                     //合格数量调拨单
                     OutBean outBean = new OutBean();
@@ -1953,10 +1954,15 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     //有问题回滚
                     outDAO.deleteEntityBean(vo.getOutId());
                     baseDAO.deleteEntityBeansByFK(vo.getOutId());
+                    created = false;
                     _logger.info("****roollback DB***"+vo.getOutId());
                     continue;
                 } finally {
-                    this.dhZjbDAO.updateProcessedFlag(vo.getId(), vo.getOutId());
+                    if (created) {
+                        this.dhZjbDAO.updateProcessedFlag(vo.getId(), vo.getOutId());
+                    } else{
+                        this.dhZjbDAO.updateProcessedFlag(vo.getId(), "");
+                    }
                 }
             }
         }

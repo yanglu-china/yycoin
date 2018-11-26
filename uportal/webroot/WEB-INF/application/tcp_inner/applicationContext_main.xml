@@ -22,6 +22,8 @@
 
     <bean id="tcpIbReportItemDAO" class="com.china.center.oa.tcp.dao.impl.TcpIbReportItemDAOImpl" />
 
+	<bean id="tcpVSOutDAO" class="com.china.center.oa.tcp.dao.impl.TcpVSOutDAOImpl" />
+
 	<bean id="travelApplyDAO" class="com.china.center.oa.tcp.dao.impl.TravelApplyDAOImpl" />
 
     <bean id="bankBuLevelDAO" class="com.china.center.oa.tcp.dao.impl.BankBuLevelDAOImpl" />

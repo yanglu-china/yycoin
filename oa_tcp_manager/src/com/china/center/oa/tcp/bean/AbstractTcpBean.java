@@ -127,6 +127,13 @@ public abstract class AbstractTcpBean implements Serializable
     @Ignore
     protected List<TcpIbBean> ibList = null;
 
+
+    /**
+     * 中收激励申请中间表
+     */
+    @Ignore
+    protected List<TcpVSOutBean> tcpVSOutBeanList = null;
+
     /**
      * 附件列表
      */
@@ -805,6 +812,13 @@ public abstract class AbstractTcpBean implements Serializable
         this.ibList = ibList;
     }
 
+    public List<TcpVSOutBean> getTcpVSOutBeanList() {
+        return tcpVSOutBeanList;
+    }
+
+    public void setTcpVSOutBeanList(List<TcpVSOutBean> tcpVSOutBeanList) {
+        this.tcpVSOutBeanList = tcpVSOutBeanList;
+    }
 
     public boolean isMidOrMotivation(){
         return this.type == TcpConstanst.TCP_APPLYTYPE_MID
