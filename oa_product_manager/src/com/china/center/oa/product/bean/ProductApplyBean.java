@@ -275,6 +275,12 @@ public class ProductApplyBean implements Serializable {
      */
     @Html(title = "采购类型", type = Element.SELECT, must = true)
     private String stype = "";
+
+    /**
+     * #440 虚料标识
+     */
+    @Html(title = "是否为虚拟产品", type = Element.SELECT, must = true)
+    private int virtualFlag = ProductConstant.VIRTUAL_NO;
     
     @Ignore
     private List<ProductSubApplyBean> productSubApplyList = null;
@@ -701,6 +707,14 @@ public class ProductApplyBean implements Serializable {
 
     public void setStype(String stype) {
         this.stype = stype;
+    }
+
+    public int getVirtualFlag() {
+        return virtualFlag;
+    }
+
+    public void setVirtualFlag(int virtualFlag) {
+        this.virtualFlag = virtualFlag;
     }
 
     public String toString()

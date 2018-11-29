@@ -199,6 +199,10 @@ function load()
 				<p:option type="natureType" empty="true" />
 			</p:pro>
 
+            <p:pro field="virtualFlag" cell="0">
+                <p:option type="virtualFlag" />
+            </p:pro>
+
 			<p:pro field="stype" cell="0">
 				<p:option type="234" empty="true" />
 			</p:pro>

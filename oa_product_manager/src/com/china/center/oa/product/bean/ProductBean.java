@@ -436,7 +436,8 @@ public class ProductBean implements Serializable
     /**
      * #440 虚料标识
      */
-    private int virtualFlag = 0;
+    @Html(title = "是否为虚拟产品", type = Element.SELECT, must = true)
+    private int virtualFlag = ProductConstant.VIRTUAL_NO;
 
     @Ignore
     private List<ProductCombinationBean> vsList = null;

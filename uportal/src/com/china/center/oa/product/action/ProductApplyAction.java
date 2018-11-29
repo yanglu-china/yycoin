@@ -1224,7 +1224,7 @@ public class ProductApplyAction extends DispatchAction {
 
             while (reader.hasNext())
             {
-                String[] obj = StringUtils.fillObj((String[])reader.next(), 14);
+                String[] obj = StringUtils.fillObj((String[])reader.next(), 15);
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -1632,6 +1632,17 @@ public class ProductApplyAction extends DispatchAction {
                         }
                     }
 
+                    // #480 是否虚料标示
+                    if ( !StringTools.isNullOrNone(obj[14]))
+                    {
+                        String virtualFlag = obj[14].trim();
+
+                        if ("Y".equalsIgnoreCase(virtualFlag)
+                                || "是".equals(virtualFlag)){
+                            bean.setVirtualFlag(ProductConstant.VIRTUAL_YES);
+                        }
+                    }
+
                     importItemList.add(bean);
                 }
                 else
@@ -1644,7 +1655,6 @@ public class ProductApplyAction extends DispatchAction {
                     importError = true;
                 }
             }
-
         }catch (Exception e)
         {
             _logger.error(e, e);

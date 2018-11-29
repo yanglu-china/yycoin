@@ -498,6 +498,9 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         //#316
         productBean.setStype(applyBean.getStype());
 
+        //#480
+        productBean.setVirtualFlag(applyBean.getVirtualFlag());
+
         Expression exp = new Expression(productBean, this);
 
         exp.check("#name &unique @productDAO", "名称已经存在");

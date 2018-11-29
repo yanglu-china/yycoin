@@ -110,6 +110,18 @@ public interface ProductConstant
     int ABSTRACT_TYPE_YES = 1;
 
     /**
+     * 非虚料产品
+     */
+    @Defined(key = "virtualFlag", value = "非虚料产品")
+    int VIRTUAL_NO = 0;
+
+    /**
+     * 虚料产品
+     */
+    @Defined(key = "virtualFlag", value = "虚料产品")
+    int VIRTUAL_YES = 1;
+
+    /**
      * 产品
      */
     @Defined(key = "productPtype", value = "产品")
