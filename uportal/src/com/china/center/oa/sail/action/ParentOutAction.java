@@ -1502,7 +1502,11 @@ public class ParentOutAction extends DispatchAction
 
             bean.setInway(OutConstant.IN_WAY_NO);
 
-            bean.setOutType(OutConstant.OUTTYPE_IN_OUTBACK);
+            if (outId.startsWith("ZS")){
+				bean.setOutType(OutConstant.OUTTYPE_IN_PRESENT);
+			} else{
+				bean.setOutType(OutConstant.OUTTYPE_IN_OUTBACK);
+			}
 
             bean.setRefOutFullId(outId);
 
