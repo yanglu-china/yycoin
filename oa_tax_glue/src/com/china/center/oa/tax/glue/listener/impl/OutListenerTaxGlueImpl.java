@@ -6088,7 +6088,9 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
-        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.BAD_REVEIVE_PRODUCT);
+//        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.BAD_REVEIVE_PRODUCT);
+        //#491
+        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SAIL_CHARGE);
 
         if (inTax == null)
         {
@@ -6191,7 +6193,9 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
-        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.BAD_REVEIVE_PRODUCT);
+//        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.BAD_REVEIVE_PRODUCT);
+        //#491
+        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SAIL_CHARGE);
 
         if (inTax == null)
         {

@@ -1385,7 +1385,10 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
-        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.BAD_REVEIVE_PRODUCT);
+//        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.BAD_REVEIVE_PRODUCT);
+
+        //#491
+        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SAIL_CHARGE);
 
         if (inTax == null) {
             throw new MYException("数据错误,请确认操作");
@@ -1483,7 +1486,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
-        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.BAD_REVEIVE_PRODUCT);
+//        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.BAD_REVEIVE_PRODUCT);
+        //#491
+        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SAIL_CHARGE);
 
         if (inTax == null) {
             throw new MYException("数据错误,请确认操作");
