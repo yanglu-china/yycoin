@@ -402,7 +402,8 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_RE_PURCHASE
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_STAMP
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_AUCTION
-                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SPECIAL)
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SPECIAL
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_LEAVE_EXPENSE)
                 && bean.getCreateType() == FinanceConstant.BILL_CREATETYPE_HAND)
         {
         	// 转账一步到位

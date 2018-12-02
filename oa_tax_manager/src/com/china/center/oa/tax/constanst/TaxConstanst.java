@@ -336,6 +336,12 @@ public interface TaxConstanst
     int FINANCE_CREATETYPE_SPECIAL = 57;
 
     /**
+     * 离职人员报销
+     */
+    @Defined(key = "financeCreateType", value = "离职人员报销")
+    int FINANCE_CREATETYPE_LEAVE_EXPENSE = 58;
+
+    /**
      * 资金-回款新增
      */
     @Defined(key = "financeCreateType", value = "资金-回款新增")

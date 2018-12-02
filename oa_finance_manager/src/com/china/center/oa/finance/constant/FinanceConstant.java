@@ -415,6 +415,13 @@ public interface FinanceConstant
      */
     @Defined(key = "outbillType", value = "特殊订单款")
     int OUTBILL_TYPE_SPECIAL = 23;
+
+
+    /**
+     * 离职人员报销
+     */
+    @Defined(key = "outbillType", value = "离职人员报销")
+    int OUTBILL_TYPE_LEAVE_EXPENSE = 24;
     
     /**
      * 转账

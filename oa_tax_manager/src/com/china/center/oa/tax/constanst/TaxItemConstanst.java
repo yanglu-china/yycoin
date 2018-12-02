@@ -232,4 +232,6 @@ public interface TaxItemConstanst
     String AUCTION = "1133-17";
 
     String SPECIAL = "1133-16";
+
+    String LEAVE_EXPENSE = "2181-02";
 }

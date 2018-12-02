@@ -654,7 +654,8 @@ public class BillListenerTaxGlueImpl implements BillListener
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_RE_PURCHASE
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_STAMP
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_AUCTION
-                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SPECIAL)
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SPECIAL
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_LEAVE_EXPENSE)
         {
             this.processOutBill(user, bean);
 
@@ -975,6 +976,9 @@ public class BillListenerTaxGlueImpl implements BillListener
         } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SPECIAL){
             name = "特殊订单款(人工):" + bean.getId() + '.';
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_SPECIAL);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_LEAVE_EXPENSE){
+            name = "离职人员报销(人工):" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_LEAVE_EXPENSE);
         }
 
         financeBean.setName(name);
@@ -1390,6 +1394,10 @@ public class BillListenerTaxGlueImpl implements BillListener
             name = "其他应收款-特殊订单:" + bean.getId() + '.';
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_SPECIAL);
             taxId = TaxItemConstanst.SPECIAL;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_LEAVE_EXPENSE){
+            name = "其他应收款-离职人员报销:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_LEAVE_EXPENSE);
+            taxId = TaxItemConstanst.LEAVE_EXPENSE;
         }
 
         TaxBean inTax = null;
