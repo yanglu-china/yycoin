@@ -17,8 +17,6 @@ import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
-import com.china.center.oa.product.bean.CiticVSOAProductBean;
-import com.china.center.oa.product.dao.CiticVSOAProductDAO;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.StafferBean;
@@ -100,8 +98,6 @@ public class ShipManagerImpl implements ShipManager
     private StafferDAO stafferDAO = null;
 
     private CustomerMainDAO customerMainDAO = null;
-
-    private CiticVSOAProductDAO citicVSOAProductDAO = null;
 
     private ExpressDAO expressDAO = null;
 
@@ -3850,14 +3846,6 @@ public class ShipManagerImpl implements ShipManager
 
     public void setStafferDAO(StafferDAO stafferDAO) {
         this.stafferDAO = stafferDAO;
-    }
-
-    public CiticVSOAProductDAO getCiticVSOAProductDAO() {
-        return citicVSOAProductDAO;
-    }
-
-    public void setCiticVSOAProductDAO(CiticVSOAProductDAO citicVSOAProductDAO) {
-        this.citicVSOAProductDAO = citicVSOAProductDAO;
     }
 
     public CustomerMainDAO getCustomerMainDAO() {
