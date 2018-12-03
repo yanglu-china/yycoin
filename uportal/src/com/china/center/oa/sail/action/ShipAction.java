@@ -128,8 +128,6 @@ public class ShipAction extends DispatchAction
 
     private ProductVSBankDAO productVSBankDAO = null;
 
-    private CiticVSOAProductDAO citicVSOAProductDAO = null;
-
     private EnumDAO enumDAO = null;
 
     private ProductImportDAO productImportDAO = null;
@@ -5163,14 +5161,6 @@ public class ShipAction extends DispatchAction
 
     public void setProductVSBankDAO(ProductVSBankDAO productVSBankDAO) {
         this.productVSBankDAO = productVSBankDAO;
-    }
-
-    public CiticVSOAProductDAO getCiticVSOAProductDAO() {
-        return citicVSOAProductDAO;
-    }
-
-    public void setCiticVSOAProductDAO(CiticVSOAProductDAO citicVSOAProductDAO) {
-        this.citicVSOAProductDAO = citicVSOAProductDAO;
     }
 
     public EnumDAO getEnumDAO() {
