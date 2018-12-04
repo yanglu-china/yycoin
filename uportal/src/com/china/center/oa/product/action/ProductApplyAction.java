@@ -1640,7 +1640,25 @@ public class ProductApplyAction extends DispatchAction {
                         if ("Y".equalsIgnoreCase(virtualFlag)
                                 || "是".equals(virtualFlag)){
                             bean.setVirtualFlag(ProductConstant.VIRTUAL_YES);
+                        } else if ("N".equalsIgnoreCase(virtualFlag)
+                                || "否".equals(virtualFlag)){
+                            bean.setVirtualFlag(ProductConstant.VIRTUAL_NO);
+                        } else{
+                            importError = true;
+
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("是否虚料标示只能为：是、否或Y、N")
+                                    .append("<br>");
                         }
+                    }else
+                    {
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("是否虚料标示为空")
+                                .append("<br>");
                     }
 
                     importItemList.add(bean);
