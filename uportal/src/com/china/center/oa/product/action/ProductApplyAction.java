@@ -1525,7 +1525,7 @@ public class ProductApplyAction extends DispatchAction {
 
                                 builder
                                         .append("第[" + currentNumber + "]错误:")
-                                        .append("关联的成品不存在")
+                                        .append("关联的成品不存在:"+product)
                                         .append("<br>");
                             } else{
                                 bean.setRefProductId(productBeans.get(0).getId());

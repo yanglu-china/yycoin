@@ -159,7 +159,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 	    	
 	    	if (null == product)
 	    	{
-	    		throw new MYException("关联的成品不存在");
+	    		throw new MYException("关联的成品不存在:"+refProductId);
 	    	}
 	    	
 	    	String masterMidName = product.getMidName();
@@ -405,7 +405,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 	    	
 	    	if (null == product)
 	    	{
-	    		throw new MYException("关联的成品不存在");
+	    		throw new MYException("关联的成品不存在:"+refProductId);
 	    	}
 	    	
 	    	String masterMidName = product.getMidName();

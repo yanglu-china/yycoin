@@ -1357,6 +1357,14 @@ public class ShipAction extends DispatchAction
 
         this.generateQRCode(vo.getId());
         request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
+
+        String customerName = vo.getCustomerName();
+        if (customerName.contains("中信银行") || customerName.contains("贵州银行")){
+            request.setAttribute("customerName", customerName);
+        } else{
+            request.setAttribute("customerName","");
+        }
+
         return mapping.findForward("printPackage");
     }
 
