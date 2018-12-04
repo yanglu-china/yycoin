@@ -216,6 +216,11 @@ function load()
             </p:pro>
             
 			<p:pro field="reserve6"/>
+
+			<p:pro field="virtualFlag">
+				<p:option type="virtualFlag" empty="false"/>
+			</p:pro>
+
 			
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 			

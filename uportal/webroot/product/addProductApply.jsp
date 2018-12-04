@@ -200,7 +200,9 @@ function load()
 			</p:pro>
 
             <p:pro field="virtualFlag" cell="0">
-                <p:option type="virtualFlag" />
+				<option value="">--</option>
+				<option value=0>非虚料产品</option>
+				<option value=1>虚料产品</option>
             </p:pro>
 
 			<p:pro field="stype" cell="0">
