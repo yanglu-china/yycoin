@@ -4011,4 +4011,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     public void setTcpFlowManager(TcpFlowManager tcpFlowManager) {
         this.tcpFlowManager = tcpFlowManager;
     }
+
+    public TcpVSOutDAO getTcpVSOutDAO() {
+        return tcpVSOutDAO;
+    }
+
+    public void setTcpVSOutDAO(TcpVSOutDAO tcpVSOutDAO) {
+        this.tcpVSOutDAO = tcpVSOutDAO;
+    }
 }
