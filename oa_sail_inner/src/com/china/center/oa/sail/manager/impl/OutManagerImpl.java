@@ -13100,8 +13100,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             conditionParse = new ConditionParse();
             conditionParse.addCondition("bank", "=", bank);
             conditionParse.addCondition("bankProductCode", "=", productCode);
-            this.addBranchCondition(conditionParse, null);
             this.addChannelCondition(conditionParse, channel);
+            //支行取空的
+            this.addBranchCondition(conditionParse, null);
             this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans3***" + productImportBeans);
@@ -13114,6 +13115,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             conditionParse = new ConditionParse();
             conditionParse.addCondition("bank", "=", bank);
             conditionParse.addCondition("bankProductCode", "=", productCode);
+            //支行和渠道都取空的
+            this.addBranchCondition(conditionParse, null);
             this.addChannelCondition(conditionParse, null);
             this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
