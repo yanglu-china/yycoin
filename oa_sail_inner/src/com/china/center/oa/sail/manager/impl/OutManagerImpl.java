@@ -7786,6 +7786,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info("***checkOutBack***"+outId+"***"+productId+"**priceKey***"+priceKey+"***amount**"+amount);
         if (StringTools.isNullOrNone(priceKey)) {
             throw new MYException("[%s]成本不能为空", outId);
+        } else if (StringTools.isNullOrNone(productId)){
+            throw new MYException("[%s]退货商品名错误", outId);
         }
         List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
 

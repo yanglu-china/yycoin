@@ -1854,7 +1854,11 @@ public class ShipAction extends DispatchAction
 //                }
 //            }
 
-            if (vo.getCustomerName().indexOf("吉林银行") != -1) {
+            String appName = ConfigLoader.getProperty("appName");
+            //#497
+            if (OutConstant.APP_NAME_TW.equals(appName) && "上海金币投资有限公司".equals(vo.getCustomerName())){
+                return mapping.findForward("printShjbReceipt");
+            } else if (vo.getCustomerName().indexOf("吉林银行") != -1) {
                 return mapping.findForward("printJlReceipt");
             } else if (vo.getCustomerName().indexOf("浦发银行") != -1) {
                 return mapping.findForward("printPfReceipt");
@@ -2134,7 +2138,11 @@ public class ShipAction extends DispatchAction
                 e.printStackTrace();
             }
 
-            if (vo.getCustomerName().indexOf("吉林银行") != -1){
+            String appName = ConfigLoader.getProperty("appName");
+            //#497
+            if (OutConstant.APP_NAME_TW.equals(appName) && "上海金币投资有限公司".equals(vo.getCustomerName())){
+                return mapping.findForward("printShjbReceipt");
+            }else if (vo.getCustomerName().indexOf("吉林银行") != -1){
                 return mapping.findForward("printJlReceipt");
             } else if (vo.getCustomerName().indexOf("浦发银行") != -1){
                 return mapping.findForward("printPfReceipt");
