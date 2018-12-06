@@ -1360,7 +1360,7 @@ public class ShipAction extends DispatchAction
 
         String customerName = vo.getCustomerName();
         if (customerName.contains("中信银行") || customerName.contains("贵州银行")){
-            request.setAttribute("customerName", customerName);
+            request.setAttribute("customerName", StringUtils.subString(customerName, 4));
         } else{
             request.setAttribute("customerName","");
         }
