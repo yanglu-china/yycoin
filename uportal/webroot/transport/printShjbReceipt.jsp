@@ -195,7 +195,7 @@ function callBackPrintFun()
 						<td colspan="4"><table><tr><td>备注：</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="4"><table><tr><td>1.本产品由“上海金币投资有限公司”供应。由“永银文化”承接发货、运输和办理入库；</td></tr></table></td>
+						<td colspan="4"><table><tr><td>1.本产品由“上海金币投资有限公司”供应，由“永银文化”承接发货、运输和办理入库；</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="4"><table><tr><td>2.若您收到产品有问题，可直接与永银文化的业务人员联系。</td></tr></table></td>
