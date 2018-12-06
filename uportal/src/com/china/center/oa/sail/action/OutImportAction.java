@@ -471,19 +471,22 @@
              // 姓氏
              bean.setFirstName("N/A");
 
-             ProductBean pbean = productDAO.findByName(name);
+             //其他类型直接读产品表
+             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_COMMON){
+                 ProductBean pbean = productDAO.findByName(name);
 
-             if (null == pbean)
-             {
-                 builder
-                         .append("第[" + currentNumber + "]错误:")
-                         .append("产品["+name+"]的产品不存在,请创建")
-                         .append("<br>");
+                 if (null == pbean)
+                 {
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("产品["+name+"]的产品不存在,请创建")
+                             .append("<br>");
 
-                 importError = true;
-             }else{
-                 bean.setProductId(pbean.getId());
-                 bean.setProductName(pbean.getName());
+                     importError = true;
+                 }else{
+                     bean.setProductId(pbean.getId());
+                     bean.setProductName(pbean.getName());
+                 }
              }
          }
          else

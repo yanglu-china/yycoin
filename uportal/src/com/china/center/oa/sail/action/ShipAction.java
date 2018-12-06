@@ -1856,7 +1856,8 @@ public class ShipAction extends DispatchAction
 
             String appName = ConfigLoader.getProperty("appName");
             //#497
-            if (OutConstant.APP_NAME_TW.equals(appName) && "上海金币投资有限公司".equals(vo.getCustomerName())){
+//            if (OutConstant.APP_NAME_TW.equals(appName) && "上海金币投资有限公司".equals(vo.getCustomerName())){
+            if ("上海金币投资有限公司".equals(vo.getCustomerName())){
                 return mapping.findForward("printShjbReceipt");
             } else if (vo.getCustomerName().indexOf("吉林银行") != -1) {
                 return mapping.findForward("printJlReceipt");
@@ -2140,7 +2141,8 @@ public class ShipAction extends DispatchAction
 
             String appName = ConfigLoader.getProperty("appName");
             //#497
-            if (OutConstant.APP_NAME_TW.equals(appName) && "上海金币投资有限公司".equals(vo.getCustomerName())){
+//            if (OutConstant.APP_NAME_TW.equals(appName) && "上海金币投资有限公司".equals(vo.getCustomerName())){
+            if ("上海金币投资有限公司".equals(vo.getCustomerName())){
                 return mapping.findForward("printShjbReceipt");
             }else if (vo.getCustomerName().indexOf("吉林银行") != -1){
                 return mapping.findForward("printJlReceipt");

@@ -161,7 +161,7 @@ function callBackPrintFun()
                         <td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
 						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.itemType}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.poDate}</td></tr></table></td>
+						<td><table class="border1"><tr><td>${item.description}${item.printText}</td></tr></table></td>
                         <td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
 					</tr>
 					</c:forEach>
