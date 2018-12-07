@@ -1280,7 +1280,17 @@
              try {
                  ProductImportBean productImportBean = this.outManager.getProductImportBean(customerName, bean.getBranchName(),
                          bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType());
+                 ProductBean productBean = this.productDAO.findByUnique(productImportBean.getCode());
+                 if (productBean == null){
+                     builder.append("第[" + currentNumber + "]错误:")
+                             .append("产品编码不存在:"+productImportBean.getCode())
+                             .append("<br>");
 
+                     importError = true;
+                 } else{
+                     bean.setProductId(productBean.getId());
+                     bean.setProductName(productBean.getName());
+                 }
                  bean.setIbMoney(productImportBean.getIbMoney());
                  bean.setMotivationMoney(productImportBean.getMotivationMoney());
                  bean.setIbMoney2(productImportBean.getIbMoney2());
