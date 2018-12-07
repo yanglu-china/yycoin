@@ -121,8 +121,22 @@ public class StringUtils {
         return builder.toString();
     }
 
+    public static String getSecondPart(String str, String deliminator){
+        String[] arrs = str.split(deliminator);
+//        for (String s: arrs){
+//            System.out.println(s);
+//        }
+//        System.out.println(arrs);
+        if(arrs.length >=2){
+            return arrs[1];
+        } else{
+            return str;
+        }
+    }
+
     public static void main(String[] args){
         String str = extract("数据接口批量导入，银行单号E20180115154115081900008.","银行单号", Pattern.quote("."));
         System.out.println(str);
+        System.out.println(getSecondPart("YZ0096700 貔貅手串黑曜石升级版（普17）", " "));
     }
 }
