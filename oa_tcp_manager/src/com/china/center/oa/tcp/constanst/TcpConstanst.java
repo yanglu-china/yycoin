@@ -185,7 +185,16 @@ public interface TcpConstanst
      */
     @Defined(key = "tcpStatus", value = "待事业部总经理审批")
     int TCP_STATUS_REGIONAL_CEO = 37;
-    
+
+    /**
+     * #495
+     */
+    @Defined(key = "tcpStatus", value = "提交人直属上级审批")
+    int TCP_STATUS_HIGHER_UP = 38;
+
+    @Defined(key = "tcpStatus", value = "承担人直属上级审批")
+    int TCP_STATUS_HIGHER_UP_SHARE = 39;
+
     /**
      * 结束
      */

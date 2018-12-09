@@ -152,7 +152,12 @@ public interface TcpFlowConstant
 
     //#346 出差报销
     String WORK_PAY_MARKETING = "work-pay-marketing";
-    
+
+    /**
+     * #495
+     */
+    String WORKFLOW_2018 = "workflow-2018";
+
     /**
      * 部门经理
      */

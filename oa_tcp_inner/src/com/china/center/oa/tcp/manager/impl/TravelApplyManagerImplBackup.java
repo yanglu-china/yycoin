@@ -9,37 +9,11 @@
 package com.china.center.oa.tcp.manager.impl;
 
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import com.center.china.osgi.publics.file.writer.WriteFile;
-import com.center.china.osgi.publics.file.writer.WriteFileFactory;
-import com.china.center.oa.publics.bean.*;
-import com.china.center.oa.publics.dao.*;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.constanst.OutConstant;
-import com.china.center.oa.sail.dao.BaseDAO;
-import com.china.center.oa.sail.dao.OutDAO;
-import com.china.center.oa.sail.helper.OutHelper;
-import com.china.center.oa.sail.vo.OutVO;
-import com.china.center.oa.tcp.bean.*;
-import com.china.center.oa.tcp.dao.*;
-import com.china.center.oa.tcp.manager.TcpFlowManager;
-import com.china.center.tools.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.china.center.spring.iaop.annotation.IntegrationAOP;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.AbstractListenerManager;
 import com.center.china.osgi.publics.User;
+import com.center.china.osgi.publics.file.writer.WriteFile;
+import com.center.china.osgi.publics.file.writer.WriteFileFactory;
 import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
@@ -55,25 +29,46 @@ import com.china.center.oa.finance.dao.BankDAO;
 import com.china.center.oa.finance.manager.BillManager;
 import com.china.center.oa.group.dao.GroupVSStafferDAO;
 import com.china.center.oa.group.vs.GroupVSStafferBean;
-import com.china.center.oa.mail.bean.MailBean;
 import com.china.center.oa.mail.manager.MailMangaer;
+import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.IDPrefixConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
-import com.china.center.oa.publics.constant.StafferConstant;
-import com.china.center.oa.publics.helper.UserHelper;
+import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.manager.NotifyManager;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.StafferVO;
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.helper.OutHelper;
+import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
+import com.china.center.oa.tcp.dao.*;
 import com.china.center.oa.tcp.helper.TCPHelper;
 import com.china.center.oa.tcp.listener.TcpPayListener;
+import com.china.center.oa.tcp.manager.TcpFlowManager;
 import com.china.center.oa.tcp.manager.TravelApplyManager;
 import com.china.center.oa.tcp.vo.TcpApproveVO;
 import com.china.center.oa.tcp.vo.TcpShareVO;
 import com.china.center.oa.tcp.vo.TravelApplyItemVO;
 import com.china.center.oa.tcp.vo.TravelApplyVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
+import com.china.center.tools.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.china.center.spring.iaop.annotation.IntegrationAOP;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 /**
@@ -81,22 +76,22 @@ import com.china.center.oa.tcp.wrap.TcpParamWrap;
  * 
  * @author ZHUZHU
  * @version 2011-7-17
- * @see TravelApplyManagerImpl
+ * @see TravelApplyManagerImplBackup
  * @since 3.0
  */
 @IntegrationAOP
-public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListener> implements TravelApplyManager
+public class TravelApplyManagerImplBackup extends AbstractListenerManager<TcpPayListener> implements TravelApplyManager
 {
     private final Log operationLog = LogFactory.getLog("opr");
-    
+
     private final Log badLog = LogFactory.getLog("bad");
-    
+
     private final Log _logger = LogFactory.getLog(getClass());
 
     private TcpApplyDAO tcpApplyDAO = null;
 
     private TcpFlowDAO tcpFlowDAO = null;
-    
+
     private StafferDAO stafferDAO = null;
 
     private GroupVSStafferDAO groupVSStafferDAO = null;
@@ -156,7 +151,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     /**
      * default constructor
      */
-    public TravelApplyManagerImpl()
+    public TravelApplyManagerImplBackup()
     {
     }
 
@@ -813,39 +808,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	            // 记录操作日志
 	            saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
 	        }
-            //#495
-	        else if (token.getNextPlugin().equalsIgnoreCase("plugin:higherUpShare"))
-                {
-                    _logger.info("******plugin:higherUpShare******");
-                    List<String> processList = new ArrayList();
-
-                    // 先处理一个
-                    List<TcpShareVO> shareVOList = bean.getShareVOList();
-
-                    if (ListTools.isEmptyOrNull(shareVOList))
-                    {
-                        throw new MYException("下环节里面没有人员,请确认操作");
-                    }
-
-                    for (TcpShareVO tcpShareVO : shareVOList)
-                    {
-                        // 承担人直属上级审批
-                        String nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(tcpShareVO.getBearId(), bean.getStafferId());
-                        if (!StringTools.isNullOrNone(nextProcessor)){
-                            processList.add(nextProcessor);
-                        }
-                    }
-
-                    int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
-                            TcpConstanst.TCP_POOL_COMMON);
-
-                    bean.setStatus(newStatus);
-
-                    travelApplyDAO.updateStatus(bean.getId(), newStatus);
-
-                    // 记录操作日志
-                    saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
-                }
             //#248
             else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
                     || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector")

@@ -421,7 +421,8 @@ public class TcpFlowManagerImpl implements TcpFlowManager
             if (nextStatus == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
-                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO
+                    ) {
                 nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
                 //CEO这个环节如果和发起人一致不能跳过,财务审批前必须有有个人处理下
                 if (originator.equals(nextProcessor) && nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO){
@@ -443,6 +444,15 @@ public class TcpFlowManagerImpl implements TcpFlowManager
                     result.setNextStatus(nextStatus);
                     _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
                 }
+            }
+            //#495
+            else if(nextStatus == TcpConstanst.TCP_STATUS_HIGHER_UP
+                    || nextStatus == TcpConstanst.TCP_STATUS_HIGHER_UP_SHARE){
+                //TODO
+                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(stafferId, originator);
+                result.setNextProcessor(nextProcessor);
+                result.setNextStatus(nextStatus);
+                _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
             }
         }catch(Exception e){
             _logger.error(e);

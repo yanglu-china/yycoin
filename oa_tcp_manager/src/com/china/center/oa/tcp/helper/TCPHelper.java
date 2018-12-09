@@ -42,11 +42,195 @@ import com.china.center.tools.StringTools;
  */
 public abstract class TCPHelper
 {
+
+    /**
+     * # 495
+     * @param bean
+     */
+    public static void setFlowKey2(AbstractTcpBean bean)
+    {
+        //中收激励流程不变
+        if (bean.isMidOrMotivation()) {
+            if (bean instanceof TravelApplyBean){
+                TravelApplyBean apply = (TravelApplyBean)bean;
+                if (apply.getIbType() == TcpConstanst.MOTIVATION_TYPE
+                        ||apply.getIbType() == TcpConstanst.MOTIVATION_TYPE2)  {
+                    bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_MOTIVATION);
+                    return;
+                } else if (apply.getIbType() == TcpConstanst.IB_TYPE
+                        || apply.getIbType() == TcpConstanst.IB_TYPE2
+                        || apply.getIbType() == TcpConstanst.PLATFORM_TYPE)  {
+                    bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_IB);
+                    return;
+                }
+            }
+            bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_IB);
+        } else{
+            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_TRAVEL){
+                bean.setFlowKey(TcpFlowConstant.WORKFLOW_2018);
+                return;
+            }
+            if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_MID) {
+                bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_MID);
+
+                return;
+            }
+
+            //2016/6/2 #248 不管职能系
+            if (bean instanceof TravelApplyBean){
+                TravelApplyBean apply = (TravelApplyBean)bean;
+                if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
+                    // #273 营销系使用同一个flowKey
+                    bean.setFlowKey(TcpFlowConstant.WORK_PAY_MARKETING);
+                    return ;
+                }
+            }else if (bean instanceof ExpenseApplyBean){
+                ExpenseApplyBean apply = (ExpenseApplyBean)bean;
+                if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
+                    bean.setFlowKey(TcpFlowConstant.WORK_PAY_MARKETING);
+                    return ;
+                }
+            }
+
+            if (bean.getType() != TcpConstanst.TCP_APPLYTYPE_STOCK)
+            {
+                if (bean.getStype() == TcpConstanst.TCP_STYPE_SAIL)
+                {
+                    if (bean.getTotal() <= 500000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_0_5000);
+
+                        return;
+                    }
+
+                    if (bean.getTotal() > 500000 && bean.getTotal() <= 1000000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_5000_10000);
+
+                        return;
+                    }
+
+                    if (bean.getTotal() > 1000000 && bean.getTotal() <= 5000000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_10000_50000);
+
+                        return;
+                    }
+
+                    if (bean.getTotal() > 5000000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_50000_MAX);
+
+                        return;
+                    }
+                }
+
+                if (bean.getStype() == TcpConstanst.TCP_STYPE_WORK)
+                {
+                    if (bean.getTotal() <= 5000000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.WORK_APPLY_0_50000);
+
+                        return;
+                    }
+                    else
+                    {
+                        bean.setFlowKey(TcpFlowConstant.WORK_APPLY_50000_MAX);
+
+                        return;
+                    }
+                }
+
+                if (bean.getStype() == TcpConstanst.TCP_STYPE_MANAGER)
+                {
+                    if (bean.getTotal() <= 5000000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.MANAGER_APPLY_0_50000);
+
+                        return;
+                    }
+                    else
+                    {
+                        bean.setFlowKey(TcpFlowConstant.MANAGER_APPLY_50000_MAX);
+
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                if (bean.getStype() == TcpConstanst.TCP_STYPE_SAIL)
+                {
+                    if (bean.getTotal() <= 500000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.STOCK_APPLY_0_5000);
+
+                        return;
+                    }
+
+                    if (bean.getTotal() > 500000 && bean.getTotal() <= 1000000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.STOCK_APPLY_5000_10000);
+
+                        return;
+                    }
+
+                    if (bean.getTotal() > 1000000 && bean.getTotal() <= 5000000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.STOCK_APPLY_10000_50000);
+
+                        return;
+                    }
+
+                    if (bean.getTotal() > 5000000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.STOCK_APPLY_50000_MAX);
+
+                        return;
+                    }
+                }
+
+                if (bean.getStype() == TcpConstanst.TCP_STYPE_WORK)
+                {
+                    if (bean.getTotal() <= 5000000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.WORK_STOCK_APPLY_0_50000);
+
+                        return;
+                    }
+                    else
+                    {
+                        bean.setFlowKey(TcpFlowConstant.WORK_STOCK_APPLY_50000_MAX);
+
+                        return;
+                    }
+                }
+
+                if (bean.getStype() == TcpConstanst.TCP_STYPE_MANAGER)
+                {
+                    if (bean.getTotal() <= 5000000)
+                    {
+                        bean.setFlowKey(TcpFlowConstant.MANAGER_STOCK_APPLY_0_50000);
+
+                        return;
+                    }
+                    else
+                    {
+                        bean.setFlowKey(TcpFlowConstant.MANAGER_STOCK_APPLY_50000_MAX);
+
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * 设置报销的key(CORE)
      * 
      * @param bean
      */
+    @Deprecated
     public static void setFlowKey(AbstractTcpBean bean)
     {
     	if (bean.isMidOrMotivation()) {
