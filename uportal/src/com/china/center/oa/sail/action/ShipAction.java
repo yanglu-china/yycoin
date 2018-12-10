@@ -2975,6 +2975,12 @@ public class ShipAction extends DispatchAction
             this.getCustomerName(each);
             this.getProductCode(each, Bank.OTHER);
 
+            String productName = this.convertProductNameForZj(each, this.getCustomerName(vo.getCustomerName()));
+            if (!StringTools.isNullOrNone(productName)){
+                //过滤掉前缀
+                each.setProductName(StringUtils.getSecondPart(productName, " "));
+            }
+
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
 
@@ -3112,11 +3118,11 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
-            String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
-            if (!StringTools.isNullOrNone(productName)){
-                //过滤掉前缀
-                item.setProductName(StringUtils.getSecondPart(productName, " "));
-            }
+//            String productName = this.convertProductNameForZj(item, this.getCustomerName(vo.getCustomerName()));
+//            if (!StringTools.isNullOrNone(productName)){
+//                //过滤掉前缀
+//                item.setProductName(StringUtils.getSecondPart(productName, " "));
+//            }
 
             itemList1.add(item);
             _logger.info("***convertProductNameForBank***" + item.getProductName());
