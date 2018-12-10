@@ -162,7 +162,7 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 						<td><table class="border1"><tr><td></td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.description}${item.printText}</td></tr></table></td>
-                        <td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
+                        <td><table class="border1"><tr><td>${branchName}</td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
