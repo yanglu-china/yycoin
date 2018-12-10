@@ -62,5 +62,7 @@ public interface OutInterface {
 
     double getPromValue();
 
+    String getChannel();
+
     List<? extends BaseInterface> getBaseList();
 }

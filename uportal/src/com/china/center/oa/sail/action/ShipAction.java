@@ -2743,6 +2743,8 @@ public class ShipAction extends DispatchAction
         //#189 <productId_itemType,PackageItemBean>
         Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
 
+        //#503
+        boolean hasCreditChannel = false;
         for (PackageItemBean each : itemList) {
             //只打印同一客户的
             //#439 南京银行CK单需要合并打印
@@ -2777,6 +2779,10 @@ public class ShipAction extends DispatchAction
                     each.setItemType("铺货");
                 } else if (out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT){
                     each.setItemType("赠品");
+                }
+
+                if ("信用卡".equals(out.getChannel())){
+                    hasCreditChannel = true;
                 }
             }
 
@@ -2945,8 +2951,14 @@ public class ShipAction extends DispatchAction
                 }
             }
             _logger.info("*****stafferName***********"+stafferName+"*******phone*************"+phone);
-            request.setAttribute("stafferName", stafferName);
-            request.setAttribute("phone",phone);
+            //#503 平安银行+信用卡渠道不显示
+            if (vo.getCustomerName().contains("平安银行") && hasCreditChannel){
+                request.setAttribute("stafferName", "");
+                request.setAttribute("phone","");
+            } else{
+                request.setAttribute("stafferName", stafferName);
+                request.setAttribute("phone",phone);
+            }
         }
 
         request.setAttribute("total", totalAmount);
