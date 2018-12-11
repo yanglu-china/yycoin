@@ -312,7 +312,7 @@
 
 
      /**
-      * # 470 导入中收激励逻辑重写
+      * # 470 导入中收激励逻辑重写(中信导入-》中信银行0、银行领样2)
       * @param bean
       * @param obj
       * @param builder
@@ -472,22 +472,22 @@
              bean.setFirstName("N/A");
 
              //其他类型直接读产品表
-             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_COMMON){
-                 ProductBean pbean = productDAO.findByName(name);
-
-                 if (null == pbean)
-                 {
-                     builder
-                             .append("第[" + currentNumber + "]错误:")
-                             .append("产品["+name+"]的产品不存在,请创建")
-                             .append("<br>");
-
-                     importError = true;
-                 }else{
-                     bean.setProductId(pbean.getId());
-                     bean.setProductName(pbean.getName());
-                 }
-             }
+//             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_COMMON){
+//                 ProductBean pbean = productDAO.findByName(name);
+//
+//                 if (null == pbean)
+//                 {
+//                     builder
+//                             .append("第[" + currentNumber + "]错误:")
+//                             .append("产品["+name+"]的产品不存在,请创建")
+//                             .append("<br>");
+//
+//                     importError = true;
+//                 }else{
+//                     bean.setProductId(pbean.getId());
+//                     bean.setProductName(pbean.getName());
+//                 }
+//             }
          }
          else
          {
@@ -1272,30 +1272,31 @@
              }
          }
 
-         //#65 中收激励从Product import表读取
-         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON
-                 //#108 原招商银行导入不需要设置中收激励金额
-                 && bean.getItype()!= 2){
-             String customerName = bean.getComunicatonBranchName();
-             try {
-                 ProductImportBean productImportBean = this.outManager.getProductImportBean(customerName, bean.getBranchName(),
-                         bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType());
-                 ProductBean productBean = this.productDAO.findByUnique(productImportBean.getCode());
-                 if (productBean == null){
-                     builder.append("第[" + currentNumber + "]错误:")
-                             .append("产品编码不存在:"+productImportBean.getCode())
-                             .append("<br>");
+         //#505 中信导入、银行领样导入都读取Product import表
+         String customerName = bean.getComunicatonBranchName();
+         try {
+             ProductImportBean productImportBean = this.outManager.getProductImportBean(customerName, bean.getBranchName(),
+                     bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType());
+             ProductBean productBean = this.productDAO.findByUnique(productImportBean.getCode());
+             if (productBean == null){
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("产品编码不存在:"+productImportBean.getCode())
+                         .append("<br>");
 
-                     importError = true;
-                 } else{
-                     bean.setProductId(productBean.getId());
-                     bean.setProductName(productBean.getName());
-                 }
+                 importError = true;
+             } else{
+                 bean.setProductId(productBean.getId());
+                 bean.setProductName(productBean.getName());
+                 bean.setProductImportId(productImportBean.getId());
+             }
+
+             //中信导入的销售出库才设置中收激励金额
+             if (bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON
+                     && bean.getItype() == 0){
                  bean.setIbMoney(productImportBean.getIbMoney());
                  bean.setMotivationMoney(productImportBean.getMotivationMoney());
                  bean.setIbMoney2(productImportBean.getIbMoney2());
                  bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
-                 bean.setProductImportId(productImportBean.getId());
 
                  if (this.isOnlineCustomer(bean.getComunicatonBranchName())){
                      bean.setPlatformFee(bean.getPrice()*0.01);
@@ -1305,14 +1306,14 @@
 
                  bean.setCash(productImportBean.getCash());
                  bean.setGrossProfit(productImportBean.getGrossProfit());
-             }catch (MYException e){
-                 _logger.error(e);
-                 builder.append("第[" + currentNumber + "]错误:")
-                         .append(e.getMessage())
-                         .append("<br>");
-
-                 importError = true;
              }
+         }catch (MYException e){
+             _logger.error(e);
+             builder.append("第[" + currentNumber + "]错误:")
+                     .append(e.getMessage())
+                     .append("<br>");
+
+             importError = true;
          }
 
          //交货方式
@@ -1521,6 +1522,14 @@
          return mapping.findForward("queryOutImport");
      }
 
+     /**
+      * 中信销售-》普通导入1
+      * @param bean
+      * @param obj
+      * @param builder
+      * @param currentNumber
+      * @return
+      */
      private boolean innerAddForPufa(OutImportBean bean, String[] obj, StringBuilder builder, int currentNumber)
      {
          boolean importError = false;

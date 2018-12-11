@@ -159,7 +159,7 @@ public class OutImportBean implements Serializable
 	private String citicOrderDate = "";
 	
 	/**
-	 * 类型 0 中信 1 普通 2 招行
+	 * 类型 0 中信 1 普通 2 领样订单
 	 */
 	private int itype = 0;
 	
