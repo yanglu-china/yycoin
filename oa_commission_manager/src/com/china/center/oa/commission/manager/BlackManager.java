@@ -34,4 +34,12 @@ public interface BlackManager
      * 每日黑名单对应的产品明细
      */
     void statsBlackOutDetail();
+
+    /**
+     * #500 应收金额
+     * @param outId
+     * @return
+     * @throws MYException
+     */
+    double getBlackMoney(String outId) throws MYException;
 }

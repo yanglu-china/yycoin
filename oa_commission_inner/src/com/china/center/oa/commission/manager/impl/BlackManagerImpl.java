@@ -358,7 +358,16 @@ public class BlackManagerImpl implements BlackManager
                             }
                         }
                     }
-                    total = outBean.getTotal() - excepTotal;
+
+                    //#500
+                    if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
+                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
+                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH){
+                        total = this.getBlackMoney(outId);
+                    } else{
+                        total = outBean.getTotal() - excepTotal;
+                    }
 
                     // 非委托代销
                     double outBackValue = sumOutBackValue(outId, productIdSet);
@@ -647,6 +656,70 @@ public class BlackManagerImpl implements BlackManager
         	stafferDAO.updateBlack(stafferId, blackType);
         
         return blackType;
+    }
+
+    private List<OutBean> queryRefOut1(final String outId, boolean checkStatus)
+    {
+        // 查询当前已经有多少个人领样
+        ConditionParse con = new ConditionParse();
+
+        con.addWhereStr();
+
+        con.addCondition("OutBean.refOutFullId", "=", outId);
+        if (checkStatus) {
+            con.addCondition(" and OutBean.status in (3, 4)");
+        }
+
+        con.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_INBILL);
+
+        // 排除其他入库(对冲单据)
+        con.addCondition("OutBean.reserve8", "<>", "1");
+
+        List<OutBean> refBuyList = outDAO.queryEntityBeansByCondition(con);
+
+        for (OutBean outBean : refBuyList)
+        {
+            List<BaseBean> list = baseDAO.queryEntityBeansByFK(outBean
+                    .getFullId());
+
+            outBean.setBaseList(list);
+        }
+
+        return refBuyList;
+    }
+
+    @Override
+    public double getBlackMoney(String outId) throws MYException {
+        //TODO 事业部结算价*应收数量
+        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
+
+        List<OutBean> refBuyList = queryRefOut1(outId, false);
+
+        double total = 0;
+        double totalBack = 0;
+        // 计算出已经退货的数量
+        for (BaseBean baseBean : baseList)
+        {
+            int hasBack = 0;
+            // 退库
+            for (OutBean ref : refBuyList)
+            {
+                List<BaseBean> refBaseList = ref.getBaseList();
+
+                for (BaseBean refBase : refBaseList)
+                {
+                    if (refBase.equals2(baseBean))
+                    {
+                        hasBack += refBase.getAmount();
+                    }
+                }
+            }
+
+            total += baseBean.getIprice()*baseBean.getAmount();
+            totalBack += baseBean.getIprice()*hasBack;
+        }
+
+        return total-totalBack;
     }
 
     /**
