@@ -12989,71 +12989,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             branchName = customerBean.getReserve1();
         }
         return this.getProductImportBean(customerName, branchName, productBean.getCode(), channel,out.getPodate(), out.getOutType());
-        /*if (productBean!= null) {
-        List<ProductImportBean> beans = null;
-            String productCode = productBean.getCode();
-            //#291
-            if (!StringTools.isNullOrNone(productCode)) {
-                //取有对应关系行项目上的价格，从支行名称开始对比
-                ConditionParse conditionParse = new ConditionParse();
-                conditionParse.addCondition("code", "=", productCode);
-                conditionParse.addCondition("customerName", "=", customerName);
-                if (!StringTools.isNullOrNone(channel)){
-                    conditionParse.addCondition("channel", "=", channel);
-                }
-                conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
-                beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-
-                if (ListTools.isEmptyOrNull(beans) && !StringTools.isNullOrNone(branchName)){
-                    //如果支行无法匹配，就对比分行
-                    conditionParse = new ConditionParse();
-                    conditionParse.addCondition("code", "=", productCode);
-                    conditionParse.addCondition("branchName", "=", branchName);
-                    if (!StringTools.isNullOrNone(channel)){
-                        conditionParse.addCondition("channel", "=", channel);
-                    }
-                    conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
-                    beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-                }
-
-                //如果支行和分行都无法匹配，就还按现在逻辑取值
-                if (ListTools.isEmptyOrNull(beans)) {
-                    conditionParse = new ConditionParse();
-                    conditionParse.addCondition("code", "=", productCode);
-                    conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
-
-                    beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-                }
-            }
-        }
-
-        if (ListTools.isEmptyOrNull(beans)){
-            _logger.error("not found product import:"+productId+":"+customerName+":"+channel);
-            return null;
-        } else{
-            for (ProductImportBean pib: beans){
-                //分行必须对应，要么分行为空
-                if (!StringTools.isNullOrNone(branchName) && !StringTools.isNullOrNone(pib.getBranchName())
-                        && !branchName.equals(pib.getBranchName())){
-                    continue;
-                }
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                try{
-                    Date end = sdf.parse(pib.getOfflineDate());
-                    Date begin = sdf.parse(pib.getOnMarketDate());
-                    Date citicDate = sdf.parse(out.getPodate());
-                    if (citicDate.before(begin) || citicDate.after(end)){
-                        _logger.warn(out+" citicDate out of date:"+pib);
-                        continue;
-                    } else{
-                        return pib;
-                    }
-                }catch(Exception e){
-                    _logger.error(" Exception parse Date:",e);
-                }
-            }
-            return null;
-        }*/
     }
 
     @Override
@@ -13128,7 +13063,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
 
         if (ListTools.isEmptyOrNull(productImportBeans)) {
-            String msg = appName+"未配置产品主数据映射关系(客户+银行产品编码):"+customerName+"+"+productCode;
+            String msg = appName+"未配置产品主数据(客户+银行产品编码):"+customerName+"+"+productCode;
             _logger.error(msg);
             throw new MYException(msg);
         } else if (productImportBeans.size() > 1) {
