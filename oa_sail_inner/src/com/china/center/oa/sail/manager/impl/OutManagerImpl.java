@@ -13136,14 +13136,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (outType == OutConstant.OUTTYPE_OUT_COMMON){
             //销售出库
             conditionParse.addCondition("isSell", "=", "在售");
-        } else if (outType == OutConstant.OUTTYPE_OUT_SWATCH
-                || outType == OutConstant.OUTTYPE_OUT_PRESENT){
-            //个人领样、赠送
+        } else {
+            //其他所有出库类型
             conditionParse.addCondition(" and isSell in ('在售','非在售')");
-        } else if (outType == OutConstant.OUTTYPE_OUT_BANK_SWATCH
-                || outType == OutConstant.OUTTYPE_OUT_SHOW){
-            //银行领样、铺货
-            conditionParse.addCondition("isSell", "=", "非在售");
         }
 
         if (OutConstant.APP_NAME_TW.equals(appName)){
