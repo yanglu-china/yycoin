@@ -360,14 +360,15 @@ public class BlackManagerImpl implements BlackManager
                     }
 
                     //#500
-                    if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
-                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
-                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
-                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH){
-                        total = this.getBlackMoney(outId);
-                    } else{
-                        total = outBean.getTotal() - excepTotal;
-                    }
+//                    if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
+//                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
+//                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+//                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH){
+//                        total = this.getBlackMoney(outId);
+//                    } else{
+//                        total = outBean.getTotal() - excepTotal;
+//                    }
+                    total = outBean.getTotal() - excepTotal;
 
                     // 非委托代销
                     double outBackValue = sumOutBackValue(outId, productIdSet);
