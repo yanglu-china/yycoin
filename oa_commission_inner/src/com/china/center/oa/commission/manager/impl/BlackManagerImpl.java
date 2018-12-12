@@ -360,15 +360,16 @@ public class BlackManagerImpl implements BlackManager
                     }
 
                     //#500
-//                    if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
-//                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
-//                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
-//                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH){
-//                        total = this.getBlackMoney(outId);
-//                    } else{
-//                        total = outBean.getTotal() - excepTotal;
-//                    }
-                    total = outBean.getTotal() - excepTotal;
+                    if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
+                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
+                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+                            || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH){
+                        total = this.getBlackMoney(outId);
+                        _logger.info(outId+"****total black money**"+total);
+                    } else{
+                        total = outBean.getTotal() - excepTotal;
+                    }
+//                    total = outBean.getTotal() - excepTotal;
 
                     // 非委托代销
                     double outBackValue = sumOutBackValue(outId, productIdSet);
@@ -465,7 +466,6 @@ public class BlackManagerImpl implements BlackManager
                     }
 
                     blackDAO.saveEntityBean(bean);
-
                     saveBlackOutInner(outWrapList, allOutWrapList, reDateOutWrapList, id);
                 } else {
                     String id = blackBean.getId();
@@ -496,7 +496,6 @@ public class BlackManagerImpl implements BlackManager
                     blackDAO.saveEntityBean(blackBean);
 
                     blackOutDAO.deleteEntityBeansByFK(id);
-
                     saveBlackOutInner(outWrapList, allOutWrapList, reDateOutWrapList, id);
                 }
                 _logger.info("***finish processStatsBlack:"+stafferId);
@@ -690,8 +689,7 @@ public class BlackManagerImpl implements BlackManager
     }
 
     @Override
-    public double getBlackMoney(String outId) throws MYException {
-        //TODO 事业部结算价*应收数量
+    public double getBlackMoney(String outId){
         List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
 
         List<OutBean> refBuyList = queryRefOut1(outId, false);
@@ -716,6 +714,7 @@ public class BlackManagerImpl implements BlackManager
                 }
             }
 
+            //应收=事业部结算价*应收数量
             total += baseBean.getIprice()*baseBean.getAmount();
             totalBack += baseBean.getIprice()*hasBack;
         }

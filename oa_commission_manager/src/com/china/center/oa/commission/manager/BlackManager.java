@@ -41,5 +41,5 @@ public interface BlackManager
      * @return
      * @throws MYException
      */
-    double getBlackMoney(String outId) throws MYException;
+    double getBlackMoney(String outId);
 }

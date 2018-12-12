@@ -1504,12 +1504,16 @@ public class ParentOutAction extends DispatchAction
 
             if (outId.startsWith("ZS")){
 				bean.setOutType(OutConstant.OUTTYPE_IN_PRESENT);
+			}  else if (oriOut.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
+					|| oriOut.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
+					|| oriOut.getOutType() == OutConstant.OUTTYPE_OUT_SHOW){
+				// #403 “个人领样、银行领样、客户铺货”这3种类型的订单入库类型为“领样退库”
+				bean.setOutType(OutConstant.OUTTYPE_IN_SWATCH);
 			} else{
 				bean.setOutType(OutConstant.OUTTYPE_IN_OUTBACK);
 			}
 
             bean.setRefOutFullId(outId);
-
             bean.setDescription("批量退库,销售单号:" + outId + ". " + wrap.getDescription());
 
             bean.setOperator(user.getStafferId());
