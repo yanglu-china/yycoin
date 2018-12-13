@@ -2129,7 +2129,9 @@ public class ParentOutAction extends DispatchAction
 			}
 
 			setHasProm(request, staffer);
-		} else if ("1".equals(flag)){
+		}
+		//2018/12/13 rollback
+/*		else if ("1".equals(flag)){
 			// # 486 只处理体内系统
 			String appName = ConfigLoader.getProperty("appName");
 			if ("永银ERP".equals(appName) && !"金加波".equals(username)){
@@ -2145,8 +2147,7 @@ public class ParentOutAction extends DispatchAction
 					}
 				}
 			}
-
-		}
+		}*/
 
 		request.setAttribute("locationList", locationList);
 
