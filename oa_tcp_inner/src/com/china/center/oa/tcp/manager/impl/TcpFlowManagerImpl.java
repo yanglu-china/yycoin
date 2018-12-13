@@ -16,7 +16,9 @@ import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.oa.mail.bean.MailBean;
 import com.china.center.oa.mail.manager.MailMangaer;
 import com.china.center.oa.publics.StringUtils;
+import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.StafferConstant;
+import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.helper.UserHelper;
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
@@ -77,6 +79,8 @@ public class TcpFlowManagerImpl implements TcpFlowManager
     private FlowLogDAO flowLogDAO = null;
 
     private BankBuLevelDAO bankBuLevelDAO = null;
+
+    private StafferDAO stafferDAO = null;
 
     /**
      * default constructor
@@ -446,10 +450,9 @@ public class TcpFlowManagerImpl implements TcpFlowManager
                 }
             }
             //#495
-            else if(nextStatus == TcpConstanst.TCP_STATUS_HIGHER_UP
-                    || nextStatus == TcpConstanst.TCP_STATUS_HIGHER_UP_SHARE){
-                //TODO
-                nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(stafferId, originator);
+            else if(nextStatus == TcpConstanst.TCP_STATUS_HIGHER_UP){
+                StafferBean stafferBean = this.stafferDAO.find(stafferId);
+                nextProcessor = String.valueOf(stafferBean.getSuperiorLeader());
                 result.setNextProcessor(nextProcessor);
                 result.setNextStatus(nextStatus);
                 _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
@@ -598,5 +601,13 @@ public class TcpFlowManagerImpl implements TcpFlowManager
 
     public void setBankBuLevelDAO(BankBuLevelDAO bankBuLevelDAO) {
         this.bankBuLevelDAO = bankBuLevelDAO;
+    }
+
+    public StafferDAO getStafferDAO() {
+        return stafferDAO;
+    }
+
+    public void setStafferDAO(StafferDAO stafferDAO) {
+        this.stafferDAO = stafferDAO;
     }
 }

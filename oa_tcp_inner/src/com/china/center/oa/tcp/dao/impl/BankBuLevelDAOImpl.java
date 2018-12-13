@@ -195,31 +195,4 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
         }
         return "";
     }
-
-    @Override
-    public String queryHighLevelManagerId(String stafferId, String originator) {
-        String higherUp = "";
-        // TODO直属上级如何鉴定？之前在层级关系中是根据下一环节审核状态来确定的
-        // 先找省级经理
-        List<BankBuLevelBean> result = jdbcOperation.queryObjectsBySql(
-                "select id,provinceManagerId from T_CENTER_BANKBU_LEVEL where id='" + stafferId + "'")
-                .setMaxResults(600).list(BankBuLevelBean.class);
-        higherUp = this.getHigherUp(result, stafferId, 1);
-
-
-        return higherUp;
-    }
-
-    private String getHigherUp(List<BankBuLevelBean> beans ,String stafferId, int type){
-        if (ListTools.isEmptyOrNull(beans)){
-            return "";
-        } else{
-            for (BankBuLevelBean bean: beans){
-                if (!stafferId.equals(bean.getProvinceManagerId())){
-                    return bean.getProvinceManagerId();
-                }
-            }
-            return "";
-        }
-    }
 }

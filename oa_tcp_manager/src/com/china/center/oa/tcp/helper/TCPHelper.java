@@ -47,7 +47,7 @@ public abstract class TCPHelper
      * # 495
      * @param bean
      */
-    public static void setFlowKey2(AbstractTcpBean bean)
+    public static void setFlowKey(AbstractTcpBean bean)
     {
         //中收激励流程不变
         if (bean.isMidOrMotivation()) {
@@ -231,7 +231,7 @@ public abstract class TCPHelper
      * @param bean
      */
     @Deprecated
-    public static void setFlowKey(AbstractTcpBean bean)
+    public static void setFlowKey2(AbstractTcpBean bean)
     {
     	if (bean.isMidOrMotivation()) {
             if (bean instanceof TravelApplyBean){

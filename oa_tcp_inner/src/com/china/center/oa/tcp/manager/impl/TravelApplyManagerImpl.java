@@ -829,8 +829,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
                     for (TcpShareVO tcpShareVO : shareVOList)
                     {
+                        String bearId = tcpShareVO.getBearId();
+                        StafferBean stafferBean = this.stafferDAO.find(bearId);
                         // 承担人直属上级审批
-                        String nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(tcpShareVO.getBearId(), bean.getStafferId());
+                        String nextProcessor = String.valueOf(stafferBean.getSuperiorLeader());
                         if (!StringTools.isNullOrNone(nextProcessor)){
                             processList.add(nextProcessor);
                         }

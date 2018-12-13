@@ -17,9 +17,9 @@ import java.util.List;
 
 public interface BankBuLevelDAO extends DAO<BankBuLevelBean, BankBuLevelBean>
 {
-    public List<BankBuLevelBean> queryByBearType(String bearType);
+    List<BankBuLevelBean> queryByBearType(String bearType);
 
-    public List<BankBuLevelBean> queryByBearTypeAndManager(String bearType, String manager);
+    List<BankBuLevelBean> queryByBearTypeAndManager(String bearType, String manager);
 
     /**
      *
@@ -29,8 +29,6 @@ public interface BankBuLevelDAO extends DAO<BankBuLevelBean, BankBuLevelBean>
      * @param originator 发起人
      * @return
      */
-    public String queryHighLevelManagerId(String flowKey, int bearType, String stafferId, String originator);
-
-    String queryHighLevelManagerId(String stafferId, String originator);
+    String queryHighLevelManagerId(String flowKey, int bearType, String stafferId, String originator);
 
 }

@@ -172,6 +172,11 @@ public class StafferBean implements Serializable
     @Html(title = "在职状态", maxLength = 32)
     private String zzzt = "";
 
+    /**#495
+     * 直属上级职员Id
+     */
+    private int superiorLeader;
+
     @Ignore
     private List<StafferVSPriBean> priList = new ArrayList();
 
@@ -810,6 +815,14 @@ public class StafferBean implements Serializable
 
     public void setZzzt(String zzzt) {
         this.zzzt = zzzt;
+    }
+
+    public int getSuperiorLeader() {
+        return superiorLeader;
+    }
+
+    public void setSuperiorLeader(int superiorLeader) {
+        this.superiorLeader = superiorLeader;
     }
 
     /**
