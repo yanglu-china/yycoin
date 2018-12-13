@@ -365,7 +365,7 @@ public class BlackManagerImpl implements BlackManager
                             || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
                             || outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH){
                         total = this.getBlackMoney(outId);
-                        _logger.info(outId+"****total black money**"+total);
+                        _logger.info(outId+"****total money**"+total);
                     } else{
                         total = outBean.getTotal() - excepTotal;
                     }
@@ -719,7 +719,7 @@ public class BlackManagerImpl implements BlackManager
             totalBack += baseBean.getIprice()*hasBack;
         }
 
-        return total-totalBack;
+        return total;
     }
 
     /**
@@ -1027,9 +1027,16 @@ public class BlackManagerImpl implements BlackManager
 
         double backTotal = 0.0d;
 
-        for (OutBean outBean : refList)
-        {
-            backTotal += outBean.getTotal();
+//        for (OutBean outBean : refList)
+//        {
+//            backTotal += outBean.getTotal();
+//        }
+        //#500 价格为0,取结算价*数量
+        for (OutBean outBean: refList){
+            List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
+            for (BaseBean baseBean: baseBeans){
+                backTotal += baseBean.getIprice()*baseBean.getAmount();
+            }
         }
 
         double excepTotal = getExceptProductValue(productIdSet, refList);
