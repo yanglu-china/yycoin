@@ -169,6 +169,9 @@ public class StafferBean implements Serializable
     @Html(title = "其他", type = Element.TEXTAREA, maxLength = 200)
     private String description = "";
 
+    @Html(title = "在职状态", maxLength = 32)
+    private String zzzt = "";
+
     @Ignore
     private List<StafferVSPriBean> priList = new ArrayList();
 
@@ -799,6 +802,14 @@ public class StafferBean implements Serializable
     public void setOtype(int otype)
     {
         this.otype = otype;
+    }
+
+    public String getZzzt() {
+        return zzzt;
+    }
+
+    public void setZzzt(String zzzt) {
+        this.zzzt = zzzt;
     }
 
     /**

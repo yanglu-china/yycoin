@@ -146,6 +146,8 @@ public class PopQueryAction extends DispatchAction
             {
                 // 过滤废弃的
                 condtion.addIntCondition("StafferBean.status", "=", StafferConstant.STATUS_COMMON);
+                //#508 “在职状态”为“废弃、离职”的过滤掉
+                condtion.addCondition(" and StafferBean.zzzt not in('废弃','离职')");
             }
             else
             {
