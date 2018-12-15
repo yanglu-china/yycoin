@@ -1521,9 +1521,9 @@ public class ParentOutAction extends DispatchAction
 
             double total = 0.0d;
 
-            List<BaseBean> newBaseList = new ArrayList<BaseBean>();
+            List<BaseBean> newBaseList = new ArrayList<>();
 
-            BaseBean oribase = this.getBaseBean(outId,wrap.getProductId(), wrap.getCostPriceKey());
+            BaseBean oribase = this.outManager.getBaseBean(outId,wrap.getProductId(), wrap.getCostPriceKey());
 
             // 增加base
             BaseBean baseBean = new BaseBean();
@@ -1582,20 +1582,6 @@ public class ParentOutAction extends DispatchAction
         }
 
 	    return outBeans;
-    }
-
-    private BaseBean getBaseBean(String outId, String productId, String costPriceKey) throws MYException{
-	    List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outId);
-	    if (ListTools.isEmptyOrNull(baseBeans)){
-	        throw new MYException("BaseBean不存在:"+outId);
-        } else{
-	        for (BaseBean baseBean : baseBeans){
-	            if (productId.equals(baseBean.getProductId()) && baseBean.getCostPriceKey().equals(costPriceKey)){
-	                return baseBean;
-                }
-            }
-	        return baseBeans.get(0);
-        }
     }
 
 	/**

@@ -26,6 +26,7 @@ import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.listener.OutListener;
 import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.oa.sail.wrap.BatchBackWrap;
+import com.china.center.tools.ListTools;
 
 
 /**
@@ -811,4 +812,7 @@ public interface OutManager extends ListenerManager<OutListener>
     double getSailConfigPrice(ProductBean productBean);
 
     String getCostPriceKey(String outId, String productId) throws MYException;
+
+
+    BaseBean getBaseBean(String outId, String productId, String costPriceKey) throws MYException;
 }

@@ -1461,6 +1461,19 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             baseBean.setMtype(outBean.getMtype());
 
+            //#511 批量退货时需要设置中收激励金额
+            if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                    && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK){
+                BaseBean originalBase = this.getBaseBean(outBean.getRefOutFullId(), baseBean.getProductId(), baseBean.getCostPriceKey());
+                if (originalBase!= null){
+                    baseBean.setIbMoney(originalBase.getIbMoney());
+                    baseBean.setIbMoney2(originalBase.getIbMoney2());
+                    baseBean.setMotivationMoney(originalBase.getMotivationMoney());
+                    baseBean.setMotivationMoney2(originalBase.getMotivationMoney2());
+                    baseBean.setPlatformFee(originalBase.getPlatformFee());
+                }
+            }
+
             // 增加单个产品到base表
             baseDAO.saveEntityBean(baseBean);
         }
@@ -13395,6 +13408,21 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             throw new MYException(outId+"商品成本有多行:"+productId);
         } else{
 	        return baseBeans.get(0).getCostPriceKey();
+        }
+    }
+
+    @Override
+    public BaseBean getBaseBean(String outId, String productId, String costPriceKey) throws MYException{
+        List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outId);
+        if (ListTools.isEmptyOrNull(baseBeans)){
+            throw new MYException("BaseBean不存在:"+outId);
+        } else{
+            for (BaseBean baseBean : baseBeans){
+                if (productId.equals(baseBean.getProductId()) && baseBean.getCostPriceKey().equals(costPriceKey)){
+                    return baseBean;
+                }
+            }
+            return baseBeans.get(0);
         }
     }
 
