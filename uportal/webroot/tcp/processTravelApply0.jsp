@@ -193,9 +193,6 @@ function checkMoney()
             <p:pro field="stafferId" value="${bean.stafferName}"/>
             <p:pro field="departmentId" value="${bean.departmentName}"/>
 
-            <p:pro field="marketingFlag" cell="0" >
-                <p:option type="marketingFlag"></p:option>
-            </p:pro>
 
             <p:pro field="stype" cell="0">
                 <p:option type="tcpStype" empty="true"/>

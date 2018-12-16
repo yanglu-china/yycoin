@@ -3049,12 +3049,11 @@ public class TravelApplyAction extends DispatchAction
             shareType = 1;
         }
 
-        if(null != budgetIdeList && budgetIdeList.size() > 0 )
+        if(null != bearIdList && bearIdList.size() > 0 )
         {
-        	
-	        for (int i = 0; i < budgetIdeList.size(); i++ )
+	        for (int i = 0; i < bearIdList.size(); i++ )
 	        {
-	            String each = budgetIdeList.get(i);
+	            String each = bearIdList.get(i);
 	
 	            if (StringTools.isNullOrNone(each))
 	            {
@@ -3062,10 +3061,18 @@ public class TravelApplyAction extends DispatchAction
 	            }
 	
 	            TcpShareBean share = new TcpShareBean();
-	
-	            share.setBudgetId(budgetIdeList.get(i));
-	            share.setDepartmentId(departmentIdList.get(i));
-	            share.setApproverId(approverIdList.get(i));
+
+	            if (budgetIdeList != null){
+                    share.setBudgetId(budgetIdeList.get(i));
+                }
+
+                if (departmentIdList!= null){
+                    share.setDepartmentId(departmentIdList.get(i));
+                }
+
+                if (approverIdList!= null){
+                    share.setApproverId(approverIdList.get(i));
+                }
 	
 	            if (bearIdList == null || bearIdList.size() < i
 	                || StringTools.isNullOrNone(bearIdList.get(i)))

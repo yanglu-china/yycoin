@@ -366,10 +366,11 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         }
 
         // 预算占用
-        if (bean.getBorrow() == TcpConstanst.TRAVELAPPLY_BORROW_YES)
-        {
-            checkBudget(user, bean, 0);
-        }
+        //#495 脱离预算
+//        if (bean.getBorrow() == TcpConstanst.TRAVELAPPLY_BORROW_YES)
+//        {
+//            checkBudget(user, bean, 0);
+//        }
 
 
         // 获得当前的处理环节
@@ -1677,7 +1678,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             	}
 
                 // 如果没有借款不需要重新预算
-                checkBudget(user, bean, 1);
+                //#495 脱离预算
+                //checkBudget(user, bean, 1);
 
                 // 不借款仅用于占检查预算且占预算，所以借款额还是0
                 if (bean.getBorrow() == TcpConstanst.TRAVELAPPLY_BORROW_NO_BUTHOLD)
@@ -1795,11 +1797,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	            }
             }
             travelApplyDAO.updateTotal(param.getId(), total);
-            if (bean.getBorrow() == TcpConstanst.TRAVELAPPLY_BORROW_YES)
-            {
-                // 更新预算(重新加入预占)
-                checkBudget(user, bean, 1);
-            }
+            ////#495 脱离预算
+//            if (bean.getBorrow() == TcpConstanst.TRAVELAPPLY_BORROW_YES)
+//            {
+//                // 更新预算(重新加入预占)
+//                checkBudget(user, bean, 1);
+//            }
         }
     }
 
