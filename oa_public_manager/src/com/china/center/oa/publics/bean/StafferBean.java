@@ -175,7 +175,7 @@ public class StafferBean implements Serializable
     /**#495
      * 直属上级职员Id
      */
-    private int superiorLeader;
+    private String superiorLeader;
 
     @Ignore
     private List<StafferVSPriBean> priList = new ArrayList();
@@ -817,11 +817,11 @@ public class StafferBean implements Serializable
         this.zzzt = zzzt;
     }
 
-    public int getSuperiorLeader() {
+    public String getSuperiorLeader() {
         return superiorLeader;
     }
 
-    public void setSuperiorLeader(int superiorLeader) {
+    public void setSuperiorLeader(String superiorLeader) {
         this.superiorLeader = superiorLeader;
     }
 
