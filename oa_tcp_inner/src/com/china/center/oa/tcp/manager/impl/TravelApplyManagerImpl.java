@@ -3077,20 +3077,40 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         bean.setPayList(payList);
 
         List<TcpShareVO> shareList = tcpShareDAO.queryEntityVOsByFK(id);
-
+        _logger.info(id+"***shareList***"+shareList.size());
+        if (ListTools.isEmptyOrNull(shareList)){
+            List<TcpShareBean> tcpShareBeans = tcpShareDAO.queryEntityBeansByFK(id);
+            shareList = new ArrayList<>();
+            for(TcpShareBean tcpShareBean : tcpShareBeans){
+                TcpShareVO vo = new TcpShareVO();
+                vo.setId(tcpShareBean.getId());
+                vo.setRefId(tcpShareBean.getRefId());
+                vo.setRatio(tcpShareBean.getRatio());
+                vo.setRealMonery(tcpShareBean.getRealMonery());
+                vo.setBearId(tcpShareBean.getBearId());
+                StafferBean stafferBean = this.stafferDAO.find(tcpShareBean.getBearId());
+                if(stafferBean!= null){
+                    vo.setBearName(stafferBean.getName());
+                }
+                shareList.add(vo);
+            }
+        }
         for (TcpShareVO tcpShareVO : shareList)
         {
-            PrincipalshipBean dep = orgManager.findPrincipalshipById(tcpShareVO.getDepartmentId());
+            if (!StringTools.isNullOrNone(tcpShareVO.getDepartmentId())){
+                PrincipalshipBean dep = orgManager.findPrincipalshipById(tcpShareVO.getDepartmentId());
 
-            if (dep != null)
-            {
-                tcpShareVO.setDepartmentName(dep.getFullName());
+                if (dep != null)
+                {
+                    tcpShareVO.setDepartmentName(dep.getFullName());
+                }
             }
+
 
             if (tcpShareVO.getRatio() == 0)
             {
                 tcpShareVO
-                    .setShowRealMonery(MathTools.longToDoubleStr2(tcpShareVO.getRealMonery()));
+                        .setShowRealMonery(MathTools.longToDoubleStr2(tcpShareVO.getRealMonery()));
             }
             else
             {

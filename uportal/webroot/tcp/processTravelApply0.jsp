@@ -386,7 +386,7 @@ function checkMoney()
         </td>
     </tr>
     
-    <%@include file="share_process.jsp"%>
+    <%@include file="share_process0.jsp"%>
     
     <p:title>
         <td class="caption">
