@@ -17,17 +17,11 @@
                 <td>
                 <table width="100%" border="0" cellspacing='1' id="tables_share">
                     <tr align="center" class="content0">
-                        <td width="30%" align="center">月度预算</td>
-                        <td width="30%" align="center">部门</td>
-                        <td width="15%" align="center">权签人</td>
                         <td width="15%" align="center">承担人</td>
                         <td width="10%" align="center">分担金额</td>
                     </tr>
                     <c:forEach items="${bean.shareVOList}" var="item">
                     <tr align="center" class="content1">
-                        <td align="center">${item.budgetName}</td>
-                        <td align="center">${item.departmentName}</td>
-                        <td align="center">${item.approverName}</td>
                         <td align="center">${item.bearName}</td>
                         <td align="center">${item.showRealMonery}</td>
                     </tr>

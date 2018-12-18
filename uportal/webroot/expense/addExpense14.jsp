@@ -22,26 +22,12 @@ function addBean(opr)
     {
         $O('processer').oncheck = '';
     }
-    else
-    {
-        var flag = $O('marketingFlag').value;
-        if (flag === '0') {
-            $O('processer').oncheck = 'notNone';
-        }
-    }
     
     submit('确定通用费用报销?', null, checks2);
 }
 
 $(document).ready(function (){
     $("#sub_main_tr").hide();
-    $('#marketingFlag').change(function() {
-        if (this.value === '1'){
-            $("#sub_main_tr").hide();
-        } else{
-            $("#sub_main_tr").show();
-        }
-    });
 });
 
 function load()
@@ -95,10 +81,6 @@ function load()
             <p:pro field="stafferId" value="${g_stafferBean.name}"/>
             <p:pro field="departmentId" value="${g_stafferBean.principalshipName}"/>
 
-            <p:pro field="marketingFlag" cell="0" >
-                <p:option type="marketingFlag"></p:option>
-            </p:pro>
-            
             <p:pro field="specialType" cell="0">
                 <p:option type="expenseSpecialType"/>
             </p:pro>
@@ -255,9 +237,6 @@ function load()
                 <td>
                 <table width="100%" border="0" cellspacing='1' id="tables_share">
                     <tr align="center" class="content0">
-                        <td width="30%" align="center">月度预算</td>
-                        <td width="30%" align="center">部门</td>
-                        <td width="15%" align="center">权签人</td>
                         <td width="15%" align="center">承担人</td>
                         <td width="15%" align="center">分担金额</td>
                         <td width="5%" align="left"><input type="button" accesskey="B"
