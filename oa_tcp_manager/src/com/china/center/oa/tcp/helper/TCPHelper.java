@@ -66,18 +66,16 @@ public abstract class TCPHelper
             }
             bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_IB);
         } else{
-            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_TRAVEL){
+            //#495
+            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_TRAVEL
+                    || bean.getType() == TcpConstanst.TCP_APPLYTYPE_ENTERTAIN
+                    || bean.getType() == TcpConstanst.TCP_APPLYTYPE_PUBLIC){
                 bean.setFlowKey(TcpFlowConstant.WORKFLOW_2018);
                 return;
-            }
-            if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_MID) {
+            } else if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_MID) {
                 bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_MID);
-
                 return;
-            }
-
-            //2016/6/2 #248 不管职能系
-            if (bean instanceof TravelApplyBean){
+            } else if (bean instanceof TravelApplyBean){
                 TravelApplyBean apply = (TravelApplyBean)bean;
                 if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
                     // #273 营销系使用同一个flowKey
@@ -86,7 +84,13 @@ public abstract class TCPHelper
                 }
             }else if (bean instanceof ExpenseApplyBean){
                 ExpenseApplyBean apply = (ExpenseApplyBean)bean;
-                if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
+                if (apply.getType() == TcpConstanst.TCP_EXPENSETYPE_TRAVEL
+                        || apply.getType() == TcpConstanst.TCP_EXPENSETYPE_ENTERTAIN
+                        || apply.getType() == TcpConstanst.TCP_EXPENSETYPE_PUBLIC
+                        || apply.getType() == TcpConstanst.TCP_EXPENSETYPE_COMMON){
+                    apply.setFlowKey(TcpFlowConstant.WORKFLOW_2018);
+                    return;
+                } else if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
                     bean.setFlowKey(TcpFlowConstant.WORK_PAY_MARKETING);
                     return ;
                 }

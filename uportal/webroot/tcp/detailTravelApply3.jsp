@@ -201,7 +201,7 @@ function load()
         </td>
     </tr>
     
-    <%@include file="share_detail.jsp"%>
+    <%@include file="share_detail0.jsp"%>
     
     <p:title>
         <td class="caption">
