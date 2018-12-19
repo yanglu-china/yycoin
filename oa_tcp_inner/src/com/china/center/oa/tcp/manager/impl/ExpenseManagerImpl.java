@@ -274,7 +274,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         }
 
         // 预算占用
-        checkBudget(user, bean, 0);
+//        checkBudget(user, bean, 0);
 
         // 获得当前的处理环节
         TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
@@ -551,8 +551,16 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
                 for (TcpShareVO tcpShareVO : shareVOList) {
                     // 去重
-                    if (!processList.contains(tcpShareVO.getApproverId())) {
-                        processList.add(tcpShareVO.getApproverId());
+//                    if (!processList.contains(tcpShareVO.getApproverId())) {
+//                        processList.add(tcpShareVO.getApproverId());
+//                    }
+                    String bearId = tcpShareVO.getBearId();
+                    StafferBean stafferBean = this.stafferDAO.find(bearId);
+                    // 承担人直属上级审批
+                    String nextProcessor = String.valueOf(stafferBean.getSuperiorLeader());
+                    if (!StringTools.isNullOrNone(nextProcessor)
+                            && !processList.contains(nextProcessor)){
+                        processList.add(nextProcessor);
                     }
                 }
 
@@ -561,6 +569,41 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 bean.setStatus(newStatus);
 
                 expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+
+                // 记录操作日志
+                saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
+            }
+            //#495
+            else if (token.getNextPlugin().equalsIgnoreCase("plugin:higherUpShare"))
+            {
+                _logger.info("******plugin:higherUpShare******");
+                List<String> processList = new ArrayList();
+
+                // 先处理一个
+                List<TcpShareVO> shareVOList = bean.getShareVOList();
+
+                if (ListTools.isEmptyOrNull(shareVOList))
+                {
+                    throw new MYException("下环节里面没有人员,请确认操作");
+                }
+
+                for (TcpShareVO tcpShareVO : shareVOList)
+                {
+                    String bearId = tcpShareVO.getBearId();
+                    StafferBean stafferBean = this.stafferDAO.find(bearId);
+                    // 承担人直属上级审批
+                    String nextProcessor = String.valueOf(stafferBean.getSuperiorLeader());
+                    if (!StringTools.isNullOrNone(nextProcessor)){
+                        processList.add(nextProcessor);
+                    }
+                }
+
+                int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
+                        TcpConstanst.TCP_POOL_COMMON);
+
+                bean.setStatus(newStatus);
+
+                travelApplyDAO.updateStatus(bean.getId(), newStatus);
 
                 // 记录操作日志
                 saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
@@ -606,7 +649,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
             // 中收报销不生成凭证
             if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_MID) {
-            	checkBudget(user, bean, 1);
+//            	checkBudget(user, bean, 1);
 
                 //#134 中收报销待财务支付后更新中收申请状态状态
                 if (!StringTools.isNullOrNone(bean.getRefId())) {
@@ -702,7 +745,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             }
 
             // 重新校验预算(公司付款重新计算,收支平衡重新生成日志,员工付款也需要重新计算预算使用)
-            checkBudget(user, bean, 1);
+//            checkBudget(user, bean, 1);
         }
         
         // 财务收款和支付
@@ -2195,12 +2238,32 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         bean.setPayList(payList);
 
         List<TcpShareVO> shareList = tcpShareDAO.queryEntityVOsByFK(id);
+        if (ListTools.isEmptyOrNull(shareList)){
+            List<TcpShareBean> tcpShareBeans = tcpShareDAO.queryEntityBeansByFK(id);
+            shareList = new ArrayList<>();
+            for(TcpShareBean tcpShareBean : tcpShareBeans){
+                TcpShareVO vo = new TcpShareVO();
+                vo.setId(tcpShareBean.getId());
+                vo.setRefId(tcpShareBean.getRefId());
+                vo.setRatio(tcpShareBean.getRatio());
+                vo.setRealMonery(tcpShareBean.getRealMonery());
+                vo.setBearId(tcpShareBean.getBearId());
+                StafferBean stafferBean = this.stafferDAO.find(tcpShareBean.getBearId());
+                if(stafferBean!= null){
+                    vo.setBearName(stafferBean.getName());
+                }
+                shareList.add(vo);
+            }
+        }
 
         for (TcpShareVO tcpShareVO : shareList) {
-            PrincipalshipBean dep = orgManager.findPrincipalshipById(tcpShareVO.getDepartmentId());
+            if (!StringTools.isNullOrNone(tcpShareVO.getDepartmentId())){
+                PrincipalshipBean dep = orgManager.findPrincipalshipById(tcpShareVO.getDepartmentId());
 
-            if (dep != null) {
-                tcpShareVO.setDepartmentName(dep.getFullName());
+                if (dep != null)
+                {
+                    tcpShareVO.setDepartmentName(dep.getFullName());
+                }
             }
 
             if (tcpShareVO.getRatio() == 0) {
