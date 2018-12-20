@@ -95,6 +95,7 @@ function selectProduct(obj)
     }
 }
 
+//选择合成产品后的回调函数
 function getProductBom(oos)
 {
 //    document.getElementById('productTable').deleteRow(1);
@@ -103,12 +104,14 @@ function getProductBom(oos)
 //    console.log(table);
     table.deleteRow(1);
 	var oo = oos[0];
-//	console.log(oo);
+	console.log(oo);
     current.value = oo.pname;
 
     $O("mtype").value = oo.pmtype;
     $O("oldproduct").value = oo.poldproduct;
     $O("dirProductId").value = oo.value;
+    $O("high").value = oo.high;
+    $O("low").value = oo.low;
 	
 	var bomjson = JSON.parse(oo.pbomjson);
 	for (var j = 0; j < bomjson.length; j++)
@@ -344,6 +347,22 @@ function bomClick(){
     $O("dirTargerName").value = '';
 }
 
+function amountChange(){
+    var bomAmount = document.querySelectorAll('input[name="bomAmount"]');
+    var useAmount = document.querySelectorAll('input[name="useAmount"]');
+//    console.log(srcAmount);
+    var amount = document.querySelector('input[name="dirAmount"]');
+    console.log(amount.value);
+    // console.log(rateList);
+    // var total = 0;
+    for (var i = 0 ; i < bomAmount.length; i++)
+    {
+        var oo = useAmount[i];
+        //合成数量*组成用量
+        oo.value = parseInt(amount.value)*parseInt(bomAmount[i].value);
+    }
+}
+
 function load()
 {
 	addTr();
@@ -398,7 +417,7 @@ function load()
 			onclick="selectProduct(this)">
          <input type="hidden" name="dirProductId" value=""><strong>从BOM中选择:</strong><input type="checkbox" name='cbom' id ='cbom' onclick="bomClick()"/>
          合成数量：<input type="text" style="width: 10%"
-                    name="dirAmount" value="" oncheck="notNone;isNumber;range(1)">
+                    name="dirAmount" value="" oncheck="notNone;isNumber;range(1)" onblur="amountChange();">
 	金价：<input type="text" style="width: 5%"
                     name="goldPrice" value="0.0" oncheck="isFloat">
 	银价：<input type="text" style="width: 5%"
@@ -406,6 +425,8 @@ function load()
 			</p:tr>
             <p:tr align="left">
                 备注：<textarea name="description" rows="3" cols="60"></textarea>
+                最近一个月合成最低价：<input type="text" style="width: 10%" id="low" value="" disabled>
+                最高价：<input type="text" style="width: 10%" id="high" value="" disabled>
             </p:tr>
 		</p:table>
 	</p:subBody>

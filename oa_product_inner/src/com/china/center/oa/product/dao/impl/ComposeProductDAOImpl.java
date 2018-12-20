@@ -16,6 +16,7 @@ import com.china.center.oa.product.bean.ComposeProductBean;
 import com.china.center.oa.product.dao.ComposeProductDAO;
 import com.china.center.oa.product.vo.ComposeProductVO;
 import com.china.center.tools.ListTools;
+import com.china.center.tools.TimeTools;
 
 
 /**
@@ -47,8 +48,16 @@ public class ComposeProductDAOImpl extends BaseDAO<ComposeProductBean, ComposePr
 		else
 			return list.get(0);
 	}
-	
-	public boolean updateHybrid(String id, int hybrid)
+
+    @Override
+    public List<ComposeProductBean> queryComposeOfLastMonth(String productId) {
+        String begin = TimeTools.getDateFullString( -30);
+        String now = TimeTools.now();
+        return this.queryEntityBeansByCondition("where productId=? and status in (2,3) and logTime>=? and logTime<=? order by logTime DESC",
+                productId, begin, now);
+    }
+
+    public boolean updateHybrid(String id, int hybrid)
     {
         return jdbcOperation.updateField("hybrid", hybrid, id, claz) > 0;
     }

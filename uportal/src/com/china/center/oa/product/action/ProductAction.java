@@ -811,6 +811,7 @@ public class ProductAction extends DispatchAction
     {
         CommonTools.saveParamers(request);
 
+        //合成产品
         List<ProductBOMVO> list = null;
 
         if (PageSeparateTools.isFirstLoad(request))
@@ -849,6 +850,7 @@ public class ProductAction extends DispatchAction
             String productId = each.getProductId();
             if (!set.contains(productId))
             {
+                //该合成产品的BOM清单
                 List<ProductBOMVO> voList = productBOMDAO.queryEntityVOsByFK(productId);
 
                 //#139
@@ -901,6 +903,8 @@ public class ProductAction extends DispatchAction
                 each.setBomJson(shows.toString());
                 _logger.info("***bomJson****"+each.getBomJson());
 
+                //#509
+                this.setLastMonthPrice(each);
                 lastList.add(each);
 
                 set.add(each.getProductId());
@@ -917,6 +921,32 @@ public class ProductAction extends DispatchAction
 
         return mapping.findForward("rptQueryProductBom");
     }
+
+    private void setLastMonthPrice(ProductBOMVO vo){
+        List<ComposeProductBean> composeProductBeans = this.composeProductDAO.queryComposeOfLastMonth(vo.getProductId());
+        _logger.info("***queryComposeOfLastMonth size***"+composeProductBeans.size());
+        if (!ListTools.isEmptyOrNull(composeProductBeans)){
+            // 按照价格倒序
+            Collections.sort(composeProductBeans, new Comparator(){
+                @Override
+                public int compare(Object o1, Object o2) {
+                    ComposeProductBean i1 = (ComposeProductBean)o1;
+                    ComposeProductBean i2 = (ComposeProductBean)o2;
+
+                    return Double.compare(i1.getPrice(),i2.getPrice());
+                }
+            });
+
+            if(composeProductBeans.size()>= 2){
+                vo.setLastMonthHighPrice(composeProductBeans.get(0).getPrice());
+                vo.setLastMonthLowPrice(composeProductBeans.get(composeProductBeans.size()-1).getPrice());
+            } else{
+                vo.setLastMonthHighPrice(composeProductBeans.get(0).getPrice());
+                vo.setLastMonthLowPrice(composeProductBeans.get(0).getPrice());
+            }
+        }
+    }
+
     private double roundDouble(double value){
         BigDecimal bd = new BigDecimal(value);
         double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();

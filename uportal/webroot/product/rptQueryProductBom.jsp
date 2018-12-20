@@ -124,7 +124,8 @@ function pop(obj)
 				<tr class="${vs.index % 2 == 0 ? 'content1' : 'content2'}">
 					<td align="center"><input type='${selectMode == 1 ? "radio" : "checkbox"}' name="beans"
 					value="${item.id}" pname="${item.productName}" 
-					pmtype="${item.reserve4}" poldproduct="${item.consumeInDay}" pbomjson='${item.bomJson}' />
+					pmtype="${item.reserve4}" poldproduct="${item.consumeInDay}" pbomjson='${item.bomJson}'
+					high="${item.lastMonthHighPrice}" low="${item.lastMonthLowPrice}"/>
 					</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.productName}</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()"></td>

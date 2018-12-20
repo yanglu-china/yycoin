@@ -44,6 +44,15 @@ public class ProductBOMVO extends ProductBOMBean
 	 */
 	private double lastPrice = 0.0d;
 
+	/**
+	 * #509 最近一个月合成的最高价、最低价
+	 */
+	@Ignore
+	private double lastMonthHighPrice = 0.0d;
+
+	@Ignore
+	private double lastMonthLowPrice = 0.0d;
+
 	@Ignore
 	private String srcRelation = "";
 	
@@ -52,6 +61,22 @@ public class ProductBOMVO extends ProductBOMBean
 	
 	public ProductBOMVO()
 	{
+	}
+
+	public double getLastMonthHighPrice() {
+		return lastMonthHighPrice;
+	}
+
+	public void setLastMonthHighPrice(double lastMonthHighPrice) {
+		this.lastMonthHighPrice = lastMonthHighPrice;
+	}
+
+	public double getLastMonthLowPrice() {
+		return lastMonthLowPrice;
+	}
+
+	public void setLastMonthLowPrice(double lastMonthLowPrice) {
+		this.lastMonthLowPrice = lastMonthLowPrice;
 	}
 
 	public String getSrcRelation() {

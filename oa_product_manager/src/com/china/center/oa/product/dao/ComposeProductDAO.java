@@ -13,6 +13,8 @@ import com.china.center.jdbc.inter.DAO;
 import com.china.center.oa.product.bean.ComposeProductBean;
 import com.china.center.oa.product.vo.ComposeProductVO;
 
+import java.util.List;
+
 
 /**
  * ComposeProductDAO
@@ -31,4 +33,6 @@ public interface ComposeProductDAO extends DAO<ComposeProductBean, ComposeProduc
     ComposeProductBean queryLatestByProduct(String productId);
     
     boolean updateHybrid(String id, int hybrid);
+
+    List<ComposeProductBean> queryComposeOfLastMonth(String productId);
 }
