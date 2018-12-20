@@ -94,4 +94,15 @@ public class ProductBOMBean implements Serializable
 	public void setAttritionRate(int attritionRate) {
 		this.attritionRate = attritionRate;
 	}
+
+	@Override
+	public String toString() {
+		return "ProductBOMBean{" +
+				"id='" + id + '\'' +
+				", productId='" + productId + '\'' +
+				", subProductId='" + subProductId + '\'' +
+				", bomAmount=" + bomAmount +
+				", attritionRate=" + attritionRate +
+				'}';
+	}
 }
