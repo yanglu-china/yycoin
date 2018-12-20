@@ -75,11 +75,12 @@ var current;
 function selectProduct(obj)
 {
     current = obj;
-    
+    var dirDepotpart = document.querySelector('[name="dirDepotpart"]');
+    console.log(dirDepotpart.value);
     // 从bom中取
     if ($O('cbom').checked == true) {
     	
-    	window.common.modal('../product/product.do?method=rptQueryProductBom&firstLoad=1&selectMode=1&stock=stock');
+    	window.common.modal('../product/product.do?method=rptQueryProductBom&firstLoad=1&selectMode=1&stock=stock&dirDepotpart='+dirDepotpart.value);
     } else {
     	var pobj = getDepartmentId(current);
         

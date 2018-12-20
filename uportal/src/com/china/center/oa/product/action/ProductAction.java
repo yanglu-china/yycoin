@@ -841,6 +841,8 @@ public class ProductAction extends DispatchAction
 
         List<ProductBOMVO> lastList = new ArrayList<ProductBOMVO>();
 
+        String dirDepotpart = request.getParameter("dirDepotpart");
+        _logger.info("****dirDepotpart****"+dirDepotpart);
         // 组装结果集
         for (ProductBOMVO each : list)
         {
@@ -857,7 +859,9 @@ public class ProductAction extends DispatchAction
                         ConditionParse condition = new ConditionParse();
 
                         // 备货仓
-                        condition.addCondition("StorageRelationBean.depotpartId", "=", "A1201606211663545389");
+//                        condition.addCondition("StorageRelationBean.depotpartId", "=", "A1201606211663545389");
+                        //#509
+                        condition.addCondition("StorageRelationBean.depotpartId", "=", dirDepotpart);
 
                         // 公共的库存
                         condition.addCondition("StorageRelationBean.stafferId", "=", "0");
@@ -867,15 +871,9 @@ public class ProductAction extends DispatchAction
                         condition.addCondition("StorageRelationBean.amount", ">", 0);
 
                         List<StorageRelationVO> eachList = storageRelationDAO.queryEntityVOsByCondition(condition);
-//                        _logger.info(condition);
+                        _logger.info(condition);
+                        //多个成本都要显示
                         if (!ListTools.isEmptyOrNull(eachList)){
-//                            _logger.info(eachList.size());
-//                            _logger.info(eachList);
-//                            StorageRelationVO vo = eachList.get(0);
-//                            int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
-//                            bom.setPamount(vo.getAmount()-preassign);
-//                            bom.setPrice(this.roundDouble(vo.getPrice()));
-//                            bom.setSrcRelation(vo.getId());
                             for (StorageRelationVO vo:eachList){
                                 int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
                                 ProductBOMVO bomVo = new ProductBOMVO();
