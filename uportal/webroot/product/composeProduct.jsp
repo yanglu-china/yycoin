@@ -76,7 +76,6 @@ function selectProduct(obj)
 {
     current = obj;
     var dirDepotpart = document.querySelector('[name="dirDepotpart"]');
-    console.log(dirDepotpart.value);
     // 从bom中取
     if ($O('cbom').checked == true) {
     	
@@ -352,7 +351,7 @@ function amountChange(){
     var useAmount = document.querySelectorAll('input[name="useAmount"]');
 //    console.log(srcAmount);
     var amount = document.querySelector('input[name="dirAmount"]');
-    console.log(amount.value);
+//    console.log(amount.value);
     // console.log(rateList);
     // var total = 0;
     for (var i = 0 ; i < bomAmount.length; i++)

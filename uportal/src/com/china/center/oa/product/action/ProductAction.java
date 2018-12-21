@@ -926,7 +926,7 @@ public class ProductAction extends DispatchAction
         List<ComposeProductBean> composeProductBeans = this.composeProductDAO.queryComposeOfLastMonth(vo.getProductId());
         _logger.info("***queryComposeOfLastMonth size***"+composeProductBeans.size());
         if (!ListTools.isEmptyOrNull(composeProductBeans)){
-            // 按照价格倒序
+            // 按照价格升序排列
             Collections.sort(composeProductBeans, new Comparator(){
                 @Override
                 public int compare(Object o1, Object o2) {
@@ -938,8 +938,8 @@ public class ProductAction extends DispatchAction
             });
 
             if(composeProductBeans.size()>= 2){
-                vo.setLastMonthHighPrice(composeProductBeans.get(0).getPrice());
-                vo.setLastMonthLowPrice(composeProductBeans.get(composeProductBeans.size()-1).getPrice());
+                vo.setLastMonthLowPrice(composeProductBeans.get(0).getPrice());
+                vo.setLastMonthHighPrice(composeProductBeans.get(composeProductBeans.size()-1).getPrice());
             } else{
                 vo.setLastMonthHighPrice(composeProductBeans.get(0).getPrice());
                 vo.setLastMonthLowPrice(composeProductBeans.get(0).getPrice());
