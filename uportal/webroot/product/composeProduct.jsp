@@ -99,11 +99,19 @@ function getProductBom(oos)
 {
 //    document.getElementById('productTable').deleteRow(1);
     //#139 从BOM表中选择之后，每次明细的第一行都是默认空白，将空白行删除
-    var table = $O("tables");
-//    console.log(table);
-    table.deleteRow(1);
+//    var table = $O("tables");
+//    table.deleteRow(1);
+    var tb = document.getElementById("tables");
+    var rnum=tb.rows.length;
+    if (rnum > 1)
+    {
+        for(var i=rnum -1; i>0; i--)
+        {
+            tb.deleteRow(i);
+        }
+    }
 	var oo = oos[0];
-	console.log(oo);
+
     current.value = oo.pname;
 
     $O("mtype").value = oo.pmtype;

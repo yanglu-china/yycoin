@@ -97,9 +97,14 @@ function pop(obj)
 			</tr>
 
 			<tr class="content1">
-				<td colspan="4" align="right"><input type="button"
+				<td colspan="4" align="right">
+					<input type="button"
 					onclick="querys()" class="button_class"
-					value="&nbsp;&nbsp;查 询&nbsp;&nbsp;"></td>
+					value="&nbsp;&nbsp;查 询&nbsp;&nbsp;">
+					<input type="button" class="button_class"
+						   value="&nbsp;&nbsp;确 定&nbsp;&nbsp;" onClick="sures()" >&nbsp;&nbsp;
+					<input type="button" class="button_class" value="&nbsp;&nbsp;关 闭&nbsp;&nbsp;" onClick="closesd()" >&nbsp;&nbsp;
+				</td>
 		</table>
 
 	</p:subBody>
