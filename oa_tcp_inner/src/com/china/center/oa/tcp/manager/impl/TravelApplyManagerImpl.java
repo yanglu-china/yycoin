@@ -833,19 +833,26 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                         String bearId = tcpShareVO.getBearId();
                         StafferBean stafferBean = this.stafferDAO.find(bearId);
                         // 承担人直属上级审批
-                        String nextProcessor = String.valueOf(stafferBean.getSuperiorLeader());
-                        if (!StringTools.isNullOrNone(nextProcessor)){
-                            processList.add(nextProcessor);
+                        String bearLeader = String.valueOf(stafferBean.getSuperiorLeader());
+                        StafferBean commiter = this.stafferDAO.find(bean.getStafferId());
+                        if (!StringTools.isNullOrNone(bearLeader)
+                                //如果承担人直属上级与提交人直属上级一致，则过滤掉
+                                && !bearLeader.equals(commiter.getSuperiorLeader())){
+                            processList.add(bearLeader);
                         }
                     }
 
-                    int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
-                            TcpConstanst.TCP_POOL_COMMON);
+                    int newStatus = 0;
+                    if (ListTools.isEmptyOrNull(processList)){
+                        //直接跳过承担人直属上级审批环节到待财务审批环节
+                        newStatus = TcpConstanst.TCP_STATUS_HIGHER_UP_SHARE;
+                    } else{
+                        newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
+                                TcpConstanst.TCP_POOL_COMMON);
+                    }
 
                     bean.setStatus(newStatus);
-
                     travelApplyDAO.updateStatus(bean.getId(), newStatus);
-
                     // 记录操作日志
                     saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
                 }
