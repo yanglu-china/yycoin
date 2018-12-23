@@ -743,45 +743,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	    if (token.getNextPlugin().startsWith("pool"))
 	    {
 	        this.pool(token, user, bean, oldStatus, reason);
-//	        String groupId = token.getNextPlugin().substring(5);
-//
-//	        List<GroupVSStafferBean> vsList = groupVSStafferDAO.queryEntityBeansByFK(groupId);
-//
-//	        if (ListTools.isEmptyOrNull(vsList))
-//	        {
-//	            throw new MYException("当前群组内没有人员,请确认操作");
-//	        }
-//
-//	        List<String> processList = new ArrayList();
-//
-//	        for (GroupVSStafferBean groupVSStafferBean : vsList)
-//	        {
-//	            processList.add(groupVSStafferBean.getStafferId());
-//	        }
-//
-//	        int newStatus = saveApprove(user, processList, bean, token.getNextStatus(),
-//	            TcpConstanst.TCP_POOL_POOL);
-//
-//	        if (newStatus != oldStatus)
-//	        {
-//	            bean.setStatus(newStatus);
-//
-//	            // 会签结束，且没有借款的情况，后续状态直接置为结束
-//	            if (bean.getBorrow() == TcpConstanst.TRAVELAPPLY_BORROW_NO && newStatus == TcpConstanst.TCP_STATUS_WAIT_PAY )
-//	            {
-//	                newStatus = TcpConstanst.TCP_STATUS_END;
-//
-//	                // 结束了要清空
-//	                tcpApproveDAO.deleteEntityBeansByFK(bean.getId());
-//
-//	                bean.setStatus(newStatus);
-//	            }
-//
-//	            travelApplyDAO.updateStatus(bean.getId(), newStatus);
-//	        }
-//
-//	        // 记录操作日志
-//	        saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
 	    }
 	    // 插件模式
 	    else if (token.getNextPlugin().startsWith("plugin"))
@@ -845,16 +806,20 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     int newStatus = 0;
                     if (ListTools.isEmptyOrNull(processList)){
                         //直接跳过承担人直属上级审批环节到待财务审批环节
-                        newStatus = TcpConstanst.TCP_STATUS_HIGHER_UP_SHARE;
+                        _logger.info("***ignore same leader***"+bean.getId());
+                        TcpFlowBean newToken = tcpFlowDAO.findByUnique(bean.getFlowKey(), TcpConstanst.TCP_STATUS_HIGHER_UP_SHARE);
+                        if (newToken.getNextPlugin().startsWith("pool"))
+                        {
+                            this.pool(newToken, user, bean, oldStatus, reason);
+                        }
                     } else{
                         newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
                                 TcpConstanst.TCP_POOL_COMMON);
+                        bean.setStatus(newStatus);
+                        travelApplyDAO.updateStatus(bean.getId(), newStatus);
+                        // 记录操作日志
+                        saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
                     }
-
-                    bean.setStatus(newStatus);
-                    travelApplyDAO.updateStatus(bean.getId(), newStatus);
-                    // 记录操作日志
-                    saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
                 }
             //#248
             else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
@@ -2633,6 +2598,14 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     private void checkApply(TravelApplyBean bean)
         throws MYException
     {
+        //#495 提交人直属上级
+        if (bean.getFlowKey().equals(TcpFlowConstant.WORKFLOW_2018)){
+            StafferBean stafferBean = this.stafferDAO.find(bean.getStafferId());
+            if (StringTools.isNullOrNone(stafferBean.getSuperiorLeader())){
+                throw new MYException("提交人直属上级不能为空!");
+            }
+        }
+        
         // 验证
         if (bean.getBorrowTotal() > bean.getTotal())
         {
@@ -2653,6 +2626,14 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	
 	            ratioTotal += tcpShareBean.getRatio();
 	            shareTotal += tcpShareBean.getRealMonery();
+
+	            //#495
+                if (bean.getFlowKey().equals(TcpFlowConstant.WORKFLOW_2018)){
+                    StafferBean staffer = this.stafferDAO.find(tcpShareBean.getBearId());
+                    if (StringTools.isNullOrNone(staffer.getSuperiorLeader())){
+                        throw new MYException("承担人直属上级不能为空:"+staffer.getName());
+                    }
+                }
 	        }
         }
         // 要么全是0,就是根据金额去分担(支持非比例分担)
