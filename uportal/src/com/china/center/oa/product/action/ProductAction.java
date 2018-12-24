@@ -3755,6 +3755,47 @@ public class ProductAction extends DispatchAction
     }
 
     /**
+     * #509
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward processCompose(ActionMapping mapping, ActionForm form,
+                                                HttpServletRequest request,
+                                                HttpServletResponse response)
+            throws ServletException
+    {
+        try
+        {
+            User user = Helper.getUser(request);
+            String oprType = request.getParameter("oprType");
+            String id = request.getParameter("id");
+            _logger.info("oprType****"+oprType+"***id***"+id);
+            // 提交
+            if ("0".equals(oprType))
+            {
+                productFacade.passComposeProduct(user.getId(), id);
+            } else
+            {
+                productFacade.rejectComposeProduct(user.getId(), id);
+            }
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功处理产品合成");
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "处理产品合成失败:" + e.getMessage());
+        }
+
+        return mapping.findForward("queryCompose");
+    }
+
+    /**
      * passComposeBean
      *
      * @param mapping

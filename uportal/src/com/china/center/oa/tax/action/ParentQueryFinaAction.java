@@ -3101,13 +3101,17 @@ public class ParentQueryFinaAction extends DispatchAction
         {
             StafferBean sb = stafferDAO.findyStafferByName(obj[1]);
 
-            if (sb != null)
+            if (sb == null)
             {
-                stafferId = sb.getId();
-                if (sb.getStatus() == StafferConstant.STATUS_DROP){
-                    throw new MYException("制单人已废弃:"+obj[1]);
-                }
+                throw new MYException("制单人不存在:"+obj[1]);
             }
+            //#520
+//            else{
+//                stafferId = sb.getId();
+//                if (sb.getStatus() == StafferConstant.STATUS_DROP){
+//                    throw new MYException("制单人已废弃:"+obj[1]);
+//                }
+//            }
         }
 
         return stafferId;
@@ -3210,14 +3214,16 @@ public class ParentQueryFinaAction extends DispatchAction
                         .append("</font><br>");
 
                     return false;
-                } else if (bean.getStatus() == StafferConstant.STATUS_DROP){
-                    builder
-                            .append("<font color=red>第[" + currentNumber + "]行错误:")
-                            .append("职员已废弃:"+name)
-                            .append("</font><br>");
-
-                    return false;
                 }
+                //#520
+//                else if (bean.getStatus() == StafferConstant.STATUS_DROP){
+//                    builder
+//                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                            .append("职员已废弃:"+name)
+//                            .append("</font><br>");
+//
+//                    return false;
+//                }
 
                 item.setStafferId(bean.getId());
 

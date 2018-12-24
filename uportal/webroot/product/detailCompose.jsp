@@ -7,10 +7,27 @@
 <script language="JavaScript" src="../js/common.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/key.js"></script>
+<script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="javascript">
 
 function load()
 {
+}
+
+function processBean(opr)
+{
+    $("input[name='oprType']").val(opr);
+    var msg = '';
+
+    if ("0" == opr)
+    {
+        msg = '确定通过产品合成?';
+    } else if ("1" == opr)
+    {
+        msg = '确定驳回?';
+    }
+
+    submit(msg, null, null);
 }
 
 function checkBean()
@@ -38,8 +55,9 @@ function pagePrint()
 </head>
 
 <body class="body_class">
-<form name="formEntry">
-<input type="hidden" name="id" value="${bean.id}">
+<form name="formEntry" action="../product/product.do?method=processCompose"   method="post">
+	<input type="hidden" name="oprType" value="0">
+	<input type="hidden" name="id" value="${bean.id}" >
 <p:navigation
 	height="22">
 	<td width="550" class="navigation">产品合成明细</td>
@@ -147,6 +165,12 @@ function pagePrint()
             onclick="checkBean()"
             value="&nbsp;&nbsp;总部核对&nbsp;&nbsp;">&nbsp;&nbsp;
         </c:if>
+
+		<input type="button" class="button_class" id="sub_b1"
+			   value="&nbsp;&nbsp;通 过&nbsp;&nbsp;" onclick="processBean(0)">
+		&nbsp;&nbsp;
+		<input type="button" class="button_class" id="sub_b2"
+			   value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;" onclick="processBean(1)">
         
          <input type="button" name="pr"
             class="button_class" onclick="pagePrint()"
