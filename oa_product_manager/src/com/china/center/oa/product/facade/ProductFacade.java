@@ -220,6 +220,9 @@ public interface ProductFacade
     boolean lastPassComposeProduct(String userId, String id)
         throws MYException;
 
+    boolean deleteComposeProduct(String userId, String id)
+            throws MYException;
+
     /**
      * 驳回合成
      * 

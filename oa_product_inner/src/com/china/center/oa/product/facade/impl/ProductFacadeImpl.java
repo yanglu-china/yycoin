@@ -971,6 +971,28 @@ public class ProductFacadeImpl extends AbstarctFacade implements ProductFacade
         }
     }
 
+    public boolean deleteComposeProduct(String userId, String id)
+            throws MYException
+    {
+        synchronized (COMPOSE_LOCK)
+        {
+            JudgeTools.judgeParameterIsNull(userId);
+
+            User user = userManager.findUser(userId);
+
+            checkUser(user);
+
+            if (containAuth(user, AuthConstant.PRODUCT_CD_MANGAER, AuthConstant.PRODUCT_CD_CRO))
+            {
+                return composeProductManager.deleteComposeProduct(user, id);
+            }
+            else
+            {
+                throw noAuth();
+            }
+        }
+    }
+
     public boolean addStorageApply(String userId, StorageApplyBean bean)
         throws MYException
     {

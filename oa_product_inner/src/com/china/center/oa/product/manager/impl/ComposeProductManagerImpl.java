@@ -905,6 +905,47 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             throw new MYException("已经合成不能删除,请确认操作");
         }
 
+        compose.setStatus(ComposeConstant.STATUS_REJECT);
+        compose.setLogTime(TimeTools.now());
+
+        composeProductDAO.updateEntityBean(compose);
+
+        FlowLogBean log = new FlowLogBean();
+
+        log.setActor(user.getStafferName());
+
+        log.setDescription("");
+        log.setFullId(id);
+        log.setOprMode(ProductApplyConstant.OPRMODE_REJECT);
+        log.setLogTime(TimeTools.now());
+
+        log.setPreStatus(compose.getStatus());
+
+        log.setAfterStatus(compose.getStatus());
+
+        flowLogDAO.saveEntityBean(log);
+
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean deleteComposeProduct(User user, String id) throws MYException {
+        JudgeTools.judgeParameterIsNull(user, id);
+
+        // 判断是否可以删除
+        ComposeProductBean compose = composeProductDAO.find(id);
+
+        if (compose == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        if (compose.getStatus() == ComposeConstant.STATUS_CRO_PASS)
+        {
+            throw new MYException("已经合成不能删除,请确认操作");
+        }
+
         composeProductDAO.deleteEntityBean(id);
 
         composeItemDAO.deleteEntityBeansByFK(id);

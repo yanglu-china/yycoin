@@ -3889,7 +3889,7 @@ public class ProductAction extends DispatchAction
         {
             User user = Helper.getUser(request);
 
-            productFacade.rejectComposeProduct(user.getId(), id);
+            productFacade.deleteComposeProduct(user.getId(), id);
 
             ajax.setSuccess("成功操作");
         }

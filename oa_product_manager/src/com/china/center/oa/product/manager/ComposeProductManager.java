@@ -96,7 +96,7 @@ public interface ComposeProductManager extends ListenerManager<ComposeProductLis
         throws MYException;
 
     /**
-     * 驳回合成(就是删除)
+     * 驳回合成
      * 
      * @param user
      * @param id
@@ -105,6 +105,9 @@ public interface ComposeProductManager extends ListenerManager<ComposeProductLis
      */
     boolean rejectComposeProduct(User user, String id)
         throws MYException;
+
+    boolean deleteComposeProduct(User user, String id)
+            throws MYException;
 
     ComposeProductVO findById(String id);
 
