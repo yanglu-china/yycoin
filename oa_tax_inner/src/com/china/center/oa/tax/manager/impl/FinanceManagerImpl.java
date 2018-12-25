@@ -1359,7 +1359,7 @@ public class FinanceManagerImpl implements FinanceManager {
                     iterator.remove();
             }
             
-            if (prinList.size() > 1)
+            if (checkOrg && prinList.size() > 1)
             {
                 throw new MYException("核算项中人员[%s]的核算项部门[%s]不是最末级部门",sbean.getName(),prinBean.getName());
             }
