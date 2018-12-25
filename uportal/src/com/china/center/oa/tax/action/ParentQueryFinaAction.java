@@ -2982,7 +2982,7 @@ public class ParentQueryFinaAction extends DispatchAction
         StringBuilder builder = new StringBuilder();
 
         FinanceBean finance = new FinanceBean();
-
+        finance.setCheckOrg(false);
         finance.setFinanceDate(rds.getParameter("financeDate"));
         finance.setDutyId(rds.getParameter("dutyId"));
         finance.setCreateType(MathTools.parseInt(rds.getParameter("createType")));

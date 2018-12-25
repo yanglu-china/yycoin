@@ -292,7 +292,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
             // 不是结转需要检查辅助核算项
             if (!isTurn) {
-                checkItem(financeItemBean, tax);
+                checkItem(financeItemBean, tax, bean.isCheckOrg());
             }
 
             // 拷贝凭证的父级ID
@@ -489,7 +489,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
             // 不是结转需要检查辅助核算项
             if (!isTurn) {
-                checkItem(financeItemBean, tax);
+                checkItem(financeItemBean, tax, bean.isCheckOrg());
             }
 
             // 拷贝凭证的父级ID
@@ -1300,7 +1300,7 @@ public class FinanceManagerImpl implements FinanceManager {
      * @param tax
      * @throws MYException
      */
-    private void checkItem(FinanceItemBean financeItemBean, TaxBean tax) throws MYException {
+    private void checkItem(FinanceItemBean financeItemBean, TaxBean tax, boolean checkOrg) throws MYException {
         if (tax.getUnit() == TaxConstanst.TAX_CHECK_YES
                 && StringTools.isNullOrNone(financeItemBean.getUnitId())) {
             throw new MYException("科目[%s]下辅助核算型-单位必须存在,请确认操作", tax.getName());
@@ -1364,7 +1364,8 @@ public class FinanceManagerImpl implements FinanceManager {
                 throw new MYException("核算项中人员[%s]的核算项部门[%s]不是最末级部门",sbean.getName(),prinBean.getName());
             }
             
-            if (!orgManager.isStafferBelongOrg(financeItemBean.getStafferId(), financeItemBean.getDepartmentId())) 
+            if (checkOrg
+                &&!orgManager.isStafferBelongOrg(financeItemBean.getStafferId(), financeItemBean.getDepartmentId()))
             {
                 throw new MYException("核算项中人员[%s]不属于核算中的部门[%s],请确认操作", sbean.getName(), prinBean.getName());
             }
@@ -1586,7 +1587,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
             // 不是结转需要检查辅助核算项
             if (!isTurn) {
-                checkItem(financeItemBean, tax);
+                checkItem(financeItemBean, tax, bean.isCheckOrg());
             }
 
             // 拷贝凭证的父级ID

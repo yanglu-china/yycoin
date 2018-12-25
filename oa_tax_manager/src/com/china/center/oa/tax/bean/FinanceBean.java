@@ -125,6 +125,9 @@ public class FinanceBean implements Serializable
     @Ignore
     private List<FinanceItemBean> itemList = null;
 
+    @Ignore
+    private boolean checkOrg = true;
+
     /**
      * default constructor
      */
@@ -472,11 +475,19 @@ public class FinanceBean implements Serializable
         this.locks = locks;
     }
 
+    public boolean isCheckOrg() {
+        return checkOrg;
+    }
+
+    public void setCheckOrg(boolean checkOrg) {
+        this.checkOrg = checkOrg;
+    }
+
     /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
+         * (non-Javadoc)
+         *
+         * @see java.lang.Object#hashCode()
+         */
     @Override
     public int hashCode()
     {
