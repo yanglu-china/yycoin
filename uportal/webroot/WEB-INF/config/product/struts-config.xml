@@ -25,6 +25,7 @@
 			<forward name="decomposeProduct50" path="/product/decomposeProduct50.jsp"/>
 			<forward name="detailDecompose" path="/product/detailDecompose.jsp"/>
 			<forward name="queryDecompose" path="/product/queryDecompose.jsp"/>
+			<forward name="queryCompose" path="/product/queryCompose.jsp"/>
 			<forward name="rptQueryComposeProduct" path="/product/rptQueryComposeProduct.jsp"/>
 			<forward name="rptQueryLatestComposeProduct" path="/product/rptQueryLatestComposeProduct.jsp"/>
 			<forward name="queryCiticProduct" path="/product/queryCiticProduct.jsp"/>
