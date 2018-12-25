@@ -3105,13 +3105,13 @@ public class ParentQueryFinaAction extends DispatchAction
             {
                 throw new MYException("制单人不存在:"+obj[1]);
             }
-            //#520
-//            else{
-//                stafferId = sb.getId();
+            else{
+                stafferId = sb.getId();
+                //#520
 //                if (sb.getStatus() == StafferConstant.STATUS_DROP){
 //                    throw new MYException("制单人已废弃:"+obj[1]);
 //                }
-//            }
+            }
         }
 
         return stafferId;
