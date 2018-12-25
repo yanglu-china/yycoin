@@ -3238,7 +3238,17 @@ public class ParentQueryFinaAction extends DispatchAction
             {
                 String name = obj[index];
 
-                UnitBean bean = unitDAO.findByUnique(name);
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addCondition("name","=",name);
+                conditionParse.addCondition("type","=",0);
+                List<UnitBean> unitBeans = this.unitDAO.queryEntityBeansByCondition(conditionParse);
+                UnitBean bean = null;
+                if (ListTools.isEmptyOrNull(unitBeans)){
+                    bean = unitDAO.findByUnique(name);
+                } else{
+                    bean = unitBeans.get(0);
+                }
+//                UnitBean bean = unitDAO.findByUnique(name);
 
                 if (bean == null)
                 {
