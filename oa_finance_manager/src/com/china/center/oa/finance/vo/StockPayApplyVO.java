@@ -10,6 +10,7 @@ package com.china.center.oa.finance.vo;
 
 
 import com.china.center.jdbc.annotation.Entity;
+import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.finance.bean.StockPayApplyBean;
 
@@ -39,6 +40,12 @@ public class StockPayApplyVO extends StockPayApplyBean
 
     @Relationship(relationField = "stafferId")
     private String stafferName = "";
+
+    @Ignore
+    /**
+     * #478 查询结果实付金额总数
+     */
+    private double totalMoneys;
 
     /**
      * default constructor
@@ -130,6 +137,14 @@ public class StockPayApplyVO extends StockPayApplyBean
     public void setProvideBank(String provideBank)
     {
         this.provideBank = provideBank;
+    }
+
+    public double getTotalMoneys() {
+        return totalMoneys;
+    }
+
+    public void setTotalMoneys(double totalMoneys) {
+        this.totalMoneys = totalMoneys;
     }
 
     /**

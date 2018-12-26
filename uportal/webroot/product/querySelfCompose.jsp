@@ -42,8 +42,8 @@
                 buttons : [
                     {id: 'add', bclass: 'add', onpress : addBean, auth: '0000'},
                     {id: 'update', bclass: 'update', onpress : updateBean, auth: '0000'},
-                    {id: 'del', bclass: 'del',  onpress : delBean, auth: '0000'}
-//             {id: 'search', bclass: 'search', onpress : doSearch}
+                    {id: 'del', bclass: 'del',  onpress : delBean, auth: '0000'},
+                    {id: 'search', bclass: 'search', onpress : doSearch}
                 ],
                 <p:conf/>
             };
@@ -85,12 +85,10 @@
                 $error('只有驳回状态可以修改!');
         }
 
-        //
-        //function doSearch()
-        //{
-        //    $modalQuery('../admin/query.do?method=popCommonQuery2&key=tcp.querySelfTravelApply');
-        //}
-
+        function doSearch()
+        {
+            $modalQuery('../admin/query.do?method=popCommonQuery2&key=query' + ukey);
+        }
     </script>
 </head>
 <body onload="load()" class="body_class">

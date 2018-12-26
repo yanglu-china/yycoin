@@ -292,7 +292,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
             // 不是结转需要检查辅助核算项
             if (!isTurn) {
-                checkItem(financeItemBean, tax, bean.isCheckOrg());
+                checkItem(financeItemBean, tax, bean.isCheckOrg(), bean.isCheckUnit());
             }
 
             // 拷贝凭证的父级ID
@@ -489,7 +489,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
             // 不是结转需要检查辅助核算项
             if (!isTurn) {
-                checkItem(financeItemBean, tax, bean.isCheckOrg());
+                checkItem(financeItemBean, tax, bean.isCheckOrg(), bean.isCheckUnit());
             }
 
             // 拷贝凭证的父级ID
@@ -1300,35 +1300,37 @@ public class FinanceManagerImpl implements FinanceManager {
      * @param tax
      * @throws MYException
      */
-    private void checkItem(FinanceItemBean financeItemBean, TaxBean tax, boolean checkOrg) throws MYException {
-        if (tax.getUnit() == TaxConstanst.TAX_CHECK_YES
-                && StringTools.isNullOrNone(financeItemBean.getUnitId())) {
-            throw new MYException("科目[%s]下辅助核算型-单位必须存在,请确认操作", tax.getName());
-        }
+    private void checkItem(FinanceItemBean financeItemBean, TaxBean tax, boolean checkOrg, boolean checkUnit) throws MYException {
+        if (checkUnit){
+            if ( tax.getUnit() == TaxConstanst.TAX_CHECK_YES
+                    && StringTools.isNullOrNone(financeItemBean.getUnitId())) {
+                throw new MYException("科目[%s]下辅助核算型-单位必须存在,请确认操作", tax.getName());
+            }
 
-        if (tax.getDepartment() == TaxConstanst.TAX_CHECK_YES
-                && StringTools.isNullOrNone(financeItemBean.getDepartmentId())) {
-            throw new MYException("科目[%s]下辅助核算型-部门必须存在,请确认操作", tax.getName());
-        }
+            if (tax.getDepartment() == TaxConstanst.TAX_CHECK_YES
+                    && StringTools.isNullOrNone(financeItemBean.getDepartmentId())) {
+                throw new MYException("科目[%s]下辅助核算型-部门必须存在,请确认操作", tax.getName());
+            }
 
-        if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
-                && StringTools.isNullOrNone(financeItemBean.getStafferId())) {
-            throw new MYException("科目[%s]下辅助核算型-职员必须存在,请确认操作", tax.getName());
-        }
+            if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
+                    && StringTools.isNullOrNone(financeItemBean.getStafferId())) {
+                throw new MYException("科目[%s]下辅助核算型-职员必须存在,请确认操作", tax.getName());
+            }
 
-        if (tax.getProduct() == TaxConstanst.TAX_CHECK_YES
-                && StringTools.isNullOrNone(financeItemBean.getProductId())) {
-            throw new MYException("科目[%s]下辅助核算型-产品必须存在,请确认操作", tax.getName());
-        }
+            if (tax.getProduct() == TaxConstanst.TAX_CHECK_YES
+                    && StringTools.isNullOrNone(financeItemBean.getProductId())) {
+                throw new MYException("科目[%s]下辅助核算型-产品必须存在,请确认操作", tax.getName());
+            }
 
-        if (tax.getDepot() == TaxConstanst.TAX_CHECK_YES
-                && StringTools.isNullOrNone(financeItemBean.getDepotId())) {
-            throw new MYException("科目[%s]下辅助核算型-仓库必须存在,请确认操作", tax.getName());
-        }
+            if (tax.getDepot() == TaxConstanst.TAX_CHECK_YES
+                    && StringTools.isNullOrNone(financeItemBean.getDepotId())) {
+                throw new MYException("科目[%s]下辅助核算型-仓库必须存在,请确认操作", tax.getName());
+            }
 
-        if (tax.getDuty() == TaxConstanst.TAX_CHECK_YES
-                && StringTools.isNullOrNone(financeItemBean.getDuty2Id())) {
-            throw new MYException("科目[%s]下辅助核算型-纳税实体必须存在,请确认操作", tax.getName());
+            if (tax.getDuty() == TaxConstanst.TAX_CHECK_YES
+                    && StringTools.isNullOrNone(financeItemBean.getDuty2Id())) {
+                throw new MYException("科目[%s]下辅助核算型-纳税实体必须存在,请确认操作", tax.getName());
+            }
         }
         
         // 检查人员是否属于部门下面
@@ -1587,7 +1589,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
             // 不是结转需要检查辅助核算项
             if (!isTurn) {
-                checkItem(financeItemBean, tax, bean.isCheckOrg());
+                checkItem(financeItemBean, tax, bean.isCheckOrg(), bean.isCheckUnit());
             }
 
             // 拷贝凭证的父级ID

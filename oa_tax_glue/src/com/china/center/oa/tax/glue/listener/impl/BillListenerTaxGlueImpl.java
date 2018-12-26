@@ -1011,6 +1011,9 @@ public class BillListenerTaxGlueImpl implements BillListener
 
         financeBean.setItemList(itemList);
 
+        //#478s
+        financeBean.setCheckUnit(false);
+
         financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
 
     }

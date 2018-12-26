@@ -128,11 +128,25 @@ public class FinanceBean implements Serializable
     @Ignore
     private boolean checkOrg = true;
 
+    @Ignore
+    /**
+     * #478
+     */
+    private boolean checkUnit = true;
+
     /**
      * default constructor
      */
     public FinanceBean()
     {
+    }
+
+    public boolean isCheckUnit() {
+        return checkUnit;
+    }
+
+    public void setCheckUnit(boolean checkUnit) {
+        this.checkUnit = checkUnit;
     }
 
     /**

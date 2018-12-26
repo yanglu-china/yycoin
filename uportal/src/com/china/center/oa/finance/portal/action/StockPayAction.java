@@ -13,6 +13,7 @@ import com.center.china.osgi.publics.User;
 import com.china.center.actionhelper.common.ActionTools;
 import com.china.center.actionhelper.common.JSONTools;
 import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.actionhelper.common.PageSeparateTools;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
@@ -259,8 +260,26 @@ public class StockPayAction extends DispatchAction
 
         condtion.addCondition("order by StockPayApplyBean.payDate");
 
-        String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCEOSTOCKPAYAPPLY, request,
-            condtion, this.stockPayApplyDAO);
+        //#478 因为表格是通用控件无法修改，采取加一列的方式实现
+        List list = ActionTools.commonQueryBeanInnerByJSON(QUERYCEOSTOCKPAYAPPLY, request, condtion,this.stockPayApplyDAO, false);
+        double total = 0;
+        for(Object bean: list){
+            _logger.info(bean);
+            if (bean instanceof StockPayApplyVO){
+                StockPayApplyVO stockPayApplyBean = (StockPayApplyVO)bean;
+                total += stockPayApplyBean.getRealMoneys();
+            }
+        }
+        _logger.info("total****"+total);
+        for(Object bean: list){
+            if (bean instanceof StockPayApplyVO){
+                StockPayApplyVO stockPayApplyBean = (StockPayApplyVO)bean;
+                stockPayApplyBean.setTotalMoneys(total);
+            }
+        }
+//        String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCEOSTOCKPAYAPPLY, request,
+//            condtion, this.stockPayApplyDAO);
+        String jsonstr = JSONTools.getJSONString(list, PageSeparateTools.getPageSeparate(request, QUERYCEOSTOCKPAYAPPLY));
 
         return JSONTools.writeResponse(response, jsonstr);
     }
