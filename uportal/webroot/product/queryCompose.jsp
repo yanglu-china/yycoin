@@ -63,15 +63,9 @@ function load()
              <c:if test="${param.foward == 0}">
              {id: 'oget1', bclass: 'odraw', caption: '合成回滚', onpress : rollback, auth: '100501'},
              </c:if>
-             <c:if test="${param.foward == 1}">
-         	 {id: 'pass', bclass: 'pass', caption: '生产部经理通过', onpress : passBean, auth: '100502'},
-         	 </c:if>
          	 <c:if test="${param.foward == 2}">
          	 {id: 'pass1', bclass: 'pass', caption: '运营总监通过', onpress : lastPassBean, auth: '100503'},
          	 </c:if>
-         	 <c:if test="${param.foward == 1 || param.foward == 2}">
-             {id: 'reject', bclass: 'reject', caption: '废弃', onpress : deleteBean, auth: '100502,100503'},
-             </c:if>
              <c:if test="${param.foward == 3}">
              {id: 'passCheck', bclass: 'pass', caption: '总部核对', onpress : checkBean, auth: '1803'},
              </c:if>

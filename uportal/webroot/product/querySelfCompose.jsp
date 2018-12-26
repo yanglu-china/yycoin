@@ -77,12 +77,12 @@
 
         function updateBean()
         {
-            if (getRadio('checkb') && getRadioValue('checkb'))
+            if (getRadio('checkb') && getRadioValue('checkb') && getRadio('checkb').lstatus == 1 )
             {
                 $l(gurl + 'find' + ukey + '&update=1&id=' + getRadioValue('checkb'));
             }
             else
-                $error('不能操作');
+                $error('只有驳回状态可以修改!');
         }
 
         //
