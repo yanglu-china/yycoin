@@ -149,6 +149,12 @@ public class PackageItemBean implements Serializable
 	 */
 	@Ignore
 	private String customerDescription = "";
+
+	@Ignore
+	private String giftProductName = "";
+
+	@Ignore
+	private String invoiceHead = "";
 	
 	public PackageItemBean()
 	{
@@ -498,6 +504,22 @@ public class PackageItemBean implements Serializable
 
 	public void setCustomerDescription(String customerDescription) {
 		this.customerDescription = customerDescription;
+	}
+
+	public String getGiftProductName() {
+		return giftProductName;
+	}
+
+	public void setGiftProductName(String giftProductName) {
+		this.giftProductName = giftProductName;
+	}
+
+	public String getInvoiceHead() {
+		return invoiceHead;
+	}
+
+	public void setInvoiceHead(String invoiceHead) {
+		this.invoiceHead = invoiceHead;
 	}
 
 	@Override

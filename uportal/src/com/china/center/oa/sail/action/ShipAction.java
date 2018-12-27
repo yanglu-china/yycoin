@@ -17,11 +17,16 @@ import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
+import com.china.center.oa.finance.bean.InsVSInvoiceNumBean;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
+import com.china.center.oa.finance.bean.InvoiceinsImportBean;
 import com.china.center.oa.finance.bean.InvoiceinsItemBean;
+import com.china.center.oa.finance.dao.InsVSInvoiceNumDAO;
+import com.china.center.oa.finance.dao.InsVSOutDAO;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.dao.InvoiceinsItemDAO;
 import com.china.center.oa.finance.vo.InvoiceinsVO;
+import com.china.center.oa.finance.vs.InsVSOutBean;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.*;
@@ -115,6 +120,8 @@ public class ShipAction extends DispatchAction
     private StafferDAO stafferDAO = null;
 
     private InvoiceinsDAO invoiceinsDAO = null;
+
+    private InsVSInvoiceNumDAO insVSInvoiceNumDAO = null;
 
     private InvoiceDAO invoiceDAO = null;
 
@@ -2762,6 +2769,33 @@ public class ShipAction extends DispatchAction
             if (vo.getCustomerName().indexOf("浦发银行") != -1){
                 each.setComunicatonBranchName(this.getCommunicationBranchNameFromOutImport(each.getOutId()));
             }
+
+            //#516 吉林银行去银行产品编码和银行产品名称
+            if (vo.getCustomerName().indexOf("吉林银行") != -1){
+                ProductImportBean productImportBean = this.getProductImportBean(each,"吉林银行");
+                if (productImportBean!= null){
+                    each.setProductCode(productImportBean.getBankProductCode());
+                    each.setProductName(productImportBean.getBankProductName());
+                }
+
+                if (!each.getOutId().startsWith("A")){
+                    //TODO赠品
+                    String giftProductName = this.getZsProductName(each.getOutId());
+                    each.setGiftProductName(giftProductName);
+                    InvoiceinsBean invoiceinsBean = this.getInvoiceByOutId(each.getOutId());
+                    if(invoiceinsBean!= null){
+                        List<InsVSInvoiceNumBean> insVSOutBeans = this.insVSInvoiceNumDAO.queryEntityBeansByFK(invoiceinsBean.getId());
+                        if (!ListTools.isEmptyOrNull(insVSOutBeans)){
+                            //发票号
+                            //发票抬头
+                            InsVSInvoiceNumBean insVSOutBean = insVSOutBeans.get(0);
+                            each.setInvoiceNum(insVSOutBean.getInvoiceNum());
+                            each.setInvoiceHead(invoiceinsBean.getHeadContent());
+                        }
+                    }
+                }
+            }
+
             // 针对赠品,且有备注的订单,单独显示
             String outId = each.getOutId();
 
@@ -2962,6 +2996,32 @@ public class ShipAction extends DispatchAction
         }
 
         request.setAttribute("total", totalAmount);
+    }
+
+    private InvoiceinsBean getInvoiceByOutId(String outId){
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("refIds", "like","%"+outId+"%");
+        List<InvoiceinsBean> invoiceinsBeans = this.invoiceinsDAO.queryEntityBeansByCondition(conditionParse);
+        if (ListTools.isEmptyOrNull(invoiceinsBeans)){
+            return null;
+        } else{
+            return invoiceinsBeans.get(0);
+        }
+    }
+
+    private String getZsProductName(String outId){
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("refOutFullId","=", outId);
+        conditionParse.addCondition("type","=", 0);
+        conditionParse.addCondition("outType","=", 4);
+        List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
+        if (ListTools.isEmptyOrNull(outBeans)){
+            return "";
+        } else{
+            return outBeans.get(0).getFullId();
+        }
     }
 
     /**
@@ -5550,5 +5610,13 @@ public class ShipAction extends DispatchAction
 
     public void setTwDistributionDAO(TwDistributionDAO twDistributionDAO) {
         this.twDistributionDAO = twDistributionDAO;
+    }
+
+    public InsVSInvoiceNumDAO getInsVSInvoiceNumDAO() {
+        return insVSInvoiceNumDAO;
+    }
+
+    public void setInsVSInvoiceNumDAO(InsVSInvoiceNumDAO insVSInvoiceNumDAO) {
+        this.insVSInvoiceNumDAO = insVSInvoiceNumDAO;
     }
 }

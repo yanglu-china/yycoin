@@ -1967,10 +1967,10 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 }
                 
                 // add 校验承担人是否与权签人是一同一部门
-                if (!orgManager.isStafferBelongOrg (tcpShareBean.getBearId(), tcpShareBean.getDepartmentId())) 
-                {
-                    throw new MYException("承担人[%s]不在权签人所属的部门[%s]下,请确认操作",sbean.getName(), prinBean.getName() );
-                }
+//                if (!orgManager.isStafferBelongOrg (tcpShareBean.getBearId(), tcpShareBean.getDepartmentId()))
+//                {
+//                    throw new MYException("承担人[%s]不在权签人所属的部门[%s]下,请确认操作",sbean.getName(), prinBean.getName() );
+//                }
 
                 tcpShareBean.setId(commonDAO.getSquenceString20());
                 tcpShareBean.setRefId(bean.getId());
