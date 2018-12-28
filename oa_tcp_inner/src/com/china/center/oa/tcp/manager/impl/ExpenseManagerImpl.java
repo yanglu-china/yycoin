@@ -231,8 +231,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         // 校验
         checkApply(user, bean);
 
-        if (shareList == null) {
-            throw new MYException("数据错误,请确认操作");
+        if (StringTools.isNullOrNone(shareList)) {
+            throw new MYException("承担人为空,请确认操作");
         }
 
         for (TcpShareBean tcpShareBean : shareList) {

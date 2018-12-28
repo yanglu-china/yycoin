@@ -1648,70 +1648,77 @@ public class ExpenseAction extends DispatchAction
 
         List<String> budgetIdeList = rds.getParameters("s_budgetId");
 
-        if ( !ListTools.isEmptyOrNull(budgetIdeList))
+        // 费用分担(只有通用报销的时候需要,也不是的要是申请过时了,也要重新指定)
+        List<TcpShareBean> shareList = new ArrayList<TcpShareBean>();
+
+        bean.setShareList(shareList);
+
+        List<String> departmentIdList = rds.getParameters("s_departmentId");
+        List<String> approverIdList = rds.getParameters("s_approverId");
+        List<String> bearIdList = rds.getParameters("s_bearId");
+        List<String> ratioList = rds.getParameters("s_ratio");
+
+        int rtotal = 0;
+
+        for (String each : ratioList)
         {
-            // 费用分担(只有通用报销的时候需要,也不是的要是申请过时了,也要重新指定)
-            List<TcpShareBean> shareList = new ArrayList<TcpShareBean>();
-
-            bean.setShareList(shareList);
-
-            List<String> departmentIdList = rds.getParameters("s_departmentId");
-            List<String> approverIdList = rds.getParameters("s_approverId");
-            List<String> bearIdList = rds.getParameters("s_bearId");
-            List<String> ratioList = rds.getParameters("s_ratio");
-
-            int rtotal = 0;
-
-            for (String each : ratioList)
-            {
-                rtotal += MathTools.parseInt(each);
-            }
-
-            int shareType = 0;
-
-            if (rtotal != 100)
-            {
-                shareType = 1;
-            }
-
-            for (int i = 0; i < budgetIdeList.size(); i++ )
-            {
-                String each = budgetIdeList.get(i);
-
-                if (StringTools.isNullOrNone(each))
-                {
-                    continue;
-                }
-
-                TcpShareBean share = new TcpShareBean();
-
-                share.setBudgetId(budgetIdeList.get(i));
-                share.setDepartmentId(departmentIdList.get(i));
-                share.setApproverId(approverIdList.get(i));
-
-                if (bearIdList == null || bearIdList.size() < i
-                    || StringTools.isNullOrNone(bearIdList.get(i)))
-                {
-                    share.setBearId(bean.getStafferId());
-                }
-                else
-                {
-                    share.setBearId(bearIdList.get(i));
-                }
-
-                // 自动识别是分担还是金额
-                if (shareType == 0)
-                {
-                    share.setRatio(MathTools.parseInt(ratioList.get(i).trim()));
-                }
-                else
-                {
-                    share.setRealMonery(TCPHelper.doubleToLong2(ratioList.get(i).trim()));
-                }
-
-                shareList.add(share);
-            }
+            rtotal += MathTools.parseInt(each);
         }
+
+        int shareType = 0;
+
+        if (rtotal != 100)
+        {
+            shareType = 1;
+        }
+
+        for (int i = 0; i < bearIdList.size(); i++ )
+        {
+            String each = bearIdList.get(i);
+
+            if (StringTools.isNullOrNone(each))
+            {
+                continue;
+            }
+
+            TcpShareBean share = new TcpShareBean();
+
+            if(budgetIdeList!= null){
+                share.setBudgetId(budgetIdeList.get(i));
+            }
+
+            if(departmentIdList!= null){
+                share.setDepartmentId(departmentIdList.get(i));
+            }
+
+            if(approverIdList!= null){
+                share.setApproverId(approverIdList.get(i));
+            }
+
+
+            if (bearIdList == null || bearIdList.size() < i
+                    || StringTools.isNullOrNone(bearIdList.get(i)))
+            {
+                share.setBearId(bean.getStafferId());
+            }
+            else
+            {
+                share.setBearId(bearIdList.get(i));
+            }
+
+            // 自动识别是分担还是金额
+            if (shareType == 0)
+            {
+                share.setRatio(MathTools.parseInt(ratioList.get(i).trim()));
+            }
+            else
+            {
+                share.setRealMonery(TCPHelper.doubleToLong2(ratioList.get(i).trim()));
+            }
+
+            shareList.add(share);
+        }
+
     }
 
     /**

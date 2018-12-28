@@ -31,6 +31,7 @@ import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.vo.ComposeItemVO;
+import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
@@ -142,6 +143,8 @@ public class ShipAction extends DispatchAction
     private BankConfigForShipDAO bankConfigForShipDAO = null;
 
     private FlowLogDAO flowLogDAO = null;
+
+    private ProductVSGiftDAO productVSGiftDAO = null;
 
     private final static String QUERYPACKAGE = "queryPackage";
 
@@ -2779,7 +2782,7 @@ public class ShipAction extends DispatchAction
                 }
 
                 if (!each.getOutId().startsWith("A")){
-                    //TODO赠品
+                    //赠品
                     String giftProductName = this.getZsProductName(each.getOutId());
                     each.setGiftProductName(giftProductName);
                     InvoiceinsBean invoiceinsBean = this.getInvoiceByOutId(each.getOutId());
@@ -3020,7 +3023,9 @@ public class ShipAction extends DispatchAction
         if (ListTools.isEmptyOrNull(outBeans)){
             return "";
         } else{
-            return outBeans.get(0).getFullId();
+            String giftConfigId = outBeans.get(0).getRefGiftId();
+            ProductVSGiftVO productVSGiftBean = this.productVSGiftDAO.findVO(giftConfigId);
+            return productVSGiftBean.getGiftProductName();
         }
     }
 
@@ -5618,5 +5623,13 @@ public class ShipAction extends DispatchAction
 
     public void setInsVSInvoiceNumDAO(InsVSInvoiceNumDAO insVSInvoiceNumDAO) {
         this.insVSInvoiceNumDAO = insVSInvoiceNumDAO;
+    }
+
+    public ProductVSGiftDAO getProductVSGiftDAO() {
+        return productVSGiftDAO;
+    }
+
+    public void setProductVSGiftDAO(ProductVSGiftDAO productVSGiftDAO) {
+        this.productVSGiftDAO = productVSGiftDAO;
     }
 }
