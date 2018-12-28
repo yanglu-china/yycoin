@@ -151,9 +151,9 @@ function callBackPrintFun()
 							<td><table class="border1"><tr><td>${item.price}</td></tr></table></td>
 							<td><table class="border1"><tr><td>${item.amount}</td></tr></table></td>
 							<td><table class="border1"><tr><td>${item.lhwd}</td></tr></table></td>
-							<td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
-							<td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
-							<td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
+							<td><table class="border1"><tr><td>${item.giftProductName}</td></tr></table></td>
+							<td><table class="border1"><tr><td>${item.invoiceNum}</td></tr></table></td>
+							<td><table class="border1"><tr><td>${item.invoiceHead}</td></tr></table></td>
 						</tr>
 					</c:forEach>
 					
