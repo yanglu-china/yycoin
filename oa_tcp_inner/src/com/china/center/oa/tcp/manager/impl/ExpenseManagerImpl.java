@@ -552,16 +552,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
                 for (TcpShareVO tcpShareVO : shareVOList) {
                     // 去重
-//                    if (!processList.contains(tcpShareVO.getApproverId())) {
-//                        processList.add(tcpShareVO.getApproverId());
-//                    }
-                    String bearId = tcpShareVO.getBearId();
-                    StafferBean stafferBean = this.stafferDAO.find(bearId);
-                    // 承担人直属上级审批
-                    String nextProcessor = String.valueOf(stafferBean.getSuperiorLeader());
-                    if (!StringTools.isNullOrNone(nextProcessor)
-                            && !processList.contains(nextProcessor)){
-                        processList.add(nextProcessor);
+                    if (!processList.contains(tcpShareVO.getApproverId())) {
+                        processList.add(tcpShareVO.getApproverId());
                     }
                 }
 
@@ -615,7 +607,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
                             TcpConstanst.TCP_POOL_COMMON);
                     bean.setStatus(newStatus);
-                    travelApplyDAO.updateStatus(bean.getId(), newStatus);
+                    expenseApplyDAO.updateStatus(bean.getId(), newStatus);
                     // 记录操作日志
                     saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
                 }
