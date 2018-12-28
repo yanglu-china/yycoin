@@ -385,7 +385,7 @@ function getTravelApply(oos)
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>
     
-    <%@include file="share_tr.jsp"%>
+    <%@include file="share_tr0.jsp"%>
     
 </table>
 </body>
