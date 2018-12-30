@@ -2755,6 +2755,9 @@ public class ShipAction extends DispatchAction
 
         //#503
         boolean hasCreditChannel = false;
+        if (vo.getCustomerName().indexOf("吉林银行") != -1){
+            itemList = this.mergeItems(itemList);
+        }
         for (PackageItemBean each : itemList) {
             //只打印同一客户的
             //#439 南京银行CK单需要合并打印
@@ -3027,6 +3030,48 @@ public class ShipAction extends DispatchAction
             ProductVSGiftVO productVSGiftBean = this.productVSGiftDAO.findVO(giftConfigId);
             return productVSGiftBean.getGiftProductName();
         }
+    }
+
+    private List<PackageItemBean> mergeItems(List<PackageItemBean> items){
+        List<PackageItemBean> result = new ArrayList<>();
+        //商品行
+        List<PackageItemBean> soList = new ArrayList<>();
+        //赠品行
+        List<PackageItemBean> zsList = new ArrayList<>();
+        //发票行
+        List<PackageItemBean>  aList = new ArrayList();
+        for (PackageItemBean item: items){
+            if (item.getOutId().startsWith("ZS")){
+                zsList.add(item);
+            } else if (item.getOutId().startsWith("A")){
+                aList.add(item);
+            } else{
+                soList.add(item);
+            }
+        }
+
+        _logger.info(soList);
+        _logger.info(aList);
+        //找到商品行对应的赠品单
+        if (!ListTools.isEmptyOrNull(soList)){
+            for (PackageItemBean out: soList){
+                for (Iterator<PackageItemBean> it=aList.iterator();it.hasNext();){
+                    PackageItemBean zsItem = it.next();
+                    String zsOutId = zsItem.getOutId();
+                    OutBean zsOut = this.outDAO.find(zsOutId);
+                    if (zsOut.getRefOutFullId().equals(out.getOutId())){
+                        it.remove();
+                        break;
+                    }
+                }
+            }
+        }
+        _logger.info(aList);
+        _logger.info(aList);
+        result.addAll(soList);
+        result.addAll(aList);
+        result.addAll(zsList);
+        return result;
     }
 
     /**
