@@ -2748,15 +2748,16 @@ public class ShipAction extends DispatchAction
     {
         int totalAmount = 0 ;
 
-        List<PackageItemBean> itemList1 = new ArrayList<PackageItemBean>();
+        List<PackageItemBean> itemList1 = new ArrayList<>();
 
         //#189 <productId_itemType,PackageItemBean>
-        Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
+        Map<String, PackageItemBean> map1 = new HashMap<>();
 
         //#503
         boolean hasCreditChannel = false;
         if (vo.getCustomerName().indexOf("吉林银行") != -1){
             itemList = this.mergeItems(itemList);
+            _logger.info("****item list merged***"+itemList);
         }
         for (PackageItemBean each : itemList) {
             //只打印同一客户的
@@ -2785,15 +2786,14 @@ public class ShipAction extends DispatchAction
                 }
 
                 if (!each.getOutId().startsWith("A")){
-                    //赠品
-                    String giftProductName = this.getZsProductName(each.getOutId());
-                    each.setGiftProductName(giftProductName);
+//                    //赠品
+//                    String giftProductName = this.getZsProductName(each.getOutId());
+//                    each.setGiftProductName(giftProductName);
+                    //发票号、发票抬头
                     InvoiceinsBean invoiceinsBean = this.getInvoiceByOutId(each.getOutId());
                     if(invoiceinsBean!= null){
                         List<InsVSInvoiceNumBean> insVSOutBeans = this.insVSInvoiceNumDAO.queryEntityBeansByFK(invoiceinsBean.getId());
                         if (!ListTools.isEmptyOrNull(insVSOutBeans)){
-                            //发票号
-                            //发票抬头
                             InsVSInvoiceNumBean insVSOutBean = insVSOutBeans.get(0);
                             each.setInvoiceNum(insVSOutBean.getInvoiceNum());
                             each.setInvoiceHead(invoiceinsBean.getHeadContent());
@@ -3016,6 +3016,7 @@ public class ShipAction extends DispatchAction
         }
     }
 
+    @Deprecated
     private String getZsProductName(String outId){
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
@@ -3050,24 +3051,24 @@ public class ShipAction extends DispatchAction
             }
         }
 
-        _logger.info(soList);
-        _logger.info(aList);
         //找到商品行对应的赠品单
         if (!ListTools.isEmptyOrNull(soList)){
             for (PackageItemBean out: soList){
-                for (Iterator<PackageItemBean> it=aList.iterator();it.hasNext();){
+                for (Iterator<PackageItemBean> it=zsList.iterator();it.hasNext();){
                     PackageItemBean zsItem = it.next();
                     String zsOutId = zsItem.getOutId();
                     OutBean zsOut = this.outDAO.find(zsOutId);
                     if (zsOut.getRefOutFullId().equals(out.getOutId())){
+                        //赠品行合并到商品行上去
                         it.remove();
+                        out.setGiftProductName(zsItem.getProductName());
+                        out.setGiftProductAmount(zsItem.getAmount());
                         break;
                     }
                 }
             }
         }
-        _logger.info(aList);
-        _logger.info(aList);
+
         result.addAll(soList);
         result.addAll(aList);
         result.addAll(zsList);

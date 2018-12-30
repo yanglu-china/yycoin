@@ -137,6 +137,7 @@ function callBackPrintFun()
                         <td width="8%"><table class="border1"><tr><td align="center">数量</td></tr></table></td>
 						<td width="8%"><table class="border1"><tr><td align="center">机构号</td></tr></table></td>
 						<td width="8%"><table class="border1"><tr><td align="center">赠品</td></tr></table></td>
+						<td width="8%"><table class="border1"><tr><td align="center">赠品数量</td></tr></table></td>
 						<td width="8%"><table class="border1"><tr><td align="center">发票号</td></tr></table></td>
 						<td width="8%"><table class="border1"><tr><td align="center">发票抬头</td></tr></table></td>
 					</tr>
@@ -152,6 +153,7 @@ function callBackPrintFun()
 							<td><table class="border1"><tr><td>${item.amount}</td></tr></table></td>
 							<td><table class="border1"><tr><td>${item.lhwd}</td></tr></table></td>
 							<td><table class="border1"><tr><td>${item.giftProductName}</td></tr></table></td>
+							<td><table class="border1"><tr><td>${item.giftProductAmount}</td></tr></table></td>
 							<td><table class="border1"><tr><td>${item.invoiceNum}</td></tr></table></td>
 							<td><table class="border1"><tr><td>${item.invoiceHead}</td></tr></table></td>
 						</tr>

@@ -154,6 +154,9 @@ public class PackageItemBean implements Serializable
 	private String giftProductName = "";
 
 	@Ignore
+	private int giftProductAmount = 0;
+
+	@Ignore
 	private String invoiceHead = "";
 	
 	public PackageItemBean()
@@ -520,6 +523,14 @@ public class PackageItemBean implements Serializable
 
 	public void setInvoiceHead(String invoiceHead) {
 		this.invoiceHead = invoiceHead;
+	}
+
+	public int getGiftProductAmount() {
+		return giftProductAmount;
+	}
+
+	public void setGiftProductAmount(int giftProductAmount) {
+		this.giftProductAmount = giftProductAmount;
 	}
 
 	@Override
