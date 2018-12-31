@@ -105,4 +105,10 @@ public interface ExpenseManager extends ListenerManager<TcpPayListener>
      */
     boolean rejectExpenseBean(User user, TcpParamWrap param)
         throws MYException;
+
+
+    /**
+     * #495
+     */
+    void onEndExpenseApplyJob();
 }

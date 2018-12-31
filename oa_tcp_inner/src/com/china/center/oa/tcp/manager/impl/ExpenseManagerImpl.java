@@ -8,13 +8,13 @@
  */
 package com.china.center.oa.tcp.manager.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
+import com.china.center.oa.budget.bean.*;
+import com.china.center.oa.budget.dao.*;
+import com.china.center.oa.tax.bean.FinanceBean;
+import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
 import com.china.center.oa.tcp.dao.*;
@@ -30,15 +30,7 @@ import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
-import com.china.center.oa.budget.bean.BudgetBean;
-import com.china.center.oa.budget.bean.BudgetItemBean;
-import com.china.center.oa.budget.bean.BudgetLogBean;
-import com.china.center.oa.budget.bean.BudgetLogTmpBean;
 import com.china.center.oa.budget.constant.BudgetConstant;
-import com.china.center.oa.budget.dao.BudgetDAO;
-import com.china.center.oa.budget.dao.BudgetItemDAO;
-import com.china.center.oa.budget.dao.BudgetLogDAO;
-import com.china.center.oa.budget.dao.BudgetLogTmpDAO;
 import com.china.center.oa.budget.manager.BudgetManager;
 import com.china.center.oa.finance.bean.InBillBean;
 import com.china.center.oa.finance.bean.OutBillBean;
@@ -132,6 +124,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
     private BudgetDAO          budgetDAO          = null;
 
+    private FeeItemDAO feeItemDAO = null;
+
     private AttachmentDAO      attachmentDAO      = null;
 
     private FlowLogDAO         flowLogDAO         = null;
@@ -145,6 +139,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
     private StafferDAO         stafferDAO         = null;
 
     private BankBuLevelDAO bankBuLevelDAO = null;
+
+    private FinanceDAO financeDAO = null;
     
     private final Log _logger = LogFactory.getLog(getClass());
     
@@ -867,6 +863,82 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             if (!StringTools.isNullOrNone(bean.getRefId())) {
                 travelApplyDAO.updateFeedback(bean.getRefId(), bean.getId(),
                         TcpConstanst.TCP_APPLY_FEEDBACK_YES);
+            }
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void onEndExpenseApplyJob() {
+        _logger.info("onEndExpenseApplyJob running***");
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(date);
+
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("status","=", TcpConstanst.TCP_STATUS_END);
+        conditionParse.addCondition("flowKey","=", TcpFlowConstant.WORKFLOW_2018);
+        conditionParse.addCondition("logTime", ">=" ,today);
+        List<ExpenseApplyBean> expenseApplyVOS = this.expenseApplyDAO.queryEntityBeansByCondition(conditionParse);
+        if(!ListTools.isEmptyOrNull(expenseApplyVOS)){
+            _logger.info(expenseApplyVOS.size()+"finished expense apply ***"+expenseApplyVOS);
+            for(ExpenseApplyBean bean: expenseApplyVOS){
+                _logger.info(bean);
+                ConditionParse conditionParse1 = new ConditionParse();
+                conditionParse1.addCondition("refId","=", bean.getId());
+                List<FinanceBean> financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse1);
+                _logger.info("****financeBeans size***"+financeBeans.size());
+                //未申请过报销凭证的
+                if(ListTools.isEmptyOrNull(financeBeans) || financeBeans.size()<=1){
+                    List<TcpShareBean> tcpShareBeans = this.tcpShareDAO.queryEntityBeansByFK(bean.getId());
+                    List<TravelApplyItemVO> travelApplyItemVOS = this.travelApplyItemDAO.queryEntityVOsByFK(bean.getId());
+                    //TODO
+                    List<String> taxIdList = new ArrayList<>();
+                    List<Long> moneyList = new ArrayList<>();
+                    List<String> stafferIdList = new ArrayList<>();
+                    Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
+                    _logger.info("****tcpShareBeans size***"+tcpShareBeans.size());
+                    _logger.info("****travelApplyItemVOS size***"+travelApplyItemVOS.size());
+                    for(TcpShareBean tcpShareBean: tcpShareBeans){
+                        //同一承担人的费用要根据多个预算科目比例拆分
+                        for(TravelApplyItemVO item: travelApplyItemVOS){
+                            String bearId = tcpShareBean.getBearId();
+                            StafferBean sb = this.stafferDAO.find(bearId);
+                            if(sb == null){
+                                _logger.error("***staffer not exists***"+bearId);
+                                break;
+                            } else{
+                                FeeItemBean feeItemBean = this.feeItemDAO.find(item.getFeeItemId());
+                                if (sb.getOtype() == StafferConstant.OTYPE_SAIL){
+                                    taxIdList.add(feeItemBean.getTaxId());
+                                } else {
+                                    taxIdList.add(feeItemBean.getTaxId2());
+                                }
+                                long share;
+                                if (tcpShareBean.getRatio()>0 ){
+                                    share = tcpShareBean.getRatio()*bean.getTotal();
+                                } else{
+                                    share = tcpShareBean.getRealMonery();
+                                }
+                                //按照预算科目拆分
+                                double ratio = (double)item.getMoneys()/bean.getTotal();
+                                long money = Math.round(ratio*share*100);
+                                _logger.info("share is***"+share+"***ration***"+ratio+"***money****"+money);
+                                moneyList.add(money);
+                                stafferIdList.add(bearId);
+                            }
+                        }
+                    }
+                    for (TcpPayListener tcpPayListener : listenerMapValues) {
+                        try {
+                            // TODO_OSGI 这里是报销待财务入账生成的凭证
+                            tcpPayListener.onEndExpenseApply(null, bean, taxIdList,
+                                    moneyList, stafferIdList);
+                        }catch (MYException e){
+                            _logger.error(e);
+                        }
+                    }
+                }
             }
         }
     }
@@ -2676,5 +2748,21 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
     public void setTcpFlowManager(TcpFlowManager tcpFlowManager) {
         this.tcpFlowManager = tcpFlowManager;
+    }
+
+    public FeeItemDAO getFeeItemDAO() {
+        return feeItemDAO;
+    }
+
+    public void setFeeItemDAO(FeeItemDAO feeItemDAO) {
+        this.feeItemDAO = feeItemDAO;
+    }
+
+    public FinanceDAO getFinanceDAO() {
+        return financeDAO;
+    }
+
+    public void setFinanceDAO(FinanceDAO financeDAO) {
+        this.financeDAO = financeDAO;
     }
 }

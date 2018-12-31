@@ -360,7 +360,9 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
         financeBean.setDutyId(bean.getDutyId());
 
-        financeBean.setCreaterId(user.getStafferId());
+        if (user!= null){
+            financeBean.setCreaterId(user.getStafferId());
+        }
 
         financeBean.setDescription(financeBean.getName());
 
