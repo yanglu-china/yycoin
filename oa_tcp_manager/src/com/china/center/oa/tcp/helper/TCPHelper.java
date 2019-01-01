@@ -69,6 +69,7 @@ public abstract class TCPHelper
             //#495
             if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_TRAVEL
                     || bean.getType() == TcpConstanst.TCP_APPLYTYPE_ENTERTAIN
+                    || bean.getType() == TcpConstanst.TCP_APPLYTYPE_STOCK
                     || bean.getType() == TcpConstanst.TCP_APPLYTYPE_PUBLIC){
                 bean.setFlowKey(TcpFlowConstant.WORKFLOW_2018);
                 return;

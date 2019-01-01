@@ -25,13 +25,6 @@ function addBean(opr)
 	    {
 	        $O('processer').oncheck = '';
 	    }
-	    else
-	    {
-            var flag = $O('marketingFlag').value;
-            if (flag === '0') {
-                $O('processer').oncheck = 'notNone';
-            }
-	    }
     }
     
     if ("0" == opr)
@@ -51,13 +44,6 @@ function addBean(opr)
 }
 
 $(document).ready(function (){
-    $('#marketingFlag').change(function() {
-        if (this.value === '1'){
-            $("#sub_main_tr").hide();
-        } else{
-            $("#sub_main_tr").show();
-        }
-    });
 });
 
 function load()
@@ -130,9 +116,6 @@ function updateInit()
             <p:pro field="stafferId" value="${bean.stafferName}"/>
             <p:pro field="departmentId" value="${bean.departmentName}"/>
 
-            <p:pro field="marketingFlag" cell="0" >
-                <p:option type="marketingFlag"></p:option>
-            </p:pro>
 
             <p:pro field="name" cell="0" innerString="size=60"/>
             
@@ -470,7 +453,7 @@ function updateInit()
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>
     
-    <%@include file="share_tr.jsp"%>
+    <%@include file="share_tr0.jsp"%>
 </table>
 </body>
 </html>
