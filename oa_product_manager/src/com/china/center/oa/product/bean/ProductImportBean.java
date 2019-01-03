@@ -115,6 +115,11 @@ public class ProductImportBean implements Serializable
     private double platformFee = 0.0d;
 
     /**
+     * #513 预扣中收金额
+     */
+    private double ykibMoney = 0.0d;
+
+    /**
      * 可支配毛利
      */
     private double grossProfit = 0.0d;
@@ -438,6 +443,14 @@ public class ProductImportBean implements Serializable
         this.platformFee = platformFee;
     }
 
+    public double getYkibMoney() {
+        return ykibMoney;
+    }
+
+    public void setYkibMoney(double ykibMoney) {
+        this.ykibMoney = ykibMoney;
+    }
+
     @Override
     public String toString() {
         return "ProductImportBean{" +
@@ -461,6 +474,7 @@ public class ProductImportBean implements Serializable
                 ", ibMoney2=" + ibMoney2 +
                 ", motivationMoney2=" + motivationMoney2 +
                 ", platformFee=" + platformFee +
+                ", ykibMoney=" + ykibMoney +
                 ", grossProfit=" + grossProfit +
                 ", buyBack=" + buyBack +
                 ", onMarketDate='" + onMarketDate + '\'' +
