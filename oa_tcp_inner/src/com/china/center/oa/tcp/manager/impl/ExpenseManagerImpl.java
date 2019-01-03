@@ -584,6 +584,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     String bearLeader = String.valueOf(stafferBean.getSuperiorLeader());
                     StafferBean commiter = this.stafferDAO.find(bean.getStafferId());
                     if (!StringTools.isNullOrNone(bearLeader)
+                            && !processList.contains(bearLeader)
                             //如果承担人直属上级与提交人直属上级一致，则过滤掉
                             && !bearLeader.equals(commiter.getSuperiorLeader())){
                         processList.add(bearLeader);
