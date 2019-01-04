@@ -1297,6 +1297,7 @@
                  bean.setMotivationMoney(productImportBean.getMotivationMoney());
                  bean.setIbMoney2(productImportBean.getIbMoney2());
                  bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
+                 bean.setYkibMoney(productImportBean.getYkibMoney());
 
                  if (this.isOnlineCustomer(bean.getComunicatonBranchName())){
                      bean.setPlatformFee(bean.getPrice()*0.01);

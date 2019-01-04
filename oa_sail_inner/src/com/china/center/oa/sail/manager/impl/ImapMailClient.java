@@ -1030,6 +1030,7 @@ public class ImapMailClient {
                 bean.setMotivationMoney(productImportBean.getMotivationMoney());
                 // 中收金额
                 bean.setIbMoney(productImportBean.getIbMoney());
+                bean.setYkibMoney(productImportBean.getYkibMoney());
 
                 bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
                 bean.setIbMoney2(productImportBean.getIbMoney2());

@@ -218,6 +218,11 @@ public class OutImportBean implements Serializable
      */
     private double ibMoney = 0.0d;
 
+	/**
+	 * #513 预扣中收金额
+	 */
+	private double ykibMoney = 0.0d;
+
     /**2015/04/11 中收激励功能
      * 激励金额
      */
@@ -1023,6 +1028,14 @@ public class OutImportBean implements Serializable
 		this.productImportId = productImportId;
 	}
 
+	public double getYkibMoney() {
+		return ykibMoney;
+	}
+
+	public void setYkibMoney(double ykibMoney) {
+		this.ykibMoney = ykibMoney;
+	}
+
 	@Override
 	public String toString() {
 		return "OutImportBean{" +
@@ -1085,6 +1098,7 @@ public class OutImportBean implements Serializable
 				", reday=" + reday +
 				", presentFlag=" + presentFlag +
 				", ibMoney=" + ibMoney +
+				", ykibMoney=" + ykibMoney +
 				", motivationMoney=" + motivationMoney +
 				", ibMoney2=" + ibMoney2 +
 				", motivationMoney2=" + motivationMoney2 +
