@@ -60,6 +60,11 @@ public class ExpenseApplyBean extends AbstractTcpBean implements Serializable
     private int marketingFlag = 0;
 
     /**
+     * #526 审核通过时间
+     */
+    private String processTime = "";
+
+    /**
      * default constructor
      */
     public ExpenseApplyBean()
@@ -174,6 +179,14 @@ public class ExpenseApplyBean extends AbstractTcpBean implements Serializable
     public void setSpecialType(int specialType)
     {
         this.specialType = specialType;
+    }
+
+    public String getProcessTime() {
+        return processTime;
+    }
+
+    public void setProcessTime(String processTime) {
+        this.processTime = processTime;
     }
 
     /**

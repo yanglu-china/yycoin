@@ -413,7 +413,7 @@ function load()
 	<p:subBody width="98%">
 		<p:table cells="1">
 			<p:tr align="left">
-			目的仓区：
+			源仓区：
 			<select name="dirDepotpart" class="select_class" style="width: 25%;" onchange="depotpartChange(this)" oncheck="notNone">
 		         <option value="">--</option>
 		         <c:forEach var="item" items="${depotpartList}">

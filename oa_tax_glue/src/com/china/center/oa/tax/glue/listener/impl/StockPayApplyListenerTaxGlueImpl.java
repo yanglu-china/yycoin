@@ -291,40 +291,42 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
             
             if (otherMoney > 0)
             {
-            	FinanceItemBean itemOther = new FinanceItemBean();
-
-            	itemOther.setPareId(pareId);
-
-            	itemOther.setName("营业外科目:" + name);
-
-            	itemOther.setForward(forward);
-
-                FinanceHelper.copyFinanceItem(financeBean, itemOther);
-
-                // 银行科目
-                TaxBean otherTax = taxDAO.find(taxId);
-
-                if (otherTax == null)
-                {
-                    throw new MYException("缺少对应的科目,请确认操作");
-                }
-
-                // 科目拷贝
-                FinanceHelper.copyTax(otherTax, itemOther);
-
-                if (forward == 0){
-                	itemOther.setInmoney(FinanceHelper.doubleToLong(otherMoney));
-                	itemOther.setOutmoney(0);
-                }
-                else{
-                	itemOther.setInmoney(0);
-                	itemOther.setOutmoney(FinanceHelper.doubleToLong(otherMoney));
-                }
-
-                itemOther.setDescription(itemOther.getName());
-
-                // 辅助核算 NA
-                itemList.add(itemOther);
+//            	FinanceItemBean itemOther = new FinanceItemBean();
+//
+//            	itemOther.setPareId(pareId);
+//
+//            	itemOther.setName("营业外科目:" + name);
+//
+//            	itemOther.setForward(forward);
+//
+//                FinanceHelper.copyFinanceItem(financeBean, itemOther);
+//
+//                // 银行科目
+//                TaxBean otherTax = taxDAO.find(taxId);
+//
+//                if (otherTax == null)
+//                {
+//                    throw new MYException("缺少对应的科目,请确认操作");
+//                }
+//
+//                // 科目拷贝
+//                FinanceHelper.copyTax(otherTax, itemOther);
+//
+//                if (forward == 0){
+//                	itemOther.setInmoney(FinanceHelper.doubleToLong(otherMoney));
+//                	itemOther.setOutmoney(0);
+//                }
+//                else{
+//                	itemOther.setInmoney(0);
+//                	itemOther.setOutmoney(FinanceHelper.doubleToLong(otherMoney));
+//                }
+//
+//                itemOther.setDescription(itemOther.getName());
+//
+//                // 辅助核算 NA
+//                itemList.add(itemOther);
+                //#510 应付和实付不同时，不生成营业外收入，借方按照实付来
+                itemIn.setInmoney(itemOut.getOutmoney());
             }
         }
     }

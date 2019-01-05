@@ -1083,7 +1083,13 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
         wrap.setStafferId(StorageConstant.PUBLIC_STAFFER);
         wrap.setChange(bean.getAmount());
-        wrap.setDepotpartId(bean.getDepotpartId());
+        //#525 在物流作业库 下合成的成品，成品合成后默认放置 物流作业库-组配仓
+        if ("A1201606211663545335".equals(bean.getDeportId())){
+            wrap.setDepotpartId("A1201605230938242216");
+        } else{
+            wrap.setDepotpartId(bean.getDepotpartId());
+        }
+
         wrap.setDescription("合成产品异动(合成后增加):" + bean.getId());
         wrap.setPrice(bean.getPrice());
         wrap.setProductId(bean.getProductId());

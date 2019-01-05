@@ -647,6 +647,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             bean.setStatus(token.getNextStatus());
 
             expenseApplyDAO.updateStatus(bean.getId(), bean.getStatus());
+            //#526
+            expenseApplyDAO.updateProcessTime(bean.getId(), TimeTools.now());
 
             // 中收报销不生成凭证
             if (bean.getType() == TcpConstanst.TCP_EXPENSETYPE_MID) {
@@ -879,12 +881,11 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("status","=", TcpConstanst.TCP_STATUS_END);
         conditionParse.addCondition("flowKey","=", TcpFlowConstant.WORKFLOW_2018);
-        conditionParse.addCondition("logTime", ">=" ,today);
+        conditionParse.addCondition("processTime", ">=" ,today);
         List<ExpenseApplyBean> expenseApplyVOS = this.expenseApplyDAO.queryEntityBeansByCondition(conditionParse);
         if(!ListTools.isEmptyOrNull(expenseApplyVOS)){
             _logger.info(expenseApplyVOS.size()+"finished expense apply ***"+expenseApplyVOS);
             for(ExpenseApplyBean bean: expenseApplyVOS){
-                _logger.info(bean);
                 ConditionParse conditionParse1 = new ConditionParse();
                 conditionParse1.addCondition("refId","=", bean.getId());
                 List<FinanceBean> financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse1);
@@ -893,7 +894,6 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 if(ListTools.isEmptyOrNull(financeBeans) || financeBeans.size()<=1){
                     List<TcpShareBean> tcpShareBeans = this.tcpShareDAO.queryEntityBeansByFK(bean.getId());
                     List<TravelApplyItemVO> travelApplyItemVOS = this.travelApplyItemDAO.queryEntityVOsByFK(bean.getId());
-                    //TODO
                     List<String> taxIdList = new ArrayList<>();
                     List<Long> moneyList = new ArrayList<>();
                     List<String> stafferIdList = new ArrayList<>();
@@ -917,14 +917,14 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                                 }
                                 long share;
                                 if (tcpShareBean.getRatio()>0 ){
-                                    share = tcpShareBean.getRatio()*bean.getTotal();
+                                    share = tcpShareBean.getRatio()*bean.getTotal()/100;
                                 } else{
                                     share = tcpShareBean.getRealMonery();
                                 }
                                 //按照预算科目拆分
                                 double ratio = (double)item.getMoneys()/bean.getTotal();
                                 long money = Math.round(ratio*share*100);
-                                _logger.info("share is***"+share+"***ration***"+ratio+"***money****"+money);
+                                _logger.info("share is***"+share+"***ratio***"+ratio+"***money****"+money);
                                 moneyList.add(money);
                                 stafferIdList.add(bearId);
                             }

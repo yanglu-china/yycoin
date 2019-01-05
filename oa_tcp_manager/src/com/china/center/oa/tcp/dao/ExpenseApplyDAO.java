@@ -26,6 +26,8 @@ public interface ExpenseApplyDAO extends DAO<ExpenseApplyBean, ExpenseApplyVO>
 {
     int updateStatus(String id, int status);
 
+    int updateProcessTime(String id, String processTime);
+
     /**
      * updateBorrowTotal
      * 
