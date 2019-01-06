@@ -744,6 +744,7 @@ public class OutImportManagerImpl implements OutImportManager
             base.setIbMoney2(each.getIbMoney2());
             base.setMotivationMoney2(each.getMotivationMoney2());
             base.setPlatformFee(each.getPlatformFee());
+            base.setYkibMoney(each.getYkibMoney());
             base.setProductImportId(each.getProductImportId());
 
             base.setCash(each.getCash());
