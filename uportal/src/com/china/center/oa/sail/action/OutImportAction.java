@@ -1276,7 +1276,7 @@
          String customerName = bean.getComunicatonBranchName();
          try {
              ProductImportBean productImportBean = this.outManager.getProductImportBean(customerName, bean.getBranchName(),
-                     bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType());
+                     bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType(), true);
              ProductBean productBean = this.productDAO.findByUnique(productImportBean.getCode());
              if (productBean == null){
                  builder.append("第[" + currentNumber + "]错误:")

@@ -792,11 +792,12 @@ public interface OutManager extends ListenerManager<OutListener>
      * @param channel
      * @param citicOrderDate
      * @param outType
+     * @param isImport
      * @return
      * @throws MYException
      */
     ProductImportBean getProductImportBean(String customerName, String branchName, String productCode, String channel,
-                                            String citicOrderDate, int outType) throws MYException;
+                                            String citicOrderDate, int outType, boolean isImport) throws MYException;
 
     double getGrossProfit(OutBean out, CustomerBean customerBean,String productId);
 

@@ -13002,12 +13002,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (customerBean!= null){
             branchName = customerBean.getReserve1();
         }
-        return this.getProductImportBean(customerName, branchName, productBean.getCode(), channel,out.getPodate(), out.getOutType());
+        return this.getProductImportBean(customerName, branchName, productBean.getCode(), channel,out.getPodate(), out.getOutType(), false);
     }
 
     @Override
     public ProductImportBean getProductImportBean(String customerName,String branchName, String productCode, String channel,
-                                                   String citicOrderDate, int outType) throws MYException {
+                                                   String citicOrderDate, int outType, boolean isImport) throws MYException {
         String template = "getProductImportBean with customerName:%s branchName:%s productCode:%s channel:%s citicOrderDate:%s outType:%d";
         _logger.info(String.format(template, customerName, branchName, productCode, channel, citicOrderDate, outType));
         String appName = ConfigLoader.getProperty("appName");
@@ -13022,7 +13022,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         //先根据支行+代码+渠道+银行+帐套+是否体内匹配
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("customerName", "=", customerName);
-        conditionParse.addCondition("bankProductCode", "=", productCode);
+//        conditionParse.addCondition("bankProductCode", "=", productCode);
+        this.addProductCodeCondition(conditionParse, productCode, isImport);
         this.addChannelCondition(conditionParse, channel);
         conditionParse.addCondition("bank", "=", bank);
         this.addItemCondition(conditionParse, outType, appName);
@@ -13034,7 +13035,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (ListTools.isEmptyOrNull(productImportBeans) && !StringTools.isNullOrNone(branchName)) {
             //如果支行无法匹配，就对比分行+代码+渠道+银行+帐套+是否体内
             conditionParse = new ConditionParse();
-            conditionParse.addCondition("bankProductCode", "=", productCode);
+//            conditionParse.addCondition("bankProductCode", "=", productCode);
+            this.addProductCodeCondition(conditionParse, productCode, isImport);
             this.addBranchCondition(conditionParse, branchName);
             this.addChannelCondition(conditionParse, channel);
             conditionParse.addCondition("bank", "=", bank);
@@ -13050,7 +13052,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             //如果支行和分行都无法匹配，就根据银行+代码+渠道+帐套+是否体内
             conditionParse = new ConditionParse();
             conditionParse.addCondition("bank", "=", bank);
-            conditionParse.addCondition("bankProductCode", "=", productCode);
+//            conditionParse.addCondition("bankProductCode", "=", productCode);
+            this.addProductCodeCondition(conditionParse, productCode, isImport);
             this.addChannelCondition(conditionParse, channel);
             //支行取空的
             this.addBranchCondition(conditionParse, null);
@@ -13065,7 +13068,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             //最后只根据银行+代码+帐套+是否体内+渠道为空
             conditionParse = new ConditionParse();
             conditionParse.addCondition("bank", "=", bank);
-            conditionParse.addCondition("bankProductCode", "=", productCode);
+//            conditionParse.addCondition("bankProductCode", "=", productCode);
+            this.addProductCodeCondition(conditionParse, productCode, isImport);
             //支行和渠道都取空的
             this.addBranchCondition(conditionParse, null);
             this.addChannelCondition(conditionParse, null);
@@ -13124,6 +13128,14 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     iterator.remove();
                 }
             }
+        }
+    }
+
+    private void addProductCodeCondition(ConditionParse conditionParse, String productCode, boolean isImport){
+        if (isImport){
+            conditionParse.addCondition("bankProductCode", "=", productCode);
+        } else{
+            conditionParse.addCondition("code", "=", productCode);
         }
     }
 
