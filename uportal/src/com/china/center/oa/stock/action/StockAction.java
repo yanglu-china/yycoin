@@ -13,11 +13,13 @@ import com.china.center.actionhelper.jsonimpl.JSONArray;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
+import com.china.center.oa.product.bean.DepotBean;
 import com.china.center.oa.product.bean.DepotpartBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProviderBean;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.vo.DepotpartVO;
 import com.china.center.oa.product.vo.ProductBOMVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.*;
@@ -2042,15 +2044,23 @@ public class StockAction extends DispatchAction
             ConditionParse conditionParse = new ConditionParse();
             conditionParse.addWhereStr();
             // #486 去掉到货预告库_默认仓区
-            conditionParse.addCondition("name","=","在售仓");
+//            conditionParse.addCondition("name","=","在售仓");
 //            conditionParse.addCondition(" and name in ('在售仓','到货预告库_默认仓区')");
+            //#531 生产作业库-采购仓，生产作业库-深圳百吉仓，生产作业库-东莞铭丰仓，生产作业库-其他生产仓，生产作业库-无锡巨洋仓，生产作业库-南京国声仓
+            conditionParse.addCondition(" and name in ('在售仓','采购仓','深圳百吉仓','东莞铭丰仓','其他生产仓','无锡巨洋仓','南京国声仓')");
             List<DepotpartBean> depotpartBeans = this.depotpartDAO.queryEntityBeansByCondition(conditionParse);
             if (!ListTools.isEmptyOrNull(depotpartBeans)){
                 depotpartList.addAll(depotpartBeans);
             }
-            request.setAttribute("depotpartList", depotpartList);
-
-            _logger.info("***depotpartList***"+depotpartList);
+            List<DepotpartVO> voList = new ArrayList<>();
+            for (DepotpartBean bean: depotpartList){
+                DepotpartVO depotpartVO = new DepotpartVO();
+                BeanUtil.copyProperties(depotpartVO, bean);
+                DepotpartVO temp = this.depotpartDAO.findVO(bean.getId());
+                depotpartVO.setLocationName(temp.getLocationName());
+                voList.add(depotpartVO);
+            }
+            request.setAttribute("depotpartList", voList);
             List<StockItemArrivalVO> stockItemArrivalBeans = this.stockItemArrivalDAO.queryEntityVOsByFK(vo.getId());
             vo.setStockItemArrivalVOs(stockItemArrivalBeans);
             _logger.info("***stockItemArrivalBeans***"+stockItemArrivalBeans.size());

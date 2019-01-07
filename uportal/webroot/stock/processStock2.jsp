@@ -357,7 +357,7 @@ function batchFetchProduct()
 <div id="dlg" title="选择到货的仓区" style="width:320px;">
     <div style="padding:20px;height:200px;" id="dia_inner1" title="">
         <c:forEach items="${depotpartList}" var="item" varStatus="vs">
-         <input type="radio" name="depotpartId" value="${item.id}"  ${vs.index == 0 ? 'checked=checked' : '' }>${item.name}<br>
+         <input type="radio" name="depotpartId" value="${item.id}"  ${vs.index == 0 ? 'checked=checked' : '' }>${item.locationName}-${item.name}<br>
         </c:forEach>
 		<label for="xqqr">
 			需求确认单号
@@ -382,7 +382,7 @@ function batchFetchProduct()
 <div id="dlg2" title="选择到货的仓区" style="width:320px;">
 	<div style="padding:20px;height:200px;" id="dia_inner2" title="">
 		<c:forEach items="${depotpartList}" var="item" varStatus="vs">
-			<input type="radio" name="depotpartId" value="${item.id}"  ${vs.index == 0 ? 'checked=checked' : '' }>${item.name}<br>
+			<input type="radio" name="depotpartId" value="${item.id}"  ${vs.index == 0 ? 'checked=checked' : '' }>${item.locationName}-${item.name}<br>
 		</c:forEach>
 	</div>
 </div>
