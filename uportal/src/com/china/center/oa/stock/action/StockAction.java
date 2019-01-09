@@ -2029,11 +2029,12 @@ public class StockAction extends DispatchAction
         {
             List<DepotpartBean> depotpartList = new ArrayList<DepotpartBean>();
 
-            if (vo.getMode() == StockConstant.STOCK_MODE_SAIL)
-            {
-                // 查询采购中心的良品仓区
-                depotpartList = depotpartDAO.queryOkDepotpartInDepot(DepotConstant.STOCK_DEPOT_ID);
-            }
+            //#531 去掉采购中心库
+//            if (vo.getMode() == StockConstant.STOCK_MODE_SAIL)
+//            {
+//                // 查询采购中心的良品仓区
+//                depotpartList = depotpartDAO.queryOkDepotpartInDepot(DepotConstant.STOCK_DEPOT_ID);
+//            }
             //#107
 //            else
 //            {
