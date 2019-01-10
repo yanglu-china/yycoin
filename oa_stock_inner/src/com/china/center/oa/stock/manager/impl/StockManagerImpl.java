@@ -1790,11 +1790,11 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             _logger.info("***dhZjbVOList size***"+dhZjbVOList.size());
 //            DepotpartBean depotpart = depotpartDAO.findByUnique("不良品仓");
             // 源仓库
-            DepotBean sourceDepot = this.depotDAO.findByUnique("生产作业库");
-            if (sourceDepot == null) {
-                _logger.error("生产作业库 not exist!");
-                return;
-            }
+//            DepotBean sourceDepot = this.depotDAO.findByUnique("生产作业库");
+//            if (sourceDepot == null) {
+//                _logger.error("生产作业库 not exist!");
+//                return;
+//            }
 
             for(DhZjbVO vo: dhZjbVOList){
                 boolean created = true;
@@ -1849,17 +1849,27 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     baseBean.setId(commonDAO.getSquenceString());
                     baseBean.setOutId(fullId);
 
-                    //源仓库
-                    baseBean.setLocationId(sourceDepot.getId());
-                    DepotpartBean defaultSourceDepotpart = depotpartDAO.findDefaultOKDepotpart(sourceDepot.getId());
-                    if (defaultSourceDepotpart == null) {
-                        _logger.error("defaultOKDepotpart not found:" + depotId);
+                    DepotpartBean depotpartBean = this.depotpartDAO.find(vo.getDepotpartId());
+                    if (depotpartBean == null) {
+                        _logger.error("defaultOKDepotpart not found:" + vo.getDepotpartId());
                         continue;
                     } else {
                         //源仓区
-                        baseBean.setDepotpartId(defaultSourceDepotpart.getId());
-                        baseBean.setDepotpartName(defaultSourceDepotpart.getName());
+                        baseBean.setDepotpartId(depotpartBean.getId());
+                        baseBean.setDepotpartName(depotpartBean.getName());
                     }
+
+                    //源仓库
+//                    baseBean.setLocationId(sourceDepot.getId());
+//                    DepotpartBean defaultSourceDepotpart = depotpartDAO.findDefaultOKDepotpart(sourceDepot.getId());
+//                    if (defaultSourceDepotpart == null) {
+//                        _logger.error("defaultOKDepotpart not found:" + depotId);
+//                        continue;
+//                    } else {
+//                        //源仓区
+//                        baseBean.setDepotpartId(defaultSourceDepotpart.getId());
+//                        baseBean.setDepotpartName(defaultSourceDepotpart.getName());
+//                    }
 
                     String productId = vo.getProductId();
                     ProductBean product = this.productDAO.find(productId);
@@ -1926,7 +1936,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
                     outBean.setLocationId("999");
                     //源仓库
-                    outBean.setLocation(sourceDepot.getId());
+                    outBean.setLocation(vo.getDepotpartId());
                     //目的仓库
                     outBean.setDestinationId(depotId);
 

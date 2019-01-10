@@ -25,6 +25,10 @@ public class DhZjbVO extends DhZjbBean {
      */
     private String sccgRkfx = "";
 
+    private String depotpartId;
+
+    private String depotId;
+
     public int getZjHgAmount() {
         return zjHgAmount;
     }
@@ -57,6 +61,22 @@ public class DhZjbVO extends DhZjbBean {
         this.sdAmount = sdAmount;
     }
 
+    public String getDepotpartId() {
+        return depotpartId;
+    }
+
+    public void setDepotpartId(String depotpartId) {
+        this.depotpartId = depotpartId;
+    }
+
+    public String getDepotId() {
+        return depotId;
+    }
+
+    public void setDepotId(String depotId) {
+        this.depotId = depotId;
+    }
+
     @Override
     public String toString() {
         return "DhZjbVO{" +
@@ -64,6 +84,8 @@ public class DhZjbVO extends DhZjbBean {
                 ", zjBhgAmount=" + zjBhgAmount +
                 ", sdAmount=" + sdAmount +
                 ", sccgRkfx='" + sccgRkfx + '\'' +
-                "} " + super.toString();
+                ", depotpartId='" + depotpartId + '\'' +
+                ", depotId='" + depotId + '\'' +
+                '}';
     }
 }
