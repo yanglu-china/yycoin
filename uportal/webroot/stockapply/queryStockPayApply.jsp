@@ -43,8 +43,8 @@ function load()
              stafferName : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}&mode= ' + mode + '>', end : '</a>'}
          },
          buttons : [
-             {id: 'pass', caption: '处理',bclass: 'update', auth: '1310,1311,1312', onpress : doProcess},
-             {id: 'pass', caption: '合并付款',bclass: 'update', auth: '1310', onpress : composeProcess},
+             // {id: 'pass', caption: '处理',bclass: 'update', auth: '1310,1311,1312', onpress : doProcess},
+             // {id: 'pass', caption: '合并付款',bclass: 'update', auth: '1310', onpress : composeProcess},
              //{id: 'pass2', caption: '绑定发票',bclass: 'update', auth: '1310', onpress : bindInvoice},
              {id: 'search', bclass: 'search', onpress : doSearch}
              ],
