@@ -29,6 +29,16 @@ public class DhZjbVO extends DhZjbBean {
 
     private String depotId;
 
+    private double price;
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
     public int getZjHgAmount() {
         return zjHgAmount;
     }
@@ -86,6 +96,7 @@ public class DhZjbVO extends DhZjbBean {
                 ", sccgRkfx='" + sccgRkfx + '\'' +
                 ", depotpartId='" + depotpartId + '\'' +
                 ", depotId='" + depotId + '\'' +
-                '}';
+                ", price=" + price +
+                "} " + super.toString();
     }
 }

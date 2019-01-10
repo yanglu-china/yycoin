@@ -1883,18 +1883,23 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     //调拨数量取实到数量
                     baseBean.setAmount(-vo.getSdAmount());
 
-                    StockItemBean stockItemBean = this.getStockItem(vo.getStockId(), productId);
-                    if (stockItemBean == null) {
-                        _logger.error(vo.getStockId() + " No stock item found:" + productId);
-                        continue;
-                    } else {
-                        _logger.info("get price from stock item:" + stockItemBean);
-                        baseBean.setPrice(NumberUtils.roundDouble(stockItemBean.getPrice()));
-                        baseBean.setValue(NumberUtils.roundDouble(baseBean.getAmount() * baseBean.getPrice()));
-                        baseBean.setCostPrice(NumberUtils.roundDouble(stockItemBean.getPrice()));
-                        baseBean.setCostPriceKey(StorageRelationHelper
-                                .getPriceKey(baseBean.getCostPrice()));
-                    }
+//                    StockItemBean stockItemBean = this.getStockItem(vo.getStockId(), productId);
+//                    if (stockItemBean == null) {
+//                        _logger.error(vo.getStockId() + " No stock item found:" + productId);
+//                        continue;
+//                    } else {
+//                        _logger.info("get price from stock item:" + stockItemBean);
+//                        baseBean.setPrice(NumberUtils.roundDouble(stockItemBean.getPrice()));
+//                        baseBean.setValue(NumberUtils.roundDouble(baseBean.getAmount() * baseBean.getPrice()));
+//                        baseBean.setCostPrice(NumberUtils.roundDouble(stockItemBean.getPrice()));
+//                        baseBean.setCostPriceKey(StorageRelationHelper
+//                                .getPriceKey(baseBean.getCostPrice()));
+//                    }
+                    baseBean.setPrice(NumberUtils.roundDouble(vo.getPrice()));
+                    baseBean.setValue(NumberUtils.roundDouble(baseBean.getAmount() * baseBean.getPrice()));
+                    baseBean.setCostPrice(NumberUtils.roundDouble(vo.getPrice()));
+                    baseBean.setCostPriceKey(StorageRelationHelper
+                            .getPriceKey(baseBean.getCostPrice()));
 
                     baseBean.setOwner("0");
                     baseBean.setOwnerName("公共");

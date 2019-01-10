@@ -20,7 +20,7 @@ import java.util.List;
 public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjbDAO {
     @Override
     public List<DhZjbVO> queryDhInfo() {
-        String sql = " select a.id,a.depotpartid,a.depotid,a.stockid,a.dhno,a.createUser,a.productId,a.cg_amount,a.ydh_amount,b.sd_amount,b.zj_hg_amount,a.ydh_amount-b.zj_hg_amount as bhg_amount,b.sccg_rkfx " +
+        String sql = " select a.id,a.depotpartid,a.depotid,a.price,a.stockid,a.dhno,a.createUser,a.productId,a.cg_amount,a.ydh_amount,b.sd_amount,b.zj_hg_amount,a.ydh_amount-b.zj_hg_amount as bhg_amount,b.sccg_rkfx " +
                 "from t_center_dh_zjb a left join t_center_dh_result b on a.dhno=b.dhno and a.productid=b.productid " +
                 "where a.status='结束' and a.processedFlag=0";
 
@@ -48,6 +48,7 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
                         String stockId = rst.getString("stockid");
                         String depotpartId = rst.getString("depotpartid");
                         String depotId = rst.getString("depotid");
+                        double price = rst.getFloat("price");
                         wrap.setId(id);
                         wrap.setStockId(stockId);
                         wrap.setDhNo(dhno);
@@ -61,6 +62,7 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
                         wrap.setCreateUser(createUser);
                         wrap.setDepotId(depotId);
                         wrap.setDepotpartId(depotpartId);
+                        wrap.setPrice(price);
                         result.add(wrap);
                     }
                 });
