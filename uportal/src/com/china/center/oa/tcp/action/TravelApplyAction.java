@@ -4093,7 +4093,7 @@ public class TravelApplyAction extends DispatchAction
                     // 客户名
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
-                        String name = obj[1];
+                        String name = obj[1].trim();
                         ConditionParse con = new ConditionParse();
                         con.addWhereStr();
                         con.addCondition("name", "=",name);
