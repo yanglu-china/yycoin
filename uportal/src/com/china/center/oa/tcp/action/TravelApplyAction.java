@@ -2118,7 +2118,8 @@ public class TravelApplyAction extends DispatchAction
 	            param.setReason(reason);
 	            param.setProcessId(processId);
 	            param.setCompliance(compliance);
-	            if (travelApplyVo.getType() == TcpConstanst.TCP_APPLYTYPE_MID){
+	            if (travelApplyVo.getType() == TcpConstanst.TCP_APPLYTYPE_MID
+                        ||travelApplyVo.getType() == TcpConstanst.TCP_APPLYTYPE_PUBLIC){
                     // #394 中收申请待财务支付时需要上传附件，改为从RDS中获取表单数据,form页面也改为multipart/form-data
                     fillWrap(rds, param);
                 } else{

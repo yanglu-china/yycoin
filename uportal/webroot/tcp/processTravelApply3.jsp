@@ -146,14 +146,14 @@ function checkMoney()
 </head>
 
 <body class="body_class" onload="load()">
-<c:if test="${bean.status == 11}">
+<c:if test="${bean.status == 11 || bean.status == 20}">
 <form name="formEntry" action="../tcp/apply.do?method=processTravelApplyBean"   enctype="multipart/form-data" method="post">
 <input type="hidden" name="oprType" value="0"> 
 <input type="hidden" name="processId" value=""> 
 <input type="hidden" name="id" value="${bean.id}"> 
 <input type="hidden" name="type" value="${bean.type}"> 
 </c:if>
-<c:if test="${bean.status != 11}">
+<c:if test="${bean.status != 11 && bean.status != 20}">
 <form name="formEntry" action="../tcp/apply.do"  method="post">
 <input type="hidden" name="method" value="processTravelApplyBean"> 
 <input type="hidden" name="oprType" value="0"> 
@@ -219,12 +219,18 @@ function checkMoney()
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
             
             <p:cell title="附件" width="8" end="true">
-            <c:forEach items="${bean.attachmentList}" var="item">
-            <a href="../tcp/apply.do?method=downAttachmentFile&id=${item.id}" title="点击下载附件">${item.name}</a>
-            <br>
-            <br>
-            </c:forEach>
+                <c:forEach items="${bean.attachmentList}" var="item">
+                    <a href="../tcp/apply.do?method=downAttachmentFile&id=${item.id}" title="点击下载附件">${item.name}</a>
+                    <br>
+                    <br>
+                </c:forEach>
             </p:cell>
+
+            <c:if test="${bean.status == 20}">
+                <p:cell title="附件" width="8" end="true">
+                    <input type="file" name="atts" size="70" >
+                </p:cell>
+            </c:if>
 
             <p:cell title="处理人" width="8" end="true">
             ${bean.processer}
