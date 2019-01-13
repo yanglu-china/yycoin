@@ -4714,6 +4714,14 @@ public class InvoiceinsAction extends DispatchAction
 
         rds.close();
 
+        if (importItemList.size()>= 1000){
+            builder
+                    .append("一次导入不得超过1000行："+importItemList.size())
+                    .append("<br>");
+
+            importError = true;
+        }
+
         if (importError){
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
