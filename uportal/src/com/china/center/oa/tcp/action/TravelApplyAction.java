@@ -56,6 +56,7 @@ import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.dao.OutImportDAO;
 import com.china.center.oa.sail.helper.OutHelper;
+import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.oa.tcp.bean.*;
@@ -4117,7 +4118,7 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String outId = obj[2];
                         item.setFullId(outId);
-                        OutBean out = this.outDAO.find(outId);
+                        OutVO out = this.outDAO.findVO(outId);
                         if (out == null){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -4127,6 +4128,14 @@ public class TravelApplyAction extends DispatchAction
 
                             importError = true;
                         }else{
+                            if (!item.getCustomerName().equals(out.getCustomerName())){
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append(outId+"订单号和客户名不匹配:"+item.getCustomerName())
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
                             stafferId = out.getStafferId();
                             //同一个订单不能重复提交中收报销申请
                             if (out.getIbFlag() == 1){
