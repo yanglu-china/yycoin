@@ -7,10 +7,7 @@ import com.china.center.jdbc.annotation.*;
 import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.finance.constant.FinanceConstant;
-import com.china.center.oa.publics.bean.CityBean;
-import com.china.center.oa.publics.bean.PrincipalshipBean;
-import com.china.center.oa.publics.bean.ProvinceBean;
-import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.sail.bean.ExpressBean;
 
 @SuppressWarnings("serial")
@@ -139,6 +136,12 @@ public class PreInvoiceApplyBean implements Serializable
     
     @Ignore
     private List<PreInvoiceVSOutBean> vsList = null;
+
+	/**
+	 * 附件列表
+	 */
+	@Ignore
+	protected List<AttachmentBean> attachmentList = null;
 
 	/**
 	 * 
@@ -443,4 +446,11 @@ public class PreInvoiceApplyBean implements Serializable
 		this.refId = refId;
 	}
 
+	public List<AttachmentBean> getAttachmentList() {
+		return attachmentList;
+	}
+
+	public void setAttachmentList(List<AttachmentBean> attachmentList) {
+		this.attachmentList = attachmentList;
+	}
 }

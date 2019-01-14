@@ -210,7 +210,7 @@ function getCustomer(obj)
 </head>
 
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../tcp/preinvoice.do?method=addOrUpdatePreInvoice" method="post">
+<form name="formEntry" action="../tcp/preinvoice.do?method=addOrUpdatePreInvoice" enctype="multipart/form-data" method="post">
 <input type="hidden" name="oprType" value="0"> 
 <input type="hidden" name="addOrUpdate" value="0"> 
 <input type="hidden" name="processId" value=""> 
@@ -337,7 +337,17 @@ function getCustomer(obj)
             <p:pro field="mobile" cell="0" innerString="size=60"/>
             
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
-            
+
+            <p:cell title="附件" width="8" end="true"><input type="file" name="atts" size="70" >
+                <font color="blue"><span style="cursor: pointer;" onclick="showMoreAtt()" >【更多附件】 </span><b>建议压缩后上传,最大支持10M</b></font>
+            </p:cell>
+
+            <p:cell title="附件N" width="8" id="att_more" end="true">
+                <input type="file" name="atts0" size="70" > <br>
+                <input type="file" name="atts1" size="70" > <br>
+                <input type="file" name="atts2" size="70" > <br>
+                <input type="file" name="atts3" size="70" > <br>
+            </p:cell>
         </p:table>
 	</p:subBody>
 	

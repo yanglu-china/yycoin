@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.dao.AttachmentDAO;
 import com.china.center.oa.sail.bean.PreConsignBean;
 import com.china.center.oa.sail.dao.PreConsignDAO;
 import com.china.center.tools.*;
@@ -101,6 +103,8 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
     private InsVSOutDAO insVSOutDAO = null;
 
     private PreConsignDAO preConsignDAO = null;
+
+    private AttachmentDAO attachmentDAO = null;
     
     /**
 	 * 
@@ -131,7 +135,20 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
 
         //2015/10/12 会检查申请人名下是否有未结束的预开票申请，帮我把这条规则屏蔽掉
 //        checkApply(user, bean);
-        
+
+        List<AttachmentBean> attachmentList = bean.getAttachmentList();
+
+        if(null != attachmentList && attachmentList.size() > 0)
+        {
+            for (AttachmentBean attachmentBean : attachmentList)
+            {
+                attachmentBean.setId(commonDAO.getSquenceString20());
+                attachmentBean.setRefId(bean.getId());
+            }
+
+            attachmentDAO.saveAllEntityBeans(attachmentList);
+        }
+
         preInvoiceApplyDAO.saveEntityBean(bean);
         
         saveApply(user, bean);
@@ -1287,5 +1304,13 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
      */
     public void setPreConsignDAO(PreConsignDAO preConsignDAO) {
         this.preConsignDAO = preConsignDAO;
+    }
+
+    public AttachmentDAO getAttachmentDAO() {
+        return attachmentDAO;
+    }
+
+    public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
+        this.attachmentDAO = attachmentDAO;
     }
 }

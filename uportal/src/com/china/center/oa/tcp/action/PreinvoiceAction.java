@@ -1,5 +1,6 @@
 package com.china.center.oa.tcp.action;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
@@ -17,6 +18,7 @@ import com.china.center.oa.finance.bean.PreInvoiceVSOutBean;
 import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
 import com.china.center.oa.finance.dao.PreInvoiceVSOutDAO;
 import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
+import com.china.center.oa.publics.AttachmentUtils;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.*;
@@ -29,6 +31,7 @@ import com.china.center.oa.sail.dao.ExpressDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.tcp.bean.TcpApproveBean;
 import com.china.center.oa.tcp.bean.TcpFlowBean;
+import com.china.center.oa.tcp.bean.TravelApplyBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
 import com.china.center.oa.tcp.dao.TcpApproveDAO;
@@ -39,6 +42,7 @@ import com.china.center.oa.tcp.vo.TcpApproveVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
 import com.china.center.osgi.jsp.ElTools;
 import com.china.center.tools.*;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -49,10 +53,13 @@ import org.apache.struts.actions.DispatchAction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -89,6 +96,8 @@ public class PreinvoiceAction extends DispatchAction
     private ProvinceDAO provinceDAO = null;
 
     private CityDAO cityDAO = null;
+
+    private AttachmentDAO attachmentDAO = null;
 	
 	private final static String QUERYSELFPREINVOICE = "querySelfPreInvoice";
 	
@@ -440,7 +449,7 @@ public class PreinvoiceAction extends DispatchAction
 	 * @return
 	 * @throws ServletException
 	 */
-	public ActionForward addOrUpdatePreInvoice(ActionMapping mapping, ActionForm form,
+	/*public ActionForward addOrUpdatePreInvoice(ActionMapping mapping, ActionForm form,
             HttpServletRequest request, HttpServletResponse response)
 	throws ServletException
 	{
@@ -545,6 +554,248 @@ public class PreinvoiceAction extends DispatchAction
         }
 
         return mapping.findForward("querySelfPreInvoice");
+    }*/
+
+    public ActionForward addOrUpdatePreInvoice(ActionMapping mapping, ActionForm form,
+                                               HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        CommonTools.saveParamers(request);
+
+        PreInvoiceApplyBean bean = new PreInvoiceApplyBean();
+
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
+
+        try
+        {
+            rds.parser();
+        }
+        catch (FileUploadBase.SizeLimitExceededException e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过10M");
+
+            return mapping.findForward("error");
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败");
+
+            return mapping.findForward("error");
+        }
+        BeanUtil.getBean(bean, rds.getParmterMap());
+
+        ActionForward afor = parserAttachment(mapping, request, rds, bean);
+
+        if (afor != null) {
+            return afor;
+        }
+        rds.close();
+
+        String addOrUpdate = rds.getParameter("addOrUpdate");
+
+        String oprType = rds.getParameter("oprType");
+
+        String processId = rds.getParameter("processId");
+
+        StafferBean stafferBean = stafferDAO.find(bean.getStafferId());
+
+        bean.setStype(stafferBean.getOtype());
+
+        String totals = rds.getParameter("total");
+
+        bean.setTotal(MathTools.doubleToLong2(totals));
+
+        String shipping = rds.getParameter("shipping");
+        if (!StringTools.isNullOrNone(shipping)){
+            bean.setShipping(Integer.valueOf(shipping));
+        }
+        String transport1 = rds.getParameter("transport1");
+        if (StringTools.isNullOrNone(transport1)){
+            try{
+                bean.setTransport1(Integer.valueOf(transport1));
+            }catch(Exception e){}
+        }
+        String transport2 = rds.getParameter("transport2");
+        if (StringTools.isNullOrNone(transport2)){
+            try{
+                bean.setTransport2(Integer.valueOf(transport2));
+            }catch(Exception e){}
+        }
+
+        String expressPay = rds.getParameter("expressPay");
+        if (StringTools.isNullOrNone(expressPay)){
+            try{
+                bean.setExpressPay(Integer.valueOf(expressPay));
+            }catch(Exception e){}
+        }
+
+        String transportPay = rds.getParameter("transportPay");
+        if (StringTools.isNullOrNone(transportPay)){
+            try{
+                bean.setTransportPay(Integer.valueOf(transportPay));
+            }catch(Exception e){}
+        }
+
+        String provinceId = rds.getParameter("provinceId");
+        if (StringTools.isNullOrNone(provinceId)){
+            bean.setProvinceId(provinceId);
+        }
+
+        String cityId = rds.getParameter("cityId");
+        if (StringTools.isNullOrNone(cityId)){
+            bean.setProvinceId(cityId);
+        }
+
+        String address = rds.getParameter("address");
+        bean.setAddress(address);
+        String receiver = rds.getParameter("receiver");
+        bean.setReceiver(receiver);
+        String mobile = rds.getParameter("mobile");
+        bean.setMobile(mobile);
+
+        try
+        {
+            User user = Helper.getUser(request);
+
+            bean.setLogTime(TimeTools.now());
+
+            if ("0".equals(addOrUpdate))
+            {
+                preInvoiceManager.addPreInvoiceBean(user, bean);
+            }
+            else
+            {
+                preInvoiceManager.updatePreInvoiceBean(user, bean);
+            }
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功保存预开票申请");
+
+            // 提交
+            if ("1".equals(oprType))
+            {
+                preInvoiceManager.submitPreInvoiceBean(user, bean.getId(), processId);
+            }
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功提交预开票申请");
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "操作预开票申请失败:" + e.getMessage());
+        }
+
+        return mapping.findForward("querySelfPreInvoice");
+    }
+
+    private ActionForward parserAttachment(ActionMapping mapping, HttpServletRequest request,
+                                           RequestDataStream rds, PreInvoiceApplyBean apply)
+    {
+        List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
+
+        apply.setAttachmentList(attachmentList);
+
+        String addOrUpdate = rds.getParameter("addOrUpdate");
+
+        // 更新新加入之前
+        if ("1".equals(addOrUpdate))
+        {
+            String attacmentIds = rds.getParameter("attacmentIds");
+
+            String[] split = attacmentIds.split(";");
+
+            for (String each : split)
+            {
+                if (StringTools.isNullOrNone(each))
+                {
+                    continue;
+                }
+
+                AttachmentBean att = attachmentDAO.find(each);
+
+                if (att != null)
+                {
+                    attachmentList.add(att);
+                }
+            }
+        }
+
+        // parser attachment
+        if ( !rds.haveStream())
+        {
+            return null;
+        }
+
+        Map<String, InputStream> streamMap = rds.getStreamMap();
+
+        for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
+        {
+            AttachmentBean bean = new AttachmentBean();
+
+            FileOutputStream out = null;
+
+            UtilStream ustream = null;
+
+            try
+            {
+                String savePath = AttachmentUtils.mkdir(this.getAttachmentPath());
+
+                String fileAlais = SequenceTools.getSequence();
+
+                String fileName = FileTools.getFileName(rds.getFileName(entry.getKey()));
+
+                String rabsPath = '/' + savePath + '/' + fileAlais + "."
+                        + FileTools.getFilePostfix(fileName).toLowerCase();
+
+                String filePath = this.getAttachmentPath() + '/' + rabsPath;
+
+                bean.setName(fileName);
+
+                bean.setPath(rabsPath);
+
+                bean.setLogTime(TimeTools.now());
+
+                out = new FileOutputStream(filePath);
+
+                ustream = new UtilStream(entry.getValue(), out);
+
+                ustream.copyStream();
+
+                attachmentList.add(bean);
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存失败");
+
+                return mapping.findForward("querySelfTravelApply");
+            }
+            finally
+            {
+                if (ustream != null)
+                {
+                    try
+                    {
+                        ustream.close();
+                    }
+                    catch (IOException e)
+                    {
+                        _logger.error(e, e);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getAttachmentPath()
+    {
+        return ConfigLoader.getProperty("preinvoice");
     }
 	
 	/**
@@ -993,5 +1244,13 @@ public class PreinvoiceAction extends DispatchAction
      */
     public void setProvinceDAO(ProvinceDAO provinceDAO) {
         this.provinceDAO = provinceDAO;
+    }
+
+    public AttachmentDAO getAttachmentDAO() {
+        return attachmentDAO;
+    }
+
+    public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
+        this.attachmentDAO = attachmentDAO;
     }
 }
