@@ -935,6 +935,10 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
             bean.setDepartmentName(depa.getFullName());
         }
 
+        List<AttachmentBean> attachmentList = attachmentDAO.queryEntityVOsByFK(id);
+
+        bean.setAttachmentList(attachmentList);
+
         List<PreInvoiceVSOutBean> vsList = preInvoiceVSOutDAO.queryEntityVOsByFK(id);
 
         bean.setVsList(vsList);

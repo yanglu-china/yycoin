@@ -53,10 +53,7 @@ import org.apache.struts.actions.DispatchAction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -795,9 +792,42 @@ public class PreinvoiceAction extends DispatchAction
 
     public String getAttachmentPath()
     {
-        return ConfigLoader.getProperty("preinvoice");
+        return ConfigLoader.getProperty("invoiceinsAttachmentPath");
     }
-	
+
+    public ActionForward downAttachmentFile(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException
+    {
+        String path = getAttachmentPath();
+
+        String id = request.getParameter("id");
+
+        AttachmentBean bean = attachmentDAO.find(id);
+
+        if (bean == null)
+        {
+            return ActionTools.toError(mapping, request);
+        }
+
+        path += bean.getPath();
+
+        File file = new File(path);
+
+        OutputStream out = response.getOutputStream();
+
+        response.setContentType("application/x-dbf");
+
+        response.setHeader("Content-Disposition", "attachment; filename="
+                + StringTools.getStringBySet(bean.getName(),
+                "GBK", "ISO8859-1"));
+
+        UtilStream us = new UtilStream(new FileInputStream(file), out);
+
+        us.copyAndCloseStream();
+
+        return null;
+    }
 	/**
 	 * 
 	 * @param request
@@ -955,6 +985,16 @@ public class PreinvoiceAction extends DispatchAction
                     return ActionTools.toError("申请当前状态下不能被修改", mapping, request);
                 }
                 _logger.info("***findPreInvoice***4444");
+                List<AttachmentBean> attachmentList = bean.getAttachmentList();
+
+                String attacmentIds = "";
+
+                for (AttachmentBean attachmentBean : attachmentList)
+                {
+                    attacmentIds = attacmentIds + attachmentBean.getId() + ";";
+                }
+
+                request.setAttribute("attacmentIds", attacmentIds);
                 return mapping.findForward("updatePreInvoice");
             }
 

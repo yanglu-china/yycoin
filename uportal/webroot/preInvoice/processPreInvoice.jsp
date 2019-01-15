@@ -262,6 +262,14 @@ function getOutBalance(oos)
             <p:pro field="mobile" cell="0" innerString="size=20"/>
 
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
+
+            <p:cell title="附件" width="8" end="true">
+                <c:forEach items="${bean.attachmentList}" var="item">
+                    <a href="../tcp/preinvoice.do?method=downAttachmentFile&id=${item.id}" title="点击下载附件">${item.name}</a>
+                    <br>
+                    <br>
+                </c:forEach>
+            </p:cell>
             
             <p:cell title="处理人" width="8" end="true">
             ${bean.processer}
