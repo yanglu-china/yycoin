@@ -92,10 +92,14 @@ public class FinaAction extends ParentQueryFinaAction
 
 		condtion.addWhereStr();
 
-		Map<String, String> initMap = initLogTime(request, condtion);
+//		Map<String, String> initMap = initLogTime(request, condtion);
+//
+//		ActionTools.processJSONDataQueryCondition(QUERYFINANCE, request,
+//				condtion, initMap);
 
-		ActionTools.processJSONDataQueryCondition(QUERYFINANCE, request,
-				condtion, initMap);
+		ActionTools.processJSONQueryCondition(QUERYFINANCE, request, condtion);
+
+		notQueryFirstTime(condtion);
 
 		condtion.addCondition("order by FinanceBean.financeDate desc, FinanceBean.logTime desc");
 
@@ -113,6 +117,26 @@ public class FinaAction extends ParentQueryFinaAction
 		return JSONTools.writeResponse(response, jsonstr);
 	}
 
+	/**
+	 * 第一次打开时，不做查询，须输入条件才允许查询
+	 * @param condtion
+	 */
+	private void notQueryFirstTime(ConditionParse condtion)
+	{
+		String conwhere = condtion.toString();
+
+		if (conwhere.indexOf("1 = 2") == -1)
+		{
+			// 判断1=1 后面是否有And 条件
+
+			String subwhere = conwhere.substring(conwhere.indexOf("1=1") + 3);
+
+			if (StringTools.isNullOrNone(subwhere))
+			{
+				condtion.addFlaseCondition();
+			}
+		}
+	}
 	/**
 	 * queryTempFinance
 	 * 
@@ -927,19 +951,19 @@ public class FinaAction extends ParentQueryFinaAction
 
 		String blogTime = request.getParameter("bfinanceDate");
 
-		if (StringTools.isNullOrNone(alogTime)
-				&& StringTools.isNullOrNone(blogTime))
-		{
-			changeMap.put("afinanceDate", TimeTools.now_short(-10));
-
-			changeMap.put("bfinanceDate", TimeTools.now_short(1));
-
-			condtion.addCondition("FinanceBean.financeDate", ">=",
-					TimeTools.now_short(-10));
-
-			condtion.addCondition("FinanceBean.financeDate", "<=",
-					TimeTools.now_short(1));
-		}
+//		if (StringTools.isNullOrNone(alogTime)
+//				&& StringTools.isNullOrNone(blogTime))
+//		{
+//			changeMap.put("afinanceDate", TimeTools.now_short(-10));
+//
+//			changeMap.put("bfinanceDate", TimeTools.now_short(1));
+//
+//			condtion.addCondition("FinanceBean.financeDate", ">=",
+//					TimeTools.now_short(-10));
+//
+//			condtion.addCondition("FinanceBean.financeDate", "<=",
+//					TimeTools.now_short(1));
+//		}
 
 		return changeMap;
 	}
