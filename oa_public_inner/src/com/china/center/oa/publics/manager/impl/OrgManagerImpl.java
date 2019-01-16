@@ -763,6 +763,57 @@ public class OrgManagerImpl extends AbstractListenerManager<OrgListener> impleme
         return principalship;
     }
 
+    public PrincipalshipBean findPrincipalshipById(List<PrincipalshipBean> beans, String id)
+    {
+        PrincipalshipBean principalship = this.find(beans, id);
+
+        if (principalship == null)
+        {
+            return null;
+        }
+
+        String fullName = principalship.getName();
+
+        if (OrgConstant.ORG_ROOT.equals(principalship.getId()))
+        {
+            principalship.setFullName(fullName);
+
+            return principalship;
+        }
+
+        PrincipalshipBean parent = this.find(beans, principalship.getParentId());
+
+        if (parent != null)
+        {
+            principalship.setParentName(parent.getName());
+        }
+
+        while (parent != null)
+        {
+            fullName = parent.getName() + "->" + fullName;
+
+            parent = this.find(beans, parent.getParentId());
+        }
+
+        if (fullName.startsWith("董事会->"))
+        {
+            fullName = fullName.substring(5);
+        }
+
+        principalship.setFullName(fullName);
+
+        return principalship;
+    }
+
+    private PrincipalshipBean find(List<PrincipalshipBean> beans, String id){
+        for (PrincipalshipBean bean: beans){
+            if (id.equals(bean.getId())){
+                return bean;
+            }
+        }
+        return null;
+    }
+
     /**
      * @return the orgDAO
      */

@@ -724,6 +724,7 @@ public class PreinvoiceAction extends DispatchAction
         // parser attachment
         if ( !rds.haveStream())
         {
+            _logger.info("****no attachment****");
             return null;
         }
 

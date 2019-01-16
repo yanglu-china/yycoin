@@ -75,6 +75,14 @@ public interface OrgManager extends ListenerManager<OrgListener>
     PrincipalshipBean findPrincipalshipById(String id);
 
     /**
+     * 从给定列表中查询特定id，不再重复查询数据库以提升效率
+     * @param beans
+     * @param id
+     * @return
+     */
+    PrincipalshipBean findPrincipalshipById(List<PrincipalshipBean> beans, String id);
+
+    /**
      * 是否是子组织
      * 
      * @param parentId

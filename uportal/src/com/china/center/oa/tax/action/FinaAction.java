@@ -2110,13 +2110,17 @@ public class FinaAction extends ParentQueryFinaAction
 
 		List<StafferBean> stafferList = new ArrayList();
 
+		List<PrincipalshipBean> principalshipBeans = this.principalshipDAO.listEntityBeans();
+
 		for (StafferBean bean : tempList)
 		{
 			StafferBean nbean = new StafferBean();
 
 			bean.setPwkey("");
 
-			PrincipalshipBean pri = orgManager.findPrincipalshipById(bean
+//			PrincipalshipBean pri = orgManager.findPrincipalshipById(bean
+//					.getPrincipalshipId());
+			PrincipalshipBean pri = orgManager.findPrincipalshipById(principalshipBeans, bean
 					.getPrincipalshipId());
 
 			if (pri != null)
@@ -2148,11 +2152,13 @@ public class FinaAction extends ParentQueryFinaAction
 
 		List<PrincipalshipBean> priList = principalshipDAO
 				.queryEntityBeansByCondition(condition);
-
+		List<PrincipalshipBean> principalshipBeanList = this.principalshipDAO.listEntityBeans();
 		for (PrincipalshipBean principalshipBean : priList)
 		{
+//			PrincipalshipBean fullBean = orgManager
+//					.findPrincipalshipById(principalshipBean.getId());
 			PrincipalshipBean fullBean = orgManager
-					.findPrincipalshipById(principalshipBean.getId());
+					.findPrincipalshipById(principalshipBeanList, principalshipBean.getId());
 
 			BeanUtil.copyProperties(principalshipBean, fullBean);
 
