@@ -814,35 +814,42 @@ public class StafferAction extends DispatchAction
         JSONArray jarr = new JSONArray(plist, true);
 
         request.setAttribute("shipList", jarr.toString());
-        System.out.println(jarr.toString());
-        
+
         Map<String, List<OrgVO>> map = new HashMap<String, List<OrgVO>>();
 
+        List<OrgVO> orgVOS = orgDAO.listEntityVOs();
         for (PrincipalshipBean principalshipBean : plist)
         {
             
-            condition.clear();
-            
-            condition.addWhereStr();
-            
-            condition.addCondition("OrgBean.parentId", "=", principalshipBean.getId());
-            
-            condition.addIntCondition("OrgBean.status", "=", PublicConstant.ORG_STATUS_USED);
+//            condition.clear();
+//
+//            condition.addWhereStr();
+//
+//            condition.addCondition("OrgBean.parentId", "=", principalshipBean.getId());
+//
+//            condition.addIntCondition("OrgBean.status", "=", PublicConstant.ORG_STATUS_USED);
                         
 //            List<OrgVO> vos = orgDAO.queryEntityVOsByFK(principalshipBean.getId());
             
-            List<OrgVO> vos = orgDAO.queryEntityVOsByCondition(condition);
-
+//            List<OrgVO> vos = orgDAO.queryEntityVOsByCondition(condition);
+            List<OrgVO> vos = this.getOrgList(orgVOS, principalshipBean.getId(), PublicConstant.ORG_STATUS_USED);
             map.put(principalshipBean.getId(), vos);
         }
 
         JSONObject object = new JSONObject();
 
         object.createMapList(map, true);
-
-        System.out.println(object.toString());
         request.setAttribute("mapJSON", object.toString());
-                
+    }
+
+    private List<OrgVO> getOrgList(List<OrgVO> orgVOS, String parentId,int status){
+        List<OrgVO> result = new ArrayList<>();
+        for (OrgVO vo: orgVOS){
+            if (vo.getParentId().equals(parentId) && vo.getStatus() == status){
+                result.add(vo);
+            }
+        }
+        return result;
     }
 
     /**
