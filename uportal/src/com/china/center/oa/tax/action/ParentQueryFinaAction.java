@@ -31,10 +31,7 @@ import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.StafferConstant;
 import com.china.center.oa.publics.constant.SysConfigConstant;
-import com.china.center.oa.publics.dao.DutyDAO;
-import com.china.center.oa.publics.dao.ParameterDAO;
-import com.china.center.oa.publics.dao.PrincipalshipDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.sail.bean.UnitViewBean;
 import com.china.center.oa.sail.dao.UnitViewDAO;
@@ -126,6 +123,8 @@ public class ParentQueryFinaAction extends DispatchAction
     protected FinanceTagDAO financeTagDAO = null;
     
     protected FinanceShowDAO financeShowDAO = null;
+
+    protected AttachmentDAO attachmentDAO = null;
 
     protected static final String QUERYFINANCE = "queryFinance";
 
@@ -3392,5 +3391,13 @@ public class ParentQueryFinaAction extends DispatchAction
     public void setFinanceReferDAO(FinanceReferDAO financeReferDAO)
     {
         this.financeReferDAO = financeReferDAO;
+    }
+
+    public AttachmentDAO getAttachmentDAO() {
+        return attachmentDAO;
+    }
+
+    public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
+        this.attachmentDAO = attachmentDAO;
     }
 }

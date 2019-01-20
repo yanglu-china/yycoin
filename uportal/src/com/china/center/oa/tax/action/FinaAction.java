@@ -8,6 +8,7 @@
  */
 package com.china.center.oa.tax.action;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
@@ -18,11 +19,14 @@ import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
+import com.china.center.oa.finance.bean.PreInvoiceApplyBean;
 import com.china.center.oa.product.bean.DepotBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.dao.DepotDAO;
 import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.publics.AttachmentUtils;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
@@ -46,6 +50,7 @@ import com.china.center.oa.tax.manager.FinanceManager;
 import com.china.center.oa.tax.vo.*;
 import com.china.center.osgi.jsp.ElTools;
 import com.china.center.tools.*;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -53,8 +58,7 @@ import org.apache.struts.action.ActionMapping;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -1049,7 +1053,7 @@ public class FinaAction extends ParentQueryFinaAction
 	 * @return
 	 * @throws ServletException
 	 */
-	public ActionForward addFinance(ActionMapping mapping, ActionForm form,
+	/*public ActionForward addFinance(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response)
 			throws ServletException
 	{
@@ -1086,6 +1090,216 @@ public class FinaAction extends ParentQueryFinaAction
 		}
 
 		return preForAddFinance(mapping, form, request, response);
+	}*/
+
+    public ActionForward addFinance(ActionMapping mapping, ActionForm form,
+                                    HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        FinanceBean bean = new FinanceBean();
+
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
+
+        try
+        {
+            rds.parser();
+        }
+        catch (FileUploadBase.SizeLimitExceededException e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过10M");
+
+            return mapping.findForward("error");
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败");
+
+            return mapping.findForward("error");
+        }
+
+        String tempFlag = request.getParameter("tempFlag");
+
+        try
+        {
+            BeanUtil.getBean(bean, rds.getParmterMap());
+
+            ActionForward afor = parserAttachment(mapping, request, rds, bean);
+
+            if (afor != null) {
+                return afor;
+            }
+            rds.close();
+
+            setFinanceBean(bean, rds);
+
+            User user = Helper.getUser(request);
+
+            // 是否增加
+            if (!"1".equals(tempFlag))
+            {
+                taxFacade.addFinanceBean(user.getId(), bean);
+            }
+            else
+            {
+                financeManager.addTempFinanceBean(user, bean);
+            }
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功操作:" + bean.getName());
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                    "操作失败:" + e.getMessage());
+        }
+
+        return preForAddFinance(mapping, form, request, response);
+    }
+
+    private ActionForward parserAttachment(ActionMapping mapping, HttpServletRequest request,
+                                           RequestDataStream rds, FinanceBean financeBean)
+    {
+        List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
+
+        financeBean.setAttachmentList(attachmentList);
+
+        String addOrUpdate = rds.getParameter("addOrUpdate");
+
+        // 更新新加入之前
+        if ("1".equals(addOrUpdate))
+        {
+            String attacmentIds = rds.getParameter("attacmentIds");
+
+            String[] split = attacmentIds.split(";");
+
+            for (String each : split)
+            {
+                if (StringTools.isNullOrNone(each))
+                {
+                    continue;
+                }
+
+                AttachmentBean att = attachmentDAO.find(each);
+
+                if (att != null)
+                {
+                    attachmentList.add(att);
+                }
+            }
+        }
+
+        // parser attachment
+        if ( !rds.haveStream())
+        {
+            _logger.info("****no attachment****");
+            return null;
+        }
+
+        Map<String, InputStream> streamMap = rds.getStreamMap();
+
+        for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
+        {
+            AttachmentBean bean = new AttachmentBean();
+
+            FileOutputStream out = null;
+
+            UtilStream ustream = null;
+
+            try
+            {
+                String savePath = AttachmentUtils.mkdir(this.getAttachmentPath());
+
+                String fileAlais = SequenceTools.getSequence();
+
+                String fileName = FileTools.getFileName(rds.getFileName(entry.getKey()));
+
+                String rabsPath = '/' + savePath + '/' + fileAlais + "."
+                        + FileTools.getFilePostfix(fileName).toLowerCase();
+
+                String filePath = this.getAttachmentPath() + '/' + rabsPath;
+
+                bean.setName(fileName);
+
+                bean.setPath(rabsPath);
+
+                bean.setLogTime(TimeTools.now());
+
+                out = new FileOutputStream(filePath);
+
+                ustream = new UtilStream(entry.getValue(), out);
+
+                ustream.copyStream();
+
+                attachmentList.add(bean);
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存失败");
+
+                return mapping.findForward("querySelfTravelApply");
+            }
+            finally
+            {
+                if (ustream != null)
+                {
+                    try
+                    {
+                        ustream.close();
+                    }
+                    catch (IOException e)
+                    {
+                        _logger.error(e, e);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getAttachmentPath()
+    {
+        return ConfigLoader.getProperty("financeAttachmentPath");
+    }
+
+	public ActionForward downAttachmentFile(ActionMapping mapping, ActionForm form,
+											HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException
+	{
+		String path = getAttachmentPath();
+
+		String id = request.getParameter("id");
+
+		AttachmentBean bean = attachmentDAO.find(id);
+
+		if (bean == null)
+		{
+			return ActionTools.toError(mapping, request);
+		}
+
+		path += bean.getPath();
+
+		File file = new File(path);
+
+		OutputStream out = response.getOutputStream();
+
+		response.setContentType("application/x-dbf");
+
+		response.setHeader("Content-Disposition", "attachment; filename="
+				+ StringTools.getStringBySet(bean.getName(),
+				"GBK", "ISO8859-1"));
+
+		UtilStream us = new UtilStream(new FileInputStream(file), out);
+
+		us.copyAndCloseStream();
+
+		return null;
 	}
 
 	/**
@@ -1589,6 +1803,10 @@ public class FinaAction extends ParentQueryFinaAction
 				return ActionTools.toError("数据异常,请重新操作", mapping, request);
 			}
 
+			List<AttachmentBean> attachmentList = attachmentDAO.queryEntityVOsByFK(id);
+
+			bean.setAttachmentList(attachmentList);
+
 			List<FinanceItemVO> voList = financeItemDAO.queryEntityVOsByFK(id);
 
 			for (FinanceItemVO item : voList)
@@ -1928,7 +2146,218 @@ public class FinaAction extends ParentQueryFinaAction
 
 		bean.setItemList(itemList);
 	}
+	/**
+	 * setFinanceBean
+	 *
+	 * @param bean
+	 * @param rds
+	 * @throws MYException
+	 */
+	private void setFinanceBean(FinanceBean bean, RequestDataStream rds)
+			throws MYException
+	{
+		List<String> departmentIds = rds.getParameters("departmentId2");
+		List<String> idescriptions = rds.getParameters("idescription");
+		List<String> taxIds = rds.getParameters("taxId2");
+		List<String> stafferId2s = rds.getParameters("stafferId2");
+		List<String> unitId2s = rds.getParameters("unitId2");
+		List<String> productId2s = rds.getParameters("productId2");
+		List<String> depotIds = rds.getParameters("depotId");
+		List<String> duty2Ids = rds.getParameters("duty2Id");
+		List<String> inmoneys = rds.getParameters("inmoney");
+		List<String> inproducts = rds.getParameters("inproduct");
+		List<String> outmoneys = rds.getParameters("outmoney");
+		List<String> outproducts = rds.getParameters("outproduct");
 
+		List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
+
+		long inTotal = 0;
+
+		long outTotal = 0;
+
+		String pareId = SequenceTools.getSequence();
+
+		for (int i = 0; i < taxIds.size(); i++)
+		{
+			if (StringTools.isNullOrNone(taxIds.get(i)))
+			{
+				continue;
+			}
+
+			FinanceItemBean item = new FinanceItemBean();
+
+			item.setDescription(idescriptions.get(i));
+
+			item.setDutyId(bean.getDutyId());
+
+			item.setTaxId(taxIds.get(i));
+
+			TaxBean tax = taxDAO.find(item.getTaxId());
+
+			if (tax == null)
+			{
+				throw new MYException("科目不存在");
+			}
+
+			item.setForward(tax.getForward());
+
+			if (tax.getDepartment() == TaxConstanst.TAX_CHECK_YES)
+			{
+				if (StringTools.isNullOrNone(departmentIds.get(i)))
+				{
+					throw new MYException("科目[%s]部门不能为空,请重新操作", tax.getCode()
+							+ tax.getName());
+				}
+
+				item.setDepartmentId(departmentIds.get(i));
+			}
+			else
+			{
+				item.setDepartmentId("");
+			}
+
+			if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES)
+			{
+				if (StringTools.isNullOrNone(stafferId2s.get(i)))
+				{
+					throw new MYException("科目[%s]职员不能为空,请重新操作", tax.getCode()
+							+ tax.getName());
+				}
+
+				item.setStafferId(stafferId2s.get(i));
+			}
+			else
+			{
+				item.setStafferId("");
+			}
+
+			if (tax.getUnit() == TaxConstanst.TAX_CHECK_YES)
+			{
+				if (StringTools.isNullOrNone(unitId2s.get(i)))
+				{
+					throw new MYException("科目[%s]单位不能为空,请重新操作", tax.getCode()
+							+ tax.getName());
+				}
+
+				item.setUnitId(unitId2s.get(i));
+
+				UnitBean unit = unitDAO.find(item.getUnitId());
+
+				if (unit == null)
+				{
+					throw new MYException("单位不存在,请确认操作");
+				}
+
+				item.setUnitType(unit.getType());
+			}
+			else
+			{
+				item.setUnitId("");
+			}
+
+			if (tax.getProduct() == TaxConstanst.TAX_CHECK_YES)
+			{
+				if (StringTools.isNullOrNone(productId2s.get(i)))
+				{
+					throw new MYException("科目[%s]产品不能为空,请重新操作", tax.getCode()
+							+ tax.getName());
+				}
+
+				item.setProductId(productId2s.get(i));
+
+				ProductBean product = productDAO.find(item.getProductId());
+
+				if (product == null)
+				{
+					throw new MYException("产品不存在,请确认操作");
+				}
+			}
+			else
+			{
+				item.setProductId("");
+			}
+
+			if (tax.getDepot() == TaxConstanst.TAX_CHECK_YES)
+			{
+				if (StringTools.isNullOrNone(depotIds.get(i)))
+				{
+					throw new MYException("科目[%s]仓库不能为空,请重新操作", tax.getCode()
+							+ tax.getName());
+				}
+
+				item.setDepotId(depotIds.get(i));
+
+				DepotBean depot = depotDAO.find(item.getDepotId());
+
+				if (depot == null)
+				{
+					throw new MYException("仓库不存在,请确认操作");
+				}
+			}
+			else
+			{
+				item.setDepotId("");
+			}
+
+			if (tax.getDuty() == TaxConstanst.TAX_CHECK_YES)
+			{
+				if (StringTools.isNullOrNone(duty2Ids.get(i)))
+				{
+					throw new MYException("科目[%s]纳税实体不能为空,请重新操作", tax.getCode()
+							+ tax.getName());
+				}
+
+				item.setDuty2Id(duty2Ids.get(i));
+
+				DutyBean duty2 = dutyDAO.find(item.getDuty2Id());
+
+				if (duty2 == null)
+				{
+					throw new MYException("纳税实体不存在,请确认操作");
+				}
+			}
+			else
+			{
+				item.setDuty2Id("");
+			}
+
+			item.setName(idescriptions.get(i));
+
+			item.setType(bean.getType());
+
+			item.setPareId(pareId);
+
+			item.setInmoney(FinanceHelper.doubleToLong(inmoneys.get(i)));
+
+			item.setOutmoney(FinanceHelper.doubleToLong(outmoneys.get(i)));
+
+			item.setProductAmountIn(MathTools.parseInt(inproducts.get(i)));
+
+			item.setProductAmountOut(MathTools.parseInt(outproducts.get(i)));
+
+			inTotal += item.getInmoney();
+
+			outTotal += item.getOutmoney();
+
+			if (inTotal == outTotal && outTotal != 0)
+			{
+				inTotal = 0;
+
+				outTotal = 0;
+
+				pareId = SequenceTools.getSequence();
+			}
+
+			itemList.add(item);
+		}
+
+		if (inTotal != outTotal)
+		{
+			throw new MYException("借贷不相等,请重新操作");
+		}
+
+		bean.setItemList(itemList);
+	}
 	/**
 	 * preForAddFinance
 	 * 
@@ -2872,4 +3301,6 @@ public class FinaAction extends ParentQueryFinaAction
 	{
 		this.financeShowDAO = financeShowDAO;
 	}
+
+
 }

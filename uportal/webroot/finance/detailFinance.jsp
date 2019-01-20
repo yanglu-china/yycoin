@@ -131,6 +131,13 @@ function updateBean()
                 </c:if>
 			</p:cell>
 			<p:cell title="描述" end="true">${bean.description}</p:cell>
+			<p:cell title="附件" width="8" end="true">
+				<c:forEach items="${bean.attachmentList}" var="item">
+					<a href="../finance/finance.do?method=downAttachmentFile&id=${item.id}" title="点击下载附件">${item.name}</a>
+					<br>
+					<br>
+				</c:forEach>
+			</p:cell>
 			<p:cell title="总部核对" end="true">${bean.checks}</p:cell>
 			<p:cell title="凭证意见" end="true">${bean.refChecks}</p:cell>
 		</p:table>

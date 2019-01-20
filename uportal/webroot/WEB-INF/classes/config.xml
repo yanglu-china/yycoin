@@ -17,7 +17,8 @@
 	<entry key="backPrePayAttachmentPath">e:/oa_attachment/backprepay</entry>
 	<entry key="outBackAttachmentPath">e:/oa_attachment/outback</entry>	
 	<entry key="invoiceinsAttachmentPath">e:/oa_attachment/invoiceins</entry>
-	<entry key="outAttachmentPath">e:/oa_attachment/outAttachment</entry>	
+	<entry key="outAttachmentPath">e:/oa_attachment/outAttachment</entry>
+	<entry key="financeAttachmentPath">e:/oa_attachment/finance</entry>
 	<entry key="productStore">e:/oa_attachment/product</entry>
 	<entry key="stafferCreditStore">e:/oa_attachment/stafferCredit</entry>
 	<entry key="bankStore">e:/oa_attachment/bank</entry>

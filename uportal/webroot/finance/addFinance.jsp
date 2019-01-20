@@ -107,8 +107,7 @@ function load()
 
 </head>
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../finance/finance.do" method="post">
-<input type="hidden" name="method" value="addFinance"> 
+<form name="formEntry" action="../finance/finance.do?method=addFinance" enctype="multipart/form-data" method="post">
 <input type="hidden" name="tempFlag" value="${tempFlag}">
 
 <p:navigation height="22">
@@ -146,6 +145,20 @@ function load()
 			<p:tr align="left">
 			描述：<textarea  name="description" rows="3" cols="80" oncheck="maxLength(200)"></textarea>
 			</p:tr>
+
+            <p:tr align="left">
+                <p:cell title="附件" width="8" end="true"><input type="file" name="atts" size="70" >
+                    <font color="blue"><span style="cursor: pointer;" onclick="showMoreAtt()" >【更多附件】 </span><b>建议压缩后上传,最大支持10M</b></font>
+                </p:cell>
+
+                <p:cell title="附件N" width="8" id="att_more" end="true">
+                    <input type="file" name="atts0" size="70" > <br>
+                    <input type="file" name="atts1" size="70" > <br>
+                    <input type="file" name="atts2" size="70" > <br>
+                    <input type="file" name="atts3" size="70" > <br>
+                </p:cell>
+            </p:tr>
+
 		</p:table>
 	</p:subBody>
 	

@@ -19,6 +19,7 @@ import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Join;
 import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.enums.JoinType;
+import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.PublicConstant;
@@ -133,6 +134,12 @@ public class FinanceBean implements Serializable
      * #478
      */
     private boolean checkUnit = true;
+
+    /**
+     * 附件列表
+     */
+    @Ignore
+    protected List<AttachmentBean> attachmentList = null;
 
     /**
      * default constructor
@@ -648,4 +655,11 @@ public class FinanceBean implements Serializable
         this.refChecks = refChecks;
     }
 
+    public List<AttachmentBean> getAttachmentList() {
+        return attachmentList;
+    }
+
+    public void setAttachmentList(List<AttachmentBean> attachmentList) {
+        this.attachmentList = attachmentList;
+    }
 }

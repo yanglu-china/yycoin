@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.dao.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -40,11 +42,6 @@ import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.IDPrefixConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.SysConfigConstant;
-import com.china.center.oa.publics.dao.CommonDAO;
-import com.china.center.oa.publics.dao.DutyDAO;
-import com.china.center.oa.publics.dao.ParameterDAO;
-import com.china.center.oa.publics.dao.PrincipalshipDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.tax.bean.CheckViewBean;
@@ -146,6 +143,8 @@ public class FinanceManagerImpl implements FinanceManager {
     private UnitDAO unitDAO = null;
     
     private FinanceShowDAO financeShowDAO = null;
+
+    private AttachmentDAO attachmentDAO = null;
     
     private PlatformTransactionManager transactionManager = null;
     
@@ -382,6 +381,21 @@ public class FinanceManagerImpl implements FinanceManager {
                 && !StringTools.isNullOrNone(bean.getRefId())) {
             billManager.updateBillBeanChecksWithoutTransactional(user, bean.getRefId(),
                     "增加手工凭证自动更新收款单核对状态:" + FinanceHelper.createFinanceLink(bean.getId()), true);
+        }
+
+        if (bean.getCreateType() == TaxConstanst.FINANCE_CREATETYPE_HAND){
+            List<AttachmentBean> attachmentList = bean.getAttachmentList();
+
+            if(null != attachmentList && attachmentList.size() > 0)
+            {
+                for (AttachmentBean attachmentBean : attachmentList)
+                {
+                    attachmentBean.setId(commonDAO.getSquenceString20());
+                    attachmentBean.setRefId(bean.getId());
+                }
+
+                attachmentDAO.saveAllEntityBeans(attachmentList);
+            }
         }
 
         return true;
@@ -2602,7 +2616,15 @@ public class FinanceManagerImpl implements FinanceManager {
 		this.financeShowDAO = financeShowDAO;
 	}
 
-	/**
+    public AttachmentDAO getAttachmentDAO() {
+        return attachmentDAO;
+    }
+
+    public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
+        this.attachmentDAO = attachmentDAO;
+    }
+
+    /**
 	 * @return the transactionManager
 	 */
 	public PlatformTransactionManager getTransactionManager()
