@@ -5391,36 +5391,40 @@ public class TravelApplyAction extends DispatchAction
         String customerName = ib.getCustomerName();
         String outId = ib.getFullId();
         String bankProductCode = "";
-        //先取out_import表吧，取OANO对应的productcode,
-        List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
-        if (!ListTools.isEmptyOrNull(importBeans)){
-            for (OutImportBean outImportBean: importBeans){
-                if (!StringTools.isNullOrNone(outImportBean.getProductCode())){
-                    bankProductCode = outImportBean.getProductCode();
-                    break;
-                }
-            }
-        }
-
-        //如果在表里没有对应的OANO，再去product_import表取个值
-        if(StringTools.isNullOrNone(bankProductCode) && !StringTools.isNullOrNone(productId)){
-            ProductBean productBean = this.productDAO.find(productId);
-            if (productBean!= null) {
-                String productCode = productBean.getCode();
-                //#291
-
-                if ( !StringTools.isNullOrNone(productCode) && customerName!= null && customerName.length()>=4) {
-                    ConditionParse conditionParse = new ConditionParse();
-                    conditionParse.addCondition("code", "=", productCode);
-                    conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
-
-                    List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-                    if (!ListTools.isEmptyOrNull(beans)) {
-                        ProductImportBean productImportBean = beans.get(0);
-                        bankProductCode = productImportBean.getBankProductCode();
+        try {
+            //先取out_import表吧，取OANO对应的productcode,
+            List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+            if (!ListTools.isEmptyOrNull(importBeans)) {
+                for (OutImportBean outImportBean : importBeans) {
+                    if (!StringTools.isNullOrNone(outImportBean.getProductCode())) {
+                        bankProductCode = outImportBean.getProductCode();
+                        break;
                     }
                 }
             }
+
+            //如果在表里没有对应的OANO，再去product_import表取个值
+            if (StringTools.isNullOrNone(bankProductCode) && !StringTools.isNullOrNone(productId)) {
+                ProductBean productBean = this.productDAO.find(productId);
+                if (productBean != null) {
+                    String productCode = productBean.getCode();
+                    //#291
+
+                    if (!StringTools.isNullOrNone(productCode) && customerName != null && customerName.length() >= 4) {
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addCondition("code", "=", productCode);
+                        conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+
+                        List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                        if (!ListTools.isEmptyOrNull(beans)) {
+                            ProductImportBean productImportBean = beans.get(0);
+                            bankProductCode = productImportBean.getBankProductCode();
+                        }
+                    }
+                }
+            }
+        }catch (Exception e){
+            _logger.error(e);
         }
         return bankProductCode;
     }
