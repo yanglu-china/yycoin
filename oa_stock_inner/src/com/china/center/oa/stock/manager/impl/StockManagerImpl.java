@@ -1804,7 +1804,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
                     String depotId = vo.getSccgRkfx();
 
-                    outBean.setDescription("到货调拨JOB,到货单号:" + vo.getDhNo() + ",采购单:" + vo.getStockId());
+                    outBean.setDescription("到货调拨JOB,到货单号:" + vo.getDhNo() + ",采购单:" + vo.getStockId()+",动作:"+vo.getSccgCldz());
                     outBean.setType(OutConstant.OUT_TYPE_INBILL);
                     outBean.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
 

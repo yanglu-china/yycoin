@@ -20,7 +20,7 @@ import java.util.List;
 public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjbDAO {
     @Override
     public List<DhZjbVO> queryDhInfo() {
-        String sql = " select a.id,a.depotpartid,a.depotid,a.price,a.stockid,a.dhno,a.createUser,a.productId,a.cg_amount,a.ydh_amount,b.sd_amount,b.zj_hg_amount,a.ydh_amount-b.zj_hg_amount as bhg_amount,b.sccg_rkfx " +
+        String sql = " select a.id,a.depotpartid,a.depotid,a.price,a.stockid,a.dhno,a.createUser,a.productId,a.cg_amount,a.ydh_amount,b.sd_amount,b.zj_hg_amount,b.sccg_cldz,a.ydh_amount-b.zj_hg_amount as bhg_amount,b.sccg_rkfx " +
                 "from t_center_dh_zjb a left join t_center_dh_result b on a.dhno=b.dhno and a.productid=b.productid " +
                 "where a.status='结束' and a.processedFlag=0";
 
@@ -44,6 +44,7 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
                         int bhg_amount = rst.getInt("bhg_amount");
                         int sdAmount = rst.getInt("sd_amount");
                         String sccg_rkfx = rst.getString("sccg_rkfx");
+                        String sccg_cldz = rst.getString("sccg_cldz");
                         String createUser = rst.getString("createUser");
                         String stockId = rst.getString("stockid");
                         String depotpartId = rst.getString("depotpartid");
@@ -59,6 +60,7 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
                         wrap.setZjBhgAmount(bhg_amount);
                         wrap.setSdAmount(sdAmount);
                         wrap.setSccgRkfx(sccg_rkfx);
+                        wrap.setSccgCldz(sccg_cldz);
                         wrap.setCreateUser(createUser);
                         wrap.setDepotId(depotId);
                         wrap.setDepotpartId(depotpartId);

@@ -25,6 +25,8 @@ public class DhZjbVO extends DhZjbBean {
      */
     private String sccgRkfx = "";
 
+    private String sccgCldz = "";
+
     private String depotpartId;
 
     private String depotId;
@@ -87,6 +89,14 @@ public class DhZjbVO extends DhZjbBean {
         this.depotId = depotId;
     }
 
+    public String getSccgCldz() {
+        return sccgCldz;
+    }
+
+    public void setSccgCldz(String sccgCldz) {
+        this.sccgCldz = sccgCldz;
+    }
+
     @Override
     public String toString() {
         return "DhZjbVO{" +
@@ -94,6 +104,7 @@ public class DhZjbVO extends DhZjbBean {
                 ", zjBhgAmount=" + zjBhgAmount +
                 ", sdAmount=" + sdAmount +
                 ", sccgRkfx='" + sccgRkfx + '\'' +
+                ", sccgCldz='" + sccgCldz + '\'' +
                 ", depotpartId='" + depotpartId + '\'' +
                 ", depotId='" + depotId + '\'' +
                 ", price=" + price +
