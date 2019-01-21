@@ -787,6 +787,8 @@ public class PackageManagerImpl implements PackageManager {
 					if (fullId.contains("DB") && first.getOutId().contains("SO")){
 						_logger.warn("***not merge with different out type***"+first.getOutId());
 						createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+						//#539
+						return;
 					}else{
 						OutVO outBean = outDAO.findVO(first.getOutId());
 						if (outBean!= null){
@@ -798,7 +800,6 @@ public class PackageManagerImpl implements PackageManager {
 								_logger.warn(msg);
 
 								createNewPackage(out, baseList, distVO, fullAddressTrim, location);
-//								preConsignDAO.deleteEntityBean(pre.getId());
 								return ;
 							}
 						}
