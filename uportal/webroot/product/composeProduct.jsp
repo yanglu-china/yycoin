@@ -61,10 +61,15 @@ function checks()
         var useAmountElement = useAmountElements[i];
         var srcAmountElement = srcAmountElements[i];
         var targerNameElement = targerNameElements[i];
-        if(useAmountElement && srcAmountElement && targerNameElement
-        && parseInt(useAmountElement.value)> parseInt(srcAmountElement.value)){
-            alert(targerNameElement.value+"使用数量:"+useAmountElement.value+"不能超过可用数量:"+srcAmountElement.value);
-            return false;
+        if(useAmountElement && srcAmountElement && targerNameElement) {
+            var useAmount = parseInt(useAmountElement.value);
+            if (useAmount == 0){
+                alert(targerNameElement.value + "使用数量不能为0!");
+                return false;
+            } else if (useAmount > parseInt(srcAmountElement.value)) {
+                alert(targerNameElement.value + "使用数量:" + useAmountElement.value + "不能超过可用数量:" + srcAmountElement.value);
+                return false;
+            }
         }
     }
     return !ret;
