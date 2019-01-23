@@ -26,6 +26,8 @@ public interface CommonDAO
 
     String getSquenceString20(String pfix);
 
+    String getSquenceString(String pfix);
+
     /**
      * 实现数据库更新锁(全局锁,事务锁,其他的事务不结束,这个语句就会卡住)
      */

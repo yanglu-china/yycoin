@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import com.china.center.tools.TimeTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -155,6 +156,22 @@ public class CommonDAOImpl implements CommonDAO
         String formatString20 = StringTools.formatString20(pfix, String.valueOf(this.getSquence()));
 
         return formatString20;
+    }
+
+    public String getSquenceString(String pfix)
+    {
+        String name = String.valueOf(this.getSquence());
+        if (StringTools.isNullOrNone(pfix)) {
+            return StringTools.formatString20(name);
+        } else {
+            if (pfix.length() == 1){
+                return  pfix + "1" + TimeTools.now("yyyyMMddHH") + StringTools.formatString(name, 8);
+            } else if (pfix.length() == 4){
+                return pfix.substring(0, 4) + TimeTools.now("yyyyMMddHH") + StringTools.formatString(name, 8);
+            } else{
+                return pfix.substring(0, 2) + TimeTools.now("yyyyMMddHH") + StringTools.formatString(name, 8);
+            }
+        }
     }
 
     public JdbcOperation getJdbcOperation()

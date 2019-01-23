@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.product.bean.ProductVSGiftBean;
 import com.china.center.oa.product.dao.ProductVSGiftDAO;
 import com.china.center.oa.publics.vo.StafferVO;
@@ -6355,9 +6356,14 @@ public class OutListenerTaxGlueImpl implements OutListener
 				FinanceBean newFinanceBean = new FinanceBean();
 				
 				BeanUtil.copyProperties(newFinanceBean, each);
-				
-				newFinanceBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
-				
+
+                String appName = ConfigLoader.getProperty("appName");
+                if (OutConstant.APP_NAME_TW.equals(appName)){
+                    newFinanceBean.setId(commonDAO.getSquenceString(IDPrefixConstant.ID_FINANCE_PREFIX_TW));
+                } else {
+                    newFinanceBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
+                }
+
 				newFinanceBean.setName(newFinanceBean.getId());
 				
 				newFinanceBean.setDutyId(newOutBean.getDutyId());

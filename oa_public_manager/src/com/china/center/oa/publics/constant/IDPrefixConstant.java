@@ -28,6 +28,8 @@ public interface IDPrefixConstant
      */
     String ID_FINANCE_PREFIX = "PZ";
 
+    String ID_FINANCE_PREFIX_TW = "PZTW";
+
     /**
      * 预算ID前缀
      */

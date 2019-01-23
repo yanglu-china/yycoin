@@ -16,8 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.sail.constanst.OutConstant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -190,15 +192,14 @@ public class FinanceManagerImpl implements FinanceManager {
     }
 
     private boolean addInner(User user, FinanceBean bean, boolean mainTable, boolean checkNull) throws MYException {
-        //TODO 2015/2/1 因票随货发功能暂时禁掉user限制
-        if(checkNull){
-//            JudgeTools.judgeParameterIsNull(user, bean, bean.getItemList());
+        String appName = ConfigLoader.getProperty("appName");
+        if (OutConstant.APP_NAME_TW.equals(appName)){
+            bean.setId(commonDAO.getSquenceString(IDPrefixConstant.ID_FINANCE_PREFIX_TW));
+        } else{
+            bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
         }
-
-        bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
-
         bean.setName(bean.getId());
-        _logger.info("addInner for FinanceBean:"+bean);
+        _logger.info(appName+" addInner for FinanceBean:"+bean);
         if (StringTools.isNullOrNone(bean.getCreaterId()) && user!= null) {
             bean.setCreaterId(user.getStafferId());
         }
@@ -418,7 +419,12 @@ public class FinanceManagerImpl implements FinanceManager {
             JudgeTools.judgeParameterIsNull(user, bean, bean.getItemList());
         }
 
-        bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
+        String appName = ConfigLoader.getProperty("appName");
+        if (OutConstant.APP_NAME_TW.equals(appName)){
+            bean.setId(commonDAO.getSquenceString(IDPrefixConstant.ID_FINANCE_PREFIX_TW));
+        } else {
+            bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
+        }
 
         bean.setName(bean.getId());
 
