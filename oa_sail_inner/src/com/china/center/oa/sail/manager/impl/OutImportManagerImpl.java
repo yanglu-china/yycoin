@@ -3780,12 +3780,14 @@ public class OutImportManagerImpl implements OutImportManager
 						// 业务员结算价就是事业部结算价
 						baseBean.setInputPrice(baseBean.getIprice());
 
-						if (baseBean.getInputPrice() == 0)
-						{
-							_logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
-							this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + baseBean.getProductName() + " 业务员结算价不能为0");
-							continue;
-						}
+
+						//#551 去掉控制
+//						if (baseBean.getInputPrice() == 0)
+//						{
+//							_logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
+//							this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + baseBean.getProductName() + " 业务员结算价不能为0");
+//							continue;
+//						}
 
 						// 配送 方式及毛利率
 						baseBean.setDeliverType(0);
