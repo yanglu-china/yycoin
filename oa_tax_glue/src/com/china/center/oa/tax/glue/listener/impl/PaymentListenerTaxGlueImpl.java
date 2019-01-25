@@ -12,6 +12,7 @@ package com.china.center.oa.tax.glue.listener.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.finance.bean.BankBean;
@@ -21,10 +22,12 @@ import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.finance.dao.OutBillDAO;
 import com.china.center.oa.finance.listener.PaymentListener;
 import com.china.center.oa.product.dao.ProviderDAO;
+import com.china.center.oa.publics.constant.IDPrefixConstant;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.DepartmentDAO;
 import com.china.center.oa.publics.dao.DutyDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.bean.FinanceItemBean;
 import com.china.center.oa.tax.bean.TaxBean;
@@ -338,8 +341,14 @@ public class PaymentListenerTaxGlueImpl implements PaymentListener
 		FinanceBean newFinanceBean = new FinanceBean();
 		
 		BeanUtil.copyProperties(newFinanceBean, financeBean);
-		
-		newFinanceBean.setId(commonDAO.getSquenceString20("PZ"));
+
+        String appName = ConfigLoader.getProperty("appName");
+        if (OutConstant.APP_NAME_TW.equals(appName)){
+            newFinanceBean.setId(commonDAO.getSquenceString(IDPrefixConstant.ID_FINANCE_PREFIX_TW));
+        } else {
+            newFinanceBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
+        }
+
 		newFinanceBean.setName(newFinanceBean.getId());
 		newFinanceBean.setInmoney(-newFinanceBean.getInmoney());
 		newFinanceBean.setOutmoney(-newFinanceBean.getOutmoney());

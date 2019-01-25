@@ -6800,8 +6800,14 @@ public class OutListenerTaxGlueImpl implements OutListener
     				FinanceBean hcBean = new FinanceBean();
     				
     				BeanUtil.copyProperties(hcBean, finance);
-    				
-    				hcBean.setId(commonDAO.getSquenceString20("PZ"));
+
+                    String appName = ConfigLoader.getProperty("appName");
+                    if (OutConstant.APP_NAME_TW.equals(appName)){
+                        hcBean.setId(commonDAO.getSquenceString(IDPrefixConstant.ID_FINANCE_PREFIX_TW));
+                    } else {
+                        hcBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
+                    }
+
     				hcBean.setName(hcBean.getId());
     				hcBean.setInmoney(-hcBean.getInmoney());
     				hcBean.setOutmoney(-hcBean.getOutmoney());
@@ -6837,8 +6843,12 @@ public class OutListenerTaxGlueImpl implements OutListener
     				FinanceBean newBean = new FinanceBean();
     				
     				BeanUtil.copyProperties(newBean, finance);
-    				
-    				newBean.setId(commonDAO.getSquenceString20("PZ"));
+
+                    if (OutConstant.APP_NAME_TW.equals(appName)){
+                        newBean.setId(commonDAO.getSquenceString(IDPrefixConstant.ID_FINANCE_PREFIX_TW));
+                    } else {
+                        newBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
+                    }
     				newBean.setName(newBean.getId());
     				newBean.setDescription(newBean.getDescription() + ",客户移交由" + out.getStafferName() + " 到 " + targerStaffer.getName());
     				newBean.setFinanceDate(TimeTools.now_short());
