@@ -128,14 +128,15 @@ public abstract class AbstractShipJobManager implements JobManager {
             for (PackageVO vo : packageList){
                 //2016/4/12 update
                 //如果收货人姓名是在oastaffer表的name字段里的，则此销售单不在发送邮件范围内
-                String receiver = vo.getReceiver();
-                if(!StringTools.isNullOrNone(receiver)){
-                    StafferBean stafferBean = this.stafferDAO.findyStafferByName(receiver);
-                    if (stafferBean!= null){
-                        _logger.warn(vo.getId()+"***belong to staffer***"+receiver);
-                        continue;
-                    }
-                }
+                //#550 去掉此过滤
+//                String receiver = vo.getReceiver();
+//                if(!StringTools.isNullOrNone(receiver)){
+//                    StafferBean stafferBean = this.stafferDAO.findyStafferByName(receiver);
+//                    if (stafferBean!= null){
+//                        _logger.warn(vo.getId()+"***belong to staffer***"+receiver);
+//                        continue;
+//                    }
+//                }
 
                 List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(vo.getId());
                 for(PackageItemBean itemBean: itemList){
