@@ -939,6 +939,12 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                             _logger.error(e);
                         }
                     }
+
+                    // #546 结束申请单
+                    if (!StringTools.isNullOrNone(bean.getRefId())) {
+                        travelApplyDAO.updateFeedback(bean.getRefId(), bean.getId(),
+                                TcpConstanst.TCP_APPLY_FEEDBACK_YES);
+                    }
                 }
             }
         }
