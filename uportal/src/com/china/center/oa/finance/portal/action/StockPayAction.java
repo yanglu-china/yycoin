@@ -412,8 +412,9 @@ public class StockPayAction extends DispatchAction
                 if (bean.getStatus() == StockPayApplyConstant.APPLY_STATUS_SEC && StringTools.isNullOrNone(ifRef))
                 {
                 	// 检查是否有预付款(供应商\发票类型\结束状态)
-                	List<StockPrePayApplyVO> preList = stockPrePayApplyDAO.queryVOsByProviderAndInvoiceId(bean.getProvideId(), bean.getInvoiceId());
-                	
+//                	List<StockPrePayApplyVO> preList = stockPrePayApplyDAO.queryVOsByProviderAndInvoiceId(bean.getProvideId(), bean.getInvoiceId());
+                    //#547 不检查税率一致
+                    List<StockPrePayApplyVO> preList = stockPrePayApplyDAO.queryEntityVOsByFK(bean.getProvideId());
                 	if (!ListTools.isEmptyOrNull(preList))
                 	{
                 		request.setAttribute("stockPreList", preList);
