@@ -886,12 +886,13 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         if(!ListTools.isEmptyOrNull(expenseApplyVOS)){
             _logger.info(expenseApplyVOS.size()+"finished expense apply ***"+expenseApplyVOS);
             for(ExpenseApplyBean bean: expenseApplyVOS){
-                ConditionParse conditionParse1 = new ConditionParse();
-                conditionParse1.addCondition("refId","=", bean.getId());
-                List<FinanceBean> financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse1);
-                _logger.info("****financeBeans size***"+financeBeans.size());
+//                ConditionParse conditionParse1 = new ConditionParse();
+//                conditionParse1.addCondition("refId","=", bean.getId());
+//                List<FinanceBean> financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse1);
+//                _logger.info("****financeBeans size***"+financeBeans.size());
                 //未申请过报销凭证的
-                if(ListTools.isEmptyOrNull(financeBeans) || financeBeans.size()<=1){
+//                if(ListTools.isEmptyOrNull(financeBeans) || financeBeans.size()<=1){
+                if (this.isEndExpenseApply(bean.getId())){
                     List<TcpShareBean> tcpShareBeans = this.tcpShareDAO.queryEntityBeansByFK(bean.getId());
                     List<TravelApplyItemVO> travelApplyItemVOS = this.travelApplyItemDAO.queryEntityVOsByFK(bean.getId());
                     List<String> taxIdList = new ArrayList<>();
@@ -947,6 +948,29 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * 检查最后一步的凭证是否未生成
+     * @param id
+     * @return
+     */
+    private boolean isEndExpenseApply(String id){
+        ConditionParse conditionParse1 = new ConditionParse();
+        conditionParse1.addCondition("refId","=", id);
+        List<FinanceBean> financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse1);
+        _logger.info("****financeBeans size***"+financeBeans.size());
+        //未申请过报销凭证的
+        if(ListTools.isEmptyOrNull(financeBeans) || financeBeans.size()<=1){
+            return true;
+        } else{
+            for (FinanceBean financeBean: financeBeans){
+                if (financeBean.getDescription().contains("报销最终通过:")){
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
