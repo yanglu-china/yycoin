@@ -962,7 +962,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         List<FinanceBean> financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse1);
         _logger.info("****financeBeans size***"+financeBeans.size());
         //未申请过报销凭证的
-        if(ListTools.isEmptyOrNull(financeBeans) || financeBeans.size()<=1){
+        if(ListTools.isEmptyOrNull(financeBeans)){
             return true;
         } else{
             for (FinanceBean financeBean: financeBeans){
