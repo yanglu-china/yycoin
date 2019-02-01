@@ -4884,10 +4884,12 @@ public class TravelApplyAction extends DispatchAction
                             bean.setType(TcpConstanst.IB_TYPE2);
                         } else if (TcpConstanst.MOTIVATION_TYPE_STR2.equals(name)){
                             bean.setType(TcpConstanst.MOTIVATION_TYPE2);
+                        } else if (TcpConstanst.PLATFORM_TYPE_STR.equals(name)){
+                            bean.setType(TcpConstanst.PLATFORM_TYPE);
                         } else{
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                    .append("申请类型只能为中收或激励")
+                                    .append("申请类型只能为中收、激励、平台手续费")
                                     .append("</font><br>");
 
                             importError = true;
@@ -4987,6 +4989,8 @@ public class TravelApplyAction extends DispatchAction
                             bean.setIbMoney2(Double.valueOf(price));
                         } else if (TcpConstanst.MOTIVATION_TYPE2 == bean.getType()){
                             bean.setMotivationMoney2(Double.valueOf(price));
+                        } else if (TcpConstanst.PLATFORM_TYPE == bean.getType()){
+                            bean.setPlatformFee(Double.valueOf(price));
                         }
                     } else
                     {

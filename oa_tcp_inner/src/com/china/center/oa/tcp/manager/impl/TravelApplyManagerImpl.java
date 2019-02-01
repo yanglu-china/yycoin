@@ -3466,7 +3466,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     @Override
     @Transactional(rollbackFor = MYException.class)
     public void batchUpdateIbMoney(User user, List<TcpIbBean> list) throws MYException {
-        _logger.info("***batchUpdateIbMoney***");
+        _logger.info("***batchUpdateIbMoney***"+list);
         for (TcpIbBean each: list){
             ConditionParse conditionParse = new ConditionParse();
             conditionParse.addWhereStr();
@@ -3480,9 +3480,15 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 if (out.getIbFlag() == 1 && each.getType() == TcpConstanst.IB_TYPE){
                     _logger.info("已申请中收,不允许再修改中收金额:"+outId);
                     throw new MYException("已申请中收,不允许再修改中收金额:"+outId);
+                } else if (out.getIbFlag2() == 1 && each.getType() == TcpConstanst.IB_TYPE2){
+                    _logger.info("已申请中收2,不允许再修改中收2金额:"+outId);
+                    throw new MYException("已申请中收2,不允许再修改中收2金额:"+outId);
                 } else if (out.getMotivationFlag() == 1 && each.getType() == TcpConstanst.MOTIVATION_TYPE){
                     _logger.info("已申请激励,不允许再修改激励金额:"+outId);
                     throw new MYException("已申请激励,不允许再修改激励金额:"+outId);
+                } else if (out.getMotivationFlag2() == 1 && each.getType() == TcpConstanst.MOTIVATION_TYPE2){
+                    _logger.info("已申请激励2,不允许再修改激励2金额:"+outId);
+                    throw new MYException("已申请激励2,不允许再修改激励2金额:"+outId);
                 }
             }
             conditionParse.addCondition("outId", "=", outId);
@@ -3498,11 +3504,27 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                         sb.append("中收金额从").append(bean.getIbMoney())
                                 .append("修改为").append(each.getIbMoney());
                         bean.setIbMoney(each.getIbMoney());
+                        module = "中收";
+                    } else if (each.getType() == TcpConstanst.IB_TYPE2){
+                        sb.append("中收2金额从").append(bean.getIbMoney2())
+                                .append("修改为").append(each.getIbMoney2());
+                        bean.setIbMoney2(each.getIbMoney2());
+                        module = "中收2";
                     } else if (each.getType() == TcpConstanst.MOTIVATION_TYPE){
                         sb.append("激励金额从").append(bean.getMotivationMoney())
                                 .append("修改为").append(each.getMotivationMoney());
                         bean.setMotivationMoney(each.getMotivationMoney());
                         module = "激励";
+                    } else if (each.getType() == TcpConstanst.MOTIVATION_TYPE2){
+                        sb.append("激励2金额从").append(bean.getMotivationMoney2())
+                                .append("修改为").append(each.getMotivationMoney2());
+                        bean.setMotivationMoney2(each.getMotivationMoney2());
+                        module = "激励2";
+                    } else if (each.getType() == TcpConstanst.PLATFORM_TYPE){
+                        sb.append("平台手续费金额从").append(bean.getPlatformFee())
+                                .append("修改为").append(each.getPlatformFee());
+                        bean.setPlatformFee(each.getPlatformFee());
+                        module = "平台手续费";
                     }
                     this.baseDAO.updateEntityBean(bean);
                     _logger.info("***update base bean***" + bean);
