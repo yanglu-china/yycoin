@@ -13030,7 +13030,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         List<ProductImportBean> productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
         _logger.info("***productImportBeans1***" + productImportBeans);
-        this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
+        boolean outdated = this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
         _logger.info("***productImportBeans1 ignored***" + productImportBeans);
         if (ListTools.isEmptyOrNull(productImportBeans) && !StringTools.isNullOrNone(branchName)) {
             //如果支行无法匹配，就对比分行+代码+渠道+银行+帐套+是否体内
@@ -13044,7 +13044,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans2***" + productImportBeans);
-            this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
+            outdated = this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
             _logger.info("***productImportBeans2 ignored***" + productImportBeans);
         }
 
@@ -13060,7 +13060,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info("***productImportBeans3***" + productImportBeans);
-            this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
+            outdated = this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
             _logger.info("***productImportBeans3 ignored***" + productImportBeans);
         }
 
@@ -13076,14 +13076,20 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info(conditionParse+"***productImportBeans4***" + productImportBeans);
-            this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
+            outdated = this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
             _logger.info("***productImportBeans4 ignored***" + productImportBeans);
         }
 
         if (ListTools.isEmptyOrNull(productImportBeans)) {
-            String msg = appName+"未配置产品主数据(客户+银行产品编码):"+customerName+"+"+productCode;
-            _logger.error(msg);
-            throw new MYException(msg);
+            if (outdated){
+                String msg = appName+"订单日期不是有效日期:"+citicOrderDate;
+                _logger.error(msg);
+                throw new MYException(msg);
+            } else{
+                String msg = appName+"未配置产品主数据(客户+银行产品编码):"+customerName+"+"+productCode;
+                _logger.error(msg);
+                throw new MYException(msg);
+            }
         } else if (productImportBeans.size() > 1) {
             _logger.error("产品主数据配置不能超过1条:" + productImportBeans);
             StringBuilder builder = new StringBuilder();
@@ -13103,8 +13109,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      * @param branchName
      * @param citicOrderDate
      */
-    private void ignoreOutdated(List<ProductImportBean> productImportBeans,
+    private boolean ignoreOutdated(List<ProductImportBean> productImportBeans,
                             String branchName, String citicOrderDate){
+        boolean flag = false;
         if (!ListTools.isEmptyOrNull(productImportBeans)){
             //检查时间是否有效
             for (Iterator<ProductImportBean> iterator=productImportBeans.iterator();iterator.hasNext();){
@@ -13122,6 +13129,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     if (citicDate.before(begin) || citicDate.after(end)) {
                         _logger.warn(" citicDate out of date:" + pib);
                         iterator.remove();
+                        flag = true;
                     }
                 } catch (ParseException e) {
                     _logger.error(" Exception parse Date:", e);
@@ -13129,6 +13137,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 }
             }
         }
+        return flag;
     }
 
     private void addProductCodeCondition(ConditionParse conditionParse, String productCode, boolean isImport){
