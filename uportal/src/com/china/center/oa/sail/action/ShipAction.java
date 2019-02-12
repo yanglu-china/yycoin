@@ -40,6 +40,7 @@ import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
@@ -2419,39 +2420,57 @@ public class ShipAction extends DispatchAction
             return item.getProductName();
         }
 
-        String productId = item.getProductId();
-        ProductBean productBean = this.productDAO.find(productId);
-        if (productBean!= null){
-            String productCode = productBean.getCode();
-            //#291
-            if (!StringTools.isNullOrNone(productCode)){
-                ConditionParse conditionParse =  new ConditionParse();
-                conditionParse.addCondition("code", "=", productCode);
-                conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
+        String baseId = item.getBaseId();
+        BaseBean baseBean = this.baseDAO.find(baseId);
+        if (baseBean == null || StringTools.isNullOrNone(baseBean.getProductImportId())){
+            String productId = item.getProductId();
+            ProductBean productBean = this.productDAO.find(productId);
+            if (productBean!= null){
+                String productCode = productBean.getCode();
+                //#291
+                if (!StringTools.isNullOrNone(productCode)){
+                    ConditionParse conditionParse =  new ConditionParse();
+                    conditionParse.addCondition("code", "=", productCode);
+                    conditionParse.addCondition("bank", "=", StringUtils.subString(customerName,4));
 
-                List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+                    List<OutImportBean> importBeans = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
 
-                if (!ListTools.isEmptyOrNull(importBeans)) {
-                    OutImportBean bean = importBeans.get(0);
-                    conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
-                }
+                    if (!ListTools.isEmptyOrNull(importBeans)) {
+                        OutImportBean bean = importBeans.get(0);
+                        conditionParse.addCondition("bankProductCode", "=", bean.getProductCode());
+                    }
 
-                List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
-                if (!ListTools.isEmptyOrNull(beans)){
-                    ProductImportBean productImportBean = beans.get(0);
-                    productName = productImportBean.getBankProductName();
+                    List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                    if (!ListTools.isEmptyOrNull(beans)){
+                        ProductImportBean productImportBean = beans.get(0);
+                        productName = productImportBean.getBankProductName();
 
-                    //#310
-                    String material = productImportBean.getMaterial();
+                        //#310
+                        String material = productImportBean.getMaterial();
 
-                    _logger.info("***getBankProductName***"+productName+"***material"+material);
-                    item.setMateriaType(material);
-                    try {
-                        item.setProductWeight(productImportBean.getWeight());
-                    }catch(Exception e){}
+                        _logger.info("***getBankProductName***"+productName+"***material"+material);
+                        item.setMateriaType(material);
+                        try {
+                            item.setProductWeight(productImportBean.getWeight());
+                        }catch(Exception e){}
+                    }
                 }
             }
+        } else{
+            String productImportId = baseBean.getProductImportId();
+            ProductImportBean productImportBean = this.productImportDAO.find(productImportId);
+            productName = productImportBean.getBankProductName();
+
+            //#310
+            String material = productImportBean.getMaterial();
+
+            _logger.info("***getBankProductName***"+productName+"***material"+material);
+            item.setMateriaType(material);
+            try {
+                item.setProductWeight(productImportBean.getWeight());
+            }catch(Exception e){}
         }
+
 
         //default pick from package item table
         if (StringTools.isNullOrNone(productName)){
