@@ -190,7 +190,7 @@ function checks()
         return false;
     }
 
-	var shareTotal = sumRatio();
+	var shareTotal = sumRatio()[0];
 	
 	if ($$('payType') == 0)
     {
@@ -251,16 +251,19 @@ function checks2()
     }
 
     var stotal = sumTotal();
-    var total = sumRatio();
-    // console.log("stotal**"+stotal+"***total***"+total);
+    var result = sumRatio();
+    var total = result[0];
+    // console.log("stotal**"+stotal+"***result***"+result);
     if (total == 0)
     {
         alert('分担之和不能为0');
 
         return false;
-    }
+    } else if (total == 100 && result[1] == 1){
+        alert('按比例分担时不能有小数');
 
-    if (total != 100 && compareNumber(stotal, total) != 0)
+        return false;
+    } else if (total != 100 && compareNumber(stotal, total) != 0)
     {
         alert('费用分担金额之和'+total+'必须等于预算项之和:' + stotal);
 
@@ -302,9 +305,19 @@ function checks2()
     return true;
 }
 
+/**
+ * 检查是否为浮点数,整数会返回false
+ * @param n
+ * @returns {boolean}
+ */
+function isFloat2(n){
+    return Number(n) === n && n % 1 !== 0;
+}
+
 function sumRatio()
 {
     var total = 0;
+    var flag = 0;
     
     $("input[name='s_ratio']").each(
         function()
@@ -312,11 +325,14 @@ function sumRatio()
             if (this.value != '')
             {
                 total += parseFloat(this.value);
+                if (isFloat2(parseFloat(this.value))){
+                    flag = 1;
+                }
             }
         }
     );   
     
-    return total;
+    return [total, flag];
 }
 
 var gMore = 0;
