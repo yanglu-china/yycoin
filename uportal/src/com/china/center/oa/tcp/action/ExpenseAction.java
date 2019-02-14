@@ -2078,15 +2078,16 @@ public class ExpenseAction extends DispatchAction
                         else
                         {
                         	//有效性检查
-                            if (bean.getCarryStatus() != 1)
-                            {
-                                builder
-                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("不是执行中的预算")
-                                .append("</font><br>");
-
-                                importError = true;
-                            }
+                            //#562 去掉预算检查
+//                            if (bean.getCarryStatus() != 1)
+//                            {
+//                                builder
+//                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                .append("不是执行中的预算")
+//                                .append("</font><br>");
+//
+//                                importError = true;
+//                            }
                             
                             if (bean.getType() != 2)
                             {
@@ -2108,15 +2109,15 @@ public class ExpenseAction extends DispatchAction
                                 importError = true;
                             }
                             
-                            if (bean.getStatus() != 3)
-                            {
-                                builder
-                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("不存在通过状态预算")
-                                .append("</font><br>");
-
-                                importError = true;
-                            }
+//                            if (bean.getStatus() != 3)
+//                            {
+//                                builder
+//                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                .append("不存在通过状态预算")
+//                                .append("</font><br>");
+//
+//                                importError = true;
+//                            }
                         }
 
                         if (!importError)
