@@ -886,23 +886,36 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         if(!ListTools.isEmptyOrNull(expenseApplyVOS)){
             _logger.info(expenseApplyVOS.size()+"finished expense apply ***"+expenseApplyVOS);
             for(ExpenseApplyBean bean: expenseApplyVOS){
-//                ConditionParse conditionParse1 = new ConditionParse();
-//                conditionParse1.addCondition("refId","=", bean.getId());
-//                List<FinanceBean> financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse1);
-//                _logger.info("****financeBeans size***"+financeBeans.size());
                 //未申请过报销凭证的
-//                if(ListTools.isEmptyOrNull(financeBeans) || financeBeans.size()<=1){
                 if (this.isEndExpenseApply(bean.getId())){
                     List<TcpShareBean> tcpShareBeans = this.tcpShareDAO.queryEntityBeansByFK(bean.getId());
                     List<TravelApplyItemVO> travelApplyItemVOS = this.travelApplyItemDAO.queryEntityVOsByFK(bean.getId());
+                    List<TravelApplyPayBean> payList = this.travelApplyPayDAO.queryEntityBeansByFK(bean.getId());
                     List<String> taxIdList = new ArrayList<>();
                     List<Long> moneyList = new ArrayList<>();
                     List<String> stafferIdList = new ArrayList<>();
                     Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
                     _logger.info("****tcpShareBeans size***"+tcpShareBeans.size());
                     _logger.info("****travelApplyItemVOS size***"+travelApplyItemVOS.size());
+                    //是否稽核修改过金额
+                    boolean isChecked = this.isChecked(payList);
+
+                    //实际总费用(考虑稽核)
+                    long realTotal = bean.getTotal();
+                    if (isChecked){
+                        realTotal = bean.getBorrowTotal();
+                    }
+                    _logger.info("****isChecked****"+isChecked+"***realTotal***"+realTotal);
                     for(TcpShareBean tcpShareBean: tcpShareBeans){
-                        //同一承担人的费用要根据多个预算科目比例拆分
+                        //承担人分担的实际金额(需要考虑稽核)
+                        long share;
+                        if (tcpShareBean.getRatio()>0 ){
+                            share = tcpShareBean.getRatio()*realTotal/100;
+                        } else{
+                            share = tcpShareBean.getRealMonery()*realTotal/bean.getTotal();
+                        }
+
+                        //同一承担人的费用需要根据多个预算项科目按比例拆分
                         for(TravelApplyItemVO item: travelApplyItemVOS){
                             String bearId = tcpShareBean.getBearId();
                             StafferBean sb = this.stafferDAO.find(bearId);
@@ -916,16 +929,11 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                                 } else {
                                     taxIdList.add(feeItemBean.getTaxId2());
                                 }
-                                long share;
-                                if (tcpShareBean.getRatio()>0 ){
-                                    share = tcpShareBean.getRatio()*bean.getTotal()/100;
-                                } else{
-                                    share = tcpShareBean.getRealMonery();
-                                }
-                                //按照预算科目拆分
-                                double ratio = (double)item.getMoneys()/bean.getTotal();
-                                long money = Math.round(ratio*share*100);
-                                _logger.info("share is***"+share+"***ratio***"+ratio+"***money****"+money);
+
+                                //按照预算科目/总费用计算比例
+                                double ratioPerBudgetItem = (double)item.getMoneys()/bean.getTotal();
+                                long money = Math.round(share*ratioPerBudgetItem*100);
+                                _logger.info("share is***"+share+"***ratioPerBudgetItem***"+ratioPerBudgetItem+"***money****"+money);
                                 moneyList.add(money);
                                 stafferIdList.add(bearId);
                             }
@@ -949,6 +957,19 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 }
             }
         }
+    }
+
+    /**
+     * 是否稽核改过金额
+     * @return
+     */
+    private boolean isChecked(List<TravelApplyPayBean> payList){
+        for (TravelApplyPayBean pay: payList){
+            if(pay.getMoneys() > 0 && pay.getCmoneys() >0 && pay.getMoneys()!= pay.getCmoneys()){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
