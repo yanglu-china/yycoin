@@ -2064,79 +2064,81 @@ public class ExpenseAction extends DispatchAction
                     {
                         String name = obj[0];
 
-                        BudgetBean bean = budgetDAO.findByUnique(name);
+                        //#562
+//                        BudgetBean bean = budgetDAO.findByUnique(name);
+//
+//                        if (bean == null)
+//                        {
+//                            builder
+//                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                .append("预算不存在")
+//                                .append("</font><br>");
+//
+//                            importError = true;
+//                        }
+//                        else
+//                        {
+//                        	//有效性检查
+//                            //#562 去掉预算检查
+////                            if (bean.getCarryStatus() != 1)
+////                            {
+////                                builder
+////                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+////                                .append("不是执行中的预算")
+////                                .append("</font><br>");
+////
+////                                importError = true;
+////                            }
+//
+//                            if (bean.getType() != 2)
+//                            {
+//                                builder
+//                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                    .append("不是部门预算")
+//                                    .append("</font><br>");
+//
+//                                importError = true;
+//                            }
+//
+//                            if (bean.getLevel() != 2)
+//                            {
+//                                builder
+//                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                .append("不是月度预算")
+//                                .append("</font><br>");
+//
+//                                importError = true;
+//                            }
+//
+////                            if (bean.getStatus() != 3)
+////                            {
+////                                builder
+////                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+////                                .append("不存在通过状态预算")
+////                                .append("</font><br>");
+////
+////                                importError = true;
+////                            }
+//                        }
 
-                        if (bean == null)
-                        {
-                            builder
-                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("预算不存在")
-                                .append("</font><br>");
-
-                            importError = true;
-                        }
-                        else
-                        {
-                        	//有效性检查
-                            if (bean.getCarryStatus() != 1)
-                            {
-                                builder
-                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("不是执行中的预算")
-                                .append("</font><br>");
-
-                                importError = true;
-                            }
-                            
-                            if (bean.getType() != 2)
-                            {
-                                builder
-                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                    .append("不是部门预算")
-                                    .append("</font><br>");
-
-                                importError = true;
-                            }
-                            
-                            if (bean.getLevel() != 2)
-                            {
-                                builder
-                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("不是月度预算")
-                                .append("</font><br>");
-
-                                importError = true;
-                            }
-                            
-                            if (bean.getStatus() != 3)
-                            {
-                                builder
-                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("不存在通过状态预算")
-                                .append("</font><br>");
-
-                                importError = true;
-                            }
-                        }
-
-                        if (!importError)
-                        {
-                            item.setBudgetId(bean.getId());
-                            item.setBudgetName(bean.getName());
-                            item.setDepartmentId(bean.getBudgetDepartment());
-
-                            PrincipalshipBean prin = principalshipDAO.find(bean.getBudgetDepartment());
-
-                            if (null != prin)
-                            	item.setDepartmentName(prin.getName());
-
-                            item.setApproverId(bean.getSigner());
-                            
-                            StafferBean staffer = stafferDAO.find(bean.getSigner());
-                            
-                            if (null != staffer)
-                            	item.setApproverName(staffer.getName());
-                        }
+//                        if (!importError)
+//                        {
+//                            item.setBudgetId(bean.getId());
+//                            item.setBudgetName(bean.getName());
+//                            item.setDepartmentId(bean.getBudgetDepartment());
+//
+//                            PrincipalshipBean prin = principalshipDAO.find(bean.getBudgetDepartment());
+//
+//                            if (null != prin)
+//                            	item.setDepartmentName(prin.getName());
+//
+//                            item.setApproverId(bean.getSigner());
+//
+//                            StafferBean staffer = stafferDAO.find(bean.getSigner());
+//
+//                            if (null != staffer)
+//                            	item.setApproverName(staffer.getName());
+//                        }
 
                     }
 
