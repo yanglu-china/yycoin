@@ -11,6 +11,7 @@ import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.china.center.oa.client.bean.*;
 import com.china.center.oa.client.dao.*;
+import com.china.center.oa.client.vs.DestStafferVSCustomerBean;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.ExpressBean;
@@ -4206,6 +4207,215 @@ public class ClientAction extends DispatchAction
         return rptQueryClientBatchTrans(mapping, form, request, response);
     
     }
+
+
+	/**
+	 * #549 客户批量转移
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward batchTransferCustomer(ActionMapping mapping, ActionForm form,
+										HttpServletRequest request, HttpServletResponse response)
+			throws ServletException
+	{
+		RequestDataStream rds = new RequestDataStream(request);
+
+		boolean importError = false;
+
+		User user = Helper.getUser(request);
+
+		//就几个字段:客户名，现业务员，新业务员
+		List<DestStafferVSCustomerBean> importItemList = new ArrayList<>();
+
+		StringBuilder builder = new StringBuilder();
+
+		try
+		{
+			rds.parser();
+		}
+		catch (Exception e1)
+		{
+			_logger.error(e1, e1);
+
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+			return mapping.findForward("batchTransferCustomer");
+		}
+
+		if ( !rds.haveStream())
+		{
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+			return mapping.findForward("batchTransferCustomer");
+		}
+
+		ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+		try
+		{
+			reader.readFile(rds.getUniqueInputStream());
+
+			while (reader.hasNext())
+			{
+				String[] obj = fillObj((String[])reader.next());
+
+				// 第一行忽略
+				if (reader.getCurrentLineNumber() == 1)
+				{
+					continue;
+				}
+
+				if (StringTools.isNullOrNone(obj[0]))
+				{
+					continue;
+				}
+
+				int currentNumber = reader.getCurrentLineNumber();
+
+				if (obj.length >= 2 )
+				{
+					DestStafferVSCustomerBean bean = new DestStafferVSCustomerBean();
+
+					// 客户名
+					if ( !StringTools.isNullOrNone(obj[0]))
+					{
+						String name = obj[0].trim();
+						List<CustomerBean> customerBeans = this.customerMainDAO.queryByName(name);
+						if (ListTools.isEmptyOrNull(customerBeans)){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("客户名不存在："+name)
+									.append("<br>");
+
+							importError = true;
+						} else{
+							bean.setCustomerId(customerBeans.get(0).getId());
+						}
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("客户名不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+
+					// 现业务员
+					if ( !StringTools.isNullOrNone(obj[1]))
+					{
+						String stafferName = obj[1].trim();
+
+						StafferBean stafferBean = this.stafferDAO.findyStafferByName(stafferName);
+						if (stafferBean == null){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("业务员不存在:"+stafferName)
+									.append("<br>");
+
+							importError = true;
+						} else{
+							bean.setStafferId(stafferBean.getId());
+						}
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("业务员不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					// 新业务员
+					if ( !StringTools.isNullOrNone(obj[2]))
+					{
+						String stafferName = obj[2].trim();
+
+						StafferBean stafferBean = this.stafferDAO.findyStafferByName(stafferName);
+						if (stafferBean == null){
+							builder
+									.append("第[" + currentNumber + "]错误:")
+									.append("新业务员不存在:"+stafferName)
+									.append("<br>");
+
+							importError = true;
+						} else{
+							bean.setDestStafferId(stafferBean.getId());
+						}
+					}
+					else
+					{
+						builder
+								.append("第[" + currentNumber + "]错误:")
+								.append("业务员不能为空")
+								.append("<br>");
+
+						importError = true;
+					}
+
+					importItemList.add(bean);
+				}
+				else
+				{
+					builder
+							.append("第[" + currentNumber + "]错误:")
+							.append("数据长度不足26格错误")
+							.append("<br>");
+
+					importError = true;
+				}
+			}
+		}catch (Exception e)
+		{
+			_logger.error(e, e);
+
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+			return mapping.findForward("batchTransferCustomer");
+		}
+		finally
+		{
+			try
+			{
+				reader.close();
+			}
+			catch (IOException e)
+			{
+				_logger.error(e, e);
+			}
+		}
+
+		rds.close();
+
+		if (importError){
+
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+			return mapping.findForward("batchTransferCustomer");
+		}
+
+		try
+		{
+			this.clientManager.batchTransferCustomer(user ,importItemList);
+			request.setAttribute(KeyConstant.MESSAGE, "批量导入成功");
+		}
+		catch(MYException e)
+		{
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
+
+			return mapping.findForward("batchTransferCustomer");
+		}
+
+		return mapping.findForward("batchTransferCustomer");
+	}
     
     /**
      * 查询APP 用户审核

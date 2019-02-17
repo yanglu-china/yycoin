@@ -2248,8 +2248,14 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
 
         return true;
     }
-    
-    @Deprecated
+
+	@Override
+	@Transactional(rollbackFor = MYException.class)
+	public boolean batchTransferCustomer(User user, List<DestStafferVSCustomerBean> beans) throws MYException {
+		return false;
+	}
+
+	@Deprecated
     @Transactional(rollbackFor = MYException.class)
     public void synchronizationAllCustomerLocation()
     {

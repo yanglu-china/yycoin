@@ -6,6 +6,7 @@ import com.china.center.common.MYException;
 import com.china.center.oa.client.bean.*;
 import com.china.center.oa.client.listener.ClientListener;
 import com.china.center.oa.client.vo.*;
+import com.china.center.oa.client.vs.DestStafferVSCustomerBean;
 
 import java.util.List;
 
@@ -97,6 +98,8 @@ public interface ClientManager extends ListenerManager<ClientListener>
     boolean hasCustomerAuth2(String stafferId, String customerId);
     
     boolean batchTransCustomer(User user, int type) throws MYException;
+
+    boolean batchTransferCustomer(User user, List<DestStafferVSCustomerBean> beans) throws MYException;
 
     void importCustomer(List<CustomerVO> customerVOList) throws MYException;
 
