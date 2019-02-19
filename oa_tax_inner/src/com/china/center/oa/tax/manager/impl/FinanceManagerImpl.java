@@ -737,7 +737,8 @@ public class FinanceManagerImpl implements FinanceManager {
     @Transactional(rollbackFor = MYException.class)
     public boolean addFinanceTurnBean(User user, FinanceTurnBean bean) throws MYException {
         try {
-            JudgeTools.judgeParameterIsNull(user, bean);
+//            JudgeTools.judgeParameterIsNull(user, bean);
+            JudgeTools.judgeParameterIsNull(bean);
 
             // 锁定
             setLOCK_FINANCE(true);
@@ -747,7 +748,9 @@ public class FinanceManagerImpl implements FinanceManager {
 
             bean.setId(commonDAO.getSquenceString20());
 
-            bean.setStafferId(user.getStafferId());
+            if (user!= null){
+                bean.setStafferId(user.getStafferId());
+            }
 
             String changeFormat = TimeTools.changeFormat(bean.getMonthKey(), "yyyyMM", "yyyy-MM");
 
@@ -775,7 +778,11 @@ public class FinanceManagerImpl implements FinanceManager {
             // 保存后本月的凭证就不能增加了
             financeTurnDAO.saveEntityBean(bean);
 
-            operationLog.info(user.getStafferName() + "进行了" + bean.getMonthKey() + "的结转(操作成功)");
+            if (user == null){
+                operationLog.info( "系统进行了" + bean.getMonthKey() + "的结转(操作成功)");
+            } else{
+                operationLog.info(user.getStafferName() + "进行了" + bean.getMonthKey() + "的结转(操作成功)");
+            }
 
             return true;
         } finally {
@@ -816,7 +823,9 @@ public class FinanceManagerImpl implements FinanceManager {
 
             fmb.setId(commonDAO.getSquenceString20());
 
-            fmb.setStafferId(user.getStafferId());
+            if(user!= null){
+                fmb.setStafferId(user.getStafferId());
+            }
 
             fmb.setMonthKey(bean.getMonthKey());
 
@@ -965,8 +974,15 @@ public class FinanceManagerImpl implements FinanceManager {
 
             FinanceBean financeBean = new FinanceBean();
 
-            String name = user.getStafferName() + "损益结转" + bean.getMonthKey() + ":"
-                    + dutyBean.getName();
+            String name = "";
+            if (user == null){
+                name =  "系统损益结转" + bean.getMonthKey() + ":"
+                        + dutyBean.getName();
+            } else{
+                name = user.getStafferName() + "损益结转" + bean.getMonthKey() + ":"
+                        + dutyBean.getName();
+            }
+
 
             financeBean.setName(name);
 
@@ -976,7 +992,9 @@ public class FinanceManagerImpl implements FinanceManager {
 
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_TURN);
 
-            financeBean.setCreaterId(user.getStafferId());
+            if (user!= null){
+                financeBean.setCreaterId(user.getStafferId());
+            }
 
             financeBean.setDescription(financeBean.getName());
 
@@ -1208,8 +1226,14 @@ public class FinanceManagerImpl implements FinanceManager {
 
             FinanceBean financeBean = new FinanceBean();
 
-            String name = user.getStafferName() + "利润结转:" + bean.getMonthKey() + ":"
-                    + dutyBean.getName();
+            String name = "";
+            if (user == null){
+                name =  "系统利润结转:" + bean.getMonthKey() + ":"
+                        + dutyBean.getName();
+            } else {
+                name = user.getStafferName() + "利润结转:" + bean.getMonthKey() + ":"
+                        + dutyBean.getName();
+            }
 
             financeBean.setName(name);
 
@@ -1219,7 +1243,9 @@ public class FinanceManagerImpl implements FinanceManager {
 
             financeBean.setDutyId(dutyBean.getId());
 
-            financeBean.setCreaterId(user.getStafferId());
+            if(user!= null){
+                financeBean.setCreaterId(user.getStafferId());
+            }
 
             financeBean.setDescription(financeBean.getName());
 
@@ -1392,6 +1418,21 @@ public class FinanceManagerImpl implements FinanceManager {
                 throw new MYException("核算项中人员[%s]不属于核算中的部门[%s],请确认操作", sbean.getName(), prinBean.getName());
             }
 
+        }
+    }
+
+    @Transactional(rollbackFor = MYException.class)
+    @Override
+    public void addFinanceTurnJob() throws MYException {
+        List<FinanceTurnBean> beans = new ArrayList<>();
+        FinanceTurnBean bean1 = new FinanceTurnBean();
+        bean1.setMonthKey("201612");
+        beans.add(bean1);
+        FinanceTurnBean bean2 = new FinanceTurnBean();
+        bean2.setMonthKey("201701");
+        beans.add(bean2);
+        for(FinanceTurnBean bean: beans){
+            this.addFinanceTurnBean(null, bean);
         }
     }
 

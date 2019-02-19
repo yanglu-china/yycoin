@@ -14,6 +14,8 @@ import com.china.center.common.MYException;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.bean.FinanceTurnBean;
 
+import java.util.List;
+
 
 /**
  * FinanceManager
@@ -74,6 +76,13 @@ public interface FinanceManager
 
     boolean updateTempFinanceBean(User user, FinanceBean bean)
         throws MYException;
+
+    /**
+     * #565
+     * @return
+     * @throws MYException
+     */
+    void addFinanceTurnJob() throws MYException;
 
     /** 2014/12/30 add checkNull parameter for 自动审批job
      * addFinanceBeanWithoutTransactional(无事务的)
