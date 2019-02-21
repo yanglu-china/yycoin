@@ -8,15 +8,10 @@
  */
 package com.china.center.oa.tax.manager.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.center.china.osgi.config.ConfigLoader;
+import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.constanst.OutConstant;
@@ -1424,15 +1419,18 @@ public class FinanceManagerImpl implements FinanceManager {
     @Transactional(rollbackFor = MYException.class)
     @Override
     public void addFinanceTurnJob() throws MYException {
-        List<FinanceTurnBean> beans = new ArrayList<>();
-        FinanceTurnBean bean1 = new FinanceTurnBean();
-        bean1.setMonthKey("201612");
-        beans.add(bean1);
-        FinanceTurnBean bean2 = new FinanceTurnBean();
-        bean2.setMonthKey("201701");
-        beans.add(bean2);
-        for(FinanceTurnBean bean: beans){
-            this.addFinanceTurnBean(null, bean);
+        String beginMonthKey =  ConfigLoader.getProperty("beginMonthKey");
+        String endMonthKey =  ConfigLoader.getProperty("endMonthKey");
+        if (!StringTools.isNullOrNone(beginMonthKey) && !StringTools.isNullOrNone(endMonthKey)){
+            SortedSet<String> monthKeys = StringUtils.getMonthKeys(beginMonthKey, endMonthKey);
+            //计算次数过多会把系统卡死!
+            if (monthKeys.size()<= 120){
+                for (String monthKey : monthKeys){
+                    FinanceTurnBean bean = new FinanceTurnBean();
+                    bean.setMonthKey(monthKey);
+                    this.addFinanceTurnBean(null, bean);
+                }
+            }
         }
     }
 

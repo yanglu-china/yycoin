@@ -1,11 +1,15 @@
 package com.china.center.oa.publics;
 
 import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import sun.misc.Sort;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 public class StringUtils {
@@ -134,9 +138,26 @@ public class StringUtils {
         }
     }
 
+    public static SortedSet<String> getMonthKeys(String begin, String end){
+        SortedSet<String> result = new TreeSet();
+        result.add(begin);
+        String monthKey = begin;
+        String nextKey = TimeTools.getStringByOrgAndDaysAndFormat(monthKey, 32, "yyyyMM");
+        while (!nextKey.equals(end)){
+            result.add(nextKey);
+            monthKey = nextKey;
+            nextKey = TimeTools.getStringByOrgAndDaysAndFormat(monthKey, 32, "yyyyMM");
+        }
+        result.add(end);
+        return result;
+    }
+
     public static void main(String[] args){
         String str = extract("数据接口批量导入，银行单号E20180115154115081900008.","银行单号", Pattern.quote("."));
         System.out.println(str);
         System.out.println(getSecondPart("YZ0096700 貔貅手串黑曜石升级版（普17）", " "));
+        SortedSet<String> set = getMonthKeys("201810", "201902");
+        System.out.println(set.size());
+        System.out.println(set);
     }
 }

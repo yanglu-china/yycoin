@@ -39,5 +39,7 @@
 	<entry key="version">V5.01.20120301</entry>
 	<entry key="httpServerIP">118.178.188.163</entry>
 	<entry key="checkOrderWithoutCKBeginTime">2018-01-29</entry>
+	<entry key="beginMonthKey"></entry>
+	<entry key="endMonthKey"></entry>
 	<entry key="appName">永银ERP</entry>
 </properties>
