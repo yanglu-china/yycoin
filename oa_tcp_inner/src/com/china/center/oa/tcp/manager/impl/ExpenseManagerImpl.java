@@ -2099,13 +2099,15 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 if (ratioTotal != 100 && ratioTotal != 0) {
                     throw new MYException("分担比例不能小于0,且必须是整数");
                 }
-            } else {
+            }
+            //#571
+/*            else {
                 for (TcpShareBean tcpShareBean : bean.getShareList()) {
                     if (tcpShareBean.getRealMonery() <= 0) {
                         throw new MYException("分担金额比例不能小于0");
                     }
                 }
-            }
+            }*/
         }
 
         // 检验申请的状态

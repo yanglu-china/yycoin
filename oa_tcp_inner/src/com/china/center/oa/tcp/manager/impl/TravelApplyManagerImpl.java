@@ -2657,19 +2657,20 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	            }
         	}
         }
-        else
-        {
-        	if(null != bean.getShareList() && bean.getShareList().size() > 0)
-        	{
-	            for (TcpShareBean tcpShareBean : bean.getShareList())
-	            {
-	                if (tcpShareBean.getRealMonery() <= 0)
-	                {
-	                    throw new MYException("分担金额比例不能小于0");
-	                }
-	            }
-        	}
-        }
+        //#571
+//        else
+//        {
+//        	if(null != bean.getShareList() && bean.getShareList().size() > 0)
+//        	{
+//	            for (TcpShareBean tcpShareBean : bean.getShareList())
+//	            {
+//	                if (tcpShareBean.getRealMonery() <= 0)
+//	                {
+//	                    throw new MYException("分担金额比例不能小于0");
+//	                }
+//	            }
+//        	}
+//        }
 
         // 下面的申请暂时不实现分担,无法实现
 //        if (ratioTotal == 0 && bean.getBorrowTotal() != shareTotal)
