@@ -527,7 +527,7 @@ public class StorageAction extends DispatchAction
             {
             	String oldDesc = storageLogBean.getDescription();
             	String des = storageLogBean.getDescription().substring(storageLogBean.getDescription().indexOf("[")+1,storageLogBean.getDescription().indexOf("]"));
-            	if(des.length() == 21)
+            	if(des.length() == 21 || des.contains("TW"))
             	{
             	storageLogBean.setDescription(oldDesc.replace(des, "<a href='../sail/out.do?method=findOut&queryType=6&radioIndex=0&fow=99&outId="+des+"'>"+des+ "</a>"));
             	}
