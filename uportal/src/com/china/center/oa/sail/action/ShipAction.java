@@ -1136,6 +1136,13 @@ public class ShipAction extends DispatchAction
 
             this.generateQRCode(pickupId);
             request.setAttribute("qrcode", this.getQrcodeUrl(pickupId));
+            //#568
+            String appName = ConfigLoader.getProperty("appName");
+            if (OutConstant.APP_NAME_TW.equals(appName)){
+                request.setAttribute("tw", "(体外)");
+            } else{
+                request.setAttribute("tw", "");
+            }
             return mapping.findForward("printPickup");
         }
 
@@ -1376,6 +1383,13 @@ public class ShipAction extends DispatchAction
             request.setAttribute("customerName","");
         }
 
+        //#568
+        String appName = ConfigLoader.getProperty("appName");
+        if (OutConstant.APP_NAME_TW.equals(appName)){
+            request.setAttribute("tw", "(体外)");
+        } else{
+            request.setAttribute("tw", "");
+        }
         return mapping.findForward("printPackage");
     }
 
