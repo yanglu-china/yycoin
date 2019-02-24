@@ -59,6 +59,11 @@ public class TravelApplyItemBean implements Serializable
     private long moneys = 0L;
 
     /**
+     * 稽核核对
+     */
+    private long cmoneys = 0L;
+
+    /**
      * 核对说明
      */
     private String purpose = "";
@@ -331,6 +336,14 @@ public class TravelApplyItemBean implements Serializable
     public void setBudgetId(String budgetId)
     {
         this.budgetId = budgetId;
+    }
+
+    public long getCmoneys() {
+        return cmoneys;
+    }
+
+    public void setCmoneys(long cmoneys) {
+        this.cmoneys = cmoneys;
     }
 
     /**

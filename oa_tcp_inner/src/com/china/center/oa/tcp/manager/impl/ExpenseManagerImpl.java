@@ -749,6 +749,10 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
             // 重新校验预算(公司付款重新计算,收支平衡重新生成日志,员工付款也需要重新计算预算使用)
 //            checkBudget(user, bean, 1);
+            List<TravelApplyItemBean> applyItemBeans = (List<TravelApplyItemBean>) param.getOther1();
+            if (!ListTools.isEmptyOrNull(applyItemBeans)){
+                travelApplyItemDAO.updateAllEntityBeans(applyItemBeans);
+            }
         }
         
         // 财务收款和支付
@@ -930,8 +934,9 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                                     taxIdList.add(feeItemBean.getTaxId2());
                                 }
 
-                                //按照预算科目/总费用计算比例
-                                double ratioPerBudgetItem = (double)item.getMoneys()/bean.getTotal();
+                                //按照预算科目/总费用计算比例(考虑稽核)
+                                long itemMoney = item.getCmoneys() > 0 ?item.getCmoneys(): item.getMoneys();
+                                double ratioPerBudgetItem = (double)itemMoney/realTotal;
                                 long money = Math.round(share*ratioPerBudgetItem*100);
                                 _logger.info("share is***"+share+"***ratioPerBudgetItem***"+ratioPerBudgetItem+"***money****"+money);
                                 moneyList.add(money);

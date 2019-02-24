@@ -1301,6 +1301,28 @@ public class ExpenseAction extends DispatchAction
         throws MYException
     {
         _logger.info("****fillWrap ********");
+        String[] fid = request.getParameterValues("fid");
+
+        // #570 稽核处理
+        if (fid != null && fid.length > 0)
+        {
+            String[] fcmoneysList = request.getParameterValues("f_cmoneys");
+            List<TravelApplyItemBean> payList = travelApplyItemDAO
+                    .queryEntityBeansByFK(param.getId());
+            for (int i = 0; i < fid.length; i++ )
+            {
+                for (TravelApplyItemBean travelApplyPayBean : payList)
+                {
+                    if (travelApplyPayBean.getId().equals(fid[i]))
+                    {
+                        travelApplyPayBean.setCmoneys(MathTools.doubleToLong2(fcmoneysList[i]));
+                    }
+                }
+            }
+
+            param.setOther1(payList);
+        }
+
         String[] ppid = request.getParameterValues("p_cid");
 
         // 稽核处理

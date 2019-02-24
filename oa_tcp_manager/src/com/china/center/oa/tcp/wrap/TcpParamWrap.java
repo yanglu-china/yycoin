@@ -41,6 +41,11 @@ public class TcpParamWrap implements Serializable
 
     private Object other = null;
 
+    /**
+     * #570
+     */
+    private Object other1 = null;
+
     private Object other2 = null;
 
     private Object other3 = null;
@@ -202,6 +207,14 @@ public class TcpParamWrap implements Serializable
 
     public void setInvoiceNumber(String invoiceNumber) {
         this.invoiceNumber = invoiceNumber;
+    }
+
+    public Object getOther1() {
+        return other1;
+    }
+
+    public void setOther1(Object other1) {
+        this.other1 = other1;
     }
 
     /**
