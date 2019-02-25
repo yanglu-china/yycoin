@@ -2699,8 +2699,11 @@ public class OutListenerTaxGlueImpl implements OutListener
                 // 科目拷贝
                 FinanceHelper.copyTax(outTax, itemInEach);
 
-                // 含税价
-                double outMoney = baseBean.getAmount() * baseBean.getPrice();
+//                // 含税价
+//                double outMoney = baseBean.getAmount() * baseBean.getPrice();
+
+                // #569 改为成本价
+                double outMoney = baseBean.getAmount() * baseBean.getCostPrice();
 
                 itemInEach.setInmoney(FinanceHelper.doubleToLong(outMoney));
 
@@ -2762,7 +2765,8 @@ public class OutListenerTaxGlueImpl implements OutListener
             }
 
             // 样品毛利准备（(售价 - 成本价)*数量）
-            for (BaseBean baseBean : baseList)
+            //#569
+            /*for (BaseBean baseBean : baseList)
             {
                 FinanceItemBean itemOut2 = new FinanceItemBean();
 
@@ -2804,7 +2808,7 @@ public class OutListenerTaxGlueImpl implements OutListener
                 itemOut2.setDepotId(outBean.getLocation());
 
                 itemList.add(itemOut2);
-            }
+            }*/
         }
 
     }
@@ -3070,8 +3074,11 @@ public class OutListenerTaxGlueImpl implements OutListener
             // 科目拷贝
             FinanceHelper.copyTax(outTax, itemInEach);
 
-            // 含税价
-            double outMoney = -baseBean.getAmount() * baseBean.getPrice();
+//            // 含税价
+//            double outMoney = -baseBean.getAmount() * baseBean.getPrice();
+
+            // #569 改为成本价
+            double outMoney = baseBean.getAmount() * baseBean.getCostPrice();
 
             itemInEach.setInmoney(FinanceHelper.doubleToLong(outMoney));
 
@@ -3133,7 +3140,8 @@ public class OutListenerTaxGlueImpl implements OutListener
         }
         
         // 样品毛利准备（(售价 - 成本价)*数量）
-        for (BaseBean baseBean : baseList)
+        //#569
+        /*for (BaseBean baseBean : baseList)
         {
             FinanceItemBean itemOut2 = new FinanceItemBean();
 
@@ -3175,7 +3183,7 @@ public class OutListenerTaxGlueImpl implements OutListener
             itemOut2.setDepotId(outBean.getLocation());
 
             itemList.add(itemOut2);
-        }
+        }*/
     }
 
     /**
