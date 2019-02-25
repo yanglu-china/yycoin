@@ -1970,6 +1970,9 @@ public class TravelApplyAction extends DispatchAction
                         if ("98".equals(type))
                         {
                             condtion.addCondition("and TravelApplyBean.type in (2, 3)");
+                        } else if ("7".equals(type))
+                        {
+                            condtion.addCondition("and TravelApplyBean.type in (7, 9)");
                         }
                         else
                         {
