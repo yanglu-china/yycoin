@@ -142,6 +142,7 @@ function load()
                         <td width="15%" align="center">结束日期</td>
                         <td width="15%" align="center">预算项</td>
                         <td width="10%" align="center">申请金额</td>
+                        <td width="10%" align="center">稽核金额</td>
                         <td width="40%" align="center">备注</td>
                     </tr>
                     <c:forEach items="${bean.itemVOList}" var="item">
@@ -150,6 +151,7 @@ function load()
                         <td width="15%" align="center">${item.endDate}</td>
                         <td width="15%" align="center">${item.feeItemName}</td>
                         <td width="10%" align="center">${my:formatNum(item.moneys / 100.0)}</td>
+                        <td width="10%" align="center">${my:formatNum(item.cmoneys / 100.0)}</td>
                         <td width="40%" align="center"><c:out value="${item.description}"/></td>
                     </tr>
                     </c:forEach>

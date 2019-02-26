@@ -68,8 +68,15 @@ function processBean(opr)
 	        $O('processer').oncheck = 'notNone';
 	    }
     }
-    
-    
+
+    //#570
+    <c:if test="${bean.status == 20}">
+    if ("0" == opr)
+        checkFun = checkMoney1;
+    else
+        removePay();
+    </c:if>
+
     //收付款
     <c:if test="${bean.status == 22}">
     if ("0" == opr)
@@ -190,6 +197,41 @@ function checkMoney()
         return false;
     }
     
+    return true;
+}
+
+function checkMoney1(){
+    //#570
+    var pElements = document.getElementsByName('p_cmoneys');
+
+    var pTotal = 0.0;
+
+    for (var i = 0; i<pElements.length; i++)
+    {
+        if (pElements[i].value != '')
+        {
+            pTotal += parseFloat(pElements[i].value);
+        }
+    }
+    alert(pTotal);
+
+    var fElements = document.getElementsByName('f_cmoneys');
+
+    var fTotal = 0.0;
+
+    for (var i = 0; i<fElements.length; i++)
+    {
+        if (fElements[i].value != '')
+        {
+            fTotal += parseFloat(fElements[i].value);
+        }
+    }
+    alert(fTotal);
+    if (pTotal>0 && compareDouble(pTotal, fTotal) != 0){
+        alert('费用明细和收款明细稽核金额不一致!');
+
+        return false;
+    }
     return true;
 }
 
@@ -402,6 +444,7 @@ function checkMoney2()
                         <td width="15%" align="center">结束日期</td>
                         <td width="15%" align="center">预算项</td>
                         <td width="10%" align="center">申请金额</td>
+                        <td width="10%" align="center">稽核金额</td>
                         <td width="40%" align="center">备注</td>
                     </tr>
                     <c:forEach items="${bean.itemVOList}" var="item">
@@ -410,6 +453,16 @@ function checkMoney2()
                         <td width="15%" align="center">${item.endDate}</td>
                         <td width="15%" align="center">${item.feeItemName}</td>
                         <td width="10%" align="center">${my:formatNum(item.moneys / 100.0)}</td>
+                        <c:if test="${bean.status == 20 && bean.payType == 1}">
+                            <td align="center">
+                                <input type="text" style="width: 100%"
+                                       name="f_cmoneys" value="${my:formatNum(item.cmoneys / 100.0)}" oncheck="notNone;isFloat3">
+                                <input type="hidden" name="fid" value="${item.id}">
+                            </td>
+                        </c:if>
+                        <c:if test="${bean.status != 20}">
+                            <td align="center"><font color="red">${my:formatNum(item.cmoneys / 100.0)}</font></td>
+                        </c:if>
                         <td width="40%" align="center"><c:out value="${item.description}"/></td>
                     </tr>
                     </c:forEach>
