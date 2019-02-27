@@ -1169,7 +1169,9 @@ public class ParentQueryFinaAction extends DispatchAction
             cal.setTime(TimeTools.getDateByFormat(beginDate, TimeTools.SHORT_FORMAT));
 
             // 下个月的1号
-            cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) - 1);
+//            cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) - 1);
+            // #565 很诡异!2016-06-31返回上月错误,应该是201606，却返回了201607
+            cal.add(Calendar.MONTH, -1);
 
             String turnMonth = TimeTools.getStringByFormat(new Date(cal.getTime().getTime()),
                 "yyyyMM");

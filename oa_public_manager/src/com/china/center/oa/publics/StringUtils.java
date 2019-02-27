@@ -4,12 +4,10 @@ import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 import sun.misc.Sort;
 
+import javax.sound.midi.SysexMessage;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class StringUtils {
@@ -152,6 +150,22 @@ public class StringUtils {
         return result;
     }
 
+    public static String getMonthKey(String date){
+        Calendar cal = Calendar.getInstance();
+
+        // 本月时间
+        cal.setTime(TimeTools.getDateByFormat(date, TimeTools.SHORT_FORMAT));
+
+        // 下个月的1号
+//        cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) - 1);
+        cal.add(Calendar.MONTH, -1);
+
+//        System.out.println(new Date(cal.getTime().getTime()));
+        String turnMonth = TimeTools.getStringByFormat(new Date(cal.getTime().getTime()),
+                "yyyyMM");
+        return turnMonth;
+    }
+
     public static void main(String[] args){
         String str = extract("数据接口批量导入，银行单号E20180115154115081900008.","银行单号", Pattern.quote("."));
         System.out.println(str);
@@ -159,5 +173,16 @@ public class StringUtils {
         SortedSet<String> set = getMonthKeys("201810", "201902");
         System.out.println(set.size());
         System.out.println(set);
+        System.out.println(getMonthKey("2016-01-31"));
+        System.out.println(getMonthKey("2016-03-31"));
+        System.out.println(getMonthKey("2016-05-31"));
+        System.out.println(getMonthKey("2016-07-31"));
+        System.out.println(getMonthKey("2016-07-30"));
+        System.out.println(getMonthKey("2016-08-31"));
+        System.out.println(getMonthKey("2016-08-30"));
+        System.out.println(getMonthKey("2016-06-30"));
+        System.out.println(getMonthKey("2016-05-01"));
+        System.out.println(getMonthKey("2019-01-31"));
+        System.out.println(getMonthKey("2019-01-30"));
     }
 }
