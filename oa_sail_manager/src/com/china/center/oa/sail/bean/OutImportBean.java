@@ -248,6 +248,8 @@ public class OutImportBean implements Serializable
 	 */
 	private double cash =0.0d;
 
+	private double cash2 = 0.0d;
+
 	private double grossProfit =0.0d;
 
 	/**#64
@@ -1036,6 +1038,14 @@ public class OutImportBean implements Serializable
 		this.ykibMoney = ykibMoney;
 	}
 
+	public double getCash2() {
+		return cash2;
+	}
+
+	public void setCash2(double cash2) {
+		this.cash2 = cash2;
+	}
+
 	@Override
 	public String toString() {
 		return "OutImportBean{" +
@@ -1104,6 +1114,7 @@ public class OutImportBean implements Serializable
 				", motivationMoney2=" + motivationMoney2 +
 				", platformFee=" + platformFee +
 				", cash=" + cash +
+				", cash2=" + cash2 +
 				", grossProfit=" + grossProfit +
 				", direct=" + direct +
 				", channel='" + channel + '\'' +

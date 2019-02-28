@@ -609,10 +609,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
                                 ||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
                             CustomerBean customerBean = customerMainDAO.find(outBean.getCustomerId());
-                            double grossProfit = getGrossProfit(outBean,customerBean, base.getProductId());
-                            base.setGrossProfit(grossProfit);
-                            double cash = getCash(outBean, customerBean, base.getProductId());
-                            base.setCash(cash);
+                            try {
+                                ProductImportBean productImportBean = getProductImportBean(outBean, customerBean, base.getProductId());
+                                if (productImportBean != null){
+                                   base.setGrossProfit(productImportBean.getGrossProfit());
+                                   base.setCash(productImportBean.getCash());
+                                   base.setCash2(productImportBean.getCash2());
+                                }
+                            }catch (Exception e){
+                                _logger.error(e);
+                            }
                         }
                         
 /*                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL

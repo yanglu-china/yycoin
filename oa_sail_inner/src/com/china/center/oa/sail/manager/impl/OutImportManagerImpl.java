@@ -4,7 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import com.china.center.oa.client.vo.CustomerVO;
+import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.constant.DepotConstant;
+import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.SysConfigConstant;
@@ -40,11 +42,6 @@ import com.china.center.oa.product.bean.DepotpartBean;
 import com.china.center.oa.product.bean.PriceConfigBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ProductConstant;
-import com.china.center.oa.product.dao.DepotpartDAO;
-import com.china.center.oa.product.dao.PriceConfigDAO;
-import com.china.center.oa.product.dao.ProductDAO;
-import com.china.center.oa.product.dao.ProductVSGiftDAO;
-import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
@@ -157,6 +154,8 @@ public class OutImportManagerImpl implements OutImportManager
     private OutBackDAO outBackDAO = null;
 
 	private ParameterDAO parameterDAO = null;
+
+	private ProductImportDAO productImportDAO = null;
 
 	private final static String SPLIT = "_";
 	
@@ -748,6 +747,7 @@ public class OutImportManagerImpl implements OutImportManager
             base.setProductImportId(each.getProductImportId());
 
             base.setCash(each.getCash());
+            base.setCash2(each.getCash2());
             base.setGrossProfit(each.getGrossProfit());
 
 			//#359
@@ -3735,6 +3735,14 @@ public class OutImportManagerImpl implements OutImportManager
                             this.setGrossProfitAndCash(out, customerBean, baseBean);
                         }
 
+                        //#575
+                        if(!StringTools.isNullOrNone(olBaseBean.getProductImportId())){
+							ProductImportBean productImportBean = this.productImportDAO.find(olBaseBean.getProductImportId());
+							if(productImportBean!= null){
+								baseBean.setCash(productImportBean.getCash());
+								baseBean.setCash2(productImportBean.getCash2());
+							}
+						}
 
 						baseBean.setUnit("套");
 						baseBean.setAmount(olBaseBean.getAmount());

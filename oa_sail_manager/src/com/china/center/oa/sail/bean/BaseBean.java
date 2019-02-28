@@ -170,6 +170,11 @@ public class BaseBean implements Serializable, BaseInterface
 
     private double cash =0.0d;
 
+    /**
+     * #575 业务员单品奖励
+     */
+    private double cash2 =0.0d;
+
     private double grossProfit =0.0d;
     
     /**
@@ -961,6 +966,14 @@ public class BaseBean implements Serializable, BaseInterface
         this.ykibMoney = ykibMoney;
     }
 
+    public double getCash2() {
+        return cash2;
+    }
+
+    public void setCash2(double cash2) {
+        this.cash2 = cash2;
+    }
+
     @Override
     public String toString() {
         return "BaseBean{" +
@@ -998,6 +1011,7 @@ public class BaseBean implements Serializable, BaseInterface
                 ", motivationMoney2=" + motivationMoney2 +
                 ", platformFee=" + platformFee +
                 ", cash=" + cash +
+                ", cash2=" + cash2 +
                 ", grossProfit=" + grossProfit +
                 ", deliverType=" + deliverType +
                 ", expressPay=" + expressPay +

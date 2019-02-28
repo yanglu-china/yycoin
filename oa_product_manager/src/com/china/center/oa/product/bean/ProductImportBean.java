@@ -161,6 +161,8 @@ public class ProductImportBean implements Serializable
 
     private double cash =0.0d;
 
+    private double cash2 =0.0d;
+
     private String discription = "";
 
     private String updateTime = "";
@@ -451,6 +453,14 @@ public class ProductImportBean implements Serializable
         this.ykibMoney = ykibMoney;
     }
 
+    public double getCash2() {
+        return cash2;
+    }
+
+    public void setCash2(double cash2) {
+        this.cash2 = cash2;
+    }
+
     @Override
     public String toString() {
         return "ProductImportBean{" +
@@ -484,6 +494,7 @@ public class ProductImportBean implements Serializable
                 ", invoiceType='" + invoiceType + '\'' +
                 ", invoiceContent='" + invoiceContent + '\'' +
                 ", cash=" + cash +
+                ", cash2=" + cash2 +
                 ", discription='" + discription + '\'' +
                 ", updateTime='" + updateTime + '\'' +
                 ", operator='" + operator + '\'' +

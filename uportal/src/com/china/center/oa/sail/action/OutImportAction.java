@@ -1314,6 +1314,7 @@
                  }
 
                  bean.setCash(productImportBean.getCash());
+                 bean.setCash2(productImportBean.getCash2());
                  bean.setGrossProfit(productImportBean.getGrossProfit());
              }
          }catch (MYException e){
