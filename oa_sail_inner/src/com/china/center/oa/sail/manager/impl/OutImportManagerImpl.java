@@ -4762,4 +4762,12 @@ public void offlineStorageInJob() {
 	public void setParameterDAO(ParameterDAO parameterDAO) {
 		this.parameterDAO = parameterDAO;
 	}
+
+	public ProductImportDAO getProductImportDAO() {
+		return productImportDAO;
+	}
+
+	public void setProductImportDAO(ProductImportDAO productImportDAO) {
+		this.productImportDAO = productImportDAO;
+	}
 }
