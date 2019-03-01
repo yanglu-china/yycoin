@@ -17,21 +17,23 @@ function digui(node)
         
         var ssItem = shipMap[ele.subId];
         
-        var subNode = snode('[' + ele.subLevel +  ']' + ele.subName, ssItem.length > 0, ele.subId);
+        if (ssItem){
+            var subNode = snode('[' + ele.subLevel +  ']' + ele.subName, ssItem.length > 0, ele.subId);
         
-        subNode.sname = ele.subName;
-        
-        subNode.subLevel = ele.subLevel;
-        
-        gNodeMap[ele.subId] = subNode;
-        
-        node.add(subNode);
-        
-        levelMap[ele.subId] = ele.subLevel;
-        
-        if (ssItem.length > 0)
-        {
-            digui(subNode);
+            subNode.sname = ele.subName;
+            
+            subNode.subLevel = ele.subLevel;
+            
+            gNodeMap[ele.subId] = subNode;
+            
+            node.add(subNode);
+            
+            levelMap[ele.subId] = ele.subLevel;
+            
+            if (ssItem.length > 0)
+            {
+                digui(subNode);
+            }
         }
     }
 }
