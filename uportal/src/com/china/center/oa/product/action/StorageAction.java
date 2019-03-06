@@ -1725,7 +1725,10 @@ public class StorageAction extends DispatchAction
         String queryType = request.getParameter("queryType");
         
         // 查询仓库下的良品仓
-        List<DepotpartBean> depotparList = depotpartDAO.queryOkDepotpartInDepot(depotId);
+//        List<DepotpartBean> depotparList = depotpartDAO.queryOkDepotpartInDepot(depotId);
+
+        //#582 改为所有仓区
+        List<DepotpartBean> depotparList = depotpartDAO.queryEntityBeansByFK(depotId);
 
         request.setAttribute("depotparList", depotparList);
         
@@ -1910,7 +1913,7 @@ public class StorageAction extends DispatchAction
 
         request.setAttribute("beanList", list);
 
-        request.setAttribute("depotparList", depotparList);
+//        request.setAttribute("depotparList", depotparList);
         if (OATools.isChangeToV5())
         {
             return mapping.findForward("rptQueryStorageRelationInDepot");

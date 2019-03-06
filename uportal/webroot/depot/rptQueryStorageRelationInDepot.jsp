@@ -121,7 +121,7 @@ function queryAbs()
 			</tr>
 			
 			<tr class="content2">
-				<td width="15%" align="center">良品仓</td>
+				<td width="15%" align="center">仓区</td>
 				<td align="center">
 				<select name="depotpartId" class="select_class" values="${depotpartId}" style="width: 90%">
 						<option value="">--</option>
