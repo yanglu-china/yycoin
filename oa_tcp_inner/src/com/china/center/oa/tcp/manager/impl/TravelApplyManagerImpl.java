@@ -3325,7 +3325,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             }
 
                             if (Math.abs(item.getIbMoney()) > zero || Math.abs(item.getMotivationMoney())> zero
-                                    || Math.abs(item.getIbMoney2()) > zero || Math.abs(item.getMotivationMoney2())> zero){
+                                    || Math.abs(item.getIbMoney2()) > zero || Math.abs(item.getMotivationMoney2())> zero
+                                    || Math.abs(item.getPlatformFee()) > zero){
 //                                _logger.info("****create TcpIbReportItemBean**********"+item);
                                 itemList.add(item);
                             }

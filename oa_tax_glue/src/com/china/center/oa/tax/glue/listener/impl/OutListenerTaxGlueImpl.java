@@ -3078,7 +3078,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 //            double outMoney = -baseBean.getAmount() * baseBean.getPrice();
 
             // #569 改为成本价
-            double outMoney = baseBean.getAmount() * baseBean.getCostPrice();
+            double outMoney = -baseBean.getAmount() * baseBean.getCostPrice();
 
             itemInEach.setInmoney(FinanceHelper.doubleToLong(outMoney));
 
