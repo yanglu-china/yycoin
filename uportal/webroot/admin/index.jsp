@@ -235,10 +235,19 @@
 		    // console.log(url);
 		    if (url.indexOf("uportaltw") != -1 ){
                 $O('appName').innerHTML  = "永银文化ERP(体外业务)";
+                $O('usernameLabel').innerHTML  = "体外系统-用户名";
+                $O('passwordLabel').innerHTML  = "体外系统-密码";
 			} else if (url.indexOf("zjgh") != -1 ){
-                $O('appName').innerHTML  = "永银文化ERP(中金国华)";
+                $O('appName').innerHTML  = "国华ERP";
+                $O('usernameLabel').innerHTML  = "国华用户名";
+                $O('passwordLabel').innerHTML  = "国华密码";
+                document.body.style.background = '#f0f0f0';
+                var erpHead = document.querySelector("#erpHead");
+                erpHead.style.backgroundColor = "#1369bf";
             } else{
                 $O('appName').innerHTML  = "永银文化ERP";
+                $O('usernameLabel').innerHTML  = "用户名";
+                $O('passwordLabel').innerHTML  = "密码";
 			}
 
 			loginform.userName.focus();
@@ -319,7 +328,7 @@
 					   border="0" cellpadding="3" cellspacing="0">
 					<tbody>
 					<tr>
-						<th colspan="2" height="35" align="left">
+						<th id="erpHead" colspan="2" height="35" align="left">
 							<font size=4 color=black><div id="appName"></div></font>
 						</th>
 					</tr>
@@ -358,13 +367,12 @@
 							height="4" valign="middle"></td>
 					</tr>
 					<tr>
-						<td class="forumRow" align="right" valign="middle" width="39%"><b>用户名：</b></td>
+						<td class="forumRow" align="right" valign="middle" width="39%"><b><span id="usernameLabel"></span>：</b></td>
 						<td class="forumRow" valign="middle" width="61%"><input onkeypress=KeyPress()
 																				name="userName" class="FormInputEdit" type="text" value=""></td>
 					</tr>
 					<tr>
-						<td class="forumRow" align="right" valign="middle" width="39%"><b>密
-							码：</b></td>
+						<td class="forumRow" align="right" valign="middle" width="39%"><b><span id="passwordLabel"></span>：</b></td>
 						<td class="forumRow" valign="middle"><input name="password" onkeypress=KeyPress() value=""
 																	class="FormInputEdit" type="password"></td>
 					</tr>
