@@ -23,10 +23,7 @@ import com.china.center.oa.finance.dao.*;
 import com.china.center.oa.finance.vo.InBillVO;
 import com.china.center.oa.finance.vo.OutBillVO;
 import com.china.center.oa.finance.vs.InsVSOutBean;
-import com.china.center.oa.product.bean.DepotBean;
-import com.china.center.oa.product.bean.DepotpartBean;
-import com.china.center.oa.product.bean.PriceConfigBean;
-import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.StorageConstant;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.manager.StorageRelationManager;
@@ -2452,7 +2449,29 @@ public class OutAction extends ParentOutAction
             	newOut.setOperatorName(user.getStafferName());
             }
             // 商务 - end
-            
+
+            CustomerBean customerBean = this.customerMainDAO.find(newOut.getCustomerId());
+            for (BaseBean baseBean: baseList){
+                try {
+                    ProductImportBean productImportBean = this.outManager.getProductImportBean(newOut, customerBean, baseBean.getProductId());
+                    if (productImportBean!= null){
+                        baseBean.setIbMoney(productImportBean.getIbMoney());
+                        baseBean.setMotivationMoney(productImportBean.getMotivationMoney());
+                        baseBean.setIbMoney2(productImportBean.getIbMoney2());
+                        baseBean.setMotivationMoney2(productImportBean.getMotivationMoney2());
+                        baseBean.setYkibMoney(productImportBean.getYkibMoney());
+                        baseBean.setPlatformFee(productImportBean.getPlatformFee());
+                        baseBean.setCash(productImportBean.getCash());
+                        baseBean.setCash2(productImportBean.getCash2());
+                        baseBean.setGrossProfit(productImportBean.getGrossProfit());
+                    }
+                }catch (MYException e){
+                    _logger.error(e);
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                    return mapping.findForward("error");
+                }
+            }
             newOut.setBaseList(baseList);
 
             try
