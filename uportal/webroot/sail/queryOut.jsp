@@ -794,7 +794,8 @@ function swatchToSail()
     if ((getRadio('fullId').statuss == 3 || getRadio('fullId').statuss == 4) 
          && (getRadio('fullId').outtype == 1 
         		 || getRadio('fullId').outtype == 5
-        		 || getRadio('fullId').outtype == 6))
+        		 || getRadio('fullId').outtype == 6
+                 || getRadio('fullId').outtype == 7))
     {
     	if (window.confirm("确定领样转销售?"))
         $l('../sail/out.do?method=swatchToSail&outId=' + getRadioValue("fullId"));

@@ -2416,7 +2416,8 @@ public class OutAction extends ParentOutAction
             
             if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
                     //2015/3/17 新增银行领样 （与银行铺货类拟）
-                    || bean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH)
+                    || bean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
+                    || bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH)
             {
             	newOut.setCustomerId(bean.getCustomerId());
             	newOut.setCustomerName(bean.getCustomerName());
@@ -2450,6 +2451,10 @@ public class OutAction extends ParentOutAction
             }
             // 商务 - end
 
+            //#577
+            if(StringTools.isNullOrNone(newOut.getPodate())){
+                newOut.setPodate(TimeTools.now_short());
+            }
             CustomerBean customerBean = this.customerMainDAO.find(newOut.getCustomerId());
             for (BaseBean baseBean: baseList){
                 try {
@@ -2476,6 +2481,7 @@ public class OutAction extends ParentOutAction
 
             try
             {
+                _logger.info("***swatch to out****"+newOut);
                 String newFullId = outManager.addSwatchToSail(Helper.getUser(request), newOut);
 
                 CommonTools.removeParamers(request);
