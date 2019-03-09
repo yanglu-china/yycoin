@@ -255,9 +255,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             this.tcpIbDAO.saveAllEntityBeans(ibList);
         }
 
-        // #489
+        // #585
         List<TcpVSOutBean> tcpVSOutBeans = bean.getTcpVSOutBeanList();
-
         if(!ListTools.isEmptyOrNull(tcpVSOutBeans))
         {
             for (TcpVSOutBean ib : tcpVSOutBeans)
@@ -266,7 +265,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 ib.setRefId(bean.getId());
                 ib.setLogTime(TimeTools.now());
             }
-            this.tcpVSOutDAO.saveAllEntityBeans(tcpVSOutBeans);
+            try {
+                this.tcpVSOutDAO.saveAllEntityBeans(tcpVSOutBeans);
+            }catch (Exception e){
+                e.printStackTrace();
+                _logger.error(e);
+                throw new MYException("中收激励重复申请,请检查表T_CENTER_VS_TCPOUT!");
+            }
         }
 
         List<AttachmentBean> attachmentList = bean.getAttachmentList();
@@ -1994,7 +1999,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     }
                 } else{
                     _logger.error("***no TcpIbBean found for:"+bean.getId());
-                    throw new MYException("中收激励明细不能为空(表t_center_tcpib)!");
+                    throw new MYException("中收激励明细表不能为空t_center_tcpib)!");
                 }
             }
 
@@ -2815,6 +2820,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         travelApplyPayDAO.deleteEntityBeansByFK(bean.getId());
         tcpShareDAO.deleteEntityBeansByFK(bean.getId());
         attachmentDAO.deleteEntityBeansByFK(bean.getId());
+        tcpIbDAO.deleteEntityBeansByFK(bean.getId());
+        tcpVSOutDAO.deleteEntityBeansByFK(bean.getId());
 
         // TravelApplyItemBean
         List<TravelApplyItemBean> itemList = bean.getItemList();
@@ -2893,6 +2900,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     ib.setLogTime(TimeTools.now());
                 }
                 this.tcpIbDAO.saveAllEntityBeans(ibList);
+            } else{
+                throw new MYException("T_CENTER_TCPIB数据生成有误!");
             }
 
             // #489
@@ -2906,7 +2915,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     ib.setRefId(bean.getId());
                     ib.setLogTime(TimeTools.now());
                 }
-                this.tcpVSOutDAO.saveAllEntityBeans(tcpVSOutBeans);
+                try {
+                    this.tcpVSOutDAO.saveAllEntityBeans(tcpVSOutBeans);
+                }catch (Exception e){
+                    _logger.error(e);
+                    throw new MYException("中收激励重复申请,请检查表T_CENTER_VS_TCPOUT");
+                }
             }
         }
 

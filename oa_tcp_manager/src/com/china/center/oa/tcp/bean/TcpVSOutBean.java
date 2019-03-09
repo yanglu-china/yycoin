@@ -37,9 +37,9 @@ public class TcpVSOutBean implements Serializable
      * 申请类型：中收: 0 激励：1 中收2: 2 激励2：3
      */
     /**
-     * 类型+单号+商品唯一约束
+     * 类型+单号唯一约束
      */
-    @Unique(dependFields = {"fullId", "productId"})
+    @Unique(dependFields = {"fullId"})
     private int type = TcpConstanst.IB_TYPE;
 
     private String fullId = "";

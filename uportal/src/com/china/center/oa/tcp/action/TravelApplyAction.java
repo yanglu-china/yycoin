@@ -1019,9 +1019,9 @@ public class TravelApplyAction extends DispatchAction
 
         String importFlag = rds.getParameter("importFlag");
 
-        String ibType = rds.getParameter("ibType");
+//        String ibType = rds.getParameter("ibType");
 
-        _logger.info("****importFlag:"+importFlag+"***ibType:"+ibType+"***bean***"+bean);
+        _logger.info(addOrUpdate+"****importFlag:"+importFlag+"***bean***"+bean);
 
 //        if (!StringTools.isNullOrNone(importFlag)){
 //
@@ -1063,7 +1063,9 @@ public class TravelApplyAction extends DispatchAction
             boolean importError = false;
             StringBuilder builder = new StringBuilder();
             List<TcpIbBean> importItemList = new ArrayList<TcpIbBean>();
+            List<TcpVSOutBean> importItemList2 = new ArrayList<>();
             bean.setIbList(importItemList);
+            bean.setTcpVSOutBeanList(importItemList2);
             try
             {
                 FileInputStream fs = new FileInputStream(filePath);
@@ -1091,6 +1093,7 @@ public class TravelApplyAction extends DispatchAction
                     if (obj.length >= 2 )
                     {
                         TcpIbBean item = new TcpIbBean();
+                        TcpVSOutBean tcpVSOutBean = new TcpVSOutBean();
 
                         // 申请类型
                         if ( !StringTools.isNullOrNone(obj[0]))
@@ -1142,6 +1145,7 @@ public class TravelApplyAction extends DispatchAction
 
                             importError = true;
                         }
+                        tcpVSOutBean.setType(item.getType());
 
                         // 客户名
                         if ( !StringTools.isNullOrNone(obj[1]))
@@ -1161,13 +1165,14 @@ public class TravelApplyAction extends DispatchAction
                             }
 
                             item.setCustomerName(name);
-
+                            tcpVSOutBean.setCustomerName(name);
 
                             // 订单号
                             if ( !StringTools.isNullOrNone(obj[2]))
                             {
                                 String outId = obj[2];
                                 item.setFullId(outId);
+                                tcpVSOutBean.setFullId(outId);
                                 OutBean out = this.outDAO.find(outId);
                                 if (out == null){
                                     builder
@@ -1305,6 +1310,7 @@ public class TravelApplyAction extends DispatchAction
                                     importError = true;
                                 }
                                 item.setProductName(productName);
+                                tcpVSOutBean.setProductName(productName);
 
                                 //#401
                                 ConditionParse conditionParse = new ConditionParse();
@@ -1337,6 +1343,7 @@ public class TravelApplyAction extends DispatchAction
                             {
                                 String amount = obj[4];
                                 item.setAmount(Integer.valueOf(amount));
+                                tcpVSOutBean.setAmount(item.getAmount());
                             }
 
                             //中收/激励金额
@@ -1346,6 +1353,7 @@ public class TravelApplyAction extends DispatchAction
                                 //导入时未检查申请金额是否等于系统记录的中收或激励金额，不等应该报错
                                 if (type == TcpConstanst.IB_TYPE){
                                     item.setIbMoney(MathTools.parseDouble(money));
+                                    tcpVSOutBean.setIbMoney(MathTools.parseDouble(money));
                                     if (customerToIbMap.containsKey(item.getCustomerName())){
                                         customerToIbMap.put(item.getCustomerName(),customerToIbMap.get(item.getCustomerName())+item.getIbMoney()*item.getAmount());
                                     } else{
@@ -1353,6 +1361,7 @@ public class TravelApplyAction extends DispatchAction
                                     }
                                 } else if (type == TcpConstanst.MOTIVATION_TYPE){
                                     item.setMotivationMoney(MathTools.parseDouble(money));
+                                    tcpVSOutBean.setMotivationMoney(MathTools.parseDouble(money));
                                     if(customerToMotivationMap.containsKey(item.getCustomerName())){
                                         customerToMotivationMap.put(item.getCustomerName(),
                                                 customerToMotivationMap.get(item.getCustomerName())+item.getMotivationMoney()*item.getAmount());
@@ -1361,6 +1370,7 @@ public class TravelApplyAction extends DispatchAction
                                     }
                                 } else if (type == TcpConstanst.IB_TYPE2){
                                     item.setIbMoney2(MathTools.parseDouble(money));
+                                    tcpVSOutBean.setIbMoney2(MathTools.parseDouble(money));
                                     if (customerToIbMap2.containsKey(item.getCustomerName())){
                                         customerToIbMap2.put(item.getCustomerName(),customerToIbMap2.get(item.getCustomerName())+item.getIbMoney2()*item.getAmount());
                                     } else{
@@ -1368,6 +1378,7 @@ public class TravelApplyAction extends DispatchAction
                                     }
                                 }else if (type == TcpConstanst.MOTIVATION_TYPE2){
                                     item.setMotivationMoney2(MathTools.parseDouble(money));
+                                    tcpVSOutBean.setMotivationMoney2(MathTools.parseDouble(money));
                                     if(customerToMotivationMap2.containsKey(item.getCustomerName())){
                                         customerToMotivationMap2.put(item.getCustomerName(),
                                                 customerToMotivationMap2.get(item.getCustomerName())+item.getMotivationMoney2()*item.getAmount());
@@ -1376,6 +1387,7 @@ public class TravelApplyAction extends DispatchAction
                                     }
                                 }else if (type == TcpConstanst.PLATFORM_TYPE){
                                     item.setPlatformFee(MathTools.parseDouble(money));
+                                    tcpVSOutBean.setPlatformFee(MathTools.parseDouble(money));
                                     if(customerToPlatformMap.containsKey(item.getCustomerName())){
                                         customerToPlatformMap.put(item.getCustomerName(),
                                                 customerToPlatformMap.get(item.getCustomerName())+item.getPlatformFee()*item.getAmount());
@@ -1401,10 +1413,11 @@ public class TravelApplyAction extends DispatchAction
 
                             importError = true;
                         }
+                        importItemList2.add(tcpVSOutBean);
                     }
                 }
 
-                _logger.info("***type**"+type+"***customerToIbMap2***"+customerToIbMap2);
+                _logger.info(importItemList2+"***type**"+type+"***customerToIbMap2***"+customerToIbMap2);
                 //每个客户的申请金额不得大于统计的可申请的中收或激励金额
                 if (type == TcpConstanst.IB_TYPE){
                     for(String customerName : customerToIbMap.keySet()){
@@ -1579,10 +1592,10 @@ public class TravelApplyAction extends DispatchAction
                         importItemList.add(item);
                     }
                 } else if (type == TcpConstanst.PLATFORM_TYPE) {
-                    for (String name : customerToMotivationMap2.keySet()) {
+                    for (String name : customerToPlatformMap.keySet()) {
                         TcpIbBean item = new TcpIbBean();
                         item.setCustomerName(name);
-                        item.setPlatformFee(this.roundDouble(customerToMotivationMap2.get(name)));
+                        item.setPlatformFee(this.roundDouble(customerToPlatformMap.get(name)));
                         item.setType(type);
                         item.setFullId(this.listToString(customerToOutMap.get(name)));
                         importItemList.add(item);
@@ -1638,6 +1651,12 @@ public class TravelApplyAction extends DispatchAction
             bean.setLogTime(TimeTools.now());
             if ("0".equals(addOrUpdate))
             {
+                if (ListTools.isEmptyOrNull(bean.getTcpVSOutBeanList())){
+                    List<TcpVSOutBean> tcpVSOutBeans = (List<TcpVSOutBean>)request.getSession().getAttribute("tcpVSOutBeans");
+                    _logger.info("***get from session***"+tcpVSOutBeans);
+                    bean.setTcpVSOutBeanList(tcpVSOutBeans);
+                    request.getSession().removeAttribute("tcpVSOutBeans");
+                }
                 travelApplyManager.addTravelApplyBean(user, bean);
             }
             else
@@ -3114,9 +3133,9 @@ public class TravelApplyAction extends DispatchAction
 //        List<String> amountList2 = rds.getParameters("amount");
         List<String> ibMoneyList = rds.getParameters("ibMoney");
         List<String> motivationMoneyList = rds.getParameters("motivationMoney");
-
         List<String> ibMoneyList2 = rds.getParameters("ibMoney2");
         List<String> motivationMoneyList2 = rds.getParameters("motivationMoney2");
+        List<String> platformFeeList2 = rds.getParameters("platformFee");
 
         if(!ListTools.isEmptyOrNull(typeList))
         {
@@ -3148,6 +3167,10 @@ public class TravelApplyAction extends DispatchAction
                 }
                 if (motivationMoneyList2!= null) {
                     ib.setMotivationMoney2(MathTools.parseDouble(motivationMoneyList2.get(i)));
+                }
+
+                if (platformFeeList2!= null){
+                    ib.setPlatformFee(MathTools.parseDouble(platformFeeList2.get(i)));
                 }
 
                 ibList.add(ib);
@@ -3962,6 +3985,8 @@ public class TravelApplyAction extends DispatchAction
 
         List<TcpIbBean> importItemList = new ArrayList<TcpIbBean>();
 
+        List<TcpVSOutBean> importItemList2 = new ArrayList<>();
+
         StringBuilder builder = new StringBuilder();
         try
         {
@@ -4043,7 +4068,7 @@ public class TravelApplyAction extends DispatchAction
                 if (obj.length >= 2 )
                 {
                     TcpIbBean item = new TcpIbBean();
-
+                    TcpVSOutBean item2 = new TcpVSOutBean();
                     // 申请类型
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
@@ -4094,6 +4119,7 @@ public class TravelApplyAction extends DispatchAction
 
                         importError = true;
                     }
+                    item2.setType(item.getType());
 
                     // 客户名
                     if ( !StringTools.isNullOrNone(obj[1]))
@@ -4113,7 +4139,7 @@ public class TravelApplyAction extends DispatchAction
                         }
 
                         item.setCustomerName(name);
-
+                        item2.setCustomerName(name);
 
                     String stafferId = "";
                     // 订单号
@@ -4121,6 +4147,7 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String outId = obj[2];
                         item.setFullId(outId);
+                        item2.setFullId(outId);
                         OutVO out = this.outDAO.findVO(outId);
                         if (out == null){
                             builder
@@ -4281,6 +4308,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         item.setProductName(productName);
+                        item2.setProductName(productName);
 
                         //#401
                         ConditionParse conditionParse = new ConditionParse();
@@ -4313,6 +4341,7 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String amount = obj[4];
                         item.setAmount(Integer.valueOf(amount));
+                        item2.setAmount(item.getAmount());
                     }
 
                     //中收/激励金额
@@ -4328,6 +4357,7 @@ public class TravelApplyAction extends DispatchAction
 
                         if (type == TcpConstanst.IB_TYPE){
                             item.setIbMoney(MathTools.parseDouble(money));
+                            item2.setIbMoney(MathTools.parseDouble(money));
                             if (customerToIbMap.containsKey(item.getCustomerName())){
                                 customerToIbMap.put(item.getCustomerName(),customerToIbMap.get(item.getCustomerName())+item.getIbMoney()*item.getAmount());
                             } else{
@@ -4335,6 +4365,7 @@ public class TravelApplyAction extends DispatchAction
                             }
                         } else if (type == TcpConstanst.MOTIVATION_TYPE){
                             item.setMotivationMoney(MathTools.parseDouble(money));
+                            item2.setMotivationMoney(MathTools.parseDouble(money));
                             if(customerToMotivationMap.containsKey(item.getCustomerName())){
                                 customerToMotivationMap.put(item.getCustomerName(),
                                         customerToMotivationMap.get(item.getCustomerName())+item.getMotivationMoney()*item.getAmount());
@@ -4343,6 +4374,7 @@ public class TravelApplyAction extends DispatchAction
                             }
                         } else if (type == TcpConstanst.IB_TYPE2){
                             item.setIbMoney2(MathTools.parseDouble(money));
+                            item2.setIbMoney2(MathTools.parseDouble(money));
                             if (customerToIbMap2.containsKey(item.getCustomerName())){
                                 customerToIbMap2.put(item.getCustomerName(),customerToIbMap2.get(item.getCustomerName())+item.getIbMoney2()*item.getAmount());
                             } else{
@@ -4350,6 +4382,7 @@ public class TravelApplyAction extends DispatchAction
                             }
                         }else if (type == TcpConstanst.MOTIVATION_TYPE2){
                             item.setMotivationMoney2(MathTools.parseDouble(money));
+                            item2.setMotivationMoney2(MathTools.parseDouble(money));
                             if(customerToMotivationMap2.containsKey(item.getCustomerName())){
                                 customerToMotivationMap2.put(item.getCustomerName(),
                                         customerToMotivationMap2.get(item.getCustomerName())+item.getMotivationMoney2()*item.getAmount());
@@ -4358,6 +4391,7 @@ public class TravelApplyAction extends DispatchAction
                             }
                         } else if (type == TcpConstanst.PLATFORM_TYPE){
                             item.setPlatformFee(MathTools.parseDouble(money));
+                            item2.setPlatformFee(MathTools.parseDouble(money));
                             if(customerToPlatformMap.containsKey(item.getCustomerName())){
                                 customerToPlatformMap.put(item.getCustomerName(),
                                         customerToPlatformMap.get(item.getCustomerName())+item.getPlatformFee()*item.getAmount());
@@ -4440,10 +4474,11 @@ public class TravelApplyAction extends DispatchAction
 
                     importError = true;
                 }
+                importItemList2.add(item2);
             }
         }
 
-            _logger.info("***type**"+type+"***customerToIbMap2***"+customerToIbMap2);
+            _logger.info(importItemList2+"***type**"+type+"***customerToIbMap2***"+customerToIbMap2);
             //每个客户的申请金额不得大于统计的可申请的中收或激励金额
             if (type == TcpConstanst.IB_TYPE){
                 for(String customerName : customerToIbMap.keySet()){
@@ -4687,6 +4722,7 @@ public class TravelApplyAction extends DispatchAction
         }
 
 
+        request.getSession().setAttribute("tcpVSOutBeans",importItemList2);
         if (type  == TcpConstanst.IB_TYPE) {
             return mapping.findForward("addTravelApply7import");
         } if (type  == TcpConstanst.IB_TYPE2) {
