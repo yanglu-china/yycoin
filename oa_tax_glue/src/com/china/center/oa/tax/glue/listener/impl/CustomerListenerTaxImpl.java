@@ -72,7 +72,7 @@ public class CustomerListenerTaxImpl implements ClientListener
     /**
      * 通过其他实现
      */
-    public void onChangeCustomerRelation(User user, AssignApplyBean apply, CustomerBean cus)
+    public void onChangeCustomerRelation(User user, AssignApplyBean apply, CustomerBean cus, String destStafferId)
         throws MYException
     {
         // NA

@@ -27,7 +27,7 @@ public class InvoiceinsListenerFinanceImpl implements ClientListener
 	}
 
 	public void onChangeCustomerRelation(User user, AssignApplyBean apply,
-			CustomerBean cus) throws MYException
+			CustomerBean cus, String destStafferId) throws MYException
 	{
 		/*
 		String flag = "Customer";

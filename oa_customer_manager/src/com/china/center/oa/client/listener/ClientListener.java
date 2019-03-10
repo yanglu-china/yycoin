@@ -49,8 +49,9 @@ public interface ClientListener extends ParentListener
      * @param user
      * @param apply
      * @param cus
+     * @param destStafferId
      * @throws MYException
      */
-    void onChangeCustomerRelation(User user, AssignApplyBean apply, CustomerBean cus)
+    void onChangeCustomerRelation(User user, AssignApplyBean apply, CustomerBean cus, String destStafferId)
         throws MYException;
 }

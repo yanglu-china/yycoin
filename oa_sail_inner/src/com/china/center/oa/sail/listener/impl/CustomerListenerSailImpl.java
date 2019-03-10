@@ -72,14 +72,22 @@ public class CustomerListenerSailImpl implements ClientListener
     /**
      * 未完全付款的销售单移交(只有销售出库的单据,其他的不能移交)
      */
-    public void onChangeCustomerRelation(User user, AssignApplyBean apply, CustomerBean cus)
+    public void onChangeCustomerRelation(User user, AssignApplyBean apply, CustomerBean cus, String destStafferId)
         throws MYException
     {
-    	StafferBean staffer = stafferDAO.find(apply.getStafferId());
-
-        if (staffer == null)
-        {
-            throw new MYException("数据错误,请确认操作");
+        StafferBean staffer;
+        if (apply == null){
+            staffer = stafferDAO.find(destStafferId);
+            if (staffer == null)
+            {
+                throw new MYException("业务员不存在:"+destStafferId);
+            }
+        } else{
+            staffer = stafferDAO.find(apply.getStafferId());
+            if (staffer == null)
+            {
+                throw new MYException("业务员不存在:"+apply.getStafferId());
+            }
         }
 
         // 查询此客户下所有的未付款的销售单(2011-04-01之后) -modify 2012.7.2

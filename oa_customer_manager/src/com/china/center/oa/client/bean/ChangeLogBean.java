@@ -37,6 +37,13 @@ public class ChangeLogBean implements Serializable
 
     private String stafferName = "";
 
+    /**
+     * #549 转出业务员
+     */
+    private String srcStafferId = "";
+
+    private String srcStafferName = "";
+
     private String customerId = "";
 
     private String customerName = "";
@@ -188,5 +195,37 @@ public class ChangeLogBean implements Serializable
     public void setCustomerCode(String customerCode)
     {
         this.customerCode = customerCode;
+    }
+
+    public String getSrcStafferId() {
+        return srcStafferId;
+    }
+
+    public void setSrcStafferId(String srcStafferId) {
+        this.srcStafferId = srcStafferId;
+    }
+
+    public String getSrcStafferName() {
+        return srcStafferName;
+    }
+
+    public void setSrcStafferName(String srcStafferName) {
+        this.srcStafferName = srcStafferName;
+    }
+
+    @Override
+    public String toString() {
+        return "ChangeLogBean{" +
+                "id='" + id + '\'' +
+                ", stafferId='" + stafferId + '\'' +
+                ", stafferName='" + stafferName + '\'' +
+                ", srcStafferId='" + srcStafferId + '\'' +
+                ", srcStafferName='" + srcStafferName + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", customerName='" + customerName + '\'' +
+                ", customerCode='" + customerCode + '\'' +
+                ", operation=" + operation +
+                ", logTime='" + logTime + '\'' +
+                '}';
     }
 }

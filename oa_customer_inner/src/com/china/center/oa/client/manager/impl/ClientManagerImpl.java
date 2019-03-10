@@ -1491,13 +1491,15 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
 
         ChangeLogBean log = new ChangeLogBean();
 
-        log.setCustomerCode(cb.getId());
+        log.setCustomerId(cb.getId());
         log.setCustomerName(cb.getName());
         log.setCustomerCode(cb.getCode());
 
         log.setStafferId(sb.getId());
-
         log.setStafferName(sb.getName());
+
+        log.setSrcStafferId("");
+        log.setSrcStafferName("");
 
         log.setLogTime(TimeTools.now());
 
@@ -1758,7 +1760,7 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
 
         for (ClientListener customerListener : listenerMapValues)
         {
-            customerListener.onChangeCustomerRelation(user, apply, cus);
+            customerListener.onChangeCustomerRelation(user, apply, cus, null);
         }
 
         return true;
@@ -2200,7 +2202,7 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
                     _logger.info("batchTransCustomer*99999999999999**********");
                     for (ClientListener customerListener : listenerMapValues)
                     {
-                        customerListener.onChangeCustomerRelation(user, apply, cus);
+                        customerListener.onChangeCustomerRelation(user, apply, cus, null);
                     }
                     _logger.info("batchTransCustomer*aaaaaaaaaaaaaaaaaa**********");
                     destStafferVSCustomerDAO.deleteEntityBean(each.getId());
@@ -2249,10 +2251,68 @@ public class ClientManagerImpl extends AbstractListenerManager<ClientListener> i
         return true;
     }
 
+	/**
+	 * #549
+	 * @param user
+	 * @param destVSList
+	 * @return
+	 * @throws MYException
+	 */
 	@Override
 	@Transactional(rollbackFor = MYException.class)
-	public boolean batchTransferCustomer(User user, List<DestStafferVSCustomerBean> beans) throws MYException {
-		return false;
+	public boolean batchTransferCustomer(User user, List<DestStafferVSCustomerBean> destVSList) throws MYException {
+		if (!ListTools.isEmptyOrNull(destVSList))
+		{
+			_logger.info("batchTransferCustomer***********"+destVSList);
+			for (DestStafferVSCustomerBean each : destVSList)
+			{
+				StafferVSCustomerBean vs = new StafferVSCustomerBean();
+
+				//先删除原先客户关系
+				stafferVSCustomerDAO.deleteEntityBeansByFK(each.getCustomerId(), AnoConstant.FK_FIRST);
+
+				vs.setStafferId(each.getDestStafferId());
+				vs.setCustomerId(each.getCustomerId());
+				// 保存对应关系
+				stafferVSCustomerDAO.saveEntityBean(vs);
+
+				CustomerBean cus = this.customerMainDAO.find(each.getCustomerId());
+				if (cus!= null){
+					// 修改客户状态
+					cus.setStatus(CustomerConstant.REAL_STATUS_USED);
+					customerMainDAO.updateEntityBean(cus);
+				}
+
+				//保存转移日志
+				ChangeLogBean log = new ChangeLogBean();
+
+				log.setCustomerId(each.getCustomerId());
+				log.setCustomerName(cus.getName());
+				log.setCustomerCode(cus.getCode());
+
+				log.setStafferId(each.getDestStafferId());
+				StafferBean dest = this.stafferDAO.find(each.getDestStafferId());
+				if (dest!= null){
+					log.setStafferName(dest.getName());
+				}
+				log.setSrcStafferId(each.getStafferId());
+				StafferBean sb = this.stafferDAO.find(each.getStafferId());
+				if (sb!= null){
+					log.setSrcStafferName(sb.getName());
+				}
+				log.setLogTime(TimeTools.now());
+				log.setOperation(OperationConstant.OPERATION_CHANGELOG_ADD);
+				changeLogDAO.saveEntityBean(log);
+
+				Collection<ClientListener> listenerMapValues = this.listenerMapValues();
+				for (ClientListener customerListener : listenerMapValues)
+				{
+					customerListener.onChangeCustomerRelation(user, null, cus, each.getDestStafferId());
+				}
+			}
+		}
+
+		return true;
 	}
 
 	@Deprecated

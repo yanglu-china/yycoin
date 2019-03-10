@@ -65,6 +65,7 @@ import com.china.center.oa.publics.facade.PublicFacade;
 import com.china.center.oa.publics.manager.CommonManager;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vs.RoleAuthBean;
+import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 
 import static com.china.center.oa.customer.constant.CustomerConstant.NATURE_INDIVIDUAL;
 
@@ -4293,7 +4294,8 @@ public class ClientAction extends DispatchAction
 
 							importError = true;
 						} else{
-							bean.setCustomerId(customerBeans.get(0).getId());
+							CustomerBean customerBean = customerBeans.get(0);
+							bean.setCustomerId(customerBean.getId());
 						}
 					}
 					else

@@ -76,14 +76,22 @@ public class CustomerListenerFinanceImpl implements ClientListener
     /**
      * 客户预收全部移交
      */
-    public void onChangeCustomerRelation(User user, AssignApplyBean apply, CustomerBean cus)
+    public void onChangeCustomerRelation(User user, AssignApplyBean apply, CustomerBean cus, String destStafferId)
         throws MYException
     {
-        StafferBean destStaffer = stafferDAO.find(apply.getStafferId());
-
-        if (destStaffer == null)
-        {
-            throw new MYException("数据错误,请确认操作");
+        StafferBean destStaffer;
+        if (apply == null){
+            destStaffer = stafferDAO.find(destStafferId);
+            if (destStaffer == null)
+            {
+                throw new MYException("业务员不存在:"+destStafferId);
+            }
+        } else{
+            destStaffer = stafferDAO.find(apply.getStafferId());
+            if (destStaffer == null)
+            {
+                throw new MYException("业务员不存在:"+apply.getStafferId());
+            }
         }
 
         ConditionParse con = new ConditionParse();
