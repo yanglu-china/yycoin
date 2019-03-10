@@ -305,7 +305,7 @@ public class FinaAction extends ParentQueryFinaAction
 	 * @return
 	 * @throws ServletException
 	 */
-	public ActionForward exportFinanceItem(ActionMapping mapping,
+	/*public ActionForward exportFinanceItem(ActionMapping mapping,
 			ActionForm form, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException
 	{
@@ -483,6 +483,229 @@ public class FinaAction extends ParentQueryFinaAction
 					}
 
 					line.writeLine();
+				}
+			}
+
+			write.writeLine("导出结束,凭证项:" + item);
+
+			write.close();
+		}
+		catch (Throwable e)
+		{
+			_logger.error(e, e);
+
+			return null;
+		}
+		finally
+		{
+			if (out != null)
+			{
+				try
+				{
+					out.close();
+				}
+				catch (IOException e1)
+				{
+				}
+			}
+
+			if (write != null)
+			{
+
+				try
+				{
+					write.close();
+				}
+				catch (IOException e1)
+				{
+				}
+			}
+		}
+
+		return null;
+	}*/
+
+	public ActionForward exportFinanceItem(ActionMapping mapping,
+										   ActionForm form, HttpServletRequest request,
+										   HttpServletResponse response) throws ServletException
+	{
+		OutputStream out = null;
+
+		String filenName = "FinanceItem_" + TimeTools.now("MMddHHmmss")
+				+ ".csv";
+
+		response.setContentType("application/x-dbf");
+
+		response.setHeader("Content-Disposition", "attachment; filename="
+				+ filenName);
+
+		WriteFile write = null;
+
+		Object key = request.getSession().getAttribute("EXPORT_FINANCEITE_KEY");
+
+		if (null == key)
+		{
+			return null;
+		}
+
+		ConditionParse condtion = JSONPageSeparateTools.getCondition(request,
+				key.toString());
+
+		int count = financeItemDAO.countVOByCondition(condtion.toString());
+
+		if (count >= 65535)
+		{
+			return ActionTools.toError("导出数量大于65535,请重新选择时间段导出", mapping,
+					request);
+		}
+
+		try
+		{
+			out = response.getOutputStream();
+
+			write = WriteFileFactory.getMyTXTWriter();
+
+			write.openFile(out);
+
+			write.writeLine("日期,凭证,类型,分类,借/贷,余额,事业部,事业部ID,大区,大区ID,部门,部门ID,关联单据,关联库单,关联收付款,关联采购,凭证意见,摘要,科目,借方金额,贷方金额,产品借,产品贷,部门,职员,单位,产品,仓区,纳税实体,事业部");
+
+			PageSeparate page = new PageSeparate();
+
+			page.reset2(count, 2000);
+
+			WriteFileBuffer line = new WriteFileBuffer(write);
+
+			int item = 0;
+
+			while (page.nextPage())
+			{
+				List<FinanceItemVO> voList = financeItemDAO
+						.queryEntityVOsByCondition(condtion, page);
+
+				for (FinanceItemVO financeItemVO : voList)
+				{
+					FinanceBean finance = financeDAO.find(financeItemVO
+							.getPid());
+
+					if (finance == null)
+					{
+						continue;
+					} else{
+						List<FinanceItemVO> vos =this.financeItemDAO.queryEntityVOsByFK(finance.getId());
+						for (FinanceItemVO vo: vos){
+							item++;
+
+							fillItemVO(vo);
+
+							line.reset();
+
+							line.writeColumn("[" + financeItemVO.getFinanceDate() + "]");
+							line.writeColumn(financeItemVO.getPid());
+							line.writeColumn(ElTools.get("financeType",
+									finance.getType()));
+							line.writeColumn(ElTools.get("financeCreateType",
+									finance.getCreateType()));
+							line.writeColumn(financeItemVO.getForwardName());
+							line.writeColumn(changeString(financeItemVO
+									.getShowLastmoney()));
+
+							// 事业部，大区，部门
+							StafferVO sv = this.stafferDAO.findVO(financeItemVO
+									.getStafferId());
+							if (null != sv)
+							{
+								if (sv.getIndustryName().length()>=5)
+								{
+									line.writeColumn(sv.getIndustryName().substring(5));
+									line.writeColumn(" "
+											+ sv.getIndustryName().substring(0, 5) + " ");
+								}
+								else
+								{
+									line.writeColumn("");
+									line.writeColumn("");
+								}
+								if (sv.getIndustryName2().length() >= 8)
+								{
+									line.writeColumn(sv.getIndustryName2().substring(8));
+									line.writeColumn(" "
+											+ sv.getIndustryName2().substring(0, 8) + " ");
+								}
+								else
+								{
+									line.writeColumn("");
+									line.writeColumn("");
+								}
+
+								if (sv.getIndustryName3().length() >= 11)
+								{
+									line.writeColumn(sv.getIndustryName3().substring(11));
+									line.writeColumn(" "
+											+ sv.getIndustryName3().substring(0, 11) + " ");
+								}
+								else
+								{
+									line.writeColumn("");
+									line.writeColumn("");
+								}
+							}
+							else
+							{
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+								// 事业部，大区，部门编码
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+							}
+
+							line.writeColumn(finance.getRefId());
+							line.writeColumn(finance.getRefOut());
+							line.writeColumn(finance.getRefBill());
+							line.writeColumn(finance.getRefStock());
+							line.writeColumn(StringTools.getExportString(finance
+									.getRefChecks()));
+
+							line.writeColumn(StringTools.getExportString(financeItemVO
+									.getDescription()));
+							line.writeColumn(financeItemVO.getTaxId() + " "
+									+ financeItemVO.getTaxName());
+
+							line.writeColumn(changeString(financeItemVO
+									.getShowInmoney()));
+							line.writeColumn(changeString(financeItemVO
+									.getShowOutmoney()));
+							line.writeColumn(financeItemVO.getProductAmountIn());
+							line.writeColumn(financeItemVO.getProductAmountOut());
+
+							line.writeColumn(financeItemVO.getDepartmentName());
+							line.writeColumn(financeItemVO.getStafferName());
+							line.writeColumn(financeItemVO.getUnitName());
+							line.writeColumn(financeItemVO.getProductName());
+							line.writeColumn(financeItemVO.getDepotName());
+							line.writeColumn(financeItemVO.getDuty2Name());
+
+							TaxBean tax = taxDAO.find(financeItemVO.getTaxId());
+
+							if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
+									|| !StringTools.isNullOrNone(financeItemVO
+									.getStafferId()))
+							{
+								StafferBean sb = stafferDAO.find(financeItemVO
+										.getStafferId());
+
+								if (sb != null)
+								{
+									PrincipalshipBean prin = principalshipDAO.find(sb
+											.getIndustryId());
+									line.writeColumn(prin.getName());
+								}
+							}
+
+							line.writeLine();
+						}
+					}
 				}
 			}
 
