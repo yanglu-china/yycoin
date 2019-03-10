@@ -951,6 +951,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                                     moneyList, stafferIdList);
                         }catch (MYException e){
                             _logger.error(e);
+                            this.saveFlowLog2(null, bean.getStatus(), bean, "后台JOB生成凭证异常:"+e.getMessage(), PublicConstant.OPRMODE_PASS);
                         }
                     }
 
@@ -2171,9 +2172,14 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
         log.setFullId(apply.getId());
 
-        log.setActor(user.getStafferName());
+        if (user == null){
+            log.setActor("系统");
+            log.setActorId("系统");
+        } else{
+            log.setActor(user.getStafferName());
+            log.setActorId(user.getStafferId());
+        }
 
-        log.setActorId(user.getStafferId());
 
         log.setOprMode(oprMode);
 
@@ -2205,6 +2211,42 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         his.setName(apply.getName());
 
         tcpHandleHisDAO.saveEntityBean(his);
+    }
+
+    @Transactional(rollbackFor = MYException.class)
+    private void saveFlowLog2(User user, int preStatus, ExpenseApplyBean apply, String reason,
+                             int oprMode) {
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("actor","=","系统");
+        conditionParse.addCondition("actorId","=","系统");
+        List<FlowLogBean> logs = this.flowLogDAO.queryEntityBeansByCondition(conditionParse);
+        if(ListTools.isEmptyOrNull(logs)){
+            FlowLogBean log = new FlowLogBean();
+
+            log.setFullId(apply.getId());
+
+            if (user == null){
+                log.setActor("系统");
+                log.setActorId("系统");
+            } else{
+                log.setActor(user.getStafferName());
+                log.setActorId(user.getStafferId());
+            }
+
+            log.setOprMode(oprMode);
+
+            log.setDescription(reason);
+
+            log.setLogTime(TimeTools.now());
+
+            log.setPreStatus(preStatus);
+
+            log.setAfterStatus(apply.getStatus());
+
+            flowLogDAO.saveEntityBean(log);
+            _logger.info("****save log bean***"+log);
+        }
     }
 
     /*
