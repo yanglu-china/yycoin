@@ -4324,6 +4324,16 @@ public class ClientAction extends DispatchAction
 							importError = true;
 						} else{
 							bean.setStafferId(stafferBean.getId());
+
+							boolean hasAuth = this.clientManager.hasCustomerAuth(stafferBean.getId(), bean.getCustomerId());
+							if (!hasAuth){
+								builder
+										.append("第[" + currentNumber + "]错误:")
+										.append("客户:"+bean.getCustomerId()+"和当前业务员:"+stafferName+"关系不正确")
+										.append("<br>");
+
+								importError = true;
+							}
 						}
 					}
 					else
