@@ -4296,6 +4296,7 @@ public class ClientAction extends DispatchAction
 						} else{
 							CustomerBean customerBean = customerBeans.get(0);
 							bean.setCustomerId(customerBean.getId());
+							bean.setCustomerName(name);
 						}
 					}
 					else
@@ -4329,7 +4330,7 @@ public class ClientAction extends DispatchAction
 							if (!hasAuth){
 								builder
 										.append("第[" + currentNumber + "]错误:")
-										.append("客户:"+bean.getCustomerId()+"和当前业务员:"+stafferName+"关系不正确")
+										.append("客户:"+bean.getCustomerName()+"和当前业务员:"+stafferName+"关系不正确")
 										.append("<br>");
 
 								importError = true;

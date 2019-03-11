@@ -3,12 +3,7 @@ package com.china.center.oa.client.vs;
 import java.io.Serializable;
 
 import com.china.center.jdbc.annosql.constant.AnoConstant;
-import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.FK;
-import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Join;
-import com.china.center.jdbc.annotation.Table;
-import com.china.center.jdbc.annotation.Unique;
+import com.china.center.jdbc.annotation.*;
 import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.publics.bean.StafferBean;
@@ -33,6 +28,9 @@ public class DestStafferVSCustomerBean implements Serializable
     @FK(index = AnoConstant.FK_FIRST)
     @Join(tagClass = CustomerBean.class)
     private String customerId = "";
+
+    @Ignore
+    private String customerName = "";
 
     /**
      * default constructor
@@ -102,4 +100,11 @@ public class DestStafferVSCustomerBean implements Serializable
 		this.destStafferId = destStafferId;
 	}
 
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 }

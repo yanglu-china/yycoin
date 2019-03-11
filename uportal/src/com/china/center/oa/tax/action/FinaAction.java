@@ -582,20 +582,19 @@ public class FinaAction extends ParentQueryFinaAction
 				List<FinanceItemVO> voList = financeItemDAO
 						.queryEntityVOsByCondition(condtion, page);
 
-				for (FinanceItemVO financeItemVO : voList)
+				for (FinanceItemVO vo : voList)
 				{
-					FinanceBean finance = financeDAO.find(financeItemVO
-							.getPid());
+					FinanceBean finance = financeDAO.find(vo.getPid());
 
 					if (finance == null)
 					{
 						continue;
 					} else{
 						List<FinanceItemVO> vos =this.financeItemDAO.queryEntityVOsByFK(finance.getId());
-						for (FinanceItemVO vo: vos){
+						for (FinanceItemVO financeItemVO: vos){
 							item++;
 
-							fillItemVO(vo);
+							fillItemVO(financeItemVO);
 
 							line.reset();
 
