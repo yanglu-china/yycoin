@@ -2671,7 +2671,10 @@ public class OutListenerTaxGlueImpl implements OutListener
         String pare1 = commonDAO.getSquenceString();
 
         List<BaseBean> baseList = outBean.getBaseList();
-
+        _logger.info("***baseList****"+baseList);
+        if (baseList == null){
+            baseList = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
+        }
         if(baseList!= null){
             // 库存商品（成本价*数量）
             for (BaseBean baseBean : baseList)
