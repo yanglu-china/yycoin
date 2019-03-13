@@ -23,6 +23,8 @@
 
     <bean id="olOutDAO" class="com.china.center.oa.sail.dao.impl.OlOutDAOImpl" />
 
+	<bean id="frDbDAO" class="com.china.center.oa.sail.dao.impl.FrDbDAOImpl" />
+
 	<bean id="dhZjbDAO" class="com.china.center.oa.sail.dao.impl.DhZjbDAOImpl" />
 
 	<bean id="twBaseDAO" class="com.china.center.oa.sail.dao.impl.TwBaseDAOImpl" />
