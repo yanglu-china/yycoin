@@ -1368,8 +1368,8 @@ function clears()
         <c:if test="${queryType == '9'}">
         <input type="button" class="button_class"
                 value="&nbsp;&nbsp;领样巡展退库&nbsp;&nbsp;" onClick="outBack()"/>&nbsp;&nbsp;
-        <input type="button" class="button_class"
-                value="&nbsp;&nbsp;领样巡展转销售&nbsp;&nbsp;" onClick="swatchToSail()"/>&nbsp;&nbsp;
+<%--        <input type="button" class="button_class"
+                value="&nbsp;&nbsp;领样巡展转销售&nbsp;&nbsp;" onClick="swatchToSail()"/>&nbsp;&nbsp;--%>
         </c:if>
         
         <c:if test="${queryType == '8'}">
