@@ -12809,7 +12809,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 //                        this.fillDistributionForRemoteAllocate(request, outBean);
                     }
 
-//                    String id = this.addOut(outBean, map.getParameterMap(), user);
+                    String id = this.addOut(outBean, null, null);
                     int ttype = StorageConstant.OPR_STORAGE_INOTHER;
 
                     if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
@@ -12817,7 +12817,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         ttype = StorageConstant.OPR_STORAGE_REDEPLOY;
                     }
 
-//                    this.submit(id, user, ttype);
+                    this.submit(null, null, ttype);
                 }
                 catch (MYException e)
                 {
