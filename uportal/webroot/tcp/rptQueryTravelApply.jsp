@@ -111,6 +111,7 @@ function closesd()
 				<td align="center">选择</td>
 				<td align="center"><strong>标识</strong></td>
 				<td align="center"><strong>名称</strong></td>
+				<td align="center"><strong>申请类型</strong></td>
 				<td align="center"><strong>是否借款</strong></td>
 				<td align="center"><strong>申请费用</strong></td>
 				<td align="center"><strong>借款费用</strong></td>
@@ -127,6 +128,7 @@ function closesd()
 					value="${item.id}"/></td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.id}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.name}</td>
+					<td align="center" onclick="hrefAndSelect(this)">${my:get('tcpType', item.type)}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${my:get('travelApplyBorrow', item.borrow)}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.showTotal}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.showBorrowTotal}</td>
