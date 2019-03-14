@@ -279,6 +279,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private CustomerContactDAO customerContactDAO = null;
 
     private DhZjbDAO dhZjbDAO = null;
+
+    private FrDbDAO frDbDAO = null;
     
     /**
      * 短信最大停留时间
@@ -12743,6 +12745,97 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     @Override
     @Transactional(rollbackFor = {MYException.class})
+    public void frDbJob() {
+        _logger.info("***frDbJob running****");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("status","=",1);
+        conditionParse.addCondition("newAmount", ">", 0);
+        conditionParse.addCondition("yck", "!=", " ");
+        conditionParse.addCondition("cb",">", 0);
+        List<FrDbBean> frDbBeans = this.frDbDAO.queryEntityBeansByCondition(conditionParse);
+        Map<String, List<FrDbBean>> map = new HashMap<>();
+        if (!ListTools.isEmptyOrNull(frDbBeans)){
+            //根据流程ID合并开单
+            for (FrDbBean frDbBean: frDbBeans){
+                if(map.containsKey(frDbBean.getOutId())){
+                    List<FrDbBean> frDbBeanList = new ArrayList<>();
+                    frDbBeanList.add(frDbBean);
+                } else{
+                    List<FrDbBean> frDbBeanList = map.get(frDbBean.getOutId());
+                    frDbBeanList.add(frDbBean);
+                }
+            }
+        }
+
+        for(String key: map.keySet()){
+            List<FrDbBean> frDbBeanList = map.get(key);
+            for(FrDbBean frDbBean: frDbBeanList){
+                OutBean outBean =  new OutBean();
+
+//                outBean.setLocationId(locationId);
+//                outBean.setLocation(location);
+
+                // 增加职员的ID
+                outBean.setStafferId(frDbBean.getChangeUser());
+//                outBean.setStafferName(user.getStafferName());
+                outBean.setOperator(frDbBean.getChangeUser());
+//                outBean.setOperatorName(g_srcUser.getStafferName());
+
+                outBean.setLogTime(TimeTools.now());
+                if (StringTools.isNullOrNone(outBean.getDestinationId()))
+                {
+                    _logger.error("调拨没有目的仓库属性:"+frDbBean.getId());
+                    //TODO error message
+                    continue;
+                }
+
+                outBean.setReserve1(OutConstant.MOVEOUT_OUT);
+
+                if (StringTools.isNullOrNone(outBean.getCustomerId()))
+                {
+                    outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+                    outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+                }
+
+                outBean.setDepartment("公共部门");
+                outBean.setArriveDate(TimeTools.now_short(10));
+
+                // 入库单的处理
+                try
+                {
+                    if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+                    {
+//                        this.fillDistributionForRemoteAllocate(request, outBean);
+                    }
+
+//                    String id = this.addOut(outBean, map.getParameterMap(), user);
+                    int ttype = StorageConstant.OPR_STORAGE_INOTHER;
+
+                    if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+                    {
+                        ttype = StorageConstant.OPR_STORAGE_REDEPLOY;
+                    }
+
+//                    this.submit(id, user, ttype);
+                }
+                catch (MYException e)
+                {
+                    e.printStackTrace();
+                    _logger.warn(e, e);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    _logger.error(e, e);
+                }
+            }
+        }
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
     public void updateOutbackStatusJob() {
         _logger.info("***updateOutbackStatusJob is running***");
         ConditionParse conditionParse = new ConditionParse();
@@ -14016,5 +14109,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public void setDhZjbDAO(DhZjbDAO dhZjbDAO) {
         this.dhZjbDAO = dhZjbDAO;
+    }
+
+    public FrDbDAO getFrDbDAO() {
+        return frDbDAO;
+    }
+
+    public void setFrDbDAO(FrDbDAO frDbDAO) {
+        this.frDbDAO = frDbDAO;
     }
 }

@@ -773,6 +773,11 @@ public interface OutManager extends ListenerManager<OutListener>
     void statsExceptionalInBackJob();
 
     /**
+     * 异地调拨JOB
+     */
+    void frDbJob();
+
+    /**
      * #349
      * @param out
      * @return
