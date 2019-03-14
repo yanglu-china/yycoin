@@ -166,6 +166,8 @@ public class TravelApplyAction extends DispatchAction
 
     private OrgManager orgManager      = null;
 
+    private TcpVSOutDAO tcpVSOutDAO = null;
+
     private static String QUERYSELFTRAVELAPPLY = "tcp.querySelfTravelApply";
     
     private static String QUERYSELFCOMMISSION = "tcp.querySelfCommission";
@@ -4237,6 +4239,22 @@ public class TravelApplyAction extends DispatchAction
                                 importError = true;
                             }
 
+                            //#591 检查中间表
+                            ConditionParse conditionParse2 = new ConditionParse();
+                            conditionParse2.addWhereStr();
+                            conditionParse2.addCondition("type","=",type);
+                            conditionParse2.addCondition("fullId","=",outId);
+                            List<TcpVSOutBean> tcpVSOutBeans = this.tcpVSOutDAO.queryEntityBeansByCondition(conditionParse2);
+                            if(!ListTools.isEmptyOrNull(tcpVSOutBeans)){
+                                TcpVSOutBean tcpVSOutBean = tcpVSOutBeans.get(0);
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append(outId+"订单号已提交中收激励申请(t_center_vs_tcpout表):"+tcpVSOutBean.getRefId())
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
+
                             //#441 2017/3/29 再次检查是否已提交申请过
                             ConditionParse conditionParse1 = new ConditionParse();
                             conditionParse1.addWhereStr();
@@ -4249,7 +4267,7 @@ public class TravelApplyAction extends DispatchAction
                                     if (apply!= null && apply.getStatus()!=0 && apply.getStatus()!=1){
                                         builder
                                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                                .append(outId+"订单号已提交激励报销申请:"+apply.getId())
+                                                .append(outId+"订单号已提交中收激励申请(T_CENTER_TCPIB表):"+apply.getId())
                                                 .append("</font><br>");
 
                                         importError = true;
@@ -6112,5 +6130,13 @@ public class TravelApplyAction extends DispatchAction
 
     public void setOutImportDAO(OutImportDAO outImportDAO) {
         this.outImportDAO = outImportDAO;
+    }
+
+    public TcpVSOutDAO getTcpVSOutDAO() {
+        return tcpVSOutDAO;
+    }
+
+    public void setTcpVSOutDAO(TcpVSOutDAO tcpVSOutDAO) {
+        this.tcpVSOutDAO = tcpVSOutDAO;
     }
 }
