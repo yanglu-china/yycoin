@@ -12753,6 +12753,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         conditionParse.addCondition("newAmount", ">", 0);
         conditionParse.addCondition("yck", "!=", " ");
         conditionParse.addCondition("cb",">", 0);
+        String appName = ConfigLoader.getProperty("appName");
+        if (OutConstant.APP_NAME.equals(appName)){
+            conditionParse.addCondition("sys","=","体内");
+        } else if (OutConstant.APP_NAME_TW.equals(appName)){
+            conditionParse.addCondition("sys","=","体外");
+        }
+
         List<FrDbBean> frDbBeans = this.frDbDAO.queryEntityBeansByCondition(conditionParse);
         Map<String, List<FrDbBean>> map = new HashMap<>();
         if (!ListTools.isEmptyOrNull(frDbBeans)){
@@ -12770,65 +12777,87 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         for(String key: map.keySet()){
             List<FrDbBean> frDbBeanList = map.get(key);
-            for(FrDbBean frDbBean: frDbBeanList){
-                OutBean outBean =  new OutBean();
+
+            FrDbBean frDbBean = frDbBeanList.get(0);
+            OutBean outBean =  new OutBean();
+            String errorMessage;
 
 //                outBean.setLocationId(locationId);
 //                outBean.setLocation(location);
 
-                // 增加职员的ID
-                outBean.setStafferId(frDbBean.getChangeUser());
-//                outBean.setStafferName(user.getStafferName());
-                outBean.setOperator(frDbBean.getChangeUser());
-//                outBean.setOperatorName(g_srcUser.getStafferName());
+            // 增加职员的ID
+            String stafferId = frDbBean.getChangeUser();
+            outBean.setStafferId(stafferId);
+            StafferBean stafferBean = this.stafferDAO.find(stafferId);
+            if (stafferBean!= null){
+                outBean.setStafferName(stafferBean.getName());
+            }
 
-                outBean.setLogTime(TimeTools.now());
-                if (StringTools.isNullOrNone(outBean.getDestinationId()))
-                {
-                    _logger.error("调拨没有目的仓库属性:"+frDbBean.getId());
-                    //TODO error message
-                    continue;
+            outBean.setOperator(frDbBean.getChangeUser());
+            outBean.setOperatorName(outBean.getStafferName());
+
+            outBean.setLogTime(TimeTools.now());
+            if (StringTools.isNullOrNone(outBean.getDestinationId()))
+            {
+                errorMessage = "调拨没有目的仓库属性:"+frDbBean.getId();
+                _logger.error(errorMessage);
+                continue;
+            }
+
+            outBean.setReserve1(OutConstant.MOVEOUT_OUT);
+
+            if (StringTools.isNullOrNone(outBean.getCustomerId()))
+            {
+                outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+                outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+            }
+
+            outBean.setDepartment("公共部门");
+            outBean.setArriveDate(TimeTools.now_short(10));
+
+            for(FrDbBean bean: frDbBeanList){
+                BaseBean baseBean = new BaseBean();
+                String productId = bean.getProductId();
+                ProductBean productBean = this.productDAO.find(productId);
+                if (productBean == null){
+                    errorMessage = "产品不存在";
+                    _logger.error(bean.getId()+errorMessage);
+                    break;
+                } else{
+                    baseBean.setProductId(bean.getProductId());
+                    baseBean.setProductName(bean.getProductName());
                 }
+                baseBean.setAmount(bean.getNewAmount());
 
-                outBean.setReserve1(OutConstant.MOVEOUT_OUT);
+            }
 
-                if (StringTools.isNullOrNone(outBean.getCustomerId()))
+            // 入库单的处理
+            try
+            {
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
                 {
-                    outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
-                    outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
-                }
-
-                outBean.setDepartment("公共部门");
-                outBean.setArriveDate(TimeTools.now_short(10));
-
-                // 入库单的处理
-                try
-                {
-                    if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
-                    {
 //                        this.fillDistributionForRemoteAllocate(request, outBean);
-                    }
-
-                    String id = this.addOut(outBean, null, null);
-                    int ttype = StorageConstant.OPR_STORAGE_INOTHER;
-
-                    if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
-                    {
-                        ttype = StorageConstant.OPR_STORAGE_REDEPLOY;
-                    }
-
-                    this.submit(null, null, ttype);
                 }
-                catch (MYException e)
+
+                String id = this.addOut(outBean, null, null);
+                int ttype = StorageConstant.OPR_STORAGE_INOTHER;
+
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
                 {
-                    e.printStackTrace();
-                    _logger.warn(e, e);
+                    ttype = StorageConstant.OPR_STORAGE_REDEPLOY;
                 }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    _logger.error(e, e);
-                }
+
+                this.submit(null, null, ttype);
+            }
+            catch (MYException e)
+            {
+                e.printStackTrace();
+                _logger.warn(e, e);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                _logger.error(e, e);
             }
         }
 

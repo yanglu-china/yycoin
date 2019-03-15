@@ -919,7 +919,7 @@ public interface OutConstant
     @Defined(key = "ibMotivationFlag", value = "已申请")
     int IB_FLAG_YES = 1;
 
-//    String APP_NAME = "永银ERP";
+    String APP_NAME = "永银ERP";
     String APP_NAME_TW = "永银ERP(体外)";
     String APP_NAME_ZJGH = "中金国华";
     String HEAD_TW = "TW";

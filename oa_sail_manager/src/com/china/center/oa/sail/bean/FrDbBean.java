@@ -87,6 +87,8 @@ public class FrDbBean implements Serializable {
      */
     private int newAmount;
 
+    private String errorMessage;
+
     public int getId() {
         return id;
     }
@@ -261,6 +263,14 @@ public class FrDbBean implements Serializable {
 
     public void setNewAmount(int newAmount) {
         this.newAmount = newAmount;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     @Override
