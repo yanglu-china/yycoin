@@ -305,7 +305,7 @@ public class FinaAction extends ParentQueryFinaAction
 	 * @return
 	 * @throws ServletException
 	 */
-	/*public ActionForward exportFinanceItem(ActionMapping mapping,
+	public ActionForward exportFinanceItem(ActionMapping mapping,
 			ActionForm form, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException
 	{
@@ -523,9 +523,19 @@ public class FinaAction extends ParentQueryFinaAction
 		}
 
 		return null;
-	}*/
+	}
 
-	public ActionForward exportFinanceItem(ActionMapping mapping,
+	/**
+	 *
+	 * #584 导出凭证科目明细
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward exportFinanceItem2(ActionMapping mapping,
 										   ActionForm form, HttpServletRequest request,
 										   HttpServletResponse response) throws ServletException
 	{

@@ -14,6 +14,11 @@ function exports()
 	document.location.href = '../finance/finance.do?method=exportFinanceItem';
 }
 
+function exports2()
+{
+    document.location.href = '../finance/finance.do?method=exportFinanceItem2';
+}
+
 function load()
 {
 	loadForm();
@@ -326,8 +331,11 @@ function clearDepartment()
 	<p:line flag="1" />
 	
 	<p:button leftWidth="98%" rightWidth="2%">
-        <div align="right"><input type="button" class="button_class"
-            value="&nbsp;&nbsp;导出明细&nbsp;&nbsp;" onclick="exports()">&nbsp;&nbsp;
+        <div align="right">
+			<input type="button" class="button_class"
+				   value="&nbsp;&nbsp;导出查询结果&nbsp;&nbsp;" onclick="exports()">&nbsp;&nbsp;
+			<input type="button" class="button_class"
+            value="&nbsp;&nbsp;导出明细&nbsp;&nbsp;" onclick="exports2()">&nbsp;&nbsp;
         </div>
     </p:button>
 
