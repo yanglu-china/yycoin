@@ -3989,6 +3989,9 @@ public class TravelApplyAction extends DispatchAction
 
         List<TcpVSOutBean> importItemList2 = new ArrayList<>();
 
+        //#596 重复行监测
+        Set<String> importItems = new HashSet<>();
+
         StringBuilder builder = new StringBuilder();
         try
         {
@@ -4150,6 +4153,17 @@ public class TravelApplyAction extends DispatchAction
                         String outId = obj[2];
                         item.setFullId(outId);
                         item2.setFullId(outId);
+                        //#596
+                        if (importItems.contains(outId)){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("申请模板中订单号重复:").append(outId)
+                                    .append("</font><br>");
+                            importError = true;
+                        } else{
+                            importItems.add(outId);
+                        }
+
                         OutVO out = this.outDAO.findVO(outId);
                         if (out == null){
                             builder
@@ -4174,7 +4188,7 @@ public class TravelApplyAction extends DispatchAction
                                 if (type == TcpConstanst.IB_TYPE){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("订单号不能重复提交中收报销申请:"+outId)
+                                            .append("订单号已经提交中收报销申请:"+outId)
                                             .append("</font><br>");
 
                                     importError = true;
@@ -4186,7 +4200,7 @@ public class TravelApplyAction extends DispatchAction
                                 if(type == TcpConstanst.MOTIVATION_TYPE){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("订单号不能重复提交激励报销申请:"+outId)
+                                            .append("订单号已经提交激励报销申请:"+outId)
                                             .append("</font><br>");
 
                                     importError = true;
@@ -4198,7 +4212,7 @@ public class TravelApplyAction extends DispatchAction
                                 if (type == TcpConstanst.IB_TYPE2){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("订单号不能重复提交中收2报销申请:"+outId)
+                                            .append("订单号已经提交中收2报销申请:"+outId)
                                             .append("</font><br>");
 
                                     importError = true;
@@ -4210,7 +4224,7 @@ public class TravelApplyAction extends DispatchAction
                                 if(type == TcpConstanst.MOTIVATION_TYPE2){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("订单号不能重复提交激励2报销申请:"+outId)
+                                            .append("订单号已经提交激励2报销申请:"+outId)
                                             .append("</font><br>");
 
                                     importError = true;
@@ -4222,7 +4236,7 @@ public class TravelApplyAction extends DispatchAction
                                 if(type == TcpConstanst.PLATFORM_TYPE){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                            .append("订单号不能重复提交平台手续费报销申请:"+outId)
+                                            .append("订单号已经提交平台手续费报销申请:"+outId)
                                             .append("</font><br>");
 
                                     importError = true;
