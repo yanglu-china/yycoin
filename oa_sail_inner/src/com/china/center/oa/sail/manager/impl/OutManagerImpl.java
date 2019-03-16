@@ -35,6 +35,7 @@ import com.china.center.oa.extsail.dao.ZJRCOutDAO;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.publics.DateTimeUtils;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.*;
@@ -6340,6 +6341,28 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         flowLogDAO.saveEntityBean(log);
         this.log(log);
+    }
+
+    private void addLog3(final String id, int preStatus, int afterStatus, int oprMode,String reason)
+    {
+        FlowLogBean log = new FlowLogBean();
+
+        log.setActor("系统");
+
+        log.setLogTime(TimeTools.now());
+
+        log.setFullId(id);
+
+        // 操作类型
+        log.setOprMode(oprMode);
+
+        log.setPreStatus(preStatus);
+
+        log.setAfterStatus(afterStatus);
+
+        log.setDescription(reason);
+
+        flowLogDAO.saveEntityBean(log);
     }
 
     private void log(FlowLogBean log){
@@ -12763,104 +12786,176 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         List<FrDbBean> frDbBeans = this.frDbDAO.queryEntityBeansByCondition(conditionParse);
         Map<String, List<FrDbBean>> map = new HashMap<>();
         if (!ListTools.isEmptyOrNull(frDbBeans)){
+            _logger.info("***frDbBeans size***"+frDbBeans.size());
             //根据流程ID合并开单
             for (FrDbBean frDbBean: frDbBeans){
                 if(map.containsKey(frDbBean.getOutId())){
-                    List<FrDbBean> frDbBeanList = new ArrayList<>();
-                    frDbBeanList.add(frDbBean);
-                } else{
                     List<FrDbBean> frDbBeanList = map.get(frDbBean.getOutId());
                     frDbBeanList.add(frDbBean);
+                } else{
+                    List<FrDbBean> frDbBeanList = new ArrayList<>();
+                    frDbBeanList.add(frDbBean);
+                    map.put(frDbBean.getOutId(), frDbBeanList);
                 }
             }
         }
 
         for(String key: map.keySet()){
+            String errorMessage = "";
+            double total = 0;
             List<FrDbBean> frDbBeanList = map.get(key);
 
             FrDbBean frDbBean = frDbBeanList.get(0);
-            OutBean outBean =  new OutBean();
-            String errorMessage;
 
-//                outBean.setLocationId(locationId);
-//                outBean.setLocation(location);
+            List<BaseBean> baseBeans = new ArrayList<>();
+            OutBean outBean =  new OutBean();
+            outBean.setDescription("异地调拨JOB:" + frDbBean.getId());
+            outBean.setType(OutConstant.OUT_TYPE_INBILL);
+            outBean.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
+
+            String id = OutHelper.getAll(commonDAO.getSquence());
+            String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+            String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
+
+            String fullId = flag + time + id;
+            outBean.setId(OutHelper.getOutId(id));
+            outBean.setFullId(fullId);
 
             // 增加职员的ID
             String stafferId = frDbBean.getChangeUser();
-            outBean.setStafferId(stafferId);
             StafferBean stafferBean = this.stafferDAO.find(stafferId);
-            if (stafferBean!= null){
+            if (stafferBean == null) {
+                errorMessage = "职员不存在";
+                _logger.error(key+errorMessage);
+                this.frDbDAO.updateStatus(frDbBean.getId(),null, errorMessage);
+                continue;
+            } else {
+                outBean.setIndustryId(stafferBean.getIndustryId());
+                outBean.setIndustryId2(stafferBean.getIndustryId2());
+                outBean.setIndustryId3(stafferBean.getIndustryId3());
+                outBean.setStafferId(stafferId);
                 outBean.setStafferName(stafferBean.getName());
             }
 
-            outBean.setOperator(frDbBean.getChangeUser());
-            outBean.setOperatorName(outBean.getStafferName());
+            String now = TimeTools.now();
+            String nowShort = TimeTools.now_short();
+            outBean.setOutTime(nowShort);
+            outBean.setPodate(nowShort);
+            outBean.setLogTime(now);
+            outBean.setChangeTime(now);
+            outBean.setFlowTime(now);
 
-            outBean.setLogTime(TimeTools.now());
-            if (StringTools.isNullOrNone(outBean.getDestinationId()))
-            {
-                errorMessage = "调拨没有目的仓库属性:"+frDbBean.getId();
-                _logger.error(errorMessage);
-                continue;
-            }
-
+            outBean.setOperatorName("系统");
             outBean.setReserve1(OutConstant.MOVEOUT_OUT);
 
-            if (StringTools.isNullOrNone(outBean.getCustomerId()))
-            {
-                outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
-                outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
-            }
+            outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+            outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
 
             outBean.setDepartment("公共部门");
             outBean.setArriveDate(TimeTools.now_short(10));
-
+            outBean.setDutyId(frDbBean.getDutyId());
             for(FrDbBean bean: frDbBeanList){
                 BaseBean baseBean = new BaseBean();
+                baseBeans.add(baseBean);
+                baseBean.setId(commonDAO.getSquenceString());
+                baseBean.setOutId(fullId);
+
+                DepotpartBean defaultOKDepotpart = depotpartDAO
+                        .findDefaultOKDepotpart(outBean.getLocation());
+
+                if (defaultOKDepotpart == null)
+                {
+                    errorMessage = "没有默认良品仓";
+                    _logger.error(bean.getId()+errorMessage);
+                    this.frDbDAO.updateStatus(bean.getId(),null, errorMessage);
+                    break;
+                } else{
+                    //源仓区
+                    baseBean.setDepotpartId(defaultOKDepotpart.getId());
+                    baseBean.setDepotpartName(defaultOKDepotpart.getName());
+                }
+
                 String productId = bean.getProductId();
                 ProductBean productBean = this.productDAO.find(productId);
                 if (productBean == null){
                     errorMessage = "产品不存在";
                     _logger.error(bean.getId()+errorMessage);
+                    this.frDbDAO.updateStatus(bean.getId(),null, errorMessage);
                     break;
                 } else{
                     baseBean.setProductId(bean.getProductId());
                     baseBean.setProductName(bean.getProductName());
                 }
-                baseBean.setAmount(bean.getNewAmount());
+                baseBean.setUnit("套");
+                baseBean.setAmount(-bean.getNewAmount());
 
+                baseBean.setPrice(NumberUtils.roundDouble(bean.getCb()));
+                baseBean.setValue(NumberUtils.roundDouble(baseBean.getAmount() * baseBean.getPrice()));
+                baseBean.setCostPrice(NumberUtils.roundDouble(bean.getCb()));
+                baseBean.setCostPriceKey(StorageRelationHelper
+                        .getPriceKey(baseBean.getCostPrice()));
+                total += baseBean.getValue();
+
+                baseBean.setOwner("0");
+                baseBean.setOwnerName("公共");
+                baseBean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
             }
 
-            // 入库单的处理
-            try
-            {
-                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+            if (StringTools.isNullOrNone(errorMessage)){
+                try
                 {
-//                        this.fillDistributionForRemoteAllocate(request, outBean);
+                    DistributionBean distributionBean = new DistributionBean();
+                    distributionBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX));
+                    distributionBean.setOutId(outBean.getFullId());
+                    distributionBean.setAddress(frDbBean.getAddress());
+                    distributionBean.setProvinceId(frDbBean.getProvinceId());
+                    distributionBean.setCityId(frDbBean.getCityId());
+                    distributionBean.setReceiver(frDbBean.getReceiver());
+                    distributionBean.setMobile(frDbBean.getTelephone());
+                    distributionBean.setShipping(frDbBean.getFhfs());
+                    distributionBean.setTransport1(frDbBean.getYsfs());
+                    distributionBean.setExpressPay(frDbBean.getYfPay());
+                    this.distributionDAO.saveEntityBean(distributionBean);
+                    outBean.setDistributeBean(distributionBean);
+
+                    outBean.setLocationId("999");
+                    //源仓库
+                    outBean.setLocation(frDbBean.getYck());
+                    //目的仓库
+                    outBean.setDestinationId(frDbBean.getMdk());
+
+                    outBean.setCustomerId("99");
+                    outBean.setCustomerName("公共客户");
+                    outBean.setDepartment("公共部门");
+
+                    outBean.setDutyId("90201008080000000001");
+                    outBean.setPmtype(PublicConstant.MANAGER_TYPE_COMMON);
+
+                    outBean.setTotal(total);
+                    outBean.setStatus(OutConstant.BUY_STATUS_PASS);
+                    outBean.setInway(OutConstant.IN_WAY);
+                    outDAO.saveEntityBean(outBean);
+                    baseDAO.saveAllEntityBeans(baseBeans);
+                    frDbBean.setDbno(fullId);
+                    this.addLog3(outBean.getFullId(), 0, OutConstant.BUY_STATUS_PASS, 0, "提交");
+
+                    //入库提交后直接变动库存
+                    int result = this.processBuyOutInWay(null, fullId, outBean);
                 }
-
-                String id = this.addOut(outBean, null, null);
-                int ttype = StorageConstant.OPR_STORAGE_INOTHER;
-
-                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+                catch (Exception e)
                 {
-                    ttype = StorageConstant.OPR_STORAGE_REDEPLOY;
+                    _logger.error(e, e);
+                    errorMessage = StringUtils.subString(e.getMessage(), 1024);
+                    //有问题回滚
+                    outDAO.deleteEntityBean(outBean.getFullId());
+                    baseDAO.deleteEntityBeansByFK(outBean.getFullId());
+                } finally {
+                    for(FrDbBean frDbBean1: frDbBeanList){
+                        this.frDbDAO.updateStatus(frDbBean1.getId(),fullId, errorMessage);
+                    }
                 }
-
-                this.submit(null, null, ttype);
-            }
-            catch (MYException e)
-            {
-                e.printStackTrace();
-                _logger.warn(e, e);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                _logger.error(e, e);
             }
         }
-
     }
 
     @Override

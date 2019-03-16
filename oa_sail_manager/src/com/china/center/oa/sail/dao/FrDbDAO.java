@@ -15,5 +15,5 @@ import com.china.center.oa.sail.bean.FrDbBean;
 
 public interface FrDbDAO extends DAO<FrDbBean, FrDbBean>
 {
-    void updateStatus(String outId, int status, String dbNo);
+    void updateStatus(int id, String dbNo, String errorMessage);
 }
