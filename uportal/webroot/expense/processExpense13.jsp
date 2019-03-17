@@ -10,6 +10,7 @@
 <script language="JavaScript" src="../js/key.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../tcp_js/travelApply.js"></script>
+<script language="JavaScript" src="../tcp_js/expensePay.js"></script>
 <script language="javascript">
 function load()
 {
@@ -68,7 +69,7 @@ function processBean(opr)
 	        $O('processer').oncheck = 'notNone';
 	    }
     }
-    //#570
+    //#570 待财务审批
     <c:if test="${bean.status == 20}">
     if ("0" == opr)
         checkFun = checkMoney1;
@@ -198,40 +199,6 @@ function checkMoney()
     
     return true;
 }
-function checkMoney1(){
-    //#570
-    var pElements = document.getElementsByName('p_cmoneys');
-
-    var pTotal = 0.0;
-
-    for (var i = 0; i<pElements.length; i++)
-    {
-        if (pElements[i].value != '')
-        {
-            pTotal += parseFloat(pElements[i].value);
-        }
-    }
-    alert(pTotal);
-
-    var fElements = document.getElementsByName('f_cmoneys');
-
-    var fTotal = 0.0;
-
-    for (var i = 0; i<fElements.length; i++)
-    {
-        if (fElements[i].value != '')
-        {
-            fTotal += parseFloat(fElements[i].value);
-        }
-    }
-    alert(fTotal);
-    if (pTotal>0 && compareDouble(pTotal, fTotal) != 0){
-        alert('费用明细和收款明细稽核金额不一致!');
-
-        return false;
-    }
-    return true;
-}
 
 function checkMoney2()
 {
@@ -287,9 +254,11 @@ function checkMoney2()
 <input type="hidden" name="processId" value=""> 
 <input type="hidden" name="id" value="${bean.id}"> 
 <input type="hidden" name="payType" value="${bean.payType}"> 
-<input type="hidden" name="dutyId" value="${bean.dutyId}"> 
+<input type="hidden" name="dutyId" value="${bean.dutyId}">
+<input type="hidden" id="refId" value="${bean.refId}">
+<input type="hidden" id="refMoney" value="${bean.refMoney}">
 
-<p:navigation height="22">
+    <p:navigation height="22">
 	<td width="550" class="navigation"><span style="cursor: pointer;"
         onclick="javascript:history.go(-1)">待我处理</span> &gt;&gt; 日常费用报销处理</td>
     <td width="85"></td>
@@ -424,7 +393,7 @@ function checkMoney2()
                         <c:if test="${bean.status == 20 && bean.payType == 1}">
                             <td align="center">
                                 <input type="text" style="width: 100%"
-                                       name="f_cmoneys" value="${my:formatNum(item.cmoneys / 100.0)}" oncheck="notNone;isFloat3">
+                                       name="f_cmoneys" value="${my:formatNum(item.moneys / 100.0)}" oncheck="notNone;isFloat3">
                                 <input type="hidden" name="fid" value="${item.id}">
                             </td>
                         </c:if>
