@@ -17,6 +17,7 @@ import java.util.Map;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.common.taglib.DefinedCommon;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.OutBean;
@@ -567,9 +568,9 @@ public abstract class OutHelper
     {
         String appName = ConfigLoader.getProperty("appName");
         String postfix = "";
-        if (OutConstant.APP_NAME_TW.equals(appName)){
+        if (AppConstant.APP_NAME_TW.equals(appName)){
             postfix = OutConstant.HEAD_TW;
-        } else if (OutConstant.APP_NAME_ZJGH.equals(appName)){
+        } else if (AppConstant.APP_NAME_ZJGH.equals(appName)){
             postfix = OutConstant.HEAD_ZJGH;
         }
 

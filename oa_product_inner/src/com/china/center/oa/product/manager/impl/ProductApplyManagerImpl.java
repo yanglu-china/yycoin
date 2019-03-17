@@ -7,6 +7,7 @@ import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.ModuleConstant;
 import com.china.center.oa.publics.constant.OperationConstant;
 import com.china.center.oa.publics.dao.LogDAO;
@@ -74,7 +75,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         JudgeTools.judgeParameterIsNull(user, bean);
 
         // 获取ID
-        String id = commonDAO.getSquenceString();
+        String id = this.createId(bean);
 
         bean.setId(id);
 
@@ -430,8 +431,10 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
 
 	    //#432
         String appName = ConfigLoader.getProperty("appName");
-        if ("永银ERP(体外)".equals(appName)){
+        if (AppConstant.APP_NAME_TW.equals(appName)){
             fullName = "TW"+fullName;
+        } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
+            fullName = "GHTN"+fullName;
         }
 
         bean.setMidName(midName);
@@ -566,6 +569,17 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         return true;
     }
 
+    private String createId(ProductApplyBean bean){
+        String id = commonDAO.getSquenceString();
+        String appName = ConfigLoader.getProperty("appName");
+        if (AppConstant.APP_NAME_TW.equals(appName)){
+            id = "TW"+id;
+        } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
+            id = "GHTN"+id;
+        }
+        bean.setId(id);
+        return id;
+    }
     /**
      * 
      * @param bean
@@ -573,6 +587,13 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
     private void createCode(ProductApplyBean bean) {
     	
         String code = commonDAO.getSquenceString();
+
+        String appName = ConfigLoader.getProperty("appName");
+        if (AppConstant.APP_NAME_TW.equals(appName)){
+            code = "TW"+code;
+        } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
+            code = "GHTN"+code;
+        }
 
         bean.setCode(code);
     }
@@ -616,8 +637,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
                 JudgeTools.judgeParameterIsNull(user, bean);
 
                 // 获取ID
-                String id = commonDAO.getSquenceString();
-                bean.setId(id);
+                String id = this.createId(bean);
 
                 checkUnique(bean);
 

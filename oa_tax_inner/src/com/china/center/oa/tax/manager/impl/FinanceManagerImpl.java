@@ -13,6 +13,7 @@ import java.util.*;
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.constant.*;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.constanst.OutConstant;
 import org.apache.commons.logging.Log;
@@ -35,10 +36,6 @@ import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
-import com.china.center.oa.publics.constant.AuthConstant;
-import com.china.center.oa.publics.constant.IDPrefixConstant;
-import com.china.center.oa.publics.constant.PublicConstant;
-import com.china.center.oa.publics.constant.SysConfigConstant;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.tax.bean.CheckViewBean;
@@ -188,7 +185,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
     private boolean addInner(User user, FinanceBean bean, boolean mainTable, boolean checkNull) throws MYException {
         String appName = ConfigLoader.getProperty("appName");
-        if (OutConstant.APP_NAME_TW.equals(appName)){
+        if (AppConstant.APP_NAME_TW.equals(appName)){
             bean.setId(commonDAO.getSquenceString(IDPrefixConstant.ID_FINANCE_PREFIX_TW));
         } else{
             bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
@@ -415,7 +412,7 @@ public class FinanceManagerImpl implements FinanceManager {
         }
 
         String appName = ConfigLoader.getProperty("appName");
-        if (OutConstant.APP_NAME_TW.equals(appName)){
+        if (AppConstant.APP_NAME_TW.equals(appName)){
             bean.setId(commonDAO.getSquenceString(IDPrefixConstant.ID_FINANCE_PREFIX_TW));
         } else {
             bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));

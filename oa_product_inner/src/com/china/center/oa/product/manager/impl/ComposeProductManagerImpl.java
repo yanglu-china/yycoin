@@ -15,13 +15,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.ModuleConstant;
-import com.china.center.oa.publics.constant.OperationConstant;
 import com.china.center.oa.publics.dao.LogDAO;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
@@ -688,10 +689,25 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
     		BeanUtil.copyProperties(newPB, product);
     		
     		newPB.setName(newProductName);
-    		
-    		newPB.setCode(commonDAO.getSquenceString());
-    		
-    		newPB.setId(commonDAO.getSquenceString());
+
+            String appName = ConfigLoader.getProperty("appName");
+
+            String code = commonDAO.getSquenceString();
+            if (AppConstant.APP_NAME_TW.equals(appName)){
+                code = "TW"+code;
+            } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
+                code = "GHTN"+code;
+            }
+    		newPB.setCode(code);
+
+            String id = commonDAO.getSquenceString();
+            if (AppConstant.APP_NAME_TW.equals(appName)){
+                id = "TW"+id;
+            } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
+                id = "GHTN"+id;
+            }
+    		newPB.setId(id);
+
     		newPB.setFullspell("");
     		newPB.setShortspell("");
     		

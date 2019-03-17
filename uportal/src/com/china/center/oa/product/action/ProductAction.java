@@ -42,6 +42,7 @@ import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.helper.OATools;
@@ -1555,7 +1556,7 @@ public class ProductAction extends DispatchAction
 
         BeanUtil.getBean(bean, rds.getParmterMap());
 
-        bean.setId(commonDAO.getSquenceString());
+        bean.setId(this.createId());
 
         ActionForward afor = parserAttachment(mapping, request, rds, bean);
 
@@ -1608,7 +1609,7 @@ public class ProductAction extends DispatchAction
 
         BeanUtil.getBean(bean, request);
 
-        bean.setId(commonDAO.getSquenceString());
+        bean.setId(this.createId());
 
         setCombination(request, bean);
 
@@ -1636,6 +1637,17 @@ public class ProductAction extends DispatchAction
         }
 
         return mapping.findForward("queryApplyProduct");
+    }
+
+    private String createId(){
+        String id = commonDAO.getSquenceString();
+        String appName = ConfigLoader.getProperty("appName");
+        if (AppConstant.APP_NAME_TW.equals(appName)){
+            id = "TW"+id;
+        } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
+            id = "GHTN"+id;
+        }
+        return id;
     }
 
     /**

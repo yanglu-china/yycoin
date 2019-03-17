@@ -35,6 +35,7 @@ import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.manager.UserManager;
@@ -1138,7 +1139,7 @@ public class ShipAction extends DispatchAction
             request.setAttribute("qrcode", this.getQrcodeUrl(pickupId));
             //#568
             String appName = ConfigLoader.getProperty("appName");
-            if (OutConstant.APP_NAME_TW.equals(appName)){
+            if (AppConstant.APP_NAME_TW.equals(appName)){
                 request.setAttribute("tw", "(体外)");
             } else{
                 request.setAttribute("tw", "");
@@ -1385,7 +1386,7 @@ public class ShipAction extends DispatchAction
 
         //#568
         String appName = ConfigLoader.getProperty("appName");
-        if (OutConstant.APP_NAME_TW.equals(appName)){
+        if (AppConstant.APP_NAME_TW.equals(appName)){
             request.setAttribute("tw", "(体外)");
         } else{
             request.setAttribute("tw", "");

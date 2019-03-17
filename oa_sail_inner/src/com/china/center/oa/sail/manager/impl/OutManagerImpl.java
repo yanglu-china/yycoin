@@ -38,6 +38,7 @@ import com.china.center.oa.publics.DateTimeUtils;
 import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.constant.*;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.sail.bean.*;
@@ -88,13 +89,6 @@ import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.product.wrap.ProductChangeWrap;
-import com.china.center.oa.publics.constant.IDPrefixConstant;
-import com.china.center.oa.publics.constant.InvoiceConstant;
-import com.china.center.oa.publics.constant.PluginNameConstant;
-import com.china.center.oa.publics.constant.PublicConstant;
-import com.china.center.oa.publics.constant.PublicLock;
-import com.china.center.oa.publics.constant.StafferConstant;
-import com.china.center.oa.publics.constant.SysConfigConstant;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.publics.manager.FatalNotify;
@@ -12777,9 +12771,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         conditionParse.addCondition("yck", "!=", " ");
         conditionParse.addCondition("cb",">", 0);
         String appName = ConfigLoader.getProperty("appName");
-        if (OutConstant.APP_NAME.equals(appName)){
+        if (AppConstant.APP_NAME.equals(appName)){
             conditionParse.addCondition("sys","=","体内");
-        } else if (OutConstant.APP_NAME_TW.equals(appName)){
+        } else if (AppConstant.APP_NAME_TW.equals(appName)){
             conditionParse.addCondition("sys","=","体外");
         }
 
@@ -13399,7 +13393,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             conditionParse.addCondition(" and isSell in ('在售','非在售')");
         }
 
-        if (OutConstant.APP_NAME_TW.equals(appName)){
+        if (AppConstant.APP_NAME_TW.equals(appName)){
             //体外
             conditionParse.addCondition(" and item in('体外','全部')");
         } else {

@@ -22,12 +22,12 @@ import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.finance.dao.OutBillDAO;
 import com.china.center.oa.finance.listener.PaymentListener;
 import com.china.center.oa.product.dao.ProviderDAO;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.IDPrefixConstant;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.DepartmentDAO;
 import com.china.center.oa.publics.dao.DutyDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
-import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.bean.FinanceItemBean;
 import com.china.center.oa.tax.bean.TaxBean;
@@ -343,7 +343,7 @@ public class PaymentListenerTaxGlueImpl implements PaymentListener
 		BeanUtil.copyProperties(newFinanceBean, financeBean);
 
         String appName = ConfigLoader.getProperty("appName");
-        if (OutConstant.APP_NAME_TW.equals(appName)){
+        if (AppConstant.APP_NAME_TW.equals(appName)){
             newFinanceBean.setId(commonDAO.getSquenceString(IDPrefixConstant.ID_FINANCE_PREFIX_TW));
         } else {
             newFinanceBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
