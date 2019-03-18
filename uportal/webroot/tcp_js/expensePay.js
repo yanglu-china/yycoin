@@ -35,9 +35,10 @@ function checkMoney1(){
     if (refId && compareDouble(refMoney+pTotal, fTotal)!=0){
         alert('原申请借款金额与收款明细稽核金额之和不等于费用明细稽核金额!');
         return false;
-    } else if (pTotal>0 && compareDouble(pTotal, fTotal) != 0){
-        alert('费用明细和收款明细稽核金额不一致!');
-        return false;
     }
+    // else if (isNull(refId) && pTotal>0 && compareDouble(pTotal, fTotal) != 0){
+    //     alert('费用明细和收款明细稽核金额不一致!');
+    //     return false;
+    // }
     return true;
 }
