@@ -1213,6 +1213,8 @@ public class ShipAction extends DispatchAction
         if (StringTools.isNullOrNone(compose))
             compose = "1";
 
+        String packageId = request.getParameter("packageId");
+
         int index_pos = 0;
 
         if (!StringTools.isNullOrNone(sindex_pos))
@@ -1222,16 +1224,23 @@ public class ShipAction extends DispatchAction
 
         index_pos += 1;
 
-        ConditionParse condtion = new ConditionParse();
+        _logger.info("**********findNextPackage with pickupId:"+pickupId+" index_pos:"+index_pos+"***packageId***"+packageId);
 
-        condtion.addWhereStr();
+        List<PackageVO> packageList = new ArrayList<>();
+        if (StringTools.isNullOrNone(packageId)){
+            ConditionParse condtion = new ConditionParse();
+            condtion.addWhereStr();
+            condtion.addCondition("PackageBean.pickupId", "=", pickupId);
+            condtion.addIntCondition("PackageBean.index_pos", "=", index_pos);
 
-        condtion.addCondition("PackageBean.pickupId", "=", pickupId);
-        condtion.addIntCondition("PackageBean.index_pos", "=", index_pos);
+            packageList = packageDAO.queryVOsByCondition(condtion);
+        } else{
+            ConditionParse condtion = new ConditionParse();
+            condtion.addWhereStr();
+            condtion.addCondition("PackageBean.id", "=", packageId);
 
-        _logger.info("**********findNextPackage with pickupId:"+pickupId+" index_pos:"+index_pos);
-
-        List<PackageVO> packageList = packageDAO.queryVOsByCondition(condtion);
+            packageList = packageDAO.queryVOsByCondition(condtion);
+        }
 
         _logger.info("****findNextPackage packageList size***"+packageList.size());
 

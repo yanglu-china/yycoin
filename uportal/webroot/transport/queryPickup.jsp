@@ -57,8 +57,21 @@ function packagePagePrint()
 		return;
 	}
 
-	$l('../sail/ship.do?method=findNextPackage&printMode=0&printSmode=1&compose=2&pickupId=' + getRadioValue("pickupId") + '&index_pos=0&CENTER_COMMON_CENTER_COMMON=' + new Date().getTime());
-}
+    var clis = getCheckBox('packageIds');
+    if (clis.length ==1){
+        //打印第一个选中的CK单
+        var packageId = clis[0].value;
+        $l('../sail/ship.do?method=findNextPackage&printMode=0&printSmode=1&compose=2&pickupId=' + getRadioValue("pickupId") +'&packageId='+packageId+ '&index_pos=0&CENTER_COMMON_CENTER_COMMON=' + new Date().getTime());
+    }else{
+        if (clis.length >1){
+            alert('一次只能选择一个出库单!');
+            return;
+        } else{
+            //打印批次
+            $l('../sail/ship.do?method=findNextPackage&printMode=0&printSmode=1&compose=2&pickupId=' + getRadioValue("pickupId") + '&index_pos=0&CENTER_COMMON_CENTER_COMMON=' + new Date().getTime());
+        }
+    }
+	}
 
 function receiptPagePrint(flag)
 {
