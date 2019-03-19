@@ -36,4 +36,10 @@ public interface StockPayApplyDAO extends DAO<StockPayApplyBean, StockPayApplyVO
     boolean updateHasConfirmMoney(String fullId, double confirmMoney);
     
     boolean hasCreateApply(String stockItemId);
+
+	/**
+	 * #538
+	 * @param stockId
+	 */
+	void updatePayStatus(String stockId);
 }

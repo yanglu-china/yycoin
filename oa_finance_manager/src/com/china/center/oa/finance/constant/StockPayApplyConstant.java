@@ -35,6 +35,12 @@ public interface StockPayApplyConstant
     int APPLY_STATUS_REJECT = 1;
 
     /**
+     * 关闭
+     */
+    @Defined(key = "stockPayApplyStatus", value = "关闭")
+    int APPLY_STATUS_CLOSE = 99;
+
+    /**
      * 待营运中心审批
      */
     //#227

@@ -798,6 +798,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
         apply.setStatus(StockPayApplyConstant.APPLY_STATUS_END);
 
         stockPayApplyDAO.updateEntityBean(apply);
+        stockPayApplyDAO.updatePayStatus(apply.getStockId());
 
         saveFlowLog(user, preStatus, apply, reason, PublicConstant.OPRMODE_EXCEPTION);
 
@@ -838,6 +839,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 
         // 结束申请流程
         stockPayApplyDAO.updateEntityBean(apply);
+        stockPayApplyDAO.updatePayStatus(apply.getStockId());
 
         // TAX_ADD 采购付款--会计付款
         Collection<StockPayApplyListener> listenerMapValues = this.listenerMapValues();
@@ -1156,6 +1158,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 			stockPayApplyBean.setStatus(StockPayApplyConstant.APPLY_STATUS_END);
 			
 			stockPayApplyDAO.updateEntityBean(stockPayApplyBean);
+			stockPayApplyDAO.updatePayStatus(stockPayApplyBean.getStockId());
 			
 			saveFlowLog(user, StockPayApplyConstant.APPLY_STATUS_SEC, stockPayApplyBean, "预付款支付",
 		            PublicConstant.OPRMODE_PASS);
@@ -1187,7 +1190,8 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 			stockPayApplyBean.setStatus(StockPayApplyConstant.APPLY_STATUS_END);
 			
 			stockPayApplyDAO.updateEntityBean(stockPayApplyBean);
-			
+            stockPayApplyDAO.updatePayStatus(stockPayApplyBean.getStockId());
+
 			saveFlowLog(user, StockPayApplyConstant.APPLY_STATUS_SEC, stockPayApplyBean, "预付款支付",
 		            PublicConstant.OPRMODE_PASS);
 			

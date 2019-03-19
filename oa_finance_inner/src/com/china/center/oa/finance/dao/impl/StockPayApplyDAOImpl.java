@@ -10,7 +10,6 @@ package com.china.center.oa.finance.dao.impl;
 
 
 import java.util.List;
-
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.annosql.tools.BeanTools;
 import com.china.center.jdbc.inter.impl.BaseDAO;
@@ -18,6 +17,7 @@ import com.china.center.oa.finance.bean.StockPayApplyBean;
 import com.china.center.oa.finance.dao.StockPayApplyDAO;
 import com.china.center.oa.finance.vo.StockPayApplyVO;
 import com.china.center.oa.sail.wrap.ConfirmInsWrap;
+
 
 
 /**
@@ -76,5 +76,12 @@ public class StockPayApplyDAOImpl extends BaseDAO<StockPayApplyBean, StockPayApp
 		List<StockPayApplyBean> applyList = this.queryEntityBeansByFK(stockItemId, AnoConstant.FK_FIRST);
 		
 		return (applyList.size() > 0);
+	}
+
+	@Override
+	public void updatePayStatus(String stockId) {
+		String sql = "update t_center_paypool_log set status = ? where stockId = ?";
+
+		jdbcOperation.update(sql, 1, stockId);
 	}
 }
