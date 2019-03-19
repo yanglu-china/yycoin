@@ -497,7 +497,12 @@ public class StafferManagerImpl extends AbstractListenerManager<StafferListener>
         }
         
         bean.setIndustryId3(bean.getPrincipalshipId());
-        
+
+        if(bean.getStatus() == StafferConstant.STATUS_DROP){
+            bean.setZzzt("离职");
+        } else if (bean.getStatus() == StafferConstant.STATUS_COMMON){
+            bean.setZzzt(oldBean.getZzzt());
+        }
         stafferDAO.updateEntityBean(bean);
 
         stafferVSPriDAO.saveAllEntityBeans(priList);

@@ -512,6 +512,8 @@ public class StafferAction extends DispatchAction
             BeanUtil.getBean(bean, request);
 
             bean.setLogTime(TimeTools.now());
+            //#598
+            bean.setZzzt("在职");
 
             String[] pris = request.getParameterValues("tree_checkbox");
 
