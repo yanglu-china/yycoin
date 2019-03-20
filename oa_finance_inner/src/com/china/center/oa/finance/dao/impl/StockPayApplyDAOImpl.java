@@ -80,14 +80,14 @@ public class StockPayApplyDAOImpl extends BaseDAO<StockPayApplyBean, StockPayApp
 
 	@Override
 	public void updatePayStatus(String applyId) {
-		String sql = "update t_center_paypool_log set status = ? where outId = ? and type= 1";
+		String sql = "update t_center_paypool_log set outStatus = ? where outId = ? and type= 1";
 
 		jdbcOperation.update(sql, 1, applyId);
 	}
 
 	@Override
 	public void updatePrePayStatus(String preApplyId) {
-		String sql = "update t_center_paypool_log set status = ? where outId = ? and type= 2";
+		String sql = "update t_center_paypool_log set outStatus = ? where outId = ? and type= 2";
 
 		jdbcOperation.update(sql, 1, preApplyId);
 	}
