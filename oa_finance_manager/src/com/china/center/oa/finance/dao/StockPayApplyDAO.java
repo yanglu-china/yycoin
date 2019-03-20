@@ -39,7 +39,9 @@ public interface StockPayApplyDAO extends DAO<StockPayApplyBean, StockPayApplyVO
 
 	/**
 	 * #538
-	 * @param stockId
+	 * @param applyId
 	 */
-	void updatePayStatus(String stockId);
+	void updatePayStatus(String applyId);
+
+	void updatePrePayStatus(String preApplyId);
 }
