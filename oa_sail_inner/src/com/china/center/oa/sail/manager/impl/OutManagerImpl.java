@@ -12848,6 +12848,20 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             outBean.setDepartment("公共部门");
             outBean.setArriveDate(TimeTools.now_short(10));
             outBean.setDutyId(frDbBean.getDutyId());
+
+            outBean.setLocationId("999");
+            //源仓库
+            outBean.setLocation(frDbBean.getYck());
+            //目的仓库
+            outBean.setDestinationId(frDbBean.getMdk());
+
+            outBean.setCustomerId("99");
+            outBean.setCustomerName("公共客户");
+            outBean.setDepartment("公共部门");
+
+            outBean.setDutyId("90201008080000000001");
+            outBean.setPmtype(PublicConstant.MANAGER_TYPE_COMMON);
+
             for(FrDbBean bean: frDbBeanList){
                 BaseBean baseBean = new BaseBean();
                 baseBeans.add(baseBean);
@@ -12855,7 +12869,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 baseBean.setOutId(fullId);
 
                 DepotpartBean defaultOKDepotpart = depotpartDAO
-                        .findDefaultOKDepotpart(outBean.getLocation());
+                        .findDefaultOKDepotpart(bean.getYck());
 
                 if (defaultOKDepotpart == null)
                 {
@@ -12913,25 +12927,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     this.distributionDAO.saveEntityBean(distributionBean);
                     outBean.setDistributeBean(distributionBean);
 
-                    outBean.setLocationId("999");
-                    //源仓库
-                    outBean.setLocation(frDbBean.getYck());
-                    //目的仓库
-                    outBean.setDestinationId(frDbBean.getMdk());
-
-                    outBean.setCustomerId("99");
-                    outBean.setCustomerName("公共客户");
-                    outBean.setDepartment("公共部门");
-
-                    outBean.setDutyId("90201008080000000001");
-                    outBean.setPmtype(PublicConstant.MANAGER_TYPE_COMMON);
-
                     outBean.setTotal(total);
                     outBean.setStatus(OutConstant.BUY_STATUS_PASS);
                     outBean.setInway(OutConstant.IN_WAY);
                     outDAO.saveEntityBean(outBean);
                     baseDAO.saveAllEntityBeans(baseBeans);
-                    frDbBean.setDbno(fullId);
                     this.addLog3(outBean.getFullId(), 0, OutConstant.BUY_STATUS_PASS, 0, "提交");
 
                     //入库提交后直接变动库存
