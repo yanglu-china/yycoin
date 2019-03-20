@@ -1645,7 +1645,7 @@ public class ProductAction extends DispatchAction
         if (AppConstant.APP_NAME_TW.equals(appName)){
             id = "TW"+id;
         } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
-            id = "GHTN"+id;
+            id = AppConstant.PREFIX_GH+id;
         }
         return id;
     }

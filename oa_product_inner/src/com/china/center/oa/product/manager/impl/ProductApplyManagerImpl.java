@@ -434,7 +434,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         if (AppConstant.APP_NAME_TW.equals(appName)){
             fullName = "TW"+fullName;
         } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
-            fullName = "GHTN"+fullName;
+            fullName = AppConstant.PREFIX_GH+fullName;
         }
 
         bean.setMidName(midName);
@@ -575,7 +575,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         if (AppConstant.APP_NAME_TW.equals(appName)){
             id = "TW"+id;
         } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
-            id = "GHTN"+id;
+            id = AppConstant.PREFIX_GH+id;
         }
         bean.setId(id);
         return id;
@@ -592,7 +592,7 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         if (AppConstant.APP_NAME_TW.equals(appName)){
             code = "TW"+code;
         } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
-            code = "GHTN"+code;
+            code = AppConstant.PREFIX_GH+code;
         }
 
         bean.setCode(code);

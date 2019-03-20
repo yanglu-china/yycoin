@@ -696,7 +696,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             if (AppConstant.APP_NAME_TW.equals(appName)){
                 code = "TW"+code;
             } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
-                code = "GHTN"+code;
+                code = AppConstant.PREFIX_GH+code;
             }
     		newPB.setCode(code);
 
@@ -704,7 +704,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             if (AppConstant.APP_NAME_TW.equals(appName)){
                 id = "TW"+id;
             } else if(AppConstant.APP_NAME_ZJGH.equals(appName)){
-                id = "GHTN"+id;
+                id = AppConstant.PREFIX_GH+id;
             }
     		newPB.setId(id);
 
