@@ -12868,6 +12868,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     baseBean.setDepotpartId(defaultOKDepotpart.getId());
                     baseBean.setDepotpartName(defaultOKDepotpart.getName());
                 }
+                baseBean.setLocationId(bean.getYck());
 
                 String productId = bean.getProductId();
                 ProductBean productBean = this.productDAO.find(productId);
