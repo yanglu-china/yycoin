@@ -170,9 +170,9 @@ function pagePrint()
 			<input type="button" class="button_class" id="sub_b1"
 				   value="&nbsp;&nbsp;通 过&nbsp;&nbsp;" onclick="processBean(0)">
 			&nbsp;&nbsp;
+			<input type="button" class="button_class" id="sub_b2"
+				   value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;" onclick="processBean(1)">
 		</c:if>
-		<input type="button" class="button_class" id="sub_b2"
-			   value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;" onclick="processBean(1)">
         
          <input type="button" name="pr"
             class="button_class" onclick="pagePrint()"
