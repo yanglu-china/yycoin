@@ -21,7 +21,7 @@ public class DhZjbVO extends DhZjbBean {
     private int sdAmount;
 
     /**
-     * 生产采购入库方向
+     * 生产采购目的仓库
      */
     private String sccgRkfx = "";
 
@@ -29,6 +29,9 @@ public class DhZjbVO extends DhZjbBean {
 
     private String depotpartId;
 
+    /**
+     * 源仓库
+     */
     private String depotId;
 
     private double price;

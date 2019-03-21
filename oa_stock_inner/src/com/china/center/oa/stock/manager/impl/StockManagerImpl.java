@@ -1941,7 +1941,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
                     outBean.setLocationId("999");
                     //源仓库
-                    outBean.setLocation(vo.getDepotpartId());
+                    outBean.setLocation(vo.getDepotId());
                     //目的仓库
                     outBean.setDestinationId(depotId);
 
