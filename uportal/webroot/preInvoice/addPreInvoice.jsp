@@ -335,8 +335,11 @@ function getCustomer(obj)
             <p:pro field="receiver" cell="0" innerString="size=60"/>
 
             <p:pro field="mobile" cell="0" innerString="size=60"/>
-            
-            <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
+
+            <tr class='content2' id='description_TR'>
+                <td  id = 'description_td1'  width = '15%' >备注：</td>
+                <td  id = 'description_td2'  width = '35%'  colspan = 3 ><textarea  name='description' head='备注'  id ='description'   rows=5 cols=60  oncheck="notNone;maxLength(500);" ></textarea> <font color='#FF0000'>*</font>   </td>
+            </tr>
 
             <p:cell title="附件" width="8" end="true"><input type="file" name="atts" size="70" >
                 <font color="blue"><span style="cursor: pointer;" onclick="showMoreAtt()" >【更多附件】 </span><b>建议压缩后上传,最大支持10M</b></font>
