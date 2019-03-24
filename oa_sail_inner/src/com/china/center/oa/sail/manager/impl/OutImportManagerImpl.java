@@ -3706,15 +3706,27 @@ public class OutImportManagerImpl implements OutImportManager
                             baseBean.setDepotpartName("可发成品仓");
                         } else{
                             baseBean.setLocationId(olBaseBean.getDepot());
-                            DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(olBaseBean.getDepot());
-                            if (defaultOKDepotpart == null){
-                                _logger.error("defaultOKDepotpart is null:"+olBaseBean.getDepot());
-                                this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"depot不存在");
-                                continue;
-                            } else{
-                                baseBean.setDepotpartId(defaultOKDepotpart.getId());
-                                baseBean.setDepotpartName(defaultOKDepotpart.getName());
-                            }
+                            if (StringTools.isNullOrNone(olBaseBean.getDepotpart())){
+								DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(olBaseBean.getDepot());
+								if (defaultOKDepotpart == null){
+									_logger.error("defaultOKDepotpart is null:"+olBaseBean.getDepot());
+									this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"depot不存在");
+									continue;
+								} else{
+									baseBean.setDepotpartId(defaultOKDepotpart.getId());
+									baseBean.setDepotpartName(defaultOKDepotpart.getName());
+								}
+							} else{
+                            	baseBean.setDepotpartId(olBaseBean.getDepotpart());
+                            	DepotpartBean depotpartBean = this.depotpartDAO.find(olBaseBean.getDepotpart());
+                            	if (depotpartBean == null){
+									_logger.error("depotpart is error:"+olBaseBean.getDepotpart());
+									this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"depotpart不存在");
+									continue;
+								} else{
+                            		baseBean.setDepotpartName(depotpartBean.getName());
+								}
+							}
                         }
 
 						ProductBean product = productCodeMap.get(olBaseBean.getProductCode());

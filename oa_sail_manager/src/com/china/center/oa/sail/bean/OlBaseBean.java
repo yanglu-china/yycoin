@@ -68,7 +68,11 @@ public class OlBaseBean implements Serializable
 
     private String depot = "";
 
+    private String depotpart = "";
+
     private double cash =0.0d;
+
+    private double cash2 =0.0d;
 
     private double grossProfit =0.0d;
 
@@ -217,6 +221,22 @@ public class OlBaseBean implements Serializable
         this.productImportId = productImportId;
     }
 
+    public double getCash2() {
+        return cash2;
+    }
+
+    public void setCash2(double cash2) {
+        this.cash2 = cash2;
+    }
+
+    public String getDepotpart() {
+        return depotpart;
+    }
+
+    public void setDepotpart(String depotpart) {
+        this.depotpart = depotpart;
+    }
+
     @Override
     public String toString() {
         return "OlBaseBean{" +
@@ -234,7 +254,9 @@ public class OlBaseBean implements Serializable
                 ", platformFee=" + platformFee +
                 ", changeTime='" + changeTime + '\'' +
                 ", depot='" + depot + '\'' +
+                ", depotpart='" + depotpart + '\'' +
                 ", cash=" + cash +
+                ", cash2=" + cash2 +
                 ", grossProfit=" + grossProfit +
                 ", productImportId='" + productImportId + '\'' +
                 '}';
