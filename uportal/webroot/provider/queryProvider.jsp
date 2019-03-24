@@ -19,6 +19,28 @@ var updatFlag = window.top.topFrame.containAuth('0213') ? '1' : '0';
 function load()
 {
      preload();
+
+     var buttons = [
+             {id: 'add', bclass: 'add', onpress : addBean, auth: '0213'},
+             {id: 'update', bclass: 'update', onpress : updateBean, auth: '0213'},
+             {id: 'update0', bclass: 'edit', caption: '绑定分类', onpress : bingType, auth: '0213'},
+             {id: 'update1', bclass: 'edit', caption: '更新登录用户', onpress : updateUserBean, auth: '0213'},
+             {id: 'update2', bclass: 'edit', caption: '重置密码', onpress : updateUserPassword, auth: '0213'},
+             {id: 'del', bclass: 'delete', onpress : delBean, auth: '0213'},
+             {id: 'search', bclass: 'search', onpress : doSearch}
+         ];
+    var url = window.location.href;
+    // #608
+    if (url.indexOf("uportaltw") != -1 ){
+        buttons = [
+            {id: 'update', bclass: 'update', onpress : updateBean, auth: '0213'},
+            {id: 'update0', bclass: 'edit', caption: '绑定分类', onpress : bingType, auth: '0213'},
+            {id: 'update1', bclass: 'edit', caption: '更新登录用户', onpress : updateUserBean, auth: '0213'},
+            {id: 'update2', bclass: 'edit', caption: '重置密码', onpress : updateUserPassword, auth: '0213'},
+            {id: 'del', bclass: 'delete', onpress : delBean, auth: '0213'},
+            {id: 'search', bclass: 'search', onpress : doSearch}
+        ];
+    }
      
 	 guidMap = {
 		 title: '供应商列表',
@@ -36,15 +58,7 @@ function load()
 		 extAtt: {
 		     name : {begin : '<a href=../provider/provider.do?method=findProvider&id={id}>', end : '</a>'}
 		 },
-		 buttons : [
-		     {id: 'add', bclass: 'add', onpress : addBean, auth: '0213'},
-		     {id: 'update', bclass: 'update', onpress : updateBean, auth: '0213'},
-		     {id: 'update0', bclass: 'edit', caption: '绑定分类', onpress : bingType, auth: '0213'},
-		     {id: 'update1', bclass: 'edit', caption: '更新登录用户', onpress : updateUserBean, auth: '0213'},
-		     {id: 'update2', bclass: 'edit', caption: '重置密码', onpress : updateUserPassword, auth: '0213'},
-		     {id: 'del', bclass: 'delete', onpress : delBean, auth: '0213'},
-		     {id: 'search', bclass: 'search', onpress : doSearch}
-		     ],
+		 buttons :buttons,
 		 <p:conf callBack="loadForm"/>
 	 };
 	 
@@ -111,6 +125,7 @@ function addBean(opr, grid)
 </head>
 <body onload="load()" class="body_class">
 <form>
+    <input type="hidden" id="id" value="${bean.id}">
 <p:cache></p:cache>
 </form>
 <p:message></p:message>
