@@ -31,7 +31,7 @@ function load()
          ];
     var url = window.location.href;
     // #608
-    if (url.indexOf("uportaltw") != -1 ){
+    if (url.indexOf("uportaltw") != -1 || url.indexOf("zjgh") != -1){
         buttons = [
             {id: 'update', bclass: 'update', onpress : updateBean, auth: '0213'},
             {id: 'update0', bclass: 'edit', caption: '绑定分类', onpress : bingType, auth: '0213'},
