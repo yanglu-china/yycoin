@@ -7301,7 +7301,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             }else
             {
                 DepotBean depot =  this.depotDAO.find(outBean.getLocation());
-                if (depot != null && "99".equals(depot.getIndustryId2())){
+                if (depot != null &&
+                        ("99".equals(depot.getIndustryId2()) || outBean.isFrFlag())){
                     PreConsignBean preConsign = new PreConsignBean();
 
                     preConsign.setOutId(outBean.getFullId());
@@ -12936,6 +12937,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                     //入库提交后直接变动库存
                     int result = this.processBuyOutInWay(null, fullId, outBean);
+                    outBean.setFrFlag(true);
                     this.createPackage(outBean);
                 }
                 catch (Exception e)

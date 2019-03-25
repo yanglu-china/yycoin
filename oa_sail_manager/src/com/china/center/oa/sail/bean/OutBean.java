@@ -219,6 +219,12 @@ public class OutBean implements Serializable, OutInterface
     private int consign = 0;
 
     /**
+     * #630 调拨JOB自动生成CK单
+     */
+    @Ignore
+    private boolean frFlag = false;
+
+    /**
      * 0:没有付款 1:付款
      */
     private int pay = OutConstant.PAY_NOT;
@@ -2311,6 +2317,14 @@ public class OutBean implements Serializable, OutInterface
 
     public void setPlatformApplyId(String platformApplyId) {
         this.platformApplyId = platformApplyId;
+    }
+
+    public boolean isFrFlag() {
+        return frFlag;
+    }
+
+    public void setFrFlag(boolean frFlag) {
+        this.frFlag = frFlag;
     }
 
     /**
