@@ -12936,6 +12936,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                     //入库提交后直接变动库存
                     int result = this.processBuyOutInWay(null, fullId, outBean);
+                    this.createPackage(outBean);
                 }
                 catch (Exception e)
                 {
