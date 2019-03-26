@@ -921,4 +921,16 @@ public interface OutConstant
 
     String HEAD_TW = "TW";
     String HEAD_ZJGH = "GH";
+
+    /**
+     * #611 钱币事业部孟君
+     */
+    int QB_INDUSTRY_MJ = 2;
+    /**
+     * #611 钱币事业部非孟君
+     */
+    int QB_INDUSTRY_NOT_MJ = 1;
+
+    String QB_PMKH= "钱币拍卖客户";
+    String QB_INDUSTRY= "钱币事业部";
 }

@@ -36,6 +36,7 @@
  import com.china.center.oa.publics.bean.ProvinceBean;
  import com.china.center.oa.publics.bean.StafferBean;
  import com.china.center.oa.publics.dao.*;
+ import com.china.center.oa.publics.vo.StafferVO;
  import com.china.center.oa.sail.bean.*;
  import com.china.center.oa.sail.constanst.OutConstant;
  import com.china.center.oa.sail.constanst.OutImportConstant;
@@ -150,6 +151,8 @@
 
      private static String QUERYBANKSAIL = "queryBankSail";
 
+
+
      public OutImportAction()
      {
 
@@ -227,6 +230,8 @@
 
                      bean.setItype(MathTools.parseInt(itype));
 
+                     // 操作人
+                     bean.setReason(user.getStafferId());
                      boolean error = innerAdd2(bean, obj, builder, currentNumber);
 
                      if (!importError)
@@ -1280,11 +1285,24 @@
              }
          }
 
-         //#505 中信导入、银行领样导入都读取Product import表
-         String customerName = bean.getComunicatonBranchName();
          try {
-             ProductImportBean productImportBean = this.outManager.getProductImportBean(customerName, bean.getBranchName(),
-                     bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType(), true);
+             ProductImportBean productImportBean = null;
+             //#505 中信导入、银行领样导入都读取Product import表
+             String customerName = bean.getComunicatonBranchName();
+             int qbIndustry = this.belongToQbIndustry(bean.getReason());
+             if (qbIndustry == OutConstant.QB_INDUSTRY_MJ){
+                 //当登录人是孟君，读取在售表BANK= 钱币拍卖客户
+                 productImportBean = this.outManager.getProductImportBean(OutConstant.QB_PMKH, null,
+                         bean.getProductCode(), null, bean.getCiticOrderDate(), bean.getOutType(), true);
+             } else if(qbIndustry == OutConstant.QB_INDUSTRY_NOT_MJ){
+                 //当登录人非孟君，读取在售表BANK= 钱币事业部
+                 productImportBean = this.outManager.getProductImportBean(OutConstant.QB_INDUSTRY, null,
+                         bean.getProductCode(), null, bean.getCiticOrderDate(), bean.getOutType(), true);
+             } else{
+                 productImportBean = this.outManager.getProductImportBean(customerName, bean.getBranchName(),
+                         bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType(), true);
+             }
+
              ProductBean productBean = this.productDAO.findByUnique(productImportBean.getCode());
              if (productBean == null){
                  builder.append("第[" + currentNumber + "]错误:")
@@ -1370,6 +1388,24 @@
          } else{
              return false;
          }
+     }
+
+     /**
+      * 是否钱币事业部
+      * @param stafferId
+      * @return
+      */
+     private int belongToQbIndustry(String stafferId){
+            StafferVO sb = this.stafferDAO.findVO(stafferId);
+            if (sb!= null && "钱币事业部".equals(sb.getIndustryName())){
+                if ("孟君".equals(sb.getName())){
+                    return OutConstant.QB_INDUSTRY_MJ;
+                } else{
+                    return OutConstant.QB_INDUSTRY_NOT_MJ;
+                }
+            } else{
+                return 0;
+            }
      }
 
 
