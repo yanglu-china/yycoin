@@ -3,7 +3,7 @@ function checkMoney1(){
     var payType = payTypeElement.value;
     // console.log(payType);
     //公司付款给员工
-    if (int(payType) == 1){
+    if (parseInt(payType) == 1){
         //原申请借款金额
         var refIdElement = document.getElementById("refId");
         var refId = refIdElement.value;
