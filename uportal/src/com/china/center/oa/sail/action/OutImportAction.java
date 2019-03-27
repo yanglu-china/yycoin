@@ -230,8 +230,6 @@
 
                      bean.setItype(MathTools.parseInt(itype));
 
-                     // 操作人
-                     bean.setReason(user.getStafferId());
                      boolean error = innerAdd2(bean, obj, builder, currentNumber);
 
                      if (!importError)
@@ -433,6 +431,7 @@
                              importError = true;
                          } else {
                              bean.setComunicatonBranchName(custName);
+                             bean.setStafferId2(stafferBean.getName());
                          }
                      }
                  }else{
@@ -1289,7 +1288,7 @@
              ProductImportBean productImportBean = null;
              //#505 中信导入、银行领样导入都读取Product import表
              String customerName = bean.getComunicatonBranchName();
-             int qbIndustry = this.belongToQbIndustry(bean.getReason());
+             int qbIndustry = this.belongToQbIndustry(bean.getStafferId2());
              if (qbIndustry == OutConstant.QB_INDUSTRY_MJ){
                  //当登录人是孟君，读取在售表BANK= 钱币拍卖客户
                  productImportBean = this.outManager.getProductImportBean(OutConstant.QB_PMKH, null,
@@ -1396,16 +1395,20 @@
       * @return
       */
      private int belongToQbIndustry(String stafferId){
-            StafferVO sb = this.stafferDAO.findVO(stafferId);
-            if (sb!= null && "钱币事业部".equals(sb.getIndustryName())){
-                if ("孟君".equals(sb.getName())){
-                    return OutConstant.QB_INDUSTRY_MJ;
-                } else{
-                    return OutConstant.QB_INDUSTRY_NOT_MJ;
-                }
-            } else{
-                return 0;
-            }
+         if (StringTools.isNullOrNone(stafferId)){
+             return 0;
+         } else{
+             StafferVO sb = this.stafferDAO.findVO(stafferId);
+             if (sb!= null && "钱币事业部".equals(sb.getIndustryName())){
+                 if ("孟君".equals(sb.getName())){
+                     return OutConstant.QB_INDUSTRY_MJ;
+                 } else{
+                     return OutConstant.QB_INDUSTRY_NOT_MJ;
+                 }
+             } else{
+                 return 0;
+             }
+         }
      }
 
 

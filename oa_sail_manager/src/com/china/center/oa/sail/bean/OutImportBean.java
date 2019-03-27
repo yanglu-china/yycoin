@@ -179,6 +179,12 @@ public class OutImportBean implements Serializable
 	private String depotpartId = "";
 	
 	private String stafferId = "";
+
+	@Ignore
+	/**
+	 * #611 客户对应职员
+	 */
+	private String stafferId2 = "";
 	
 	private String description = "";
 	
@@ -1044,6 +1050,14 @@ public class OutImportBean implements Serializable
 
 	public void setCash2(double cash2) {
 		this.cash2 = cash2;
+	}
+
+	public String getStafferId2() {
+		return stafferId2;
+	}
+
+	public void setStafferId2(String stafferId2) {
+		this.stafferId2 = stafferId2;
 	}
 
 	@Override
