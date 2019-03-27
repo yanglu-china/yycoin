@@ -933,4 +933,5 @@ public interface OutConstant
 
     String QB_PMKH= "钱币拍卖客户";
     String QB_INDUSTRY= "钱币事业部";
+    String QB_INDUSTRY_ID = "633816253";
 }

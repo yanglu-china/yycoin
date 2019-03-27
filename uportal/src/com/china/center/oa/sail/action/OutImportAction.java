@@ -1399,7 +1399,7 @@
              return 0;
          } else{
              StafferVO sb = this.stafferDAO.findVO(stafferId);
-             if (sb!= null && "钱币事业部".equals(sb.getIndustryName())){
+             if (sb!= null && OutConstant.QB_INDUSTRY_ID.equals(sb.getIndustryId())){
                  if ("孟君".equals(sb.getName())){
                      return OutConstant.QB_INDUSTRY_MJ;
                  } else{
