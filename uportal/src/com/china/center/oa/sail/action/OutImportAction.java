@@ -431,7 +431,7 @@
                              importError = true;
                          } else {
                              bean.setComunicatonBranchName(custName);
-                             bean.setStafferId2(stafferBean.getName());
+                             bean.setStafferId2(stafferBean.getId());
                          }
                      }
                  }else{
