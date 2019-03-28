@@ -4762,6 +4762,29 @@ public class InvoiceinsAction extends DispatchAction
 
         return mapping.findForward(url);
     }
+
+    /**
+     * #614
+     * @param out
+     * @param invoiceBean
+     */
+    private void checkTaxRate(OutBean out, InvoiceBean invoiceBean) throws MYException{
+        String date = out.getChangeTime();
+        if (StringTools.isNullOrNone(date)){
+            date = out.getPodate();
+        }
+        //2019年4月1号之后产生的订单，系统只允许开13税点的票
+        if (date.compareTo("2019-04-01") >= 0 && invoiceBean.getVal()!= 13){
+            throw new MYException("2019年4月1号之后产生的订单，系统只允许开13税点的票");
+        } else if (date.compareTo("2018-05-01") >= 0 && date.compareTo("2019-04-01") < 0
+                && invoiceBean.getVal()!= 16){
+            //2018年5月1号之后2019年4月1号之前出库的订单，仅能开16的税率的票
+            throw new MYException("2018年5月1号之后2019年4月1号之前出库的订单，仅能开16的税率的票");
+        } else if (date.compareTo("2018-05-01") <0  && invoiceBean.getVal()!= 17){
+            //2018年5月1号之前出库的订单，仅能开17的税率的票
+            throw new MYException("2018年5月1号之前出库的订单，仅能开17的税率的票");
+        }
+    }
     
     /**
      * 
