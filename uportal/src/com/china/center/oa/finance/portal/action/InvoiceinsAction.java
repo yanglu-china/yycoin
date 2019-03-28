@@ -34,6 +34,7 @@ import com.china.center.oa.finance.vo.InvoiceinsItemVO;
 import com.china.center.oa.finance.vo.InvoiceinsVO;
 import com.china.center.oa.finance.vs.InsVSOutBean;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.InvoiceConstant;
@@ -4109,6 +4110,7 @@ public class InvoiceinsAction extends DispatchAction
                 {
                     InvoiceinsImportBean bean = new InvoiceinsImportBean();
 
+                    OutBean outBean = null;
                     // 销售单
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
@@ -4116,7 +4118,7 @@ public class InvoiceinsAction extends DispatchAction
 
                         bean.setOutId(value);
 
-                        OutBean outBean = this.outDAO.find(value);
+                        outBean = this.outDAO.find(value);
                         if (outBean!= null ){
                             //判断销售单据状态必须为“待库管审批”、“已出库”、“已发货”三种状态之一
                             //#217 把开票只能在“待库管审批”状态及以后的限制变为“待商务审批”及之后即可开票
@@ -4232,6 +4234,22 @@ public class InvoiceinsAction extends DispatchAction
                                         importError = true;
                                     } else {
                                         bean.setInvoiceId(invoice.getId());
+                                        if (outBean!= null){
+                                            String date = outBean.getChangeTime();
+                                            if (StringTools.isNullOrNone(date)){
+                                                date = outBean.getPodate();
+                                            }
+                                            try {
+                                                this.checkTaxRate(date, invoice.getVal());
+                                            }catch (MYException e){
+                                                builder
+                                                        .append("第[" + currentNumber + "]错误:")
+                                                        .append(e.getMessage())
+                                                        .append("<br>");
+
+                                                importError = true;
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -4765,22 +4783,19 @@ public class InvoiceinsAction extends DispatchAction
 
     /**
      * #614
-     * @param out
-     * @param invoiceBean
+     * @param date
+     * @param taxRate
      */
-    private void checkTaxRate(OutBean out, InvoiceBean invoiceBean) throws MYException{
-        String date = out.getChangeTime();
-        if (StringTools.isNullOrNone(date)){
-            date = out.getPodate();
-        }
+    private void checkTaxRate(String date, double taxRate) throws MYException{
+        _logger.info("***date***"+date+"****tax***"+taxRate);
         //2019年4月1号之后产生的订单，系统只允许开13税点的票
-        if (date.compareTo("2019-04-01") >= 0 && invoiceBean.getVal()!= 13){
+        if (date.compareTo("2019-04-01") >= 0 && !NumberUtils.equals(13,taxRate, 0.001)){
             throw new MYException("2019年4月1号之后产生的订单，系统只允许开13税点的票");
         } else if (date.compareTo("2018-05-01") >= 0 && date.compareTo("2019-04-01") < 0
-                && invoiceBean.getVal()!= 16){
+                && !NumberUtils.equals(16,taxRate, 0.001)){
             //2018年5月1号之后2019年4月1号之前出库的订单，仅能开16的税率的票
             throw new MYException("2018年5月1号之后2019年4月1号之前出库的订单，仅能开16的税率的票");
-        } else if (date.compareTo("2018-05-01") <0  && invoiceBean.getVal()!= 17){
+        } else if (date.compareTo("2018-05-01") <0  && !NumberUtils.equals(17,taxRate, 0.001)){
             //2018年5月1号之前出库的订单，仅能开17的税率的票
             throw new MYException("2018年5月1号之前出库的订单，仅能开17的税率的票");
         }
