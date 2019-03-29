@@ -1789,6 +1789,8 @@ public class InvoiceinsAction extends DispatchAction
         List<InsVSOutBean> vsList = new ArrayList<InsVSOutBean>();
         
         String unioutId = "";
+
+        InvoiceBean invoiceBean = this.invoiceDAO.find(bean.getInvoiceId());
         
         // CORE 组装assemble未开票的商品明细
         for (int i = 0 ; i < split.length; i++)
@@ -1824,6 +1826,14 @@ public class InvoiceinsAction extends DispatchAction
             // 0:销售单 1:结算单
             if (type == 0)
             {
+
+                _logger.info("****outId***"+unioutId+"***invoice***"+bean.getInvoiceId());
+                try {
+                    this.checkTaxRate(outBean, invoiceBean.getVal());
+                }catch(MYException e){
+                    return ActionTools.toError("销售单" + unioutId + "开票信息错误:"+e.getMessage(), mapping, request);
+                }
+
             	prepareVSList(vsList, outBean);
             	
             	List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
@@ -1993,6 +2003,7 @@ public class InvoiceinsAction extends DispatchAction
         if (ListTools.isEmptyOrNull(distList) && bean.getFillType() == 1) {
         	return ActionTools.toError("销售单" + unioutId + "配送信息不存在", mapping, request);
         }
+
         
         request.setAttribute("itemList", itemList);
         
@@ -4235,12 +4246,8 @@ public class InvoiceinsAction extends DispatchAction
                                     } else {
                                         bean.setInvoiceId(invoice.getId());
                                         if (outBean!= null){
-                                            String date = outBean.getChangeTime();
-                                            if (StringTools.isNullOrNone(date)){
-                                                date = outBean.getPodate();
-                                            }
                                             try {
-                                                this.checkTaxRate(date, invoice.getVal());
+                                                this.checkTaxRate(outBean, invoice.getVal());
                                             }catch (MYException e){
                                                 builder
                                                         .append("第[" + currentNumber + "]错误:")
@@ -4783,10 +4790,14 @@ public class InvoiceinsAction extends DispatchAction
 
     /**
      * #614
-     * @param date
+     * @param outBean
      * @param taxRate
      */
-    private void checkTaxRate(String date, double taxRate) throws MYException{
+    private void checkTaxRate(OutBean outBean, double taxRate) throws MYException{
+        String date = outBean.getChangeTime();
+        if (StringTools.isNullOrNone(date)){
+            date = outBean.getPodate();
+        }
         _logger.info("***date***"+date+"****tax***"+taxRate);
         //2019年4月1号之后产生的订单，系统只允许开13税点的票
         if (date.compareTo("2019-04-01") >= 0 && !NumberUtils.equals(13,taxRate, 0.001)){
