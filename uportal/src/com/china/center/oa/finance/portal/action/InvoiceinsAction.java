@@ -1827,12 +1827,12 @@ public class InvoiceinsAction extends DispatchAction
             if (type == 0)
             {
 
-                _logger.info("****outId***"+unioutId+"***invoice***"+bean.getInvoiceId());
-                try {
-                    this.checkTaxRate(outBean, invoiceBean.getVal());
-                }catch(MYException e){
-                    return ActionTools.toError("销售单" + unioutId + "开票信息错误:"+e.getMessage(), mapping, request);
-                }
+//                _logger.info("****outId***"+unioutId+"***invoice***"+bean.getInvoiceId());
+//                try {
+//                    this.checkTaxRate(outBean, invoiceBean.getVal());
+//                }catch(MYException e){
+//                    return ActionTools.toError("销售单" + unioutId + "开票信息错误:"+e.getMessage(), mapping, request);
+//                }
 
             	prepareVSList(vsList, outBean);
             	
@@ -4245,18 +4245,18 @@ public class InvoiceinsAction extends DispatchAction
                                         importError = true;
                                     } else {
                                         bean.setInvoiceId(invoice.getId());
-                                        if (outBean!= null){
-                                            try {
-                                                this.checkTaxRate(outBean, invoice.getVal());
-                                            }catch (MYException e){
-                                                builder
-                                                        .append("第[" + currentNumber + "]错误:")
-                                                        .append(e.getMessage())
-                                                        .append("<br>");
-
-                                                importError = true;
-                                            }
-                                        }
+//                                        if (outBean!= null){
+//                                            try {
+//                                                this.checkTaxRate(outBean, invoice.getVal());
+//                                            }catch (MYException e){
+//                                                builder
+//                                                        .append("第[" + currentNumber + "]错误:")
+//                                                        .append(e.getMessage())
+//                                                        .append("<br>");
+//
+//                                                importError = true;
+//                                            }
+//                                        }
                                     }
                                 }
                             }

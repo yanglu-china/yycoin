@@ -11,13 +11,13 @@ package com.china.center.oa.finance.manager.impl;
 
 import java.util.*;
 
-import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.oa.client.vo.StafferVSCustomerVO;
-import com.china.center.oa.product.bean.PriceConfigBean;
-import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.NumberUtils;
+import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.SysConfigConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.OutManager;
@@ -69,9 +69,6 @@ import com.china.center.oa.finance.vs.InsVSOutBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.ProductDAO;
-import com.china.center.oa.publics.bean.AttachmentBean;
-import com.china.center.oa.publics.bean.DutyBean;
-import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.constant.InvoiceConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.StafferConstant;
@@ -95,6 +92,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     private final Log operationLog = LogFactory.getLog("opr");
 
     private CommonDAO commonDAO = null;
+
+    private InvoiceDAO invoiceDAO = null;
 
     private InvoiceinsDAO invoiceinsDAO = null;
 
@@ -373,11 +372,53 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	List<InvoiceinsItemBean> itemList = bean.getItemList();
     	
     	for (InvoiceinsItemBean each : itemList) {
-			checkProductAttrInner(invoiceId, each.getProductId());
+    	    String outId = each.getOutId();
+    	    OutBean outBean = null;
+    	    if (!StringTools.isNullOrNone(outId) && !outId.startsWith("A")){
+    	        outBean = this.outDAO.find(outId);
+            }
+			checkProductAttrInner(invoiceId, each.getProductId(), outBean);
     	}
     }
 
-	private void checkProductAttrInner(String invoiceId, String productId)
+    /**
+     * 普通且是旧货的商品
+     * @param productId
+     * @return
+     */
+    private boolean isOldGoods(String productId){
+        ProductBean product = productDAO.find(productId);
+        if(product!=  null){
+            String mtype = product.getReserve4();
+            int oldgoods = product.getConsumeInDay();
+
+            if ("1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void checkTaxRate(OutBean outBean, double taxRate) throws MYException{
+        String date = outBean.getChangeTime();
+        if (StringTools.isNullOrNone(date)){
+            date = outBean.getPodate();
+        }
+        _logger.info("***date***"+date+"****tax***"+taxRate);
+        //2019年4月1号之后产生的订单，系统只允许开13税点的票
+        if (date.compareTo("2019-04-01") >= 0 && !NumberUtils.equals(13,taxRate, 0.001)){
+            throw new MYException("2019年4月1号之后产生的订单，系统只允许开13税点的票");
+        } else if (date.compareTo("2018-05-01") >= 0 && date.compareTo("2019-04-01") < 0
+                && !NumberUtils.equals(16,taxRate, 0.001)){
+            //2018年5月1号之后2019年4月1号之前出库的订单，仅能开16的税率的票
+            throw new MYException("2018年5月1号之后2019年4月1号之前出库的订单，仅能开16的税率的票");
+        } else if (date.compareTo("2018-05-01") <0  && !NumberUtils.equals(17,taxRate, 0.001)){
+            //2018年5月1号之前出库的订单，仅能开17的税率的票
+            throw new MYException("2018年5月1号之前出库的订单，仅能开17的税率的票");
+        }
+    }
+
+	private void checkProductAttrInner(String invoiceId, String productId, OutBean outBean)
 			throws MYException {
 		ProductBean product = productDAO.find(productId);
 		
@@ -386,14 +427,16 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		} else {
 			String mtype = product.getReserve4();
 			int oldgoods = product.getConsumeInDay();
-			
-			if ("1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD) {
+
+			boolean isOldGoods = "1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD;
+			if (isOldGoods) {
 				if (!invoiceId.equals("90000000000000000007")) {
 					throw new MYException("普通且是旧货的商品只能开具增值税普通发票（旧货）类型发票");
 				}
 			}
-			
-			if ("1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD_YES) {
+
+			//#614
+/*			if ("1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD_YES) {
 				if (!(invoiceId.equals("90000000000000000003") || "90000000000000000034".equals(invoiceId)
                         || "90000000000000000035".equals(invoiceId)
                         || "90000000000000000036".equals(invoiceId)
@@ -403,13 +446,20 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                         || "90000000000000000040".equals(invoiceId))) {
 					throw new MYException("普通且是非旧货的商品 只能开具 增值税专用发票17 类型发票");
 				}
-			}
+			}*/
 			
 			if ("1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD_ZERO) {
 				if (!invoiceId.equals("90000000000000000004")) {
 					throw new MYException("普通且是零税率的商品只能开具增值普通发票(0.00%) 类型发票");
 				}
 			}
+
+			if (!isOldGoods && outBean!= null){
+                InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceId);
+                if(invoiceBean!= null){
+                    this.checkTaxRate(outBean, invoiceBean.getVal());
+                }
+            }
 		}
 	}
     
@@ -2083,7 +2133,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
                             if (null != base) {
                                 try {
-                                    checkProductAttrInner(each.getInvoiceId(), base.getProductId());
+                                    checkProductAttrInner(each.getInvoiceId(), base.getProductId(), null);
                                 } catch (MYException e) {
                                     sb.append("结算单");
                                     sb.append(each.getOutId());
@@ -2122,7 +2172,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 if (!ListTools.isEmptyOrNull(baseList)) {
                     for (BaseBean eachb : baseList) {
                         try {
-                            checkProductAttrInner(each.getInvoiceId(), eachb.getProductId());
+                            checkProductAttrInner(each.getInvoiceId(), eachb.getProductId(), out);
                         } catch (MYException e) {
                             sb.append("销售单");
                             sb.append(each.getOutId());
@@ -4544,5 +4594,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
     public void setPackageItemDAO(PackageItemDAO packageItemDAO) {
         this.packageItemDAO = packageItemDAO;
+    }
+
+    public InvoiceDAO getInvoiceDAO() {
+        return invoiceDAO;
+    }
+
+    public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
+        this.invoiceDAO = invoiceDAO;
     }
 }
