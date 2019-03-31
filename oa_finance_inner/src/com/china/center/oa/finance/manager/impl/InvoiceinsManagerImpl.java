@@ -407,14 +407,14 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         _logger.info("***date***"+date+"****tax***"+taxRate);
         //2019年4月1号之后产生的订单，系统只允许开13税点的票
         if (date.compareTo("2019-04-01") >= 0 && !NumberUtils.equals(13,taxRate, 0.001)){
-            throw new MYException("2019年4月1号之后产生的订单，系统只允许开13税点的票");
+            throw new MYException("2019年4月1号之后产生的订单，系统只允许开13税点的票:"+outBean.getFullId());
         } else if (date.compareTo("2018-05-01") >= 0 && date.compareTo("2019-04-01") < 0
                 && !NumberUtils.equals(16,taxRate, 0.001)){
             //2018年5月1号之后2019年4月1号之前出库的订单，仅能开16的税率的票
-            throw new MYException("2018年5月1号之后2019年4月1号之前出库的订单，仅能开16的税率的票");
+            throw new MYException("2018年5月1号之后2019年4月1号之前出库的订单，仅能开16的税率的票:"+outBean.getFullId());
         } else if (date.compareTo("2018-05-01") <0  && !NumberUtils.equals(17,taxRate, 0.001)){
             //2018年5月1号之前出库的订单，仅能开17的税率的票
-            throw new MYException("2018年5月1号之前出库的订单，仅能开17的税率的票");
+            throw new MYException("2018年5月1号之前出库的订单，仅能开17的税率的票:"+outBean.getFullId());
         }
     }
 
