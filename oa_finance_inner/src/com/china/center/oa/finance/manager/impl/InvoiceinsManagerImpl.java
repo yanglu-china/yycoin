@@ -415,6 +415,9 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         } else if (date.compareTo("2018-05-01") <0  && !NumberUtils.equals(17,taxRate, 0.001)){
             //2018年5月1号之前出库的订单，仅能开17的税率的票
             throw new MYException("2018年5月1号之前出库的订单，仅能开17的税率的票:"+outBean.getFullId());
+        } else if (!NumberUtils.equals(13,taxRate, 0.001)){
+            //#616 未出库的订单，都按13开
+            throw new MYException("未出库的订单，仅能开13的税率的票:"+outBean.getFullId());
         }
     }
 
