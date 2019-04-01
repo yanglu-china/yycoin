@@ -8,6 +8,8 @@ import org.joda.time.Months;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DateTimeUtils {
 
@@ -49,8 +51,22 @@ public class DateTimeUtils {
         return Months.monthsBetween(start.toLocalDate(), lastDayOfMonth.toLocalDate()).getMonths();
     }
 
+    /**
+     * 日期格式必须为yyyy-mm-dd
+     * @param date
+     * @return
+     */
+    public static boolean isDateValid(String date){
+        String eL = "[0-9]{4}-[0-9]{2}-[0-9]{2}";
+        Pattern p = Pattern.compile(eL);
+        Matcher m = p.matcher(date);
+        return m.matches();
+    }
+
     public static void main(String[] args){
         int diff = monthsBetweenToday("2018-06-30");
         System.out.println(diff);
+        System.out.println(isDateValid("2019-04-01"));
+        System.out.println(isDateValid("2019-4-1"));
     }
 }

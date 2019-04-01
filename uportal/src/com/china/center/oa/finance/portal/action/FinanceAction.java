@@ -38,6 +38,7 @@ import com.china.center.oa.finance.manager.PaymentManager;
 import com.china.center.oa.finance.manager.StatBankManager;
 import com.china.center.oa.finance.vo.*;
 import com.china.center.oa.finance.vs.PaymentVSOutBean;
+import com.china.center.oa.publics.DateTimeUtils;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
@@ -2883,7 +2884,15 @@ public class FinanceAction extends DispatchAction {
 		bean.setFromer(obj[2]);
 		bean.setMoney(MathTools.parseDouble(obj[3]));
 		bean.setHandling(MathTools.parseDouble(obj[4]));
-		bean.setReceiveTime(obj[5]);
+		String date = obj[5].trim();
+		if (!StringTools.isNullOrNone(date)){
+			if (DateTimeUtils.isDateValid(date)){
+				bean.setReceiveTime(date);
+			} else{
+				throw new MYException("日期格式必须为xxxx-xx-xx:"+date);
+			}
+		}
+
 		bean.setBatchId(batchId);
 
 		bean.setDescription(obj[6]);
