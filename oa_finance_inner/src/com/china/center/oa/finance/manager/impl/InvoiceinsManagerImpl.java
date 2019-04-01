@@ -439,6 +439,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 			boolean isOldGoods = "1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD;
 			if (isOldGoods) {
+			    //旧货
 				if (!invoiceId.equals("90000000000000000007")) {
 					throw new MYException("普通且是旧货的商品只能开具增值税普通发票（旧货）类型发票");
 				}
@@ -457,13 +458,19 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				}
 			}*/
 			
-			if ("1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD_ZERO) {
+			else if ("1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD_ZERO) {
+			    //普0
 				if (!invoiceId.equals("90000000000000000004")) {
 					throw new MYException("普通且是零税率的商品只能开具增值普通发票(0.00%) 类型发票");
 				}
 			}
-
-			if (!isOldGoods && outBean!= null){
+//            else if ("1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD_ZERO) {
+//			    //#616 TODO 普6
+//                if (!invoiceId.equals("90000000000000000006")) {
+//                    throw new MYException("普通且是零税率的商品只能开具增值普通发票(0.00%) 类型发票");
+//                }
+//            }
+			else if (!isOldGoods && outBean!= null){
                 InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceId);
                 if(invoiceBean!= null){
                     this.checkTaxRate(outBean, invoiceBean.getVal());
