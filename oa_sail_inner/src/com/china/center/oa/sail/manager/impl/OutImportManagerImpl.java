@@ -1874,15 +1874,27 @@ public class OutImportManagerImpl implements OutImportManager
     			each.setResult(each.getOutId() + " 订单状态只能是待商务审批") ;
     			
     			continue;
-    		}
-    		
-    		if (type == 1 && out.getStatus() != OutConstant.STATUS_FLOW_PASS)
+    		}else if (type == 1 && out.getStatus() != OutConstant.STATUS_FLOW_PASS)
     		{
     			each.setRet(1);
     			each.setResult(each.getOutId() + " 订单状态只能是待库管审批") ;
     			
     			continue;
     		}
+
+    		//#593
+            if (type == 0){
+                List<OutBean> outBeans = this.getZsOrders(out, OutConstant.STATUS_SUBMIT, false);
+                if (!ListTools.isEmptyOrNull(outBeans)){
+                    for (OutBean outBean: outBeans){
+                        if(outBean.getStatus() != OutConstant.STATUS_SUBMIT){
+                            each.setRet(1);
+                            each.setResult(outBean.getFullId() + " 订单状态只能是待商务审批") ;
+                            break;
+                        }
+                    }
+                }
+            }
     	}
     	
     	batchApproveDAO.saveAllEntityBeans(list);
@@ -1984,10 +1996,20 @@ public class OutImportManagerImpl implements OutImportManager
 				if (bean.getAction().equals("通过"))
 				{
 					outManager.pass(bean.getOutId(), user, OutConstant.STATUS_FLOW_PASS, bean.getReason(), bean.getDescription(), "");
+                    List<OutBean> outBeans = this.getZsOrders(out, OutConstant.STATUS_SUBMIT, true);
+                    if (!ListTools.isEmptyOrNull(outBeans)){
+                        _logger.info("****ZS orders need to auto approve****"+outBeans.size());
+                        for (OutBean o: outBeans){
+                            String zsFullId = o.getFullId();
+                            if (!outList.contains(zsFullId)){
+                                outManager.pass(zsFullId, user, OutConstant.STATUS_FLOW_PASS, bean.getReason(), bean.getDescription(), "");
+                                outList.add(zsFullId);
+                                _logger.info(zsFullId+"*****auto approve ZS****");
+                            }
+                        }
+                    }
 				}else if (bean.getAction().equals("驳回")){
-					
 					outManager.reject(bean.getOutId(), user, bean.getReason());
-					
 				}else
 				{
 					throw new MYException("审批结果不是通过与驳回");
@@ -1996,7 +2018,7 @@ public class OutImportManagerImpl implements OutImportManager
 		}
 		
 		// 库管审批,但状态已改变
-		if (bean.getType()== 1)
+		else if (bean.getType()== 1)
 		{
 			if (out.getStatus() != OutConstant.STATUS_FLOW_PASS)
 				throw new MYException("销售单不是待库管审批状态");
@@ -2022,14 +2044,14 @@ public class OutImportManagerImpl implements OutImportManager
 						}
 					} else{
 						//检查对应的ZS订单，如有，则一并自动审批通过
-						ConditionParse con1 = new ConditionParse();
-						con1.addWhereStr();
-						con1.addCondition("OutBean.customerId", "=", out.getCustomerId());
-						con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
-						con1.addIntCondition("OutBean.outtype", "=", OutConstant.OUTTYPE_OUT_PRESENT);
-						con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_FLOW_PASS);
-						con1.addCondition("OutBean.refOutFullId","=", out.getFullId());
-						List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
+//						ConditionParse con1 = new ConditionParse();
+//						con1.addWhereStr();
+//						con1.addCondition("OutBean.customerId", "=", out.getCustomerId());
+//						con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
+//						con1.addIntCondition("OutBean.outtype", "=", OutConstant.OUTTYPE_OUT_PRESENT);
+//						con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_FLOW_PASS);
+//						con1.addCondition("OutBean.refOutFullId","=", out.getFullId());
+						List<OutBean> outBeans = this.getZsOrders(out, OutConstant.STATUS_FLOW_PASS, true);
 						if (!ListTools.isEmptyOrNull(outBeans)){
 							_logger.info("****ZS orders need to auto approve****"+outBeans.size());
 							for (OutBean o: outBeans){
@@ -2052,6 +2074,27 @@ public class OutImportManagerImpl implements OutImportManager
 				}
 		}
 	}
+
+    /**
+     * 找到对应的赠送单
+     * @param out
+     * @return
+     */
+	private List<OutBean> getZsOrders(OutBean out, int status, boolean checkStatus){
+        ConditionParse con1 = new ConditionParse();
+        con1.addWhereStr();
+        con1.addCondition("OutBean.customerId", "=", out.getCustomerId());
+        con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
+        con1.addIntCondition("OutBean.outtype", "=", OutConstant.OUTTYPE_OUT_PRESENT);
+        con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_FLOW_PASS);
+        if (checkStatus){
+            con1.addIntCondition("OutBean.status", "=", status);
+        }
+
+        con1.addCondition("OutBean.refOutFullId","=", out.getFullId());
+        List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
+        return outBeans;
+    }
 
 	//若销售单状态为“待库管审批”，则将对应的销售单通过库管审批（正常生成凭证及库存扣减）
 	private boolean autoApproveOut(String outId){
