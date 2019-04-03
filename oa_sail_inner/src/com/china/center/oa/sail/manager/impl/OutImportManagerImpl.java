@@ -2086,7 +2086,6 @@ public class OutImportManagerImpl implements OutImportManager
         con1.addCondition("OutBean.customerId", "=", out.getCustomerId());
         con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
         con1.addIntCondition("OutBean.outtype", "=", OutConstant.OUTTYPE_OUT_PRESENT);
-        con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_FLOW_PASS);
         if (checkStatus){
             con1.addIntCondition("OutBean.status", "=", status);
         }
