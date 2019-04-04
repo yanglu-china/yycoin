@@ -2083,7 +2083,8 @@ public class OutImportManagerImpl implements OutImportManager
 	private List<OutBean> getZsOrders(OutBean out, int status, boolean checkStatus){
         ConditionParse con1 = new ConditionParse();
         con1.addWhereStr();
-        con1.addCondition("OutBean.customerId", "=", out.getCustomerId());
+        //#593
+//        con1.addCondition("OutBean.customerId", "=", out.getCustomerId());
         con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
         con1.addIntCondition("OutBean.outtype", "=", OutConstant.OUTTYPE_OUT_PRESENT);
         if (checkStatus){
