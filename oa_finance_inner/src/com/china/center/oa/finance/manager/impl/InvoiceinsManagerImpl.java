@@ -3215,8 +3215,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				sb.append(eachb.getOutId());
 				sb.append(";");
 
-				sb2.append(eachb.getDescription());
-				sb2.append(";");
+				//#493 多单开一张票时,去除重复描述
+				if(sb2.indexOf(eachb.getDescription()) == -1){
+                    sb2.append(eachb.getDescription());
+                    sb2.append(";");
+                }
 
 				if (eachb.getType() == FinanceConstant.INSVSOUT_TYPE_OUT) {
 					String outId = eachb.getOutId();
