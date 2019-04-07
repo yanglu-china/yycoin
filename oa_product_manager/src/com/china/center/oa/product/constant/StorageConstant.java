@@ -225,6 +225,12 @@ public interface StorageConstant
     @Defined(key = "storageItemType", value = "体外")
     String STORAGE_ITEM_TYPE_TW = "体外";
 
+    /**
+     * #609
+     */
+    @Defined(key = "storageItemType", value = "国华体内")
+    String STORAGE_ITEM_TYPE_GW = "国华体内";
+
     @Defined(key = "storageItemType", value = "全部")
     String STORAGE_ITEM_TYPE_ALL = "全部";
 
