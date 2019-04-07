@@ -1147,7 +1147,26 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
             storageRelationManager.changeStorageRelationWithoutTransaction(user, eachWrap, true);
         }
+    }
 
+    private double getVirtualPrice(ComposeProductBean bean){
+        double virtualPrice = 0.0;
+        List<ComposeItemBean> itemList = bean.getItemList();
+        for (ComposeItemBean itemBean: itemList){
+            if (this.isVirtualProduct(itemBean.getProductId())){
+                virtualPrice += ((double)itemBean.getAmount()/bean.getAmount())*itemBean.getPrice();
+            }
+        }
+        return virtualPrice;
+    }
+
+    private boolean isVirtualProduct(String productId){
+        ProductBean productBean = this.productDAO.find(productId);
+        if (productBean!= null && productBean.getVirtualFlag() == 1){
+            return true;
+        }
+
+        return false;
     }
 
     private void log(User user, String id,String operation, String reason) {

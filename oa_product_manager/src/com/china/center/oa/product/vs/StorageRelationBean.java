@@ -12,11 +12,7 @@ package com.china.center.oa.product.vs;
 import java.io.Serializable;
 
 import com.china.center.jdbc.annosql.constant.AnoConstant;
-import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.FK;
-import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Join;
-import com.china.center.jdbc.annotation.Table;
+import com.china.center.jdbc.annotation.*;
 import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.product.bean.DepotBean;
 import com.china.center.oa.product.bean.DepotpartBean;
@@ -63,6 +59,12 @@ public class StorageRelationBean implements Serializable
     private int amount = 0;
 
     private double price = 0.0d;
+
+    /**#545
+     * 虚料金额
+     */
+    @Ignore
+    private double virtualPrice = 0.0d;
 
     private double lastPrice = 0.0d;
     
@@ -264,54 +266,35 @@ public class StorageRelationBean implements Serializable
 		this.inputRate = inputRate;
 	}
 
-	/**
+    public double getVirtualPrice() {
+        return virtualPrice;
+    }
+
+    public void setVirtualPrice(double virtualPrice) {
+        this.virtualPrice = virtualPrice;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("StorageRelationBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("depotpartId = ")
-            .append(this.depotpartId)
-            .append(TAB)
-            .append("storageId = ")
-            .append(this.storageId)
-            .append(TAB)
-            .append("productId = ")
-            .append(this.productId)
-            .append(TAB)
-            .append("locationId = ")
-            .append(this.locationId)
-            .append(TAB)
-            .append("stafferId = ")
-            .append(this.stafferId)
-            .append(TAB)
-            .append("priceKey = ")
-            .append(this.priceKey)
-            .append(TAB)
-            .append("amount = ")
-            .append(this.amount)
-            .append(TAB)
-            .append("price = ")
-            .append(this.price)
-            .append(TAB)
-            .append("lastPrice = ")
-            .append(this.lastPrice)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "StorageRelationBean{" +
+                "id='" + id + '\'' +
+                ", depotpartId='" + depotpartId + '\'' +
+                ", storageId='" + storageId + '\'' +
+                ", productId='" + productId + '\'' +
+                ", locationId='" + locationId + '\'' +
+                ", stafferId='" + stafferId + '\'' +
+                ", priceKey='" + priceKey + '\'' +
+                ", amount=" + amount +
+                ", price=" + price +
+                ", virtualPrice=" + virtualPrice +
+                ", lastPrice=" + lastPrice +
+                ", inputRate=" + inputRate +
+                '}';
     }
 
 }
