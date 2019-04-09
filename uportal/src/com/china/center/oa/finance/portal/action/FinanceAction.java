@@ -2882,7 +2882,10 @@ public class FinanceAction extends DispatchAction {
 		bean.setRefId(obj[0].trim());
 		bean.setBankId(bankId);
 		bean.setFromer(obj[2]);
-		bean.setMoney(MathTools.parseDouble(obj[3]));
+		//#606 Excel数字格式导入时会带有特殊字符,需要去掉
+		if (obj[3]!= null){
+			bean.setMoney(MathTools.parseDouble(obj[3].trim()));
+		}
 		bean.setHandling(MathTools.parseDouble(obj[4]));
 		String date = obj[5].trim();
 		if (!StringTools.isNullOrNone(date)){
@@ -2926,7 +2929,8 @@ public class FinanceAction extends DispatchAction {
 				bean.getRefId());
 
 		if (oldPay != null && oldPay.getMoney() != bean.getMoney()) {
-			throw new MYException("导入金额出现错误,标识[%s]已经存在,且金额不一致", bean.getRefId());
+			throw new MYException("导入金额出现错误,标识[%s]已经存在,且金额[%f]:[%f]不一致",
+					bean.getRefId(),oldPay.getMoney(), bean.getMoney());
 		}
 
 		// 插入新的值
