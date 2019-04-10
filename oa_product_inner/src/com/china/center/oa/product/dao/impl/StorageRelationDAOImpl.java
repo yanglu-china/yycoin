@@ -52,6 +52,13 @@ public class StorageRelationDAOImpl extends BaseDAO<StorageRelationBean, Storage
                 depotpartId, productId, priceKey, stafferId);
     }
 
+    @Override
+    public StorageRelationBean findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(String depotpartId, String productId, String priceKey, String virtualPriceKey, String stafferId) {
+        return findUnique(
+                "where depotpartId = ? and productId = ? and priceKey = ? and virtualPriceKey = ? and stafferId = ?",
+                depotpartId, productId, priceKey,virtualPriceKey, stafferId);
+    }
+
     public int sumProductInDepotpartId(String productId, String depotpartId) {
         String sql = BeanTools.getSumHead(claz, "amount")
                 + "where productId = ? and depotpartId = ?";

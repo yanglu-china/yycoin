@@ -72,9 +72,25 @@ public interface StorageRelationDAO extends DAO<StorageRelationBean, StorageRela
      * @param stafferId
      * @return
      */
+    @Deprecated
     StorageRelationBean findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(String depotpartId,
                                                                              String productId,
                                                                              String priceKey,
+                                                                             String stafferId);
+
+    /**
+     * #545
+     * @param depotpartId
+     * @param productId
+     * @param priceKey
+     * @param virtualPriceKey
+     * @param stafferId
+     * @return
+     */
+    StorageRelationBean findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(String depotpartId,
+                                                                             String productId,
+                                                                             String priceKey,
+                                                                             String virtualPriceKey,
                                                                              String stafferId);
     
     /**

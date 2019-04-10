@@ -43,6 +43,8 @@ public class ProductChangeWrap implements Serializable
 
     private double price = 0.0d;
 
+    private double virtualPrice = 0.0d;
+
     /**
      * 一个操作的
      */
@@ -265,54 +267,36 @@ public class ProductChangeWrap implements Serializable
 		this.inputRate = inputRate;
 	}
 
-	/**
+    public double getVirtualPrice() {
+        return virtualPrice;
+    }
+
+    public void setVirtualPrice(double virtualPrice) {
+        this.virtualPrice = virtualPrice;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuffer retValue = new StringBuffer();
-
-        retValue
-            .append("ProductChangeWrap ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("storageId = ")
-            .append(this.storageId)
-            .append(TAB)
-            .append("depotpartId = ")
-            .append(this.depotpartId)
-            .append(TAB)
-            .append("productId = ")
-            .append(this.productId)
-            .append(TAB)
-            .append("relationId = ")
-            .append(this.relationId)
-            .append(TAB)
-            .append("price = ")
-            .append(this.price)
-            .append(TAB)
-            .append("serializeId = ")
-            .append(this.serializeId)
-            .append(TAB)
-            .append("description = ")
-            .append(this.description)
-            .append(TAB)
-            .append("stafferId = ")
-            .append(this.stafferId)
-            .append(TAB)
-            .append("change = ")
-            .append(this.change)
-            .append(TAB)
-            .append("type = ")
-            .append(this.type)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "ProductChangeWrap{" +
+                "storageId='" + storageId + '\'' +
+                ", depotpartId='" + depotpartId + '\'' +
+                ", productId='" + productId + '\'' +
+                ", relationId='" + relationId + '\'' +
+                ", price=" + price +
+                ", virtualPrice=" + virtualPrice +
+                ", serializeId='" + serializeId + '\'' +
+                ", description='" + description + '\'' +
+                ", stafferId='" + stafferId + '\'' +
+                ", refId='" + refId + '\'' +
+                ", change=" + change +
+                ", type=" + type +
+                ", inputRate=" + inputRate +
+                '}';
     }
 
     /**

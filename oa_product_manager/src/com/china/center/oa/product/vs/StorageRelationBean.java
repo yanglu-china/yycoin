@@ -63,8 +63,9 @@ public class StorageRelationBean implements Serializable
     /**#545
      * 虚料金额
      */
-    @Ignore
     private double virtualPrice = 0.0d;
+
+    private String virtualPriceKey = "";
 
     private double lastPrice = 0.0d;
     
@@ -274,6 +275,14 @@ public class StorageRelationBean implements Serializable
         this.virtualPrice = virtualPrice;
     }
 
+    public String getVirtualPriceKey() {
+        return virtualPriceKey;
+    }
+
+    public void setVirtualPriceKey(String virtualPriceKey) {
+        this.virtualPriceKey = virtualPriceKey;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
@@ -292,6 +301,7 @@ public class StorageRelationBean implements Serializable
                 ", amount=" + amount +
                 ", price=" + price +
                 ", virtualPrice=" + virtualPrice +
+                ", virtualPriceKey='" + virtualPriceKey + '\'' +
                 ", lastPrice=" + lastPrice +
                 ", inputRate=" + inputRate +
                 '}';

@@ -1112,6 +1112,9 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         wrap.setType(StorageConstant.OPR_STORAGE_COMPOSE);
         wrap.setSerializeId(sid);
         wrap.setRefId(sid);
+
+        //#545
+        wrap.setVirtualPrice(this.getVirtualPrice(bean));
         
         // 根据子产品的税率计算合成产品的税率
         // inputtax = ((a.tax/17%)*a.cost + (b.tax/17%)*b.cost+(c.tax/17%)*c.cost + …)/(a+b+c+…)
