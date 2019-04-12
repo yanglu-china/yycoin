@@ -626,8 +626,16 @@ public class OutImportManagerImpl implements OutImportManager
     	newOutBean.setManagerTime("");
     	
     	//newOutBean.setDutyId(OutImportConstant.CITIC_DUTY);
-    	
+
     	newOutBean.setInvoiceId(OutImportConstant.CITIC_INVOICEID);
+    	//#507 取产品表的销项发票
+		String productId = bean.getProductId();
+		if(!StringTools.isNullOrNone(productId)){
+			ProductBean productBean = this.productDAO.find(productId);
+			if (productBean!= null){
+				newOutBean.setInvoiceId(productBean.getSailInvoice());
+			}
+		}
     	
     	//
     	if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
