@@ -321,6 +321,7 @@ function clears()
 					<option value="5">打印发票</option>
 					<option value="13">签收</option>
 					<option value="14">退签</option>
+					<option value="10">在途</option>
 				</select>
 				</td>
 			</tr>
