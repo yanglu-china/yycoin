@@ -63,6 +63,12 @@ public abstract class AbstractProviderBean implements Serializable
 
     @Html(title = "所属片区", type = Element.SELECT)
     private String location = "";
+    
+    /**
+     * #615 “体内”, “体外”， “国华体内”, “全部”，
+     */
+    @Html(title = "所属系统", type = Element.SELECT)
+    private String item = "体内";
 
     /**
      * 109付款方式
@@ -390,7 +396,15 @@ public abstract class AbstractProviderBean implements Serializable
         this.location = location;
     }
 
-    /**
+    public String getItem() {
+		return item;
+	}
+
+	public void setItem(String item) {
+		this.item = item;
+	}
+
+	/**
      * @return the dues
      */
     public int getDues()

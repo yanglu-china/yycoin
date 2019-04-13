@@ -56,6 +56,11 @@ function load()
 			<p:pro field="type" innerString="quick=true">
                 <p:option type="109"></p:option>
             </p:pro>
+            
+  			<p:pro field="item">
+				<p:option type="storageItemType"/>
+			</p:pro>
+			
 			<p:pro field="connector" />
 
 
@@ -70,8 +75,8 @@ function load()
 			<p:pro field="bank" />
 			<p:pro field="accounts" />
 			
-			<p:pro field="address" cell="2" innerString="size=60" />
-            <p:pro field="email" cell="2" innerString="size=60" />
+			<p:pro field="address" cell="0" innerString="size=60" />
+            <p:pro field="email" cell="0" innerString="size=60" />
 
 			<p:pro field="description" cell="0" innerString="rows=4 cols=60" />
 

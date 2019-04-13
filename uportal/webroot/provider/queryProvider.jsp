@@ -50,6 +50,7 @@ function load()
 		     {display: '名称', name : 'name', width : '20%', sortable : false, align: 'left'},
 		     {display: '编码', name : 'code', width : '10%', sortable : false, align: 'left'},
 		     {display: '类型', name : 'type', width : '10%', sortable : false, align: 'left', cc: 109},
+		     {display: '所属系统', name : 'item', width : '10%', sortable : false, align: 'left'},
 		     {display: '询价用户', name : 'loginName', width : '8%'},
 		     {display: '分类', name : 'typeName', width : '20%'},
 		     {display: '所属片区', name : 'location', width : '8%', sortable : false, align: 'left', cc: 123},
