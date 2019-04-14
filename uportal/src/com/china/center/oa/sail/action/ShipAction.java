@@ -1264,8 +1264,10 @@ public class ShipAction extends DispatchAction
 //                request.getSession().setAttribute("printMode", "0");
 //                request.getSession().setAttribute("printSmode", "0");
                 String directFlag = request.getParameter("directFlag");
+                String doublePrintFlag = request.getParameter("doublePrintFlag");
                 request.setAttribute("directFlag", directFlag);
-                _logger.info("****redirect to findOutForReceipt print**********");
+                request.setAttribute("doublePrintFlag", doublePrintFlag);
+                _logger.info("****redirect to findOutForReceipt print**********"+doublePrintFlag);
                 return findOutForReceipt(mapping, form, request, response);
             }else
             {
@@ -1450,6 +1452,7 @@ public class ShipAction extends DispatchAction
         String batchPrint = RequestTools.getValueFromRequest(request, "batchPrint");
         String print2 = (String) request.getSession().getAttribute("printMode");
         String directFlag = RequestTools.getValueFromRequest(request, "directFlag");
+        String doublePrintFlag = RequestTools.getValueFromRequest(request, "doublePrintFlag");
 
         String subindex_pos = request.getParameter("subindex_pos");
         int subindexpos = 0;
@@ -1462,7 +1465,7 @@ public class ShipAction extends DispatchAction
         // subindex_pos代表CK单中第几个客户
         String msg1 = "***batchPrint***" + batchPrint + "***print2***" + print2 + "***pickupId***" + pickupId +
                 "***packageId***" + packageId + "***index_pos***" + index_pos + "***printMode***" + printMode + "***printSmode***" +
-                printSmode+"***directFlag***"+directFlag+"***subindex_pos***"+subindex_pos;
+                printSmode+"***directFlag***"+directFlag+"***subindex_pos***"+subindex_pos+"***doublePrintFlag***"+doublePrintFlag;
         _logger.info(msg1);
         //2015/3/25 批量打印标志
         request.setAttribute("batchPrint", batchPrint);
@@ -1788,6 +1791,20 @@ public class ShipAction extends DispatchAction
                 _logger.error("****prepareForZjPrint exception***", e);
             }
 
+
+            //#536
+            if("0".equals(batchPrint) &&
+                    (vo.getCustomerName().indexOf(ShipConstant.ZJNS) != -1 ||
+                            vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1)){
+                _logger.info("******doublePrintFlag****"+doublePrintFlag);
+                if (doublePrintFlag == null){
+                    request.setAttribute("doublePrintFlag", "1");
+                    request.setAttribute("title", "永银文化公司贵金属实物交接清单（客户留存联）");
+                } else{
+                    request.setAttribute("doublePrintFlag", "0");
+                    request.setAttribute("title", "永银文化公司贵金属实物交接清单（寄回发件公司联）");
+                }
+            }
             return mapping.findForward("printZjReceipt");
         }
         //贵州银行
@@ -1964,15 +1981,15 @@ public class ShipAction extends DispatchAction
 
             //#171 批量打印时多打印一份直邮单据,batchPrint为0代表批量打印，否则为空
             //#381 20180808 这个功能又不要了!!!
-//            if("0".equals(batchPrint) && vo.getDirect() == 1){
-//                if (directFlag == null){
-//                    request.setAttribute("directFlag", "1");
-//                    request.setAttribute("title", "永银文化——发货清单（客户留存联）");
-//                } else{
-//                    request.setAttribute("directFlag", "0");
-//                    request.setAttribute("title", "永银文化——发货清单（寄回发件公司联）");
-//                }
-//            }
+/*            if("0".equals(batchPrint) && vo.getDirect() == 1){
+                if (directFlag == null){
+                    request.setAttribute("directFlag", "1");
+                    request.setAttribute("title", "永银文化——发货清单（客户留存联）");
+                } else{
+                    request.setAttribute("directFlag", "0");
+                    request.setAttribute("title", "永银文化——发货清单（寄回发件公司联）");
+                }
+            }*/
 
             String appName = ConfigLoader.getProperty("appName");
             //#497
