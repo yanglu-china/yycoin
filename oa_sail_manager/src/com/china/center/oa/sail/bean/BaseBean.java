@@ -111,6 +111,10 @@ public class BaseBean implements Serializable, BaseInterface
      */
     private String costPriceKey = "";
 
+    private double virtualPrice = 0.0d;
+
+    private String virtualPriceKey = "";
+
     /**
      * 总销售价
      */
@@ -974,6 +978,22 @@ public class BaseBean implements Serializable, BaseInterface
         this.cash2 = cash2;
     }
 
+    public double getVirtualPrice() {
+        return virtualPrice;
+    }
+
+    public void setVirtualPrice(double virtualPrice) {
+        this.virtualPrice = virtualPrice;
+    }
+
+    public String getVirtualPriceKey() {
+        return virtualPriceKey;
+    }
+
+    public void setVirtualPriceKey(String virtualPriceKey) {
+        this.virtualPriceKey = virtualPriceKey;
+    }
+
     @Override
     public String toString() {
         return "BaseBean{" +
@@ -999,6 +1019,8 @@ public class BaseBean implements Serializable, BaseInterface
                 ", inputPrice=" + inputPrice +
                 ", costPrice=" + costPrice +
                 ", costPriceKey='" + costPriceKey + '\'' +
+                ", virtualPrice=" + virtualPrice +
+                ", virtualPriceKey='" + virtualPriceKey + '\'' +
                 ", value=" + value +
                 ", invoiceMoney=" + invoiceMoney +
                 ", description='" + description + '\'' +

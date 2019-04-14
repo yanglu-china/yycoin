@@ -7406,7 +7406,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             			newBase.setCostPrice(each.getPrice());
             			
             			newBase.setCostPriceKey(each.getPriceKey());
-            			
+
+            			//#545
+            			newBase.setVirtualPrice(each.getVirtualPrice());
+            			newBase.setVirtualPriceKey(each.getVirtualPriceKey());
             			if (element.getInvoiceMoney() > 0) {
             				newBase.setInvoiceMoney(newBase.getValue());
             			}
@@ -7430,6 +7433,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             			newBase.setCostPrice(each.getPrice());
             			
             			newBase.setCostPriceKey(each.getPriceKey());
+
+                        //#545
+                        newBase.setVirtualPrice(each.getVirtualPrice());
+                        newBase.setVirtualPriceKey(each.getVirtualPriceKey());
             			
             			if (element.getInvoiceMoney() > 0) {
             				newBase.setInvoiceMoney(newBase.getValue());
