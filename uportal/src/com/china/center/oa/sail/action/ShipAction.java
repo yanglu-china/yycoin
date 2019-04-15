@@ -1791,11 +1791,8 @@ public class ShipAction extends DispatchAction
                 _logger.error("****prepareForZjPrint exception***", e);
             }
 
-
             //#536
-            if("0".equals(batchPrint) &&
-                    (vo.getCustomerName().indexOf(ShipConstant.ZJNS) != -1 ||
-                            vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1)){
+            if("0".equals(batchPrint) && vo.getCustomerName().indexOf(ShipConstant.ZJNS) != -1 ){
                 _logger.info("******doublePrintFlag****"+doublePrintFlag);
                 if (doublePrintFlag == null){
                     request.setAttribute("doublePrintFlag", "1");
@@ -2005,6 +2002,18 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("printZjghReceipt");
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
+            }
+            //#536
+            else if("0".equals(batchPrint) && vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1){
+                _logger.info("******doublePrintFlag****"+doublePrintFlag);
+                if (doublePrintFlag == null){
+                    request.setAttribute("doublePrintFlag", "1");
+                    request.setAttribute("title", ShipConstant.YYWH+"——发货清单（客户留存联）");
+                } else{
+                    request.setAttribute("doublePrintFlag", "0");
+                    request.setAttribute("title", ShipConstant.YYWH+"——发货清单（寄回发件公司联）");
+                }
+                return mapping.findForward("printGdnxReceipt");
             }
             else {
                 return mapping.findForward("printUnifiedReceipt");
