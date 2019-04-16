@@ -14,10 +14,14 @@ import java.util.Collection;
 import java.util.List;
 
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.bean.PriceConfigBean;
+import com.china.center.oa.product.dao.PriceConfigDAO;
+import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.publics.bean.LogBean;
 import com.china.center.oa.publics.constant.ModuleConstant;
 import com.china.center.oa.publics.constant.OperationConstant;
 import com.china.center.oa.publics.dao.LogDAO;
+import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.stock.bean.StockItemArrivalBean;
 import com.china.center.oa.stock.dao.StockItemArrivalDAO;
 import com.china.center.oa.stock.vo.StockItemArrivalVO;
@@ -79,6 +83,12 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
     private InvoiceDAO invoiceDAO = null;
 
     private LogDAO logDAO = null;
+
+    private BaseDAO baseDAO = null;
+
+    private PriceConfigDAO priceConfigDAO = null;
+
+    private PriceConfigManager priceConfigManager = null;
 
     /**
      * default constructor
@@ -270,6 +280,9 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
             String fullId = outManager.coloneOutAndSubmitWithOutAffair(out, user,
                 StorageConstant.OPR_STORAGE_OUTBILLIN);
 
+            //#545
+            this.updateSailPrice(user,out);
+
             item.setHasRef(StockConstant.STOCK_ITEM_HASREF_YES);
 
             item.setRefOutId(fullId);
@@ -285,6 +298,55 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
             for (FechProductListener fechProductListener : listenerMapValues)
             {
                 fechProductListener.onFechProduct(user, bean, each, out);
+            }
+        }
+    }
+
+    private void updateSailPrice(User user,OutBean outBean){
+        List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
+        if (!ListTools.isEmptyOrNull(baseBeans)){
+            for(BaseBean baseBean: baseBeans){
+                String productId = baseBean.getProductId();
+                ProductBean product = this.productDAO.find(productId);
+                if (product!= null && product.getSailPriceFlag() ==  1){
+                    List<PriceConfigBean> list1 = priceConfigDAO.querySailPricebyProductId(productId);
+                    if (ListTools.isEmptyOrNull(list1)){
+                        // 日志
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("取自采购入库单:"+outBean.getFullId()+".修改人:"+user.getName())
+                                .append(".原产品结算价:").append(product.getSailPrice())
+                                .append(".更新为:").append(baseBean.getPrice());
+                        this.log(user, productId, OperationConstant.OPERATION_UPDATE, sb.toString(), ModuleConstant.MODULE_PRICE_CONFIG);
+
+                        //如果没有config配置项，直接更新product的sailPrice
+                        product.setSailPrice(baseBean.getPrice());//采购商品的结算价更新为此张采购单的成本价
+                        productDAO.updateEntityBean(product);
+                    } else{
+                        PriceConfigBean first = list1.get(0);
+                        //有配置项，先更新配置项的辅料字段，然后通过公式算出结算价，然后更新回product的sailPrice
+                        this.priceConfigDAO.updateGsPriceUp(productId, baseBean.getPrice());
+                        //log
+                        StringBuilder sb2 = new StringBuilder();
+                        sb2.append("取自采购入库单:"+outBean.getFullId()+".修改人:"+user.getName())
+                                .append(".原产品辅料价:").append(first.getGsPriceUp())
+                                .append(".更新为:").append(baseBean.getPrice());
+                        this.log(user, productId, OperationConstant.OPERATION_UPDATE, sb2.toString(), ModuleConstant.MODULE_PRICE_CONFIG2);
+
+                        first.setGsPriceUp(baseBean.getPrice());
+                        PriceConfigBean cb = this.priceConfigManager.calcSailPrice(first);
+                        if (cb!= null){
+                            // 日志
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("取自采购入库单:"+outBean.getFullId()+".修改人:"+user.getName())
+                                    .append(".原产品结算价:").append(product.getSailPrice())
+                                    .append(".更新为:").append(cb.getSailPrice());
+                            this.log(user, productId, OperationConstant.OPERATION_UPDATE, sb.toString(), ModuleConstant.MODULE_PRICE_CONFIG);
+
+                            product.setSailPrice(cb.getSailPrice());
+                            productDAO.updateEntityBean(product);
+                        }
+                    }
+                }
             }
         }
     }
@@ -453,6 +515,9 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
             String fullId = outManager.coloneOutAndSubmitWithOutAffair(out, user,
                     StorageConstant.OPR_STORAGE_OUTBILLIN);
 
+            //#545
+            this.updateSailPrice(user,out);
+
             if (item.getFechProduct() == StockConstant.STOCK_ITEM_FECH_YES){
                 item.setHasRef(StockConstant.STOCK_ITEM_HASREF_YES);
             } else if (item.getFechProduct() ==StockConstant.STOCK_ITEM_FECH_PART){
@@ -521,7 +586,8 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
             }
     }
 
-    private void log(User user, String id,String operation, String reason) {
+
+    private void log(User user, String id,String operation, String reason,String module) {
         // 记录审批日志
         LogBean log = new LogBean();
 
@@ -530,7 +596,8 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
         log.setLocationId(user.getLocationId());
         log.setStafferId(user.getStafferId());
         log.setLogTime(TimeTools.now());
-        log.setModule(ModuleConstant.MODULE_PRICE_CONFIG);
+//        log.setModule(ModuleConstant.MODULE_PRICE_CONFIG);
+        log.setModule(module);
         log.setOperation(operation);
         log.setLog(reason);
 
@@ -645,5 +712,29 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
 
     public void setLogDAO(LogDAO logDAO) {
         this.logDAO = logDAO;
+    }
+
+    public BaseDAO getBaseDAO() {
+        return baseDAO;
+    }
+
+    public void setBaseDAO(BaseDAO baseDAO) {
+        this.baseDAO = baseDAO;
+    }
+
+    public PriceConfigDAO getPriceConfigDAO() {
+        return priceConfigDAO;
+    }
+
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
+        this.priceConfigDAO = priceConfigDAO;
+    }
+
+    public PriceConfigManager getPriceConfigManager() {
+        return priceConfigManager;
+    }
+
+    public void setPriceConfigManager(PriceConfigManager priceConfigManager) {
+        this.priceConfigManager = priceConfigManager;
     }
 }

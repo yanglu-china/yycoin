@@ -22,15 +22,16 @@
 
             var compose = $O('compose').value;
             var batchPrint = $O('batchPrint').value;
-
-//    console.log("batchPrint:"+batchPrint);
-//    console.log("stafferName:"+$$('stafferName'));
-//    console.log("index_pos:"+index_pos);
-//    console.log("allPackages:"+$$('allPackages'));
+            var doublePrintFlag = $O('doublePrintFlag').value;
+/*            console.log("doublePrintFlag:"+doublePrintFlag);
+   console.log("batchPrint:"+batchPrint);
+   console.log("stafferName:"+$$('stafferName'));
+   console.log("index_pos:"+index_pos);
+   console.log("allPackages:"+$$('allPackages'));*/
             //连打模式下，并且回执单都已经打印完毕就跳转到交接单打印
 //    if ($$('allPackages') == index_pos && batchPrint == '0' && $$('stafferName') == '叶百韬')
             //2015/3/26 最后打印的回执单可能不是叶百韬的单子，这个判断到打印交接单时做
-            if ($$('allPackages') == index_pos && batchPrint == '0')
+            if ($$('allPackages') == index_pos && batchPrint == '0' && doublePrintFlag != '1')
             {
                 var pickupId = $O('pickupId').value;
                 var index_pos = $O('index_pos').value;
@@ -42,10 +43,15 @@
                 if ((!pickupId || 0 === pickupId.length)){
                     alert("已打印!");
                 }else{
-                    // 链到客户出库单打印界面
-                    $l("../sail/ship.do?method=findOutForReceipt&pickupId="
+                    if (doublePrintFlag === '1'){
+                        var url = window.location.href+"&doublePrintFlag="+doublePrintFlag;
+                        $l(url);
+                    }else{
+                        // 链到客户出库单打印界面
+                        $l("../sail/ship.do?method=findOutForReceipt&pickupId="
                             +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
                             + "&compose=" + compose+ "&batchPrint=" + batchPrint);
+                    }
                 }
             }
         }
@@ -64,6 +70,7 @@
 <input type="hidden" name="subindex_pos" value="${subindex_pos}">
 <input type="hidden" name="compose" value="${compose}">
 <input type="hidden" name="batchPrint" value="${batchPrint}">
+<input type="hidden" name="doublePrintFlag" value="${doublePrintFlag}">
 <input type="hidden" name="allPackages" value="${allPackages}">
 <input type="hidden" name="printMode" value="${printMode}">
 <input type="hidden" name="printSmode" value="${printSmode}">
