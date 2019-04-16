@@ -8,7 +8,6 @@
  */
 package com.china.center.oa.tcp.bean;
 
-
 import java.io.Serializable;
 
 import com.china.center.jdbc.annotation.Entity;
@@ -18,7 +17,6 @@ import com.china.center.jdbc.annotation.Join;
 import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.Unique;
 import com.china.center.oa.publics.bean.StafferBean;
-
 
 /**
  * TcpHandleHisBean
@@ -33,29 +31,29 @@ import com.china.center.oa.publics.bean.StafferBean;
 public class TcpHandleHisBean implements Serializable
 {
     @Id
-    private String id = "";
+    protected String id = "";
 
-    private String name = "";
+    protected String name = "";
 
-    private int type = 0;
+    protected int type = 0;
 
     @FK
-    private String refId = "";
+    protected String refId = "";
 
     /**
      * 处理人
      */
     @Unique(dependFields = "refId")
     @Join(tagClass = StafferBean.class, alias = "SB1")
-    private String stafferId = "";
+    protected String stafferId = "";
 
     /**
      * 申请人
      */
     @Join(tagClass = StafferBean.class, alias = "SB2")
-    private String applyId = "";
+    protected String applyId = ""; 
 
-    private String logTime = "";
+    protected String logTime = "";
 
     /**
      * default constructor

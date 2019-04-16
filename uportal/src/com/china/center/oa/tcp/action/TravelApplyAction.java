@@ -491,9 +491,9 @@ public class TravelApplyAction extends DispatchAction
 
         ActionTools.processJSONQueryCondition(cacheKey, request, condtion);
 
-        condtion.addCondition("TcpHandleHisBean.stafferId", "=", user.getStafferId());
+        condtion.addCondition("VTcpHandleHisBean.stafferId", "=", user.getStafferId());
 
-        condtion.addCondition("order by TcpHandleHisBean.logTime desc");
+        condtion.addCondition("order by VTcpHandleHisBean.logTime desc");
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(cacheKey, request, condtion,
             this.tcpHandleHisDAO, new HandleResult<TcpHandleHisVO>()

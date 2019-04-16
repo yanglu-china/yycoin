@@ -32,7 +32,8 @@ function load()
              {display: '类型', name : 'type', cc: 'tcpType', sortable: true, width : '20%'},
              {display: '费用', name : 'moneyStr1', width : '8%'},
              {display: '借款', name : 'moneyStr2', width : '8%'},
-             {display: '时间', name : 'logTime', sortable: true, width : 'auto'}
+             {display: '时间', name : 'logTime', sortable: true, width : 'auto'},
+             {display: '处理结果', name : 'status', cc: 'tcpStatus', sortable: true, width : '8%'},
              ],
          extAtt: {
              refId : {begin : '<a href={url}>', end : '</a>'}

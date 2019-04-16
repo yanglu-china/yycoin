@@ -13,6 +13,8 @@ import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.tcp.bean.TcpHandleHisBean;
+import com.china.center.oa.tcp.bean.VTcpHandleHisBean;
+import com.china.center.oa.tcp.bean.TcpStatusBean;
 
 
 /**
@@ -24,7 +26,7 @@ import com.china.center.oa.tcp.bean.TcpHandleHisBean;
  * @since 3.0
  */
 @Entity(inherit = true)
-public class TcpHandleHisVO extends TcpHandleHisBean
+public class TcpHandleHisVO extends VTcpHandleHisBean
 {
     @Relationship(relationField = "stafferId")
     private String stafferName = "";
@@ -88,7 +90,7 @@ public class TcpHandleHisVO extends TcpHandleHisBean
         this.applyName = applyName;
     }
 
-    /**
+	/**
      * @return the url
      */
     public String getUrl()

@@ -188,7 +188,7 @@
 		</condtion>
 	</item>
 
-	<item name="queryTcpHis" deaultpfix="TcpHandleHisBean">
+	<item name="queryTcpHis" deaultpfix="VTcpHandleHisBean">
 		<condtion name="alogTime" filed="logTime" caption="日期从">
 			<opr>&gt;=</opr>
 			<type>date</type>
@@ -215,6 +215,12 @@
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
+		<condtion name="status" caption="处理结果">
+			<opr>=</opr>
+			<datatype>1</datatype>
+			<type>select</type>
+			<option>$tcpStatus</option>
+		</condtion>	
 	</item>
 
 	<item name="querySelfExpense" deaultpfix="ExpenseApplyBean">
