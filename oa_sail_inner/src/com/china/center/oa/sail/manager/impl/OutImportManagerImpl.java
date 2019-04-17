@@ -1,5 +1,6 @@
 package com.china.center.oa.sail.manager.impl;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -3798,26 +3799,37 @@ public class OutImportManagerImpl implements OutImportManager
                             this.setGrossProfitAndCash(out, customerBean, baseBean);
                         }
 
-                        //#575
-                        if(!StringTools.isNullOrNone(olBaseBean.getProductImportId())){
-							ProductImportBean productImportBean = this.productImportDAO.find(olBaseBean.getProductImportId());
-							if(productImportBean!= null){
-								baseBean.setCash(productImportBean.getCash());
-								baseBean.setCash2(productImportBean.getCash2());
-							}
-						}
-
 						baseBean.setUnit("套");
 						baseBean.setAmount(olBaseBean.getAmount());
 						baseBean.setPrice(olBaseBean.getPrice());
 						baseBean.setValue(olBaseBean.getAmount() * olBaseBean.getPrice());
+
+                        //#575
+						String productImportId = olBaseBean.getProductImportId();
+                        if(!StringTools.isNullOrNone(productImportId)){
+							ProductImportBean productImportBean = this.productImportDAO.find(productImportId);
+							if(productImportBean!= null){
+								ProductBean productBean = this.productDAO.findByUnique(productImportBean.getCode());
+								if (productBean != null){
+									baseBean.setProductId(productBean.getId());
+									baseBean.setProductName(productBean.getName());
+									baseBean.setProductImportId(productImportId);
+									baseBean.setCash(productImportBean.getCash());
+									baseBean.setCash2(productImportBean.getCash2());
+
+									//#625 OA出库单数量等于折算系数*开单数量
+									double amount = Math.round(olBaseBean.getAmount()*productImportBean.getRated());
+									baseBean.setAmount(new BigDecimal(amount).intValueExact());
+								}
+							}
+						}
+
 
 						baseBean.setIbMoney(olBaseBean.getIbMoney());
 						baseBean.setMotivationMoney(olBaseBean.getMotivationMoney());
 						baseBean.setIbMoney2(olBaseBean.getIbMoney2());
 						baseBean.setMotivationMoney2(olBaseBean.getMotivationMoney2());
 						baseBean.setPlatformFee(olBaseBean.getPlatformFee());
-						baseBean.setProductImportId(olBaseBean.getProductImportId());
 
 						baseBean.setOwner("0");
 						baseBean.setOwnerName("公共");
