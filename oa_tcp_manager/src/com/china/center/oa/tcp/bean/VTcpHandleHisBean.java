@@ -19,8 +19,6 @@ import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.Unique;
 import com.china.center.oa.publics.bean.StafferBean;
 
-import com.china.center.oa.tcp.bean.TcpStatusBean;
-
 
 /**
  * VTcpHandleHisBean

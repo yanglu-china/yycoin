@@ -14,7 +14,6 @@ import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.tcp.bean.TcpHandleHisBean;
 import com.china.center.oa.tcp.bean.VTcpHandleHisBean;
-import com.china.center.oa.tcp.bean.TcpStatusBean;
 
 
 /**
