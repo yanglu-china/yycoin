@@ -524,6 +524,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 bean.setStatus(newStatus);
 
                 expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+                
+                expenseApplyDAO.updateProcessTime(bean.getId(), TimeTools.now());
             }
 
             // 记录操作日志
@@ -558,6 +560,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 bean.setStatus(newStatus);
 
                 expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+                
+                expenseApplyDAO.updateProcessTime(bean.getId(), TimeTools.now());
 
                 // 记录操作日志
                 saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
@@ -605,6 +609,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                             TcpConstanst.TCP_POOL_COMMON);
                     bean.setStatus(newStatus);
                     expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+                    expenseApplyDAO.updateProcessTime(bean.getId(), TimeTools.now());
                     // 记录操作日志
                     saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
                 }
@@ -633,6 +638,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     bean.setStatus(newStatus);
 
                     expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+                    
+                    expenseApplyDAO.updateProcessTime(bean.getId(), TimeTools.now());
 
                     // 记录操作日志
                     saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
