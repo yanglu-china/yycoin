@@ -173,6 +173,11 @@ public class ProductImportBean implements Serializable
 
     private String isSell = "";
 
+    /**
+     * #625 折算率
+     */
+    private double rated = 1;
+
     public String getIsSell() {
         return isSell;
     }
@@ -461,6 +466,14 @@ public class ProductImportBean implements Serializable
         this.cash2 = cash2;
     }
 
+    public double getRated() {
+        return rated;
+    }
+
+    public void setRated(double rated) {
+        this.rated = rated;
+    }
+
     @Override
     public String toString() {
         return "ProductImportBean{" +
@@ -500,6 +513,7 @@ public class ProductImportBean implements Serializable
                 ", operator='" + operator + '\'' +
                 ", item='" + item + '\'' +
                 ", isSell='" + isSell + '\'' +
+                ", rated=" + rated +
                 '}';
     }
 }
