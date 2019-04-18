@@ -883,7 +883,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         String today = sdf.format(date);
 
         ConditionParse conditionParse = new ConditionParse();
-        conditionParse.addCondition("status","=", TcpConstanst.TCP_STATUS_END);
+        //conditionParse.addCondition("status","=", TcpConstanst.TCP_STATUS_END);
+        conditionParse.addCondition(" AND status in ("+TcpConstanst.TCP_STATUS_WAIT_PAY+","+TcpConstanst.TCP_STATUS_END+")");
         conditionParse.addCondition("flowKey","=", TcpFlowConstant.WORKFLOW_2018);
         conditionParse.addCondition("processTime", ">=" ,today);
         List<ExpenseApplyBean> expenseApplyVOS = this.expenseApplyDAO.queryEntityBeansByCondition(conditionParse);
@@ -993,7 +994,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             return true;
         } else{
             for (FinanceBean financeBean: financeBeans){
-                if (financeBean.getDescription().contains("报销最终通过:")){
+                if (financeBean.getDescription().contains("财务审批通过:")
+                 || financeBean.getDescription().contains("报销最终通过:")){
                     return false;
                 }
             }

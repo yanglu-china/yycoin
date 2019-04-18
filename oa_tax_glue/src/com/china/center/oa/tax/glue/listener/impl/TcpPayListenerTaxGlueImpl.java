@@ -348,9 +348,20 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         throws MYException
     {
         FinanceBean financeBean = new FinanceBean();
+        
+        StringBuilder builder = new StringBuilder();
+        builder.append(bean.getDescription()+",");
+        builder.append(DefinedCommon.getValue("tcpType", bean.getType()));
+        
+        if(TcpConstanst.TCP_STATUS_WAIT_PAY == bean.getStatus()){
+        	builder.append("财务审批通过:");
+        }else{
+        	builder.append("报销最终通过:");
+        }
+        
+        builder.append(bean.getId()+ ".");
 
-        String name = bean.getDescription()+","+DefinedCommon.getValue("tcpType", bean.getType()) + "报销最终通过:" + bean.getId()
-                      + '.';
+        String name = builder.toString();
 
         financeBean.setName(name);
 
