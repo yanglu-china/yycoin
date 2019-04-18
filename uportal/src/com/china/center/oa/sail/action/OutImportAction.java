@@ -63,6 +63,7 @@
  import javax.servlet.http.HttpServletResponse;
  import java.io.IOException;
  import java.io.OutputStream;
+ import java.math.BigDecimal;
  import java.text.ParseException;
  import java.text.SimpleDateFormat;
  import java.util.*;
@@ -1333,6 +1334,10 @@
                  bean.setCash(productImportBean.getCash());
                  bean.setCash2(productImportBean.getCash2());
                  bean.setGrossProfit(productImportBean.getGrossProfit());
+
+                 //#625 OA出库单数量等于折算系数*开单数量
+                 double amount = Math.round(bean.getAmount()*productImportBean.getRated());
+                 bean.setAmount(new BigDecimal(amount).intValueExact());
              }
          }catch (MYException e){
              _logger.error(e);
