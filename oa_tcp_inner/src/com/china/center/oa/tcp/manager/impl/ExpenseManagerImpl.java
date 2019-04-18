@@ -704,6 +704,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             bean.setStatus(newStatus);
 
             expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+            //#526
+            expenseApplyDAO.updateProcessTime(bean.getId(), TimeTools.now());
         }
 
         // 记录操作日志
