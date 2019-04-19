@@ -4152,6 +4152,11 @@ public void offlineStorageInJob() {
                             baseBean.setCostPriceKey(StorageRelationHelper
                                     .getPriceKey(baseBean.getCostPrice()));
 
+                            //#545
+                            baseBean.setVirtualPrice(refBaseBean.getVirtualPrice());
+                            baseBean.setVirtualPriceKey(StorageRelationHelper
+                                    .getPriceKey(baseBean.getVirtualPrice()));
+
 							baseBean.setIbMoney(refBaseBean.getIbMoney());
 							baseBean.setMotivationMoney(refBaseBean.getMotivationMoney());
 							baseBean.setIbMoney2(refBaseBean.getIbMoney2());
