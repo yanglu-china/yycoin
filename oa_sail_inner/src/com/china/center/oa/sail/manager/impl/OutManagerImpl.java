@@ -390,6 +390,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         // 成本
         final String[] desList = request.getParameter("desList").split("~");
 
+        //虚料金额
+        final String[] virtualPriceList = request.getParameter("virtualPriceList").split("~");
+
         final String[] otherList = request.getParameter("otherList").split("~");
         
         final String [] depotList = request.getParameter("depotList").split("~");
@@ -780,6 +783,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                         if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
                         {
+                            //#545
+                            base.setVirtualPrice(MathTools.parseDouble(virtualPriceList[i]));
+                            base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
+                                    .getVirtualPrice()));
                             // 显示成本(V5新功能)
                             base.setInputPrice(MathTools.parseDouble(showCostList[i]));
                             

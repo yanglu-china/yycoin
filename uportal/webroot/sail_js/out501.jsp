@@ -232,6 +232,9 @@ function check(isAdd)
 
     //成本
     var desList = document.getElementsByName('costPrice');
+
+    //#545 虚料金额
+    var virtualPriceList = document.getElementsByName('virtualPrice');
     
     var desciprtList = document.getElementsByName('desciprt');
     
@@ -386,6 +389,7 @@ function check(isAdd)
 	// 成本 
     for (var i = 1; i < desList.length; i++)
     {
+        console.log(desList[i]);
     	if (proNames[i].productid == '9775852' || proNames[i].productid == '9865735')
     	{
     		desList[i].value = desciprtList[i].value;
@@ -429,11 +433,13 @@ function check(isAdd)
         
         //真正的成本
         $O('desList').value = $O('desList').value + desList[i].value + '~';
+
+        $O('virtualPriceList').value = $O('virtualPriceList').value + virtualPriceList[i].value + '~';
         
         //显示成本
         $O('showCostList').value = $O('showCostList').value + desciprtList[i].value + '~';
     }
-
+    console.log($O('virtualPriceList').value);
     $O('totalss').value = tsts;
 
     return true;

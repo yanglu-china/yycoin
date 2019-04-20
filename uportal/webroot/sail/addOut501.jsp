@@ -131,6 +131,7 @@ function blackForbid()
 <input type=hidden name="type" value='0' /> 
 <input type=hidden name="saves" value="" />
 <input type=hidden name="desList" value="" />
+<input type=hidden name="virtualPriceList" value="" />
 <input type=hidden name="showCostList" value="" />
 <input type=hidden name="otherList" value="" />
 <input type=hidden name="depotList" value="" />
@@ -321,6 +322,7 @@ function blackForbid()
 						<td width="5%" align="center">税额</td>
 						<td width="5%" align="center">毛利</td>
 						<td width="5%" align="center">毛利率</td>
+						<td width="5%" align="center">虚料金额</td>
 						<td width="5%" align="center"><input type="button" accesskey="A"
 							value="增加" class="button_class" onclick="addTr()"></td>
 					</tr>
@@ -365,6 +367,7 @@ function blackForbid()
 
 						<td align="center"><input type="text" readonly="readonly" onkeyup="cc(this)"
 							style="width: 100%" name="desciprt"><input type="hidden" name="costPrice" value=""></td>
+
 							
 						<td align="center">
 							<input type="text"
@@ -379,7 +382,9 @@ function blackForbid()
 							
 						<td align="center"><input type="text" readonly="readonly" value="0.00%"
 							style="width: 100%" name="profitRatio"></td>
-							
+
+						<td align="center"><input type="text" readonly="readonly"name="virtualPrice" value=""></td>
+
 						<td align="center"></td>
 					</tr>
 
@@ -420,7 +425,7 @@ function blackForbid()
 
 						<td align="center"><input type="text" id="unDesciprt" readonly="readonly" onkeyup="cc(this)"
 							style="width: 100%" name="desciprt"><input type="hidden" id="unCostPrice" name="costPrice" value=""></td>
-							
+
 						<td align="center">
 							<input type="text" id="unTaxrate"
 								value="0.00" readonly="readonly" style="width: 100%" name="taxrate">	
@@ -434,7 +439,10 @@ function blackForbid()
 							
 						<td align="center"><input type="text" readonly="readonly" id="unProfitRatio" value="0.00%"
 							style="width: 100%" name="profitRatio"></td>
-							
+
+						<td align="center">
+							<input type="text" readonly="readonly" style="width: 100%" name="virtualPrice">
+						</td>
 						<td><input type=button value="清空"  class="button_class" onclick="clears()"></td>
 					</tr>
 				</table>
