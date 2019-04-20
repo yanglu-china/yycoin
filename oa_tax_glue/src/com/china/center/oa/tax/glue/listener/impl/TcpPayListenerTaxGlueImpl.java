@@ -161,7 +161,8 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
             }
 
             financeBean.setItemList(itemList);
-
+            
+            _logger.debug("call financeManager.addFinanceBeanWithoutTransactional...");
             financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
         }
 
