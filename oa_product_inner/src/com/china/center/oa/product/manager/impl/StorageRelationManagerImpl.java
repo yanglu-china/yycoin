@@ -464,9 +464,10 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         
         if (relation == null)
         {
-            _logger.info("***find relation***"+bean.getDepotpartId()+"***"+bean.getProductId()+"***"+priceKey+"***"+bean.getStafferId());
             relation = storageRelationDAO.findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(bean
                 .getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getStafferId());
+            _logger.info("***find relation***"+bean.getDepotpartId()+"***"+bean.getProductId()+"***"+priceKey+"***"+bean.getStafferId()+"***virtual***"+virtualPriceKey+"***find***"+relation);
+
         }
 
         //#229 拆分产品时不需要检查拆分后产品的库存

@@ -3720,6 +3720,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             wrap.setDepotpartId(element.getDepotpartId());
             wrap.setPrice(element.getCostPrice());
+            wrap.setVirtualPrice(element.getVirtualPrice());
             wrap.setProductId(element.getProductId());
             if (StringTools.isNullOrNone(element.getOwner()))
             {
@@ -9515,6 +9516,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                     base.setPlatformFee(productImportBean.getPlatformFee());
                                     base.setProductImportId(productImportBean.getId());
                                     base.setYkibMoney(productImportBean.getYkibMoney());
+
+                                    //#625 OA出库单数量等于折算系数*开单数量
+                                    double amount = Math.round(base.getAmount()*productImportBean.getRated());
+                                    base.setAmount(new BigDecimal(amount).intValueExact());
                                 }
                             }catch (MYException e){
                                 _logger.error(e);
