@@ -624,6 +624,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 _logger.info("****next Token***"+nextToken);
                 if (nextToken!= null && nextToken.getNextPlugin().contains("pool")){
                     this.pool(nextToken, user,bean,oldStatus,reason);
+
                 } else{
                     int nextStatusIgnoreDuplicate = nextToken.getNextStatus();
                     String nextProcessor = nextToken.getNextProcessor();
@@ -699,6 +700,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         }
 
         int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(), 1);
+        
+        this._logger.debug("oldStatus:"+oldStatus+", newStatus:"+newStatus);
 
         if (newStatus != oldStatus) {
             bean.setStatus(newStatus);
@@ -706,6 +709,12 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             expenseApplyDAO.updateStatus(bean.getId(), newStatus);
             //#526
             expenseApplyDAO.updateProcessTime(bean.getId(), TimeTools.now());
+            
+            //update #622
+            if(newStatus == 22 || newStatus == 99){
+            	this.handleTcpTicket(bean);
+            }
+            
         }
 
         // 记录操作日志
@@ -900,79 +909,86 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         if(!ListTools.isEmptyOrNull(expenseApplyVOS)){
             _logger.info(expenseApplyVOS.size()+"finished expense apply ***"+expenseApplyVOS);
             for(ExpenseApplyBean bean: expenseApplyVOS){
-                //未申请过报销凭证的
-                if (this.isEndExpenseApply(bean.getId())){
-                    List<TcpShareBean> tcpShareBeans = this.tcpShareDAO.queryEntityBeansByFK(bean.getId());
-                    List<TravelApplyItemVO> travelApplyItemVOS = this.travelApplyItemDAO.queryEntityVOsByFK(bean.getId());
-                    List<TravelApplyPayBean> payList = this.travelApplyPayDAO.queryEntityBeansByFK(bean.getId());
-                    List<String> taxIdList = new ArrayList<>();
-                    List<Long> moneyList = new ArrayList<>();
-                    List<String> stafferIdList = new ArrayList<>();
-                    Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
-                    _logger.info("****tcpShareBeans size***"+tcpShareBeans.size());
-                    _logger.info("****travelApplyItemVOS size***"+travelApplyItemVOS.size());
-                    //是否稽核修改过金额
-                    boolean isChecked = this.isChecked(payList);
+            	this.handleTcpTicket(bean);
+            }
+        }
+    }
+    
+    private void handleTcpTicket(ExpenseApplyBean bean){
 
-                    //实际总费用(考虑稽核)
-                    long realTotal = bean.getTotal();
-                    if (isChecked){
-                        realTotal = bean.getBorrowTotal();
-                    }
-                    _logger.info("****isChecked****"+isChecked+"***realTotal***"+realTotal);
-                    for(TcpShareBean tcpShareBean: tcpShareBeans){
-                        //承担人分担的实际金额(需要考虑稽核)
-                        long share;
-                        if (tcpShareBean.getRatio()>0 ){
-                            share = tcpShareBean.getRatio()*realTotal/100;
-                        } else{
-                            share = tcpShareBean.getRealMonery()*realTotal/bean.getTotal();
+        //未申请过报销凭证的
+        if (this.isEndExpenseApply(bean.getId())){
+            List<TcpShareBean> tcpShareBeans = this.tcpShareDAO.queryEntityBeansByFK(bean.getId());
+            List<TravelApplyItemVO> travelApplyItemVOS = this.travelApplyItemDAO.queryEntityVOsByFK(bean.getId());
+            List<TravelApplyPayBean> payList = this.travelApplyPayDAO.queryEntityBeansByFK(bean.getId());
+            List<String> taxIdList = new ArrayList<>();
+            List<Long> moneyList = new ArrayList<>();
+            List<String> stafferIdList = new ArrayList<>();
+            Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
+            _logger.info("****tcpShareBeans size***"+tcpShareBeans.size());
+            _logger.info("****travelApplyItemVOS size***"+travelApplyItemVOS.size());
+            //是否稽核修改过金额
+            boolean isChecked = this.isChecked(payList);
+
+            //实际总费用(考虑稽核)
+            long realTotal = bean.getTotal();
+            if (isChecked){
+                realTotal = bean.getBorrowTotal();
+            }
+            _logger.info("****isChecked****"+isChecked+"***realTotal***"+realTotal);
+            for(TcpShareBean tcpShareBean: tcpShareBeans){
+                //承担人分担的实际金额(需要考虑稽核)
+                long share;
+                if (tcpShareBean.getRatio()>0 ){
+                    share = tcpShareBean.getRatio()*realTotal/100;
+                } else{
+                    share = tcpShareBean.getRealMonery()*realTotal/bean.getTotal();
+                }
+
+                //同一承担人的费用需要根据多个预算项科目按比例拆分
+                for(TravelApplyItemVO item: travelApplyItemVOS){
+                    String bearId = tcpShareBean.getBearId();
+                    StafferBean sb = this.stafferDAO.find(bearId);
+                    if(sb == null){
+                        _logger.error("***staffer not exists***"+bearId);
+                        break;
+                    } else{
+                        FeeItemBean feeItemBean = this.feeItemDAO.find(item.getFeeItemId());
+                        if (sb.getOtype() == StafferConstant.OTYPE_SAIL){
+                            taxIdList.add(feeItemBean.getTaxId());
+                        } else {
+                            taxIdList.add(feeItemBean.getTaxId2());
                         }
 
-                        //同一承担人的费用需要根据多个预算项科目按比例拆分
-                        for(TravelApplyItemVO item: travelApplyItemVOS){
-                            String bearId = tcpShareBean.getBearId();
-                            StafferBean sb = this.stafferDAO.find(bearId);
-                            if(sb == null){
-                                _logger.error("***staffer not exists***"+bearId);
-                                break;
-                            } else{
-                                FeeItemBean feeItemBean = this.feeItemDAO.find(item.getFeeItemId());
-                                if (sb.getOtype() == StafferConstant.OTYPE_SAIL){
-                                    taxIdList.add(feeItemBean.getTaxId());
-                                } else {
-                                    taxIdList.add(feeItemBean.getTaxId2());
-                                }
-
-                                //按照预算科目/总费用计算比例(考虑稽核)
-                                long itemMoney = item.getCmoneys() > 0 ?item.getCmoneys(): item.getMoneys();
-                                double ratioPerBudgetItem = (double)itemMoney/realTotal;
-                                long money = Math.round(share*ratioPerBudgetItem*100);
-                                _logger.info("share is***"+share+"***ratioPerBudgetItem***"+ratioPerBudgetItem+"***money****"+money);
-                                moneyList.add(money);
-                                stafferIdList.add(bearId);
-                            }
-                        }
-                    }
-                    for (TcpPayListener tcpPayListener : listenerMapValues) {
-                        try {
-                            // TODO_OSGI 这里是报销待财务入账生成的凭证
-                            tcpPayListener.onEndExpenseApply(null, bean, taxIdList,
-                                    moneyList, stafferIdList);
-                        }catch (MYException e){
-                            _logger.error(e);
-                            this.saveFlowLog2(null, bean.getStatus(), bean, "后台JOB生成凭证异常:"+e.getMessage(), PublicConstant.OPRMODE_PASS);
-                        }
-                    }
-
-                    // #546 结束申请单
-                    if (!StringTools.isNullOrNone(bean.getRefId())) {
-                        travelApplyDAO.updateFeedback(bean.getRefId(), bean.getId(),
-                                TcpConstanst.TCP_APPLY_FEEDBACK_YES);
+                        //按照预算科目/总费用计算比例(考虑稽核)
+                        long itemMoney = item.getCmoneys() > 0 ?item.getCmoneys(): item.getMoneys();
+                        double ratioPerBudgetItem = (double)itemMoney/realTotal;
+                        long money = Math.round(share*ratioPerBudgetItem*100);
+                        _logger.info("share is***"+share+"***ratioPerBudgetItem***"+ratioPerBudgetItem+"***money****"+money);
+                        moneyList.add(money);
+                        stafferIdList.add(bearId);
                     }
                 }
             }
+            for (TcpPayListener tcpPayListener : listenerMapValues) {
+            	_logger.info("tcpPayListener...");
+                try {
+                    // TODO_OSGI 这里是报销待财务入账生成的凭证
+                    tcpPayListener.onEndExpenseApply(null, bean, taxIdList,
+                            moneyList, stafferIdList);
+                }catch (MYException e){
+                    _logger.error(e);
+                    this.saveFlowLog2(null, bean.getStatus(), bean, "后台JOB生成凭证异常:"+e.getMessage(), PublicConstant.OPRMODE_PASS);
+                }
+            }
+
+            // #546 结束申请单
+            if (!StringTools.isNullOrNone(bean.getRefId())) {
+                travelApplyDAO.updateFeedback(bean.getRefId(), bean.getId(),
+                        TcpConstanst.TCP_APPLY_FEEDBACK_YES);
+            }
         }
+    
     }
 
     /**
