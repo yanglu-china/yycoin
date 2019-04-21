@@ -2995,6 +2995,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             wrap.setDepotpartId(element.getDepotpartId());
             wrap.setPrice(element.getCostPrice());
+            wrap.setVirtualPrice(element.getVirtualPrice());
             wrap.setProductId(element.getProductId());
             wrap.setStafferId(element.getOwner());
             wrap.setRefId(outBean.getFullId());
