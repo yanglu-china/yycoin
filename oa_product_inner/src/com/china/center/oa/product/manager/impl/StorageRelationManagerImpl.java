@@ -157,9 +157,10 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 		}
 
         String priceKey = StorageRelationHelper.getPriceKey(bean.getPrice());
+        String virtualPriceKey = StorageRelationHelper.getPriceKey(bean.getVirtualPrice());
         StorageRelationBean relation = storageRelationDAO
             .findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(bean.getDepotpartId(), bean
-                .getProductId(), priceKey, bean.getStafferId());
+                .getProductId(), priceKey, virtualPriceKey, bean.getStafferId());
 
         if (relation == null)
         {
