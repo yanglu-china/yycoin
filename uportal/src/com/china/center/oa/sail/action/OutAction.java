@@ -276,6 +276,9 @@ public class OutAction extends ParentOutAction
                             base.setAmount(-base.getAmount());
                             base.setValue(base.getAmount()*base.getPrice());
 
+                            base.setVirtualPrice(b.getVirtualPrice());
+                            base.setVirtualPriceKey(b.getVirtualPriceKey());
+
                             DepotpartBean depotpart = depotpartDAO.find(base.getDepotpartId());
                             if (depotpart == null){
                                 request.setAttribute(KeyConstant.ERROR_MESSAGE, "仓区不能为空!");

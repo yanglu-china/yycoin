@@ -1544,6 +1544,11 @@ public class ParentOutAction extends DispatchAction
             baseBean.setCostPriceKey(StorageRelationHelper
                     .getPriceKey(oribase.getCostPrice()));
 
+            //#545
+            baseBean.setVirtualPrice(oribase.getVirtualPrice());
+            baseBean.setVirtualPriceKey(StorageRelationHelper
+                    .getPriceKey(oribase.getVirtualPrice()));
+
             baseBean.setOwner(oribase.getOwner());
             baseBean.setOwnerName(oribase.getOwnerName());
 
@@ -4195,6 +4200,11 @@ public class ParentOutAction extends DispatchAction
 						baseBean.setCostPriceKey(StorageRelationHelper
 								.getPriceKey(each.getCostPrice()));
 
+						//#545
+						baseBean.setVirtualPrice(each.getVirtualPrice());
+						baseBean.setVirtualPriceKey(StorageRelationHelper
+								.getPriceKey(each.getVirtualPrice()));
+
 						baseBean.setOwner(each.getOwner());
 						baseBean.setOwnerName(each.getOwnerName());
 
@@ -4617,6 +4627,11 @@ public class ParentOutAction extends DispatchAction
 						baseBean.setInputPrice(each.getInputPrice());
 						baseBean.setCostPriceKey(StorageRelationHelper
 								.getPriceKey(each.getCostPrice()));
+
+						//#545
+						baseBean.setVirtualPrice(each.getVirtualPrice());
+						baseBean.setVirtualPriceKey(StorageRelationHelper
+								.getPriceKey(each.getVirtualPrice()));
 
 						baseBean.setOwner(each.getOwner());
 						baseBean.setOwnerName(each.getOwnerName());
@@ -5260,6 +5275,11 @@ public class ParentOutAction extends DispatchAction
 							baseBean.setInputPrice(each.getInputPrice());
 							baseBean.setCostPriceKey(StorageRelationHelper
 									.getPriceKey(each.getCostPrice()));
+
+							//#545
+							baseBean.setVirtualPrice(each.getVirtualPrice());
+							baseBean.setVirtualPriceKey(StorageRelationHelper
+									.getPriceKey(each.getVirtualPrice()));
 						}
 						else
 						{
@@ -5692,6 +5712,10 @@ public class ParentOutAction extends DispatchAction
 			baseBean.setInputPrice(oribase.getInputPrice());
 			baseBean.setCostPriceKey(StorageRelationHelper
 					.getPriceKey(oribase.getCostPrice()));
+			//#545
+			baseBean.setVirtualPrice(oribase.getVirtualPrice());
+			baseBean.setVirtualPriceKey(StorageRelationHelper
+					.getPriceKey(oribase.getVirtualPrice()));
 
 			baseBean.setOwner(oribase.getOwner());
 			baseBean.setOwnerName(oribase.getOwnerName());
@@ -5833,6 +5857,11 @@ public class ParentOutAction extends DispatchAction
 			baseBean.setInputPrice(oribase.getInputPrice());
 			baseBean.setCostPriceKey(StorageRelationHelper
 					.getPriceKey(oribase.getCostPrice()));
+
+			//#545
+			baseBean.setVirtualPrice(oribase.getVirtualPrice());
+			baseBean.setVirtualPriceKey(StorageRelationHelper
+					.getPriceKey(oribase.getVirtualPrice()));
 
 			baseBean.setOwner(oribase.getOwner());
 			baseBean.setOwnerName(oribase.getOwnerName());
@@ -7625,6 +7654,7 @@ public class ParentOutAction extends DispatchAction
                                  base.setOwner(b.getOwner());
                                  base.setInputRate(b.getInputRate());
                                  base.setPrice(b.getPrice());
+                                 base.setVirtualPrice(b.getVirtualPrice());
                              }
                          }
                      }
