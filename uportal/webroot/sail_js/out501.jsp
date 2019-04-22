@@ -434,7 +434,12 @@ function check(isAdd)
         //真正的成本
         $O('desList').value = $O('desList').value + desList[i].value + '~';
 
-        $O('virtualPriceList').value = $O('virtualPriceList').value + virtualPriceList[i].value + '~';
+        var virtualPriceEle = virtualPriceList[i];
+        if (virtualPriceEle){
+            $O('virtualPriceList').value = $O('virtualPriceList').value + virtualPriceEle.value + '~';
+        } else{
+            $O('virtualPriceList').value = $O('virtualPriceList').value + '0' + '~';
+        }
         
         //显示成本
         $O('showCostList').value = $O('showCostList').value + desciprtList[i].value + '~';

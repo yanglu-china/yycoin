@@ -465,7 +465,7 @@ function getProductRelation(ox)
         }
                 
         var os = oo.parentNode.parentNode;
-
+		console.log(os.cells);
         os.cells[2].childNodes[0].title = '当前产品的最大数量:' + ox[0].pamount;
         os.cells[2].childNodes[0].oncheck = 'range(0, ' + ox[0].pamount + ')';
         
@@ -499,7 +499,11 @@ function getProductRelation(ox)
         	}
     	}
 
-        os.cells[10].childNodes[1].value = ox[0].pvirtualprice;
+    	if(os.cells[10].childNodes.length>=2){
+            os.cells[10].childNodes[1].value = ox[0].pvirtualprice;
+		} else{
+            os.cells[10].childNodes[0].value = ox[0].pvirtualprice;
+		}
     }
     
     for(var i = indes; i < ox.length; i++)
