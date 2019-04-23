@@ -1379,6 +1379,23 @@
              bean.setRecommendation(recommendation);
          }
 
+         //#629 虚拟订单
+         if ( !StringTools.isNullOrNone(obj[48]))
+         {
+             String virtualStatus = obj[48].trim();
+             if ("是".equals(virtualStatus)){
+                 bean.setVirtualStatus(1);
+             } else if("否".equals(virtualStatus)){
+                 bean.setVirtualStatus(0);
+             } else{
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("虚拟订单只能为是/否")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
          return importError;
      }
 
@@ -2627,6 +2644,22 @@
              bean.setRecommendation(recommendation);
          }
 
+         //#629 虚拟订单
+         if ( !StringTools.isNullOrNone(obj[48]))
+         {
+             String virtualStatus = obj[48].trim();
+             if ("是".equals(virtualStatus)){
+                 bean.setVirtualStatus(1);
+             } else if("否".equals(virtualStatus)){
+                 bean.setVirtualStatus(0);
+             } else{
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("虚拟订单只能为是/否")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
          return importError;
      }
 

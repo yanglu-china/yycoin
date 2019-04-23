@@ -879,6 +879,9 @@ public class BlackManagerImpl implements BlackManager
         condition.addWhereStr();
         
         condition.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
+
+        //#629
+        condition.addIntCondition("OutBean.virtualStatus", "=", 0);
         
         condition.addIntCondition("OutBean.pay", "=", OutConstant.PAY_NOT);
         
@@ -1264,6 +1267,9 @@ public class BlackManagerImpl implements BlackManager
     	        con.addCondition("OutBean.refOutFullId", "=", outId);
 
     	        con.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_INBILL);
+
+    	        //#629
+                con.addIntCondition("OutBean.virtualStatus", "=", 0);
 
     	        con.addCondition("and OutBean.status in (3, 4)");
     	        

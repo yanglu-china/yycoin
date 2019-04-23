@@ -285,6 +285,11 @@ public class OutImportBean implements Serializable
 	private String recommendation = "";
 
 	private String productImportId = "";
+
+	/**
+	 * #629 虚拟订单
+	 */
+	private int virtualStatus = 0;
     
     @Ignore
     private int mayAmount = 0;
@@ -1060,6 +1065,14 @@ public class OutImportBean implements Serializable
 		this.stafferId2 = stafferId2;
 	}
 
+	public int getVirtualStatus() {
+		return virtualStatus;
+	}
+
+	public void setVirtualStatus(int virtualStatus) {
+		this.virtualStatus = virtualStatus;
+	}
+
 	@Override
 	public String toString() {
 		return "OutImportBean{" +
@@ -1112,6 +1125,7 @@ public class OutImportBean implements Serializable
 				", depotId='" + depotId + '\'' +
 				", depotpartId='" + depotpartId + '\'' +
 				", stafferId='" + stafferId + '\'' +
+				", stafferId2='" + stafferId2 + '\'' +
 				", description='" + description + '\'' +
 				", shipping=" + shipping +
 				", transport1=" + transport1 +
@@ -1136,6 +1150,7 @@ public class OutImportBean implements Serializable
 				", posPayer='" + posPayer + '\'' +
 				", recommendation='" + recommendation + '\'' +
 				", productImportId='" + productImportId + '\'' +
+				", virtualStatus=" + virtualStatus +
 				", mayAmount=" + mayAmount +
 				'}';
 	}

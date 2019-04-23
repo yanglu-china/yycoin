@@ -1519,6 +1519,9 @@ public class ParentOutAction extends DispatchAction
             bean.setOperator(user.getStafferId());
             bean.setOperatorName(user.getStafferName());
 
+            //#629
+            bean.setVirtualStatus(oriOut.getVirtualStatus());
+
             double total = 0.0d;
 
             List<BaseBean> newBaseList = new ArrayList<>();
@@ -4104,6 +4107,9 @@ public class ParentOutAction extends DispatchAction
 
 		out.setDescription("个人领样退库,领样单号:" + outId + ". " + adescription);
 
+		//#629
+		out.setVirtualStatus(oldOut.getVirtualStatus());
+
 		// 商务
 		User g_srcUser = (User) request.getSession().getAttribute("g_srcUser");
 
@@ -4507,6 +4513,8 @@ public class ParentOutAction extends DispatchAction
 			out.setDescription("销售退库,销售单号:" + outId + ". " + adescription);
 		}
 
+		//#629
+		out.setVirtualStatus(oldOut.getVirtualStatus());
         //2015/5/12 拷贝原销售单中收激励情况
 		//#87 XT退单生成的时候，中收激励标志都空。也是在提交中收激励时设置标志位
 //        out.setIbFlag(oldOut.getIbFlag());
@@ -5136,6 +5144,8 @@ public class ParentOutAction extends DispatchAction
 		out.setDescription("其它入库,原销售单号:" + outId + ". " + adescription);
 
 		out.setForceBuyType(CommonTools.parseInt(forceBuyType));
+		//#629
+		out.setVirtualStatus(oldOut.getVirtualStatus());
 
 		// 商务
 		User g_srcUser = (User) request.getSession().getAttribute("g_srcUser");
@@ -5682,6 +5692,9 @@ public class ParentOutAction extends DispatchAction
 
 		bean.setDescription("销售退库,销售单号:" + outId + ". " + description);
 
+		//#629
+		bean.setVirtualStatus(oriOut.getVirtualStatus());
+
 		bean.setOperator(user.getStafferId());
 		bean.setOperatorName(user.getStafferName());
 		
@@ -5826,6 +5839,9 @@ public class ParentOutAction extends DispatchAction
 		bean.setRefOutFullId(outId);
 		
 		bean.setDescription("(批量)个人领样退库,领样单号:" + outId + ". " + description);
+
+		//#629
+		bean.setVirtualStatus(oriOut.getVirtualStatus());
 
 		bean.setOperator(user.getStafferId());
 		bean.setOperatorName(user.getStafferName());

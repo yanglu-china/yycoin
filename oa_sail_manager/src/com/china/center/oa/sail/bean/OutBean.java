@@ -546,6 +546,11 @@ public class OutBean implements Serializable, OutInterface
      */
     private String recommendation = "";
 
+    /**
+     * #629 虚拟订单
+     */
+    private int virtualStatus = 0;
+
     @Ignore
     private List<BaseBean> baseList = null;
 
@@ -2327,6 +2332,14 @@ public class OutBean implements Serializable, OutInterface
         this.frFlag = frFlag;
     }
 
+    public int getVirtualStatus() {
+        return virtualStatus;
+    }
+
+    public void setVirtualStatus(int virtualStatus) {
+        this.virtualStatus = virtualStatus;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
@@ -2369,6 +2382,7 @@ public class OutBean implements Serializable, OutInterface
                 ", managerId='" + managerId + '\'' +
                 ", total=" + total +
                 ", description='" + description + '\'' +
+                ", customerDescription='" + customerDescription + '\'' +
                 ", checks='" + checks + '\'' +
                 ", checkStatus=" + checkStatus +
                 ", reday=" + reday +
@@ -2377,6 +2391,7 @@ public class OutBean implements Serializable, OutInterface
                 ", marks=" + marks +
                 ", mark=" + mark +
                 ", consign=" + consign +
+                ", frFlag=" + frFlag +
                 ", pay=" + pay +
                 ", inway=" + inway +
                 ", tempType=" + tempType +
@@ -2430,6 +2445,12 @@ public class OutBean implements Serializable, OutInterface
                 ", ibApplyId='" + ibApplyId + '\'' +
                 ", motivationFlag=" + motivationFlag +
                 ", motivationApplyId='" + motivationApplyId + '\'' +
+                ", ibFlag2=" + ibFlag2 +
+                ", ibApplyId2='" + ibApplyId2 + '\'' +
+                ", motivationFlag2=" + motivationFlag2 +
+                ", motivationApplyId2='" + motivationApplyId2 + '\'' +
+                ", platformFlag=" + platformFlag +
+                ", platformApplyId='" + platformApplyId + '\'' +
                 ", remoteAllocate=" + remoteAllocate +
                 ", reason='" + reason + '\'' +
                 ", transportNo='" + transportNo + '\'' +
@@ -2440,6 +2461,10 @@ public class OutBean implements Serializable, OutInterface
                 ", channel='" + channel + '\'' +
                 ", cashFlag=" + cashFlag +
                 ", profigFlag=" + profigFlag +
+                ", delivery='" + delivery + '\'' +
+                ", posPayer='" + posPayer + '\'' +
+                ", recommendation='" + recommendation + '\'' +
+                ", virtualStatus=" + virtualStatus +
                 ", baseList=" + baseList +
                 ", distributeBean=" + distributeBean +
                 ", distList=" + distList +
