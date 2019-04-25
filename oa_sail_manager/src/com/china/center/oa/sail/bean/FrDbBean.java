@@ -36,6 +36,17 @@ public class FrDbBean implements Serializable {
      */
     private String yck;
 
+
+    /**
+     * #631 源仓区
+     */
+    private String ycq;
+
+    /**
+     * 虚料金额
+     */
+    private double virtualPrice;
+
     /**
      * 成本
      */
@@ -273,6 +284,22 @@ public class FrDbBean implements Serializable {
         this.errorMessage = errorMessage;
     }
 
+    public String getYcq() {
+        return ycq;
+    }
+
+    public void setYcq(String ycq) {
+        this.ycq = ycq;
+    }
+
+    public double getVirtualPrice() {
+        return virtualPrice;
+    }
+
+    public void setVirtualPrice(double virtualPrice) {
+        this.virtualPrice = virtualPrice;
+    }
+
     @Override
     public String toString() {
         return "FrDbBean{" +
@@ -283,6 +310,8 @@ public class FrDbBean implements Serializable {
                 ", productName='" + productName + '\'' +
                 ", mdk='" + mdk + '\'' +
                 ", yck='" + yck + '\'' +
+                ", ycq='" + ycq + '\'' +
+                ", virtualPrice=" + virtualPrice +
                 ", cb=" + cb +
                 ", fhfs=" + fhfs +
                 ", ysfs=" + ysfs +
@@ -298,6 +327,7 @@ public class FrDbBean implements Serializable {
                 ", status=" + status +
                 ", dbno='" + dbno + '\'' +
                 ", newAmount=" + newAmount +
+                ", errorMessage='" + errorMessage + '\'' +
                 '}';
     }
 }

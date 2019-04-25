@@ -2057,6 +2057,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                 wrap.setDepotpartId(element.getDepotpartId());
                 wrap.setPrice(element.getCostPrice());
+                wrap.setVirtualPrice(element.getVirtualPrice());
                 wrap.setProductId(element.getProductId());
                 if (StringTools.isNullOrNone(element.getOwner()))
                 {
@@ -12890,20 +12891,36 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 baseBean.setId(commonDAO.getSquenceString());
                 baseBean.setOutId(fullId);
 
-                DepotpartBean defaultOKDepotpart = depotpartDAO
-                        .findDefaultOKDepotpart(bean.getYck());
+                String ycq = bean.getYcq();
+                if(StringTools.isNullOrNone(ycq)){
+                    DepotpartBean defaultOKDepotpart = depotpartDAO
+                            .findDefaultOKDepotpart(bean.getYck());
 
-                if (defaultOKDepotpart == null)
-                {
-                    errorMessage = "没有默认良品仓";
-                    _logger.error(bean.getId()+errorMessage);
-                    this.frDbDAO.updateStatus(bean.getId(),null, errorMessage);
-                    break;
+                    if (defaultOKDepotpart == null)
+                    {
+                        errorMessage = "没有默认良品仓";
+                        _logger.error(bean.getId()+errorMessage);
+                        this.frDbDAO.updateStatus(bean.getId(),null, errorMessage);
+                        break;
+                    } else{
+                        //源仓区
+                        baseBean.setDepotpartId(defaultOKDepotpart.getId());
+                        baseBean.setDepotpartName(defaultOKDepotpart.getName());
+                    }
                 } else{
-                    //源仓区
-                    baseBean.setDepotpartId(defaultOKDepotpart.getId());
-                    baseBean.setDepotpartName(defaultOKDepotpart.getName());
+                    DepotpartBean depotpartBean = this.depotpartDAO.find(ycq);
+                    if(depotpartBean == null){
+                        errorMessage = "仓区不存在";
+                        _logger.error(bean.getId()+errorMessage);
+                        this.frDbDAO.updateStatus(bean.getId(),null, errorMessage);
+                        break;
+                    } else{
+                        //源仓区
+                        baseBean.setDepotpartId(ycq);
+                        baseBean.setDepotpartName(depotpartBean.getName());
+                    }
                 }
+
                 baseBean.setLocationId(bean.getYck());
 
                 String productId = bean.getProductId();
@@ -12925,6 +12942,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 baseBean.setCostPrice(NumberUtils.roundDouble(bean.getCb()));
                 baseBean.setCostPriceKey(StorageRelationHelper
                         .getPriceKey(baseBean.getCostPrice()));
+                if(bean.getVirtualPrice()>0){
+                    baseBean.setVirtualPrice(bean.getVirtualPrice());
+                    baseBean.setCostPriceKey(StorageRelationHelper
+                            .getPriceKey(baseBean.getVirtualPrice()));
+                }
                 total += baseBean.getValue();
 
                 baseBean.setOwner("0");
