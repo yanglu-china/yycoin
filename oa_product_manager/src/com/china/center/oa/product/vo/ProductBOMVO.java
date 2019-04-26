@@ -39,6 +39,9 @@ public class ProductBOMVO extends ProductBOMBean
 	private double price = 0.0d;
 
 	@Ignore
+	private double virtualPrice = 0.0d;
+
+	@Ignore
 	/**
 	 * #283 最近一次产品合成的配件价格
 	 */
@@ -219,6 +222,14 @@ public class ProductBOMVO extends ProductBOMBean
 		this.lastPrice = lastPrice;
 	}
 
+	public double getVirtualPrice() {
+		return virtualPrice;
+	}
+
+	public void setVirtualPrice(double virtualPrice) {
+		this.virtualPrice = virtualPrice;
+	}
+
 	@Override
 	public String toString() {
 		return "ProductBOMVO{" +
@@ -230,8 +241,11 @@ public class ProductBOMVO extends ProductBOMBean
 				", bomJson='" + bomJson + '\'' +
 				", pamount=" + pamount +
 				", price=" + price +
+				", virtualPrice=" + virtualPrice +
 				", lastPrice=" + lastPrice +
+				", lastMonthHighPrice=" + lastMonthHighPrice +
+				", lastMonthLowPrice=" + lastMonthLowPrice +
 				", srcRelation='" + srcRelation + '\'' +
-				"} " + super.toString();
+				'}';
 	}
 }

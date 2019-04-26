@@ -507,10 +507,10 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
         // 查看库存大小
         if (relation == null){
-            String template = "储位关系不存在,仓区:%s,产品:%s,priceKey:%s,stafferId:%s";
-            _logger.error(String.format(template,bean.getDepotpartId(), bean.getProductId(), priceKey, bean.getStafferId() ));
-            throw new MYException("储位关系不存在:仓区[%s]产品[%s]priceKey[%s]stafferId[%s]",
-                    bean.getDepotpartId(), bean.getProductId(), priceKey, bean.getStafferId());
+            String template = "储位关系不存在,仓区:%s,产品:%s,priceKey:%s,virtualPriceKey:%s,stafferId:%s";
+            _logger.error(String.format(template,bean.getDepotpartId(), bean.getProductId(), priceKey,virtualPriceKey, bean.getStafferId() ));
+            throw new MYException("储位关系不存在:仓区[%s]产品[%s]priceKey[%s]virtualPriceKey[%s]stafferId[%s]",
+                    bean.getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getStafferId());
         }
         //#374 只有出库减少库存才需要检查
         else if (bean.getChange()<0 && relation.getAmount() + bean.getChange() < 0)

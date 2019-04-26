@@ -1195,6 +1195,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             eachWrap.setDepotpartId(composeItemBean.getDepotpartId());
             eachWrap.setDescription("合成产品移动(合成项减少):" + bean.getId());
             eachWrap.setPrice(composeItemBean.getPrice());
+            eachWrap.setVirtualPrice(composeItemBean.getVirtualPrice());
             eachWrap.setProductId(composeItemBean.getProductId());
             eachWrap.setType(StorageConstant.OPR_STORAGE_COMPOSE);
             eachWrap.setRelationId(eachWrap.getRelationId());

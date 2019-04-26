@@ -883,6 +883,7 @@ public class ProductAction extends DispatchAction
                                 BeanUtil.copyProperties(bomVo, bom);
                                 bomVo.setPamount(vo.getAmount()-preassign);
                                 bomVo.setPrice(this.roundDouble(vo.getPrice()));
+                                bomVo.setVirtualPrice(this.roundDouble(vo.getVirtualPrice()));
                                 bomVo.setSrcRelation(vo.getId());
                                 voListWithMultipleStorage.add(bomVo);
                             }
@@ -2348,6 +2349,7 @@ public class ProductAction extends DispatchAction
         String[] srcPrices = request.getParameterValues("srcPrice");
         String[] srcRelations = request.getParameterValues("srcRelation");
         String[] srcInputRates = request.getParameterValues("srcInputRate");
+        String[] virtualPrices = request.getParameterValues("virtualPrice");
 
         List<ComposeItemBean> itemList = new ArrayList<ComposeItemBean>();
 
@@ -2370,6 +2372,7 @@ public class ProductAction extends DispatchAction
             each.setLogTime(bean.getLogTime());
 //            each.setPrice(CommonTools.parseFloat(srcPrices[i]));
             each.setPrice(this.parseFloat(srcPrices[i]));
+            each.setVirtualPrice(this.parseFloat(virtualPrices[i]));
             each.setProductId(srcProductIds[i]);
             each.setRelationId(srcRelations[i]);
             each.setInputRate(CommonTools.parseFloat(srcInputRates[i]));
@@ -2469,9 +2472,17 @@ public class ProductAction extends DispatchAction
     }
 
     private double parseFloat(String value){
-        BigDecimal bd = new BigDecimal(value);
-        double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-        return v1;
+        if (StringTools.isNullOrNone(value)){
+            return 0;
+        } else{
+            try {
+                BigDecimal bd = new BigDecimal(value);
+                double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                return v1;
+            }catch (NumberFormatException e){
+                return 0;
+            }
+        }
     }
 
     /**

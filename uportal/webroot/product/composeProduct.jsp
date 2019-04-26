@@ -130,7 +130,7 @@ function getProductBom(oos)
     {
         var item = bomjson[j];
 		var trow = addTrInner();
-
+        //console.log(item);
 		setInputValueInTr(trow, 'srcProductId', item.subProductId);
 		setInputValueInTr(trow, 'targerName', item.subProductName);
 		setInputValueInTr(trow, 'srcProductCode', item.code);
@@ -139,6 +139,7 @@ function getProductBom(oos)
         setInputValueInTr(trow, 'srcRelation', item.srcRelation);
         setInputValueInTr(trow, 'bomAmount', item.bomAmount);
         setInputValueInTr(trow, 'attritionRate', item.attritionRate);
+        setInputValueInTr(trow, 'virtualPrice', item.virtualPrice);
         var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
         setSelect(srcDe1, "A1201606211663545389");
     }
@@ -195,14 +196,14 @@ function getProductRelation(oos)
     	for(var i = 1; i < oos.length; i++)
     	{
     		var trow = addTrInner();
-
+            //console.log(oos[i]);
     		setInputValueInTr(trow, 'srcProductId', oos[i].ppid);
     		setInputValueInTr(trow, 'targerName', oos[i].pname);
     		setInputValueInTr(trow, 'srcInputrowate', oos[i].pinputrowate);
     		setInputValueInTr(trow, 'srcPrice', oos[i].pprice);
     		setInputValueInTr(trow, 'srcAmount', oos[i].pamount);
     		setInputValueInTr(trow, 'srcRelation', oos[i].value);
-    	    
+            setInputValueInTr(trow, 'virtualPrice', oos[i].pvirtualprice);
     	    var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
     	    
     	    setSelect(srcDe1, oos[i].pdepotpart);
@@ -491,12 +492,13 @@ function load()
                 <table width="100%" border="0" cellspacing='1' id="tables">
                     <tr align="center" class="content0">
                         <td width="25%" align="center">源仓区</td>
-                        <td width="35%" align="center">源产品</td>
+                        <td width="30%" align="center">源产品</td>
                         <td width="8%" align="center">使用数量</td>
                         <td width="8%" align="center">可用数量</td>
                         <td width="8%" align="center">价格</td>
                         <td width="8%" align="center">组成用量</td>
                         <td width="8%" align="center">损耗率(‰)</td>
+                        <td width="5%" align="center">虚料金额</td>
                         <td width="5%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr()"></td>
                     </tr>
@@ -553,6 +555,8 @@ function load()
                                               name="attritionRate" value="0" >
          <input type="hidden" name="srcRelation" value="">
          </td>
+        <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
+                                              name="virtualPrice" value="" oncheck="isNumber"></td>
         <td width="5%" align="center"><input type=button
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>

@@ -67,6 +67,8 @@ public class ComposeItemBean implements Serializable
      */
     private int stype = ProductConstant.DECOMPOSE_PRODUCT_STORAGE;
 
+    private double virtualPrice = 0.0d;
+
     /**
      * #313
      */
@@ -307,56 +309,37 @@ public class ComposeItemBean implements Serializable
         this.assemblyRate = assemblyRate;
     }
 
+    public double getVirtualPrice() {
+        return virtualPrice;
+    }
+
+    public void setVirtualPrice(double virtualPrice) {
+        this.virtualPrice = virtualPrice;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("ComposeItemBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("parentId = ")
-            .append(this.parentId)
-            .append(TAB)
-            .append("productId = ")
-            .append(this.productId)
-            .append(TAB)
-            .append("deportId = ")
-            .append(this.deportId)
-            .append(TAB)
-            .append("depotpartId = ")
-            .append(this.depotpartId)
-            .append(TAB)
-            .append("storageId = ")
-            .append(this.storageId)
-            .append(TAB)
-            .append("relationId = ")
-            .append(this.relationId)
-            .append(TAB)
-            .append("mtype = ")
-            .append(this.mtype)
-            .append(TAB)
-            .append("amount = ")
-            .append(this.amount)
-            .append(TAB)
-            .append("price = ")
-            .append(this.price)
-            .append(TAB)
-            .append("logTime = ")
-            .append(this.logTime)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "ComposeItemBean{" +
+                "id='" + id + '\'' +
+                ", parentId='" + parentId + '\'' +
+                ", productId='" + productId + '\'' +
+                ", deportId='" + deportId + '\'' +
+                ", depotpartId='" + depotpartId + '\'' +
+                ", storageId='" + storageId + '\'' +
+                ", relationId='" + relationId + '\'' +
+                ", mtype=" + mtype +
+                ", amount=" + amount +
+                ", price=" + price +
+                ", logTime='" + logTime + '\'' +
+                ", inputRate=" + inputRate +
+                ", stype=" + stype +
+                ", virtualPrice=" + virtualPrice +
+                ", assemblyRate=" + assemblyRate +
+                '}';
     }
 }

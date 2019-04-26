@@ -124,6 +124,7 @@ function closesd()
 				<td align="center"><strong>产品</strong></td>
 				<td align="center"><strong>数量</strong></td>
 				<td align="center"><strong>价格</strong></td>
+				<td align="center"><strong>虚料金额</strong></td>
 				<td align="center"><strong>职员</strong></td>
 			</tr>
 
@@ -141,6 +142,7 @@ function closesd()
 					<td align="center" onclick="hrefAndSelect(this)">${item.productName}(${item.productCode})</td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.amount}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${my:formatNum(item.price)}</td>
+					<td align="center" onclick="hrefAndSelect(this)">${my:formatNum(item.virtualPrice)}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.stafferName}</td>
 				</tr>
 			</c:forEach>
