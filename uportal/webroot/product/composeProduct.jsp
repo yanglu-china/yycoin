@@ -186,6 +186,10 @@ function getProductRelation(oos)
     var reobj = getEle(eles, "srcRelation");
     
     reobj.value = oo.value;
+
+    var vobj = getEle(eles, "virtualPrice");
+
+    vobj.value = oo.pvirtualprice;
     
     var srcDe = getEle(tr.getElementsByTagName('select'), "srcDepotpart");
     
@@ -556,7 +560,7 @@ function load()
          <input type="hidden" name="srcRelation" value="">
          </td>
         <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
-                                              name="virtualPrice" value="" oncheck="isNumber"></td>
+                                              name="virtualPrice" value="" oncheck="isFloat"></td>
         <td width="5%" align="center"><input type=button
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>

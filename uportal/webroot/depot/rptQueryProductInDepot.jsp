@@ -132,8 +132,8 @@ function closesd()
 				<tr class="${vs.index % 2 == 0 ? 'content1' : 'content2'}">
 					<td align="center"><input type='${selectMode == 1 ? "radio" : "checkbox"}' name="beans" ppid="${item.productId}"
 						pname="${item.productName}" 
-						pprice="${my:formatNum(item.price)}" 
-						pamount="${item.amount}" 
+						pprice="${my:formatNum(item.price)}" pvirtualprice="${my:formatNum(item.virtualPrice)}"
+						pamount="${item.amount}"
 						pdepotpart="${item.depotpartId}" 
 						pinputrate="${my:formatNum(item.inputRate)}"
 						value="${item.id}"/></td>
