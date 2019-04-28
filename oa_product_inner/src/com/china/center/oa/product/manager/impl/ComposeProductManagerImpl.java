@@ -1214,7 +1214,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 //            if (this.isVirtualProduct(itemBean.getProductId())){
 //                virtualPrice += ((double)itemBean.getAmount()/bean.getAmount())*itemBean.getPrice();
 //            }
-            virtualPrice += ((double)itemBean.getAmount()/bean.getAmount())*itemBean.getPrice();
+            virtualPrice += ((double)itemBean.getAmount()/bean.getAmount())*itemBean.getVirtualPrice();
         }
         return virtualPrice;
     }
