@@ -157,6 +157,8 @@ public class ShipManagerImpl implements ShipManager
             item.setPackageId(id);
             item.setOutId(outBean.getFullId());
             item.setBaseId(base.getId());
+            //#632
+            item.setProductImportId(base.getProductImportId());
             item.setProductId(base.getProductId());
             item.setProductName(base.getProductName());
 
@@ -385,6 +387,8 @@ public class ShipManagerImpl implements ShipManager
                     item.setPackageId(id);
                     item.setOutId(out.getFullId());
                     item.setBaseId(base.getId());
+                    //#632
+                    item.setProductImportId(base.getProductImportId());
                     item.setProductId(base.getProductId());
                     item.setProductName(base.getProductName());
 
@@ -525,7 +529,8 @@ public class ShipManagerImpl implements ShipManager
 
                         //copy current items
                         newItem.setOutId(item.getOutId());
-                        newItem.setBaseId(item.getId());
+                        newItem.setBaseId(item.getBaseId());
+                        newItem.setProductImportId(item.getProductImportId());
                         newItem.setProductId(item.getProductId());
                         newItem.setProductName(item.getProductName());
                         newItem.setAmount(item.getAmount());

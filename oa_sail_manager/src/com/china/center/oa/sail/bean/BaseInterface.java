@@ -28,4 +28,6 @@ public interface BaseInterface {
     double getIprice();
 
     double getPprice();
+
+    String getProductImportId();
 }

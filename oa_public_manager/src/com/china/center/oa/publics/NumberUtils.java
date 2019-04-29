@@ -31,6 +31,15 @@ public class NumberUtils {
         return equals(x, y) || (Math.abs(y - x) <= eps);
     }
 
+    /**
+     * 浮点数四舍五入为整数
+     * @param value
+     * @return
+     */
+    public static int roundInt(double value){
+        return new BigDecimal(Math.round(value)).intValueExact();
+    }
+
     public static void main(String[] args){
         System.out.println(roundDouble(1.7000000476837158));
     }

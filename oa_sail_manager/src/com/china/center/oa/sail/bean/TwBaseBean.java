@@ -888,6 +888,11 @@ public class TwBaseBean implements Serializable, BaseInterface
     }
 
     @Override
+    public String getProductImportId() {
+        return null;
+    }
+
+    @Override
     public String toString() {
         return "BaseBean{" +
                 "id='" + id + '\'' +

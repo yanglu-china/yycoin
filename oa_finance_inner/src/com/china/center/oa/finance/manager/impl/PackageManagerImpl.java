@@ -375,6 +375,8 @@ public class PackageManagerImpl implements PackageManager {
 			item.setPackageId(id);
 			item.setOutId(outBean.getFullId());
 			item.setBaseId(base.getId());
+			//#632
+			item.setProductImportId(base.getProductImportId());
 			item.setProductId(base.getProductId());
 			item.setProductName(base.getProductName());
 
@@ -830,6 +832,7 @@ public class PackageManagerImpl implements PackageManager {
 					item.setPackageId(id);
 					item.setOutId(out.getFullId());
 					item.setBaseId(base.getId());
+					item.setProductImportId(base.getProductImportId());
 					item.setProductId(base.getProductId());
 					item.setProductName(base.getProductName());
 					item.setAmount(Math.abs(base.getAmount()));

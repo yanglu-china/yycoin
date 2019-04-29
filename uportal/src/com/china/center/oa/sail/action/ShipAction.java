@@ -33,6 +33,7 @@ import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.vo.ComposeItemVO;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.AppConstant;
@@ -2966,7 +2967,8 @@ public class ShipAction extends DispatchAction
 
                         itemList1.add(each);
 
-                        totalAmount += each.getAmount();
+//                        totalAmount += each.getAmount();
+                        totalAmount += this.getUnratedAmount(each);
 
                         continue;
                     }
@@ -2995,7 +2997,8 @@ public class ShipAction extends DispatchAction
             }else{
                 PackageItemBean itemBean = map1.get(key);
 
-                itemBean.setAmount(itemBean.getAmount() + each.getAmount());
+//                itemBean.setAmount(itemBean.getAmount() + each.getAmount());
+                itemBean.setAmount(itemBean.getAmount() + this.getUnratedAmount(each));
 
                 itemBean.setOutId(itemBean.getOutId() + "<br>" + each.getOutId());
 
@@ -3040,7 +3043,8 @@ public class ShipAction extends DispatchAction
                 }
             }
 
-            totalAmount += each.getAmount();
+//            totalAmount += each.getAmount();
+            totalAmount += this.getUnratedAmount(each);
         }
 
         for(Entry<String, PackageItemBean> each : map1.entrySet())
@@ -4341,6 +4345,24 @@ public class ShipAction extends DispatchAction
         request.setAttribute("total", totalAmount);
     }
 
+    /**
+     * #632 取未折算的原始数量
+     * @param item
+     * @return
+     */
+    private int getUnratedAmount(PackageItemBean item){
+        String productImportId = item.getProductImportId();
+        if(StringTools.isNullOrNone(productImportId)){
+            return item.getAmount();
+        } else{
+            ProductImportBean productImportBean = this.productImportDAO.find(productImportId);
+            if(productImportBean!= null && productImportBean.getBank().contains("钱币拍卖")
+                    && productImportBean.getRated()>1){
+                return NumberUtils.roundInt(item.getAmount()*productImportBean.getRated());
+            }
+        }
+        return 0;
+    }
     /**
      * #310 紫金农商
      * @param request
