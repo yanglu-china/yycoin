@@ -157,6 +157,11 @@ public interface TcpFlowConstant
      * #495
      */
     String WORKFLOW_2018 = "workflow-2018";
+    
+    /**
+     * #627
+     */
+    String SPECIAL_REIMBURSE_FLOW = "special-reimburse-flow";
 
     /**
      * 部门经理

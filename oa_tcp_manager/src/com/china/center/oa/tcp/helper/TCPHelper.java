@@ -91,10 +91,13 @@ public abstract class TCPHelper
                         || apply.getType() == TcpConstanst.TCP_EXPENSETYPE_COMMON){
                     apply.setFlowKey(TcpFlowConstant.WORKFLOW_2018);
                     return;
+                } else if (apply.getType() == TcpConstanst.TCP_EXPENSETYPE_SPECIAL){
+                    bean.setFlowKey(TcpFlowConstant.SPECIAL_REIMBURSE_FLOW);
+                    return ;
                 } else if (apply.getMarketingFlag() == TcpConstanst.TCP_MARKETING_FLAG_YES){
                     bean.setFlowKey(TcpFlowConstant.WORK_PAY_MARKETING);
                     return ;
-                }
+                } 
             }
 
             if (bean.getType() != TcpConstanst.TCP_APPLYTYPE_STOCK)

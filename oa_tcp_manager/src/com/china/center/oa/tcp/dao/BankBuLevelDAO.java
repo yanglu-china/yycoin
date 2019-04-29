@@ -30,5 +30,14 @@ public interface BankBuLevelDAO extends DAO<BankBuLevelBean, BankBuLevelBean>
      * @return
      */
     String queryHighLevelManagerId(String flowKey, int bearType, String stafferId, String originator);
+    
+    /**
+    *
+    * @param flowKey
+    * @param stafferId 当前环节处理人
+    * @param originator 发起人
+    * @return
+    */
+    public String queryManagerId(String flowKey, String stafferId, String originator); 
 
 }

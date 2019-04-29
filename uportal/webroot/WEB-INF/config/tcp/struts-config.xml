@@ -88,30 +88,35 @@
             <forward name="addExpense13" path="/expense/addExpense13.jsp" />
             <forward name="addExpense14" path="/expense/addExpense14.jsp" />
             <forward name="addExpense15" path="/expense/addExpense15.jsp" />
+            <forward name="addExpense19" path="/expense/addExpense19.jsp" />
             
             <forward name="updateExpense11" path="/expense/updateExpense11.jsp" />
             <forward name="updateExpense12" path="/expense/updateExpense12.jsp" />
             <forward name="updateExpense13" path="/expense/updateExpense13.jsp" />
             <forward name="updateExpense14" path="/expense/updateExpense14.jsp" />
             <forward name="updateExpense15" path="/expense/updateExpense15.jsp" />
+            <forward name="updateExpense19" path="/expense/updateExpense19.jsp" />
 
             <forward name="querySelfExpense11" path="/expense/querySelfExpense11.jsp" />
             <forward name="querySelfExpense12" path="/expense/querySelfExpense12.jsp" />
             <forward name="querySelfExpense13" path="/expense/querySelfExpense13.jsp" />
             <forward name="querySelfExpense14" path="/expense/querySelfExpense14.jsp" />
             <forward name="querySelfExpense15" path="/expense/querySelfExpense15.jsp" />
+            <forward name="querySelfExpense19" path="/expense/querySelfExpense19.jsp" />
             
             <forward name="detailExpense11" path="/expense/detailExpense11.jsp" />
             <forward name="detailExpense12" path="/expense/detailExpense12.jsp" />
             <forward name="detailExpense13" path="/expense/detailExpense13.jsp" />
             <forward name="detailExpense14" path="/expense/detailExpense14.jsp" />
             <forward name="detailExpense15" path="/expense/detailExpense15.jsp" />
+            <forward name="detailExpense19" path="/expense/detailExpense19.jsp" />
             
             <forward name="processExpense11" path="/expense/processExpense11.jsp" />
             <forward name="processExpense12" path="/expense/processExpense12.jsp" />
             <forward name="processExpense13" path="/expense/processExpense13.jsp" />
             <forward name="processExpense14" path="/expense/processExpense14.jsp" />
             <forward name="processExpense15" path="/expense/processExpense15.jsp" />
+            <forward name="processExpense19" path="/expense/processExpense19.jsp" />
              <forward name="queryTabExpense" path="/expense/queryTabExpense.jsp" />
              
             <forward name="querySelfApprove" path="/tcp/querySelfApprove.jsp" />

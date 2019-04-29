@@ -457,6 +457,13 @@ public class TcpFlowManagerImpl implements TcpFlowManager
                 result.setNextStatus(nextStatus);
                 _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
             }
+            //#627
+            else if(nextStatus == TcpConstanst.TCP_STATUS_CENTER_MANAGER){
+                nextProcessor = this.bankBuLevelDAO.queryManagerId(flowKey, stafferId, originator);
+                result.setNextProcessor(nextProcessor);
+                result.setNextStatus(nextStatus);
+                _logger.info("TCP_STATUS_CENTER_MANAGER****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
+            }            
         }catch(Exception e){
             _logger.error(e);
             throw new MYException(stafferId+"T_CENTER_BANKBU_LEVEL表中stafferId没有处理人："+nextStatus);

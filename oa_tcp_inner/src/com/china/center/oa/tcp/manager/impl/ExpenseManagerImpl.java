@@ -614,6 +614,57 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
                 }
             }
+            //#627
+            else if (token.getNextPlugin().equalsIgnoreCase("plugin:centerManagerShare"))
+            {
+                _logger.info("******plugin:centerManagerShare******");
+                List<String> processList = new ArrayList();
+
+                // 先处理一个
+                List<TcpShareVO> shareVOList = bean.getShareVOList();
+
+                if (ListTools.isEmptyOrNull(shareVOList))
+                {
+                    throw new MYException("下环节里面没有人员,请确认操作");
+                }
+                
+                _logger.info("******plugin:centerManagerShare****** shareVOList.size(): "+shareVOList.size());
+
+                for (TcpShareVO tcpShareVO : shareVOList)
+                {
+                    String bearId = tcpShareVO.getBearId();
+                    String managerId = this.bankBuLevelDAO.queryManagerId("", bearId, "");
+                    String stafferManagerId = this.bankBuLevelDAO.queryManagerId("", bean.getStafferId(), "");
+
+                    if (!StringTools.isNullOrNone(managerId)
+                            && !processList.contains(managerId)
+                            //如果承担人直属上级与提交人直属上级一致，则过滤掉
+                            && !managerId.equals(stafferManagerId)){
+                        processList.add(managerId);
+                    }
+                }
+                
+                _logger.info("******plugin:centerManagerShare****** processList.size(): "+processList.size());
+
+                int newStatus = 0;
+                if (ListTools.isEmptyOrNull(processList)){
+                    //直接跳过承担人直属上级审批环节到待财务审批环节
+                    _logger.info("***ignore same leader***"+bean.getId());
+                    TcpFlowBean newToken = tcpFlowDAO.findByUnique(bean.getFlowKey(), TcpConstanst.TCP_STATUS_CENTER_MANAGER_SHARE);
+                    if (newToken.getNextPlugin().startsWith("pool"))
+                    {
+                        this.pool(newToken, user, bean, oldStatus, reason);
+                    }
+                } else{
+                    newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
+                            TcpConstanst.TCP_POOL_COMMON);
+                    bean.setStatus(newStatus);
+                    expenseApplyDAO.updateStatus(bean.getId(), newStatus);
+                    expenseApplyDAO.updateProcessTime(bean.getId(), TimeTools.now());
+                    // 记录操作日志
+                    saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
+                }
+            }            
             else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
                     || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector")
                     || token.getNextPlugin().equalsIgnoreCase("plugin:regionalCEO"))
@@ -1987,9 +2038,16 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 throw new MYException("提交人直属上级不能为空!");
             }
         }
+        //#627
+        if (bean.getFlowKey().equals(TcpFlowConstant.SPECIAL_REIMBURSE_FLOW)){
+            StafferBean stafferBean = this.stafferDAO.find(bean.getStafferId());
+            if (StringTools.isNullOrNone(stafferBean.getSuperiorLeader())){
+                throw new MYException("提交人中心负责人不能为空!");
+            }
+        }        
 
         // 不是通用报销不校验关联
-        if (bean.getType() != TcpConstanst.TCP_EXPENSETYPE_COMMON) {
+        if (bean.getType() != TcpConstanst.TCP_EXPENSETYPE_COMMON && bean.getType() != TcpConstanst.TCP_EXPENSETYPE_SPECIAL) {
             TravelApplyBean apply = travelApplyDAO.find(bean.getRefId());
 
             if (apply == null) {
@@ -2092,6 +2150,12 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                         && StringTools.isNullOrNone(sbean.getSuperiorLeader())){
                     throw new MYException("承担人直属上级不能为空:"+sbean.getName());
                 }
+                
+                //#495
+                if (bean.getFlowKey().equals(TcpFlowConstant.SPECIAL_REIMBURSE_FLOW)
+                        && StringTools.isNullOrNone(sbean.getSuperiorLeader())){
+                    throw new MYException("承担人中心负责人不能为空:"+sbean.getName());
+                }                
                 
                 PrincipalshipBean prinBean = orgManager.findPrincipalshipById(tcpShareBean.getDepartmentId());
                 

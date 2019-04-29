@@ -195,4 +195,26 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
         }
         return "";
     }
+    
+    public String queryManagerId(String flowKey, String stafferId, String originator) {
+    	String rst = "";
+    	List<BankBuLevelBean> result = new ArrayList<BankBuLevelBean>();
+        //Manager
+        result = jdbcOperation.queryObjectsBySql(
+                "select id,managerId from T_CENTER_BANKBU_LEVEL where id='" + stafferId + "'")
+                .setMaxResults(600).list(BankBuLevelBean.class);
+        if (result.size() > 0) {
+        	rst = result.get(0).getManagerId();
+        	if(result.size()>1){
+                for (BankBuLevelBean bean : result) {
+                    if (bean.getId().equals(originator)) {
+                        rst = bean.getManagerId();
+                        break;
+                    }
+                }
+        	}
+        } 
+        
+        return rst;
+    }
 }

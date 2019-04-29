@@ -194,6 +194,15 @@ public interface TcpConstanst
 
     @Defined(key = "tcpStatus", value = "承担人直属上级审批")
     int TCP_STATUS_HIGHER_UP_SHARE = 39;
+    
+    /**
+     * #627
+     */
+    @Defined(key = "tcpStatus", value = "提交人中心负责人审批")
+    int TCP_STATUS_CENTER_MANAGER = 40;
+
+    @Defined(key = "tcpStatus", value = "承担人中心负责人审批")
+    int TCP_STATUS_CENTER_MANAGER_SHARE = 41;
 
     /**
      * 结束
@@ -436,6 +445,12 @@ public interface TcpConstanst
      */
     @Defined(key = "tcpType", value = "中收报销")
     int TCP_EXPENSETYPE_MID = 15;
+    
+    /**
+     * 特殊流程报销 #627
+     */
+    @Defined(key = "tcpType", value = "特殊流程报销")
+    int TCP_EXPENSETYPE_SPECIAL = 19;
     
     /**
      * 返利
