@@ -1208,15 +1208,19 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
     }
 
     private double getVirtualPrice(ComposeProductBean bean){
-        double virtualPrice = 0.0;
-        List<ComposeItemBean> itemList = bean.getItemList();
-        for (ComposeItemBean itemBean: itemList){
+        if (this.isVirtualProduct(bean.getProductId())){
+            return bean.getPrice();
+        } else{
+            double virtualPrice = 0.0;
+            List<ComposeItemBean> itemList = bean.getItemList();
+            for (ComposeItemBean itemBean: itemList){
 //            if (this.isVirtualProduct(itemBean.getProductId())){
 //                virtualPrice += ((double)itemBean.getAmount()/bean.getAmount())*itemBean.getPrice();
 //            }
-            virtualPrice += ((double)itemBean.getAmount()/bean.getAmount())*itemBean.getPrice();
+                virtualPrice += ((double)itemBean.getAmount()/bean.getAmount())*itemBean.getVirtualPrice();
+            }
+            return virtualPrice;
         }
-        return virtualPrice;
     }
 
     private boolean isVirtualProduct(String productId){

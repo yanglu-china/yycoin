@@ -23,6 +23,8 @@ public class PackageItemBean implements Serializable
 	private String baseId = "";
 	
 	private String productId = "";
+
+	private String productImportId = "";
 	
 	private String productName = "";
 	
@@ -533,6 +535,14 @@ public class PackageItemBean implements Serializable
 		this.giftProductAmount = giftProductAmount;
 	}
 
+	public String getProductImportId() {
+		return productImportId;
+	}
+
+	public void setProductImportId(String productImportId) {
+		this.productImportId = productImportId;
+	}
+
 	@Override
 	public String toString() {
 		return "PackageItemBean{" +
@@ -541,6 +551,7 @@ public class PackageItemBean implements Serializable
 				", outId='" + outId + '\'' +
 				", baseId='" + baseId + '\'' +
 				", productId='" + productId + '\'' +
+				", productImportId='" + productImportId + '\'' +
 				", productName='" + productName + '\'' +
 				", amount=" + amount +
 				", price=" + price +
@@ -565,6 +576,13 @@ public class PackageItemBean implements Serializable
 				", certificateAmount=" + certificateAmount +
 				", productWeight='" + productWeight + '\'' +
 				", invoiceNum='" + invoiceNum + '\'' +
+				", receiver='" + receiver + '\'' +
+				", transportNo='" + transportNo + '\'' +
+				", transportName1='" + transportName1 + '\'' +
+				", customerDescription='" + customerDescription + '\'' +
+				", giftProductName='" + giftProductName + '\'' +
+				", giftProductAmount=" + giftProductAmount +
+				", invoiceHead='" + invoiceHead + '\'' +
 				'}';
 	}
 }
