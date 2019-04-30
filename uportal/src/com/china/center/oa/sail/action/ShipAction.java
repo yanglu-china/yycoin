@@ -4357,12 +4357,12 @@ public class ShipAction extends DispatchAction
             return item.getAmount();
         } else{
             ProductImportBean productImportBean = this.productImportDAO.find(productImportId);
-            if(productImportBean!= null && productImportBean.getBank().contains("钱币拍卖客户")
+            if(productImportBean!= null && productImportBean.getBank().contains("钱币拍卖")
                     && productImportBean.getRated()>1){
                 return NumberUtils.roundInt(item.getAmount()/productImportBean.getRated());
             }
         }
-        return 0;
+        return item.getAmount();
     }
     /**
      * #310 紫金农商
