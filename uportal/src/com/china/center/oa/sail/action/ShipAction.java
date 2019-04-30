@@ -2992,7 +2992,8 @@ public class ShipAction extends DispatchAction
 
                 //2015/1/25 注释掉
 //				each.setDescription("");
-
+                //#632
+                each.setAmount(this.getUnratedAmount(each));
                 map1.put(key, each);
             }else{
                 PackageItemBean itemBean = map1.get(key);
@@ -4356,7 +4357,7 @@ public class ShipAction extends DispatchAction
             return item.getAmount();
         } else{
             ProductImportBean productImportBean = this.productImportDAO.find(productImportId);
-            if(productImportBean!= null && productImportBean.getBank().contains("钱币拍卖")
+            if(productImportBean!= null && productImportBean.getBank().contains("钱币拍卖客户")
                     && productImportBean.getRated()>1){
                 return NumberUtils.roundInt(item.getAmount()/productImportBean.getRated());
             }
