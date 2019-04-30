@@ -4358,7 +4358,7 @@ public class ShipAction extends DispatchAction
             ProductImportBean productImportBean = this.productImportDAO.find(productImportId);
             if(productImportBean!= null && productImportBean.getBank().contains("钱币拍卖")
                     && productImportBean.getRated()>1){
-                return NumberUtils.roundInt(item.getAmount()*productImportBean.getRated());
+                return NumberUtils.roundInt(item.getAmount()/productImportBean.getRated());
             }
         }
         return 0;
