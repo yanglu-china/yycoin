@@ -1338,6 +1338,8 @@
                  //#625 OA出库单数量等于折算系数*开单数量
                  double amount = Math.round(bean.getAmount()*productImportBean.getRated());
                  bean.setAmount(new BigDecimal(amount).intValueExact());
+                 bean.setPrice(bean.getPrice()/productImportBean.getRated());
+                 bean.setValue(bean.getAmount() * bean.getPrice());
              }
          }catch (MYException e){
              _logger.error(e);

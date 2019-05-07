@@ -3792,19 +3792,19 @@ public class OutImportManagerImpl implements OutImportManager
 						}
 						baseBean.setProductName(olBaseBean.getProductName());
                         //#23
-                        if (olBaseBean.getCash()>0 && olBaseBean.getGrossProfit()>0 ){
-                            baseBean.setCash(olBaseBean.getCash());
-                            baseBean.setGrossProfit(olBaseBean.getGrossProfit());
-                        } else{
-                            //#359
-							CustomerBean customerBean = this.customerMainDAO.find(out.getCustomerId());
-                            this.setGrossProfitAndCash(out, customerBean, baseBean);
-                        }
+//                        if (olBaseBean.getCash()>0 && olBaseBean.getGrossProfit()>0 ){
+//                            baseBean.setCash(olBaseBean.getCash());
+//                            baseBean.setGrossProfit(olBaseBean.getGrossProfit());
+//                        } else{
+//                            //#359
+//							CustomerBean customerBean = this.customerMainDAO.find(out.getCustomerId());
+//                            this.setGrossProfitAndCash(out, customerBean, baseBean);
+//                        }
 
 						baseBean.setUnit("套");
 						baseBean.setAmount(olBaseBean.getAmount());
 						baseBean.setPrice(olBaseBean.getPrice());
-						baseBean.setValue(olBaseBean.getAmount() * olBaseBean.getPrice());
+//						baseBean.setValue(olBaseBean.getAmount() * olBaseBean.getPrice());
 
                         //#575
 						String productImportId = olBaseBean.getProductImportId();
@@ -3816,22 +3816,50 @@ public class OutImportManagerImpl implements OutImportManager
 									baseBean.setProductId(productBean.getId());
 									baseBean.setProductName(productBean.getName());
 									baseBean.setProductImportId(productImportId);
+
 									baseBean.setCash(productImportBean.getCash());
 									baseBean.setCash2(productImportBean.getCash2());
+									baseBean.setGrossProfit(productImportBean.getGrossProfit());
+									baseBean.setIbMoney(productImportBean.getIbMoney());
+									baseBean.setIbMoney2(productImportBean.getIbMoney2());
+									baseBean.setYkibMoney(productImportBean.getYkibMoney());
+									baseBean.setMotivationMoney(productImportBean.getMotivationMoney());
+									baseBean.setMotivationMoney2(productImportBean.getMotivationMoney2());
+									baseBean.setPlatformFee(productImportBean.getPlatformFee());
 
 									//#625 OA出库单数量等于折算系数*开单数量
 									double amount = Math.round(olBaseBean.getAmount()*productImportBean.getRated());
 									baseBean.setAmount(new BigDecimal(amount).intValueExact());
+									baseBean.setPrice(olBaseBean.getPrice()/productImportBean.getRated());
 								}
 							}
 						}
+						baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
 
-
-						baseBean.setIbMoney(olBaseBean.getIbMoney());
-						baseBean.setMotivationMoney(olBaseBean.getMotivationMoney());
-						baseBean.setIbMoney2(olBaseBean.getIbMoney2());
-						baseBean.setMotivationMoney2(olBaseBean.getMotivationMoney2());
-						baseBean.setPlatformFee(olBaseBean.getPlatformFee());
+						if (olBaseBean.getCash() > 0){
+                        	baseBean.setCash(olBaseBean.getCash());
+						}
+						if(olBaseBean.getCash2() > 0){
+							baseBean.setCash2(olBaseBean.getCash2());
+						}
+						if(olBaseBean.getGrossProfit() > 0){
+							baseBean.setGrossProfit(olBaseBean.getGrossProfit());
+						}
+						if (olBaseBean.getIbMoney() > 0){
+							baseBean.setIbMoney(olBaseBean.getIbMoney());
+						}
+						if(olBaseBean.getIbMoney2() > 0){
+							baseBean.setIbMoney2(olBaseBean.getIbMoney2());
+						}
+						if(olBaseBean.getMotivationMoney() > 0){
+							baseBean.setMotivationMoney(olBaseBean.getMotivationMoney());
+						}
+						if (olBaseBean.getMotivationMoney2() > 0){
+							baseBean.setMotivationMoney2(olBaseBean.getMotivationMoney2());
+						}
+						if(olBaseBean.getPlatformFee() > 0){
+							baseBean.setPlatformFee(olBaseBean.getPlatformFee());
+						}
 
 						baseBean.setOwner("0");
 						baseBean.setOwnerName("公共");
