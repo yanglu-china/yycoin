@@ -9530,6 +9530,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                     //#625 OA出库单数量等于折算系数*开单数量
                                     double amount = Math.round(base.getAmount()*productImportBean.getRated());
                                     base.setAmount(new BigDecimal(amount).intValueExact());
+                                    base.setPrice(base.getPrice()/productImportBean.getRated());
+                                    base.setValue(base.getAmount() * base.getPrice());
                                 }
                             }catch (MYException e){
                                 _logger.error(e);
