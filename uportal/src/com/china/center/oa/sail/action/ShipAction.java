@@ -1396,12 +1396,6 @@ public class ShipAction extends DispatchAction
             request.setAttribute("customerName","");
         }
 
-        //#635 更换发货单
-        if (customerName.contains("北京银行") || customerName.contains("中国银行")){
-            request.setAttribute("ghfhd", 1);
-        } else{
-            request.setAttribute("ghfhd",0);
-        }
 
         //#568
         String appName = ConfigLoader.getProperty("appName");
@@ -2024,6 +2018,10 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("printGdnxReceipt");
             }
             else {
+                //#635 更换发货单
+                if (customerName.contains("北京银行") || customerName.contains("中国银行")){
+                    request.setAttribute("title", ShipConstant.YYWH+"——更换发货单");
+                }
                 return mapping.findForward("printUnifiedReceipt");
             }
         }
@@ -2344,6 +2342,10 @@ public class ShipAction extends DispatchAction
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
             } else{
+                //#635 更换发货单
+                if (customerName.contains("北京银行") || customerName.contains("中国银行")){
+                    request.setAttribute("title", ShipConstant.YYWH+"——更换发货单");
+                }
                 return mapping.findForward("printUnifiedReceipt");
             }
         }
