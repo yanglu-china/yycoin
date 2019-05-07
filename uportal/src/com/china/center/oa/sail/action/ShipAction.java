@@ -1396,6 +1396,13 @@ public class ShipAction extends DispatchAction
             request.setAttribute("customerName","");
         }
 
+        //#635 更换发货单
+        if (customerName.contains("北京银行") || customerName.contains("中国银行")){
+            request.setAttribute("ghfhd", 1);
+        } else{
+            request.setAttribute("ghfhd",0);
+        }
+
         //#568
         String appName = ConfigLoader.getProperty("appName");
         if (AppConstant.APP_NAME_TW.equals(appName)){
