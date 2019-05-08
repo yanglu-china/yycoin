@@ -468,6 +468,18 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
             baseBean.setProductId(item.getProductId());
             baseBean.setCostPriceKey(StorageRelationHelper.getPriceKey(item.getPrice()));
 
+
+            //#545
+            if (this.isVirtualProduct(item.getProductId())){
+                baseBean.setVirtualPrice(item.getPrice());
+                baseBean.setVirtualPriceKey(StorageRelationHelper.getPriceKey(baseBean
+                        .getVirtualPrice()));
+            } else{
+                baseBean.setVirtualPrice(0);
+                baseBean.setVirtualPriceKey(StorageRelationHelper.getPriceKey(baseBean
+                        .getVirtualPrice()));
+            }
+
             // 这里记住哦
             String on = ((StockVO)bean).getOwerName();
             if (bean.getStockType() == StockConstant.STOCK_SAILTYPE_PUBLIC)
