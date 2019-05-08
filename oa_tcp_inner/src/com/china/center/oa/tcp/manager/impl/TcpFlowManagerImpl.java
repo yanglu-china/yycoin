@@ -451,11 +451,20 @@ public class TcpFlowManagerImpl implements TcpFlowManager
             }
             //#495
             else if(nextStatus == TcpConstanst.TCP_STATUS_HIGHER_UP){
+            	/*
                 StafferBean stafferBean = this.stafferDAO.find(stafferId);
                 nextProcessor = String.valueOf(stafferBean.getSuperiorLeader());
+                */
+            	
+            	BankBuLevelBean bankBuLevelBean = this.bankBuLevelDAO.find(stafferId);
+            	
+            	_logger.debug("****stafferId***"+stafferId+", bankBuLevelBean==null:"+(bankBuLevelBean==null));
+            	
+            	nextProcessor = findApprover(bankBuLevelBean);
+            	
                 result.setNextProcessor(nextProcessor);
                 result.setNextStatus(nextStatus);
-                _logger.info("****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
+                _logger.info("TCP_STATUS_HIGHER_UP****nextProcessor***"+nextProcessor+"***nextStatus***"+nextStatus);
             }
             //#627
             else if(nextStatus == TcpConstanst.TCP_STATUS_CENTER_MANAGER){
@@ -470,6 +479,24 @@ public class TcpFlowManagerImpl implements TcpFlowManager
         }
 
         return result;
+    }
+    
+    //#628
+    public static String findApprover(BankBuLevelBean bankBuLevelBean){
+    	String rst = "";
+    	String id = bankBuLevelBean.getId();
+    	if(bankBuLevelBean.getZcId().equals(id)){
+    		rst = bankBuLevelBean.getZcId();
+    	}else if(bankBuLevelBean.getSybmanagerId().equals(id)){
+    		rst = bankBuLevelBean.getZcId();
+    	}else if(bankBuLevelBean.getManagerId().equals(id)){
+    		rst = bankBuLevelBean.getSybmanagerId();
+    	}else if(bankBuLevelBean.getRegionalManagerId().equals(id)){
+    		rst = bankBuLevelBean.getManagerId();
+    	}else {
+    		rst = bankBuLevelBean.getRegionalManagerId();
+    	}
+    	return rst;
     }
 
     /**

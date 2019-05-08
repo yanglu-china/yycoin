@@ -79,6 +79,16 @@ public class BankBuLevelBean implements Serializable {
     private String manager;
 
     private String managerId;
+    
+    private String sybmanager;
+
+    private String sybmanagerId;
+    
+    private String sybname;
+    
+    private String zc;
+
+    private String zcId;
 
     /**
      * 业务部
@@ -190,9 +200,49 @@ public class BankBuLevelBean implements Serializable {
 
     public void setManagerId(String managerId) {
         this.managerId = managerId;
-    }
+    }    
 
-    public String getYwbName() {
+    public String getSybmanager() {
+		return sybmanager;
+	}
+
+	public void setSybmanager(String sybmanager) {
+		this.sybmanager = sybmanager;
+	}
+
+	public String getSybmanagerId() {
+		return sybmanagerId;
+	}
+
+	public void setSybmanagerId(String sybmanagerId) {
+		this.sybmanagerId = sybmanagerId;
+	}
+
+	public String getSybname() {
+		return sybname;
+	}
+
+	public void setSybname(String sybname) {
+		this.sybname = sybname;
+	}
+
+	public String getZc() {
+		return zc;
+	}
+
+	public void setZc(String zc) {
+		this.zc = zc;
+	}
+
+	public String getZcId() {
+		return zcId;
+	}
+
+	public void setZcId(String zcId) {
+		this.zcId = zcId;
+	}
+
+	public String getYwbName() {
         return ywbName;
     }
 
@@ -224,6 +274,11 @@ public class BankBuLevelBean implements Serializable {
                 ", dqName='" + dqName + '\'' +
                 ", manager='" + manager + '\'' +
                 ", managerId='" + managerId + '\'' +
+                ", sybmanager='" + sybmanager + '\'' +
+                ", sybmanagerId='" + sybmanagerId + '\'' +
+                ", sybname='" + sybname + '\'' +
+                ", zc='" + zc + '\'' +
+                ", zcId='" + zcId + '\'' +                
                 '}';
     }
 }
