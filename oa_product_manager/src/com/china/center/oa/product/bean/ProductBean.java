@@ -1700,7 +1700,9 @@ public class ProductBean implements Serializable
                 ", refProductId='" + refProductId + '\'' +
                 ", inputInvoice='" + inputInvoice + '\'' +
                 ", sailInvoice='" + sailInvoice + '\'' +
-                ", vsList=" + vsList +
+                ", stype='" + stype + '\'' +
+                ", sailPriceFlag=" + sailPriceFlag +
+                ", virtualFlag=" + virtualFlag +
                 '}';
     }
 

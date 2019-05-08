@@ -1396,6 +1396,7 @@ public class ShipAction extends DispatchAction
             request.setAttribute("customerName","");
         }
 
+
         //#568
         String appName = ConfigLoader.getProperty("appName");
         if (AppConstant.APP_NAME_TW.equals(appName)){
@@ -2017,6 +2018,10 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("printGdnxReceipt");
             }
             else {
+                //#635 更换发货单
+                if (customerName.contains("北京银行") || customerName.contains("中国银行")){
+                    request.setAttribute("title", ShipConstant.YYWH+"——更换发货单");
+                }
                 return mapping.findForward("printUnifiedReceipt");
             }
         }
@@ -2337,6 +2342,10 @@ public class ShipAction extends DispatchAction
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
             } else{
+                //#635 更换发货单
+                if (customerName.contains("北京银行") || customerName.contains("中国银行")){
+                    request.setAttribute("title", ShipConstant.YYWH+"——更换发货单");
+                }
                 return mapping.findForward("printUnifiedReceipt");
             }
         }
@@ -2992,7 +3001,8 @@ public class ShipAction extends DispatchAction
 
                 //2015/1/25 注释掉
 //				each.setDescription("");
-
+                //#632
+                each.setAmount(this.getUnratedAmount(each));
                 map1.put(key, each);
             }else{
                 PackageItemBean itemBean = map1.get(key);
@@ -4361,7 +4371,7 @@ public class ShipAction extends DispatchAction
                 return NumberUtils.roundInt(item.getAmount()/productImportBean.getRated());
             }
         }
-        return 0;
+        return item.getAmount();
     }
     /**
      * #310 紫金农商
