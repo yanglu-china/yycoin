@@ -390,8 +390,14 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         // 成本
         final String[] desList = request.getParameter("desList").split("~");
 
+        //#545 采购入库的时候，非虚拟商品的虚料金额是0
+        //虚拟商品的虚料金额，等于成本价
+        String vpl = request.getParameter("virtualPriceList");
+        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL){
+            vpl = request.getParameter("desList");
+        }
         //虚料金额
-        final String[] virtualPriceList = request.getParameter("virtualPriceList").split("~");
+        final String[] virtualPriceList = vpl.split("~");
 
         final String[] otherList = request.getParameter("otherList").split("~");
         
@@ -816,6 +822,17 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             }
                             
                             base.setOldGoods(product.getConsumeInDay());
+
+                            //#545
+                            if (isVirtualProduct(base.getProductId())){
+                                base.setVirtualPrice(MathTools.parseDouble(virtualPriceList[i]));
+                                base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
+                                        .getVirtualPrice()));
+                            } else{
+                                base.setVirtualPrice(0);
+                                base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
+                                        .getVirtualPrice()));
+                            }
                         }
 
                         double sailPrice = 0.0d;
@@ -1190,6 +1207,15 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info(user.getStafferName() + "/" + user.getName() + "/ADD:" + outBean);
 
         return fullId;
+    }
+
+    private boolean isVirtualProduct(String productId){
+        ProductBean productBean = this.productDAO.find(productId);
+        if (productBean!= null && productBean.getVirtualFlag() == 1){
+            return true;
+        }
+
+        return false;
     }
 
     private void setInvoiceId(final OutBean outBean)
