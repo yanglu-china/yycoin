@@ -1894,18 +1894,19 @@ public class OutImportManagerImpl implements OutImportManager
     		}
 
     		//#593
-            if (type == 0){
-                List<OutBean> outBeans = this.getZsOrders(out, OutConstant.STATUS_SUBMIT, false);
-                if (!ListTools.isEmptyOrNull(outBeans)){
-                    for (OutBean outBean: outBeans){
-                        if(outBean.getStatus() != OutConstant.STATUS_SUBMIT){
-                            each.setRet(1);
-                            each.setResult(outBean.getFullId() + " 订单状态只能是待商务审批") ;
-                            break;
-                        }
-                    }
-                }
-            }
+			//5/9 rollback
+//            if (type == 0){
+//                List<OutBean> outBeans = this.getZsOrders(out, OutConstant.STATUS_SUBMIT, false);
+//                if (!ListTools.isEmptyOrNull(outBeans)){
+//                    for (OutBean outBean: outBeans){
+//                        if(outBean.getStatus() != OutConstant.STATUS_SUBMIT){
+//                            each.setRet(1);
+//                            each.setResult(outBean.getFullId() + " 订单状态只能是待商务审批") ;
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
     	}
     	
     	batchApproveDAO.saveAllEntityBeans(list);
