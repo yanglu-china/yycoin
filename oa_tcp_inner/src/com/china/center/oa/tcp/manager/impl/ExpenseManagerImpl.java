@@ -1351,7 +1351,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             // 获得上一步的人
             String actorId = lastLog.getActorId();
 
-            int nextStatus = lastLog.getAfterStatus();
+            //int nextStatus = lastLog.getAfterStatus();
+            int nextStatus = lastLog.getPreStatus();
 
             int newStatus = this.tcpFlowManager.saveApprove(user, actorId, bean, nextStatus, 0);
 

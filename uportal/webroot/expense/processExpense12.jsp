@@ -654,8 +654,10 @@ function checkMoney2()
             value="&nbsp;&nbsp;驳回到初始&nbsp;&nbsp;" onclick="processBean(1)">
           </c:if>
           <c:if test="${token.rejectToPre == 1}">
+          <!--
           <input type="button" class="button_class" id="sub_b2"
             value="&nbsp;&nbsp;驳回到上一步&nbsp;&nbsp;" onclick="processBean(2)">
+          -->
           </c:if>
           &nbsp;&nbsp;<input type="button" name="pr"
             class="button_class" onclick="pagePrint()"
