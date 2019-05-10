@@ -129,7 +129,7 @@ function pop(obj)
 						<input type='${selectMode == 1 ? "radio" : "checkbox"}' name="beans"
 							   id="${item.id}" value="${item.productId}"
 							   pamount="${item.amount}" pname="${item.productName}"  pprice="${item.price}"
-                               sprice="${item.storagePrice}"
+                               sprice="${item.storagePrice}" vprice="${item.virtualPrice}"
 							   pbomjson='${item.bomJson}'/>
 					</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.productName}</td>

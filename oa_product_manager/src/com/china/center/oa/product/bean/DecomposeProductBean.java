@@ -64,6 +64,8 @@ public class DecomposeProductBean implements Serializable
 
     private double price = 0.0d;
 
+	private double virtualPrice = 0.0d;
+
     private String logTime = "";
     
     @Ignore
@@ -274,6 +276,14 @@ public class DecomposeProductBean implements Serializable
 		this.type = type;
 	}
 
+	public double getVirtualPrice() {
+		return virtualPrice;
+	}
+
+	public void setVirtualPrice(double virtualPrice) {
+		this.virtualPrice = virtualPrice;
+	}
+
 	/**
 	 * @return the itemList
 	 */
@@ -290,21 +300,23 @@ public class DecomposeProductBean implements Serializable
 		this.itemList = itemList;
 	}
 
-    @Override
-    public String toString() {
-        return "DecomposeProductBean{" +
-                "id='" + id + '\'' +
-                ", stafferId='" + stafferId + '\'' +
-                ", productId='" + productId + '\'' +
-                ", deportId='" + deportId + '\'' +
-                ", depotpartId='" + depotpartId + '\'' +
-                ", storageId='" + storageId + '\'' +
-                ", type=" + type +
-                ", mtype=" + mtype +
-                ", amount=" + amount +
-                ", status=" + status +
-                ", price=" + price +
-                ", logTime='" + logTime + '\'' +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "DecomposeProductBean{" +
+				"id='" + id + '\'' +
+				", stafferId='" + stafferId + '\'' +
+				", productId='" + productId + '\'' +
+				", deportId='" + deportId + '\'' +
+				", depotpartId='" + depotpartId + '\'' +
+				", storageId='" + storageId + '\'' +
+				", type=" + type +
+				", mtype=" + mtype +
+				", amount=" + amount +
+				", status=" + status +
+				", price=" + price +
+				", virtualPrice=" + virtualPrice +
+				", logTime='" + logTime + '\'' +
+				", itemList=" + itemList +
+				'}';
+	}
 }

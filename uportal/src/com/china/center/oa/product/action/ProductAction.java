@@ -1501,7 +1501,8 @@ public class ProductAction extends DispatchAction
                         vo.setAmount(storageRelationVO.getAmount()-preassign);
                         //库存成本
                         vo.setStoragePrice(this.roundDouble(storageRelationVO.getPrice()));
-
+                        //#545
+                        vo.setVirtualPrice(this.roundDouble(storageRelationVO.getVirtualPrice()));
                         result.add(vo);
                     }
                 }
@@ -2500,6 +2501,7 @@ public class ProductAction extends DispatchAction
         String amount = request.getParameter("amount");
         String depot = request.getParameter("depot");
         String price = request.getParameter("price");
+        String virtualPrice = request.getParameter("virtualPrice");
 
         bean.setDepotpartId(depotpart);
         bean.setDeportId(depot);
@@ -2513,10 +2515,9 @@ public class ProductAction extends DispatchAction
         }
 
         bean.setAmount(CommonTools.parseInt(amount));
-        _logger.info("***price***" + price);
 //        bean.setPrice(CommonTools.parseFloat(price));
         bean.setPrice(this.parseFloat(price));
-        _logger.info("***price2***" + bean.getPrice());
+        bean.setVirtualPrice(this.parseFloat(virtualPrice));
         bean.setLogTime(TimeTools.now());
         bean.setType(StorageConstant.OPR_STORAGE_DECOMPOSE);
 
@@ -2527,6 +2528,7 @@ public class ProductAction extends DispatchAction
         String[] srcProductIds = request.getParameterValues("srcProductId");
         String[] srcAmounts = request.getParameterValues("srcAmount");
         String[] srcPrices = request.getParameterValues("srcPrice");
+        String[] vPrices = request.getParameterValues("vPrice");
         String[] stypes = request.getParameterValues("stype");
 
         List<ComposeItemBean> itemList = new ArrayList<ComposeItemBean>();
@@ -2550,6 +2552,8 @@ public class ProductAction extends DispatchAction
             each.setDepotpartId(srcDepotparts[i]);
             each.setLogTime(bean.getLogTime());
             each.setPrice(CommonTools.parseFloat(srcPrices[i]));
+            //#545
+            each.setVirtualPrice(CommonTools.parseFloat(vPrices[i]));
             each.setProductId(srcProductIds[i]);
             each.setStype(CommonTools.parseInt(stypes[i]));
 

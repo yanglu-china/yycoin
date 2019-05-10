@@ -1542,6 +1542,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 	    wrap.setDepotpartId(bean.getDepotpartId());
 	    wrap.setDescription("拆分产品异动(拆分后成品减少):" + bean.getId());
 	    wrap.setPrice(bean.getPrice());
+	    //#545
+	    wrap.setVirtualPrice(bean.getVirtualPrice());
 	    wrap.setProductId(bean.getProductId());
 	    wrap.setType(StorageConstant.OPR_STORAGE_DECOMPOSE);
 	    wrap.setSerializeId(sid);
@@ -1565,6 +1567,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 	        eachWrap.setDepotpartId(composeItemBean.getDepotpartId());
 	        eachWrap.setDescription("拆分产品(配件产品增加):" + bean.getId());
 	        eachWrap.setPrice(composeItemBean.getPrice());
+	        //TODO
+	        eachWrap.setVirtualPrice(composeItemBean.getVirtualPrice());
 	        eachWrap.setProductId(composeItemBean.getProductId());
 	        eachWrap.setType(StorageConstant.OPR_STORAGE_DECOMPOSE);
 	        eachWrap.setSerializeId(sid);
