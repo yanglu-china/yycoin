@@ -277,6 +277,7 @@ function getProductRelation(ox)
         inps[2].value = ox[i].pprice;
         inps[4].value = ox[i].pprice;
         inps[5].value = ox[i].pdepotpartname + '-->' + ox[i].pstaffername;
+        inps[6].value = ox[i].pvirtualprice;
     }
 }
 
