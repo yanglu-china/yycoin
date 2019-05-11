@@ -88,6 +88,7 @@ function check()
     $O('showIdList').value = '';
     $O('showNameList').value = '';
     $O('desList').value = '';
+    $O('virtualPriceList').value = '';
     
     if (trim($O('outTime').value) == '')
     {
@@ -207,7 +208,9 @@ function check()
     }
 
     var desList = document.getElementsByName('desciprt');
-    
+    //#545 虚料金额
+    var virtualPriceList = document.getElementsByName('virtualPrice');
+
     for (var i = 1; i < desList.length; i++)
     {
         if (trim(desList[i].value) == '')
@@ -236,6 +239,12 @@ function check()
     {
         $O('totalList').value = $O('totalList').value + values[i].value + '~';
         $O('desList').value = $O('desList').value + desList[i].value + '~';
+        var virtualPriceEle = virtualPriceList[i];
+        if (virtualPriceEle){
+            $O('virtualPriceList').value = $O('virtualPriceList').value + virtualPriceEle.value + '~';
+        } else{
+            $O('virtualPriceList').value = $O('virtualPriceList').value + '0' + '~';
+        }
     }
 
     for (var i = 1; i < units.length; i++)

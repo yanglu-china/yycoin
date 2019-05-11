@@ -245,6 +245,7 @@ function forward()
 <input type=hidden name="type" value='1' /> 
 <input type=hidden name="saves" value="" />
 <input type=hidden name="desList" value="" />
+	<input type=hidden name="virtualPriceList" value="" />
 <input type=hidden name="otherList" value="" />
 
 <input type=hidden name="depotList" value="" />
