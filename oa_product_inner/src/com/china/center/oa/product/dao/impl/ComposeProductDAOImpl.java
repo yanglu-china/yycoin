@@ -34,6 +34,11 @@ public class ComposeProductDAOImpl extends BaseDAO<ComposeProductBean, ComposePr
         return jdbcOperation.updateField("status", status, id, claz) > 0;
     }
 
+    @Override
+    public boolean updateVirtualPrice(String id, double virtualPrice) {
+        return jdbcOperation.updateField("virtualPrice", virtualPrice, id, claz) > 0;
+    }
+
     public boolean updateLogTime(String id, String logTime)
     {
         return jdbcOperation.updateField("logTime", logTime, id, claz) > 0;

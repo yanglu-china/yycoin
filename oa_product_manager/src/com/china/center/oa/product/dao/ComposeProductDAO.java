@@ -28,6 +28,8 @@ public interface ComposeProductDAO extends DAO<ComposeProductBean, ComposeProduc
 {
     boolean updateStatus(String id, int status);
 
+    boolean updateVirtualPrice(String id, double virtualPrice);
+
     boolean updateLogTime(String id, String logTime);
     
     ComposeProductBean queryLatestByProduct(String productId);
