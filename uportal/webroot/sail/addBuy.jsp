@@ -543,7 +543,8 @@ function forward()
 						<td width="10%" align="center">单价</td>
 						<td width="10%" align="left">金额<span id="total"></span></td>
 						<td width="10%" align="center">成本</td>
-						<td width="25%" align="center">类型</td>
+						<td width="15%" align="center">类型</td>
+						<td width="10%" align="center">虚料金额</td>
 						<td width="5%" align="left"><input type="button" accesskey="A"
 							value="增加" class="button_class" onclick="addTr()"></td>
 					</tr>
@@ -555,6 +556,7 @@ function forward()
 							productid="" 
 							productcode="" 
 							price=""
+							virtualprice=""
 							stafferid=""
 							depotpartid=""
 							readonly="readonly"
@@ -580,11 +582,15 @@ function forward()
 						<td align="center"><input type="text"
 							value="0.00" readonly="readonly" style="width: 100%" name="value"></td>
 
+
 						<td align="center"><input type="text" readonly="readonly"
 							style="width: 100%" name="desciprt"></td>
-							
+
 						<td align="center"><input type="text" readonly="readonly"
 							style="width: 100%" name="rstafferName"></td>
+
+						<td align="center"><input type="text"
+												  value="0.00" readonly="readonly" style="width: 100%" name="virtualPrice"></td>
 							
 						<td align="center"></td>
 					</tr>
@@ -622,7 +628,9 @@ function forward()
 							
 						<td align="center"><input type="text" id="unRstafferName" readonly="readonly"
 							style="width: 100%" name="rstafferName"></td>
-							
+
+						<td align="center"><input type="text" readonly="readonly"
+												  style="width: 100%" name="virtualPrice"></td>
 
 						<td align="left"><input type=button value="清空"  class="button_class" onclick="clears()"></td>
 					</tr>
