@@ -393,7 +393,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         //#545 采购入库的时候，非虚拟商品的虚料金额是0
         //虚拟商品的虚料金额，等于成本价
         String vpl = request.getParameter("virtualPriceList");
-        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL){
+        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                && outBean.getOutType() == OutConstant.OUTTYPE_IN_COMMON){
             vpl = request.getParameter("desList");
         }
         //虚料金额
