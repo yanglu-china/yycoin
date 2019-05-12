@@ -724,6 +724,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
             priceKey = StorageRelationHelper.getPriceKey(relation.getPrice());
 
             bean.setPrice(relation.getPrice());
+            bean.setVirtualPrice(relation.getVirtualPrice());
 
             bean.setProductId(relation.getProductId());
 
@@ -1113,6 +1114,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
                             addWrap.setDescription("从" + source.getName() + "转移到" + dir.getName()
                                                    + "(" + sid + ")");
                             addWrap.setPrice(srb.getPrice());
+                            addWrap.setVirtualPrice(srb.getVirtualPrice());
                             addWrap.setProductId(srb.getProductId());
                             addWrap.setStorageId(dirStorageId);
                             addWrap.setStafferId(srb.getStafferId());
@@ -1126,6 +1128,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
                             deleteWrap.setChange( -srb.getAmount());
                             deleteWrap.setDescription(addWrap.getDescription());
                             deleteWrap.setPrice(srb.getPrice());
+                            deleteWrap.setVirtualPrice(srb.getVirtualPrice());
                             deleteWrap.setProductId(srb.getProductId());
                             deleteWrap.setStorageId(sourceStorageId);
                             deleteWrap.setStafferId(srb.getStafferId());
