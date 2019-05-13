@@ -671,6 +671,13 @@ public class BackPrePayManagerImpl extends AbstractListenerManager<BackPayApplyL
 	            outBill.setProvideId(apply.getCustomerId());
 
 	            outBill.setLock(FinanceConstant.BILL_LOCK_YES);
+	            
+	            operationLog.debug("outBill.getId():"+outBill.getId()+",outBill.getMoneys():"+outBill.getMoneys());
+	            
+	            if(outBill.getMoneys() == 0.0){
+	            	
+	            	throw new MYException("金额为0,请确认操作");
+	            }
 
 	            billManager.addOutBillBeanWithoutTransaction(user, outBill);
 	        }
