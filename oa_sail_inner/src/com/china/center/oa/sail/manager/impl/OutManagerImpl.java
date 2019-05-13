@@ -393,7 +393,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         //#545 采购入库的时候，非虚拟商品的虚料金额是0
         //虚拟商品的虚料金额，等于成本价
         String vpl = request.getParameter("virtualPriceList");
-        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL){
+        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                && outBean.getOutType() == OutConstant.OUTTYPE_IN_COMMON){
             vpl = request.getParameter("desList");
         }
         //虚料金额
@@ -824,15 +825,20 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             base.setOldGoods(product.getConsumeInDay());
 
                             //#545
-                            if (isVirtualProduct(base.getProductId())){
-                                base.setVirtualPrice(MathTools.parseDouble(virtualPriceList[i]));
-                                base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
-                                        .getVirtualPrice()));
-                            } else{
-                                base.setVirtualPrice(0);
-                                base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
-                                        .getVirtualPrice()));
-                            }
+//                            if (isVirtualProduct(base.getProductId())){
+//                                base.setVirtualPrice(MathTools.parseDouble(virtualPriceList[i]));
+//                                base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
+//                                        .getVirtualPrice()));
+//                            } else{
+//                                base.setVirtualPrice(0);
+//                                base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
+//                                        .getVirtualPrice()));
+//                            }
+                            //#545 采购入库时才会判断是否为虚拟产品，是的话，虚料金额=成本金额
+                            //其他入库单在确认库存时不用判断
+                            base.setVirtualPrice(MathTools.parseDouble(virtualPriceList[i]));
+                            base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
+                                    .getVirtualPrice()));
                         }
 
                         double sailPrice = 0.0d;
@@ -2129,6 +2135,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                 wrap.setDepotpartId(element.getDepotpartId());
                 wrap.setPrice(element.getCostPrice());
+                wrap.setVirtualPrice(element.getVirtualPrice());
                 wrap.setProductId(element.getProductId());
 
                 if (StringTools.isNullOrNone(element.getOwner()))
@@ -5732,6 +5739,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     wrap.setDepotpartId(defaultOKDepotpart.getId());
                 }
                 wrap.setPrice(element.getCostPrice());
+                wrap.setVirtualPrice(element.getVirtualPrice());
                 wrap.setProductId(element.getProductId());
                 if (StringTools.isNullOrNone(element.getOwner()))
                 {

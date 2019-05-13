@@ -72,6 +72,8 @@ public class ComposeProductBean implements Serializable
 
     private double price = 0.0d;
 
+    private double virtualPrice = 0.0d;
+
     private String logTime = "";
     
     /**
@@ -526,6 +528,14 @@ public class ComposeProductBean implements Serializable
         this.dirTargerName = dirTargerName;
     }
 
+    public double getVirtualPrice() {
+        return virtualPrice;
+    }
+
+    public void setVirtualPrice(double virtualPrice) {
+        this.virtualPrice = virtualPrice;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
@@ -547,6 +557,7 @@ public class ComposeProductBean implements Serializable
                 ", amount=" + amount +
                 ", status=" + status +
                 ", price=" + price +
+                ", virtualPrice=" + virtualPrice +
                 ", logTime='" + logTime + '\'' +
                 ", goldPrice=" + goldPrice +
                 ", silverPrice=" + silverPrice +

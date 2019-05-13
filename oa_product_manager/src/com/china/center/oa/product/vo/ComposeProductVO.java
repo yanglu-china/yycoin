@@ -64,11 +64,22 @@ public class ComposeProductVO extends ComposeProductBean
     @Ignore
     private double storagePrice = 0.0d;
 
+    @Ignore
+    private double virtualPrice = 0.0d;
+
     /**
      * default constructor
      */
     public ComposeProductVO()
     {
+    }
+
+    public double getVirtualPrice() {
+        return virtualPrice;
+    }
+
+    public void setVirtualPrice(double virtualPrice) {
+        this.virtualPrice = virtualPrice;
     }
 
     /**

@@ -26,8 +26,10 @@ function getPrices(){
     var srcDepotparts = document.getElementsByName('srcDepotpart');
     var srcAmounts = document.getElementsByName('srcAmount');
     var srcPrices = document.getElementsByName('srcPrice');
+    var vPrices = document.getElementsByName('vPrice');
 
     var parts = 0;
+    var vPriceTotal = 0;
 
     for (var i = 0; i < srs.length - 1; i++)
     {
@@ -45,11 +47,13 @@ function getPrices(){
         }
 
         parts += parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value);
+        vPriceTotal += parseFloat(srcAmounts[i].value) * parseFloat(vPrices[i].value);
     }
 
     var finishedProduct = parseFloat($$('amount')) * parseFloat($$('price'));
+    var finishedProductVirtualTotal = parseFloat($$('amount')) * parseFloat($$('virtualPrice'));
 
-    return [parts, finishedProduct]
+    return [parts, finishedProduct, vPriceTotal, finishedProductVirtualTotal]
 }
 
 
@@ -69,10 +73,16 @@ function checks()
     var prices = getPrices();
 	var parts = prices[0];
 	var finishedProduct = prices[1];
+	var vPriceTotal = prices[2];
+	var finishedProductVirtualTotal = prices[3];
 
     if (compareDouble(parts, finishedProduct) != 0)
     {
     	alert('配件成本之和:'+parts+'要与成品成本一致:'+finishedProduct);
+        return false;
+    } else if (compareDouble(vPriceTotal, finishedProductVirtualTotal) != 0)
+    {
+        alert('配件虚料金额之和:'+vPriceTotal+'要与成品虚料金额一致:'+finishedProductVirtualTotal);
         return false;
     }
     
@@ -164,11 +174,14 @@ function getProductBom(oos)
         $O('composePrice').innerHTML = html2;
 
         var storagePrice = oo.sprice;
+        var virtualPrice = oo.vprice;
+        // console.log(virtualPrice);
         // console.log(amount);
         // console.log(price);
         // console.log(storagePrice);
         document.getElementById("amount").value = amount;
         document.getElementById("price").value = _.round(storagePrice, 4);
+        document.getElementById("virtualPrice").value = _.round(virtualPrice, 4);
         var bomJson = oo.pbomjson;
         // console.log(bomJson);
         if (bomJson){
@@ -507,6 +520,7 @@ function addTr1()
          	数量：<input type="text" style="width: 5%" name="amount" id="amount" value="" oncheck="notNone;isNumber;" onblur="amountChange();">
                     <input type="hidden" name="mayAmount" value=""/>
 			成本：<input type="text" style="width: 6%"  name="price" id="price" value="1" oncheck="notNone;isFloat" readonly>
+                虚料金额：<input type="text" style="width: 6%"  name="virtualPrice" id="virtualPrice" value="1" oncheck="notNone;isFloat" readonly>
 			</p:tr>
             <%--<p:tr align="right">--%>
                 <%--<input type="button" class="button_class" id="ref_b"--%>
@@ -541,6 +555,7 @@ function addTr1()
                         <td width="30%" align="center">产品</td>
                         <td width="5%" align="center">数量</td>
                         <td width="5%" align="center">成本</td>
+                        <td width="5%" align="center">虚料金额</td>
                         <td width="5%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr1()"></td>
                     </tr>
@@ -597,6 +612,10 @@ function addTr1()
          <td width="15%" align="center"><input type="text" style="width: 100%"
                     name="srcPrice" value="" oncheck="notNone;isFloat">
          </td>
+        <td width="15%" align="center">
+            <input type="text" style="width: 100%"
+                                              name="vPrice" value="" oncheck="notNone;isFloat">
+        </td>
         <td width="5%" align="center"><input type=button
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>

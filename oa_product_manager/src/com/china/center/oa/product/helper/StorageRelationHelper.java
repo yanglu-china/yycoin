@@ -48,6 +48,7 @@ public abstract class StorageRelationHelper
         wrap.setStorageId(bean.getStorageId());
 
         wrap.setPrice(bean.getPrice());
+        wrap.setVirtualPrice(bean.getVirtualPrice());
 
         return wrap;
 

@@ -204,6 +204,7 @@ function clearsAll()
 	clearArray(document.getElementsByName('amount'), true);
 	clearArray(document.getElementsByName('price'));
 	clearArray(document.getElementsByName('value'));
+    clearArray(document.getElementsByName('virtualPrice'));
 	clearArray(document.getElementsByName('desciprt'));
 	clearArray(document.getElementsByName('rstafferName'));
 }
@@ -255,6 +256,7 @@ function getProductRelation(ox)
         os.cells[3].childNodes[0].value = ox[0].pprice;
         os.cells[5].childNodes[0].value = ox[0].pprice;
         os.cells[6].childNodes[0].value =  ox[0].pdepotpartname + '-->' + ox[0].pstaffername;
+        os.cells[7].childNodes[0].value = ox[0].pvirtualprice;
     }
     
     for(var i = indes; i < ox.length; i++)
@@ -275,6 +277,7 @@ function getProductRelation(ox)
         inps[2].value = ox[i].pprice;
         inps[4].value = ox[i].pprice;
         inps[5].value = ox[i].pdepotpartname + '-->' + ox[i].pstaffername;
+        inps[6].value = ox[i].pvirtualprice;
     }
 }
 
@@ -327,6 +330,7 @@ function setObj(src, dest)
     
     src.productid = dest.value;
     src.price = dest.pprice;
+    src.virtualprice = dest.pvirtualprice;
     src.stafferid = dest.pstafferid;
     src.depotpartid = dest.pdepotpartid;
 }

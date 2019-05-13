@@ -1121,7 +1121,10 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         //#545
         double virtualPrice = this.getVirtualPrice(bean);
         wrap.setVirtualPrice(virtualPrice);
-        
+
+        bean.setVirtualPrice(virtualPrice);
+        this.composeProductDAO.updateVirtualPrice(bean.getId(), virtualPrice);
+
         // 根据子产品的税率计算合成产品的税率
         // inputtax = ((a.tax/17%)*a.cost + (b.tax/17%)*b.cost+(c.tax/17%)*c.cost + …)/(a+b+c+…)
         double total = 0.0d;
@@ -1542,6 +1545,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 	    wrap.setDepotpartId(bean.getDepotpartId());
 	    wrap.setDescription("拆分产品异动(拆分后成品减少):" + bean.getId());
 	    wrap.setPrice(bean.getPrice());
+	    //#545
+	    wrap.setVirtualPrice(bean.getVirtualPrice());
 	    wrap.setProductId(bean.getProductId());
 	    wrap.setType(StorageConstant.OPR_STORAGE_DECOMPOSE);
 	    wrap.setSerializeId(sid);
@@ -1565,6 +1570,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 	        eachWrap.setDepotpartId(composeItemBean.getDepotpartId());
 	        eachWrap.setDescription("拆分产品(配件产品增加):" + bean.getId());
 	        eachWrap.setPrice(composeItemBean.getPrice());
+	        //TODO
+	        eachWrap.setVirtualPrice(composeItemBean.getVirtualPrice());
 	        eachWrap.setProductId(composeItemBean.getProductId());
 	        eachWrap.setType(StorageConstant.OPR_STORAGE_DECOMPOSE);
 	        eachWrap.setSerializeId(sid);
