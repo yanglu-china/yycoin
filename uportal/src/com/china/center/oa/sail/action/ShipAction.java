@@ -2005,6 +2005,10 @@ public class ShipAction extends DispatchAction
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
             }
+            //#639 东莞农商
+            else if (vo.getCustomerName().indexOf("东莞农商") != -1) {
+                return mapping.findForward("printDgnsReceipt");
+            }
             //#536
             else if("0".equals(batchPrint) && vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1){
                 _logger.info("******doublePrintFlag****"+doublePrintFlag);
