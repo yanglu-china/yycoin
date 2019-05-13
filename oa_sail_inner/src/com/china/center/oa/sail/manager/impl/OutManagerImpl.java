@@ -825,15 +825,20 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             base.setOldGoods(product.getConsumeInDay());
 
                             //#545
-                            if (isVirtualProduct(base.getProductId())){
-                                base.setVirtualPrice(MathTools.parseDouble(virtualPriceList[i]));
-                                base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
-                                        .getVirtualPrice()));
-                            } else{
-                                base.setVirtualPrice(0);
-                                base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
-                                        .getVirtualPrice()));
-                            }
+//                            if (isVirtualProduct(base.getProductId())){
+//                                base.setVirtualPrice(MathTools.parseDouble(virtualPriceList[i]));
+//                                base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
+//                                        .getVirtualPrice()));
+//                            } else{
+//                                base.setVirtualPrice(0);
+//                                base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
+//                                        .getVirtualPrice()));
+//                            }
+                            //#545 采购入库时才会判断是否为虚拟产品，是的话，虚料金额=成本金额
+                            //其他入库单在确认库存时不用判断
+                            base.setVirtualPrice(MathTools.parseDouble(virtualPriceList[i]));
+                            base.setVirtualPriceKey(StorageRelationHelper.getPriceKey(base
+                                    .getVirtualPrice()));
                         }
 
                         double sailPrice = 0.0d;
