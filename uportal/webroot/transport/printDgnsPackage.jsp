@@ -304,7 +304,7 @@ function pagePrint()
 										<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
 										<td><table class="border1"><tr><td>代销产品</td></tr></table></td>
 										<td><table class="border1"><tr><td>永银文化</td></tr></table></td>
-										<td><table class="border1"><tr><td>代提</td></tr></table></td>
+										<td><table class="border1"><tr><td>待提</td></tr></table></td>
 										<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 									</tr>
 								</c:forEach>

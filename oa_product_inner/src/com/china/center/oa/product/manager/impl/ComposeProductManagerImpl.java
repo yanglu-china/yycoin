@@ -1129,18 +1129,25 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         // inputtax = ((a.tax/17%)*a.cost + (b.tax/17%)*b.cost+(c.tax/17%)*c.cost + …)/(a+b+c+…)
         double total = 0.0d;
         double totalTax = 0.0d;
-        
+
+        double totalNonVirtual = 0.0d;
         for (ComposeItemBean eachItem : itemList)
         {
         	totalTax +=  (eachItem.getInputRate()/0.17) * eachItem.getPrice();
         	total += eachItem.getPrice();
+        	String productId = eachItem.getProductId();
+        	if(!this.isVirtualProduct(productId)){
+        	    totalNonVirtual += eachItem.getAmount()*eachItem.getPrice();
+            }
         }
         
         wrap.setInputRate(totalTax/total);
 
         storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
 
-        double sailPrice = bean.getPrice() - virtualPrice;
+        //结算价金额=非虚拟配件单价*数量/合成数量
+//        double sailPrice = bean.getPrice() - virtualPrice;
+        double sailPrice = totalNonVirtual/bean.getAmount();
         _logger.info(virtualPrice+"***sailPrice***"+sailPrice);
         String productId = bean.getProductId();
         ProductBean productBean = this.productDAO.find(productId);
