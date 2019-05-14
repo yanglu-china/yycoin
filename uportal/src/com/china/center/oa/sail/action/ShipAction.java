@@ -2007,6 +2007,8 @@ public class ShipAction extends DispatchAction
             }
             //#639 东莞农商
             else if (vo.getCustomerName().indexOf("东莞农商") != -1) {
+                //一级支行
+                request.setAttribute("yjzh",this.getYjzh(vo));
                 return mapping.findForward("printDgnsReceipt");
             }
             //#536
@@ -2028,6 +2030,19 @@ public class ShipAction extends DispatchAction
                 }
                 return mapping.findForward("printUnifiedReceipt");
             }
+        }
+    }
+
+    private String getYjzh(PackageVO vo){
+        String customerId = vo.getCustomerId();
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("customerId","=",customerId);
+        List<BranchRelationBean> branchRelationBeans = this.branchRelationDAO.queryEntityBeansByCondition(conditionParse);
+        if(ListTools.isEmptyOrNull(branchRelationBeans)){
+            return "";
+        } else{
+            return branchRelationBeans.get(0).getYjzh();
         }
     }
 

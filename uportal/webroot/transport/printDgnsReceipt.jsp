@@ -290,19 +290,23 @@ function callBackPrintFun()
 						<td>
 							<table width="100%" cellspacing='0' cellpadding="0">
 								<tr class="content2">
-									<td colspan="2" width="50%"><table><tr><td>调出机构：永银文化</td></tr></table></td>
-									<td colspan="2" width="50%"><table><tr><td>接收机构：${bean.customerName}</td></tr></table></td>
+									<td colspan="4" width="100%"><table><tr><td>调出机构：永银文化</td></tr></table></td>
 								</tr>
 								<tr class="content2">
-									<td colspan="2" width="50%"><table><tr><td>库存管理操作：<span class="underline">入库</span>(入库/下放/上缴/出库)</td></tr></table></td>
-									<td colspan="2" width="50%"><table><tr><td>交接方式：<span class="underline">快递寄送</span>(临柜交接/现金押运调拨/快递寄送)</td></tr></table></td>
+									<td colspan="4" width="100%"><table><tr><td>接收机构：${yjzh}</td></tr></table></td>
+								</tr>
+								<tr class="content2">
+									<td colspan="4" width="100%"><table><tr><td>库存管理操作：<span class="underline">入库</span>(入库/下放/上缴/出库)</td></tr></table></td>
+								</tr>
+								<tr class="content2">
+									<td colspan="4" width="100%"><table><tr><td>交接方式：<span class="underline">快递寄送</span>(临柜交接/现金押运调拨/快递寄送)</td></tr></table></td>
 								</tr>
 								<tr class="content2">
 									<td colspan="2" width="50%"><table><tr><td>交接委托说明：（临柜交接需填写）</td></tr></table></td>
 									<td colspan="2" width="50%"><table><tr><td></td></tr></table></td>
 								</tr>
 								<tr class="content2">
-									<td colspan="4" width="100%"><table><tr><td>我公司委托<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+									<td colspan="4" width="100%"><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;我公司委托<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
 										(身份证件号码<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
 										联系方式<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>)和
 										<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
