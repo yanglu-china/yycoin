@@ -1137,7 +1137,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         	total += eachItem.getPrice();
         	String productId = eachItem.getProductId();
         	if(!this.isVirtualProduct(productId)){
-        	    totalNonVirtual += eachItem.getAmount()*eachItem.getPrice();
+        	    totalNonVirtual += eachItem.getAmount()*(eachItem.getPrice()-eachItem.getVirtualPrice());
             }
         }
         
@@ -1145,7 +1145,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
         storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
 
-        //结算价金额=非虚拟配件单价*数量/合成数量
+        //结算价金额=（非虚拟配件单价-非虚拟配件虚料金额）*非虚拟配件数量累计/合成数量
 //        double sailPrice = bean.getPrice() - virtualPrice;
         double sailPrice = totalNonVirtual/bean.getAmount();
         _logger.info(virtualPrice+"***sailPrice***"+sailPrice);
