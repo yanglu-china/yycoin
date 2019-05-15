@@ -342,6 +342,12 @@ public class TcpFlowManagerImpl implements TcpFlowManager
             }
             for (String processId : processList)
             {
+            	//#640 check
+            	if(StringTools.isNullOrNone(processId) || "0".equals(processId) || "null".equals(processId) ){
+            		_logger.info("***save TcpApproveBean*** ignored processId: "+processId);
+            		continue;
+            	}
+            	
                 // 进入审批状态
                 TcpApproveBean approve = new TcpApproveBean();
 
