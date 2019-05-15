@@ -298,7 +298,7 @@ function pagePrint()
 									<td width="16%"><table class="border1"><tr><td align="center">调动数量</td></tr></table></td>
 								</tr>
 
-								<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
+								<c:forEach items="${bean.dgnsItemList}" var="item" varStatus="vs">
 									<tr class="content2">
 										<td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
 										<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>

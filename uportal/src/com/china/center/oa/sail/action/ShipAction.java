@@ -1362,18 +1362,30 @@ public class ShipAction extends DispatchAction
 
         for (Entry<String, PackageItemBean> entry : map.entrySet())
         {
-            PackageItemBean each = entry.getValue();
-            if (vo.getCustomerName().contains(DGNS)){
-                ProductImportBean productImportBean = this.getProductImportBean(each,DGNS);
-                if (productImportBean!= null){
-                    each.setProductCode(productImportBean.getBankProductCode());
-                    each.setProductName(productImportBean.getBankProductName());
-                }
-            }
             lastList.add(entry.getValue());
         }
 
         vo.setItemList(lastList);
+
+        //#639
+        List<PackageItemBean> dgnsList = new ArrayList<>();
+        if (vo.getCustomerName().contains(DGNS)){
+            for (Entry<String, PackageItemBean> entry : map.entrySet())
+            {
+                PackageItemBean each = entry.getValue();
+                if (!each.getProductName().contains("发票号")){
+                    PackageItemBean item = new PackageItemBean();
+                    BeanUtil.copyProperties(item, each);
+                    ProductImportBean productImportBean = this.getProductImportBean(item,DGNS);
+                    if (productImportBean!= null){
+                        item.setProductCode(productImportBean.getBankProductCode());
+                        item.setProductName(productImportBean.getBankProductName());
+                    }
+                    dgnsList.add(item);
+                }
+            }
+        }
+        vo.setDgnsItemList(dgnsList);
 
         List<PackageWrap> wrapList = new ArrayList<PackageWrap>();
 

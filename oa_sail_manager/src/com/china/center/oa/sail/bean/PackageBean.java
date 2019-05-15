@@ -193,6 +193,12 @@ public class PackageBean implements Serializable
     @Ignore
     List<PackageItemBean> itemList = null;
 
+    /**
+     * #639
+     */
+    @Ignore
+    List<PackageItemBean> dgnsItemList = null;
+
     public PackageBean()
     {
     }
@@ -631,6 +637,14 @@ public class PackageBean implements Serializable
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public List<PackageItemBean> getDgnsItemList() {
+        return dgnsItemList;
+    }
+
+    public void setDgnsItemList(List<PackageItemBean> dgnsItemList) {
+        this.dgnsItemList = dgnsItemList;
     }
 
     @Override
