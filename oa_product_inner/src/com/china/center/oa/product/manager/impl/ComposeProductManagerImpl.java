@@ -1145,9 +1145,15 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
         storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
 
-        //结算价金额=（非虚拟配件单价-非虚拟配件虚料金额）*非虚拟配件数量累计/合成数量
-//        double sailPrice = bean.getPrice() - virtualPrice;
-        double sailPrice = totalNonVirtual/bean.getAmount();
+        List<ComposeFeeBean> feeBeans = composeFeeDAO.queryEntityBeansByFK(bean.getId());
+        double totalFee = 0.0d;
+        if(!ListTools.isEmptyOrNull(feeBeans)){
+            for(ComposeFeeBean fee: feeBeans){
+                totalFee += fee.getPrice();
+            }
+        }
+        //结算价金额=(（非虚拟配件单价-非虚拟配件虚料金额）*非虚拟配件数量累计+合成费用累计)/合成数量
+        double sailPrice = (totalNonVirtual+totalFee)/bean.getAmount();
         _logger.info(virtualPrice+"***sailPrice***"+sailPrice);
         String productId = bean.getProductId();
         ProductBean productBean = this.productDAO.find(productId);
