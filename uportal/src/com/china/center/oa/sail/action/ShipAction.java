@@ -153,6 +153,8 @@ public class ShipAction extends DispatchAction
 
     private final static String QUERYPICKUP = "queryPickup";
 
+    private final static String DGNS = "东莞农商";
+
     /**
      * default construct
      */
@@ -1360,6 +1362,14 @@ public class ShipAction extends DispatchAction
 
         for (Entry<String, PackageItemBean> entry : map.entrySet())
         {
+            PackageItemBean each = entry.getValue();
+            if (vo.getCustomerName().contains(DGNS)){
+                ProductImportBean productImportBean = this.getProductImportBean(each,DGNS);
+                if (productImportBean!= null){
+                    each.setProductCode(productImportBean.getBankProductCode());
+                    each.setProductName(productImportBean.getBankProductName());
+                }
+            }
             lastList.add(entry.getValue());
         }
 
@@ -1404,7 +1414,14 @@ public class ShipAction extends DispatchAction
         } else{
             request.setAttribute("tw", "");
         }
-        return mapping.findForward("printPackage");
+        _logger.info("****customerName***"+customerName);
+        //#639
+        if (customerName.contains(DGNS)){
+            request.setAttribute("yjzh", this.getYjzh(vo));
+            return mapping.findForward("printDgnsPackage");
+        } else{
+            return mapping.findForward("printPackage");
+        }
     }
 
     /**
@@ -2005,12 +2022,12 @@ public class ShipAction extends DispatchAction
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
             }
-            //#639 东莞农商
-            else if (vo.getCustomerName().indexOf("东莞农商") != -1) {
-                //一级支行
-                request.setAttribute("yjzh",this.getYjzh(vo));
-                return mapping.findForward("printDgnsReceipt");
-            }
+//            //#639 东莞农商
+//            else if (vo.getCustomerName().indexOf("东莞农商") != -1) {
+//                //一级支行
+//                request.setAttribute("yjzh",this.getYjzh(vo));
+//                return mapping.findForward("printDgnsReceipt");
+//            }
             //#536
             else if("0".equals(batchPrint) && vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1){
                 _logger.info("******doublePrintFlag****"+doublePrintFlag);
