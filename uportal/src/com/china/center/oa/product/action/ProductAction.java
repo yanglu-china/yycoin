@@ -1735,9 +1735,10 @@ public class ProductAction extends DispatchAction
         //TODO 该产品全部库存-在途库存>=合成数量，就可以正常合成
         String stafferId = "0";
         String priceKey = StorageRelationHelper.getPriceKey(item.getPrice());
+        String virtualPriceKey = StorageRelationHelper.getPriceKey(item.getVirtualPrice());
         StorageRelationBean relation = storageRelationDAO
                 .findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(item.getDepotpartId(), item
-                        .getProductId(), priceKey, stafferId);
+                        .getProductId(), priceKey, virtualPriceKey, stafferId);
         if (relation == null){
             return null;
         } else{

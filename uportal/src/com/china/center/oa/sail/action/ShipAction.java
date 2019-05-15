@@ -153,6 +153,8 @@ public class ShipAction extends DispatchAction
 
     private final static String QUERYPICKUP = "queryPickup";
 
+    private final static String DGNS = "东莞农商";
+
     /**
      * default construct
      */
@@ -1365,6 +1367,26 @@ public class ShipAction extends DispatchAction
 
         vo.setItemList(lastList);
 
+        //#639
+        List<PackageItemBean> dgnsList = new ArrayList<>();
+        if (vo.getCustomerName().contains(DGNS)){
+            for (Entry<String, PackageItemBean> entry : map.entrySet())
+            {
+                PackageItemBean each = entry.getValue();
+                if (!each.getProductName().contains("发票号")){
+                    PackageItemBean item = new PackageItemBean();
+                    BeanUtil.copyProperties(item, each);
+                    ProductImportBean productImportBean = this.getProductImportBean(item,DGNS);
+                    if (productImportBean!= null){
+                        item.setProductCode(productImportBean.getBankProductCode());
+                        item.setProductName(productImportBean.getBankProductName());
+                    }
+                    dgnsList.add(item);
+                }
+            }
+        }
+        vo.setDgnsItemList(dgnsList);
+
         List<PackageWrap> wrapList = new ArrayList<PackageWrap>();
 
         for (Entry<String, PackageWrap> entry : map1.entrySet())
@@ -1404,7 +1426,14 @@ public class ShipAction extends DispatchAction
         } else{
             request.setAttribute("tw", "");
         }
-        return mapping.findForward("printPackage");
+        _logger.info("****customerName***"+customerName);
+        //#639
+        if (customerName.contains(DGNS)){
+            request.setAttribute("yjzh", this.getYjzh(vo));
+            return mapping.findForward("printDgnsPackage");
+        } else{
+            return mapping.findForward("printPackage");
+        }
     }
 
     /**
@@ -2005,10 +2034,12 @@ public class ShipAction extends DispatchAction
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
             }
-            //#639 东莞农商
-            else if (vo.getCustomerName().indexOf("东莞农商") != -1) {
-                return mapping.findForward("printDgnsReceipt");
-            }
+//            //#639 东莞农商
+//            else if (vo.getCustomerName().indexOf("东莞农商") != -1) {
+//                //一级支行
+//                request.setAttribute("yjzh",this.getYjzh(vo));
+//                return mapping.findForward("printDgnsReceipt");
+//            }
             //#536
             else if("0".equals(batchPrint) && vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1){
                 _logger.info("******doublePrintFlag****"+doublePrintFlag);
@@ -2028,6 +2059,19 @@ public class ShipAction extends DispatchAction
                 }
                 return mapping.findForward("printUnifiedReceipt");
             }
+        }
+    }
+
+    private String getYjzh(PackageVO vo){
+        String customerId = vo.getCustomerId();
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("customerId","=",customerId);
+        List<BranchRelationBean> branchRelationBeans = this.branchRelationDAO.queryEntityBeansByCondition(conditionParse);
+        if(ListTools.isEmptyOrNull(branchRelationBeans)){
+            return "";
+        } else{
+            return branchRelationBeans.get(0).getYjzh();
         }
     }
 

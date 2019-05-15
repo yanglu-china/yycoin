@@ -1129,18 +1129,31 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         // inputtax = ((a.tax/17%)*a.cost + (b.tax/17%)*b.cost+(c.tax/17%)*c.cost + …)/(a+b+c+…)
         double total = 0.0d;
         double totalTax = 0.0d;
-        
+
+        double totalNonVirtual = 0.0d;
         for (ComposeItemBean eachItem : itemList)
         {
         	totalTax +=  (eachItem.getInputRate()/0.17) * eachItem.getPrice();
         	total += eachItem.getPrice();
+        	String productId = eachItem.getProductId();
+        	if(!this.isVirtualProduct(productId)){
+        	    totalNonVirtual += eachItem.getAmount()*(eachItem.getPrice()-eachItem.getVirtualPrice());
+            }
         }
         
         wrap.setInputRate(totalTax/total);
 
         storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
 
-        double sailPrice = bean.getPrice() - virtualPrice;
+        List<ComposeFeeBean> feeBeans = composeFeeDAO.queryEntityBeansByFK(bean.getId());
+        double totalFee = 0.0d;
+        if(!ListTools.isEmptyOrNull(feeBeans)){
+            for(ComposeFeeBean fee: feeBeans){
+                totalFee += fee.getPrice();
+            }
+        }
+        //结算价金额=(（非虚拟配件单价-非虚拟配件虚料金额）*非虚拟配件数量累计+合成费用累计)/合成数量
+        double sailPrice = (totalNonVirtual+totalFee)/bean.getAmount();
         _logger.info(virtualPrice+"***sailPrice***"+sailPrice);
         String productId = bean.getProductId();
         ProductBean productBean = this.productDAO.find(productId);

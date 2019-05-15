@@ -3,6 +3,7 @@
 <%@include file="../common/common.jsp"%>
 <html>
 <head>
+<p:link title="打印客户出库" link="false" guid="true" cal="true" dialog="true" />
 <script language="JavaScript" src="../js/common.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
@@ -14,61 +15,16 @@ function pagePrint()
 	window.print();
 	document.getElementById('ptr').style.display = 'block';
 
-	var pickupId = $O('pickupId').value;
-	var index_pos = $O('index_pos').value;
-
-	var packageId = $O('packageId').value;
-	var subindex_pos = $O('subindex_pos').value;
-
-	var compose = $O('compose').value;
-    var batchPrint = $O('batchPrint').value;
-    var directFlag = $O('directFlag').value;
-//    console.log("directFlag:"+directFlag);
-//    console.log("batchPrint:"+batchPrint);
-//    console.log("allPackages:"+$$('allPackages'));
-//    console.log("index_pos:"+index_pos);
-
-    //连打模式下，并且回执单都已经打印完毕就跳转到交接单打印
-//    if ($$('allPackages') == index_pos && batchPrint == '0' && $$('stafferName') == '叶百韬')
-    //2015/3/26 最后打印的回执单可能不是叶百韬的单子，这个判断到打印交接单时做
-    if ($$('allPackages') == index_pos && batchPrint == '0' && directFlag != '1')
-    {
-        var pickupId = $O('pickupId').value;
-        var index_pos = $O('index_pos').value;
-        var compose = $O('compose').value;
-
-        // 链到交接清单打印界面
-        $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos=0" + "&compose=" + compose);
-    } else{
-		if ((!pickupId || 0 === pickupId.length)){
-			alert("已打印!");
-		}else{
-//            $l("../sail/ship.do?method=findOutForReceipt&pickupId="
-//                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
-//                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
-
-
-//            console.log(window.location.href);
-            if (directFlag === '1'){
-//                console.log("OK***");
-				var url = window.location.href+"&directFlag="+directFlag;
-				$l(url);
-//                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
-//                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
-//                    + "&compose=" + compose+ "&batchPrint=" + batchPrint+"&directFlag="+directFlag);
-			} else{
-                // 链到客户出库单打印界面
-                $l("../sail/ship.do?method=findOutForReceipt&pickupId="
-                    +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
-                    + "&compose=" + compose+ "&batchPrint=" + batchPrint);
-			}
-		}
-    }
-}
-
-function callBackPrintFun()
-{
-	//
+	if ($$('printMode') == 0)
+	{
+		var pickupId = $O('pickupId').value;
+		var index_pos = $O('index_pos').value;
+		var printSmode = $O('printSmode').value;
+		var compose = $O('compose').value;
+		
+		// 链到客户出库单打印界面
+		$l("../sail/ship.do?method=findNextPackage&printMode=0&printSmode="+printSmode+"&pickupId="+pickupId+"&index_pos="+index_pos + "&compose=" + compose);
+	}
 }
 
 </script>
@@ -77,42 +33,52 @@ function callBackPrintFun()
 	</style>
 </head>
 <body>
-<input type="hidden" name="pickupId" value="${pickupId}">
+<input type="hidden" name="pickupId" value="${bean.pickupId}">
 <input type="hidden" name="index_pos" value="${index_pos}">
-<input type="hidden" name="packageId" value="${packageId}">
-<input type="hidden" name="subindex_pos" value="${subindex_pos}">
-<input type="hidden" name="compose" value="${compose}">
-<input type="hidden" name="batchPrint" value="${batchPrint}">
-<input type="hidden" name="allPackages" value="${allPackages}">
 <input type="hidden" name="printMode" value="${printMode}">
 <input type="hidden" name="printSmode" value="${printSmode}">
-<input type="hidden" name="stafferName" value="${stafferName}">
-<input type="hidden" name="directFlag" value="${directFlag}">
+<input type="hidden" name="compose" value="${compose}">
+
 <div id="ck" style="page-break-after: always;">
+<table width="100%" border="0" cellpadding="0" cellspacing="0" id="na">
+	<tr>
+		<td height="6" >
+		<table width="100%" border="0" cellpadding="0" cellspacing="0">
+			<tr>
+				<td align="center">
+				<font size="6"><b>
+				</b>
+				</font></td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+</table>
+
 <table width="90%" border="0" cellpadding="0" cellspacing="0"
 	align="center">
 	<tr>
 		<td colspan='2'>
 		<table width="100%" border="0" cellpadding="0" cellspacing="0">
 			<tr>
+
 			</tr>
 			<tr>
 				<td align="center">
-                    <table width="100%" border="0" cellspacing="2">
-                        <tr>
-                            <td align="left" style="height: 27px"><img src="${qrcode}"/></td>
-                            <td align="right"><img src="${qrcode}"/></td>
-                        </tr>
-                        <tr>
-                            <td style="height: 27px" align="center" colspan="2">
-                                <font size=5>
-                                    <b>
-                            ${title}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if>&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.direct == 1}">直邮</c:if>
-                                    </b>
-                                </font>
-                            </td>
-                        </tr>
-                    </table>
+				<table width="100%" border="0" cellspacing="2">
+					<tr>
+						<td style="height: 27px" align="center">
+                            <font size=5>
+								${customerName}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <b>
+									客&nbsp;&nbsp;&nbsp;户&nbsp;&nbsp;&nbsp;出&nbsp;&nbsp;&nbsp;库&nbsp;&nbsp;&nbsp;单${tw}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									<c:if test="${bean.emergency == 1}">紧急订单</c:if>&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.direct == 1}">直邮</c:if>
+                                    <img src="${qrcode}"/>
+                                </b>
+                            </font>
+                        </td>
+					</tr>
+				</table>
 				</td>
 			</tr>
 		</table>
@@ -127,117 +93,117 @@ function callBackPrintFun()
 	<tr>
 		<td colspan='2' align='center'>
 		<table width="100%" border="0" cellpadding="0" cellspacing="0">
-			<tr>
-				<td>
-				<table width="100%" cellspacing='0' cellpadding="0">
-					<tr class="content2">
-						<td colspan="2" width="50%"><table><tr><td>出库时间：${year}-${month}-${day}</td></tr></table></td>
-						<td colspan="2" width="50%"><table><tr><td>收货客户：${bean.customerName}</td></tr></table></td>
-					</tr>
-					<tr class="content2">
-						<td colspan="2" width="50%"><table><tr><td>业务联系：${stafferName}</td></tr></table></td>
-						<td colspan="2" width="50%"><table><tr><td>客服电话：4006518859</td></tr></table></td>
-					</tr>
-					<tr class="content2">
-						<td colspan="2" width="50%"><table><tr><td>业务电话：${phone}</td></tr></table></td>
-						<td colspan="2" width="50%"><table><tr><td>客服传真：025-51885923</td></tr></table></td>
-					</tr>
-					<tr class="content2">
-						<td colspan="2" width="50%"><table><tr><td>收货人员：${bean.receiver}</td></tr></table></td>
-						<td colspan="2" width="50%"><table><tr><td>联系电话：${bean.mobile}</td></tr></table></td>
-					</tr>
-				</table>
-				</td>
-			</tr>
 			
 			<tr>
 				<td>
 				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
 					<tr class="content2">
-						<td width="24%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
-                        <td width="16%"><table class="border1"><tr><td align="center">代码</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">数量</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">订单性质</td></tr></table></td>
-						<td width="16%"><table class="border1"><tr><td align="center">客户单号</td></tr></table></td>
-						<td width="16%"><table class="border1"><tr><td align="center">订单日期</td></tr></table></td>
-                        <td width="8%"><table class="border1"><tr><td align="center">顾客姓名</td></tr></table></td>
-						<td width="12%"><table class="border1"><tr><td align="center">客户备注</td></tr></table></td>
+						<td colspan="4"><table class="border1"><tr><td>编号：${bean.pickupId}--${bean.index_pos} / ${bean.id}</td></tr></table></td>
+					</tr>
+					<tr class="content2">
+						<td><table class="border1"><tr><td>制单时间：${year} / ${month} / ${day}</td></tr></table></td>
+						<td><table class="border1"><tr><td>申请人：${bean.stafferName}</td></tr></table></td>
+						<td><table class="border1"><tr><td>事业部：${bean.industryName}</td></tr></table></td>
+						<td><table class="border1"><tr><td>销售部门：${bean.departName}</td></tr></table></td>
+					</tr>
+					<tr class="content2">
+						<td colspan="2"><table class="border1"><tr><td>收货人：${bean.receiver}</td></tr></table></td>
+						<td colspan="2"><table class="border1"><tr><td>联系电话：${bean.mobile}</td></tr></table></td>
+					</tr>					
+					<tr class="content2">
+						<td colspan="4"><table class="border1"><tr><td>发货地址：${bean.address}</td></tr></table></td>
 					</tr>
 					
-					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
-						<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.itemType}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.refId}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.poDate}</td></tr></table></td>
-                        <td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.customerDescription}</td></tr></table></td>
-					</tr>
-					</c:forEach>
+						<td><table class="border1"><tr><td>发货方式：${my:get('outShipment',bean.shipping)}</td></tr></table></td>
+						<td colspan="2"><table class="border1"><tr><td>发货公司：${bean.transportName1}&nbsp;${bean.transportName2}</td></tr></table></td>
+						<td><table class="border1"><tr><td>支付方式：${my:get('deliverPay',bean.expressPay)}&nbsp;${my:get('deliverPay',bean.transportPay)}</td></tr></table></td>
+					</tr>					
 					
-					<c:forEach varStatus="vs" begin="1" end="${(2 - my:length(vo.itemList)) > 0 ? (2 - my:length(vo.itemList)) : 0}">
-					<tr class="content2">
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td></td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-					</tr>
-					</c:forEach>
 				</table>
 				</td>
-			</tr>
-			
-			<tr>
-				<td height="20"></td>
 			</tr>
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border2">
 					<tr class="content2">
-						<td colspan="3" width="50%"><table><tr><td>发货单位盖章：</td></tr></table></td>
-						<td width="50%"><table><tr><td>收货人签字确认：</td></tr></table></td>
+						<td width="8%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
+						<td width="15%"><table class="border1"><tr><td align="center">单号</td></tr></table></td>
+						<td width="15%"><table class="border1"><tr><td align="center">银行订单号</td></tr></table></td>
+						<td width="40%"><table class="border1"><tr><td align="center">销售备注</td></tr></table></td>
 					</tr>
+					
+					<c:forEach items="${bean.wrapList}" var="item1" varStatus="vs1">
 					<tr class="content2">
-						<td colspan="4"><table><tr><td>${address}</td></tr></table></td>
+						<td><table class="border1"><tr><td align="center">${vs1.index + 1}</td></tr></table></td>
+						<td><table class="border1"><tr><td>${item1.outId}</td></tr></table></td>
+						<td><table class="border1"><tr><td>${item1.citicNo}</td></tr></table></td>
+						<td><table class="border1"><tr><td>${item1.description}</td></tr></table></td>
 					</tr>
+					</c:forEach>
+					
+				</table>
+				</td>
+			</tr>			
+			
+			<tr>
+				<td>
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border2">
 					<tr class="content2">
-						<td colspan="4"><table><tr><td>备注：</td></tr></table></td>
+						<td width="5%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
+						<td width="30%"><table class="border1"><tr><td align="center">品名</td></tr></table></td>
+						<td width="52%"><table class="border1"><tr><td align="center">配件名</td></tr></table></td>
+						<td width="8%"><table class="border1"><tr><td align="center">发货数量</td></tr></table></td>
 					</tr>
+					
+					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
-						<td colspan="4"><table><tr><td>1.此发货清单仅作为收货确认使用。请依据本清单清点货品，请特别留意：如有发票，发票与发货清单一起放置在透明塑封袋中。</td></tr></table></td>
+						<td><table class="border1"><tr><td align="center">${vs.index + 1}</td></tr></table></td>
+						<td><table class="border1"><tr><td><p style='font-weight: bold;font-size:18px;'>${item.productName}</p></td></tr></table></td>
+						<td><table class="border1"><tr><td>${item.showSubProductName}</td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"><p style='font-weight: bold;font-size:18px;'>${item.amount}</p></td></tr></table></td>
 					</tr>
+					</c:forEach>
+					
+					<c:forEach varStatus="vs" begin="1" end="${(2 - my:length(baseList)) > 0 ? (2 - my:length(baseList)) : 0}">
 					<tr class="content2">
-						<td colspan="4"><table><tr><td>2.约定有配套赠品的，本次如未配送，将随后补发，请留意收货。</td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td><table class="border1"><tr><td></td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
 					</tr>
-					<tr class="content2">
-						<td colspan="4"><table><tr><td>3.如需要退换补货，请留存照片等说明情况的依据，<b>在收货后三日内联系我方人员</b>，提供需退换补货的订单号及退货快递单号。需退回的货品，烦请保留所有配件完整，原样（含发票）完整打包后寄回。不原路返回的退款要求，请同时寄回有效盖章的退款函，注明退回账号信息。</td></tr></table></td>
-					</tr>
-					<tr class="content2">
-						<td colspan="3"><table><tr><td></td></tr></table></td>
-						<td><table><tr><td></td></tr></table></td>
-					</tr>
-					<tr class="content2">
-						<td colspan="4"><table><tr>
-						<td>
-						</td>
-						</tr></table></td>
-					</tr>
+					</c:forEach>
 				</table>
 				</td>
 			</tr>
 			
+			<tr>
+				<td height="15"></td>
+			</tr>
+
+
+			<tr>
+				<td>
+				<table width="100%" cellspacing='0' cellpadding="0">
+					<tr>
+						<td colspan="2" align="left">
+						备货人：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+						<td colspan="2" align="left">发货人：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					</tr>
+
+					<tr>
+						<td colspan="4" align="left">
+						检验人员：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					</tr>
+				</table>
+				</td>
+			</tr>
 		</table>
 
 		</td>
 	</tr>
-
+	
 	<tr id="ptr">
 		<td width="92%">
 		<div align="right"><input type="button" name="pr"
@@ -247,6 +213,8 @@ function callBackPrintFun()
 	</tr>
 </table>
 </div>
+
+
 <table>
 	<div id="dgns">
 		<tr>
@@ -311,8 +279,8 @@ function callBackPrintFun()
 										联系方式<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>)和
 										<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
 										(身份证件号码<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-											联系方式<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>)
-											两名人员到（机构）<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>办理下述产品或包装盒的库存调动。</td></tr></table></td>
+										联系方式<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>)
+										两名人员到（机构）<span class="underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>办理下述产品或包装盒的库存调动。</td></tr></table></td>
 								</tr>
 							</table>
 						</td>
@@ -330,13 +298,13 @@ function callBackPrintFun()
 									<td width="16%"><table class="border1"><tr><td align="center">调动数量</td></tr></table></td>
 								</tr>
 
-								<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
+								<c:forEach items="${bean.dgnsItemList}" var="item" varStatus="vs">
 									<tr class="content2">
 										<td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
 										<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
 										<td><table class="border1"><tr><td>代销产品</td></tr></table></td>
 										<td><table class="border1"><tr><td>永银文化</td></tr></table></td>
-										<td><table class="border1"><tr><td>代提</td></tr></table></td>
+										<td><table class="border1"><tr><td>待提</td></tr></table></td>
 										<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 									</tr>
 								</c:forEach>

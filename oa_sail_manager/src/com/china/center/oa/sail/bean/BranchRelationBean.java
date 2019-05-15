@@ -66,6 +66,11 @@ public class BranchRelationBean implements Serializable
 
     private String operator = "";
 
+    /**
+     * #639 一级支行
+     */
+    private String yjzh = "";
+
 
 
     public String getId() {
@@ -156,6 +161,14 @@ public class BranchRelationBean implements Serializable
         this.customerId = customerId;
     }
 
+    public String getYjzh() {
+        return yjzh;
+    }
+
+    public void setYjzh(String yjzh) {
+        this.yjzh = yjzh;
+    }
+
     @Override
     public String toString() {
         return "BranchRelationBean{" +
@@ -170,6 +183,7 @@ public class BranchRelationBean implements Serializable
                 ", copyToBranchFlag=" + copyToBranchFlag +
                 ", logTime='" + logTime + '\'' +
                 ", operator='" + operator + '\'' +
+                ", yjzh='" + yjzh + '\'' +
                 '}';
     }
 }
