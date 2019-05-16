@@ -624,25 +624,15 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     }else if("银行事业部".equals(sybname)){
                     	bearLeader = this.findShareApprover(bankBuLevelBean);
                     	
-                        if (!StringTools.isNullOrNone(bearLeader)
-                                && !processList.contains(bearLeader)
-                                //如果承担人直属上级与提交人直属上级一致，则过滤掉
+                        if (StringTools.isNullOrNone(bearLeader)){
+                        	//最高层级为provincemanager和NAME时，由regionaldirector审批
+                        	bearLeader = bankBuLevelBean.getRegionalDirectorId();
+                        }  
+                        
+                        if (!processList.contains(bearLeader)
                                 && !bearLeader.equals(commiterApprover)){
                             processList.add(bearLeader);
                         }
-                        //最基层的，由regionalmanager，provincemanager共同审批
-                        if (StringTools.isNullOrNone(bearLeader)){
-                            String regionalmanagerId = bankBuLevelBean.getRegionalManagerId();
-                            if (!processList.contains(regionalmanagerId)
-                                    && !regionalmanagerId.equals(commiterApprover)){
-                                processList.add(regionalmanagerId);
-                            }
-                            String provincemanagerId = bankBuLevelBean.getProvinceManagerId();
-                            if (!processList.contains(provincemanagerId)
-                                    && !provincemanagerId.equals(commiterApprover)){
-                                processList.add(provincemanagerId);
-                            }                           
-                        }                        
 
                     }
 
