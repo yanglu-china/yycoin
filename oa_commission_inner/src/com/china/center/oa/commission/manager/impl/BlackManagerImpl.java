@@ -1039,7 +1039,12 @@ public class BlackManagerImpl implements BlackManager
         for (OutBean outBean: refList){
             List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
             for (BaseBean baseBean: baseBeans){
-                backTotal += baseBean.getIprice()*baseBean.getAmount();
+                //#641 领样退库取iprice
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH){
+                    backTotal += baseBean.getIprice()*baseBean.getAmount();
+                } else if (outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK){
+                    backTotal += baseBean.getPrice()*baseBean.getAmount();
+                }
             }
         }
 
