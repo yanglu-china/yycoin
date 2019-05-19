@@ -783,7 +783,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             //#495
 	        else if (token.getNextPlugin().equalsIgnoreCase("plugin:higherUpShare"))
                 {
-                    _logger.info("******plugin:higherUpShare******");
+                    _logger.info("******TravelApplyManagerImpl plugin:higherUpShare******");
                     List<String> processList = new ArrayList();
 
                     // 先处理一个
@@ -794,19 +794,66 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                         throw new MYException("下环节里面没有人员,请确认操作");
                     }
 
+                    //previous approver
+                    BankBuLevelBean bankBuLevelBeanPre = this.bankBuLevelDAO.find(bean.getStafferId());
+                    String commiterApprover = TcpFlowManagerImpl.findApprover(bankBuLevelBeanPre);
+
                     for (TcpShareVO tcpShareVO : shareVOList)
                     {
                         String bearId = tcpShareVO.getBearId();
-                        StafferBean stafferBean = this.stafferDAO.find(bearId);
-                        // 承担人直属上级审批
-                        String bearLeader = String.valueOf(stafferBean.getSuperiorLeader());
-                        StafferBean commiter = this.stafferDAO.find(bean.getStafferId());
-                        if (!StringTools.isNullOrNone(bearLeader)
-                                && !processList.contains(bearLeader)
-                                //如果承担人直属上级与提交人直属上级一致，则过滤掉
-                                && !bearLeader.equals(commiter.getSuperiorLeader())){
-                            processList.add(bearLeader);
+                        //#628
+                        BankBuLevelBean bankBuLevelBean = this.bankBuLevelDAO.find(bearId);
+                        String sybname = bankBuLevelBean.getSybname();
+                        
+                        _logger.debug("***sybname："+sybname+", bearId:"+bearId+", commiterApprover:"+commiterApprover
+                        		+ ", shareVOList.size(): "+shareVOList.size());
+                        
+                        String bearLeader = "";
+                        
+                        if("渠道事业部".equals(sybname) || !sybname.contains("事业部")){
+                        	//原来的流程
+                            StafferBean stafferBean = this.stafferDAO.find(bearId);
+                            // 承担人直属上级审批
+                            bearLeader = String.valueOf(stafferBean.getSuperiorLeader());
+                            //StafferBean commiter = this.stafferDAO.find(bean.getStafferId());
+                            
+                            _logger.debug("渠道事业部 ***bearLeader："+bearLeader+", commiterApprover:"+commiterApprover);
+                            
+                            if (!StringTools.isNullOrNone(bearLeader)
+                                    && !processList.contains(bearLeader)
+                                    //如果承担人直属上级与提交人直属上级一致，则过滤掉
+                                    && !bearLeader.equals(commiterApprover)){
+                                processList.add(bearLeader);
+                            }
+                        	
+                        }else if("终端事业部".equals(sybname)){
+                        	bearLeader = this.bankBuLevelDAO.queryManagerId("", bearId, "");
+                        	
+                        	_logger.debug("终端事业部 ***bearLeader："+bearLeader+", commiterApprover:"+commiterApprover);
+                        	
+                            if (!StringTools.isNullOrNone(bearLeader)
+                                    && !processList.contains(bearLeader)
+                                    //如果承担人直属上级与提交人直属上级一致，则过滤掉
+                                    && !bearLeader.equals(commiterApprover)){
+                                processList.add(bearLeader);
+                            }
+                        }else if("银行事业部".equals(sybname)){
+                        	bearLeader = this.findShareApprover(bankBuLevelBean);
+                        	
+                        	_logger.debug("银行事业部 ***bearLeader："+bearLeader+", commiterApprover:"+commiterApprover);
+                        	
+                            if (StringTools.isNullOrNone(bearLeader)){
+                            	//最高层级为provincemanager和NAME时，由regionaldirector审批
+                            	bearLeader = bankBuLevelBean.getRegionalDirectorId();
+                            }  
+                            
+                            if (!processList.contains(bearLeader)
+                                    && !bearLeader.equals(commiterApprover)){
+                                processList.add(bearLeader);
+                            }
+
                         }
+
                     }
 
                     int newStatus = 0;
@@ -875,6 +922,22 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
 	    return true;
 	}
+	
+    //#628
+    private String findShareApprover(BankBuLevelBean bankBuLevelBean){
+    	String rst = "";
+    	String id = bankBuLevelBean.getId();
+    	if(bankBuLevelBean.getSybmanagerId().equals(id)){
+    		rst = bankBuLevelBean.getZcId();
+    	}else if(bankBuLevelBean.getManagerId().equals(id)){
+    		rst = bankBuLevelBean.getSybmanagerId();
+    	}else if(bankBuLevelBean.getRegionalDirectorId().equals(id)){
+    		rst = bankBuLevelBean.getManagerId();
+    	}else if(bankBuLevelBean.getRegionalManagerId().equals(id)){
+    		rst = bankBuLevelBean.getRegionalDirectorId();
+    	}
+    	return rst;
+    }
 
 	private void pool(TcpFlowBean token, User user, TravelApplyVO bean, int oldStatus, String reason) throws MYException
     {
