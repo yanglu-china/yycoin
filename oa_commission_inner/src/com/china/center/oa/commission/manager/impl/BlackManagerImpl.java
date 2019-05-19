@@ -881,7 +881,8 @@ public class BlackManagerImpl implements BlackManager
         condition.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
 
         //#629
-        condition.addIntCondition("OutBean.virtualStatus", "!=", 1);
+//        condition.addIntCondition("OutBean.virtualStatus", "!=", 1);
+        condition.addCondition(" and (OutBean.virtualStatus is null or OutBean.virtualStatus = 0)");
         
         condition.addIntCondition("OutBean.pay", "=", OutConstant.PAY_NOT);
         
@@ -1038,7 +1039,12 @@ public class BlackManagerImpl implements BlackManager
         for (OutBean outBean: refList){
             List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
             for (BaseBean baseBean: baseBeans){
-                backTotal += baseBean.getIprice()*baseBean.getAmount();
+                //#641 领样退库取iprice
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH){
+                    backTotal += baseBean.getIprice()*baseBean.getAmount();
+                } else if (outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK){
+                    backTotal += baseBean.getPrice()*baseBean.getAmount();
+                }
             }
         }
 
@@ -1269,7 +1275,8 @@ public class BlackManagerImpl implements BlackManager
     	        con.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_INBILL);
 
     	        //#629
-                con.addIntCondition("OutBean.virtualStatus", "!=", 1);
+//                con.addIntCondition("OutBean.virtualStatus", "!=", 1);
+                con.addCondition(" and (OutBean.virtualStatus is null or OutBean.virtualStatus = 0)");
 
     	        con.addCondition("and OutBean.status in (3, 4)");
     	        

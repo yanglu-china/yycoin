@@ -12840,15 +12840,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         Map<String, List<FrDbBean>> map = new HashMap<>();
         if (!ListTools.isEmptyOrNull(frDbBeans)){
             _logger.info("***frDbBeans size***"+frDbBeans.size());
-            //根据流程ID合并开单
+            //根据流程ID_目的库_源仓库作为联合主键合并开单
             for (FrDbBean frDbBean: frDbBeans){
-                if(map.containsKey(frDbBean.getOutId())){
-                    List<FrDbBean> frDbBeanList = map.get(frDbBean.getOutId());
+                String key = frDbBean.getOutId()+"_"+frDbBean.getMdk()+"_"+frDbBean.getYcq();
+                if(map.containsKey(key)){
+                    List<FrDbBean> frDbBeanList = map.get(key);
                     frDbBeanList.add(frDbBean);
                 } else{
                     List<FrDbBean> frDbBeanList = new ArrayList<>();
                     frDbBeanList.add(frDbBean);
-                    map.put(frDbBean.getOutId(), frDbBeanList);
+                    map.put(key, frDbBeanList);
                 }
             }
         }

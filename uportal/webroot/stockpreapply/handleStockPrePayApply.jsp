@@ -102,14 +102,14 @@ function getNextInput(el)
 	<td width="550" class="navigation">
 	<span style="cursor: pointer;"
         onclick="javascript:history.go(-1)">采购付款</span> &gt;&gt;
-	<span>付款申请处理</span></td>
+	<span>预付款申请处理</span></td>
 	<td width="85"></td>
 </p:navigation> <br>
 
 <p:body width="98%">
 
 	<p:title>
-		<td class="caption"><strong>付款基本信息：</strong></td>
+		<td class="caption"><strong>预付款基本信息：</strong></td>
 	</p:title>
 
 	<p:line flag="0" />
@@ -244,9 +244,9 @@ function getNextInput(el)
             <input type="button" class="button_class"
                 id="ok_p2" style="cursor: pointer" value="&nbsp;&nbsp;付 款&nbsp;&nbsp;"
                 onclick="endBean()">&nbsp;&nbsp;
-            <input type="button" class="button_class"
-            id="re_b" style="cursor: pointer" value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;"
-            onclick="rejectBean()">&nbsp;&nbsp;
+            <%--<input type="button" class="button_class"--%>
+            <%--id="re_b" style="cursor: pointer" value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;"--%>
+            <%--onclick="rejectBean()">&nbsp;&nbsp;--%>
             </c:if>
             
             <input
