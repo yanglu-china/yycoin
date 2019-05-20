@@ -1380,7 +1380,9 @@ public class BlackManagerImpl implements BlackManager
 		bod.setPrice(base.getPrice());
 		bod.setAmount(base.getAmount());
 		bod.setOutId(base.getOutId());
-		bod.setCostPrice(base.getPprice());
+//		bod.setCostPrice(base.getPprice());
+        //#641 出库单取iprice
+        bod.setCostPrice(base.getIprice());
         bod.setBaseId(base.getId());
 
 		blackOutDetailDAO.saveEntityBean(bod);
