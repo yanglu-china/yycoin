@@ -64,6 +64,8 @@
 <input type="hidden" name="printSmode" value="${printSmode}">
 <input type="hidden" name="stafferName" value="${stafferName}">
 
+<c:forEach items="${bean.itemMap}" var="entry">
+<div id="ck" style="page-break-after: always;">
 <table width="90%" border="0" cellpadding="0" cellspacing="0"
        align="center">
     <tr>
@@ -117,7 +119,7 @@
                                 <td width="12%"><table class="border1"><tr><td align="center">客户备注</td></tr></table></td>
                             </tr>
 
-                            <c:forEach items="${bean.itemList}" var="item" varStatus="vs">
+                            <c:forEach items="${entry.value}" var="item" varStatus="vs">
                                 <tr class="content2">
                                     <td><table class="border1"><tr><td align="center">102</td></tr></table></td>
                                     <td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
@@ -219,19 +221,20 @@
                         </table>
                     </td>
                 </tr>
-
             </table>
-
         </td>
     </tr>
-
-    <tr id="ptr">
-        <td width="92%">
-            <div align="right"><input type="button" name="pr"
-                                      class="button_class" onclick="pagePrint()"
-                                      value="&nbsp;&nbsp;打 印&nbsp;&nbsp;"></div>
-        </td>
-    </tr>
+</table>
+</div>
+</c:forEach>
+<table>
+<tr id="ptr">
+    <td width="92%">
+        <div align="right"><input type="button" name="pr"
+                                  class="button_class" onclick="pagePrint()"
+                                  value="&nbsp;&nbsp;打 印&nbsp;&nbsp;"></div>
+    </td>
+</tr>
 </table>
 </body>
 </html>

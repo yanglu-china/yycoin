@@ -3939,6 +3939,7 @@ public class ShipAction extends DispatchAction
             totalAmount += each.getAmount();
         }
 
+        Map<String,List<PackageItemBean>> map = new HashMap<>();
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             PackageItemBean item = each.getValue();
@@ -3948,11 +3949,24 @@ public class ShipAction extends DispatchAction
             }
             itemList1.add(item);
             _logger.info("***get product code***" + item.getProductCode());
+
+            //#626
+            String key = item.getCustomerName();
+            if(map.containsKey(key)){
+                List<PackageItemBean> itemBeans = map.get(key);
+                itemBeans.add(item);
+            } else{
+                List<PackageItemBean> itemBeans = new ArrayList<>();
+                itemBeans.add(item);
+                map.put(key, itemBeans);
+            }
         }
 
         //2015/11/13 中原银行回执单：调入单位就取客户名称，但到（ 和 -符号后面的字条 去掉
         vo.setCustomerName(this.getCustomerName(vo.getCustomerName()));
-        vo.setItemList(itemList1);
+//        vo.setItemList(itemList1);
+        vo.setItemMap(map);
+        _logger.info(map);
 
         request.setAttribute("total", totalAmount);
     }

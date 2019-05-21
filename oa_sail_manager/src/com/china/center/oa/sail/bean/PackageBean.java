@@ -2,6 +2,7 @@ package com.china.center.oa.sail.bean;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.FK;
@@ -198,6 +199,12 @@ public class PackageBean implements Serializable
      */
     @Ignore
     List<PackageItemBean> dgnsItemList = null;
+
+    /**
+     * #626
+     */
+    @Ignore
+    Map<String,List<PackageItemBean>> itemMap = null;
 
     public PackageBean()
     {
@@ -645,6 +652,14 @@ public class PackageBean implements Serializable
 
     public void setDgnsItemList(List<PackageItemBean> dgnsItemList) {
         this.dgnsItemList = dgnsItemList;
+    }
+
+    public Map<String, List<PackageItemBean>> getItemMap() {
+        return itemMap;
+    }
+
+    public void setItemMap(Map<String, List<PackageItemBean>> itemMap) {
+        this.itemMap = itemMap;
     }
 
     @Override
