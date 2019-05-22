@@ -64,8 +64,9 @@
 <input type="hidden" name="printSmode" value="${printSmode}">
 <input type="hidden" name="stafferName" value="${stafferName}">
 
-<c:forEach items="${bean.itemMap}" var="entry">
-<div id="ck" style="page-break-after: always;">
+<c:forEach items="${bean.itemMap}" var="entry" varStatus="status">
+    <c:if test="${status.last}"><div></c:if>
+    <c:if test="${!status.last}"><div style="page-break-after: always;"></c:if>
 <table width="90%" border="0" cellpadding="0" cellspacing="0"
        align="center">
     <tr>
