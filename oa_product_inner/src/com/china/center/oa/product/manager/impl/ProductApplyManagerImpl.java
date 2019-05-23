@@ -647,7 +647,15 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
                 createSpell(bean);
 
                 bean.setStatus(ProductApplyConstant.STATUS_FINISHED);
-                bean.setDescription(TimeTools.now_short()+"批量导入新产品申请,产品代码:" + bean.getCode());
+//                bean.setDescription(TimeTools.now_short()+"批量导入新产品申请,产品代码:" + bean.getCode());
+                String postfix = TimeTools.now_short()+"批量导入新产品申请,产品代码:" + bean.getCode();
+                //#646
+                if (StringTools.isNullOrNone(bean.getDescription())){
+                    bean.setDescription(postfix);
+                } else{
+                    bean.setDescription(bean.getDescription()+"."+postfix);
+                }
+
                 bean.setOprId(user.getId());
 
                 _logger.info("***addProductApply***" + bean);

@@ -1224,7 +1224,7 @@ public class ProductApplyAction extends DispatchAction {
 
             while (reader.hasNext())
             {
-                String[] obj = StringUtils.fillObj((String[])reader.next(), 15);
+                String[] obj = StringUtils.fillObj((String[])reader.next(), 16);
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -1659,6 +1659,13 @@ public class ProductApplyAction extends DispatchAction {
                                 .append("第[" + currentNumber + "]错误:")
                                 .append("是否虚料标示为空")
                                 .append("<br>");
+                    }
+
+                    //#646 备注
+                    if ( !StringTools.isNullOrNone(obj[15]))
+                    {
+                        String description = obj[15].trim();
+                        bean.setDescription(description);
                     }
 
                     importItemList.add(bean);
