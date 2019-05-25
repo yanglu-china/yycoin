@@ -2645,7 +2645,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                                     try {
                                         passPaymentApplyForJob(null, bean.getId(), "", "");
                                     } catch (Exception e) {
-                                        _logger.error(bean.getId()+" Fail to passPaymentApplyForJob "+e.getMessage());
+                                        _logger.error(e);
+                                        _logger.error(bean.getId()+" Fail to passPaymentApplyForJob ",e);
                                     }
                                 }
                             }
