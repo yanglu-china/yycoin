@@ -213,6 +213,12 @@ public interface StockConstant
     int STOCK_STYPE_NSAIL = 2;
 
     /**
+     * 回购采购
+     */
+    @Defined(key = "stockStype", value = "回购采购")
+    int STOCK_STYPE_HG = 3;
+
+    /**
      * 没有生成库单
      */
     @Defined(key = "hasRef", value = "否")
