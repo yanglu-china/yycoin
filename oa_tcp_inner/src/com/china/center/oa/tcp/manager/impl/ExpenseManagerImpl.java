@@ -1098,7 +1098,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 }
             }
 
-            // #546 结束申请单
+            // #546 结束申请单, 设置关联申请单状态
             if (!StringTools.isNullOrNone(bean.getRefId())) {
                 travelApplyDAO.updateFeedback(bean.getRefId(), bean.getId(),
                         TcpConstanst.TCP_APPLY_FEEDBACK_YES);
