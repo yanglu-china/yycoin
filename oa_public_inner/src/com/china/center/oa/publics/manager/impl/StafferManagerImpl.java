@@ -719,10 +719,11 @@ public class StafferManagerImpl extends AbstractListenerManager<StafferListener>
             throw new MYException("职员名称不能重复");
         }
 
-        if (stafferDAO.countByCode(bean.getCode()) > 0)
-        {
-            throw new MYException("职员工号不能重复");
-        }
+        // #656 允许工号重复
+//        if (stafferDAO.countByCode(bean.getCode()) > 0)
+//        {
+//            throw new MYException("职员工号不能重复");
+//        }
     }
 
     /**
