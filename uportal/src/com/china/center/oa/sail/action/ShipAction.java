@@ -3850,7 +3850,7 @@ public class ShipAction extends DispatchAction
 
             each.getProductId();
 
-            if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
+            /*if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
             {
                 List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(each.getOutId(), AnoConstant.FK_FIRST);
 
@@ -3875,9 +3875,7 @@ public class ShipAction extends DispatchAction
                         continue;
                     }
                 }
-
-
-            }
+            }*/
 
 //            String key = each.getProductId();
             //#239 还要根据客户姓名分组
