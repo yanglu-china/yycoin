@@ -1376,10 +1376,28 @@ public class ShipAction extends DispatchAction
                 if (!each.getProductName().contains("发票号")){
                     PackageItemBean item = new PackageItemBean();
                     BeanUtil.copyProperties(item, each);
-                    ProductImportBean productImportBean = this.getProductImportBean(item,DGNS);
-                    if (productImportBean!= null){
-                        item.setProductCode(productImportBean.getBankProductCode());
-                        item.setProductName(productImportBean.getBankProductName());
+                    String baseId = item.getBaseId();
+                    if (StringTools.isNullOrNone(baseId)){
+                        ProductImportBean productImportBean = this.getProductImportBean(item,DGNS);
+                        if (productImportBean!= null){
+                            item.setProductCode(productImportBean.getBankProductCode());
+                            item.setProductName(productImportBean.getBankProductName());
+                        }
+                    } else{
+                        BaseBean baseBean = this.baseDAO.find(baseId);
+                        if (baseBean == null){
+                            ProductImportBean productImportBean = this.getProductImportBean(item,DGNS);
+                            if (productImportBean!= null){
+                                item.setProductCode(productImportBean.getBankProductCode());
+                                item.setProductName(productImportBean.getBankProductName());
+                            }
+                        } else if (!StringTools.isNullOrNone(baseBean.getProductImportId())){
+                            ProductImportBean productImportBean = this.productImportDAO.find(baseBean.getProductImportId());
+                            if (productImportBean!= null){
+                                item.setProductCode(productImportBean.getBankProductCode());
+                                item.setProductName(productImportBean.getBankProductName());
+                            }
+                        }
                     }
                     dgnsList.add(item);
                 }
@@ -2034,12 +2052,6 @@ public class ShipAction extends DispatchAction
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
             }
-//            //#639 东莞农商
-//            else if (vo.getCustomerName().indexOf("东莞农商") != -1) {
-//                //一级支行
-//                request.setAttribute("yjzh",this.getYjzh(vo));
-//                return mapping.findForward("printDgnsReceipt");
-//            }
             //#536
             else if("0".equals(batchPrint) && vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1){
                 _logger.info("******doublePrintFlag****"+doublePrintFlag);
