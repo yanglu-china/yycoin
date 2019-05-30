@@ -1315,6 +1315,11 @@ public class ShipAction extends DispatchAction
                 itemBean.setAmount(eachItem.getAmount());
                 //itemBean.setShowSubProductName(showSubProductName);
 
+                //#660
+                if (vo.getCustomerName().contains(DGNS)){
+                    itemBean.setBaseId(eachItem.getBaseId());
+                }
+
                 checkCompose(eachItem, itemBean, compose);
 
                 map.put(eachItem.getProductId(), itemBean);
