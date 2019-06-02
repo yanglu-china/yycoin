@@ -9,12 +9,7 @@
 package com.china.center.oa.finance.manager.impl;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.china.center.oa.publics.constant.AuthConstant;
 import org.apache.commons.logging.Log;
@@ -1661,8 +1656,9 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             throw new MYException("状态不正确,请确认操作");
         }
 
-        List<PaymentVSOutBean> vsList = paymentVSOutDAO.queryEntityBeansByFK(id);
-
+        List<PaymentVSOutBean> vsList2 = paymentVSOutDAO.queryEntityBeansByFK(id);
+        // #481
+        List<PaymentVSOutBean> vsList = this.ignoredDuplicate(vsList2);
         double total = 0.0d;
 
         for (PaymentVSOutBean vsItem : vsList)
@@ -1706,6 +1702,21 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         }
 
         return apply;
+    }
+
+    /**
+     * #481 过滤掉重复的T_CENTER_VS_OUTPAY记录
+     * @param vsList
+     * @return
+     */
+    private List<PaymentVSOutBean> ignoredDuplicate(List<PaymentVSOutBean> vsList){
+        List<PaymentVSOutBean> result = new ArrayList<>();
+        for (PaymentVSOutBean bean : vsList){
+            if(!result.contains(bean)){
+                result.add(bean);
+            }
+        }
+        return result;
     }
 
     private void savePassLog(User user, int oldStatus, PaymentApplyBean apply, String reason)
@@ -2719,17 +2730,15 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     private void createInbillForJob(PaymentApplyBean apply, PaymentBean payment, String reason,String description)
             throws MYException
     {
-        List<PaymentVSOutBean> vsList = apply.getVsList();
-        System.out.println("***************vsList**************************"+vsList.size());
+        List<PaymentVSOutBean> vsList2 = apply.getVsList();
+        List<PaymentVSOutBean> vsList = this.ignoredDuplicate(vsList2);
 
         for (PaymentVSOutBean item : vsList)
         {
-            System.out.println("***************createInbillForJob1111111111111111111**************************");
             if (item.getMoneys() == 0.0d)
             {
                 continue;
             }
-            System.out.println("***************222222222222222222222222**************************"+apply.getType());
             // 生成收款单(回款转预收)
             if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT)
             {
