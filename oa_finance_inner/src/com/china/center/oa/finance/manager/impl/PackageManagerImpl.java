@@ -7,25 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.center.china.osgi.config.ConfigLoader;
-import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
-import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
-import com.china.center.oa.publics.StringUtils;
-import com.china.center.oa.publics.bean.FlowLogBean;
-import com.china.center.oa.publics.constant.PublicConstant;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.sail.bean.*;
-import com.china.center.oa.sail.constanst.ShipConstant;
-import com.china.center.oa.sail.dao.*;
-import com.china.center.oa.sail.manager.OutManager;
-import com.china.center.oa.sail.vo.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
@@ -35,19 +25,66 @@ import com.china.center.oa.finance.constant.FinanceConstant;
 import com.china.center.oa.finance.dao.InsVSInvoiceNumDAO;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.dao.InvoiceinsItemDAO;
+import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
+import com.china.center.oa.finance.dao.TaoBaoTokenDAO;
 import com.china.center.oa.finance.manager.PackageManager;
 import com.china.center.oa.finance.vo.InvoiceinsItemVO;
 import com.china.center.oa.finance.vo.InvoiceinsVO;
+import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
+import com.china.center.oa.finance.vs.TaobaoLogisticsBean;
+import com.china.center.oa.finance.vs.TaobaoTokenBean;
 import com.china.center.oa.product.bean.DepotBean;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.dao.DepotDAO;
+import com.china.center.oa.publics.StringUtils;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.CommonDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.vo.StafferVO;
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.BaseInterface;
+import com.china.center.oa.sail.bean.OutImportBean;
+import com.china.center.oa.sail.bean.PackageBean;
+import com.china.center.oa.sail.bean.PackageItemBean;
+import com.china.center.oa.sail.bean.PackageVSCustomerBean;
+import com.china.center.oa.sail.bean.PreConsignBean;
+import com.china.center.oa.sail.bean.TwBaseBean;
 import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.constanst.ShipConstant;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.DistributionDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.dao.OutImportDAO;
+import com.china.center.oa.sail.dao.PackageDAO;
+import com.china.center.oa.sail.dao.PackageItemDAO;
+import com.china.center.oa.sail.dao.PackageVSCustomerDAO;
+import com.china.center.oa.sail.dao.PreConsignDAO;
+import com.china.center.oa.sail.dao.ProductExchangeConfigDAO;
+import com.china.center.oa.sail.dao.TwBaseDAO;
+import com.china.center.oa.sail.dao.TwDistributionDAO;
+import com.china.center.oa.sail.dao.TwOutDAO;
+import com.china.center.oa.sail.manager.OutManager;
+import com.china.center.oa.sail.vo.DistributionInterface;
+import com.china.center.oa.sail.vo.DistributionVO;
+import com.china.center.oa.sail.vo.DistributionVOInterface;
+import com.china.center.oa.sail.vo.OutVO;
+import com.china.center.oa.sail.vo.OutVOInterface;
+import com.china.center.oa.sail.vo.PackageVO;
+import com.china.center.oa.sail.vo.ProductExchangeConfigVO;
+import com.china.center.oa.sail.vo.TwDistributionVO;
+import com.china.center.oa.sail.vo.TwOutVO;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
+import com.taobao.api.ApiException;
+import com.taobao.api.DefaultTaobaoClient;
+import com.taobao.api.TaobaoClient;
+import com.taobao.api.request.LogisticsOnlineSendRequest;
+import com.taobao.api.response.LogisticsOnlineSendResponse;
+
+import net.sf.json.JSONObject;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -61,6 +98,8 @@ public class PackageManagerImpl implements PackageManager {
 	private final Log triggerLog = LogFactory.getLog("trigger");
 
     private final Log blockedLog = LogFactory.getLog("blocked");
+    
+    private final Log taobaoLog = LogFactory.getLog("taobao");
 
     private final Log _logger = LogFactory.getLog(getClass());
 	
@@ -109,6 +148,8 @@ public class PackageManagerImpl implements PackageManager {
     private ProductExchangeConfigDAO productExchangeConfigDAO = null;
 
 	private FlowLogDAO flowLogDAO = null;
+	
+	private TaoBaoTokenDAO taoBaoTokenDAO;
 
 	public PackageManagerImpl()
 	{
@@ -1546,6 +1587,68 @@ public class PackageManagerImpl implements PackageManager {
             }
         }
     }
+    
+    
+    //add by zhangxian 2019-05-20
+    public void queryPackageinfo2taobao()
+    {
+    	//获取sessionkey
+    	List<TaobaoTokenBean> tokenList = taoBaoTokenDAO.queryLastToken();
+    	if(tokenList.size() == 0)
+    	{
+    		taobaoLog.info("taobao token is null");
+    		return;
+    	}
+    	TaobaoTokenBean tokenBean = tokenList.get(0);
+    	String sessionKey = tokenBean.getToken();
+    	
+    	
+    	List<TaobaoLogisticsBean> logisticsList = taoBaoTokenDAO.queryTaobaoLogisticsList();
+    	
+    	
+    	for(TaobaoLogisticsBean logistics:logisticsList)
+    	{
+    		TaobaoClient client = new DefaultTaobaoClient("http://gw.api.taobao.com/router/rest", "27432470", "bf3d1a704f406e23235679a9cf1a877c");
+    		LogisticsOnlineSendRequest req = new LogisticsOnlineSendRequest();
+    		req.setTid(Long.valueOf(logistics.getCiticNo().trim()));
+    		req.setOutSid(logistics.getTransportNo().trim());
+    		req.setCompanyCode(logistics.getLogosticsCode().trim());
+    		LogisticsOnlineSendResponse rsp;
+    		try {
+    			taobaoLog.info("taobao logistics request:tid:" + logistics.getCiticNo() + "||outid:" 
+    					+ logistics.getTransportNo() +"||companycode:" + logistics.getLogosticsCode());
+    			rsp = client.execute(req,sessionKey);
+    			taobaoLog.info("taobao logistics response:" + rsp.getBody());
+    			JSONObject resultJson = JSONObject.fromObject(rsp.getBody());
+    			Object errorObj = resultJson.get("error_response");
+    			if(errorObj == null)
+    			{
+    				//表示成功
+    				Object successObj = resultJson.get("logistics_online_send_response");
+    				if(successObj != null)
+    				{
+    					taoBaoTokenDAO.updatePackageStatus(logistics.getId());
+    				}
+    			}
+    			else
+    			{
+    				JSONObject resp =	JSONObject.fromObject(errorObj);
+    				String code = resp.getString("code");
+    				String message = resp.getString("sub_msg");
+    				taobaoLog.info("taobao logistics error code:" + code +";error message:" + message);
+    			}
+    			
+    			
+    		} catch (ApiException e) {
+    			taobaoLog.error("taobao logistics request:tid:" + logistics.getCiticNo() + " error",e);
+    		}
+    	}
+    	
+    	
+    }
+    
+    
+    //end add
 
     /**
 	 * @return the preConsignDAO
@@ -1822,4 +1925,13 @@ public class PackageManagerImpl implements PackageManager {
 	public void setTwDistributionDAO(TwDistributionDAO twDistributionDAO) {
 		this.twDistributionDAO = twDistributionDAO;
 	}
+
+	public TaoBaoTokenDAO getTaoBaoTokenDAO() {
+		return taoBaoTokenDAO;
+	}
+
+	public void setTaoBaoTokenDAO(TaoBaoTokenDAO taoBaoTokenDAO) {
+		this.taoBaoTokenDAO = taoBaoTokenDAO;
+	}
+	
 }
