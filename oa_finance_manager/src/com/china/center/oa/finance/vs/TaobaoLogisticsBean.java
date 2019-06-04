@@ -6,21 +6,23 @@ import java.io.Serializable;
 public class TaobaoLogisticsBean implements Serializable {
 
 	private String id;
-	
+
 	/**
 	 * 物流(快递)单号
 	 */
 	private String transportNo;
-	
+
 	/**
-	 *  物流公司id
+	 * 物流公司id
 	 */
 	private String transport1;
-	
+
 	private String logisticsName;
-	
+
 	private String logosticsCode;
-	
+
+	private String customerId;
+
 	/**
 	 * 淘宝交易id
 	 */
@@ -73,5 +75,13 @@ public class TaobaoLogisticsBean implements Serializable {
 	public void setCiticNo(String citicNo) {
 		this.citicNo = citicNo;
 	}
-	
+
+	public String getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+
 }
