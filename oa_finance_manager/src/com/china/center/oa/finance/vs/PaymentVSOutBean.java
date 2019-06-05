@@ -10,6 +10,7 @@ package com.china.center.oa.finance.vs;
 
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.FK;
@@ -291,5 +292,27 @@ public class PaymentVSOutBean implements Serializable
             .append(" )");
 
         return retValue.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PaymentVSOutBean that = (PaymentVSOutBean) o;
+        return Double.compare(that.moneys, moneys) == 0 &&
+                Objects.equals(parentId, that.parentId) &&
+                Objects.equals(outId, that.outId) &&
+                Objects.equals(outBalanceId, that.outBalanceId) &&
+                Objects.equals(paymentId, that.paymentId) &&
+                Objects.equals(billId, that.billId) &&
+                Objects.equals(stafferId, that.stafferId) &&
+                Objects.equals(locationId, that.locationId) &&
+                Objects.equals(logTime, that.logTime);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(parentId, outId, outBalanceId, paymentId, billId, moneys, stafferId, locationId, logTime);
     }
 }

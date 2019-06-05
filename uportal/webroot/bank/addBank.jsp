@@ -86,6 +86,7 @@ function getTax(oos)
             <p:pro field="taxType">
                  <option value=0>现金</option>
                  <option value=1>银行</option>
+				 <option value=2>黄金</option>
             </p:pro>
             
             <p:cell title="银行父级科目">

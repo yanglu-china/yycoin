@@ -69,8 +69,10 @@
 			/WEB-INF/application/note_manager/applicationContext_*.xml,
 			/WEB-INF/application/flow_inner/applicationContext_*.xml,
 			/WEB-INF/application/flow_dy_inner/applicationContext_*.xml,
+			/WEB-INF/application/job_inner/applicationContext_*.xml,
 			/WEB-INF/application/flow_portal/applicationContext_*.xml,
-			/WEB-INF/application/job_inner/applicationContext_*.xml
+			<!--/WEB-INF/application/payorder/applicationContext_*.xml,-->
+			/WEB-INF/application/taobao/applicationContext_*.xml
 		</param-value>
 	</context-param>
 
@@ -155,7 +157,9 @@
 				/WEB-INF/config/stock/struts-config.xml,
 				/WEB-INF/config/tax/struts-config.xml,
 				/WEB-INF/config/tcp/struts-config.xml,
-				/WEB-INF/config/flow/struts-config.xml
+				/WEB-INF/config/flow/struts-config.xml,
+				<!--/WEB-INF/config/payorder/struts-config.xml,-->
+				/WEB-INF/config/taobao/struts-config.xml
 			</param-value>
 		</init-param>
 		<init-param>

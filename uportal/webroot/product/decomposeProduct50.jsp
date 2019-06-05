@@ -92,11 +92,12 @@ function checks()
 
 function adjustPrice(){
     var prices = getPrices();
+
+    //自动调整配件成本
     var parts = prices[0];
     var finishedProduct = prices[1];
     var diff = finishedProduct-parts;
     // console.log(diff);
-
     var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
     var srcPrice = document.querySelectorAll('input[name="srcPrice"]');
     //auto adjust the first part product's price
@@ -104,6 +105,19 @@ function adjustPrice(){
     var price = parseFloat(price0.value)+diff/parseInt(srcAmount[0].value);
     // console.log(price);
     price0.value = _.round(price, 4);
+
+    //自动调整虚料金额
+    var vPriceTotal = prices[2];
+    var finishedProductVirtualTotal = prices[3];
+    var diff2 = finishedProductVirtualTotal-vPriceTotal;
+    // console.log(diff);
+
+    var vPriceElements = document.querySelectorAll('input[name="vPrice"]');
+    //auto adjust the first part product's price
+    var vprice0 = vPriceElements[0];
+    var vPrice = parseFloat(vprice0.value)+diff2/parseInt(srcAmount[0].value);
+    // console.log(price);
+    vprice0.value = _.round(vPrice, 4);
 }
 
 var current;

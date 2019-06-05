@@ -110,6 +110,8 @@ public class StorageLogBean implements Serializable
 
     private String priceKey = "";
 
+    private String virtualPriceKey = "";
+
     /**
      * 库存拥有者
      */
@@ -121,6 +123,8 @@ public class StorageLogBean implements Serializable
     private String refId = "";
 
     private double price = 0.0d;
+
+    private double virtualPrice = 0.0d;
 
     /**
      * 操作的用户
@@ -571,104 +575,59 @@ public class StorageLogBean implements Serializable
         this.industryId2 = industryId2;
     }
 
+    public double getVirtualPrice() {
+        return virtualPrice;
+    }
+
+    public void setVirtualPrice(double virtualPrice) {
+        this.virtualPrice = virtualPrice;
+    }
+
+    public String getVirtualPriceKey() {
+        return virtualPriceKey;
+    }
+
+    public void setVirtualPriceKey(String virtualPriceKey) {
+        this.virtualPriceKey = virtualPriceKey;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("StorageLogBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("serializeId = ")
-            .append(this.serializeId)
-            .append(TAB)
-            .append("type = ")
-            .append(this.type)
-            .append(TAB)
-            .append("preAmount = ")
-            .append(this.preAmount)
-            .append(TAB)
-            .append("afterAmount = ")
-            .append(this.afterAmount)
-            .append(TAB)
-            .append("preAmount1 = ")
-            .append(this.preAmount1)
-            .append(TAB)
-            .append("preAmount11 = ")
-            .append(this.preAmount11)
-            .append(TAB)
-            .append("afterAmount1 = ")
-            .append(this.afterAmount1)
-            .append(TAB)
-            .append("afterAmount11 = ")
-            .append(this.afterAmount11)
-            .append(TAB)
-            .append("preAmount2 = ")
-            .append(this.preAmount2)
-            .append(TAB)
-            .append("preAmount22 = ")
-            .append(this.preAmount22)
-            .append(TAB)
-            .append("afterAmount2 = ")
-            .append(this.afterAmount2)
-            .append(TAB)
-            .append("afterAmount22 = ")
-            .append(this.afterAmount22)
-            .append(TAB)
-            .append("changeAmount = ")
-            .append(this.changeAmount)
-            .append(TAB)
-            .append("depotpartId = ")
-            .append(this.depotpartId)
-            .append(TAB)
-            .append("storageId = ")
-            .append(this.storageId)
-            .append(TAB)
-            .append("productId = ")
-            .append(this.productId)
-            .append(TAB)
-            .append("locationId = ")
-            .append(this.locationId)
-            .append(TAB)
-            .append("logTime = ")
-            .append(this.logTime)
-            .append(TAB)
-            .append("priceKey = ")
-            .append(this.priceKey)
-            .append(TAB)
-            .append("owner = ")
-            .append(this.owner)
-            .append(TAB)
-            .append("refId = ")
-            .append(this.refId)
-            .append(TAB)
-            .append("price = ")
-            .append(this.price)
-            .append(TAB)
-            .append("user = ")
-            .append(this.user)
-            .append(TAB)
-            .append("description = ")
-            .append(this.description)
-            .append(TAB)
-            .append("industryId = ")
-            .append(this.industryId)
-            .append(TAB)
-            .append("industryId2 = ")
-            .append(this.industryId2)
-            .append(TAB)            
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "StorageLogBean{" +
+                "id='" + id + '\'' +
+                ", serializeId='" + serializeId + '\'' +
+                ", type=" + type +
+                ", preAmount=" + preAmount +
+                ", afterAmount=" + afterAmount +
+                ", preAmount1=" + preAmount1 +
+                ", preAmount11=" + preAmount11 +
+                ", afterAmount1=" + afterAmount1 +
+                ", afterAmount11=" + afterAmount11 +
+                ", preAmount2=" + preAmount2 +
+                ", preAmount22=" + preAmount22 +
+                ", afterAmount2=" + afterAmount2 +
+                ", afterAmount22=" + afterAmount22 +
+                ", changeAmount=" + changeAmount +
+                ", depotpartId='" + depotpartId + '\'' +
+                ", storageId='" + storageId + '\'' +
+                ", productId='" + productId + '\'' +
+                ", locationId='" + locationId + '\'' +
+                ", logTime='" + logTime + '\'' +
+                ", priceKey='" + priceKey + '\'' +
+                ", virtualPriceKey='" + virtualPriceKey + '\'' +
+                ", owner='" + owner + '\'' +
+                ", refId='" + refId + '\'' +
+                ", price=" + price +
+                ", virtualPrice=" + virtualPrice +
+                ", user='" + user + '\'' +
+                ", description='" + description + '\'' +
+                ", industryId='" + industryId + '\'' +
+                ", industryId2='" + industryId2 + '\'' +
+                '}';
     }
 }
