@@ -1007,7 +1007,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             }
         }
     }
-
+    
     @Override
     @Transactional(rollbackFor = MYException.class)
     public void onEndExpenseApplyJob() {
@@ -1025,12 +1025,16 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         if(!ListTools.isEmptyOrNull(expenseApplyVOS)){
             _logger.info(expenseApplyVOS.size()+"finished expense apply ***"+expenseApplyVOS);
             for(ExpenseApplyBean bean: expenseApplyVOS){
-            	this.handleTcpTicket(bean);
+            	try{
+            		this.handleTcpTicket(bean);
+            	}catch(MYException ex){
+            		//
+            	}
             }
         }
     }
     
-    private void handleTcpTicket(ExpenseApplyBean bean){
+    private void handleTcpTicket(ExpenseApplyBean bean) throws MYException{
 
         //未申请过报销凭证的
         if (this.isEndExpenseApply(bean.getId())){
@@ -1094,7 +1098,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                             moneyList, stafferIdList);
                 }catch (MYException e){
                     _logger.error(e);
-                    this.saveFlowLog2(null, bean.getStatus(), bean, "后台JOB生成凭证异常:"+e.getMessage(), PublicConstant.OPRMODE_PASS);
+                    this.saveFlowLog2(null, bean.getStatus(), bean, "生成凭证异常:"+e.getMessage(), PublicConstant.OPRMODE_PASS);
+                    throw new MYException("生成凭证异常:"+e.getMessage());
                 }
             }
 
