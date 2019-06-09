@@ -3981,6 +3981,7 @@ public class TravelApplyAction extends DispatchAction
                                      HttpServletResponse response)
             throws ServletException
     {
+        double begin = System.currentTimeMillis();
         RequestDataStream rds = new RequestDataStream(request);
 
         boolean importError = false;
@@ -4046,6 +4047,10 @@ public class TravelApplyAction extends DispatchAction
         }
 
         List<TcpShareVO> shareList = new ArrayList<TcpShareVO>();
+        List<CustomerBean> customerBeans = customerMainDAO.listEntityBeans();
+        List<ProductBean> productBeans = productDAO.listEntityBeans();
+        List<BudgetBean> budgetBeans = budgetDAO.listEntityBeans();
+        List<TcpVSOutBean> tcpVSOutBeans = tcpVSOutDAO.listEntityBeans();
         try
         {
             FileInputStream fs = new FileInputStream(filePath);
@@ -4130,11 +4135,21 @@ public class TravelApplyAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
                         String name = obj[1].trim();
-                        ConditionParse con = new ConditionParse();
-                        con.addWhereStr();
-                        con.addCondition("name", "=",name);
-                        List<CustomerBean> cbeanList = customerMainDAO.queryEntityBeansByCondition(con);
-                        if (ListTools.isEmptyOrNull(cbeanList)){
+//                        ConditionParse con = new ConditionParse();
+//                        con.addWhereStr();
+//                        con.addCondition("name", "=",name);
+//                        List<CustomerBean> cbeanList = customerMainDAO.queryEntityBeansByCondition(con);
+//                        if (ListTools.isEmptyOrNull(cbeanList)){
+//                            builder
+//                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                    .append("客户名不存在")
+//                                    .append("</font><br>");
+//
+//                            importError = true;
+//                        }
+
+                        CustomerBean customerBean = this.getCustomer(customerBeans, name);
+                        if (customerBean == null){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
                                     .append("客户名不存在")
@@ -4142,7 +4157,6 @@ public class TravelApplyAction extends DispatchAction
 
                             importError = true;
                         }
-
                         item.setCustomerName(name);
                         item2.setCustomerName(name);
 
@@ -4164,7 +4178,8 @@ public class TravelApplyAction extends DispatchAction
                             importItems.add(outId);
                         }
 
-                        OutVO out = this.outDAO.findVO(outId);
+//                        OutVO out = this.outDAO.findVO(outId);
+                        OutBean out = this.outDAO.find(outId);
                         if (out == null){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -4174,7 +4189,8 @@ public class TravelApplyAction extends DispatchAction
 
                             importError = true;
                         }else{
-                            if (!item.getCustomerName().equals(out.getCustomerName())){
+                            String customerName = this.getCustomerName(customerBeans, out.getCustomerId());
+                            if (!item.getCustomerName().equals(customerName)){
                                 builder
                                         .append("<font color=red>第[" + currentNumber + "]行错误:")
                                         .append(outId+"订单号和客户名不匹配:"+item.getCustomerName())
@@ -4254,13 +4270,23 @@ public class TravelApplyAction extends DispatchAction
                             }
 
                             //#591 检查中间表
-                            ConditionParse conditionParse2 = new ConditionParse();
-                            conditionParse2.addWhereStr();
-                            conditionParse2.addCondition("type","=",type);
-                            conditionParse2.addCondition("fullId","=",outId);
-                            List<TcpVSOutBean> tcpVSOutBeans = this.tcpVSOutDAO.queryEntityBeansByCondition(conditionParse2);
-                            if(!ListTools.isEmptyOrNull(tcpVSOutBeans)){
-                                TcpVSOutBean tcpVSOutBean = tcpVSOutBeans.get(0);
+//                            ConditionParse conditionParse2 = new ConditionParse();
+//                            conditionParse2.addWhereStr();
+//                            conditionParse2.addCondition("type","=",type);
+//                            conditionParse2.addCondition("fullId","=",outId);
+//                            List<TcpVSOutBean> tcpVSOutBeans = this.tcpVSOutDAO.queryEntityBeansByCondition(conditionParse2);
+//                            if(!ListTools.isEmptyOrNull(tcpVSOutBeans)){
+//                                TcpVSOutBean tcpVSOutBean = tcpVSOutBeans.get(0);
+//                                builder
+//                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                        .append(outId+"订单号已提交中收激励申请(t_center_vs_tcpout表):"+tcpVSOutBean.getRefId())
+//                                        .append("</font><br>");
+//
+//                                importError = true;
+//                            }
+                            TcpVSOutBean tcpVSOutBean = this.getTcpVSOut(tcpVSOutBeans, type, outId);
+                            _logger.info("***tcpVSOutBean****"+tcpVSOutBean);
+                            if(tcpVSOutBean!= null){
                                 builder
                                         .append("<font color=red>第[" + currentNumber + "]行错误:")
                                         .append(outId+"订单号已提交中收激励申请(t_center_vs_tcpout表):"+tcpVSOutBean.getRefId())
@@ -4326,11 +4352,21 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String productName = obj[3];
 
-                        ConditionParse con2 = new ConditionParse();
-                        con2.addWhereStr();
-                        con2.addCondition("name", "=",productName);
-                        List<ProductBean> productList = this.productDAO.queryEntityBeansByCondition(con2);
-                        if (ListTools.isEmptyOrNull(productList)){
+//                        ConditionParse con2 = new ConditionParse();
+//                        con2.addWhereStr();
+//                        con2.addCondition("name", "=",productName);
+//                        List<ProductBean> productList = this.productDAO.queryEntityBeansByCondition(con2);
+//                        if (ListTools.isEmptyOrNull(productList)){
+//                            builder
+//                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+//                                    .append("商品名[").append(productName)
+//                                    .append("]不存在")
+//                                    .append("</font><br>");
+//
+//                            importError = true;
+//                        }
+                        ProductBean productBean = this.getProduct(productBeans, productName);
+                        if (productBean == null){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
                                     .append("商品名[").append(productName)
@@ -4447,7 +4483,8 @@ public class TravelApplyAction extends DispatchAction
                         TcpShareVO share = new TcpShareVO();
                         String budget = obj[6];
                         share.setBudgetName(budget);
-                        BudgetBean budgetBean = this.budgetDAO.findByUnique(budget);
+//                        BudgetBean budgetBean = this.budgetDAO.findByUnique(budget);
+                        BudgetBean budgetBean = this.getBudget(budgetBeans, budget);
                         if(budgetBean == null){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -4656,6 +4693,9 @@ public class TravelApplyAction extends DispatchAction
                 vo.setShareVOList(shareList.subList(0,1));
             }
 
+            double end = System.currentTimeMillis();
+            _logger.info("***import IB time elapsed***"+(end-begin)/1000);
+
             if (importError){
                 request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
 
@@ -4769,6 +4809,52 @@ public class TravelApplyAction extends DispatchAction
             return mapping.findForward("addTravelApply7import");
         }
     }
+
+    private CustomerBean getCustomer(List<CustomerBean> customerBeans, String name){
+        for (CustomerBean customerBean: customerBeans){
+            if (customerBean.getName().equals(name)){
+                return customerBean;
+            }
+        }
+        return null;
+    }
+
+    private String getCustomerName(List<CustomerBean> customerBeans, String id){
+        for (CustomerBean customerBean: customerBeans){
+            if (customerBean.getId().equals(id)){
+                return customerBean.getName();
+            }
+        }
+        return "";
+    }
+
+    private ProductBean getProduct(List<ProductBean> productBeans, String name){
+        for(ProductBean productBean: productBeans){
+            if(productBean.getName().equals(name)){
+                return productBean;
+            }
+        }
+        return null;
+    }
+
+    private BudgetBean getBudget(List<BudgetBean> budgetBeans, String name){
+        for(BudgetBean budgetBean: budgetBeans){
+            if (budgetBean.getName().equals(name)){
+                return budgetBean;
+            }
+        }
+        return null;
+    }
+
+    private TcpVSOutBean getTcpVSOut(List<TcpVSOutBean> tcpVSOutBeans, int type, String outId){
+        for (TcpVSOutBean tcpVSOutBean: tcpVSOutBeans){
+            if(tcpVSOutBean.getType() == type && tcpVSOutBean.getFullId().equals(outId)){
+                return tcpVSOutBean;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * 2015/9/18 保留2位小数四舍五入
