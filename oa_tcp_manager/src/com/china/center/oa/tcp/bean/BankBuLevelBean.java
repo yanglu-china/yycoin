@@ -6,6 +6,8 @@ import com.china.center.jdbc.annotation.Table;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
+
 /** #231
  * 银行业务部层级表
  * Created with IntelliJ IDEA.
@@ -256,6 +258,17 @@ public class BankBuLevelBean implements Serializable {
 
     public void setChanger(String changer) {
         this.changer = changer;
+    }
+    
+    public boolean isLevelsEntire(){
+    	boolean rst = true;
+    	if(StringUtils.isEmpty(this.zcId) 
+    	|| StringUtils.isEmpty(this.sybmanagerId)
+    	|| StringUtils.isEmpty(this.managerId)
+    	|| StringUtils.isEmpty(this.regionalManagerId)){
+    		rst = false;
+    	}
+    	return rst;
     }
 
     @Override

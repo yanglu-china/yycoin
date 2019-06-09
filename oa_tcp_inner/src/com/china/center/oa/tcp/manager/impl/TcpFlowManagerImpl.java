@@ -488,8 +488,13 @@ public class TcpFlowManagerImpl implements TcpFlowManager
     }
     
     //#628
-    public static String findApprover(BankBuLevelBean bankBuLevelBean){
+    public static String findApprover(BankBuLevelBean bankBuLevelBean) throws MYException{
     	String rst = "";
+    	
+    	if(!bankBuLevelBean.isLevelsEntire()){
+    		throw new MYException("员工["+bankBuLevelBean.getId()+":"+bankBuLevelBean.getName()+"]层级数据不完整！");
+    	}
+    	
     	String id = bankBuLevelBean.getId();
     	if(bankBuLevelBean.getZcId().equals(id)){
     		rst = bankBuLevelBean.getZcId();
