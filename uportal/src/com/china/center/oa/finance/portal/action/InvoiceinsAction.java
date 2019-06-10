@@ -26,6 +26,7 @@ import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.finance.bean.*;
 import com.china.center.oa.finance.constant.FinanceConstant;
+import com.china.center.oa.finance.constant.InvoiceinsConstants;
 import com.china.center.oa.finance.dao.*;
 import com.china.center.oa.finance.facade.FinanceFacade;
 import com.china.center.oa.finance.manager.InvoiceinsManager;
@@ -5164,6 +5165,24 @@ public class InvoiceinsAction extends DispatchAction
                                 .append("<br>");
 
                         importError = true;
+                    }
+
+
+                    // 发票类型
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        String invoiceType = obj[3].trim();
+                        if (InvoiceinsConstants.INVOICE_TYPE_ZZ.equals(invoiceType)
+                                || InvoiceinsConstants.INVOICE_TYPE_DZ.equals(invoiceType)){
+                            bean.setInvoiceType(invoiceType);
+                        } else{
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发票类型只能是纸质发票或电子发票")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
                     }
             		
             		importItemList.add(bean);

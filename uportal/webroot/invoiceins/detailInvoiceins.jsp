@@ -402,15 +402,15 @@ function load()
 	        <table width="100%" border="0" cellspacing='1' id="tables">
 	            <tr align="center" class="content0">
 	                <td width="30%" align="center">发票号码</td>
+                    <td width="30%" align="center">发票类型</td>
 					<td width="10%" align="center">发票金额</td>
 	            </tr>
 	
 	            <c:forEach items="${bean.numList}" var="item" varStatus="vs">
 	                <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
 	                    <td align="center">${item.invoiceNum}</td>
-	
+                        <td align="center">${item.invoiceType}</td>
 	                    <td align="center">${my:formatNum(item.moneys)}</td>
-	
 	                </tr>
 	            </c:forEach>
 	        </table>

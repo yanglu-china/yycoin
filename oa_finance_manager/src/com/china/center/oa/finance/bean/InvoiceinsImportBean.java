@@ -5,7 +5,9 @@ import java.io.Serializable;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.annotation.*;
 import com.china.center.jdbc.annotation.enums.JoinType;
+import com.china.center.oa.finance.constant.InvoiceinsConstants;
 import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.publics.constant.InvoiceConstant;
 
 @SuppressWarnings("serial")
 @Entity
@@ -48,6 +50,10 @@ public class InvoiceinsImportBean implements Serializable
 
 	private String invoiceCode = "";
 
+	/**
+	 * #671
+	 */
+	private String invoiceType = InvoiceinsConstants.INVOICE_TYPE_ZZ;
     /**
      * #169 虚拟发票号
      */
@@ -602,6 +608,14 @@ public class InvoiceinsImportBean implements Serializable
 
 	public void setInvoiceCode(String invoiceCode) {
 		this.invoiceCode = invoiceCode;
+	}
+
+	public String getInvoiceType() {
+		return invoiceType;
+	}
+
+	public void setInvoiceType(String invoiceType) {
+		this.invoiceType = invoiceType;
 	}
 
 	@Override

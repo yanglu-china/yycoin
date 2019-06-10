@@ -28,4 +28,7 @@ public interface InvoiceinsConstants {
 	 * 同销售单
 	 */
 	int INVOICEINS_FILLTYPE_SAME = 1;
+
+	String INVOICE_TYPE_ZZ = "纸质发票";
+	String INVOICE_TYPE_DZ = "电子发票";
 }

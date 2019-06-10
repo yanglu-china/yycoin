@@ -6,6 +6,7 @@ import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.FK;
 import com.china.center.jdbc.annotation.Id;
 import com.china.center.jdbc.annotation.Table;
+import com.china.center.oa.finance.constant.InvoiceinsConstants;
 
 /**
  * 开票对应
@@ -29,6 +30,8 @@ public class InsVSInvoiceNumBean implements Serializable
 	 * 发票代码
 	 */
 	private String invoiceCode = "";
+
+	private String invoiceType = InvoiceinsConstants.INVOICE_TYPE_ZZ;
 	
 	private double moneys = 0.0d;
 
@@ -106,6 +109,14 @@ public class InsVSInvoiceNumBean implements Serializable
 
 	public void setInvoiceCode(String invoiceCode) {
 		this.invoiceCode = invoiceCode;
+	}
+
+	public String getInvoiceType() {
+		return invoiceType;
+	}
+
+	public void setInvoiceType(String invoiceType) {
+		this.invoiceType = invoiceType;
 	}
 
 	@Override
