@@ -47,13 +47,17 @@ function getPrices(){
         }
 
         parts += parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value);
+        // console.log(parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value));
+        // console.log(parts);
         vPriceTotal += parseFloat(srcAmounts[i].value) * parseFloat(vPrices[i].value);
     }
 
     var finishedProduct = parseFloat($$('amount')) * parseFloat($$('price'));
     var finishedProductVirtualTotal = parseFloat($$('amount')) * parseFloat($$('virtualPrice'));
 
-    return [parts, finishedProduct, vPriceTotal, finishedProductVirtualTotal]
+    // return [parts, finishedProduct, vPriceTotal, finishedProductVirtualTotal]
+
+    return [_.round(parts, 4), _.round(finishedProduct, 4), _.round(vPriceTotal, 4), _.round(finishedProductVirtualTotal, 4)]
 }
 
 
@@ -75,12 +79,12 @@ function checks()
 	var finishedProduct = prices[1];
 	var vPriceTotal = prices[2];
 	var finishedProductVirtualTotal = prices[3];
-
-    if (compareDouble(parts, finishedProduct) != 0)
+    var precision = 0.03;
+    if (compareDouble(parts, finishedProduct) != 0 && Math.abs(parts-finishedProduct) >=precision )
     {
     	alert('配件成本之和:'+parts+'要与成品成本一致:'+finishedProduct);
         return false;
-    } else if (compareDouble(vPriceTotal, finishedProductVirtualTotal) != 0)
+    } else if (compareDouble(vPriceTotal, finishedProductVirtualTotal) != 0 && Math.abs(parts-finishedProduct) >=precision)
     {
         alert('配件虚料金额之和:'+vPriceTotal+'要与成品虚料金额一致:'+finishedProductVirtualTotal);
         return false;
@@ -97,14 +101,14 @@ function adjustPrice(){
     var parts = prices[0];
     var finishedProduct = prices[1];
     var diff = finishedProduct-parts;
-    // console.log(diff);
+    // console.log('diff***'+diff);
     var srcAmount = document.querySelectorAll('input[name="srcAmount"]');
     var srcPrice = document.querySelectorAll('input[name="srcPrice"]');
     //auto adjust the first part product's price
     var price0 = srcPrice[0];
     var price = parseFloat(price0.value)+diff/parseInt(srcAmount[0].value);
     // console.log(price);
-    price0.value = _.round(price, 4);
+    price0.value = _.round(price, 6);
 
     //自动调整虚料金额
     var vPriceTotal = prices[2];
@@ -117,7 +121,7 @@ function adjustPrice(){
     var vprice0 = vPriceElements[0];
     var vPrice = parseFloat(vprice0.value)+diff2/parseInt(srcAmount[0].value);
     // console.log(price);
-    vprice0.value = _.round(vPrice, 4);
+    vprice0.value = _.round(vPrice, 6);
 }
 
 var current;
@@ -628,7 +632,7 @@ function addTr1()
          </td>
         <td width="15%" align="center">
             <input type="text" style="width: 100%"
-                                              name="vPrice" value="" oncheck="notNone;isFloat">
+                                              name="vPrice" value="0" oncheck="notNone;isFloat">
         </td>
         <td width="5%" align="center"><input type=button
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
