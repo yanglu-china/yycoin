@@ -107,6 +107,9 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
     public void onEndStockPayBySEC(User user, StockPayApplyBean bean, List<OutBillBean> outBillList)
         throws MYException
     {
+    	List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
+    	FinanceBean financeBean = new FinanceBean();
+    	
         for (OutBillBean outBillBean : outBillList)
         {
             // 兼容性
@@ -122,7 +125,8 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
                 throw new MYException("银行不存在,请确认操作");
             }
 
-            FinanceBean financeBean = new FinanceBean();
+            //#673 move to top
+            //FinanceBean financeBean = new FinanceBean();
 
             String name = "采购付款申请通过:" + bean.getId() + '.';
 
@@ -147,16 +151,28 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 
             financeBean.setLogTime(TimeTools.now());
 
-            List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
+            /*#673 move to outside cycle for multiple outBillBean items
+            */
+            if(outBillList.size() == 1){
 
-            // 应付账款-供应商/银行科目
-            createAddItem1(user, bean, bank, outBillBean, financeBean, itemList);
+                // 应付账款-供应商/银行科目
+                createAddItem1(user, bean, bank, outBillBean, financeBean, itemList);
 
+                financeBean.setItemList(itemList);
+
+                financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);            	
+            }
+        }
+        
+        //#673 
+        if(outBillList.size() > 1){
+            createAddItem1(user, bean, outBillList, financeBean, itemList);
+            
             financeBean.setItemList(itemList);
 
             financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
-
         }
+
         
         // 生成财务 采购付款 标记数据
         processStockPayTag(user, bean);
@@ -330,6 +346,138 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
             }
         }
     }
+    
+    private void createAddItem1(User user, StockPayApplyBean bean,
+    		List<OutBillBean> outBillList, FinanceBean financeBean,
+            List<FinanceItemBean> itemList)
+	throws MYException
+	{
+		// 申请人
+		StafferBean staffer = stafferDAO.find(bean.getStafferId());
+		
+		if (staffer == null)
+		{
+		throw new MYException("数据错误,请确认操作");
+		}
+		
+		String name = "采购付款申请通过:" + bean.getId() + '.';
+		
+		// 应付账款-供应商/银行科目
+		FinanceItemBean itemIn = new FinanceItemBean();
+		
+		String pareId = commonDAO.getSquenceString();
+		
+		itemIn.setPareId(pareId);
+		
+		itemIn.setName("应付账款-货款:" + name);
+		
+		itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+		
+		FinanceHelper.copyFinanceItem(financeBean, itemIn);
+		
+		// 应付账款-货款(单位)
+		TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.PAY_PRODUCT);
+		
+		if (inTax == null)
+		{
+		throw new MYException("数据错误,请确认操作");
+		}
+		
+		// 科目拷贝
+		FinanceHelper.copyTax(inTax, itemIn);
+		OutBillBean outBillBean0 = outBillList.get(0);
+		
+		// 当前发生额
+		double inMoney = bean.getMoneys();
+		
+		if (bean.getIsFinal() == StockPayApplyConstant.APPLY_ISFINAL_NO)
+		{
+		inMoney = outBillBean0.getMoneys();
+		}
+		
+		itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
+		
+		itemIn.setOutmoney(0);
+		
+		itemIn.setDescription(itemIn.getName());
+		
+		// 辅助核算 单位
+		itemIn.setUnitId(bean.getProvideId());
+		itemIn.setUnitType(TaxConstanst.UNIT_TYPE_PROVIDE);
+		
+		itemList.add(itemIn);
+		
+		for(OutBillBean outBillBean: outBillList){
+			
+			BankBean bank = bankDAO.find(outBillBean.getBankId());
+			
+			// 贷方
+			FinanceItemBean itemOut = new FinanceItemBean();
+			
+			itemOut.setPareId(pareId);
+			
+			itemOut.setName("银行科目:" + name);
+			
+			itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
+			
+			FinanceHelper.copyFinanceItem(financeBean, itemOut);
+			
+			// 银行科目
+			TaxBean outTax = taxDAO.findByBankId(outBillBean.getBankId());
+			
+			if (outTax == null)
+			{
+			throw new MYException("银行[%s]缺少对应的科目,请确认操作", bank.getName());
+			}
+			
+			// 科目拷贝
+			FinanceHelper.copyTax(outTax, itemOut);
+			
+			double outMoney = outBillBean.getMoneys();
+			
+			itemOut.setInmoney(0);
+			
+			itemOut.setOutmoney(FinanceHelper.doubleToLong(outMoney));
+			
+			itemOut.setDescription(itemOut.getName());
+			
+			// 辅助核算 NA
+			itemList.add(itemOut);			
+		
+		
+			if (bean.getIsFinal() == StockPayApplyConstant.APPLY_ISFINAL_YES)
+			{
+			// 应付与实付不一样，要生成营业外支出/营业外收入
+			int forward = 0;
+			String taxId = "";
+			double otherMoney = 0.0d;
+			
+			if (bean.getRealMoneys() > bean.getMoneys()){
+			forward = 0;
+			
+			taxId = TaxItemConstanst.OTHER_PAY;
+			
+			otherMoney = bean.getRealMoneys() - bean.getMoneys();
+			}else if (bean.getRealMoneys() < bean.getMoneys())
+			{
+			forward = 1;
+			
+			taxId = TaxItemConstanst.EXT_RECEIVE;
+			
+			otherMoney = bean.getMoneys() - bean.getRealMoneys();
+			}else{
+			// do nothing
+			}
+			
+			if (otherMoney > 0)
+			{
+			//#510 应付和实付不同时，不生成营业外收入，借方按照实付来
+			itemIn.setInmoney(itemOut.getOutmoney());
+			}
+			}
+		
+		}
+	}   
 
     @Override
 	public void onEndStockPrePayBySEC(User user, StockPrePayApplyBean bean,
