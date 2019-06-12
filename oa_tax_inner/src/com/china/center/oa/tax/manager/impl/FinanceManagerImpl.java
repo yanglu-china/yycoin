@@ -308,6 +308,8 @@ public class FinanceManagerImpl implements FinanceManager {
             inTotal += financeItemBean.getInmoney();
 
             outTotal += financeItemBean.getOutmoney();
+            
+            _logger.debug("getInmoney():"+financeItemBean.getInmoney()+", getOutmoney():"+financeItemBean.getOutmoney());
         }
         bean.setInmoney(inTotal);
 

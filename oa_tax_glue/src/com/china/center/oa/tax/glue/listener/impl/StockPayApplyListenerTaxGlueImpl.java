@@ -12,6 +12,9 @@ package com.china.center.oa.tax.glue.listener.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.finance.bean.BankBean;
@@ -62,6 +65,8 @@ import com.china.center.tools.TimeTools;
  */
 public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 {
+	private final Log _logger = LogFactory.getLog(getClass());
+	
     private DutyDAO dutyDAO = null;
 
     private DepartmentDAO departmentDAO = null;
@@ -407,6 +412,8 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 		
 		itemList.add(itemIn);
 		
+		_logger.debug("inMoney:"+inMoney+", bean.getIsFinal():"+bean.getIsFinal()+", bean.getMoneys():"+bean.getMoneys());
+		
 		for(OutBillBean outBillBean: outBillList){
 			
 			BankBean bank = bankDAO.find(outBillBean.getBankId());
@@ -442,7 +449,9 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 			itemOut.setDescription(itemOut.getName());
 			
 			// 辅助核算 NA
-			itemList.add(itemOut);			
+			itemList.add(itemOut);		
+			
+			_logger.debug("inMoney:"+itemOut.getInmoney()+", outMoney:"+itemOut.getOutmoney());
 		
 		
 			if (bean.getIsFinal() == StockPayApplyConstant.APPLY_ISFINAL_YES)
