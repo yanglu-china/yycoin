@@ -1062,7 +1062,12 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 if (tcpShareBean.getRatio()>0 ){
                     share = tcpShareBean.getRatio()*realTotal/100;
                 } else{
-                    share = tcpShareBean.getRealMonery()*realTotal/bean.getTotal();
+                	//#678 避免分母为0
+                	if(bean.getTotal()>0){
+                		share = tcpShareBean.getRealMonery()*realTotal/bean.getTotal();
+                	}else{
+                		share = 0;
+                	}
                 }
 
                 //同一承担人的费用需要根据多个预算项科目按比例拆分
