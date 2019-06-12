@@ -13322,10 +13322,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (StringTools.isNullOrNone(bank)){
             throw new MYException("银行不能为空!");
         }
-        //先根据支行+代码+渠道+银行+帐套+是否体内匹配
+        //Step1: 先根据支行+代码+渠道+银行+帐套+是否体内匹配
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addCondition("customerName", "=", customerName);
-//        conditionParse.addCondition("bankProductCode", "=", productCode);
         this.addProductCodeCondition(conditionParse, productCode, isImport);
         this.addChannelCondition(conditionParse, channel);
         conditionParse.addCondition("bank", "=", bank);
@@ -13336,9 +13335,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         boolean outdated = this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
         _logger.info("***productImportBeans1 ignored***" + productImportBeans);
         if (ListTools.isEmptyOrNull(productImportBeans) && !StringTools.isNullOrNone(branchName)) {
-            //如果支行无法匹配，就对比分行+代码+渠道+银行+帐套+是否体内
+            //step2: 如果支行无法匹配，就对比分行+代码+渠道+银行+帐套+是否体内
             conditionParse = new ConditionParse();
-//            conditionParse.addCondition("bankProductCode", "=", productCode);
             this.addProductCodeCondition(conditionParse, productCode, isImport);
             this.addBranchCondition(conditionParse, branchName);
             this.addChannelCondition(conditionParse, channel);
@@ -13352,10 +13350,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
 
         if (ListTools.isEmptyOrNull(productImportBeans)) {
-            //如果支行和分行都无法匹配，就根据银行+代码+渠道+帐套+是否体内
+            //step3: 如果支行和分行都无法匹配，就根据银行+代码+渠道+帐套+是否体内
             conditionParse = new ConditionParse();
             conditionParse.addCondition("bank", "=", bank);
-//            conditionParse.addCondition("bankProductCode", "=", productCode);
             this.addProductCodeCondition(conditionParse, productCode, isImport);
             this.addChannelCondition(conditionParse, channel);
             //支行取空的
@@ -13368,19 +13365,32 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
 
         if (ListTools.isEmptyOrNull(productImportBeans)) {
-            //最后只根据银行+代码+帐套+是否体内+渠道为空
+            //step4: 根据银行+分行+代码+帐套+是否体内+渠道为空
             conditionParse = new ConditionParse();
             conditionParse.addCondition("bank", "=", bank);
-//            conditionParse.addCondition("bankProductCode", "=", productCode);
             this.addProductCodeCondition(conditionParse, productCode, isImport);
-            //支行和渠道都取空的
-            this.addBranchCondition(conditionParse, null);
+            this.addBranchCondition(conditionParse, branchName);
             this.addChannelCondition(conditionParse, null);
             this.addItemCondition(conditionParse, outType, appName);
             productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
             _logger.info(conditionParse+"***productImportBeans4***" + productImportBeans);
             outdated = this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
             _logger.info("***productImportBeans4 ignored***" + productImportBeans);
+        }
+
+        if (ListTools.isEmptyOrNull(productImportBeans)) {
+            //step5: 最后只根据银行+代码+帐套+是否体内+渠道为空
+            conditionParse = new ConditionParse();
+            conditionParse.addCondition("bank", "=", bank);
+            this.addProductCodeCondition(conditionParse, productCode, isImport);
+            //支行和渠道都取空的
+            this.addBranchCondition(conditionParse, null);
+            this.addChannelCondition(conditionParse, null);
+            this.addItemCondition(conditionParse, outType, appName);
+            productImportBeans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+            _logger.info(conditionParse+"***productImportBeans5***" + productImportBeans);
+            outdated = this.ignoreOutdated(productImportBeans, branchName, citicOrderDate);
+            _logger.info("***productImportBeans5 ignored***" + productImportBeans);
         }
 
         if (ListTools.isEmptyOrNull(productImportBeans)) {
