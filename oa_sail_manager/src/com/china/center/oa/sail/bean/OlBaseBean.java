@@ -48,21 +48,29 @@ public class OlBaseBean implements Serializable
     /**2015/04/11 中收激励功能
      * 中收金额
      */
-    private double ibMoney = 0.0d;
+    private double ibMoney = -1;
 
     /**2015/04/11 中收激励功能
      * 激励金额
      */
-    private double motivationMoney = 0.0d;
+    private double motivationMoney = -1;
 
-    private double ibMoney2 = 0.0d;
+    private double ibMoney2 = -1;
 
-    private double motivationMoney2 = 0.0d;
+    private double motivationMoney2 = -1;
 
     /**
      * 平台手续费
      */
-    private double platformFee = 0.0d;
+    private double platformFee = -1;
+
+    private double cash = -1;
+
+    private double cash2 = -1;
+
+    private double grossProfit = -1;
+
+    private String productImportId = "";
 
     private String changeTime = "";
 
@@ -70,13 +78,7 @@ public class OlBaseBean implements Serializable
 
     private String depotpart = "";
 
-    private double cash =0.0d;
 
-    private double cash2 =0.0d;
-
-    private double grossProfit =0.0d;
-
-    private String productImportId = "";
 
     /**
      * default constructor

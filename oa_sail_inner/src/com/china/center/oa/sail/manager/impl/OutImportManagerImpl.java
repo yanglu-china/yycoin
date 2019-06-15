@@ -3792,15 +3792,6 @@ public class OutImportManagerImpl implements OutImportManager
 							baseBean.setProductId(product.getId());
 						}
 						baseBean.setProductName(olBaseBean.getProductName());
-                        //#23
-//                        if (olBaseBean.getCash()>0 && olBaseBean.getGrossProfit()>0 ){
-//                            baseBean.setCash(olBaseBean.getCash());
-//                            baseBean.setGrossProfit(olBaseBean.getGrossProfit());
-//                        } else{
-//                            //#359
-//							CustomerBean customerBean = this.customerMainDAO.find(out.getCustomerId());
-//                            this.setGrossProfitAndCash(out, customerBean, baseBean);
-//                        }
 
 						baseBean.setUnit("套");
 						baseBean.setAmount(olBaseBean.getAmount());
@@ -3837,28 +3828,28 @@ public class OutImportManagerImpl implements OutImportManager
 						}
 						baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
 
-						if (olBaseBean.getCash() > 0){
+						if (olBaseBean.getCash() >= 0){
                         	baseBean.setCash(olBaseBean.getCash());
 						}
-						if(olBaseBean.getCash2() > 0){
+						if(olBaseBean.getCash2() >= 0){
 							baseBean.setCash2(olBaseBean.getCash2());
 						}
-						if(olBaseBean.getGrossProfit() > 0){
+						if(olBaseBean.getGrossProfit() >= 0){
 							baseBean.setGrossProfit(olBaseBean.getGrossProfit());
 						}
-						if (olBaseBean.getIbMoney() > 0){
+						if (olBaseBean.getIbMoney() >= 0){
 							baseBean.setIbMoney(olBaseBean.getIbMoney());
 						}
-						if(olBaseBean.getIbMoney2() > 0){
+						if(olBaseBean.getIbMoney2() >= 0){
 							baseBean.setIbMoney2(olBaseBean.getIbMoney2());
 						}
-						if(olBaseBean.getMotivationMoney() > 0){
+						if(olBaseBean.getMotivationMoney() >= 0){
 							baseBean.setMotivationMoney(olBaseBean.getMotivationMoney());
 						}
-						if (olBaseBean.getMotivationMoney2() > 0){
+						if (olBaseBean.getMotivationMoney2() >= 0){
 							baseBean.setMotivationMoney2(olBaseBean.getMotivationMoney2());
 						}
-						if(olBaseBean.getPlatformFee() > 0){
+						if(olBaseBean.getPlatformFee() >= 0){
 							baseBean.setPlatformFee(olBaseBean.getPlatformFee());
 						}
 
