@@ -821,4 +821,6 @@ public interface OutManager extends ListenerManager<OutListener>
 
 
     BaseBean getBaseBean(String outId, String productId, String costPriceKey) throws MYException;
+
+    double getIprice(OutImportBean bean, ProductBean product);
 }

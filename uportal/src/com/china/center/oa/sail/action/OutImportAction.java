@@ -334,7 +334,7 @@
      private boolean innerAdd2(OutImportBean bean, String[] obj, StringBuilder builder, int currentNumber)
      {
          boolean importError = false;
-
+         ProductBean productBean = null;
          // 分行名称 （相当于客户）
          if ( !StringTools.isNullOrNone(obj[0]))
          {
@@ -477,30 +477,12 @@
          }
 
          // 商品名称
+         // Deprecated
          if ( !StringTools.isNullOrNone(obj[5]))
          {
              String name = obj[5].trim();
-
              // 姓氏
              bean.setFirstName("N/A");
-
-             //其他类型直接读产品表
-//             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_COMMON){
-//                 ProductBean pbean = productDAO.findByName(name);
-//
-//                 if (null == pbean)
-//                 {
-//                     builder
-//                             .append("第[" + currentNumber + "]错误:")
-//                             .append("产品["+name+"]的产品不存在,请创建")
-//                             .append("<br>");
-//
-//                     importError = true;
-//                 }else{
-//                     bean.setProductId(pbean.getId());
-//                     bean.setProductName(pbean.getName());
-//                 }
-//             }
          }
          else
          {
@@ -1303,7 +1285,7 @@
                          bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType(), true);
              }
 
-             ProductBean productBean = this.productDAO.findByUnique(productImportBean.getCode());
+             productBean = this.productDAO.findByUnique(productImportBean.getCode());
              if (productBean == null){
                  builder.append("第[" + currentNumber + "]错误:")
                          .append("产品编码不存在:"+productImportBean.getCode())
@@ -1396,6 +1378,17 @@
 
                  importError = true;
              }
+         }
+
+         //#669 订单导入控制结算价不能为0
+         double iprice = this.outManager.getIprice(bean, productBean);
+         if (iprice == 0)
+         {
+             builder.append("第[" + currentNumber + "]错误:")
+                     .append("业务员结算价不能为0")
+                     .append("<br>");
+
+             importError = true;
          }
 
          return importError;
@@ -3774,10 +3767,14 @@
                              base.setPprice(sailPrice
                                      * (1 + sailConf.getPratio() / 1000.0d));
 
-                             // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                             base.setIprice(sailPrice
-                                     * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                                     .getPratio() / 1000.0d));
+                             if (sailConf.getIprice() >0){
+                                 base.setIprice(sailConf.getIprice());
+                             } else{
+                                 // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                                 base.setIprice(sailPrice
+                                         * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                                         .getPratio() / 1000.0d));
+                             }
 
                              // 业务员结算价就是事业部结算价
                              base.setInputPrice(base.getIprice());

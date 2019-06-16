@@ -30,6 +30,7 @@ import java.util.Set;
 import com.china.center.oa.client.bean.*;
 import com.china.center.oa.client.dao.*;
 import com.china.center.oa.client.vo.CustomerVO;
+import com.china.center.oa.client.vo.StafferVSCustomerVO;
 import com.china.center.oa.extsail.bean.ZJRCOutBean;
 import com.china.center.oa.extsail.dao.ZJRCOutDAO;
 import com.china.center.oa.product.bean.*;
@@ -13776,6 +13777,40 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             }
             return baseBeans.get(0);
         }
+    }
+
+    @Override
+    public double getIprice(OutImportBean bean, ProductBean product) {
+        double sailPrice = product.getSailPrice();
+        String stafferId = bean.getStafferId();
+        if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
+        {
+            stafferId = bean.getStafferId();
+        }else
+        {
+            StafferVSCustomerVO vsCustVO = stafferVSCustomerDAO.findVOByUnique(bean.getCustomerId());
+            if (vsCustVO!= null){
+                stafferId = vsCustVO.getStafferId();
+            }
+        }
+
+        final StafferBean stafferBean = stafferDAO.find(stafferId);
+        // 获取销售配置
+        SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+                product);
+
+        double iprice = 0;
+        //#647
+        if(sailConf.getIprice() > 0){
+            iprice = sailConf.getIprice();
+        } else{
+            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+            iprice = sailPrice
+                    * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                    .getPratio() / 1000.0d);
+        }
+        _logger.info("****sailConf****"+sailConf);
+        return iprice;
     }
 
     /**
