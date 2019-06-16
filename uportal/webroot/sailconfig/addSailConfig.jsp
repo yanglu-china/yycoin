@@ -200,6 +200,8 @@ function resetRadio()
 			<p:cell title="原结算价">
 			   <input type="text" name="sailPrice" id="sailPrice" value="0.0" readonly="readonly">
 			</p:cell>
+
+			<p:pro field="iprice" value="0" innerString="size=60 oncheck='isFloat'"/>
 			
 			<p:pro field="industryId" innerString="style='width:240px'">
                 <p:option type="industryList" empty="true"/>

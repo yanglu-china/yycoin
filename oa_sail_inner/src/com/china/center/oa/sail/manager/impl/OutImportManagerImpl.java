@@ -808,15 +808,21 @@ public class OutImportManagerImpl implements OutImportManager
 			// 获取销售配置
             SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
                 product);
-            
+
             // 总部结算价(产品结算价 * (1 + 总部结算率))
             base.setPprice(sailPrice
-                           * (1 + sailConf.getPratio() / 1000.0d));
+                    * (1 + sailConf.getPratio() / 1000.0d));
 
-            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-            base.setIprice(sailPrice
-                           * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                               .getPratio() / 1000.0d));
+            //#647
+            if(sailConf.getIprice() > 0) {
+                base.setIprice(sailConf.getIprice());
+            }else{
+                // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                base.setIprice(sailPrice
+                        * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                        .getPratio() / 1000.0d));
+            }
+
 
             // 业务员结算价就是事业部结算价
             base.setInputPrice(base.getIprice());
@@ -3877,10 +3883,16 @@ public class OutImportManagerImpl implements OutImportManager
 						baseBean.setPprice(sailPrice
 								* (1 + sailConf.getPratio() / 1000.0d));
 
-						// 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-						baseBean.setIprice(sailPrice
-								* (1 + sailConf.getIratio() / 1000.0d + sailConf
-								.getPratio() / 1000.0d));
+						//#647
+						if(sailConf.getIprice() > 0){
+						    baseBean.setIprice(sailConf.getIprice());
+                        } else{
+                            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                            baseBean.setIprice(sailPrice
+                                    * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                                    .getPratio() / 1000.0d));
+                        }
+
 
 						// 业务员结算价就是事业部结算价
 						baseBean.setInputPrice(baseBean.getIprice());
@@ -4209,10 +4221,15 @@ public void offlineStorageInJob() {
                             baseBean.setPprice(sailPrice
                                     * (1 + sailConf.getPratio() / 1000.0d));
 
-                            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                            baseBean.setIprice(sailPrice
-                                    * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                                    .getPratio() / 1000.0d));
+                            //#647
+                            if (sailConf.getIprice() > 0){
+                                baseBean.setIprice(sailConf.getIprice());
+                            } else{
+                                // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                                baseBean.setIprice(sailPrice
+                                        * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                                        .getPratio() / 1000.0d));
+                            }
 
                             // 业务员结算价就是事业部结算价
                             baseBean.setInputPrice(baseBean.getIprice());

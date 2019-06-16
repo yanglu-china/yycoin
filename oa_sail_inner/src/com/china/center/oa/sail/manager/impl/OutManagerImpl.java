@@ -976,10 +976,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 base.setPprice(sailPrice
                                                * (1 + sailConf.getPratio() / 1000.0d));
 
-                                // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                                base.setIprice(sailPrice
-                                               * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                                                   .getPratio() / 1000.0d));
+                                //#647
+                                if (sailConf.getIprice() > 0){
+                                    base.setIprice(sailConf.getIprice());
+                                } else{
+                                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                                    base.setIprice(sailPrice
+                                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                                            .getPratio() / 1000.0d));
+                                }
+
 
                                 // 业务员结算价就是事业部结算价
                                 base.setInputPrice(base.getIprice());
@@ -8387,10 +8393,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                     baseBean.setPprice(sailPrice * (1 + sailConf.getPratio() / 1000.0d));
 
-                    // 就是看到的结算价
-                    baseBean
-                        .setIprice(sailPrice
-                                   * (1 + sailConf.getPratio() / 1000.0d + sailConf.getIratio() / 1000.0d));
+                    //#647
+                    if(sailConf.getIprice() > 0){
+                        baseBean.setIprice(sailConf.getIprice());
+                    } else{
+                        // 就是看到的结算价
+                        baseBean
+                                .setIprice(sailPrice
+                                        * (1 + sailConf.getPratio() / 1000.0d + sailConf.getIratio() / 1000.0d));
+                    }
+
 
                     baseBean.setInputPrice(baseBean.getIprice());
 
@@ -11340,10 +11352,15 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             base.setPprice(sailPrice
                                            * (1 + sailConf.getPratio() / 1000.0d));
 
-                            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                            base.setIprice(sailPrice
-                                           * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                                               .getPratio() / 1000.0d));
+                            //#647
+                            if(sailConf.getIprice() > 0){
+                                base.setIprice(sailConf.getIprice());
+                            } else{
+                                // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                                base.setIprice(sailPrice
+                                        * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                                        .getPratio() / 1000.0d));
+                            }
 
                             // 业务员结算价就是事业部结算价
                             base.setInputPrice(base.getIprice());

@@ -30,6 +30,7 @@ function load()
              {display: '品名', name : 'productName', width : '20%'},
              {display: '产品类型', name : 'productType', cc: 'productType',  width : '10%'},
              {display: '销售类型', name : 'sailType', cc: 'productSailType',  width : '10%'},
+             {display: '固定业务员结算价', name : 'iprice',  width : '10%'},
              {display: '事业部', name : 'industryName',  width : '15%'},
              {display: '总部结算率(‰)', name : 'pratio',  width : '10%'},
              {display: '事业部结算率(‰)', name : 'iratio',  width : 'auto'}

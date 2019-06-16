@@ -200,6 +200,8 @@ function load()
             <p:cell title="原结算价">
                <input type="text" name="sailPrice" id="sailPrice" value="${my:formatNum(bean.sailPrice)}" readonly="readonly">
             </p:cell>
+
+            <p:pro field="iprice" innerString="size=60 oncheck='isFloat'"/>
             
             <p:cell title="事业部">
             ${bean.industryName}

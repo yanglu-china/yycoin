@@ -84,6 +84,9 @@ public class SailConfBean implements DataClone<SailConfBean>, Serializable
 
     @Html(title = "更新人", type = Element.INPUT)
     private String operator = "";
+
+    @Html(title = "固定业务员结算价", type = Element.INPUT)
+    private double iprice = 0;
     /**
      * Copy Constructor
      * 
@@ -302,57 +305,37 @@ public class SailConfBean implements DataClone<SailConfBean>, Serializable
         this.operator = operator;
     }
 
+    public double getIprice() {
+        return iprice;
+    }
+
+    public void setIprice(double iprice) {
+        this.iprice = iprice;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("SailConfBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("sailType = ")
-            .append(this.sailType)
-            .append(TAB)
-            .append("productType = ")
-            .append(this.productType)
-            .append(TAB)
-            .append("type = ")
-            .append(this.type)
-            .append(TAB)
-            .append("productId = ")
-            .append(this.productId)
-            .append(TAB)
-            .append("industryId = ")
-            .append(this.industryId)
-            .append(TAB)
-            .append("pratio = ")
-            .append(this.pratio)
-            .append(TAB)
-            .append("iratio = ")
-            .append(this.iratio)
-            .append(TAB)
-            .append("beginDate = ")
-            .append(this.beginDate)
-            .append(TAB)
-            .append("endDate = ")
-            .append(this.endDate)
-            .append(TAB)
-            .append("description = ")
-            .append(this.description)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "SailConfBean{" +
+                "id='" + id + '\'' +
+                ", sailType=" + sailType +
+                ", productType=" + productType +
+                ", type=" + type +
+                ", productId='" + productId + '\'' +
+                ", industryId='" + industryId + '\'' +
+                ", pratio=" + pratio +
+                ", iratio=" + iratio +
+                ", beginDate='" + beginDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                ", description='" + description + '\'' +
+                ", logTime='" + logTime + '\'' +
+                ", operator='" + operator + '\'' +
+                ", iprice=" + iprice +
+                '}';
     }
 
 }
