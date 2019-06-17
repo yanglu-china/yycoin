@@ -13795,6 +13795,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
 
         final StafferBean stafferBean = stafferDAO.find(stafferId);
+        if (stafferBean == null){
+            _logger.error("staffer not exist***"+stafferId);
+            return 0;
+        } else if (product == null){
+            _logger.error("product is null!");
+            return 0;
+        }
         // 获取销售配置
         SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
                 product);

@@ -828,10 +828,11 @@ public class OutImportManagerImpl implements OutImportManager
             base.setInputPrice(base.getIprice());
             //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
 			//#669 回滚
-            if (base.getInputPrice() == 0)
-            {
-                throw new RuntimeException(base.getProductName() + " 业务员结算价不能为0");
-            }
+			// 后台线程抛异常会导致整个导入失败，改为到前台导入时报错 #
+//            if (base.getInputPrice() == 0)
+//            {
+//                throw new RuntimeException(base.getProductName() + " 业务员结算价不能为0");
+//            }
             
 			// 配送 方式及毛利率
             base.setDeliverType(0);
