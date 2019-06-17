@@ -13788,9 +13788,20 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             stafferId = bean.getStafferId();
         }else
         {
-            StafferVSCustomerVO vsCustVO = stafferVSCustomerDAO.findVOByUnique(bean.getCustomerId());
-            if (vsCustVO!= null){
-                stafferId = vsCustVO.getStafferId();
+            List<CustomerBean> cbeans = customerMainDAO.queryByName(bean.getComunicatonBranchName());
+
+            if (ListTools.isEmptyOrNull(cbeans))
+            {
+                String msg = " 客户（网点）不存在:"+bean.getComunicatonBranchName();
+                _logger.error(msg);
+                return 0;
+            }
+            else{
+                String customerId = cbeans.get(0).getId();
+                StafferVSCustomerVO vsCustVO = stafferVSCustomerDAO.findVOByUnique(customerId);
+                if (vsCustVO!= null){
+                    stafferId = vsCustVO.getStafferId();
+                }
             }
         }
 
