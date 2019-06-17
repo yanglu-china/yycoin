@@ -1599,6 +1599,7 @@
      private boolean innerAddForPufa(OutImportBean bean, String[] obj, StringBuilder builder, int currentNumber)
      {
          boolean importError = false;
+         ProductBean pbean = null;
 
          // 分行名称 （相当于客户）
          if ( !StringTools.isNullOrNone(obj[0]))
@@ -1728,7 +1729,7 @@
              // 姓氏
              bean.setFirstName("N/A");
 
-             ProductBean pbean = productDAO.findByName(name);
+             pbean = productDAO.findByName(name);
 
              if (null == pbean)
              {
@@ -2654,6 +2655,17 @@
 
                  importError = true;
              }
+         }
+
+         //#669 订单导入控制结算价不能为0
+         double iprice = this.outManager.getIprice(bean, pbean);
+         if (iprice == 0)
+         {
+             builder.append("第[" + currentNumber + "]错误:")
+                     .append("业务员结算价不能为0")
+                     .append("<br>");
+
+             importError = true;
          }
          return importError;
      }
