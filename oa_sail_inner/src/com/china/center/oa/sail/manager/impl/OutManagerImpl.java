@@ -13781,6 +13781,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     @Override
     public double getIprice(OutImportBean bean, ProductBean product) {
+        if (product == null){
+            String msg = " 客户（网点）不存在:"+bean.getComunicatonBranchName();
+            _logger.error(msg);
+            return 0;
+        }
+
         double sailPrice = product.getSailPrice();
         String stafferId = bean.getStafferId();
         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
