@@ -13788,6 +13788,17 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
 
         double sailPrice = product.getSailPrice();
+
+        // 根据配置获取结算价
+        List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+
+        if (!ListTools.isEmptyOrNull(pcblist))
+        {
+            PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+            sailPrice = cb.getSailPrice();
+        }
+
         String stafferId = bean.getStafferId();
         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
         {
