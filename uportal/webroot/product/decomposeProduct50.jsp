@@ -375,11 +375,30 @@ function depotpartChange(obj)
             oo.value = '';
         }
     }
+  	//add by zhangxian 2019-06-17
+	//change cascade srcdepotpart item
+	var srcDepotparts = document.getElementsByName("srcDepotpart");
+  	console.log(srcDepotparts.length);
+   	//add new option
+   	for(var j=0;j<srcDepotparts.length;j++)
+   	{
+   		var oneselect = srcDepotparts[j];
+		for(i=0;i<oneselect.length;i++){
+		    if(oneselect[i].value==obj.value)
+		    {
+		    	oneselect[i].selected = true;
+		    	break;
+		    }
+		}
+   	}
+    //end add
 }
 
 function depotChange()
 {
 	var newsrcDepot = $$('depot');
+	
+	console.log(newsrcDepot);
 
 	removeAllItem($O('depotpart'));
 	
@@ -393,12 +412,32 @@ function depotChange()
 	}
 	
 	depotpartChange($O('depotpart'));
+	
+	//add by zhangxian 2019-06-17
+	//change cascade srcdepotpart item
+	var srcDepots = document.getElementsByName("srcDepot");
+	console.log(srcDepots.length);
+   	//add new option
+   	for(var j=0;j<srcDepots.length;j++)
+   	{
+   		var oneselect = srcDepots[j];
+		for(i=0;i<oneselect.length;i++){
+		    if(oneselect[i].value==newsrcDepot)
+		    {
+		    	oneselect[i].selected = true;
+		    	srcDepotChange(oneselect);
+		    	break;
+		    }
+		}
+   	}
+    //end add
+	
 }
 
 function srcDepotChange(obj)
 {
 	var newsrcDepot = obj.value;
-
+	
 	var tr = getTrObject(obj);
     
     var selects = tr.getElementsByTagName('select');
@@ -609,7 +648,7 @@ function addTr1()
          </select>
          </td>
          <td width="95%" align="center">
-         <select name="srcDepot" class="select_class" style="width: 100%;" onchange="srcDepotChange(this)" values="A1201606211663545335">
+         <select name="srcDepot" id="srcDepot" class="select_class" style="width: 100%;" onchange="srcDepotChange(this)">
          <option value="">--</option>
          <c:forEach var="item" items="${depotList}">
              <option value="${item.id}">${item.name}</option>
@@ -617,7 +656,7 @@ function addTr1()
          </select>
          </td>
          <td width="95%" align="center">
-         <select name="srcDepotpart" class="select_class" style="width: 100%;" values="A1201606211663545389">
+         <select name="srcDepotpart" id="srcDepotpart" class="select_class" style="width: 100%;">
          <option value="">--</option>
          </select>
          </td>
