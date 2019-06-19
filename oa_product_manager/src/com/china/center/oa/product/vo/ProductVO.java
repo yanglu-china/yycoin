@@ -68,7 +68,13 @@ public class ProductVO extends ProductBean
       * 合成产品的真实成本（子产品真实成本的之和）
       */
     @Ignore    
-    private double price = 0.0d;        
+    private double price = 0.0d;
+
+    /**
+     * #647
+     */
+    @Ignore
+    private double iprice = 0.0d;
     
     @Ignore
     private List<ProductCombinationVO> vsVOList = null;
@@ -81,6 +87,14 @@ public class ProductVO extends ProductBean
      */
     public ProductVO()
     {
+    }
+
+    public double getIprice() {
+        return iprice;
+    }
+
+    public void setIprice(double iprice) {
+        this.iprice = iprice;
     }
 
     /**

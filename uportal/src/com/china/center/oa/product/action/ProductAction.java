@@ -216,25 +216,53 @@ public class ProductAction extends DispatchAction
                 {
                     public void handle(ProductVO obj)
                     {
+//                        // 根据配置获取结算价
+//                        List<PriceConfigBean> list = priceConfigDAO.querySailPricebyProductId(obj.getId());
+//
+//                        if (!ListTools.isEmptyOrNull(list))
+//                        {
+//                            PriceConfigBean cb = priceConfigManager.calcSailPrice(list.get(0));
+//
+//                            obj.setSailPrice(cb.getSailPrice());
+//                        }
+//
+//                        if ( !"0".equals(src))
+//                        {
+//                            SailConfBean sailConf = sailConfigManager.findProductConf(Helper
+//                                    .getStaffer(request), obj);
+//
+//                            obj.setSailPrice(obj.getSailPrice()
+//                                    * (1 + sailConf.getPratio() / 1000.0d + sailConf
+//                                    .getIratio() / 1000.0d));
+//                        }
+
+                        double iprice = 0.0d;
+                        double sailPrice = obj.getSailPrice();
+
                         // 根据配置获取结算价
-                        List<PriceConfigBean> list = priceConfigDAO.querySailPricebyProductId(obj.getId());
+                        List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(obj.getId());
 
-                        if (!ListTools.isEmptyOrNull(list))
+                        if (!ListTools.isEmptyOrNull(pcblist))
                         {
-                            PriceConfigBean cb = priceConfigManager.calcSailPrice(list.get(0));
+                            PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
 
-                            obj.setSailPrice(cb.getSailPrice());
+                            sailPrice = cb.getSailPrice();
                         }
 
-                        if ( !"0".equals(src))
-                        {
-                            SailConfBean sailConf = sailConfigManager.findProductConf(Helper
-                                    .getStaffer(request), obj);
+                        // 获取销售配置
+                        SailConfBean sailConf = sailConfigManager.findProductConf(Helper.getStaffer(request),
+                                obj);
 
-                            obj.setSailPrice(obj.getSailPrice()
-                                    * (1 + sailConf.getPratio() / 1000.0d + sailConf
-                                    .getIratio() / 1000.0d));
+                        //#647
+                        if(sailConf.getIprice() > 0){
+                            iprice = sailConf.getIprice();
+                        } else{
+                            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                            iprice = sailPrice
+                                    * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                                    .getPratio() / 1000.0d);
                         }
+                        obj.setIprice(iprice);
                     }
                 });
 
