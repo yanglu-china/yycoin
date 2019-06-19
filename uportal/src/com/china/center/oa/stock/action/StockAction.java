@@ -2832,14 +2832,7 @@ public class StockAction extends DispatchAction
         //add by zhangxian 2019-06-17
         //add staffer query parameter
         String stafferName = request.getParameter("stafferName");
-        if(StringUtils.isEmpty(stafferName))
-        {
-        	//默认使用登录人
-        	String stafferId = user.getStafferId();
-        	condtion.addCondition("stafferid", "=", stafferId);
-        	stafferName = user.getStafferName();
-        }
-        else
+        if(!StringUtils.isEmpty(stafferName))
         {
         	StafferBean sb = stafferDAO.findyStafferByName(StringUtils.trim(stafferName));
         	if(sb != null)
@@ -2847,7 +2840,6 @@ public class StockAction extends DispatchAction
         		condtion.addCondition("stafferid", "=", sb.getId());
         	}
         }
-        request.setAttribute("stafferName", stafferName);
         
         // 鉴权
         try
