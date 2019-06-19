@@ -13781,7 +13781,24 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     @Override
     public double getIprice(OutImportBean bean, ProductBean product) {
+        if (product == null){
+            String msg = " 客户（网点）不存在:"+bean.getComunicatonBranchName();
+            _logger.error(msg);
+            return 0;
+        }
+
         double sailPrice = product.getSailPrice();
+
+        // 根据配置获取结算价
+        List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+
+        if (!ListTools.isEmptyOrNull(pcblist))
+        {
+            PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+            sailPrice = cb.getSailPrice();
+        }
+
         String stafferId = bean.getStafferId();
         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
         {
