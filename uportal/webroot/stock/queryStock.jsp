@@ -38,7 +38,6 @@ function resets()
 	$O('ids').value = '';
 	setSelectIndex($O('status'), 0);
 	setSelectIndex($O('locationId'), 0);
-	$O('stafferName').value='';
 }
 
 function load()
@@ -429,16 +428,6 @@ function exports()
 				<td align="center">供应商</td>
 				<td align="center" width="35%">
 					<input type="ext" name="providerName" id="providerName" placeholder="供应商">
-				</td>
-            </tr>
-            
-            <tr align=center class="content0">
-                <td align="center">采购人</td>
-                <td align="center" width="35%">
-                    <input type="text" name="stafferName" id="stafferName" placeholder="采购人" value="${stafferName}">
-                </td>
-				<td align="center"></td>
-				<td align="center" width="35%">
 				</td>
             </tr>
 			
