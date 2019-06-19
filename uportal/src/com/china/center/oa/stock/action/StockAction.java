@@ -4,30 +4,77 @@
 package com.china.center.oa.stock.action;
 
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
-import com.china.center.actionhelper.common.*;
+import com.china.center.actionhelper.common.ActionTools;
+import com.china.center.actionhelper.common.JSONTools;
+import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.actionhelper.common.OldPageSeparateTools;
+import com.china.center.actionhelper.common.PageSeparateTools;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.jsonimpl.JSONArray;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.product.bean.DepotBean;
 import com.china.center.oa.product.bean.DepotpartBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProviderBean;
-import com.china.center.oa.product.constant.DepotConstant;
-import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.dao.DepotpartDAO;
+import com.china.center.oa.product.dao.ProductBOMDAO;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProviderDAO;
+import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.vo.DepotpartVO;
 import com.china.center.oa.product.vo.ProductBOMVO;
 import com.china.center.oa.publics.Helper;
-import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.bean.DepartmentBean;
+import com.china.center.oa.publics.bean.DutyBean;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.InvoiceBean;
+import com.china.center.oa.publics.bean.LocationBean;
+import com.china.center.oa.publics.bean.ShowBean;
+import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.InvoiceConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.PublicLock;
-import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.publics.dao.CommonDAO;
+import com.china.center.oa.publics.dao.DepartmentDAO;
+import com.china.center.oa.publics.dao.DutyDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.InvoiceDAO;
+import com.china.center.oa.publics.dao.LocationDAO;
+import com.china.center.oa.publics.dao.RoleAuthDAO;
+import com.china.center.oa.publics.dao.RoleDAO;
+import com.china.center.oa.publics.dao.ShowDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.dao.UserDAO;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.publics.manager.UserManager;
@@ -37,10 +84,24 @@ import com.china.center.oa.sail.action.AppResult;
 import com.china.center.oa.sail.action.JsonMapper;
 import com.china.center.oa.stock.action.helper.PriceAskHelper;
 import com.china.center.oa.stock.action.helper.StockHelper;
-import com.china.center.oa.stock.bean.*;
+import com.china.center.oa.stock.bean.PriceAskBean;
+import com.china.center.oa.stock.bean.PriceAskProviderBean;
+import com.china.center.oa.stock.bean.PurchaseBjBean;
+import com.china.center.oa.stock.bean.PurchaseXqqrBean;
+import com.china.center.oa.stock.bean.StockBean;
+import com.china.center.oa.stock.bean.StockItemArrivalBean;
+import com.china.center.oa.stock.bean.StockItemBean;
+import com.china.center.oa.stock.bean.StockWorkBean;
 import com.china.center.oa.stock.constant.PriceConstant;
 import com.china.center.oa.stock.constant.StockConstant;
-import com.china.center.oa.stock.dao.*;
+import com.china.center.oa.stock.dao.PriceAskDAO;
+import com.china.center.oa.stock.dao.PriceAskProviderDAO;
+import com.china.center.oa.stock.dao.PurchaseBjDAO;
+import com.china.center.oa.stock.dao.PurchaseXqqrDAO;
+import com.china.center.oa.stock.dao.StockDAO;
+import com.china.center.oa.stock.dao.StockItemArrivalDAO;
+import com.china.center.oa.stock.dao.StockItemDAO;
+import com.china.center.oa.stock.dao.StockWorkDAO;
 import com.china.center.oa.stock.manager.PriceAskManager;
 import com.china.center.oa.stock.manager.StockManager;
 import com.china.center.oa.stock.vo.PriceAskProviderBeanVO;
@@ -50,27 +111,21 @@ import com.china.center.oa.stock.vo.StockVO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.*;
-import jxl.Workbook;
-import jxl.write.*;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestTools;
+import com.china.center.tools.SequenceTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.*;
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
 
 
 /**
@@ -2773,6 +2828,27 @@ public class StockAction extends DispatchAction
         
         String extraStatus = getExtraStatus(request);
         System.out.println("22222222222222222222222222222222");
+        
+        //add by zhangxian 2019-06-17
+        //add staffer query parameter
+        String stafferName = request.getParameter("stafferName");
+        if(StringUtils.isEmpty(stafferName))
+        {
+        	//默认使用登录人
+        	String stafferId = user.getStafferId();
+        	condtion.addCondition("stafferid", "=", stafferId);
+        	stafferName = user.getStafferName();
+        }
+        else
+        {
+        	StafferBean sb = stafferDAO.findyStafferByName(StringUtils.trim(stafferName));
+        	if(sb != null)
+        	{
+        		condtion.addCondition("stafferid", "=", sb.getId());
+        	}
+        }
+        request.setAttribute("stafferName", stafferName);
+        
         // 鉴权
         try
         {
