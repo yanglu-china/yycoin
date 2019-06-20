@@ -392,14 +392,14 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 			
 			// 科目拷贝
 			FinanceHelper.copyTax(inTax, itemIn);
-			OutBillBean outBillBean0 = outBillList.get(0);
+			//OutBillBean outBillBean0 = outBillList.get(0);
 			
 			// 当前发生额
 			double inMoney = bean.getMoneys();
 			
 			if (bean.getIsFinal() == StockPayApplyConstant.APPLY_ISFINAL_NO)
 			{
-			inMoney = outBillBean0.getMoneys();
+			inMoney = outBillBean.getMoneys();
 			}
 			
 			itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
