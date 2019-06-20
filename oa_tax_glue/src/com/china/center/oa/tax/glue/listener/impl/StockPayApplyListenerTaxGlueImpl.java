@@ -367,54 +367,54 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 		
 		String name = "采购付款申请通过:" + bean.getId() + '.';
 		
-		// 应付账款-供应商/银行科目
-		FinanceItemBean itemIn = new FinanceItemBean();
-		
-		String pareId = commonDAO.getSquenceString();
-		
-		itemIn.setPareId(pareId);
-		
-		itemIn.setName("应付账款-货款:" + name);
-		
-		itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
-		
-		FinanceHelper.copyFinanceItem(financeBean, itemIn);
-		
-		// 应付账款-货款(单位)
-		TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.PAY_PRODUCT);
-		
-		if (inTax == null)
-		{
-		throw new MYException("数据错误,请确认操作");
-		}
-		
-		// 科目拷贝
-		FinanceHelper.copyTax(inTax, itemIn);
-		OutBillBean outBillBean0 = outBillList.get(0);
-		
-		// 当前发生额
-		double inMoney = bean.getMoneys();
-		
-		if (bean.getIsFinal() == StockPayApplyConstant.APPLY_ISFINAL_NO)
-		{
-		inMoney = outBillBean0.getMoneys();
-		}
-		
-		itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
-		
-		itemIn.setOutmoney(0);
-		
-		itemIn.setDescription(itemIn.getName());
-		
-		// 辅助核算 单位
-		itemIn.setUnitId(bean.getProvideId());
-		itemIn.setUnitType(TaxConstanst.UNIT_TYPE_PROVIDE);
-		
-		itemList.add(itemIn);
-		
-		_logger.debug("inMoney:"+inMoney+", bean.getIsFinal():"+bean.getIsFinal()+", bean.getMoneys():"+bean.getMoneys());
-		
 		for(OutBillBean outBillBean: outBillList){
+			
+			// 应付账款-供应商/银行科目
+			FinanceItemBean itemIn = new FinanceItemBean();
+			
+			String pareId = commonDAO.getSquenceString();
+			
+			itemIn.setPareId(pareId);
+			
+			itemIn.setName("应付账款-货款:" + name);
+			
+			itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+			
+			FinanceHelper.copyFinanceItem(financeBean, itemIn);
+			
+			// 应付账款-货款(单位)
+			TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.PAY_PRODUCT);
+			
+			if (inTax == null)
+			{
+			throw new MYException("数据错误,请确认操作");
+			}
+			
+			// 科目拷贝
+			FinanceHelper.copyTax(inTax, itemIn);
+			OutBillBean outBillBean0 = outBillList.get(0);
+			
+			// 当前发生额
+			double inMoney = bean.getMoneys();
+			
+			if (bean.getIsFinal() == StockPayApplyConstant.APPLY_ISFINAL_NO)
+			{
+			inMoney = outBillBean0.getMoneys();
+			}
+			
+			itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
+			
+			itemIn.setOutmoney(0);
+			
+			itemIn.setDescription(itemIn.getName());
+			
+			// 辅助核算 单位
+			itemIn.setUnitId(bean.getProvideId());
+			itemIn.setUnitType(TaxConstanst.UNIT_TYPE_PROVIDE);
+			
+			itemList.add(itemIn);
+			
+			_logger.debug("inMoney:"+inMoney+", bean.getIsFinal():"+bean.getIsFinal()+", bean.getMoneys():"+bean.getMoneys());			
 			
 			BankBean bank = bankDAO.find(outBillBean.getBankId());
 			

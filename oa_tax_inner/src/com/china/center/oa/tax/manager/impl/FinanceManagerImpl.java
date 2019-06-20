@@ -531,6 +531,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
         bean.setOutmoney(outTotal);
 
+ 
         if (inTotal != outTotal) {
             throw new MYException("总借[%s],总贷[%s]不等,凭证增加错误", FinanceHelper.longToString(inTotal),
                     FinanceHelper.longToString(outTotal));
