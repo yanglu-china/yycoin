@@ -395,12 +395,15 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 			//OutBillBean outBillBean0 = outBillList.get(0);
 			
 			// 当前发生额
+			double inMoney = outBillBean.getMoneys();
+			/*
 			double inMoney = bean.getMoneys();
 			
 			if (bean.getIsFinal() == StockPayApplyConstant.APPLY_ISFINAL_NO)
 			{
 			inMoney = outBillBean.getMoneys();
 			}
+			*/
 			
 			itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
 			
@@ -412,9 +415,7 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 			itemIn.setUnitId(bean.getProvideId());
 			itemIn.setUnitType(TaxConstanst.UNIT_TYPE_PROVIDE);
 			
-			itemList.add(itemIn);
-			
-			_logger.debug("inMoney:"+inMoney+", bean.getIsFinal():"+bean.getIsFinal()+", bean.getMoneys():"+bean.getMoneys());			
+			itemList.add(itemIn);		
 			
 			BankBean bank = bankDAO.find(outBillBean.getBankId());
 			
@@ -484,6 +485,10 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 			itemIn.setInmoney(itemOut.getOutmoney());
 			}
 			}
+			
+			_logger.debug("inMoney:"+inMoney+", bean.getIsFinal():"+bean.getIsFinal()
+			+", bean.getMoneys():"+bean.getMoneys()
+			+",itemIn.getInmoney():"+itemIn.getInmoney()+",itemList.size():"+itemList.size());	
 		
 		}
 	}   
