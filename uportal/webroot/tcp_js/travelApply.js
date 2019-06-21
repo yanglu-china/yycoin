@@ -140,6 +140,7 @@ function checks()
 	    }
     }
     
+    /*#692
     //检查预算分担不能重复
     var blist = $("input[name='s_budgetId']");
     
@@ -156,6 +157,7 @@ function checks()
         
         tmp[blist[i].value] = blist[i].value;
     }
+    */
     
     return true;
 }
