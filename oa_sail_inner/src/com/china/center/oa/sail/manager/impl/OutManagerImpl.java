@@ -12881,7 +12881,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             List<BaseBean> baseBeans = new ArrayList<>();
             OutBean outBean =  new OutBean();
-            outBean.setDescription("异地调拨JOB:" + frDbBean.getId());
+            //#691
+            StringBuffer sb = new StringBuffer();
+            sb.append("异地调拨JOB:").append(frDbBean.getId());
+            if (!StringTools.isNullOrNone(frDbBean.getDescription())){
+                sb.append("."+frDbBean.getDescription());
+            }
+            outBean.setDescription(sb.toString());
             outBean.setType(OutConstant.OUT_TYPE_INBILL);
             outBean.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
 
@@ -13052,6 +13058,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 }
             }
         }
+        _logger.info("***finish frDbJob()****");
     }
 
     @Override

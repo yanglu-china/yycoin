@@ -100,6 +100,8 @@ public class FrDbBean implements Serializable {
 
     private String errorMessage;
 
+    private String description;
+
     public int getId() {
         return id;
     }
@@ -300,6 +302,14 @@ public class FrDbBean implements Serializable {
         this.virtualPrice = virtualPrice;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public String toString() {
         return "FrDbBean{" +
@@ -328,6 +338,7 @@ public class FrDbBean implements Serializable {
                 ", dbno='" + dbno + '\'' +
                 ", newAmount=" + newAmount +
                 ", errorMessage='" + errorMessage + '\'' +
+                ", description='" + description + '\'' +
                 '}';
     }
 }
