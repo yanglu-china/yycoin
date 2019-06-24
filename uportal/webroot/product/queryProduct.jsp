@@ -128,7 +128,7 @@ function load()
              {display: '管理', name : 'reserve4', cc : 'pubManagerType', width : '8%'},
              {display: '阶段', name : 'reserve5', cc : 'productStep', width : '8%'},
              //{display: '库存模型', name : 'stockType', cc : 'productStockType', width : '10%'},
-             {display: '结算价', name : 'sailPrice', toFixed: 2, width : 'auto'}
+             {display: '结算价', name : 'iprice', toFixed: 2, width : 'auto'}
              ],
          extAtt: {
              name : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}>', end : '</a>'}
