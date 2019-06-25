@@ -102,6 +102,8 @@ public class FrDbBean implements Serializable {
 
     private String description;
 
+    private String remark;
+
     public int getId() {
         return id;
     }
@@ -310,6 +312,14 @@ public class FrDbBean implements Serializable {
         this.description = description;
     }
 
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
     @Override
     public String toString() {
         return "FrDbBean{" +
@@ -339,6 +349,7 @@ public class FrDbBean implements Serializable {
                 ", newAmount=" + newAmount +
                 ", errorMessage='" + errorMessage + '\'' +
                 ", description='" + description + '\'' +
+                ", remark='" + remark + '\'' +
                 '}';
     }
 }

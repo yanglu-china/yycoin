@@ -12884,8 +12884,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             //#691
             StringBuffer sb = new StringBuffer();
             sb.append("异地调拨JOB:").append(frDbBean.getId());
+            if (!StringTools.isNullOrNone(frDbBean.getRemark())){
+                sb.append(".提交人备注:"+frDbBean.getRemark());
+            }
             if (!StringTools.isNullOrNone(frDbBean.getDescription())){
-                sb.append("."+frDbBean.getDescription());
+                sb.append(".审批人备注:"+frDbBean.getDescription());
             }
             outBean.setDescription(sb.toString());
             outBean.setType(OutConstant.OUT_TYPE_INBILL);
