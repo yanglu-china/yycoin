@@ -3615,6 +3615,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     this.log(user, outId, module, "修改",sb.toString());
                 }
             }
+
+            //#694
+            this.outDAO.updateFlowTime(outId, TimeTools.now());
         }
     }
 
