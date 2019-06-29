@@ -2397,6 +2397,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         return true;
     }
 
+    @Deprecated
     public boolean process(final List<InvoiceinsImportBean> list)
 	throws MYException
 	{
@@ -2739,6 +2740,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		return amount;
 	}
 
+    @Deprecated
 	private boolean processInner(List<InvoiceinsImportBean> list) throws MYException
 	{
 		try {
@@ -2861,7 +2863,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	}
 
 
-
+    @Deprecated
 	private void saveInner(Map<String, List<InvoiceinsImportBean>> map,
 			List<InvoiceinsBean> invoiceinsList) throws MYException
 	{
@@ -3499,7 +3501,9 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             if (ListTools.isEmptyOrNull(itemList)){
                 _logger.error("发票子项未生成:"+bean.getId());
             } else {
-                invoiceinsItemDAO.saveAllEntityBeans(itemList);
+//                invoiceinsItemDAO.saveAllEntityBeans(itemList);
+                //#695
+                invoiceinsItemDAO.saveAllEntityBeans(this.mergeItems(itemList));
                 _logger.info("生成发票子项列表:"+itemList);
             }
 
@@ -3511,6 +3515,26 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 		}
 	}
+
+	//#695 开票明细invoiceins_item表，针对同一商品不同成本合并为一行
+	private List<InvoiceinsItemBean> mergeItems(List<InvoiceinsItemBean> items){
+        List<InvoiceinsItemBean> result = new ArrayList<>();
+        //<insId_fullId_productId, amount>
+        Map<String, InvoiceinsItemBean> map = new HashMap<>();
+        for (InvoiceinsItemBean item: items){
+            String key = item.getParentId()+item.getOutId()+"_"+item.getProductId();
+            if (map.containsKey(key)){
+                InvoiceinsItemBean i = map.get(key);
+                i.setAmount(i.getAmount()+item.getAmount());
+                i.setMoneys(i.getAmount()*i.getPrice());
+            } else{
+                map.put(key, item);
+            }
+        }
+
+        result.addAll(map.values());
+        return result;
+    }
 
     /**
      * 根据开票导入配置找到对应的base表记录
@@ -3614,6 +3638,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         return true;
     }
 
+    @Deprecated
     public boolean processAsyn(final List<InvoiceinsImportBean> list)
 	{
 		Thread ithread = new Thread() {
