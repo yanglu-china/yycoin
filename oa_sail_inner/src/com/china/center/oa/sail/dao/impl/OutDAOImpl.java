@@ -624,6 +624,25 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
     
 	}
 
+    @Override
+    public Integer sumNotEndProductInCompose(String productId, String depotpartId, double price) {
+        Map<String, String> paramterMap = new HashMap();
+
+        paramterMap.put("productId", productId);
+        paramterMap.put("depotpartId", depotpartId);
+        paramterMap.put("price", String.valueOf(price));
+
+        Object count = getIbatisDaoSupport().queryForObject(
+                "OutDAO.sumNotEndProductInCompose", paramterMap);
+
+        if (count == null)
+        {
+            return 0;
+        }
+
+        return (Integer)count;
+    }
+
     public List<BaseBean> queryInwayOut()
     {
         String sql = "select t1.* from t_center_base t1, t_center_out t2 "

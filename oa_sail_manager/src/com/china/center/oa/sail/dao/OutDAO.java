@@ -212,6 +212,8 @@ public interface OutDAO extends DAO<OutBean, OutVO>
 
     Integer sumNotEndProductInInByStorageRelation2(String productId, String depotpartId,
             String ower);
+
+    Integer sumNotEndProductInCompose(String productId, String depotpartId, double price);
     
     /**
      * 统计一个产品在系统的入库单在途的数量

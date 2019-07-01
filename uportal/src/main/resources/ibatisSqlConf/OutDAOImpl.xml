@@ -277,4 +277,16 @@
         ]]>
     </select>
 
+    <!-- 产品合成预占 -->
+    <select id="sumNotEndProductInCompose" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+        <![CDATA[
+        select sum(t2.amount) from t_center_compose t1, t_center_compose_item t2
+            where t1.id = t2.parentId
+            and t2.productId = #productId#
+            and t2.depotpartId = #depotpartId#
+            and t2.price=#price#
+            AND t1.status =0;
+        ]]>
+    </select>
+
 </sqlMap>

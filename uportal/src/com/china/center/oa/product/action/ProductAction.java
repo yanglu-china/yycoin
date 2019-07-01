@@ -909,7 +909,11 @@ public class ProductAction extends DispatchAction
                                 int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
                                 ProductBOMVO bomVo = new ProductBOMVO();
                                 BeanUtil.copyProperties(bomVo, bom);
-                                bomVo.setPamount(vo.getAmount()-preassign);
+
+                                //#合成预占库存
+                                int preassignByCompose = this.outDAO.sumNotEndProductInCompose(vo.getProductId(), vo.getDepotpartId(),
+                                         vo.getPrice());
+                                bomVo.setPamount(vo.getAmount()-preassign-preassignByCompose);
                                 bomVo.setPrice(this.roundDouble(vo.getPrice()));
                                 bomVo.setVirtualPrice(this.roundDouble(vo.getVirtualPrice()));
                                 bomVo.setSrcRelation(vo.getId());
