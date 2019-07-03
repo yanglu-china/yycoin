@@ -37,6 +37,8 @@
 	</bean>
 	
 	<bean id="storageRelationListenerSailImpl" class="com.china.center.oa.sail.listener.impl.StorageRelationListenerSailImpl" />
+
+    <bean id="storageRelationListenerProductImpl" class="com.china.center.oa.sail.listener.impl.StorageRelationListenerProductImpl" />
 	
 	<bean id="storageRelationLoadListener" class="com.center.china.osgi.publics.DefaultLoadListener">
         <property name="listenerManager">
@@ -45,6 +47,7 @@
         <property name="listenerList">
             <list>
                 <ref bean="storageRelationListenerSailImpl" />
+                <ref bean="storageRelationListenerProductImpl" />
             </list>
         </property>
     </bean>
