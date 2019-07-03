@@ -43,6 +43,9 @@ public class StafferVO extends StafferBean
 
     @Relationship(relationField = "industryId3")
     private String industryName3 = "";
+    
+    @Relationship(relationField = "superiorLeader")
+    private String superiorLeaderName = ""; 
 
     /**
      * 部门全名
@@ -197,7 +200,17 @@ public class StafferVO extends StafferBean
         this.industryName3 = industryName3;
     }
 
-    /**
+    public String getSuperiorLeaderName() {
+		return superiorLeaderName;
+	}
+
+
+	public void setSuperiorLeaderName(String superiorLeaderName) {
+		this.superiorLeaderName = superiorLeaderName;
+	}
+
+
+	/**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

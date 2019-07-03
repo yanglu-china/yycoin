@@ -153,6 +153,21 @@ function inits()
 		    <p:pro field="otype" cell="0">
                 <p:option type="stafferOtype"></p:option>
             </p:pro>
+            
+            <p:pro field="zw" value="${bean.zw}"/>
+            <p:pro field="wxname" value="${bean.wxname}"/>
+            
+            <p:pro field="lzsj" value="${bean.lzsj}"/>
+            <p:pro field="outsj" value="${bean.outsj}"/>
+             
+            <p:cell title="直属上级">
+                ${bean.superiorLeaderName}
+            </p:cell>    
+            <p:pro field="zzzt" cell="0">
+                <option value="在职">在职</option>
+				<option value="离职">离职</option>
+				<option value="停用">停用</option>
+            </p:pro>             
 				
 			<p:cells title="所属岗位" celspan="2">
 			    <span style="cursor: pointer;" onclick="allSelect(true)">全部展开</span> | <span

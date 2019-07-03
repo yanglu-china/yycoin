@@ -11,6 +11,7 @@ package com.china.center.oa.publics.bean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.china.center.jdbc.annotation.Entity;
@@ -140,7 +141,7 @@ public class StafferBean implements Serializable
     @Html(title = "身份证", maxLength = 50, oncheck = JCheck.ONLY_NUMBER_OR_LETTER)
     private String idCard = "";
 
-    @Html(title = "离职日期", type = Element.DATE)
+    @Html(title = "出生日期", type = Element.DATE)
     private String birthday = "";
 
     @Html(title = "移动电话", oncheck = JCheck.ONLY_NUMBER, maxLength = 20)
@@ -168,13 +169,28 @@ public class StafferBean implements Serializable
 
     @Html(title = "其他", type = Element.TEXTAREA, maxLength = 200)
     private String description = "";
+    
+    //#698
+    @Html(title = "职位", maxLength = 64)
+    private String zw = "";
+    
+    @Html(title = "入职时间", must = true, type = Element.DATE)
+    private String lzsj;
+    
+    @Html(title = "离职时间", type = Element.DATE)
+    private String outsj;
+    
+    @Html(title = "微信名称", maxLength = 32)
+    private String wxname = "";
 
-    @Html(title = "在职状态", maxLength = 32)
-    private String zzzt = "";
+    @Html(title = "帆软状态", must = true, type = Element.SELECT)
+    private String zzzt = "在职";
 
     /**#495
      * 直属上级职员Id
      */
+    @Html(title = "直属上级", maxLength = 32)
+    @Join(tagClass = StafferBean.class, type = JoinType.LEFT, alias = "SUPERIOR")
     private String superiorLeader;
 
     @Ignore
@@ -809,7 +825,39 @@ public class StafferBean implements Serializable
         this.otype = otype;
     }
 
-    public String getZzzt() {
+    public String getZw() {
+		return zw;
+	}
+
+	public void setZw(String zw) {
+		this.zw = zw;
+	}
+
+	public String getLzsj() {
+		return lzsj;
+	}
+
+	public void setLzsj(String lzsj) {
+		this.lzsj = lzsj;
+	}
+
+	public String getOutsj() {
+		return outsj;
+	}
+
+	public void setOutsj(String outsj) {
+		this.outsj = outsj;
+	}
+
+	public String getWxname() {
+		return wxname;
+	}
+
+	public void setWxname(String wxname) {
+		this.wxname = wxname;
+	}
+
+	public String getZzzt() {
         return zzzt;
     }
 

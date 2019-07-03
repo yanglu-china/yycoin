@@ -5,12 +5,21 @@
 <head>
 <p:link title="增加人员" />
 <script language="JavaScript" src="../js/common.js"></script>
+<script language="JavaScript" src="../js/compatible.js"></script>
 <script language="JavaScript" src="../js/cnchina.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
 <script language="JavaScript" src="../js/tree.js"></script>
 <script language="JavaScript" src="../admin_js/org.js"></script>
+
+<script language="JavaScript" src="../js/math.js"></script>
+<script language="JavaScript" src="../tcp_js/jquery.js"></script>
+<script language="JavaScript" src="../tcp_js/expense.js"></script>
+
+<script language="JavaScript" src="../js/prototype.js"></script>
+<script language="JavaScript" src="../js/buffalo.js"></script>
+
 <script language="javascript">
 function addBean()
 {
@@ -25,6 +34,18 @@ var levelMap = {};
 
 var tv = new treeview("treeview","../js/tree", 1, false);
 
+function selectDutyStaffer()
+{
+	window.common.modal('../group/group.do?method=selectDutyStaffer&selectMode=1&load=1&flag=1');
+}
+
+function setDutyStafferVal(oos)
+{
+	$O('superiorLeaderName').value=oos.pname;
+	$O('superiorLeader').value=oos.pvalue;
+    
+}
+
 </script>
 
 </head>
@@ -33,6 +54,9 @@ var tv = new treeview("treeview","../js/tree", 1, false);
 	type="hidden" name="method" value="addStaffer"> 
 <input
     type="hidden" name="principalshipId" value=""> 
+    
+    <input type="hidden" name="superiorLeader" value="" /> 
+    
 <p:navigation
 	height="22">
 	<td width="550" class="navigation"><span style="cursor: pointer;"
@@ -96,9 +120,26 @@ var tv = new treeview("treeview","../js/tree", 1, false);
                 <p:option type="stafferBlack"></p:option>
             </p:pro>
             
-            <p:pro field="otype" cell="2">
+            <p:pro field="otype" cell="1">
                 <p:option type="stafferOtype"></p:option>
             </p:pro>
+            
+            <!--#698-->
+            <p:pro field="zw"/>
+            <p:pro field="wxname"/>
+            
+            <p:pro field="lzsj"/>
+            <!--  
+            <p:pro field="superiorLeader"/>
+            -->
+            <p:cell title="直属上级" width="8" end="true"><input type="text" onclick='selectDutyStaffer(this);' name=superiorLeaderName size="25" >  
+            </p:cell>
+            
+            <p:pro field="zzzt" cell="0">
+                <option value="在职">在职</option>
+				<option value="离职">离职</option>
+				<option value="停用">停用</option>
+            </p:pro>            
             
             <p:pro field="address" cell="0" innerString="size=80"/>
 
@@ -126,6 +167,7 @@ var tv = new treeview("treeview","../js/tree", 1, false);
 
 	<p:message />
 </p:body></form>
+
 </body>
 </html>
 

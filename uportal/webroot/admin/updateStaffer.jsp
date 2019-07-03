@@ -64,6 +64,18 @@ function inits()
 	setAuth();
 }
 
+function selectDutyStaffer()
+{
+	window.common.modal('../group/group.do?method=selectDutyStaffer&selectMode=1&load=1&flag=1');
+}
+
+function setDutyStafferVal(oos)
+{
+	$O('superiorLeaderName').value=oos.pname;
+	$O('superiorLeader').value=oos.pvalue;
+    
+}
+
 </script>
 
 </head>
@@ -71,7 +83,10 @@ function inits()
 <form name="addApply" action="../admin/staffer.do"><input
 	type="hidden" name="method" value="updateStaffer"><input
 	type="hidden" name="principalshipId" value="${bean.principalshipId}"> <input
-	type="hidden" name="id" value="${bean.id}"> <p:navigation
+	type="hidden" name="id" value="${bean.id}"> 
+	
+   <input type="hidden" name="superiorLeader" value="${bean.superiorLeader}" /> 	
+	<p:navigation
 	height="22">
 	<td width="550" class="navigation"><span style="cursor: pointer;"
 		onclick="javascript:history.go(-1)">人员管理</span> &gt;&gt; 修改人员</td>
@@ -141,6 +156,22 @@ function inits()
             <p:pro field="otype" cell="1">
                 <p:option type="stafferOtype"></p:option>
             </p:pro>
+            
+            <!--#698-->
+            
+            <p:pro field="zw"/>
+            <p:pro field="wxname"/>
+            
+            <p:pro field="lzsj"/>
+            <p:pro field="outsj"/>
+                   
+            <p:cell title="直属上级" width="8" end="true"><input type="text" onclick='selectDutyStaffer(this);' name=superiorLeaderName size="25" value="${bean.superiorLeaderName}">  
+            </p:cell>            
+            <p:pro field="zzzt" cell="0">
+                <option value="在职">在职</option>
+				<option value="离职">离职</option>
+				<option value="停用">停用</option>
+            </p:pro>           
 
 			<p:pro field="address" cell="0" innerString="size=80"
 				value="${bean.address}" />
