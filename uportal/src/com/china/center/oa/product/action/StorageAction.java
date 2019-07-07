@@ -1675,8 +1675,10 @@ public class StorageAction extends DispatchAction
 
             if(!StringTools.isNullOrNone(compose)){
                 //#367 产品合成时扣掉在途商品
-                int sumInOut = outDAO.sumNotEndProductInOutByStorageRelation(vo.getProductId(), vo
-                        .getDepotpartId(), vo.getPriceKey(), vo.getStafferId());
+//                int sumInOut = outDAO.sumNotEndProductInOutByStorageRelation(vo.getProductId(), vo
+//                        .getDepotpartId(), vo.getPriceKey(), vo.getStafferId());
+                //#681 产品合成时扣掉在途商品(包括出库和商品合成)
+                int sumInOut = storageRelationManager.sumPreassignByStorageRelation(vo);
                 _logger.info(vo+"***sumInOut***"+sumInOut);
                 vo.setAmount(vo.getAmount()-sumInOut);
                 request.setAttribute("compose", 1);
