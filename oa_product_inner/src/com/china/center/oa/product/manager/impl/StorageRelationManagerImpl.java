@@ -251,9 +251,9 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 	    	
 	    	relation.setAmount(relation.getAmount() - zaitur);
 	    }
-	    
+	    _logger.info(relationAmount+"***"+zaitu+"***"+bean.getChange());
 	    relationAmount -= zaitu ;
-	
+
 	    if ( !includeSelf)
 	    {
 	        // 自身不再在途中
