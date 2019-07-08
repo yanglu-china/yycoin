@@ -74,8 +74,6 @@ import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.tools.BeanUtil;
 import com.china.center.tools.CommonTools;
 import com.china.center.tools.FileTools;
@@ -698,7 +696,7 @@ public class FlowInstanceAction extends DispatchAction
         FlowInstanceBean bean = new FlowInstanceBean();
 
         // 模板最多10M
-        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
 
         try
         {
@@ -708,7 +706,7 @@ public class FlowInstanceAction extends DispatchAction
         {
             _logger.error(e, e);
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过10M");
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
 
             return mapping.findForward("queryFlowDefine2");
         }

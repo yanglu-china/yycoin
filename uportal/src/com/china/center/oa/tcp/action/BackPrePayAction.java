@@ -1,5 +1,30 @@
 package com.china.center.oa.tcp.action;
 
+import static com.china.center.oa.tcp.constanst.TcpConstanst.TCP_STATUS_FINANCE;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
@@ -37,25 +62,15 @@ import com.china.center.oa.tcp.manager.BackPrePayManager;
 import com.china.center.oa.tcp.vo.TcpApproveVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.*;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import static com.china.center.oa.tcp.constanst.TcpConstanst.TCP_STATUS_FINANCE;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.FileTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.SequenceTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.UtilStream;
+import com.china.center.tools.WriteFileBuffer;
 
 /**
  * 
@@ -359,8 +374,8 @@ public class BackPrePayAction extends DispatchAction
 	{
 		BackPrePayApplyBean bean = new BackPrePayApplyBean();
 
-		// 模板最多10M
-        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
+		// 模板最多20M
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
 
         try
         {
@@ -370,7 +385,7 @@ public class BackPrePayAction extends DispatchAction
         {
             _logger.error(e, e);
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过10M");
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
 
             return mapping.findForward("error");
         }
@@ -634,7 +649,7 @@ public class BackPrePayAction extends DispatchAction
             HttpServletRequest request, HttpServletResponse response)
 	throws ServletException
 	{
-        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
         try
         {
             rds.parser();
@@ -643,7 +658,7 @@ public class BackPrePayAction extends DispatchAction
         {
             _logger.error(e, e);
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过10M");
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
 
             return mapping.findForward("error");
         }

@@ -1,5 +1,27 @@
 package com.china.center.oa.tcp.action;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
@@ -20,8 +42,18 @@ import com.china.center.oa.finance.dao.PreInvoiceVSOutDAO;
 import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
 import com.china.center.oa.publics.AttachmentUtils;
 import com.china.center.oa.publics.Helper;
-import com.china.center.oa.publics.bean.*;
-import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.bean.CityBean;
+import com.china.center.oa.publics.bean.DutyBean;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.ProvinceBean;
+import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.dao.AttachmentDAO;
+import com.china.center.oa.publics.dao.CityDAO;
+import com.china.center.oa.publics.dao.DutyDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.ProvinceDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.ExpressBean;
@@ -31,7 +63,6 @@ import com.china.center.oa.sail.dao.ExpressDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.tcp.bean.TcpApproveBean;
 import com.china.center.oa.tcp.bean.TcpFlowBean;
-import com.china.center.oa.tcp.bean.TravelApplyBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
 import com.china.center.oa.tcp.dao.TcpApproveDAO;
@@ -41,22 +72,17 @@ import com.china.center.oa.tcp.manager.PreInvoiceManager;
 import com.china.center.oa.tcp.vo.TcpApproveVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.*;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.FileTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.SequenceTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.UtilStream;
+import com.china.center.tools.WriteFileBuffer;
 
 /**
  * 
@@ -561,7 +587,7 @@ public class PreinvoiceAction extends DispatchAction
 
         PreInvoiceApplyBean bean = new PreInvoiceApplyBean();
 
-        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
 
         try
         {
@@ -571,7 +597,7 @@ public class PreinvoiceAction extends DispatchAction
         {
             _logger.error(e, e);
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过10M");
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
 
             return mapping.findForward("error");
         }

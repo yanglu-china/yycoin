@@ -9,13 +9,47 @@
 package com.china.center.oa.tcp.action;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
-import com.china.center.actionhelper.common.*;
+import com.china.center.actionhelper.common.ActionTools;
+import com.china.center.actionhelper.common.HandleQueryCondition;
+import com.china.center.actionhelper.common.JSONPageSeparateTools;
+import com.china.center.actionhelper.common.JSONTools;
+import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
@@ -45,7 +79,11 @@ import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.StafferConstant;
-import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.publics.dao.AttachmentDAO;
+import com.china.center.oa.publics.dao.DutyDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.PrincipalshipDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.publics.vo.StafferVO;
@@ -56,36 +94,58 @@ import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.dao.OutImportDAO;
 import com.china.center.oa.sail.helper.OutHelper;
-import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
-import com.china.center.oa.tcp.bean.*;
+import com.china.center.oa.tcp.bean.BankBuLevelBean;
+import com.china.center.oa.tcp.bean.ExpenseApplyBean;
+import com.china.center.oa.tcp.bean.TcpApproveBean;
+import com.china.center.oa.tcp.bean.TcpFlowBean;
+import com.china.center.oa.tcp.bean.TcpIbBean;
+import com.china.center.oa.tcp.bean.TcpIbReportBean;
+import com.china.center.oa.tcp.bean.TcpIbReportItemBean;
+import com.china.center.oa.tcp.bean.TcpShareBean;
+import com.china.center.oa.tcp.bean.TcpVSOutBean;
+import com.china.center.oa.tcp.bean.TravelApplyBean;
+import com.china.center.oa.tcp.bean.TravelApplyItemBean;
+import com.china.center.oa.tcp.bean.TravelApplyPayBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
-import com.china.center.oa.tcp.dao.*;
+import com.china.center.oa.tcp.dao.BankBuLevelDAO;
+import com.china.center.oa.tcp.dao.ExpenseApplyDAO;
+import com.china.center.oa.tcp.dao.TcpApplyDAO;
+import com.china.center.oa.tcp.dao.TcpApproveDAO;
+import com.china.center.oa.tcp.dao.TcpFlowDAO;
+import com.china.center.oa.tcp.dao.TcpHandleHisDAO;
+import com.china.center.oa.tcp.dao.TcpIbDAO;
+import com.china.center.oa.tcp.dao.TcpIbReportDAO;
+import com.china.center.oa.tcp.dao.TcpIbReportItemDAO;
+import com.china.center.oa.tcp.dao.TcpPrepaymentDAO;
+import com.china.center.oa.tcp.dao.TcpShareDAO;
+import com.china.center.oa.tcp.dao.TcpVSOutDAO;
+import com.china.center.oa.tcp.dao.TravelApplyDAO;
+import com.china.center.oa.tcp.dao.TravelApplyItemDAO;
+import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
 import com.china.center.oa.tcp.helper.TCPHelper;
 import com.china.center.oa.tcp.manager.TcpFlowManager;
 import com.china.center.oa.tcp.manager.TravelApplyManager;
-import com.china.center.oa.tcp.vo.*;
+import com.china.center.oa.tcp.vo.TcpApproveVO;
+import com.china.center.oa.tcp.vo.TcpHandleHisVO;
+import com.china.center.oa.tcp.vo.TcpShareVO;
+import com.china.center.oa.tcp.vo.TravelApplyItemVO;
+import com.china.center.oa.tcp.vo.TravelApplyVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.*;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.FileTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.SequenceTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.UtilStream;
+import com.china.center.tools.WriteFileBuffer;
 
 
 /**
@@ -988,8 +1048,8 @@ public class TravelApplyAction extends DispatchAction
     {
         TravelApplyBean bean = new TravelApplyBean();
 
-        // 模板最多10M
-        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
+        // 模板最多20M
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
 
         try
         {
@@ -999,7 +1059,7 @@ public class TravelApplyAction extends DispatchAction
         {
             _logger.error(e, e);
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过10M");
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
 
             return mapping.findForward("error");
         }
@@ -2036,7 +2096,7 @@ public class TravelApplyAction extends DispatchAction
     	if(null == tempStatus || tempStatus == "" )
     	{
     		
-	        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
+	        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
 	        try
 	        {
 	            rds.parser();
@@ -2045,7 +2105,7 @@ public class TravelApplyAction extends DispatchAction
 	        {
 	            _logger.error(e, e);
 	
-	            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过10M");
+	            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
 	
 	            return mapping.findForward("error");
 	        }

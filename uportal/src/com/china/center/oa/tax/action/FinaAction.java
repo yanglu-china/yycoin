@@ -8,18 +8,42 @@
  */
 package com.china.center.oa.tax.action;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
-import com.china.center.actionhelper.common.*;
+import com.china.center.actionhelper.common.ActionTools;
+import com.china.center.actionhelper.common.JSONPageSeparateTools;
+import com.china.center.actionhelper.common.JSONTools;
+import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.actionhelper.common.PageSeparateTools;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.jsonimpl.JSONArray;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.finance.bean.PreInvoiceApplyBean;
 import com.china.center.oa.product.bean.DepotBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.dao.DepotDAO;
@@ -40,26 +64,49 @@ import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.publics.wrap.ForwardBean;
 import com.china.center.oa.sail.dao.UnitViewDAO;
 import com.china.center.oa.sail.manager.OutManager;
-import com.china.center.oa.tax.bean.*;
+import com.china.center.oa.tax.bean.FinanceBean;
+import com.china.center.oa.tax.bean.FinanceItemBean;
+import com.china.center.oa.tax.bean.FinanceTagBean;
+import com.china.center.oa.tax.bean.FinanceTurnBean;
+import com.china.center.oa.tax.bean.TaxBean;
+import com.china.center.oa.tax.bean.UnitBean;
 import com.china.center.oa.tax.constanst.CheckConstant;
 import com.china.center.oa.tax.constanst.TaxConstanst;
-import com.china.center.oa.tax.dao.*;
+import com.china.center.oa.tax.dao.CheckViewDAO;
+import com.china.center.oa.tax.dao.FinanceDAO;
+import com.china.center.oa.tax.dao.FinanceItemDAO;
+import com.china.center.oa.tax.dao.FinanceItemTempDAO;
+import com.china.center.oa.tax.dao.FinanceMonthBefDAO;
+import com.china.center.oa.tax.dao.FinanceMonthDAO;
+import com.china.center.oa.tax.dao.FinanceRepDAO;
+import com.china.center.oa.tax.dao.FinanceShowDAO;
+import com.china.center.oa.tax.dao.FinanceTagDAO;
+import com.china.center.oa.tax.dao.FinanceTempDAO;
+import com.china.center.oa.tax.dao.FinanceTurnDAO;
+import com.china.center.oa.tax.dao.TaxDAO;
+import com.china.center.oa.tax.dao.UnitDAO;
 import com.china.center.oa.tax.facade.TaxFacade;
 import com.china.center.oa.tax.helper.FinanceHelper;
 import com.china.center.oa.tax.manager.FinanceManager;
-import com.china.center.oa.tax.vo.*;
+import com.china.center.oa.tax.vo.CheckViewVO;
+import com.china.center.oa.tax.vo.FinanceItemTempVO;
+import com.china.center.oa.tax.vo.FinanceItemVO;
+import com.china.center.oa.tax.vo.FinanceMonthVO;
+import com.china.center.oa.tax.vo.FinanceTempVO;
+import com.china.center.oa.tax.vo.FinanceTurnVO;
+import com.china.center.oa.tax.vo.FinanceVO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.*;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.*;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.FileTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.RequestTools;
+import com.china.center.tools.SequenceTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.UtilStream;
+import com.china.center.tools.WriteFileBuffer;
 
 /**
  * FinaAction
@@ -1330,7 +1377,7 @@ public class FinaAction extends ParentQueryFinaAction
     {
         FinanceBean bean = new FinanceBean();
 
-        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 10L);
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
 
         try
         {
@@ -1340,7 +1387,7 @@ public class FinaAction extends ParentQueryFinaAction
         {
             _logger.error(e, e);
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过10M");
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
 
             return mapping.findForward("error");
         }
