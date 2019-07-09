@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -227,12 +228,14 @@ public class FinanceDAOImpl extends BaseDAO<FinanceBean, FinanceVO> implements F
     }
     
     /**
-     * 清除费用凭证
+     * 清除费用凭证, (此方法耗时太长，原因未知，)
      * @param id 报销或申请的id
      * @return
      */
     public int clearFinance(String id)
     {
+    	long t1 = System.currentTimeMillis();
+    	_logger.debug("清除费用凭证，start: "+(Calendar.getInstance().getTime()));
     	int rst = 0;
     	StringBuffer sqlBuffer = new StringBuffer();
 
@@ -299,6 +302,9 @@ public class FinanceDAOImpl extends BaseDAO<FinanceBean, FinanceVO> implements F
                 }
             }
         }
+        long t2 = System.currentTimeMillis();
+        
+        _logger.debug("清除费用凭证，time elapse (ms): "+(t2-t1));
         
         return rst;
     }

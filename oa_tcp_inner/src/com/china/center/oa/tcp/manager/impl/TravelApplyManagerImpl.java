@@ -32,8 +32,6 @@ import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
 import com.china.center.oa.tcp.manager.TcpFlowManager;
 
-import com.china.center.oa.tax.dao.FinanceDAO;
-
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,6 +75,11 @@ import com.china.center.oa.tcp.vo.TcpShareVO;
 import com.china.center.oa.tcp.vo.TravelApplyItemVO;
 import com.china.center.oa.tcp.vo.TravelApplyVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
+
+import com.china.center.oa.tax.bean.FinanceBean;
+import com.china.center.oa.tax.dao.FinanceDAO;
+
+import com.china.center.oa.tax.dao.FinanceItemDAO;
 
 
 /**
@@ -157,6 +160,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     private BankBuLevelDAO bankBuLevelDAO = null;
     
     private FinanceDAO financeDAO = null;
+    
+    private FinanceItemDAO financeItemDAO = null;
 
     /**
      * default constructor
@@ -1992,8 +1997,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 travelApplyPayDAO.deleteEntityBeansByFK(bean.getId());
             }
             
-            //#701 清除费用凭证
-            financeDAO.clearFinance(id);
+            //#701
+            this.clearFinance(id);
 
             // 记录操作日志
             saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_REJECT);
@@ -4180,4 +4185,43 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     public void setTcpVSOutDAO(TcpVSOutDAO tcpVSOutDAO) {
         this.tcpVSOutDAO = tcpVSOutDAO;
     }
+
+	public FinanceDAO getFinanceDAO() {
+		return financeDAO;
+	}
+
+	public void setFinanceDAO(FinanceDAO financeDAO) {
+		this.financeDAO = financeDAO;
+	}
+
+	public FinanceItemDAO getFinanceItemDAO() {
+		return financeItemDAO;
+	}
+
+	public void setFinanceItemDAO(FinanceItemDAO financeItemDAO) {
+		this.financeItemDAO = financeItemDAO;
+	}
+	
+	/**
+     * 清除费用凭证
+     * @param id 报销或申请的id
+     */
+    private void clearFinance(String id){
+    	long t1 = System.currentTimeMillis();
+    	_logger.debug("清除费用凭证，start: "+(Calendar.getInstance().getTime()));
+    	List<FinanceBean> financeList = financeDAO.queryEntityBeansByFK(id);
+    	
+    	if (!ListTools.isEmptyOrNull(financeList)) {
+			for (FinanceBean each : financeList) {
+				financeDAO.deleteEntityBean(each.getId());
+    			
+    			financeItemDAO.deleteEntityBeansByFK(each.getId());
+			}
+    		
+    	}
+        long t2 = System.currentTimeMillis();
+        
+        _logger.debug("清除费用凭证，finish, time elapse (ms): "+(t2-t1));
+    }
+  
 }

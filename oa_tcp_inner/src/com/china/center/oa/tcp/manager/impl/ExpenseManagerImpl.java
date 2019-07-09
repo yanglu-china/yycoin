@@ -15,6 +15,9 @@ import com.china.center.oa.budget.bean.*;
 import com.china.center.oa.budget.dao.*;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
+
+import com.china.center.oa.tax.dao.FinanceItemDAO;
+
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
 import com.china.center.oa.tcp.dao.*;
@@ -141,6 +144,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
     private BankBuLevelDAO bankBuLevelDAO = null;
 
     private FinanceDAO financeDAO = null;
+    
+    private FinanceItemDAO financeItemDAO = null;
     
     private final Log _logger = LogFactory.getLog(getClass());
     
@@ -1344,7 +1349,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             mail.setHref(TcpConstanst.TCP_EXPENSE_DETAIL_URL + bean.getId());
             
             //#701 清除费用凭证
-            financeDAO.clearFinance(id);
+            //financeDAO.clearFinance(id);
+            this.clearFinance(id);
 
             // send mail
             mailMangaer.addMailWithoutTransactional(UserHelper.getSystemUser(), mail);
@@ -3040,5 +3046,35 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
     public void setFinanceDAO(FinanceDAO financeDAO) {
         this.financeDAO = financeDAO;
+    }
+    
+    public FinanceItemDAO getFinanceItemDAO() {
+		return financeItemDAO;
+	}
+
+	public void setFinanceItemDAO(FinanceItemDAO financeItemDAO) {
+		this.financeItemDAO = financeItemDAO;
+	}
+
+	/**
+     * 清除费用凭证
+     * @param id 报销或申请的id
+     */
+    private void clearFinance(String id){
+    	long t1 = System.currentTimeMillis();
+    	_logger.debug("清除费用凭证，start: "+(Calendar.getInstance().getTime()));
+    	List<FinanceBean> financeList = financeDAO.queryEntityBeansByFK(id);
+    	
+    	if (!ListTools.isEmptyOrNull(financeList)) {
+			for (FinanceBean each : financeList) {
+				financeDAO.deleteEntityBean(each.getId());
+    			
+    			financeItemDAO.deleteEntityBeansByFK(each.getId());
+			}
+    		
+    	}
+        long t2 = System.currentTimeMillis();
+        
+        _logger.debug("清除费用凭证，finish, time elapse (ms): "+(t2-t1));
     }
 }
