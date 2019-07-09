@@ -1342,6 +1342,9 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             mail.setReveiveIds(bean.getStafferId());
 
             mail.setHref(TcpConstanst.TCP_EXPENSE_DETAIL_URL + bean.getId());
+            
+            //#701 清除费用凭证
+            financeDAO.clearFinance(id);
 
             // send mail
             mailMangaer.addMailWithoutTransactional(UserHelper.getSystemUser(), mail);

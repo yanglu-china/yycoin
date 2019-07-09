@@ -54,4 +54,6 @@ public interface FinanceDAO extends DAO<FinanceBean, FinanceVO>
     int findMaxMonthIndexByInner(String beginDate, String endDate);
 
     List<String> queryDuplicateMonthIndex(String date);
+    
+    int clearFinance(String id);
 }

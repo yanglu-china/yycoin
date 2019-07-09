@@ -31,6 +31,9 @@ import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
 import com.china.center.oa.tcp.manager.TcpFlowManager;
+
+import com.china.center.oa.tax.dao.FinanceDAO;
+
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -152,6 +155,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     private BaseDAO baseDAO = null;
 
     private BankBuLevelDAO bankBuLevelDAO = null;
+    
+    private FinanceDAO financeDAO = null;
 
     /**
      * default constructor
@@ -1986,6 +1991,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             {
                 travelApplyPayDAO.deleteEntityBeansByFK(bean.getId());
             }
+            
+            //#701 清除费用凭证
+            financeDAO.clearFinance(id);
 
             // 记录操作日志
             saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_REJECT);

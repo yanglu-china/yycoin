@@ -12,8 +12,10 @@ package com.china.center.oa.tax.dao.impl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -222,6 +224,83 @@ public class FinanceDAOImpl extends BaseDAO<FinanceBean, FinanceVO> implements F
                 }
             }
         }
+    }
+    
+    /**
+     * 清除费用凭证
+     * @param id 报销或申请的id
+     * @return
+     */
+    public int clearFinance(String id)
+    {
+    	int rst = 0;
+    	StringBuffer sqlBuffer = new StringBuffer();
+
+        Connection con = null;
+
+        Statement st = null;
+
+        try
+        {
+        	int n1 = 0;
+        	int n2 = 0;
+            con = this.jdbcOperation.getDataSource().getConnection();
+
+            con.setAutoCommit(false);
+			st = con.createStatement();
+			
+			sqlBuffer = new StringBuffer();
+			sqlBuffer.append(" delete from t_center_financeitem");
+			sqlBuffer.append(" where pid in (select id from t_center_finance where refId='"+id+"')");
+			n1 = st.executeUpdate(sqlBuffer.toString());
+			
+			rst += n1;
+
+            sqlBuffer = new StringBuffer();
+            sqlBuffer.append("delete from t_center_finance where refId='"+id+"'");
+			n2 = st.executeUpdate(sqlBuffer.toString());
+			
+			rst += n2;
+			
+			con.commit();
+			
+			_logger.debug("清除费用凭证，id: "+id+",t_center_financeitem 删除 "+ n1 + ", t_center_finance 删除 "+n2);
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            throw new RuntimeException(e);
+        }
+        finally
+        {
+
+            if (st != null)
+            {
+                try
+                {
+                    st.close();
+                }
+                catch (Throwable e)
+                {
+                    _logger.error(e, e);
+                }
+            }
+
+            if (con != null)
+            {
+                try
+                {
+                    con.close();
+                }
+                catch (Throwable e)
+                {
+                    _logger.error(e, e);
+                }
+            }
+        }
+        
+        return rst;
     }
 
     public int findMaxMonthIndexByInner(String beginDate, String endDate)
