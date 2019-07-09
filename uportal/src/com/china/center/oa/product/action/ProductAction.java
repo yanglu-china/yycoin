@@ -911,9 +911,10 @@ public class ProductAction extends DispatchAction
                                 BeanUtil.copyProperties(bomVo, bom);
 
                                 //#合成预占库存
-                                int preassignByCompose = this.outDAO.sumNotEndProductInCompose(vo.getProductId(), vo.getDepotpartId(),
+/*                                int preassignByCompose = this.outDAO.sumNotEndProductInCompose(vo.getProductId(), vo.getDepotpartId(),
                                          vo.getPrice());
-                                bomVo.setPamount(vo.getAmount()-preassign-preassignByCompose);
+                                bomVo.setPamount(vo.getAmount()-preassign-preassignByCompose);*/
+                                bomVo.setPamount(vo.getAmount()-preassign);
                                 bomVo.setPrice(this.roundDouble(vo.getPrice()));
                                 bomVo.setVirtualPrice(this.roundDouble(vo.getVirtualPrice()));
                                 bomVo.setSrcRelation(vo.getId());

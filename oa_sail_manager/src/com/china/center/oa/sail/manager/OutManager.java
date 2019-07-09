@@ -208,6 +208,17 @@ public interface OutManager extends ListenerManager<OutListener>
         throws MYException;
 
     /**
+     * #593
+     * @param fullId
+     * @param user
+     * @param reason
+     * @return
+     * @throws MYException
+     */
+    int rejectWithZs(final String fullId, final int status, final User user, final String reason)
+            throws MYException;
+
+    /**
      * pass
      * 
      * @param fullId
@@ -222,6 +233,22 @@ public interface OutManager extends ListenerManager<OutListener>
              final String customerDescription,
              final String depotpartId)
         throws MYException;
+
+    /**
+     * #593 自动通过赠送单
+     * @param fullId
+     * @param user
+     * @param nextStatus
+     * @param reason
+     * @param customerDescription
+     * @param depotpartId
+     * @return
+     * @throws MYException
+     */
+    int passWithZs(final String fullId, final User user, final int nextStatus, final String reason,
+             final String customerDescription,
+             final String depotpartId)
+            throws MYException;
 
     boolean check(final String fullId, final User user, final String checks)
         throws MYException;
@@ -823,4 +850,6 @@ public interface OutManager extends ListenerManager<OutListener>
     BaseBean getBaseBean(String outId, String productId, String costPriceKey) throws MYException;
 
     double getIprice(OutImportBean bean, ProductBean product);
+
+    List<OutBean> getZsOrders(int action, String outId, int status, boolean checkStatus);
 }

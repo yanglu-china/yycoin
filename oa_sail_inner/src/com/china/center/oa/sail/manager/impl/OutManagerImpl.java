@@ -3371,6 +3371,26 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
     }
 
+    @Override
+    public int rejectWithZs(String fullId, int status, User user, String reason) throws MYException {
+        _logger.info("****fullId***"+fullId+"***status****"+status);
+        int result = this.reject(fullId, user,  reason);
+        //#593
+        List<OutBean> outBeans = this.getZsOrders(1, fullId,status, true);
+        if (!ListTools.isEmptyOrNull(outBeans)){
+            _logger.info("****ZS orders need to auto reject****"+outBeans.size());
+            for (OutBean o: outBeans){
+                String zsFullId = o.getFullId();
+                result = this.reject(zsFullId, user, reason);
+                _logger.info(zsFullId+"*****auto reject ZS****");
+            }
+        } else{
+            _logger.info("****ZS orders need to auto reject****"+outBeans.size());
+        }
+
+        return result;
+    }
+
     /**
      * CORE 审核通过(这里只有销售单/入库单才有此操作)分公司经理审核/结算中心/物流审批/库管发货
      * 
@@ -10228,7 +10248,74 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         return result;
     }
-    
+
+    @Override
+    public int passWithZs(String fullId, User user, int nextStatus, String reason, String customerDescription, String depotpartId) throws MYException {
+        _logger.info("***fullId***"+fullId+"***nextStatus***"+nextStatus);
+
+        List<OutBean> outBeans = this.getZsOrders(0, fullId, nextStatus, true);
+
+        //待商务审批时检查库存
+        if (nextStatus == OutConstant.STATUS_MANAGER_PASS
+                || nextStatus == OutConstant.STATUS_FLOW_PASS){
+            // 先检查赠品库存
+            List<BaseBean> baseList = new ArrayList<>();
+            if (!ListTools.isEmptyOrNull(outBeans)){
+                _logger.info("****ZS orders need to auto approve****"+outBeans.size());
+                for (OutBean o: outBeans){
+                    List<BaseBean> baseList0 = this.baseDAO.queryEntityBeansByFK(o.getFullId());
+                    baseList.addAll(baseList0);
+                }
+            } else{
+                _logger.info("****ZS orders need to auto approve****"+outBeans.size());
+            }
+
+            //如果有赠品再加上原销售单库存,因为可能赠品和销售单包含同一商品，必须合并商品项检查库存才行
+            if (!ListTools.isEmptyOrNull(baseList)){
+                List<BaseBean> baseList0 = this.baseDAO.queryEntityBeansByFK(fullId);
+                baseList.addAll(baseList0);
+                List<BaseBean> mergeItems = this.mergeItems(baseList);
+                _logger.info("***mergeItems***"+mergeItems);
+                //检查库存
+                this.splitBase(mergeItems);
+            }
+        }
+
+        //审核销售单
+        int result = this.pass(fullId, user, nextStatus, reason, customerDescription, depotpartId);
+        //#593 审核赠品
+        if (!ListTools.isEmptyOrNull(outBeans)){
+            _logger.info("****ZS orders need to auto approve****"+outBeans.size());
+            for (OutBean o: outBeans){
+                String zsFullId = o.getFullId();
+                result = this.pass(zsFullId, user, nextStatus, reason, customerDescription, depotpartId);
+                _logger.info(zsFullId+"*****auto approve ZS****");
+            }
+        } else{
+            _logger.info("****ZS orders need to auto approve****"+outBeans.size());
+        }
+
+        return result;
+    }
+
+    private List<BaseBean> mergeItems(List<BaseBean> items){
+        List<BaseBean> result = new ArrayList<>();
+        //<deportpartId_productId_owner, amount>
+        Map<String, BaseBean> map = new HashMap<>();
+        for (BaseBean item: items){
+            String key = item.getDepotpartId()+"_"+item.getProductId()+"_"+item.getOwner();
+            if (map.containsKey(key)){
+                BaseBean i = map.get(key);
+                i.setAmount(i.getAmount()+item.getAmount());
+            } else{
+                map.put(key, item);
+            }
+        }
+
+        result.addAll(map.values());
+        return result;
+    }
+
     /**
      * CORE 审核通过(这里只有销售单/入库单才有此操作)分公司经理审核/结算中心/物流审批/库管发货
      * 
@@ -13858,6 +13945,48 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         return iprice;
     }
 
+
+    /**
+     * 找到对应的赠送单
+     * @return
+     */
+    public List<OutBean> getZsOrders(int action, String fullId, int status, boolean checkStatus){
+        if (fullId.startsWith("ZS")){
+            return new ArrayList<>();
+        }
+        ConditionParse con1 = new ConditionParse();
+        con1.addWhereStr();
+        //#593
+//        con1.addCondition("OutBean.customerId", "=", out.getCustomerId());
+        con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
+        con1.addIntCondition("OutBean.outtype", "=", OutConstant.OUTTYPE_OUT_PRESENT);
+        con1.addCondition("OutBean.refOutFullId","=", fullId);
+        if (action == 0){
+            //审核通过
+            if (checkStatus){
+                if (status == OutConstant.STATUS_MANAGER_PASS
+                        || status == OutConstant.STATUS_FLOW_PASS){
+                    //当前为待商务审批状态的赠送单
+                    con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_SUBMIT);
+                } else if (status == OutConstant.STATUS_PASS){
+                    //当前为待库管审批状态的赠送单
+                    con1.addIntCondition("OutBean.status", "=", OutConstant.STATUS_FLOW_PASS);
+                } else {
+                    con1.addIntCondition("OutBean.status", "=", status);
+                }
+            }
+        } else if (action == 1){
+            //退回
+            if (checkStatus){
+                //和当前待退回的OS单状态一致的赠送单
+                con1.addIntCondition("OutBean.status", "=", status);
+            }
+        }
+
+
+        List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
+        return outBeans;
+    }
     /**
      * @return the mailAttchmentPath
      */

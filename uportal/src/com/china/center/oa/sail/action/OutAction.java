@@ -1869,16 +1869,28 @@ public class OutAction extends ParentOutAction
                                     base.setPprice(sailPrice
                                             * (1 + sailConf.getPratio() / 1000.0d));
 
-                                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                                    base.setIprice(sailPrice
-                                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                                            .getPratio() / 1000.0d));
+                                    double iprice = 0;
+                                    //#647
+                                    if(sailConf.getIprice() > 0){
+                                        iprice = sailConf.getIprice();
+                                    } else{
+                                        // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                                        iprice = sailPrice
+                                                * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                                                .getPratio() / 1000.0d);
+                                    }
+                                    base.setIprice(iprice);
+
+//                                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+//                                    base.setIprice(sailPrice
+//                                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
+//                                            .getPratio() / 1000.0d));
 
                                     // 业务员结算价就是事业部结算价
                                     base.setInputPrice(base.getIprice());
 
                                     //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
-                                    _logger.info(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
+                                    _logger.info(sailConf+"***getInputPrice***"+iprice);
 
                                     if (base.getInputPrice() == 0)
                                     {
@@ -1983,14 +1995,14 @@ public class OutAction extends ParentOutAction
 
                         try
                         {
-                            resultStatus = outManager.pass(fullId, user, statuss, reason, null, depotpartId);
+//                            resultStatus = outManager.pass(fullId, user, statuss, reason, null, depotpartId);
+                            resultStatus = outManager.passWithZs(fullId, user, statuss, reason, null, depotpartId);
                             OutBean newOut = outDAO.find(fullId);
                             if(resultStatus == OutConstant.STATUS_PASS)
                             {
                                 outManager.updateCusAndBusVal(newOut,user.getId());
 //                            outDAO.updateEntityBean(newOut);
                             }
-                            
                         }
                         catch (MYException e)
                         {
@@ -2007,7 +2019,8 @@ public class OutAction extends ParentOutAction
                     {
                         try
                         {
-                            resultStatus = outManager.reject(fullId, user, reason);
+//                            resultStatus = outManager.reject(fullId, user, reason);
+                            resultStatus = outManager.rejectWithZs(fullId, out.getStatus(), user, reason);
                             PaymentApplyBean pab = paymentApplyDAO.queryPaymentApplyBeanByfullId(fullId);
                             if(null != pab )
                             {

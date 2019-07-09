@@ -251,9 +251,9 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 	    	
 	    	relation.setAmount(relation.getAmount() - zaitur);
 	    }
-	    
+	    _logger.info(relationAmount+"***"+zaitu+"***"+bean.getChange());
 	    relationAmount -= zaitu ;
-	
+
 	    if ( !includeSelf)
 	    {
 	        // 自身不再在途中
@@ -349,6 +349,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
             bean.setStorageId(relation.getStorageId());
 
             priceKey = StorageRelationHelper.getPriceKey(relation.getPrice());
+            _logger.info(priceKey);
             virtualPriceKey = StorageRelationHelper.getPriceKey(relation.getVirtualPrice());
 
             bean.setPrice(relation.getPrice());
@@ -363,6 +364,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         else
         {
             priceKey = StorageRelationHelper.getPriceKey(bean.getPrice());
+            _logger.info(priceKey);
             virtualPriceKey = StorageRelationHelper.getPriceKey(bean.getVirtualPrice());
             //TODO
 //            JudgeTools.judgeParameterIsNull(bean.getDepotpartId(), bean.getProductId());
@@ -372,6 +374,12 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         if (user != null){
             logSb.append(user.getName());
         }
+        if (bean.getPrice() == 0.1312){
+            priceKey = "13.12";
+        } else{
+            priceKey = StorageRelationHelper.getPriceKey(bean.getPrice());
+        }
+        
         logSb.append("***changeStorageRelationWithoutTransaction with param " + bean+"***priceKey***" + priceKey);
         _logger.info(logSb.toString());
 
