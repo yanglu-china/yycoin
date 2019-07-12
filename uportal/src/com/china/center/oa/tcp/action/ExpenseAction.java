@@ -1672,6 +1672,8 @@ public class ExpenseAction extends DispatchAction
             List<String> bankNoList = rds.getParameters("p_bankNo");
             List<String> pmoneysList = rds.getParameters("p_moneys");
             List<String> pdescriptionList = rds.getParameters("p_description");
+            List<String> bankprovinceList = rds.getParameters("bankprovince");
+            List<String> bankcityList = rds.getParameters("bankcity");
 
             if (receiveTypeList != null && receiveTypeList.size() > 0)
             {
@@ -1693,6 +1695,8 @@ public class ExpenseAction extends DispatchAction
                     pay.setBankNo(bankNoList.get(i));
                     pay.setMoneys(TCPHelper.doubleToLong2(pmoneysList.get(i)));
                     pay.setDescription(pdescriptionList.get(i));
+                    pay.setBankprovince(bankprovinceList.get(i));
+                    pay.setBankcity(bankcityList.get(i));
 
                     payList.add(pay);
                 }

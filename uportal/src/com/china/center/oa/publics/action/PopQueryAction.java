@@ -21,7 +21,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.center.china.osgi.publics.User;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -29,6 +28,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
+import com.center.china.osgi.publics.User;
 import com.china.center.actionhelper.common.ActionTools;
 import com.china.center.actionhelper.common.HandleQueryCondition;
 import com.china.center.actionhelper.common.KeyConstant;
@@ -42,6 +42,7 @@ import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.LocationBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
+import com.china.center.oa.publics.bean.ProvinceBean;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.StafferConstant;
 import com.china.center.oa.publics.dao.CityDAO;
@@ -49,6 +50,7 @@ import com.china.center.oa.publics.dao.DutyDAO;
 import com.china.center.oa.publics.dao.LocationDAO;
 import com.china.center.oa.publics.dao.LogDAO;
 import com.china.center.oa.publics.dao.PrincipalshipDAO;
+import com.china.center.oa.publics.dao.ProvinceDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.dao.StafferVSPriDAO;
 import com.china.center.oa.publics.dao.UserDAO;
@@ -97,6 +99,8 @@ public class PopQueryAction extends DispatchAction
     private StafferVSPriDAO stafferVSPriDAO = null;
     
     private PrincipalshipDAO principalshipDAO = null;
+    
+    private ProvinceDAO provinceDAO;
 
     private static String RPTQUERYSTAFFER = "rptQueryStaffer";
 
@@ -372,6 +376,55 @@ public class PopQueryAction extends DispatchAction
         request.setAttribute("beanList", list);
 
         return mapping.findForward("rptQueryCity");
+    }
+    
+    /**
+     * rptQueryCity
+     * 
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward rptQueryProvince(ActionMapping mapping, ActionForm form,
+                                      HttpServletRequest request, HttpServletResponse reponse)
+        throws ServletException
+    {
+        CommonTools.saveParamers(request);
+
+        List<ProvinceBean> list = null;
+
+        String cacheKey = RPTQUERYCITY;
+
+        if (PageSeparateTools.isFirstLoad(request))
+        {
+            ConditionParse condtion = new ConditionParse();
+
+            condtion.addWhereStr();
+
+            setCityInnerCondition(request, condtion);
+
+            int total = provinceDAO.countVOByCondition(condtion.toString());
+
+            PageSeparate page = new PageSeparate(total, PublicConstant.PAGE_COMMON_SIZE);
+
+            PageSeparateTools.initPageSeparate(condtion, page, request, cacheKey);
+
+            list = provinceDAO.queryEntityVOsByCondition(condtion, page);
+        }
+        else
+        {
+            PageSeparateTools.processSeparate(request, cacheKey);
+
+            list = provinceDAO.queryEntityVOsByCondition(PageSeparateTools.getCondition(request,
+                cacheKey), PageSeparateTools.getPageSeparate(request, cacheKey));
+        }
+
+        request.setAttribute("beanList", list);
+
+        return mapping.findForward("rptQueryProvince");
     }
 
     /**
@@ -847,6 +900,14 @@ public class PopQueryAction extends DispatchAction
 
 	public void setDutyDAO(DutyDAO dutyDAO) {
 		this.dutyDAO = dutyDAO;
+	}
+
+	public ProvinceDAO getProvinceDAO() {
+		return provinceDAO;
+	}
+
+	public void setProvinceDAO(ProvinceDAO provinceDAO) {
+		this.provinceDAO = provinceDAO;
 	}
 
     

@@ -45,6 +45,10 @@ public class TravelApplyPayBean implements Serializable
     private String bankNo = "";
 
     private String description = "";
+    
+    protected String bankcity = "";
+    
+    protected String bankprovince = "";
 
     /**
      * 核对
@@ -235,7 +239,23 @@ public class TravelApplyPayBean implements Serializable
         this.cmoneys = cmoneys;
     }
 
-    /**
+    public String getBankcity() {
+		return bankcity;
+	}
+
+	public void setBankcity(String bankcity) {
+		this.bankcity = bankcity;
+	}
+
+	public String getBankprovince() {
+		return bankprovince;
+	}
+
+	public void setBankprovince(String bankprovince) {
+		this.bankprovince = bankprovince;
+	}
+
+	/**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

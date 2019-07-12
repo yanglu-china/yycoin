@@ -82,6 +82,12 @@ public class BankBean implements Serializable
     @Ignore
     @Html(title = "科目类型", must = true, type = Element.SELECT)
     private int taxType = 0;
+    
+    @Html(title = "开户城市", readonly = true,must = true)
+    private String bankcity="";
+    
+    @Html(title = "开户省份", readonly = true,must = true)
+    private String bankprovince="";
 
     @Ignore
     private String parentTaxId = "";
@@ -445,7 +451,23 @@ public class BankBean implements Serializable
         this.bankNo = bankNo;
     }
 
-    /**
+    public String getBankcity() {
+		return bankcity;
+	}
+
+	public void setBankcity(String bankcity) {
+		this.bankcity = bankcity;
+	}
+
+	public String getBankprovince() {
+		return bankprovince;
+	}
+
+	public void setBankprovince(String bankprovince) {
+		this.bankprovince = bankprovince;
+	}
+
+	/**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

@@ -167,6 +167,10 @@ function load()
             <p:pro field="receiveBank" innerString="size=40" cell="0"/>
             
             <p:pro field="receiveAccount" innerString="size=40" cell="0"/>
+            
+            <p:pro field="bankprovince" innerString="size=40" cell="0"/>
+            
+            <p:pro field="bankcity" innerString="size=40" cell="0" />
 
             <c:if test="${empty bean.newBillId}">
                 <p:pro field="billId">

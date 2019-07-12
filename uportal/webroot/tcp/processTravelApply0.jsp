@@ -347,6 +347,8 @@ function checkMoney()
                         <td width="15%" align="center">开户银行</td>
                         <td width="15%" align="center">户名</td>
                         <td width="20%" align="center">收款帐号</td>
+                        <td width="5%" align="center">开户省份</td>
+                        <td width="5%" align="center">开户城市</td>
                         <td width="10%" align="center">收款金额</td>
                         <c:if test="${bean.status == 20 && bean.borrow == 1}">
                         <td width="10%" align="center">稽核金额<font color="#FF0000">*</font></td>
@@ -363,6 +365,8 @@ function checkMoney()
                         <td align="center">${item.bankName}</td>
                         <td align="center">${item.userName}</td>
                         <td align="center">${item.bankNo}</td>
+                        <td align="center">${item.bankprovince}</td>
+						<td align="center">${item.bankcity}</td>
                         <td align="center" title='<c:out value="${item.description}"/>'>${my:formatNum(item.moneys / 100.0)}</td>
                         <c:if test="${bean.status == 20 && bean.borrow == 1}">
                         <td align="center">

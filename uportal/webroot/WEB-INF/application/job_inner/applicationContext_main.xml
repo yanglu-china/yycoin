@@ -18,4 +18,6 @@
 	<bean id="xznsShipJobManager" class="com.china.center.oa.job.manager.impl.XznsShipJobManagerImpl" />
 
 	<bean id="sailPriceJobManager" class="com.china.center.oa.job.manager.impl.SailPriceJobManagerImpl" />
+	
+	<bean id="nbBankPayOrderQueryJobManager" class="com.china.center.oa.job.manager.impl.NbBankPayOrderQueryImpl" />
 </beans>

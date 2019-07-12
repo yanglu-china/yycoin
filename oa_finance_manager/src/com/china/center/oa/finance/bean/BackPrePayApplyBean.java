@@ -114,6 +114,12 @@ public class BackPrePayApplyBean implements Serializable
 
     private String bankId = "";
     
+    @Html(title = "开户城市", readonly = true)
+    private String bankcity="";
+    
+    @Html(title = "开户省份", readonly = true)
+    private String bankprovince="";
+    
     /**
      * 附件列表
      */
@@ -450,4 +456,22 @@ public class BackPrePayApplyBean implements Serializable
 	public void setAttachmentList(List<AttachmentBean> attachmentList) {
 		this.attachmentList = attachmentList;
 	}
+
+	public String getBankcity() {
+		return bankcity;
+	}
+
+	public void setBankcity(String bankcity) {
+		this.bankcity = bankcity;
+	}
+
+	public String getBankprovince() {
+		return bankprovince;
+	}
+
+	public void setBankprovince(String bankprovince) {
+		this.bankprovince = bankprovince;
+	}
+	
+	
 }

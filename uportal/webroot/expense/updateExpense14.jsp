@@ -101,7 +101,16 @@ function checks()
 	
     return true;
 }
-
+function selectProvince(obj)
+{
+	cityObj = obj;
+    window.common.modal('../admin/pop.do?method=rptQueryProvince&load=1&selectMode=1');
+}
+function getProvinces(oos)
+{
+    var obj = oos[0];
+    cityObj.value = obj.pname;
+}
 </script>
 </head>
 
@@ -297,6 +306,8 @@ function checks()
                         <td width="15%" align="center">开户银行</td>
                         <td width="15%" align="center">户名</td>
                         <td width="20%" align="center">收款帐号</td>
+                        <td width="5%" align="center">开户省份</td>
+                        <td width="5%" align="center">开户城市</td>
                         <td width="10%" align="center">收款金额</td>
                         <td width="25%" align="center">备注</td>
                         <td width="5%" align="left"><input type="button" accesskey="B"
@@ -324,6 +335,14 @@ function checks()
 			         <input type="text" style="width: 100%"
 			                    name="p_bankNo" value="${itemEach.bankNo}" >
 			         </td>
+			         
+			         <td align="left">
+			         	<input type="text" name="bankprovince" value="${itemEach.bankprovince}" id ='bankprovince' onclick='selectProvince(this)' style='cursor: pointer;'  readonly=readonly    oncheck="notNone;"  maxlength="100">
+			         </td>
+			         
+					 <td align="left" >
+					 	<input type=text name='bankcity' value="${itemEach.bankcity}" head='开户城市'  id ='bankcity' onclick='selectCity(this)' style='cursor: pointer;'  readonly=readonly    oncheck="notNone;"  maxlength="100" > 
+					 </td>
 			         
 			         <td align="left">
 			         <input type="text" style="width: 100%"
@@ -437,6 +456,14 @@ function checks()
          <input type="text" style="width: 100%"
                     name="p_bankNo" value="" >
          </td>
+         
+         <td align="left">
+         	<input type="text" name="bankprovince" id ='bankprovince' onclick='selectProvince(this)' style='cursor: pointer;'  readonly=readonly    oncheck="notNone;"  maxlength="100">
+         </td>
+         
+		 <td align="left" >
+		 	<input type="text" name='bankcity' head='开户城市'  id ='bankcity' onclick='selectCity(this)' style='cursor: pointer;'  readonly=readonly    oncheck="notNone;"  maxlength="100" > 
+		 </td>
          
          <td align="left">
          <input type="text" style="width: 100%"

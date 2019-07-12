@@ -16,6 +16,7 @@
 	<sqlMap resource="ibatisSqlConf/PriceAskProviderDAOImpl.xml" />
 	<sqlMap resource="ibatisSqlConf/StafferDAOImpl.xml" />
 	<sqlMap resource="ibatisSqlConf/StorageRelationDAOImpl.xml" />
+	<sqlMap resource="ibatisSqlConf/PayOrderDAOImpl.xml" />
 
 
 </sqlMapConfig>

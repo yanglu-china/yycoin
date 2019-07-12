@@ -46,7 +46,29 @@ function getTax(oos)
         $("input[name='code2']").val(obj.pcode + '-');
     }
 }
+var cityObj;
+function selectProvince(obj)
+{
+	cityObj = obj;
+    window.common.modal('../admin/pop.do?method=rptQueryProvince&load=1&selectMode=1');
+}
 
+function getProvinces(oos)
+{
+    var obj = oos[0];
+    cityObj.value = obj.pname;
+}
+function getCitys(oos)
+{
+    var obj = oos[0];
+    
+    cityObj.value = obj.pname;
+}
+function selectCity(obj)
+{
+	cityObj = obj;
+    window.common.modal('../admin/pop.do?method=rptQueryCity&load=1&selectMode=1');
+}
 </script>
 
 </head>
@@ -78,7 +100,9 @@ function getTax(oos)
 
 			<p:pro field="name" innerString="size=60"/>
 			<p:pro field="bankNo" innerString="size=60"/>
-			
+			<p:pro field="bankprovince" innerString="onclick='selectProvince(this)' style='cursor: pointer;'" cell="0"/>
+            
+            <p:pro field="bankcity" innerString="onclick='selectCity(this)' style='cursor: pointer;'" cell="0" />
 			<p:pro field="dutyId">
                 <p:option type="$dutyList"/>
             </p:pro>

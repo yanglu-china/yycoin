@@ -8,6 +8,32 @@
  */
 package com.china.center.oa.sail.action;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
@@ -33,64 +59,156 @@ import com.china.center.oa.client.vs.StafferVSCustomerBean;
 import com.china.center.oa.client.wrap.NotPayWrap;
 import com.china.center.oa.customer.constant.CustomerConstant;
 import com.china.center.oa.customervssail.dao.OutQueryDAO;
-import com.china.center.oa.finance.dao.*;
+import com.china.center.oa.finance.dao.InBillDAO;
+import com.china.center.oa.finance.dao.InsVSOutDAO;
+import com.china.center.oa.finance.dao.InvoiceinsDAO;
+import com.china.center.oa.finance.dao.InvoiceinsItemDAO;
+import com.china.center.oa.finance.dao.OutBillDAO;
+import com.china.center.oa.finance.dao.PaymentApplyDAO;
+import com.china.center.oa.finance.dao.PaymentDAO;
+import com.china.center.oa.finance.dao.PreInvoiceVSOutDAO;
 import com.china.center.oa.finance.facade.FinanceFacade;
 import com.china.center.oa.finance.vs.InsVSOutBean;
-import com.china.center.oa.product.bean.*;
+import com.china.center.oa.product.bean.ComposeItemBean;
+import com.china.center.oa.product.bean.DecomposeProductBean;
+import com.china.center.oa.product.bean.DepotBean;
+import com.china.center.oa.product.bean.DepotpartBean;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProviderBean;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
-import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.dao.DepotDAO;
+import com.china.center.oa.product.dao.DepotpartDAO;
+import com.china.center.oa.product.dao.PriceConfigDAO;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProviderDAO;
+import com.china.center.oa.product.dao.StorageDAO;
+import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
+import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.StringUtils;
-import com.china.center.oa.publics.bean.*;
-import com.china.center.oa.publics.constant.*;
-import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.publics.bean.AreaBean;
+import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.bean.AuthBean;
+import com.china.center.oa.publics.bean.CityBean;
+import com.china.center.oa.publics.bean.DepartmentBean;
+import com.china.center.oa.publics.bean.DutyBean;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.InvoiceBean;
+import com.china.center.oa.publics.bean.InvoiceCreditBean;
+import com.china.center.oa.publics.bean.PrincipalshipBean;
+import com.china.center.oa.publics.bean.ProvinceBean;
+import com.china.center.oa.publics.bean.ShowBean;
+import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.AuthConstant;
+import com.china.center.oa.publics.constant.InvoiceConstant;
+import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.publics.constant.StafferConstant;
+import com.china.center.oa.publics.constant.SysConfigConstant;
+import com.china.center.oa.publics.dao.AreaDAO;
+import com.china.center.oa.publics.dao.AttachmentDAO;
+import com.china.center.oa.publics.dao.CityDAO;
+import com.china.center.oa.publics.dao.CommonDAO;
+import com.china.center.oa.publics.dao.DepartmentDAO;
+import com.china.center.oa.publics.dao.DutyDAO;
+import com.china.center.oa.publics.dao.DutyVSInvoiceDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.InvoiceCreditDAO;
+import com.china.center.oa.publics.dao.InvoiceDAO;
+import com.china.center.oa.publics.dao.LocationDAO;
+import com.china.center.oa.publics.dao.ParameterDAO;
+import com.china.center.oa.publics.dao.PrincipalshipDAO;
+import com.china.center.oa.publics.dao.ProvinceDAO;
+import com.china.center.oa.publics.dao.ShowDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.dao.StafferVSPriDAO;
+import com.china.center.oa.publics.dao.UserDAO;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.helper.StafferHelper;
-import com.china.center.oa.publics.manager.*;
+import com.china.center.oa.publics.manager.AuthManager;
+import com.china.center.oa.publics.manager.CommonMailManager;
+import com.china.center.oa.publics.manager.FatalNotify;
+import com.china.center.oa.publics.manager.OrgManager;
+import com.china.center.oa.publics.manager.StafferManager;
+import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vo.DutyVO;
 import com.china.center.oa.publics.vs.DutyVSInvoiceBean;
 import com.china.center.oa.publics.vs.RoleAuthBean;
 import com.china.center.oa.publics.vs.StafferVSPriBean;
-import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.bean.BaseBalanceBean;
 import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.BatchReturnLog;
+import com.china.center.oa.sail.bean.ConsignBean;
+import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.bean.ExpressBean;
+import com.china.center.oa.sail.bean.OutBalanceBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.PresentFlagBean;
+import com.china.center.oa.sail.bean.PromotionBean;
+import com.china.center.oa.sail.bean.PromotionItemBean;
+import com.china.center.oa.sail.bean.TransportBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.PromotionConstant;
-import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.dao.AppOutDAO;
+import com.china.center.oa.sail.dao.AppOutVSOutDAO;
+import com.china.center.oa.sail.dao.BaseBalanceDAO;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.BaseRepaireDAO;
+import com.china.center.oa.sail.dao.BatchReturnLogDAO;
+import com.china.center.oa.sail.dao.ConsignDAO;
+import com.china.center.oa.sail.dao.DistributionDAO;
+import com.china.center.oa.sail.dao.ExpressDAO;
+import com.china.center.oa.sail.dao.OutBalanceDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.dao.OutRepaireDAO;
+import com.china.center.oa.sail.dao.PackageDAO;
+import com.china.center.oa.sail.dao.PresentFlagDAO;
+import com.china.center.oa.sail.dao.ProductExchangeConfigDAO;
+import com.china.center.oa.sail.dao.PromotionDAO;
+import com.china.center.oa.sail.dao.PromotionItemDAO;
+import com.china.center.oa.sail.dao.SailConfigDAO;
+import com.china.center.oa.sail.dao.StatsDeliveryRankDAO;
+import com.china.center.oa.sail.dao.TwBaseDAO;
+import com.china.center.oa.sail.dao.TwDistributionDAO;
+import com.china.center.oa.sail.dao.TwOutDAO;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.helper.YYTools;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.sail.manager.SailManager;
-import com.china.center.oa.sail.vo.*;
+import com.china.center.oa.sail.vo.BaseVO;
+import com.china.center.oa.sail.vo.DistributionVO;
+import com.china.center.oa.sail.vo.OutBalanceVO;
+import com.china.center.oa.sail.vo.OutVO;
+import com.china.center.oa.sail.vo.SailConfigVO;
 import com.china.center.oa.sail.wrap.BatchBackWrap;
 import com.china.center.oa.sail.wrap.PromotionWrap;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.*;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.ParamterMap;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.RequestTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.UtilStream;
+import com.china.center.tools.WriteFileBuffer;
+
 // import edu.emory.mathcs.backport.java.util.Collections;
 import jxl.Workbook;
-import jxl.write.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.*;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
 
 /**
  * ParentOutAction
@@ -282,6 +400,8 @@ public class ParentOutAction extends DispatchAction
 	protected static String QUERYSELFCONFIRMOUT = "querySelfConfirmOut";
 
     protected static final String QUERYPRODUCTEXCHANGE = "queryProductExchange";
+    
+    private StorageRelationDAO storageRelationDAO;
 
 	/**
 	 * 入库单操作锁
@@ -6171,7 +6291,49 @@ public class ParentOutAction extends DispatchAction
                 {
                     this.fillDistributionForRemoteAllocate(request, outBean);
                 }
-
+                
+                //mod by zhangxian 2019-06-18
+                //增加预占库存的扣减
+                String productIdString = request.getParameter("idsList");
+                String amountString = request.getParameter("amontList");
+                String[] idsList = new String[] {};
+                String[] amountList = new String[] {};
+                if(org.apache.commons.lang.StringUtils.isNotEmpty(productIdString))
+                {
+                	idsList = org.apache.commons.lang.StringUtils.split(productIdString, "~");
+                }
+                if(org.apache.commons.lang.StringUtils.isNotEmpty(amountString))
+                {
+                	amountList = org.apache.commons.lang.StringUtils.split(amountString, "~");
+                }
+                String locationid = request.getParameter("location");
+                for(int i=0;i<idsList.length;i++){
+                    //TODO 该产品全部库存-在途库存-预占>=合成数量，就可以正常合成
+                	String productId = idsList[i];
+                	String amount = amountList[i];
+                    ConditionParse conditionParseRelation = new ConditionParse();
+                    conditionParseRelation.addWhereStr();
+                    conditionParseRelation.addCondition("productid","=", productId);
+                    conditionParseRelation.addCondition("locationid","=", locationid);
+                    List<StorageRelationBean> relationList = storageRelationDAO.queryEntityBeansByCondition(conditionParseRelation);
+                    for(StorageRelationBean relation:relationList) {
+                        int preassign = storageRelationManager.sumPreassignByStorageRelation(relation);
+                        //在途数量
+                        ConditionParse conditionOut = new ConditionParse();
+                        conditionOut.addWhereStr();
+                        conditionOut.addCondition("OutBean.type", "=", "1");
+                        conditionOut.addCondition("and OutBean.status in (7,8)");
+                        conditionOut.addCondition("OutBean.inway", "=", "1");
+                        conditionOut.addCondition("OutBean.location","=",locationid);
+                        int zt = outDAO.countVOByCondition(conditionOut.toString());
+                        _logger.info("relation.getAmount()***"+relation.getAmount()+"***zt**"+zt + "***preassign**:" + preassign);
+                        if((relation.getAmount() - zt - preassign) < Math.abs(Integer.valueOf(amount))){
+                        	ProductBean productBean = this.productDAO.find(productId);
+                            throw new MYException(String.format("入库出错,库存不足,,产品:%s",productBean.getName()));
+                        }
+                    }
+                }
+                //end mod
 				String id = outManager.addOut(outBean, map.getParameterMap(), user);
                 _logger.info("addOut 88888888888888888888*********"+id);
 				if ("提交".equals(saves))
@@ -6766,6 +6928,50 @@ public class ParentOutAction extends DispatchAction
 				saves = "提交";
 				outBean.setStatus(OutConstant.STATUS_LOCATION_MANAGER_CHECK);
 			}
+			
+			//mod by zhangxian 2019-06-18
+            //增加预占库存的扣减
+            String productIdString = request.getParameter("idsList");
+            String amountString = request.getParameter("amontList");
+            String[] idsList = new String[] {};
+            String[] amountList = new String[] {};
+            if(org.apache.commons.lang.StringUtils.isNotEmpty(productIdString))
+            {
+            	idsList = org.apache.commons.lang.StringUtils.split(productIdString, "~");
+            }
+            if(org.apache.commons.lang.StringUtils.isNotEmpty(amountString))
+            {
+            	amountList = org.apache.commons.lang.StringUtils.split(amountString, "~");
+            }
+            String locationid = request.getParameter("location");
+            for(int i=0;i<idsList.length;i++){
+                //TODO 该产品全部库存-在途库存-预占>=合成数量，就可以正常合成
+            	String productId = idsList[i];
+            	String amountValue = amountList[i];
+                ConditionParse conditionParseRelation = new ConditionParse();
+                conditionParseRelation.addWhereStr();
+                conditionParseRelation.addCondition("productid","=", productId);
+                conditionParseRelation.addCondition("locationid","=", locationid);
+                List<StorageRelationBean> relationList = storageRelationDAO.queryEntityBeansByCondition(conditionParseRelation);
+                for(StorageRelationBean relation:relationList) {
+                    int preassign = storageRelationManager.sumPreassignByStorageRelation(relation);
+                    //在途数量
+                    ConditionParse conditionOut = new ConditionParse();
+                    conditionOut.addWhereStr();
+                    conditionOut.addCondition("OutBean.type", "=", "1");
+                    conditionOut.addCondition("and OutBean.status in (7,8)");
+                    conditionOut.addCondition("OutBean.inway", "=", "1");
+                    conditionOut.addCondition("OutBean.location","=",locationid);
+                    int zt = outDAO.countVOByCondition(conditionOut.toString());
+                    _logger.info("relation.getAmount()***"+relation.getAmount()+"***zt**"+zt + "***preassign**:" + preassign);
+                    if((relation.getAmount() - zt - preassign) < Math.abs(Integer.valueOf(amountValue))){
+                    	ProductBean productBean = this.productDAO.find(productId);
+                        throw new MYException(String.format("入库出错,库存不足,产品:%s",productBean.getName()));
+                    }
+                }
+            }
+            //end mod
+			
 
 			outManager.diaoBo(outBean, map.getParameterMap(), user,
 					s_diaoBoproId, amount);
@@ -11687,4 +11893,13 @@ public class ParentOutAction extends DispatchAction
     public void setTwDistributionDAO(TwDistributionDAO twDistributionDAO) {
         this.twDistributionDAO = twDistributionDAO;
     }
+
+	public StorageRelationDAO getStorageRelationDAO() {
+		return storageRelationDAO;
+	}
+
+	public void setStorageRelationDAO(StorageRelationDAO storageRelationDAO) {
+		this.storageRelationDAO = storageRelationDAO;
+	}
+    
 }

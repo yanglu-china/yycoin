@@ -67,6 +67,17 @@ function getInBill(oos)
     $O('bankName').value = item.pbankName;
     $O('total').value = formatNum(item.pmoney, 2);
 }
+function selectCity(obj)
+{
+	cityObj = obj;
+    window.common.modal('../admin/pop.do?method=rptQueryCity&load=1&selectMode=1');
+}
+
+function selectProvince(obj)
+{
+	cityObj = obj;
+    window.common.modal('../admin/pop.do?method=rptQueryProvince&load=1&selectMode=1');
+}
 
 </script>
 </head>
@@ -126,6 +137,10 @@ function getInBill(oos)
             <p:pro field="receiveBank" innerString="size=40" cell="0"/>
             
             <p:pro field="receiveAccount" innerString="size=40" cell="0"/>
+            
+            <p:pro field="bankprovince" innerString="onclick='selectCity(this)' style='cursor: pointer;'" cell="0"/>
+            
+            <p:pro field="bankcity" innerString="onclick='selectCity(this)' style='cursor: pointer;'" cell="0" />
             
             <p:pro field="billId">
             	<input type="button" value="&nbsp;...&nbsp;" name="qout1" id="qout1"
