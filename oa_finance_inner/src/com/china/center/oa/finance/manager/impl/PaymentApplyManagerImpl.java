@@ -1066,22 +1066,17 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     public boolean passPaymentApply(User user, String id, String reason,String description)
         throws MYException
     {
-        _logger.info("*************passPaymentApply step1********");
+        _logger.info("*************passPaymentApply step1********"+id);
         JudgeTools.judgeParameterIsNull(user, id);
-        _logger.info("*************passPaymentApply step2********");
         PaymentApplyBean apply = checkPass(id);
         apply.setStatus(FinanceConstant.PAYAPPLY_STATUS_PASS);
 
         paymentApplyDAO.updateEntityBean(apply);
-        _logger.info("*************passPaymentApply step3********");
         PaymentBean payment = paymentDAO.find(apply.getPaymentId());
-        _logger.info("*************passPaymentApply step4********");
         // CORE 生成收款单,更新销售单和委托清单付款状态/或者转成费用
         createInbill(user, apply, payment, reason,description);
-        _logger.info("*************passPaymentApply step5********");
         // 更新回款单的状态和使用金额
         updatePayment(apply);
-        _logger.info("*************passPaymentApply step6********");
         // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用 通过
         Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
 
@@ -1089,7 +1084,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         {
             listener.onPassBean(user, apply);
         }
-        _logger.info("*************passPaymentApply step7********");
+        _logger.info("*************passPaymentApply finished********"+id);
         savePassLog(user, FinanceConstant.PAYAPPLY_STATUS_INIT, apply, reason);
         
         return true;
@@ -1577,40 +1572,29 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     private void updatePayment(PaymentApplyBean apply)
     {
-        _logger.info("updatePayment step1*****");
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING)
+        _logger.info("updatePayment *****"+apply);
+        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING
+                || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE
+                || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
         {
             return;
         }
-        _logger.info("updatePayment step2*****");
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE)
-        {
-            return;
-        }
-        _logger.info("updatePayment step3*****");
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
-        {
-            return;
-        }
-        _logger.info("updatePayment step4*****");
+
         PaymentBean payment = paymentDAO.find(apply.getPaymentId());
-        _logger.info("updatePayment step5*****");
         double hasUsed = inBillDAO.sumByPaymentId(apply.getPaymentId());
-        _logger.info("updatePayment step6*****");
         payment.setUseMoney(hasUsed);
-        _logger.info("updatePayment step7*****");
         if (MathTools.compare(hasUsed, payment.getMoney()) >= 0)
-        {    _logger.info("updatePayment step8*****");
+        {
             payment.setUseall(FinanceConstant.PAYMENT_USEALL_END);
             payment.setUpdateTime(TimeTools.now());
         }
         else
-        {   _logger.info("updatePayment step9*****");
+        {
             payment.setUseall(FinanceConstant.PAYMENT_USEALL_INIT);
         }
 
         paymentDAO.updateEntityBean(payment);
-        _logger.info("updatePayment step10*****");
+        _logger.info("updatePayment use money*****"+payment);
         // 认领通过时,增加回款来源信息记录
         String fromer = payment.getFromer();
         String fromerNo = payment.getFromerNo();
@@ -1644,6 +1628,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     private PaymentApplyBean checkPass(String id)
         throws MYException
     {
+        _logger.info("***checkPass id****"+id);
         PaymentApplyBean apply = paymentApplyDAO.find(id);
 
         if (apply == null)
@@ -1653,6 +1638,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         if (apply.getStatus() == FinanceConstant.PAYAPPLY_STATUS_PASS)
         {
+            _logger.error("status is incorrect***"+id);
             throw new MYException("状态不正确,请确认操作");
         }
 
@@ -1670,20 +1656,16 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         apply.setMoneys(total);
 
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING)
+        //销售单绑定
+        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING
+                //预收转费用
+                || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE
+                //拆预收转客户
+                || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
         {
             return apply;
         }
 
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE)
-        {
-            return apply;
-        }
-
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
-        {
-            return apply;
-        }        
         
         // 检查是否溢出
         PaymentBean payment = paymentDAO.find(apply.getPaymentId());
@@ -1697,6 +1679,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         if (MathTools.compare(hasUsed + apply.getMoneys(), payment.getMoney()) > 0)
         {
+            _logger.error(String.format("回款[%s]使用金额溢出,总金额[%.2f],已使用金额[%.2f],本次申请金额[%.2f],请确认操作",
+                    apply.getPaymentId(), payment.getMoney(), hasUsed, apply.getMoneys()));
             throw new MYException("回款使用金额溢出,总金额[%.2f],已使用金额[%.2f],本次申请金额[%.2f],请确认操作", payment
                 .getMoney(), hasUsed, apply.getMoneys());
         }
@@ -2630,7 +2614,6 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     @Override
     public void passPaymentApplyJob() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
-            System.out.println("**************run passPaymentApplyJob****************");
             _logger.info("**************run passPaymentApplyJob****************");
 
         //后台Job必须以显示的Transaction方式操作，否则数据库操作有问题：写入后无法查询得到数据。
@@ -2642,12 +2625,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                         ConditionParse condtion = new ConditionParse();
 
                         condtion.addWhereStr();
-//                        condtion.addIntCondition("PaymentApplyBean.status", "=",
-//                                FinanceConstant.PAYAPPLY_STATUS_INIT);
                         //29 待审核、待稽核同一个审批入口
                         condtion.addCondition(" and PaymentApplyBean.status in (0,3)");
-//                        condtion.addIntCondition("PaymentApplyBean.badMoney", "=", 0);
-//                        triggerLog.info("handleCheckPay 暂停统计，款到发货1小时内未付款，不会自动驳回...");
                         List<PaymentApplyBean> beans = paymentApplyDAO.queryEntityBeansByCondition(condtion);
                         if (!ListTools.isEmptyOrNull(beans)) {
                             _logger.info("***passPaymentApplyJob with PaymentApplyBean size****" + beans.size());
@@ -2656,22 +2635,19 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                                     try {
                                         passPaymentApplyForJob(null, bean.getId(), "", "");
                                     } catch (Exception e) {
-                                        _logger.error(e);
                                         _logger.error(bean.getId()+" Fail to passPaymentApplyForJob ",e);
                                     }
                                 }
                             }
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        _logger.warn(e, e);
-                        throw new RuntimeException(e);
+                        _logger.error(e, e);
                     }
 
                     return Boolean.TRUE;
                 }
             });
-
+        _logger.info("**************finished passPaymentApplyJob****************");
     }
 
     /**
@@ -2700,16 +2676,15 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         // 2014/12/30
         // 为自动审批job设置flag
         apply.setAutoPayFlag(true);
-        // CORE 生成收款单,更新销售单和委托清单付款状态/或者转成费用
+
+        // 生成收款单,更新销售单和委托清单付款状态/或者转成费用
         createInbillForJob(apply, payment, reason,description);
 
         // 更新回款单的状态和使用金额
         updatePayment(apply);
 
-        // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用 通过
+        // 凭证:回款转预收/销售单绑定(预收转应收)/预收转费用 通过
         Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
-
-
         for (PaymentApplyListener listener : listenerMapValues)
         {
             listener.onPassBean(user, apply);
@@ -2991,7 +2966,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         {
             inBean.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
 
-            inBean.setDescription("自动生成预收收款单,从回款单:" + payment.getId() + ",未关联销售单.审批意见:" + reason + " " + description);
+            inBean.setDescription("系统生成预收收款单,从回款单:" + payment.getId() + ",未关联销售单.审批意见:" + reason + " " + description);
         }
         else
         {
@@ -3005,7 +2980,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
             inBean.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
 
-            inBean.setDescription("自动生成收款单,从回款单:" + payment.getId() + ",关联的销售单:" + item.getOutId()
+            inBean.setDescription("系统生成收款单,从回款单:" + payment.getId() + ",关联的销售单:" + item.getOutId()
                     + ".审批意见:" + reason + " " + description);
         }
 
@@ -3022,7 +2997,6 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         inBean.setType(FinanceConstant.INBILL_TYPE_SAILOUT);
 
         boolean ret = billManager.addInBillBeanWithoutTransaction(null, inBean);
-        System.out.println(ret+"**********saveBillInnerForJob*************"+inBean.getId());
 
         item.setBillId(inBean.getId());
     }
