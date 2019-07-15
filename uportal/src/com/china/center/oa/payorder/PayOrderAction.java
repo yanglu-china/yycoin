@@ -333,6 +333,7 @@ public class PayOrderAction extends DispatchAction {
 					errmsg.append("查询单据编号:" + billNo + "出错!");
 					continue;
 				}
+				
 				PayOrderVO vo = payOrderVOList.get(0);
 				//同城
 				String peeCity = vo.getCityName();

@@ -78,6 +78,7 @@
             <isNotEmpty prepend="and" property="payeeAccName"> 
                     aaa.payeeBankAccName like concat('%',#payeeAccName#,'%')
             </isNotEmpty> 
+            
             <isNotEmpty prepend="and" property="payeeAcc"> 
                     aaa.payeeBankAcc=#payeeAcc#
             </isNotEmpty>
