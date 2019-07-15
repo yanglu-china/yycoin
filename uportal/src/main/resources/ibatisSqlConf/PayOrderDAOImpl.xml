@@ -64,10 +64,10 @@
 		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
 		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0
 		UNION 
-		SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,a.begindate AS billdate,'1' AS billstatus,a.logtime,a.description,
-		b.bankName AS  payeebank,b.userName AS payeeBankAccName,b.bankNo AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,b.bankcity as cityname
-		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
-		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0) aaa where aaa.payeeAmount>0
+		SELECT a.APPLYID AS billNo,'5' AS billtype,'预收退款' AS billtypedesc,a.logtime AS billdate,'1' AS billstatus,a.logtime,a.description,
+		b.bankname AS  payeebank,b.customername AS payeeBankAccName,b.customeraccount AS payeeBankAcc,a.checktotal/100  AS payeeAmount,b.bankcity as cityname,'' as cityid
+		FROM T_CENTER_TCPAPPROVE a ,T_CENTER_BACKPREPAY_APPLY b
+		WHERE a.TYPE=23 AND a.STATUS=29 and a.checktotal>0 and b.id=a.applyid) aaa where aaa.payeeAmount>0
 		<dynamic prepend=""> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
                     aaa.billNo= #payOrderNo#

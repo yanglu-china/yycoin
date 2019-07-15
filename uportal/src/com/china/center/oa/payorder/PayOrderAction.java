@@ -287,11 +287,24 @@ public class PayOrderAction extends DispatchAction {
 		{
 			return JSONTools.writeResponse(response, "付款银行账号的开户省/市为空,银行账号名称:"+ bankBean.getName() +",请完善信息!");
 		}
+		payBankCity = payBankCity.trim();
 		String payBankNo = bankBean.getBankNo();
 		if(StringUtils.isEmpty(payBankNo))
 		{
 			return JSONTools.writeResponse(response, "付款银行的付款账号为空,银行账号名称:"+ bankBean.getName() +",请完善信息!");
 		}
+		payBankNo = payBankNo.trim();
+		String payBankName = bankBean.getName();
+		if(StringUtils.isEmpty(payBankName))
+		{
+			return JSONTools.writeResponse(response, "付款银行的银行名称为空,银行账号名称:"+ bankBean.getName() +",请完善信息!");
+		}
+		String[] payBankNameArray = StringUtils.split(payBankName,"-");
+		if(payBankNameArray == null || payBankNameArray.length < 4)
+		{
+			return JSONTools.writeResponse(response, "付款银行的银行名称不合法,银行账号名称:"+ bankBean.getName() +",请完善信息!");
+		}
+		String payBankNameSub = payBankNameArray[3];
 		// 付款银行信息
 		NbBankPayImpl nbBankPay = new NbBankPayImpl();
 
@@ -311,10 +324,6 @@ public class PayOrderAction extends DispatchAction {
 			payInfoMap.put("payeeAccNo", "");
 			payInfoMap.put("payeeAccName", "");
 			payInfoMap.put("payMoney", "");
-			//同城异地标识
-			payInfoMap.put("areaSign", "");
-			//同行跨行标识
-			payInfoMap.put("difSign","");
 			payInfoMap.put("payPurpose", "");
 			payInfoMap.put("erpReqNo", billNo);
 			
@@ -325,6 +334,30 @@ public class PayOrderAction extends DispatchAction {
 					continue;
 				}
 				PayOrderVO vo = payOrderVOList.get(0);
+				//同城
+				String peeCity = vo.getCityName();
+				
+				if(payBankCity.equals(peeCity))
+				{
+					//同城
+					payInfoMap.put("areaSign", "0");
+				}
+				else
+				{
+					//异地
+					payInfoMap.put("areaSign", "1");
+				}
+				String peeBankName = vo.getPayeeBank();
+				if(payBankNameSub.indexOf(peeBankName) != -1)
+				{
+					//同行标识
+					payInfoMap.put("difSign","0");
+				}
+				else
+				{
+					//跨行标识
+					payInfoMap.put("difSign","1");
+				}
 				//先生成付款日志数据
 				PayOrderListLogVO logvo = new PayOrderListLogVO();
 				logvo.setId(String.valueOf(System.currentTimeMillis()));
@@ -334,8 +367,6 @@ public class PayOrderAction extends DispatchAction {
 				logvo.setUserName(vo.getPayeeBankAccName());
 				logvo.setBankNo(vo.getPayeeBankAcc());
 				logvo.setMoney(vo.getPayeeAmount());
-//				logvo.setProvince("");
-//				logvo.setCity("");
 				logvo.setDescription(vo.getDescription());
 				logvo.setOutidtime(vo.getLogTime());
 				//付款中
@@ -350,6 +381,8 @@ public class PayOrderAction extends DispatchAction {
 				payOrderDao.createPayListLog(logvo);
 				// bank支持电子支付
 				if (tempFlag) {
+					payInfoMap.put("payeeAccNo", vo.getPayeeBankAcc());
+					payInfoMap.put("payeeAccName", vo.getPayeeBankAccName());
 					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 					String retCode = retMap.get("retCode");
 					String retMsg = retMap.get("retMsg");
@@ -374,6 +407,30 @@ public class PayOrderAction extends DispatchAction {
 					continue;
 				}
 				PayOrderVO vo = payOrderVOList.get(0);
+				//同城
+				String peeCity = vo.getCityName();
+				
+				if(payBankCity.equals(peeCity))
+				{
+					//同城
+					payInfoMap.put("areaSign", "0");
+				}
+				else
+				{
+					//异地
+					payInfoMap.put("areaSign", "1");
+				}
+				String peeBankName = vo.getPayeeBank();
+				if(payBankNameSub.indexOf(peeBankName) != -1)
+				{
+					//同行标识
+					payInfoMap.put("difSign","0");
+				}
+				else
+				{
+					//跨行标识
+					payInfoMap.put("difSign","1");
+				}
 				//先生成付款日志数据
 				PayOrderListLogVO logvo = new PayOrderListLogVO();
 				logvo.setId(String.valueOf(System.currentTimeMillis()));
@@ -461,6 +518,29 @@ public class PayOrderAction extends DispatchAction {
 					
 					// bank支持电子支付
 					if (tempFlag) {
+						//同城
+						String peeCity = payBean.getBankcity();
+						if(payBankCity.equals(peeCity))
+						{
+							//同城
+							payInfoMap.put("areaSign", "0");
+						}
+						else
+						{
+							//异地
+							payInfoMap.put("areaSign", "1");
+						}
+						String peeBankName = payBean.getBankName();
+						if(payBankNameSub.indexOf(peeBankName) != -1)
+						{
+							//同行标识
+							payInfoMap.put("difSign","0");
+						}
+						else
+						{
+							//跨行标识
+							payInfoMap.put("difSign","1");
+						}
 						payInfoMap.put("payeeAccNo", payBean.getBankNo());
 						payInfoMap.put("payeeAccName", payBean.getUserName());
 						Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
@@ -526,14 +606,30 @@ public class PayOrderAction extends DispatchAction {
 					payOrderDao.createPayListLog(logvo);
 					// bank支持电子支付
 					if (tempFlag) {
+						String peeCity = payBean.getBankcity();
+						if(payBankCity.equals(peeCity))
+						{
+							//同城
+							payInfoMap.put("areaSign", "0");
+						}
+						else
+						{
+							//异地
+							payInfoMap.put("areaSign", "1");
+						}
+						String peeBankName = payBean.getBankName();
+						if(payBankNameSub.indexOf(peeBankName) != -1)
+						{
+							//同行标识
+							payInfoMap.put("difSign","0");
+						}
+						else
+						{
+							//跨行标识
+							payInfoMap.put("difSign","1");
+						}
 						payInfoMap.put("payeeAccNo", payBean.getBankNo());
 						payInfoMap.put("payeeAccName", payBean.getUserName());
-						//同城
-						String peeCity = payBean.getBankcity();
-						if(peeCity.contains(""))
-						{
-							
-						}
 						Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 						String retCode = retMap.get("retCode");
 						String retMsg = retMap.get("retMsg");
@@ -582,6 +678,28 @@ public class PayOrderAction extends DispatchAction {
 				payOrderDao.createPayListLog(logvo);
 				// bank支持电子支付
 				if (tempFlag) {
+					String peeCity = vo.getCityName();
+					if(payBankCity.equals(peeCity))
+					{
+						//同城
+						payInfoMap.put("areaSign", "0");
+					}
+					else
+					{
+						//异地
+						payInfoMap.put("areaSign", "1");
+					}
+					String peeBankName = vo.getPayeeBank();
+					if(payBankNameSub.indexOf(peeBankName) != -1)
+					{
+						//同行标识
+						payInfoMap.put("difSign","0");
+					}
+					else
+					{
+						//跨行标识
+						payInfoMap.put("difSign","1");
+					}
 					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 					String retCode = retMap.get("retCode");
 					String retMsg = retMap.get("retMsg");
