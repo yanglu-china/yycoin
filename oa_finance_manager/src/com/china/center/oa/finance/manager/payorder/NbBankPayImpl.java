@@ -19,17 +19,28 @@ import com.AesCode;
 import com.china.center.oa.finance.manager.payorder.byttersoft.bedp.webservice.ErpPlatformLocator;
 import com.china.center.oa.finance.manager.payorder.byttersoft.bedp.webservice.ErpPlatformSoap11BindingStub;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankHead;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryAccList;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryAccListBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryCrudTlBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryCurdTl;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryHisDtl;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryHisDtlBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryTransfer;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryTransferBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankTransfer;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankTransferBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankHeadResp;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryAccListBodyResp;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryAccListLoopData;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryAccListLoopResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryCrudTlBodyResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryCrudTlLoopData;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryCrudTlLoopResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryCrudTlTotalResp;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisDtlBodyResp;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisDtlLoopData;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisDtlLoopResp;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisDtlTotalResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryTransferBodyResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryTransferResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankTranferResp;
@@ -42,7 +53,7 @@ import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBan
  */
 public class NbBankPayImpl {
 	
-	private final Log _logger = LogFactory.getLog(getClass());
+	private final Log _logger = LogFactory.getLog("taobao");
 	/**
 	 * erp系统代码
 	 */
@@ -125,11 +136,11 @@ public class NbBankPayImpl {
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, false);// 是否省略xm头声明信息
             StringWriter writer = new StringWriter();
             marshaller.marshal(body, writer);
-            System.out.println(writer.toString());
+            _logger.info(writer.toString());
             String encryptStr = AesCode.encrypt(writer.toString());
 			String result = stub.serverErpXml(encryptStr);
 			String decryptUTF8Str = AesCode.decrypt2GBK(result);
-			System.out.println(decryptUTF8Str);
+			_logger.info(decryptUTF8Str);
 			JAXBContext contextResult = JAXBContext.newInstance(NbBankTransferBodyResp.class);
 			Unmarshaller unmarshaller = contextResult.createUnmarshaller();
 			StringReader reader = new StringReader(decryptUTF8Str);
@@ -193,11 +204,11 @@ public class NbBankPayImpl {
 			queryBody.setQueryTransfer(queryTransfer);
 			
 			String reqXml = marshallerRequest(queryBody);
-            System.out.println(reqXml);
+			_logger.info(reqXml);
             String encryptStr = AesCode.encrypt(reqXml);
 			String result = stub.serverErpXml(encryptStr);
 			String decryptUTF8Str = AesCode.decrypt2GBK(result);
-			System.out.println(decryptUTF8Str);
+			_logger.info(decryptUTF8Str);
 			NbBankQueryTransferBodyResp queryBodyResp =  (NbBankQueryTransferBodyResp) unMarShallerResp(decryptUTF8Str, new NbBankQueryTransferBodyResp());
 			
 		    NbBankHeadResp headResp = queryBodyResp.getHeadResp();
@@ -257,11 +268,11 @@ public class NbBankPayImpl {
 			queryCrudBody.setQueryCrudTl(queryCurdTl);
 			
 			String reqXml = marshallerRequest(queryCrudBody);
-            System.out.println(reqXml);
+			_logger.info(reqXml);
             String encryptStr = AesCode.encrypt(reqXml);
 			String result = stub.serverErpXml(encryptStr);
 			String decryptUTF8Str = AesCode.decrypt2GBK(result);
-			System.out.println(decryptUTF8Str);
+			_logger.info(decryptUTF8Str);
 			NbBankQueryCrudTlBodyResp queryBodyResp =  (NbBankQueryCrudTlBodyResp) unMarShallerResp(decryptUTF8Str, new NbBankQueryCrudTlBodyResp());
 			
 		    NbBankHeadResp headResp = queryBodyResp.getHeadResp();
@@ -271,7 +282,7 @@ public class NbBankPayImpl {
 				NbBankQueryCrudTlTotalResp totalResp = queryBodyResp.getTotalResp();
 				String total = totalResp.getRecordTotal();
 				
-				System.out.println("total is :" + total);
+				_logger.info("total is :" + total);
 				
 				NbBankQueryCrudTlLoopResp loopResp = queryBodyResp.getLoopResp();
 			    List<NbBankQueryCrudTlLoopData> respList = loopResp.getLoopData();
@@ -279,7 +290,7 @@ public class NbBankPayImpl {
 			    {
 			    	for(NbBankQueryCrudTlLoopData loopData:respList)
 			    	{
-			    		System.out.println(loopData.toString());
+			    		_logger.info(loopData.toString());
 			    	}
 			    }
 				
@@ -291,6 +302,136 @@ public class NbBankPayImpl {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			_logger.error("NbBankPayImpl queryCurdTl error",e);
+			e.printStackTrace();
+		}
+	
+	
+	}
+	
+	/**
+	 * 查询账号信息列表
+	 */
+	public void queryAccList()
+	{
+		try {
+			URL url = new URL(NbBankPayUrl);
+			ErpPlatformLocator locator = new ErpPlatformLocator();
+			ErpPlatformSoap11BindingStub stub = (ErpPlatformSoap11BindingStub) locator.geterpPlatformHttpSoap11Endpoint(url);
+			
+			NbBankQueryAccListBody queryAccListBody = new NbBankQueryAccListBody();
+			
+			//请求头
+			NbBankHead head = new NbBankHead();
+			head.setCustNo(custNo);
+			head.setErpSysCode(erpSysCode);
+			head.setTradeName("ERP_QUERYACCLIST"); 
+			
+			//请求体
+			NbBankQueryAccList queryAccList = new NbBankQueryAccList();
+			queryAccList.setQueryCustNo(custNo);
+			
+			queryAccListBody.setHead(head);
+			queryAccListBody.setQueryAccList(queryAccList);
+			
+			String reqXml = marshallerRequest(queryAccListBody);
+			_logger.info(reqXml);
+            String encryptStr = AesCode.encrypt(reqXml);
+			String result = stub.serverErpXml(encryptStr);
+			String decryptUTF8Str = AesCode.decrypt2GBK(result);
+			_logger.info(decryptUTF8Str);
+			NbBankQueryAccListBodyResp queryBodyResp =  (NbBankQueryAccListBodyResp) unMarShallerResp(decryptUTF8Str, new NbBankQueryAccListBodyResp());
+			
+		    NbBankHeadResp headResp = queryBodyResp.getHeadResp();
+		    String retCode = headResp.getRetCode();
+		    if("0".equals(retCode))
+			{
+		    	NbBankQueryAccListLoopResp loopResp = queryBodyResp.getLoopResp();
+			    List<NbBankQueryAccListLoopData> respList = loopResp.getLoopData();
+			    if(respList != null)
+			    {
+			    	for(NbBankQueryAccListLoopData loopData:respList)
+			    	{
+			    		_logger.info(loopData.toString());
+			    	}
+			    }
+				
+			}
+			else
+			{
+				_logger.error("报文出错，错误码:" + headResp.getRetCode() + ";错误描述:" + headResp.getRetMsg());
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			_logger.error("NbBankPayImpl queryAccList error",e);
+			e.printStackTrace();
+		}
+	
+	}
+	
+	/**
+	 * 查询历史明细
+	 */
+	public void queryHisDtl()
+	{
+		try {
+			URL url = new URL("http://101.37.13.154:8090/BisOutPlatform/services/erpPlatform?wsdl");
+			ErpPlatformLocator locator = new ErpPlatformLocator();
+			ErpPlatformSoap11BindingStub stub = (ErpPlatformSoap11BindingStub) locator.geterpPlatformHttpSoap11Endpoint(url);
+			
+			NbBankQueryHisDtlBody queryHisBody = new NbBankQueryHisDtlBody();
+			
+			//请求头
+			NbBankHead head = new NbBankHead();
+			head.setCustNo(custNo);
+			head.setErpSysCode(erpSysCode);
+			head.setTradeName("ERP_QUERYHISDTL"); 
+			
+			//请求体
+			NbBankQueryHisDtl queryHis = new NbBankQueryHisDtl();
+			queryHis.setBankAcc("70170122000004786");
+			//queryHis.setQueryAmtBegin("0");
+			//queryHis.setQueryAmtEnd("999999999");
+			queryHis.setQueryDateBegin("2019-07-12");
+			queryHis.setQueryDateEnd("2019-07-15");
+			//queryHis.setQueryOppAccName("");
+			
+			queryHisBody.setHead(head);
+			queryHisBody.setQueryHisDtl(queryHis);
+			
+			String reqXml = marshallerRequest(queryHisBody);
+			_logger.info(reqXml);
+            String encryptStr = AesCode.encrypt(reqXml);
+			String result = stub.serverErpXml(encryptStr);
+			String decryptUTF8Str = AesCode.decrypt2GBK(result);
+			_logger.info(decryptUTF8Str);
+			NbBankQueryHisDtlBodyResp queryBodyResp =  (NbBankQueryHisDtlBodyResp) unMarShallerResp(decryptUTF8Str, new NbBankQueryHisDtlBodyResp());
+			
+		    NbBankHeadResp headResp = queryBodyResp.getHeadResp();
+		    String retCode = headResp.getRetCode();
+		    if("0".equals(retCode))
+			{
+		    	NbBankQueryHisDtlTotalResp totalResp = queryBodyResp.getTotalResp();
+		    	_logger.info(totalResp.getRecordTotal());
+		    	
+		    	NbBankQueryHisDtlLoopResp loopResp = queryBodyResp.getLoopResp();
+		    	
+			    List<NbBankQueryHisDtlLoopData> respList = loopResp.getLoopData();
+			    if(respList != null)
+			    {
+			    	for(NbBankQueryHisDtlLoopData loopData:respList)
+			    	{
+			    		_logger.info(loopData.toString());
+			    	}
+			    }
+				
+			}
+			else
+			{
+				_logger.error("报文出错，错误码:" + headResp.getRetCode() + ";错误描述:" + headResp.getRetMsg());
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			_logger.error("NbBankPayImpl queryHisDtl error",e);
 			e.printStackTrace();
 		}
 	

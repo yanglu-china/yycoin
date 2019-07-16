@@ -17,6 +17,8 @@ public class NbBankHeadResp {
 	private String retMsg;
 	
 	private String signData;
+	
+	private String totalNum;
 
 	@XmlElement
 	public String getErpSysCode() {
@@ -70,6 +72,15 @@ public class NbBankHeadResp {
 
 	public void setSignData(String signData) {
 		this.signData = signData;
+	}
+
+	@XmlElement
+	public String getTotalNum() {
+		return totalNum;
+	}
+
+	public void setTotalNum(String totalNum) {
+		this.totalNum = totalNum;
 	}
 	
 }

@@ -10,8 +10,14 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.AesCode;
+import com.china.center.oa.finance.manager.payorder.NbBankPayImpl;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankHead;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryAccList;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryAccListBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryCrudTlBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryCurdTl;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryTransfer;
@@ -19,6 +25,9 @@ import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBank
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankTransfer;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankTransferBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankHeadResp;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryAccListBodyResp;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryAccListLoopData;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryAccListLoopResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryCrudTlBodyResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryCrudTlLoopData;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryCrudTlLoopResp;
@@ -30,6 +39,8 @@ import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBan
 
 public class test {
 	
+	private final Log _logger = LogFactory.getLog("taobao");
+	
 	private String erpSysCode="erpnjg002";
 	
 	private String custNo = "0000212667";
@@ -40,10 +51,12 @@ public class test {
 //		System.out.println("33333333333333333333333333333333333");
 //		System.out.println("44444444444444444444444444444444444");
 		test t = new test();
-		t.erpTransfer();
-		
+//		t.erpTransfer();
+//		t.queryAccList();
 //		t.queryTransfer();
 //		t.queryCurdTl();
+		NbBankPayImpl impl = new NbBankPayImpl();
+		impl.queryHisDtl();
 	}
 	
 	public void erpTransfer()
@@ -263,6 +276,67 @@ public class test {
 	}
 	
 	/**
+	 * 查询账户信息列表
+	 */
+	public void queryAccList()
+	{
+		try {
+			URL url = new URL("http://101.37.13.154:8090/BisOutPlatform/services/erpPlatform?wsdl");
+			ErpPlatformLocator locator = new ErpPlatformLocator();
+			ErpPlatformSoap11BindingStub stub = (ErpPlatformSoap11BindingStub) locator.geterpPlatformHttpSoap11Endpoint(url);
+			
+			NbBankQueryAccListBody queryAccListBody = new NbBankQueryAccListBody();
+			
+			//请求头
+			NbBankHead head = new NbBankHead();
+			head.setCustNo(custNo);
+			head.setErpSysCode(erpSysCode);
+			head.setTradeName("ERP_QUERYACCLIST"); 
+			
+			//请求体
+			NbBankQueryAccList queryAccList = new NbBankQueryAccList();
+			queryAccList.setQueryCustNo(custNo);
+			
+			queryAccListBody.setHead(head);
+			queryAccListBody.setQueryAccList(queryAccList);
+			
+			String reqXml = marshallerRequest(queryAccListBody);
+			_logger.info(reqXml);
+            String encryptStr = AesCode.encrypt(reqXml);
+			String result = stub.serverErpXml(encryptStr);
+			String decryptUTF8Str = AesCode.decrypt2GBK(result);
+			_logger.info(decryptUTF8Str);
+			NbBankQueryAccListBodyResp queryBodyResp =  (NbBankQueryAccListBodyResp) unMarShallerResp(decryptUTF8Str, new NbBankQueryAccListBodyResp());
+			
+		    NbBankHeadResp headResp = queryBodyResp.getHeadResp();
+		    String retCode = headResp.getRetCode();
+		    if("0".equals(retCode))
+			{
+		    	NbBankQueryAccListLoopResp loopResp = queryBodyResp.getLoopResp();
+			    List<NbBankQueryAccListLoopData> respList = loopResp.getLoopData();
+			    if(respList != null)
+			    {
+			    	for(NbBankQueryAccListLoopData loopData:respList)
+			    	{
+			    		_logger.info(loopData.toString());
+			    	}
+			    }
+				
+			}
+			else
+			{
+				_logger.error("报文出错，错误码:" + headResp.getRetCode() + ";错误描述:" + headResp.getRetMsg());
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			_logger.error("NbBankPayImpl queryAccList error",e);
+			e.printStackTrace();
+		}
+	
+	
+	}
+	
+	/**
 	   *  ��������xml 
 	 * @param <T>
 	 * @param xmlObj
@@ -310,4 +384,5 @@ public class test {
 		}
 		return _clazz;
 	}
+	
 }
