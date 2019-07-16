@@ -3338,7 +3338,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             ibReport.setCustomerId(customerId);
             List<OutBean> outVOs = customerToOutMap.get(customerId);
             if (!ListTools.isEmptyOrNull(outVOs)){
-                ibReport.setCustomerName(outVOs.get(0).getCustomerName());
+                ibReport.setCustomerName(outVOs.get(0).getCustomerName().trim());
                 double ibTotal = 0.0d;
                 double moTotal = 0.0d;
                 double ibTotal2 = 0.0d;
@@ -3349,7 +3349,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     if (!ListTools.isEmptyOrNull(baseList)){
                         for (BaseBean base : baseList){
                             TcpIbReportItemBean item = new TcpIbReportItemBean();
-                            item.setCustomerName(out.getCustomerName());
+                            item.setCustomerName(out.getCustomerName().trim());
                             item.setFullId(out.getFullId());
                             item.setProductId(base.getProductId());
                             item.setProductName(base.getProductName());
