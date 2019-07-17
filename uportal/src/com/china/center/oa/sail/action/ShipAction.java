@@ -2584,16 +2584,20 @@ public class ShipAction extends DispatchAction
         } else{
             String productImportId = baseBean.getProductImportId();
             ProductImportBean productImportBean = this.productImportDAO.find(productImportId);
-            productName = productImportBean.getBankProductName();
+            if (productImportBean == null){
+                productName = productImportBean.getBankProductName();
 
-            //#310
-            String material = productImportBean.getMaterial();
+                //#310
+                String material = productImportBean.getMaterial();
 
-            _logger.info("***getBankProductName***"+productName+"***material"+material);
-            item.setMateriaType(material);
-            try {
-                item.setProductWeight(productImportBean.getWeight());
-            }catch(Exception e){}
+                _logger.info("***getBankProductName***"+productName+"***material"+material);
+                item.setMateriaType(material);
+                try {
+                    item.setProductWeight(productImportBean.getWeight());
+                }catch(Exception e){}
+            } else{
+                _logger.error("productImportId not exist***"+productImportId);
+            }
         }
 
 
