@@ -1246,7 +1246,7 @@ public class ProductApplyAction extends DispatchAction {
                     // 产品名
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
-                        bean.setName(obj[0]);
+                        bean.setName(obj[0].trim());
 
                         //重复品名检查
                         ConditionParse conditionParse = new ConditionParse();
