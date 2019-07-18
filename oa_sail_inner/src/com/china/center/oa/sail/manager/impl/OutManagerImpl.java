@@ -13956,8 +13956,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
         ConditionParse con1 = new ConditionParse();
         con1.addWhereStr();
-        //#593
-//        con1.addCondition("OutBean.customerId", "=", out.getCustomerId());
         con1.addIntCondition("OutBean.type", "=", OutConstant.OUT_TYPE_OUTBILL);
         con1.addIntCondition("OutBean.outtype", "=", OutConstant.OUTTYPE_OUT_PRESENT);
         con1.addCondition("OutBean.refOutFullId","=", fullId);
@@ -13983,9 +13981,44 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             }
         }
 
-
+        List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(fullId);
         List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
-        return outBeans;
+        if (ListTools.isEmptyOrNull(distList)){
+            return outBeans;
+        } else{
+            DistributionBean distributionBean = distList.get(0);
+            List<OutBean> result = new ArrayList<>();
+            for (OutBean outBean: outBeans){
+                List<DistributionBean> distList2 = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
+                if (!ListTools.isEmptyOrNull(distList2)){
+                    DistributionBean distributionBean2 = distList2.get(0);
+                    //ZS单和SO单收货信息一致才过单
+                    if (distributionBean.getShipping() == distributionBean2.getShipping()){
+                        if (distributionBean.getShipping() == 0){
+                            //自提：收货人，电话一致
+                            if (distributionBean.getReceiver().equals(distributionBean2.getReceiver())
+                                    && distributionBean.getMobile().equals(distributionBean2.getMobile())){
+                                result.add(outBean);
+                            } else{
+                                _logger.warn("***shipping0 not equal***"+outBean.getFullId());
+                            }
+                        } else if (distributionBean.getShipping() == 2){
+                            //第三方快递：地址、收货人、电话完全一致
+                            if (distributionBean.getReceiver().equals(distributionBean2.getReceiver())
+                                    && distributionBean.getMobile().equals(distributionBean2.getMobile())
+                                    && StringUtils.subString(distributionBean.getAddress(),6).equals(StringUtils.subString(distributionBean2.getAddress(),6))){
+                                result.add(outBean);
+                            } else{
+                                _logger.warn("***shipping2 not equal***"+outBean.getFullId());
+                            }
+                        }
+                    } else{
+                        _logger.warn("***shipping not equal***"+outBean.getFullId());
+                    }
+                }
+            }
+            return result;
+        }
     }
     /**
      * @return the mailAttchmentPath
