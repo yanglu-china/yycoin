@@ -60,7 +60,7 @@ function load()
 	action="../tcp/apply.do?method=importShare"
 	enctype="multipart/form-data" method="post"><p:navigation
 	height="22">
-	<td width="550" class="navigation"><span>导入导入中收激励明细</span></td>
+	<td width="550" class="navigation"><span>导入中收激励明细</span></td>
 	<td width="85"></td>
 </p:navigation> <br>
 <p:body width="100%">

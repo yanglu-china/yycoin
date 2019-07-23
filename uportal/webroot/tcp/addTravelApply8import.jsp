@@ -10,6 +10,7 @@
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
+<script language="JavaScript" src="../tcp_js/floatObj.js"></script>
 <script language="JavaScript" src="../tcp_js/travelApply8.js"></script>
 <script language="javascript">
 

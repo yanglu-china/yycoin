@@ -179,7 +179,8 @@ function sumIb()
         {
             if (this.value != '')
             {
-                total += parseFloat(this.value);
+        		var m = parseFloat(this.value)*100;
+        		total = Math.round(floatObj.add(total, m));                
             }
         }
     );
@@ -189,7 +190,8 @@ function sumIb()
         {
             if (this.value != '')
             {
-                total += parseFloat(this.value);
+        		var m = parseFloat(this.value)*100;
+        		total = Math.round(floatObj.add(total, m));  
             }
         }
     );
@@ -199,7 +201,8 @@ function sumIb()
         {
             if (this.value != '')
             {
-                total += parseFloat(this.value);
+        		var m = parseFloat(this.value)*100;
+        		total = Math.round(floatObj.add(total, m));  
             }
         }
     );
@@ -209,12 +212,13 @@ function sumIb()
         {
             if (this.value != '')
             {
-                total += parseFloat(this.value);
+        		var m = parseFloat(this.value)*100;
+        		total = Math.round(floatObj.add(total, m));  
             }
         }
     );
 
-    return total;
+    return total/100;
 }
 
 var gMore = 0;
