@@ -3165,12 +3165,14 @@ public class ParentQueryFinaAction extends DispatchAction
 
             if ( !StringTools.isNullOrNone(obj[5]))
             {
-                item.setInmoney(FinanceHelper.doubleToLong(obj[5].replace(",", "")));
+                String inMoney = obj[5].trim().replace(",", "");
+                item.setInmoney(FinanceHelper.doubleToLong(inMoney));
             }
 
             if ( !StringTools.isNullOrNone(obj[6]))
             {
-                item.setOutmoney(FinanceHelper.doubleToLong(obj[6].replace(",", "")));
+                String outMoney = obj[6].trim().replace(",", "");
+                item.setOutmoney(FinanceHelper.doubleToLong(outMoney));
             }
 
             int index = 7;
