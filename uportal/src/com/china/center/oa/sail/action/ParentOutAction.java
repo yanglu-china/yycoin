@@ -6294,7 +6294,8 @@ public class ParentOutAction extends DispatchAction
                 
                 //mod by zhangxian 2019-06-18
                 //增加预占库存的扣减
-                String productIdString = request.getParameter("idsList");
+				//#718 回滚
+                /*String productIdString = request.getParameter("idsList");
                 String amountString = request.getParameter("amontList");
                 String[] idsList = new String[] {};
                 String[] amountList = new String[] {};
@@ -6332,7 +6333,7 @@ public class ParentOutAction extends DispatchAction
                             throw new MYException(String.format("入库出错,库存不足,,产品:%s",productBean.getName()));
                         }
                     }
-                }
+                }*/
                 //end mod
 				String id = outManager.addOut(outBean, map.getParameterMap(), user);
                 _logger.info("addOut 88888888888888888888*********"+id);
