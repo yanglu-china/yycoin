@@ -3268,9 +3268,6 @@ public class ShipAction extends DispatchAction
 
         List<PackageItemBean> itemList1 = new ArrayList<>();
 
-        //#189 <productId_itemType,PackageItemBean>
-//        Map<String, PackageItemBean> map1 = new HashMap<>();
-
         //#503
         boolean hasCreditChannel = false;
 
@@ -3349,9 +3346,10 @@ public class ShipAction extends DispatchAction
                 }
             }
 
-//            String key = each.getProductId();
-
-//            totalAmount += each.getAmount();
+            String refId = this.getRefId(out, each.getOutId());
+            if (!StringTools.isNullOrNone(refId)){
+                each.setRefId(refId);
+            }
             String productName = this.convertProductNameForZj(each, this.getCustomerName(vo.getCustomerName()));
             if (!StringTools.isNullOrNone(productName)){
                 each.setProductName(productName);
