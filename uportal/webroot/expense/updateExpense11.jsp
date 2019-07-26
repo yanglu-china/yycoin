@@ -83,7 +83,17 @@ function getProvinces(oos)
     var obj = oos[0];
     cityObj.value = obj.pname;
 }
+function selectOpeningBank(obj)
+{
+	cityObj = obj;
+    window.common.modal('../admin/pop.do?method=rptQueryOpeningBank&load=1&selectMode=1');
+}
 
+function getOpeningBank(oos)
+{
+    var obj = oos[0];
+    cityObj.value = obj.pname;
+}
 </script>
 </head>
 
@@ -329,7 +339,7 @@ function getProvinces(oos)
 			         </td>
 			         
 			         <td align="left"><input type="text" style="width: 100%"
-			                    name="p_bank" value="${itemEach.bankName}" >
+			                    name="p_bank" value="${itemEach.bankName}" onclick='selectOpeningBank(this)' readonly=readonly oncheck="notNone;" style='cursor: pointer;'>
 			         </td>
 			         
 			         <td align="left">
@@ -450,7 +460,7 @@ function getProvinces(oos)
          </td>
          
          <td align="left"><input type="text" style="width: 100%"
-                    name="p_bank" value="" >
+                    name="p_bank" value="" id="p_bank" onclick='selectOpeningBank(this)' readonly=readonly oncheck="notNone;" style='cursor: pointer;'>
          </td>
          
          <td align="left">

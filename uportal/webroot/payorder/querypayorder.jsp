@@ -237,7 +237,7 @@ function singleck(obj)
 										</td>
 										<td align="center">
 											<c:if test="${item.type == 1}">采购付款</c:if>
-											<c:if test="${item.type == 3}">采购预付款</c:if>
+											<c:if test="${item.type == 2}">采购预付款</c:if>
 											<c:if test="${item.type == 3}">借款申请付款</c:if>
 											<c:if test="${item.type == 4}">报销申请付款</c:if>
 											<c:if test="${item.type == 5}">预收退款</c:if>
