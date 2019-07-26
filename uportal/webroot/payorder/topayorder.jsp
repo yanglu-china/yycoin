@@ -30,6 +30,7 @@ function dopay()
 	}
 	if (window.confirm('确定付款?'))
 	{
+		
 		var formData = $("#adminForm").serialize();
 		$.ajax({
 	        type: "POST",
@@ -38,6 +39,7 @@ function dopay()
 	        success: function(data)
 	        {
 	            alert(data);
+	            window.location.href='../payorder/queryPayOrder.do?method=queryPayOrder';
 	        }
 	    });
 	}

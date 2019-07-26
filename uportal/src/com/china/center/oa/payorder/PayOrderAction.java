@@ -30,6 +30,7 @@ import com.china.center.oa.finance.manager.payorder.NbBankPayImpl;
 import com.china.center.oa.finance.vo.PayOrderListLogVO;
 import com.china.center.oa.finance.vo.PayOrderVO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.dao.OpeningBankDAO;
 import com.china.center.oa.tcp.bean.TravelApplyPayBean;
 import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
 
@@ -74,6 +75,8 @@ public class PayOrderAction extends DispatchAction {
 	private BankDAO bankDAO;
 	
 	private TravelApplyPayDAO travelApplyPayDAO;
+	
+	private OpeningBankDAO openingBankDAO;
 
 	public ActionForward queryPayOrder(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException {
@@ -315,7 +318,8 @@ public class PayOrderAction extends DispatchAction {
 					payInfoMap.put("areaSign", "1");
 				}
 				String peeBankName = vo.getPayeeBank();
-				if(payBankNameSub.indexOf(peeBankName) != -1)
+				payBankNameSub = payBankNameSub.substring(0,4);
+				if(peeBankName.indexOf(payBankNameSub) != -1)
 				{
 					//同行标识
 					payInfoMap.put("difSign","0");
@@ -387,7 +391,8 @@ public class PayOrderAction extends DispatchAction {
 					payInfoMap.put("areaSign", "1");
 				}
 				String peeBankName = vo.getPayeeBank();
-				if(payBankNameSub.indexOf(peeBankName) != -1)
+				payBankNameSub = payBankNameSub.substring(0,4);
+				if(peeBankName.indexOf(payBankNameSub) != -1)
 				{
 					//同行标识
 					payInfoMap.put("difSign","0");
@@ -498,7 +503,8 @@ public class PayOrderAction extends DispatchAction {
 							payInfoMap.put("areaSign", "1");
 						}
 						String peeBankName = payBean.getBankName();
-						if(payBankNameSub.indexOf(peeBankName) != -1)
+						payBankNameSub = payBankNameSub.substring(0,4);
+						if(peeBankName.indexOf(payBankNameSub) != -1)
 						{
 							//同行标识
 							payInfoMap.put("difSign","0");
@@ -584,7 +590,8 @@ public class PayOrderAction extends DispatchAction {
 							payInfoMap.put("areaSign", "1");
 						}
 						String peeBankName = payBean.getBankName();
-						if(payBankNameSub.indexOf(peeBankName) != -1)
+						payBankNameSub = payBankNameSub.substring(0,4);
+						if(peeBankName.indexOf(payBankNameSub) != -1)
 						{
 							//同行标识
 							payInfoMap.put("difSign","0");
@@ -655,7 +662,8 @@ public class PayOrderAction extends DispatchAction {
 						payInfoMap.put("areaSign", "1");
 					}
 					String peeBankName = vo.getPayeeBank();
-					if(payBankNameSub.indexOf(peeBankName) != -1)
+					payBankNameSub = payBankNameSub.substring(0,4);
+					if(peeBankName.indexOf(payBankNameSub) != -1)
 					{
 						//同行标识
 						payInfoMap.put("difSign","0");
@@ -670,7 +678,7 @@ public class PayOrderAction extends DispatchAction {
 					payInfoMap.put("payeeBankName",vo.getPayeeBank());
 					payInfoMap.put("payMoney", vo.getPayeeAmount());
 					payInfoMap.put("payPurpose", "预收退款");
-					payInfoMap.put("payeeBankCode", "302100011000");
+					payInfoMap.put("payeeBankCode", "308301006295");
 					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 					String retCode = retMap.get("retCode");
 					String retMsg = retMap.get("retMsg");
@@ -714,6 +722,14 @@ public class PayOrderAction extends DispatchAction {
 
 	public void setTravelApplyPayDAO(TravelApplyPayDAO travelApplyPayDAO) {
 		this.travelApplyPayDAO = travelApplyPayDAO;
+	}
+
+	public OpeningBankDAO getOpeningBankDAO() {
+		return openingBankDAO;
+	}
+
+	public void setOpeningBankDAO(OpeningBankDAO openingBankDAO) {
+		this.openingBankDAO = openingBankDAO;
 	}
 
 }

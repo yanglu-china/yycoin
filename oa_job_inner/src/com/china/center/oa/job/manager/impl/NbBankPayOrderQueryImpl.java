@@ -109,7 +109,7 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 			Map<String,String> map = new HashMap<String, String>();
 			if(StringUtils.isNotEmpty(retCode) && "0".equals(retCode))
 			{
-				String payStatus = map.get("payStatus");
+				String payStatus = retMap.get("payState");
 				if(StringUtils.isNotEmpty(payStatus) && "00".equals(payStatus))
 				{
 					//付款成功，更新log表的状态
@@ -129,18 +129,18 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 					}
 					if(CONSTANTS_PAYORDERTYPE_3.equals(vo.getType()))
 					{
-						UserVO user = userDAO.findFirstUserByStafferId(vo.getOperatorId());
+						UserVO user = userDAO.findVO(vo.getOperatorId());
 						BankBean bankBean = bankDAO.find(vo.getPayBankId());
 						endPayOrder3ByCash(user, user.getId(), erpno, vo.getPayBankId(), vo.getMoney(), bankBean);
 					}
 					if(CONSTANTS_PAYORDERTYPE_4.equals(vo.getType()))
 					{
-						UserVO user = userDAO.findFirstUserByStafferId(vo.getOperatorId());
+						UserVO user = userDAO.findVO(vo.getOperatorId());
 						endPayOrder4ByCash(user, erpno, vo.getPayBankId(), vo.getMoney());
 					}
 					if(CONSTANTS_PAYORDERTYPE_5.equals(vo.getType()))
 					{
-						UserVO user = userDAO.findFirstUserByStafferId(vo.getOperatorId());
+						UserVO user = userDAO.findVO(vo.getOperatorId());
 						endPayOrder5ByCash(user, erpno,vo.getPayBankId(), vo.getMoney());
 					}
 				}

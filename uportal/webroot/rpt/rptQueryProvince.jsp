@@ -22,9 +22,7 @@ function sures()
 
 function add()
 {
-	console.log(1);
     var opener = window.common.opener();
-    console.log(2);
     var oo = getCheckBox("beans");
     
     if (oo && oo.length == 0)
