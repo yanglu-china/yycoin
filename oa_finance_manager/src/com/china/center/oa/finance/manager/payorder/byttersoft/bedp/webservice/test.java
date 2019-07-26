@@ -56,7 +56,8 @@ public class test {
 //		t.queryTransfer();
 //		t.queryCurdTl();
 		NbBankPayImpl impl = new NbBankPayImpl();
-		impl.queryHisDtl();
+		impl.queryCurdTl("125902780610502");
+//		impl.queryTransfer("YT201907171774075939");
 	}
 	
 	public void erpTransfer()
