@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query>
+	
+	<item name="queryNbBankHisData" deaultpfix="NbBankHisDataBean">
+		<condtion name="serialId" caption="主键id">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="bankAcc" caption="账号">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="bankName" caption="开户银行">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="accName" caption="户名">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="oppAccNo" caption="对方账号">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="oppAccName" caption="对方户名">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="oppAccBank" caption="对方开户行">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="cdSign" caption="收支方向">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="amt" caption="交易金额">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="bal" caption="明细余额">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="voucherNo" caption="凭证号号">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="transDate" caption="交易日期">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="uses" caption="用途">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="remark" caption="备注">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+	</item>
+</query>

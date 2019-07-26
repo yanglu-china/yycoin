@@ -46,6 +46,10 @@ public class PayOrderListLogVO implements Serializable {
 	private String bankstatus;
 	
 	private String bankpaytime;
+	
+	private String payBankId;
+	
+	private String operatorId;
 
 	public String getId() {
 		return id;
@@ -197,6 +201,22 @@ public class PayOrderListLogVO implements Serializable {
 
 	public void setBankpaytime(String bankpaytime) {
 		this.bankpaytime = bankpaytime;
+	}
+
+	public String getPayBankId() {
+		return payBankId;
+	}
+
+	public void setPayBankId(String payBankId) {
+		this.payBankId = payBankId;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
 	}
 
 }

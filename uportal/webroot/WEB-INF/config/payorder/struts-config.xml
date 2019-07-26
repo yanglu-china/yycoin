@@ -10,6 +10,12 @@
             <forward name="queryPayOrder" path="/payorder/querypayorder.jsp" />
             <forward name="toPayOrder" path="/payorder/topayorder.jsp" />
         </action>
+        
+        <action path="/payorder/queryHisData" parameter="method"
+            type="org.springframework.web.struts.DelegatingActionProxy"
+            validate="false">
+            <forward name="queryHisData" path="/payorderquerynbbankhisdata.jsp" />
+        </action>
 	</action-mappings>
 	
 </struts-config>
