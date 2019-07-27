@@ -1,4 +1,4 @@
 dependencies {
     compile project(':oa_job_manager'),project(':oa_sail_manager'),project(':oa_product_manager'),
-            project(':oa_public_manager'),project(':oa_finance_manager')
+            project(':oa_public_manager'),project(':oa_finance_manager'),project(':oa_tcp_manager')
 }

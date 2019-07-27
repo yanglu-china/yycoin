@@ -21,8 +21,10 @@ UPDATE t_center_express SET tbcode='DBL' WHERE id=100;
 
 CREATE TABLE `t_center_taobao_token` (
   `token` varchar(128) DEFAULT NULL,
-  `createtime` varchar(48) DEFAULT NULL
+  `createtime` varchar(48) DEFAULT NULL,
+  customerid  varchar(48) DEFAULT NULL
 );
 
-insert  into `t_center_taobao_token`(`token`,`createtime`) values 
-('6100d2077352c378485f7704783319c7b738e5390fe127d2835588043','2019-06-03 12:59:43');
+insert into `t_center_taobao_token` (`token`, `createtime`, `customerid`) values('6100d2077352c378485f7704783319c7b738e5390fe127d2835588043','2019-06-03 12:59:43','651827562');
+insert into `t_center_taobao_token` (`token`, `createtime`, `customerid`) values('6102600618a5bf698e5184f7f0aa4c473c4e5f0cab75dc93470163760','2019-06-03 12:59:43','651827564');
+insert into `t_center_taobao_token` (`token`, `createtime`, `customerid`) values('6102209ac6037e90f14f5ff029a71eb1f138d5d8308b34c4157585996','2019-06-03 12:59:43','607296916');

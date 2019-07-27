@@ -8,7 +8,12 @@
 	   
 	<bean name="/payorder/queryPayOrder" class="com.china.center.oa.payorder.PayOrderAction">
 	</bean>
+	
+	<bean name="/payorder/queryHisData" class="com.china.center.oa.payorder.NbBankQueryHisDataAction">
+	</bean>
 		
 	<bean name="payOrderDao" id="payOrderDao" class="com.china.center.oa.finance.dao.impl.PayOrderDAOImpl" />
+	
+	<bean name="nbBankHisDataDao" id="nbBankHisDataDao" class="com.china.center.oa.finance.dao.impl.NbBankHisDataDAOImpl" />
 		
 </beans>

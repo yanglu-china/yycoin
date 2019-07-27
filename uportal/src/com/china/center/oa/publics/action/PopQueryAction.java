@@ -41,6 +41,7 @@ import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.LocationBean;
+import com.china.center.oa.publics.bean.OpeningBankBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.ProvinceBean;
 import com.china.center.oa.publics.constant.PublicConstant;
@@ -49,6 +50,7 @@ import com.china.center.oa.publics.dao.CityDAO;
 import com.china.center.oa.publics.dao.DutyDAO;
 import com.china.center.oa.publics.dao.LocationDAO;
 import com.china.center.oa.publics.dao.LogDAO;
+import com.china.center.oa.publics.dao.OpeningBankDAO;
 import com.china.center.oa.publics.dao.PrincipalshipDAO;
 import com.china.center.oa.publics.dao.ProvinceDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
@@ -101,12 +103,18 @@ public class PopQueryAction extends DispatchAction
     private PrincipalshipDAO principalshipDAO = null;
     
     private ProvinceDAO provinceDAO;
+    
+    private OpeningBankDAO opengingBankDAO;
 
     private static String RPTQUERYSTAFFER = "rptQueryStaffer";
 
     private static String RPTQUERYORG = "rptQueryOrg";
 
     private static String RPTQUERYCITY = "rptQueryCity";
+    
+    private static String RPTQUERYPROVINCE = "rptQueryProvince";
+    
+    private static String RPTQUERYOPENINGBANK = "rptQueryOpeningBank";
 
     private static String RPTQUERYUSER = "rptQueryUser";
     
@@ -379,7 +387,7 @@ public class PopQueryAction extends DispatchAction
     }
     
     /**
-     * rptQueryCity
+     * rptQueryProvince
      * 
      * @param mapping
      * @param form
@@ -396,7 +404,7 @@ public class PopQueryAction extends DispatchAction
 
         List<ProvinceBean> list = null;
 
-        String cacheKey = RPTQUERYCITY;
+        String cacheKey = RPTQUERYPROVINCE;
 
         if (PageSeparateTools.isFirstLoad(request))
         {
@@ -425,6 +433,61 @@ public class PopQueryAction extends DispatchAction
         request.setAttribute("beanList", list);
 
         return mapping.findForward("rptQueryProvince");
+    }
+    
+    
+    /**
+     * rptQueryOpeningBank
+     * 
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward rptQueryOpeningBank(ActionMapping mapping, ActionForm form,
+                                      HttpServletRequest request, HttpServletResponse reponse)
+        throws ServletException
+    {
+        CommonTools.saveParamers(request);
+
+        List<OpeningBankBean> list = null;
+
+        String cacheKey = RPTQUERYOPENINGBANK;
+        
+
+        if (PageSeparateTools.isFirstLoad(request))
+        {
+            ConditionParse condtion = new ConditionParse();
+
+            condtion.addWhereStr();
+            
+            String bankName = request.getParameter("bankName");
+            if ( !StringTools.isNullOrNone(bankName))
+            {
+                condtion.addCondition("OpeningBankBean.bankname", "like", bankName);
+            }
+
+            int total = opengingBankDAO.countVOByCondition(condtion.toString());
+
+            PageSeparate page = new PageSeparate(total, PublicConstant.PAGE_COMMON_SIZE);
+
+            PageSeparateTools.initPageSeparate(condtion, page, request, cacheKey);
+
+            list = opengingBankDAO.queryEntityVOsByCondition(condtion, page);
+        }
+        else
+        {
+            PageSeparateTools.processSeparate(request, cacheKey);
+
+            list = opengingBankDAO.queryEntityVOsByCondition(PageSeparateTools.getCondition(request,
+                cacheKey), PageSeparateTools.getPageSeparate(request, cacheKey));
+        }
+
+        request.setAttribute("beanList", list);
+
+        return mapping.findForward("rptQueryOpeningBank");
     }
 
     /**
@@ -908,6 +971,14 @@ public class PopQueryAction extends DispatchAction
 
 	public void setProvinceDAO(ProvinceDAO provinceDAO) {
 		this.provinceDAO = provinceDAO;
+	}
+
+	public OpeningBankDAO getOpengingBankDAO() {
+		return opengingBankDAO;
+	}
+
+	public void setOpengingBankDAO(OpeningBankDAO opengingBankDAO) {
+		this.opengingBankDAO = opengingBankDAO;
 	}
 
     

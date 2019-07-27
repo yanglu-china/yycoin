@@ -10,7 +10,7 @@ public class NbBankQueryHisDtlLoopResp {
 	
 	List<NbBankQueryHisDtlLoopData> loopData;
 
-	@XmlElement
+	@XmlElement(name = "map")
 	public List<NbBankQueryHisDtlLoopData> getLoopData() {
 		return loopData;
 	}

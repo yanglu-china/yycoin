@@ -84,7 +84,17 @@ function getProvinces(oos)
     var obj = oos[0];
     cityObj.value = obj.pname;
 }
+function selectOpeningBank(obj)
+{
+	cityObj = obj;
+    window.common.modal('../admin/pop.do?method=rptQueryOpeningBank&load=1&selectMode=1');
+}
 
+function getOpeningBank(oos)
+{
+    var obj = oos[0];
+    cityObj.value = obj.pname;
+}
 </script>
 </head>
 
@@ -136,7 +146,7 @@ function getProvinces(oos)
             
             <p:pro field="receiver" cell="0"/>
             
-            <p:pro field="receiveBank" innerString="size=40" cell="0"/>
+            <p:pro field="receiveBank" innerString="onclick='selectOpeningBank(this)' style='cursor: pointer;'" cell="0" />
             
             <p:pro field="receiveAccount" innerString="size=40" cell="0"/>
             

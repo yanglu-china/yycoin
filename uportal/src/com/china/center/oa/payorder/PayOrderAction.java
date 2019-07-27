@@ -22,25 +22,17 @@ import org.apache.struts.actions.DispatchAction;
 
 import com.center.china.osgi.publics.User;
 import com.china.center.actionhelper.common.JSONTools;
-import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.finance.bean.BankBean;
-import com.china.center.oa.finance.bean.OutBillBean;
 import com.china.center.oa.finance.dao.BankDAO;
 import com.china.center.oa.finance.dao.PayOrderDAO;
-import com.china.center.oa.finance.facade.FinanceFacade;
 import com.china.center.oa.finance.manager.payorder.NbBankPayImpl;
 import com.china.center.oa.finance.vo.PayOrderListLogVO;
 import com.china.center.oa.finance.vo.PayOrderVO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.dao.OpeningBankDAO;
 import com.china.center.oa.tcp.bean.TravelApplyPayBean;
-import com.china.center.oa.tcp.dao.TravelApplyItemDAO;
 import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
-import com.china.center.oa.tcp.manager.BackPrePayManager;
-import com.china.center.oa.tcp.manager.ExpenseManager;
-import com.china.center.oa.tcp.manager.TravelApplyManager;
-import com.china.center.oa.tcp.wrap.TcpParamWrap;
-import com.china.center.tools.MathTools;
 
 public class PayOrderAction extends DispatchAction {
 
@@ -76,38 +68,15 @@ public class PayOrderAction extends DispatchAction {
 	 */
 	private final String CONSTANTS_PAYORDERSTATUS_1 = "1";
 
-	/**
-	 * 待确认
-	 */
-	private final String CONSTANTS_PAYORDERSTATUS_2 = "2";
-
-	/**
-	 * 已付款
-	 */
-	private final String CONSTANTS_PAYORDERSTATUS_3 = "3";
-
-	/**
-	 * 未成功待付款
-	 */
-	private final String CONSTANTS_PAYORDERSTATUS_4 = "4";
-	
 	private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	private PayOrderDAO payOrderDao;
 
 	private BankDAO bankDAO;
-
-	private FinanceFacade financeFacade;
-
-	private BackPrePayManager backPrePayManager;
-
-	private ExpenseManager expenseManager;
-
-	private TravelApplyItemDAO travelApplyItemDAO;
-
+	
 	private TravelApplyPayDAO travelApplyPayDAO;
-
-	private TravelApplyManager travelApplyManager;
+	
+	private OpeningBankDAO openingBankDAO;
 
 	public ActionForward queryPayOrder(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException {
@@ -349,7 +318,8 @@ public class PayOrderAction extends DispatchAction {
 					payInfoMap.put("areaSign", "1");
 				}
 				String peeBankName = vo.getPayeeBank();
-				if(payBankNameSub.indexOf(peeBankName) != -1)
+				payBankNameSub = payBankNameSub.substring(0,4);
+				if(peeBankName.indexOf(payBankNameSub) != -1)
 				{
 					//同行标识
 					payInfoMap.put("difSign","0");
@@ -359,6 +329,7 @@ public class PayOrderAction extends DispatchAction {
 					//跨行标识
 					payInfoMap.put("difSign","1");
 				}
+				payInfoMap.put("payPurpose", "采购付款");
 				//先生成付款日志数据
 				PayOrderListLogVO logvo = new PayOrderListLogVO();
 				logvo.setId(String.valueOf(System.currentTimeMillis()));
@@ -378,24 +349,22 @@ public class PayOrderAction extends DispatchAction {
 				logvo.setPaybank(bankBean.getName());
 				//待确认
 				logvo.setBankstatus("0");
+				logvo.setPayBankId(bankId);
+				logvo.setOperatorId(user.getId());
 				//先生成付款日志数据
 				payOrderDao.createPayListLog(logvo);
 				// bank支持电子支付
 				if (tempFlag) {
 					payInfoMap.put("payeeAccNo", vo.getPayeeBankAcc());
 					payInfoMap.put("payeeAccName", vo.getPayeeBankAccName());
+					payInfoMap.put("payMoney", vo.getPayeeAmount());
 					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 					String retCode = retMap.get("retCode");
 					String retMsg = retMap.get("retMsg");
 					//success
-					if("0".equals(retCode))
+					if(!"0".equals(retCode))
 					{
-						retMsg = endPayOrder1ByCash(user.getId(), billNo, bankId, vo.getPayeeAmount());
-						errmsg.append(retMsg);
-					}
-					else
-					{
-						errmsg.append(retMsg);
+						errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
 					}
 					
 				}
@@ -422,7 +391,8 @@ public class PayOrderAction extends DispatchAction {
 					payInfoMap.put("areaSign", "1");
 				}
 				String peeBankName = vo.getPayeeBank();
-				if(payBankNameSub.indexOf(peeBankName) != -1)
+				payBankNameSub = payBankNameSub.substring(0,4);
+				if(peeBankName.indexOf(payBankNameSub) != -1)
 				{
 					//同行标识
 					payInfoMap.put("difSign","0");
@@ -432,6 +402,8 @@ public class PayOrderAction extends DispatchAction {
 					//跨行标识
 					payInfoMap.put("difSign","1");
 				}
+				payInfoMap.put("payMoney", vo.getPayeeAmount());
+				payInfoMap.put("payPurpose", "采购预付款");
 				//先生成付款日志数据
 				PayOrderListLogVO logvo = new PayOrderListLogVO();
 				logvo.setId(String.valueOf(System.currentTimeMillis()));
@@ -451,6 +423,8 @@ public class PayOrderAction extends DispatchAction {
 				logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
 				logvo.setPayaccount(bankBean.getBankNo());
 				logvo.setPaybank(bankBean.getName());
+				logvo.setPayBankId(bankId);
+				logvo.setOperatorId(user.getId());
 				//待确认
 				logvo.setBankstatus("0");
 				//先生成付款日志数据
@@ -461,14 +435,9 @@ public class PayOrderAction extends DispatchAction {
 					String retCode = retMap.get("retCode");
 					String retMsg = retMap.get("retMsg");
 					//success
-					if("0".equals(retCode))
+					if(!"0".equals(retCode))
 					{
-						retMsg = endPayOrder2ByCash(user.getId(), billNo, bankId, vo.getPayeeAmount());
-						errmsg.append(retMsg);
-					}
-					else
-					{
-						errmsg.append(retMsg);
+						errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
 					}
 				}
 
@@ -514,6 +483,8 @@ public class PayOrderAction extends DispatchAction {
 					logvo.setPaybank(bankBean.getName());
 					//待确认
 					logvo.setBankstatus("0");
+					logvo.setPayBankId(bankId);
+					logvo.setOperatorId(user.getId());
 					//先生成付款日志数据
 					payOrderDao.createPayListLog(logvo);
 					
@@ -532,7 +503,8 @@ public class PayOrderAction extends DispatchAction {
 							payInfoMap.put("areaSign", "1");
 						}
 						String peeBankName = payBean.getBankName();
-						if(payBankNameSub.indexOf(peeBankName) != -1)
+						payBankNameSub = payBankNameSub.substring(0,4);
+						if(peeBankName.indexOf(payBankNameSub) != -1)
 						{
 							//同行标识
 							payInfoMap.put("difSign","0");
@@ -544,18 +516,15 @@ public class PayOrderAction extends DispatchAction {
 						}
 						payInfoMap.put("payeeAccNo", payBean.getBankNo());
 						payInfoMap.put("payeeAccName", payBean.getUserName());
+						payInfoMap.put("payMoney", vo.getPayeeAmount());
+						payInfoMap.put("payPurpose", "借款申请付款");
 						Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 						String retCode = retMap.get("retCode");
 						String retMsg = retMap.get("retMsg");
 						//success
-						if("0".equals(retCode))
+						if(!"0".equals(retCode))
 						{
-							retMsg = endPayOrder3ByCash(user, user.getId(), billNo, bankId, vo.getPayeeAmount(),bankBean);
-							errmsg.append(retMsg);
-						}
-						else
-						{
-							errmsg.append(retMsg);
+							errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
 						}
 					}
 				}
@@ -603,6 +572,8 @@ public class PayOrderAction extends DispatchAction {
 					logvo.setPaybank(bankBean.getName());
 					//待确认
 					logvo.setBankstatus("0");
+					logvo.setPayBankId(bankId);
+					logvo.setOperatorId(user.getId());
 					//先生成付款日志数据
 					payOrderDao.createPayListLog(logvo);
 					// bank支持电子支付
@@ -619,7 +590,8 @@ public class PayOrderAction extends DispatchAction {
 							payInfoMap.put("areaSign", "1");
 						}
 						String peeBankName = payBean.getBankName();
-						if(payBankNameSub.indexOf(peeBankName) != -1)
+						payBankNameSub = payBankNameSub.substring(0,4);
+						if(peeBankName.indexOf(payBankNameSub) != -1)
 						{
 							//同行标识
 							payInfoMap.put("difSign","0");
@@ -631,18 +603,15 @@ public class PayOrderAction extends DispatchAction {
 						}
 						payInfoMap.put("payeeAccNo", payBean.getBankNo());
 						payInfoMap.put("payeeAccName", payBean.getUserName());
+						payInfoMap.put("payMoney", vo.getPayeeAmount());
+						payInfoMap.put("payPurpose", "报销申请付款");
 						Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 						String retCode = retMap.get("retCode");
 						String retMsg = retMap.get("retMsg");
 						//success
-						if("0".equals(retCode))
+						if(!"0".equals(retCode))
 						{
-							retMsg = endPayOrder4ByCash(user, billNo, bankId, vo.getPayeeAmount());
-							errmsg.append(retMsg);
-						}
-						else
-						{
-							errmsg.append(retMsg);
+							errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
 						}
 					}
 				}
@@ -675,6 +644,8 @@ public class PayOrderAction extends DispatchAction {
 				logvo.setPaybank(bankBean.getName());
 				//待确认
 				logvo.setBankstatus("0");
+				logvo.setPayBankId(bankId);
+				logvo.setOperatorId(user.getId());
 				//先生成付款日志数据
 				payOrderDao.createPayListLog(logvo);
 				// bank支持电子支付
@@ -691,7 +662,8 @@ public class PayOrderAction extends DispatchAction {
 						payInfoMap.put("areaSign", "1");
 					}
 					String peeBankName = vo.getPayeeBank();
-					if(payBankNameSub.indexOf(peeBankName) != -1)
+					payBankNameSub = payBankNameSub.substring(0,4);
+					if(peeBankName.indexOf(payBankNameSub) != -1)
 					{
 						//同行标识
 						payInfoMap.put("difSign","0");
@@ -701,18 +673,19 @@ public class PayOrderAction extends DispatchAction {
 						//跨行标识
 						payInfoMap.put("difSign","1");
 					}
+					payInfoMap.put("payeeAccNo", vo.getPayeeBankAcc());
+					payInfoMap.put("payeeAccName", vo.getPayeeBankAccName());
+					payInfoMap.put("payeeBankName",vo.getPayeeBank());
+					payInfoMap.put("payMoney", vo.getPayeeAmount());
+					payInfoMap.put("payPurpose", "预收退款");
+					payInfoMap.put("payeeBankCode", "308301006295");
 					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 					String retCode = retMap.get("retCode");
 					String retMsg = retMap.get("retMsg");
 					//success
-					if("0".equals(retCode))
+					if(!"0".equals(retCode))
 					{
-						retMsg = endPayOrder5ByCash(user, billNo, bankId, vo.getPayeeAmount());
-						errmsg.append(retMsg);
-					}
-					else
-					{
-						errmsg.append(retMsg);
+						errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
 					}
 				}
 			}
@@ -725,186 +698,7 @@ public class PayOrderAction extends DispatchAction {
 		return JSONTools.writeResponse(response, errmsg.toString());
 	}
 
-	/**
-	 * 非网银付款--采购付款
-	 * 
-	 * @param userId
-	 * @param billNo
-	 * @param bankId
-	 * @param amount
-	 */
-	public String endPayOrder1ByCash(String userId, String billNo, String bankId, String amount) {
-		String retMsg = "";
-		List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
-		OutBillBean outBill = new OutBillBean();
-		outBill.setBankId(bankId);
-		outBill.setPayType(0);
-		outBill.setMoneys(new BigDecimal(amount).doubleValue());
-		outBillList.add(outBill);
-
-		try {
-			// 结束采购付款
-			financeFacade.endStockPayBySEC(userId, billNo, "集中付款-现金-采购付款", outBillList);
-		} catch (MYException e) {
-			payLog.error("endPayOrder1ByCash error", e);
-			retMsg = e.getMessage();
-		}
-		return retMsg;
-	}
-
-	/**
-	 * 非网银付款--采购预付款
-	 * 
-	 * @param userId
-	 * @param billNo
-	 * @param bankId
-	 * @param amount
-	 * @return
-	 */
-	public String endPayOrder2ByCash(String userId, String billNo, String bankId, String amount) {
-		String retMsg = "";
-		List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
-		OutBillBean outBill = new OutBillBean();
-		outBill.setBankId(bankId);
-		outBill.setPayType(0);
-		outBill.setMoneys(new BigDecimal(amount).doubleValue());
-		outBillList.add(outBill);
-
-		try {
-			// 结束采购预付款
-			financeFacade.endStockPrePayBySEC(userId, billNo, "集中付款-现金-采购预付款", outBillList);
-
-		} catch (MYException e) {
-			retMsg = e.getMessage();
-			payLog.error("endPayOrder2ByCash error", e);
-		}
-
-		return retMsg;
-
-	}
-
-	/**
-	 * 借款申请
-	 * 
-	 * @param userId
-	 * @param billNo
-	 * @param bankId
-	 * @param amount
-	 * @return
-	 */
-
-	public String endPayOrder3ByCash(User user, String userId, String billNo, String bankId, String amount,BankBean bankBean) {
-		String retMsg = "";
-		try {
-			TcpParamWrap param = new TcpParamWrap();
-
-			param.setId(billNo);
-			param.setType("0");
-			param.setReason("审批通过");
-			param.setProcessId("");
-			param.setCompliance("0");
-
-			List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
-			OutBillBean outBill = new OutBillBean();
-			outBill.setBankId(bankId);
-			outBill.setPayType(0);
-			outBill.setMoneys(MathTools.parseDouble(amount));
-			outBillList.add(outBill);
-			param.setOther(outBillList);
-			
-			param.setDutyId(bankBean.getDutyId());
-
-			// 提交
-			travelApplyManager.passTravelApplyBean(user, param);
-
-		} catch (MYException e) {
-			retMsg = e.getMessage();
-			payLog.error("endPayOrder3ByCash error", e);
-		}
-		return retMsg;
-	}
-
-	/**
-	 * 报销申请
-	 * 
-	 * @param user
-	 * @param billNo
-	 * @param bankId
-	 * @param amount
-	 * @return
-	 */
-	public String endPayOrder4ByCash(User user, String billNo, String bankId, String amount) {
-		String retMsg = "";
-		try {
-			TcpParamWrap param = new TcpParamWrap();
-
-			param.setId(billNo);
-			param.setType("0");
-			param.setReason("审批通过");
-			param.setProcessId("");
-			param.setCompliance("0");
-
-			List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
-			OutBillBean outBill = new OutBillBean();
-
-			outBill.setBankId(bankId);
-
-			outBill.setPayType(0);
-
-			outBill.setMoneys(MathTools.parseDouble(amount));
-
-			outBillList.add(outBill);
-
-			param.setOther(outBillList);
-
-			expenseManager.passExpenseBean(user, param);
-
-		} catch (MYException e) {
-			payLog.error("endPayOrder4ByCash error", e);
-			retMsg = e.getMessage();
-		}
-
-		return retMsg;
-
-	}
-
-	/**
-	 * 非网银付款--预收退款
-	 * 
-	 * @return
-	 */
-	public String endPayOrder5ByCash(User user, String billNo, String bankId, String amount) {
-		String retMsg = "";
-		TcpParamWrap param = new TcpParamWrap();
-		param.setId(billNo);
-		param.setType("0");
-		param.setReason("审批通过");
-		param.setProcessId("");
-
-		List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
-		OutBillBean outBill = new OutBillBean();
-		outBill.setBankId(bankId);
-		outBill.setPayType(0);
-		outBill.setMoneys(new BigDecimal(amount).doubleValue());
-		outBillList.add(outBill);
-		param.setOther(outBillList);
-
-		try {
-			backPrePayManager.passBackPrePayBean(user, param);
-		} catch (MYException e) {
-			retMsg = e.getMessage();
-			payLog.error("endPayOrder5ByCash error", e);
-		}
-		return retMsg;
-	}
 	
-	public FinanceFacade getFinanceFacade() {
-		return financeFacade;
-	}
-
-	public void setFinanceFacade(FinanceFacade financeFacade) {
-		this.financeFacade = financeFacade;
-	}
 
 	public PayOrderDAO getPayOrderDao() {
 		return payOrderDao;
@@ -922,30 +716,6 @@ public class PayOrderAction extends DispatchAction {
 		this.bankDAO = bankDAO;
 	}
 
-	public BackPrePayManager getBackPrePayManager() {
-		return backPrePayManager;
-	}
-
-	public void setBackPrePayManager(BackPrePayManager backPrePayManager) {
-		this.backPrePayManager = backPrePayManager;
-	}
-
-	public ExpenseManager getExpenseManager() {
-		return expenseManager;
-	}
-
-	public void setExpenseManager(ExpenseManager expenseManager) {
-		this.expenseManager = expenseManager;
-	}
-
-	public TravelApplyItemDAO getTravelApplyItemDAO() {
-		return travelApplyItemDAO;
-	}
-
-	public void setTravelApplyItemDAO(TravelApplyItemDAO travelApplyItemDAO) {
-		this.travelApplyItemDAO = travelApplyItemDAO;
-	}
-
 	public TravelApplyPayDAO getTravelApplyPayDAO() {
 		return travelApplyPayDAO;
 	}
@@ -954,12 +724,12 @@ public class PayOrderAction extends DispatchAction {
 		this.travelApplyPayDAO = travelApplyPayDAO;
 	}
 
-	public TravelApplyManager getTravelApplyManager() {
-		return travelApplyManager;
+	public OpeningBankDAO getOpeningBankDAO() {
+		return openingBankDAO;
 	}
 
-	public void setTravelApplyManager(TravelApplyManager travelApplyManager) {
-		this.travelApplyManager = travelApplyManager;
+	public void setOpeningBankDAO(OpeningBankDAO openingBankDAO) {
+		this.openingBankDAO = openingBankDAO;
 	}
 
 }
