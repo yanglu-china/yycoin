@@ -638,7 +638,7 @@ public class PackageManagerImpl implements PackageManager {
 
 	// 2015/1/13 update
 	private void setInnerCondition(DistributionVOInterface distVO, String location, ConditionParse con,
-			String customerId) {
+			String customerId, String industryName) {
 		int shipping = distVO.getShipping();
 		if (shipping == 0) {
 			// 发货方式也必须一致
@@ -651,7 +651,8 @@ public class PackageManagerImpl implements PackageManager {
 
 			// #225
 			con.addCondition("PackageBean.locationId", "=", location);
-			this.checkZjgh(customerId, con);
+//			this.checkZjgh(customerId, con);
+			this.addIndustryCondition(industryName, customerId, con);
 			con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
 			con.addCondition(" and PackageBean.status in(0,5)");
 		} else if (shipping == 2) {
@@ -684,7 +685,8 @@ public class PackageManagerImpl implements PackageManager {
 			con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 			// #225
 			con.addCondition("PackageBean.locationId", "=", location);
-			this.checkZjgh(customerId, con);
+//			this.checkZjgh(customerId, con);
+			this.addIndustryCondition(industryName, customerId, con);
 			con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
 			con.addCondition(" and PackageBean.status in(0,5)");
 		} else {
@@ -704,14 +706,24 @@ public class PackageManagerImpl implements PackageManager {
 
 			con.addCondition("PackageBean.locationId", "=", location);
 
-			this.checkZjgh(customerId, con);
-
+//			this.checkZjgh(customerId, con);
+			this.addIndustryCondition(industryName, customerId, con);
 			con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
 
 			con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 
 			con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
 			con.addCondition(" and PackageBean.status in(0,5)");
+		}
+	}
+
+	private void addIndustryCondition(String industryName, String customerId, ConditionParse con){
+		_logger.info("***industryName***"+industryName);
+		//#320 中金国华
+		if ("575852694".equals(customerId) ||
+		//#713 钱币事业部
+		(!StringTools.isNullOrNone(industryName) && industryName.contains("钱币事业部"))){
+			con.addCondition("PackageBean.customerId", "=", customerId);
 		}
 	}
 
@@ -777,7 +789,7 @@ public class PackageManagerImpl implements PackageManager {
 
 		con.addWhereStr();
 
-		setInnerCondition(distVO, location, con, out.getCustomerId());
+		setInnerCondition(distVO, location, con, out.getCustomerId(), out.getIndustryName());
 
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
@@ -980,7 +992,7 @@ public class PackageManagerImpl implements PackageManager {
 
 		con.addWhereStr();
 
-		setInnerCondition(distVO, location, con, out.getCustomerId());
+		setInnerCondition(distVO, location, con, out.getCustomerId(), out.getIndustryName());
 
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
@@ -1183,7 +1195,7 @@ public class PackageManagerImpl implements PackageManager {
 
 		con.addWhereStr();
 
-		setInnerCondition(distVO, location, con, ins.getCustomerId());
+		setInnerCondition(distVO, location, con, ins.getCustomerId(), null);
 		_logger.info("****con****" + con);
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
