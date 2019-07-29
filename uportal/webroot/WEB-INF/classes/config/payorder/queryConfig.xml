@@ -2,11 +2,7 @@
 <query>
 	
 	<item name="queryNbBankHisData" deaultpfix="NbBankHisDataBean">
-		<condtion name="serialId" caption="主键id">
-			<opr>like</opr>
-			<type>text</type>
-		</condtion>
-		<condtion name="bankAcc" caption="账号">
+		<condtion name="bankAcc" caption="付款账号">
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
@@ -30,24 +26,8 @@
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
-		<condtion name="cdSign" caption="收支方向">
-			<opr>like</opr>
-			<type>text</type>
-		</condtion>
 		<condtion name="amt" caption="交易金额">
-			<opr>like</opr>
-			<type>text</type>
-		</condtion>
-		<condtion name="bal" caption="明细余额">
-			<opr>like</opr>
-			<type>text</type>
-		</condtion>
-		<condtion name="voucherNo" caption="凭证号号">
-			<opr>like</opr>
-			<type>text</type>
-		</condtion>
-		<condtion name="transDate" caption="交易日期">
-			<opr>like</opr>
+			<opr>=</opr>
 			<type>text</type>
 		</condtion>
 		<condtion name="uses" caption="用途">

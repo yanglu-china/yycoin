@@ -17,8 +17,7 @@ var allDef = window.top.topFrame.allDef;
 
 function load()
 {
-     preload();
-    
+	 preload();
 	 guidMap = {
 		 title: '明细列表',
 		 url: '../payorder/queryHisData.do?method=queryHisData',
@@ -29,7 +28,7 @@ function load()
 		     {display: '对方账号', name : 'oppAccNo', width : '15%', sortable : true, align: 'left'},
 		     {display: '对方户名', name : 'oppAccName', width : '15%', sortable : false, align: 'left'},
 		     {display: '对方开户行', name : 'oppAccBank', width : '10%', sortable : false, align: 'left'},
-		     {display: '收支方向', name : 'cdSign', width : '5%', sortable : false, align: 'left'},
+		     {display: '收支方向', name : 'cdSign', width : '5%', sortable : false, align: 'left',process:formatCdSign},
 		     {display: '交易金额', name : 'amt', width : '6%'},
 		     {display: '明细余额', name : 'bal', width : '6%',  toFixed: 2},
 		     {display: '凭证号号', name : 'voucherNo', width : '8%', sortable : false},
@@ -39,7 +38,7 @@ function load()
 		     ],
 		 buttons : [
 		     {id: 'search', bclass: 'search', onpress : doSearch}
-		     ]
+		     ],
 		 <p:conf/>
 	 };
 	 
@@ -50,14 +49,26 @@ function $callBack()
 {
     loadForm();
     
-    highlights($("#mainTable").get(0), ['设置', '正常'], 'blue');
+    //highlights($("#mainTable").get(0), ['设置', '正常'], 'blue');
     
-    highlights($("#mainTable").get(0), ['未设置', '废弃'], 'red');
+    //highlights($("#mainTable").get(0), ['未设置', '废弃'], 'red');
 }
  
 function doSearch()
 {
-    //$modalQuery('../admin/query.do?method=popCommonQuery2&key=queryStaffer');
+    $modalQuery('../admin/query.do?method=popCommonQuery2&key=queryNbBankHisData');
+}
+function formatCdSign(obj)
+{
+	var val = $(obj).text();
+	if(val == 1)
+	{
+		$(obj).text("支出");
+	}
+	else
+	{
+		$(obj).text("收入");
+	}
 }
 </script>
 </head>
@@ -68,5 +79,8 @@ function doSearch()
 </form>
 <p:message></p:message>
 <table id="mainTable" style="display: none"></table>
-<p:query/>
+<p:query height="40px" />
+
+<p:query />
 </body>
+</html>
