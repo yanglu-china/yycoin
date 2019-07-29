@@ -68,8 +68,9 @@ function getInBill(oos)
 
 function selectCity(obj)
 {
+	var provinceId = $O('provinceId').value;
 	cityObj = obj;
-    window.common.modal('../admin/pop.do?method=rptQueryCity&load=1&selectMode=1');
+    window.common.modal('../admin/pop.do?method=rptQueryCity&load=1&selectMode=1&provinceId=' + provinceId);
 }
 
 
@@ -82,6 +83,7 @@ function selectProvince(obj)
 function getProvinces(oos)
 {
     var obj = oos[0];
+	$O('provinceId').value=obj.value;
     cityObj.value = obj.pname;
 }
 function selectOpeningBank(obj)
@@ -109,6 +111,7 @@ function getOpeningBank(oos)
 <input type="hidden" name="departmentId" value="${g_stafferBean.principalshipId}"> 
 <input type="hidden" name="stype" value="${g_stafferBean.otype}">
 <input type="hidden" name="bankId" value="">
+<input type="hidden" name="provinceId" value="">
 
 <p:navigation height="22">
 	<td width="550" class="navigation">新增申请预收退款</td>

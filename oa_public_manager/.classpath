@@ -105,5 +105,6 @@
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/jxl.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/poi-2.5.1.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/readWord.jar"/>
+	<classpathentry kind="lib" path="D:/github_yycoin/yycoin/uportal/webroot/WEB-INF/lib/joda-time-2.9.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

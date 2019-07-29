@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.actionhelper_1.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.command.customize_1.0.0.jar"/>
@@ -105,5 +105,12 @@
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/jxl.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/poi-2.5.1.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/readWord.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_tcp_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_finance_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_public_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_mailandgroup_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_sail_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_budget_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_tax_manager"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

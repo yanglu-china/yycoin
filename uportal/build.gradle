@@ -70,7 +70,7 @@ dependencies {
 task backup (type: Copy){
     System.out.println "backup war..."
     from tomcat_home+"\\webapps"
-    into "E:\\backup"
+    into "d:\\backup"
     include war_context+".war"
 //    rename ('uportal.war', 'uportal'+System.currentTimeMillis()+'.war')
     rename (war_context+".war", war_context+System.currentTimeMillis()+'.war')

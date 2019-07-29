@@ -21,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -364,6 +365,12 @@ public class PopQueryAction extends DispatchAction
             condtion.addWhereStr();
 
             setCityInnerCondition(request, condtion);
+            
+            String provinceId = request.getParameter("provinceId");
+            if(StringUtils.isNotEmpty(provinceId))
+            {
+            	condtion.addCondition("parentid", "=", provinceId);
+            }
 
             int total = cityDAO.countVOByCondition(condtion.toString());
 

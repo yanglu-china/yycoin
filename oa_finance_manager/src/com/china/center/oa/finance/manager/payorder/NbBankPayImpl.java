@@ -61,18 +61,27 @@ public class NbBankPayImpl {
 	/**
 	 * erp系统代码
 	 */
+	//test
 	 private static final String erpSysCode="erpnjg002";
-//	private static final String erpSysCode="ERP001";
+	 //prod
+	 //	private static final String erpSysCode="ERP001";
 	
 	/**
 	 * 客户编号 
 	 */
+	 //test
 	private static final String custNo = "0000212667";
-	
+	//prod
 //	private static final String custNo = "0000243857";
 	
+//	test地址
 	private static final String NbBankPayUrl = "http://101.37.13.154:8090/BisOutPlatform/services/erpPlatform?wsdl";
+//	内网地址
 //	private static final String NbBankPayUrl = "http://10.10.10.168:8090/BisOutPlatform/services/erpPlatform?wsdl";
+//	外网地址
+//	private static final String NbBankPayUrl = "http://218.94.130.10:6868/BisOutPlatform/services/erpPlatform?wsdl";
+	
+	
 	
 	/**
 	 * 转账申请接口

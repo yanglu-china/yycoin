@@ -69,8 +69,9 @@ function getInBill(oos)
 }
 function selectCity(obj)
 {
+	var provinceId = $O('provinceId').value;
 	cityObj = obj;
-    window.common.modal('../admin/pop.do?method=rptQueryCity&load=1&selectMode=1');
+    window.common.modal('../admin/pop.do?method=rptQueryCity&load=1&selectMode=1&provinceId=' + provinceId);
 }
 
 function selectProvince(obj)
@@ -78,7 +79,23 @@ function selectProvince(obj)
 	cityObj = obj;
     window.common.modal('../admin/pop.do?method=rptQueryProvince&load=1&selectMode=1');
 }
+function getProvinces(oos)
+{
+    var obj = oos[0];
+	$O('provinceId').value=obj.value;
+    cityObj.value = obj.pname;
+}
+function selectOpeningBank(obj)
+{
+	cityObj = obj;
+    window.common.modal('../admin/pop.do?method=rptQueryOpeningBank&load=1&selectMode=1');
+}
 
+function getOpeningBank(oos)
+{
+    var obj = oos[0];
+    cityObj.value = obj.pname;
+}
 </script>
 </head>
 
@@ -94,7 +111,7 @@ function selectProvince(obj)
 <input type="hidden" name="departmentId" value="${g_stafferBean.principalshipId}"> 
 <input type="hidden" name="stype" value="${g_stafferBean.otype}">
 <input type="hidden" name="bankId" value="">
-
+<input type="hidden" name="provinceId" value="">
 <input
     type="hidden" name="attacmentIds" value="${attacmentIds}">
 
@@ -134,11 +151,11 @@ function selectProvince(obj)
             
             <p:pro field="receiver" cell="0"/>
             
-            <p:pro field="receiveBank" innerString="size=40" cell="0"/>
+            <p:pro field="receiveBank" innerString="onclick='selectOpeningBank(this)' style='cursor: pointer;'" cell="0"/>
             
             <p:pro field="receiveAccount" innerString="size=40" cell="0"/>
             
-            <p:pro field="bankprovince" innerString="onclick='selectCity(this)' style='cursor: pointer;'" cell="0"/>
+            <p:pro field="bankprovince" innerString="onclick='selectProvince(this)' style='cursor: pointer;'" cell="0"/>
             
             <p:pro field="bankcity" innerString="onclick='selectCity(this)' style='cursor: pointer;'" cell="0" />
             

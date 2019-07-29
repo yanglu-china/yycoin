@@ -330,29 +330,6 @@ public class PayOrderAction extends DispatchAction {
 					payInfoMap.put("difSign","1");
 				}
 				payInfoMap.put("payPurpose", "采购付款");
-				//先生成付款日志数据
-				PayOrderListLogVO logvo = new PayOrderListLogVO();
-				logvo.setId(String.valueOf(System.currentTimeMillis()));
-				logvo.setOutid(billNo);
-				logvo.setType(CONSTANTS_PAYORDERTYPE_1);
-				logvo.setBankName(vo.getPayeeBank());
-				logvo.setUserName(vo.getPayeeBankAccName());
-				logvo.setBankNo(vo.getPayeeBankAcc());
-				logvo.setMoney(vo.getPayeeAmount());
-				logvo.setDescription(vo.getDescription());
-				logvo.setOutidtime(vo.getLogTime());
-				//付款中
-				logvo.setStatus("2");
-				logvo.setOperator(user.getStafferId());
-				logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
-				logvo.setPayaccount(bankBean.getBankNo());
-				logvo.setPaybank(bankBean.getName());
-				//待确认
-				logvo.setBankstatus("0");
-				logvo.setPayBankId(bankId);
-				logvo.setOperatorId(user.getId());
-				//先生成付款日志数据
-				payOrderDao.createPayListLog(logvo);
 				// bank支持电子支付
 				if (tempFlag) {
 					payInfoMap.put("payeeAccNo", vo.getPayeeBankAcc());
@@ -366,6 +343,31 @@ public class PayOrderAction extends DispatchAction {
 					{
 						errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
 					}
+					//先生成付款日志数据
+					PayOrderListLogVO logvo = new PayOrderListLogVO();
+					logvo.setId(String.valueOf(System.currentTimeMillis()));
+					logvo.setOutid(billNo);
+					logvo.setType(CONSTANTS_PAYORDERTYPE_1);
+					logvo.setBankName(vo.getPayeeBank());
+					logvo.setUserName(vo.getPayeeBankAccName());
+					logvo.setBankNo(vo.getPayeeBankAcc());
+					logvo.setMoney(vo.getPayeeAmount());
+					logvo.setDescription(vo.getDescription());
+					logvo.setOutidtime(vo.getLogTime());
+					logvo.setCity(peeCity);
+					//付款中
+					logvo.setStatus("2");
+					logvo.setOperator(user.getStafferId());
+					logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
+					logvo.setPayaccount(bankBean.getBankNo());
+					logvo.setPaybank(bankBean.getName());
+					//待确认
+					logvo.setBankstatus("0");
+					logvo.setPayBankId(bankId);
+					logvo.setOperatorId(user.getId());
+					logvo.setMessage(retMsg);
+					//先生成付款日志数据
+					payOrderDao.createPayListLog(logvo);
 					
 				}
 				
@@ -404,31 +406,6 @@ public class PayOrderAction extends DispatchAction {
 				}
 				payInfoMap.put("payMoney", vo.getPayeeAmount());
 				payInfoMap.put("payPurpose", "采购预付款");
-				//先生成付款日志数据
-				PayOrderListLogVO logvo = new PayOrderListLogVO();
-				logvo.setId(String.valueOf(System.currentTimeMillis()));
-				logvo.setOutid(billNo);
-				logvo.setType(CONSTANTS_PAYORDERTYPE_2);
-				logvo.setBankName(vo.getPayeeBank());
-				logvo.setUserName(vo.getPayeeBankAccName());
-				logvo.setBankNo(vo.getPayeeBankAcc());
-				logvo.setMoney(vo.getPayeeAmount());
-//				logvo.setProvince("");
-//				logvo.setCity("");
-				logvo.setDescription(vo.getDescription());
-				logvo.setOutidtime(vo.getLogTime());
-				//付款中
-				logvo.setStatus("2");
-				logvo.setOperator(user.getStafferId());
-				logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
-				logvo.setPayaccount(bankBean.getBankNo());
-				logvo.setPaybank(bankBean.getName());
-				logvo.setPayBankId(bankId);
-				logvo.setOperatorId(user.getId());
-				//待确认
-				logvo.setBankstatus("0");
-				//先生成付款日志数据
-				payOrderDao.createPayListLog(logvo);
 				// bank支持电子支付
 				if (tempFlag) {
 					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
@@ -439,6 +416,30 @@ public class PayOrderAction extends DispatchAction {
 					{
 						errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
 					}
+					//先生成付款日志数据
+					PayOrderListLogVO logvo = new PayOrderListLogVO();
+					logvo.setId(String.valueOf(System.currentTimeMillis()));
+					logvo.setOutid(billNo);
+					logvo.setType(CONSTANTS_PAYORDERTYPE_2);
+					logvo.setBankName(vo.getPayeeBank());
+					logvo.setUserName(vo.getPayeeBankAccName());
+					logvo.setBankNo(vo.getPayeeBankAcc());
+					logvo.setMoney(vo.getPayeeAmount());
+					logvo.setCity(peeCity);
+					logvo.setDescription(vo.getDescription());
+					logvo.setOutidtime(vo.getLogTime());
+					//付款中
+					logvo.setStatus("2");
+					logvo.setOperator(user.getStafferId());
+					logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
+					logvo.setPayaccount(bankBean.getBankNo());
+					logvo.setPaybank(bankBean.getName());
+					logvo.setPayBankId(bankId);
+					logvo.setOperatorId(user.getId());
+					logvo.setMessage(retMsg);
+					//待确认
+					logvo.setBankstatus("0");
+					payOrderDao.createPayListLog(logvo);
 				}
 
 			}
@@ -462,32 +463,6 @@ public class PayOrderAction extends DispatchAction {
 				//按收款明细支付
 				for(TravelApplyPayBean payBean:applyPayList)
 				{
-					//先生成付款日志数据
-					PayOrderListLogVO logvo = new PayOrderListLogVO();
-					logvo.setId(String.valueOf(System.currentTimeMillis()));
-					logvo.setOutid(billNo);
-					logvo.setType(CONSTANTS_PAYORDERTYPE_3);
-					logvo.setBankName(payBean.getBankName());
-					logvo.setUserName(payBean.getUserName());
-					logvo.setBankNo(payBean.getBankNo());
-					logvo.setMoney(vo.getPayeeAmount());
-					logvo.setProvince(payBean.getBankprovince());
-					logvo.setCity(payBean.getBankcity());
-					logvo.setDescription(vo.getDescription());
-					logvo.setOutidtime(vo.getLogTime());
-					//付款中
-					logvo.setStatus("2");
-					logvo.setOperator(user.getStafferId());
-					logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
-					logvo.setPayaccount(bankBean.getBankNo());
-					logvo.setPaybank(bankBean.getName());
-					//待确认
-					logvo.setBankstatus("0");
-					logvo.setPayBankId(bankId);
-					logvo.setOperatorId(user.getId());
-					//先生成付款日志数据
-					payOrderDao.createPayListLog(logvo);
-					
 					// bank支持电子支付
 					if (tempFlag) {
 						//同城
@@ -526,6 +501,31 @@ public class PayOrderAction extends DispatchAction {
 						{
 							errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
 						}
+						//先生成付款日志数据
+						PayOrderListLogVO logvo = new PayOrderListLogVO();
+						logvo.setId(String.valueOf(System.currentTimeMillis()));
+						logvo.setOutid(billNo);
+						logvo.setType(CONSTANTS_PAYORDERTYPE_3);
+						logvo.setBankName(payBean.getBankName());
+						logvo.setUserName(payBean.getUserName());
+						logvo.setBankNo(payBean.getBankNo());
+						logvo.setMoney(vo.getPayeeAmount());
+						logvo.setProvince(payBean.getBankprovince());
+						logvo.setCity(payBean.getBankcity());
+						logvo.setDescription(vo.getDescription());
+						logvo.setOutidtime(vo.getLogTime());
+						//付款中
+						logvo.setStatus("2");
+						logvo.setOperator(user.getStafferId());
+						logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
+						logvo.setPayaccount(bankBean.getBankNo());
+						logvo.setPaybank(bankBean.getName());
+						//待确认
+						logvo.setBankstatus("0");
+						logvo.setPayBankId(bankId);
+						logvo.setOperatorId(user.getId());
+						logvo.setMessage(retMsg);
+						payOrderDao.createPayListLog(logvo);
 					}
 				}
 				
@@ -551,31 +551,6 @@ public class PayOrderAction extends DispatchAction {
 				//按收款明细支付
 				for(TravelApplyPayBean payBean:applyPayList)
 				{
-					//先生成付款日志数据
-					PayOrderListLogVO logvo = new PayOrderListLogVO();
-					logvo.setId(String.valueOf(System.currentTimeMillis()));
-					logvo.setOutid(billNo);
-					logvo.setType(CONSTANTS_PAYORDERTYPE_4);
-					logvo.setBankName(payBean.getBankName());
-					logvo.setUserName(payBean.getUserName());
-					logvo.setBankNo(payBean.getBankNo());
-					logvo.setMoney(vo.getPayeeAmount());
-					logvo.setProvince(payBean.getBankprovince());
-					logvo.setCity(payBean.getBankcity());
-					logvo.setDescription(vo.getDescription());
-					logvo.setOutidtime(vo.getLogTime());
-					//付款中
-					logvo.setStatus("2");
-					logvo.setOperator(user.getStafferId());
-					logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
-					logvo.setPayaccount(bankBean.getBankNo());
-					logvo.setPaybank(bankBean.getName());
-					//待确认
-					logvo.setBankstatus("0");
-					logvo.setPayBankId(bankId);
-					logvo.setOperatorId(user.getId());
-					//先生成付款日志数据
-					payOrderDao.createPayListLog(logvo);
 					// bank支持电子支付
 					if (tempFlag) {
 						String peeCity = payBean.getBankcity();
@@ -613,6 +588,32 @@ public class PayOrderAction extends DispatchAction {
 						{
 							errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
 						}
+						//先生成付款日志数据
+						PayOrderListLogVO logvo = new PayOrderListLogVO();
+						logvo.setId(String.valueOf(System.currentTimeMillis()));
+						logvo.setOutid(billNo);
+						logvo.setType(CONSTANTS_PAYORDERTYPE_4);
+						logvo.setBankName(payBean.getBankName());
+						logvo.setUserName(payBean.getUserName());
+						logvo.setBankNo(payBean.getBankNo());
+						logvo.setMoney(vo.getPayeeAmount());
+						logvo.setProvince(payBean.getBankprovince());
+						logvo.setCity(payBean.getBankcity());
+						logvo.setDescription(vo.getDescription());
+						logvo.setOutidtime(vo.getLogTime());
+						//付款中
+						logvo.setStatus("2");
+						logvo.setOperator(user.getStafferId());
+						logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
+						logvo.setPayaccount(bankBean.getBankNo());
+						logvo.setPaybank(bankBean.getName());
+						//待确认
+						logvo.setBankstatus("0");
+						logvo.setPayBankId(bankId);
+						logvo.setOperatorId(user.getId());
+						logvo.setMessage(retMsg);
+						//先生成付款日志数据
+						payOrderDao.createPayListLog(logvo);
 					}
 				}
 			}
@@ -623,31 +624,6 @@ public class PayOrderAction extends DispatchAction {
 					continue;
 				}
 				PayOrderVO vo = payOrderVOList.get(0);
-				//先生成付款日志数据
-				PayOrderListLogVO logvo = new PayOrderListLogVO();
-				logvo.setId(String.valueOf(System.currentTimeMillis()));
-				logvo.setOutid(billNo);
-				logvo.setType(CONSTANTS_PAYORDERTYPE_5);
-				logvo.setBankName(vo.getPayeeBank());
-				logvo.setUserName(vo.getPayeeBankAccName());
-				logvo.setBankNo(vo.getPayeeBankAcc());
-				logvo.setMoney(vo.getPayeeAmount());
-//				logvo.setProvince("");
-//				logvo.setCity("");
-				logvo.setDescription(vo.getDescription());
-				logvo.setOutidtime(vo.getLogTime());
-				//付款中
-				logvo.setStatus("2");
-				logvo.setOperator(user.getStafferId());
-				logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
-				logvo.setPayaccount(bankBean.getBankNo());
-				logvo.setPaybank(bankBean.getName());
-				//待确认
-				logvo.setBankstatus("0");
-				logvo.setPayBankId(bankId);
-				logvo.setOperatorId(user.getId());
-				//先生成付款日志数据
-				payOrderDao.createPayListLog(logvo);
 				// bank支持电子支付
 				if (tempFlag) {
 					String peeCity = vo.getCityName();
@@ -687,6 +663,32 @@ public class PayOrderAction extends DispatchAction {
 					{
 						errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
 					}
+					//先生成付款日志数据
+					PayOrderListLogVO logvo = new PayOrderListLogVO();
+					logvo.setId(String.valueOf(System.currentTimeMillis()));
+					logvo.setOutid(billNo);
+					logvo.setType(CONSTANTS_PAYORDERTYPE_5);
+					logvo.setBankName(vo.getPayeeBank());
+					logvo.setUserName(vo.getPayeeBankAccName());
+					logvo.setBankNo(vo.getPayeeBankAcc());
+					logvo.setMoney(vo.getPayeeAmount());
+//					logvo.setProvince("");
+					logvo.setCity(peeCity);
+					logvo.setDescription(vo.getDescription());
+					logvo.setOutidtime(vo.getLogTime());
+					//付款中
+					logvo.setStatus("2");
+					logvo.setOperator(user.getStafferId());
+					logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
+					logvo.setPayaccount(bankBean.getBankNo());
+					logvo.setPaybank(bankBean.getName());
+					//待确认
+					logvo.setBankstatus("0");
+					logvo.setPayBankId(bankId);
+					logvo.setOperatorId(user.getId());
+					logvo.setMessage(retMsg);
+					//先生成付款日志数据
+					payOrderDao.createPayListLog(logvo);
 				}
 			}
 		}

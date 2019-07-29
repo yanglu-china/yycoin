@@ -70,8 +70,9 @@ var cityObj;
 
 function selectCity(obj)
 {
+	var provinceId = $O('provinceId').value;
 	cityObj = obj;
-    window.common.modal('../admin/pop.do?method=rptQueryCity&load=1&selectMode=1');
+    window.common.modal('../admin/pop.do?method=rptQueryCity&load=1&selectMode=1&provinceId=' + provinceId);
 }
 
 var budgetObj;

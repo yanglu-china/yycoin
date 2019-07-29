@@ -41,6 +41,7 @@
         <result property="bankpaytime" column="bankpaytime" />
         <result property="payBankId" column="paybankid" />
         <result property="operatorId" column="operatorid" />
+        <result property="message" column="message"></result>
     </resultMap>
 
 	<select id="queryPayOrderList" parameterClass="java.util.Map" resultMap="PayOrder">
@@ -266,10 +267,10 @@
     
     <insert id="createPayListLog" parameterClass="com.china.center.oa.finance.vo.PayOrderListLogVO">
     	insert into t_center_paylistlog (id,outid,type,bankname,username, bankno,money,province,city,description,outidtime,status,
-    	outbillid,operator,paytime,payaccount,paybank,bankstatus,bankpaytime,operatorid,paybankid) 
+    	outbillid,operator,paytime,payaccount,paybank,bankstatus,bankpaytime,operatorid,paybankid,message) 
     	values 
     	(#id#,#outid#,#type#,#bankName#,#userName#,#bankNo#,#money#,#province#,#city#,#description#,#outidtime#,#status#,
-    	#outbillid#,#operator#,#paytime#,#payaccount#,#paybank#,#bankstatus#,#bankpaytime#,#operatorId#,#payBankId#)
+    	#outbillid#,#operator#,#paytime#,#payaccount#,#paybank#,#bankstatus#,#bankpaytime#,#operatorId#,#payBankId#,#message#)
     </insert>
     
     <select id="queryPayOrderLogStatusList" resultMap="PayOrderListLogVO">

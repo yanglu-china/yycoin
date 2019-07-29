@@ -1,11 +1,8 @@
 <%@page contentType="text/html; charset=UTF-8"%>
 <%@include file="../common/common.jsp"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-<p:link title="集中付款管理" link="true" guid="true" cal="true" dialog="true" />
-<link href="../js/plugin/dialog/css/dialog.css" type="text/css" rel="stylesheet"/>
+<p:link title="集中付款管理" />
 <script src="../js/title_div.js"></script>
 <script src="../js/public.js"></script>
 <script src="../js/JCheck.js"></script>
@@ -14,7 +11,7 @@
 <script src="../js/jquery/jquery.js"></script>
 <script src="../js/plugin/dialog/jquery.dialog.js"></script>
 <script src="../js/plugin/highlight/jquery.highlight.js"></script>
-<script language="javascript">
+<script type="text/javascript">
 var billNoArr = new Array();
 function query()
 {
@@ -69,71 +66,65 @@ function singleck(obj)
 }
 </script>
 </head>
-<body class="body_class">
-<form action="../payorder/queryPayOrder.do" id="adminForm">
-<input type="hidden" value="queryPayOrder" name="method"></input>
-<input type="hidden" value="" name="billNoArrString" id="billNoArrString"></input>
+<body>
 <p:navigation height="22">
     <td width="550" class="navigation">资金管理 &gt;&gt; 集中付款</td>
     <td width="85"></td>
 </p:navigation>
+<form action="../payorder/queryPayOrder.do" id="adminForm">
+<input type="hidden" value="queryPayOrder" name="method"></input>
+<input type="hidden" value="" name="billNoArrString" id="billNoArrString"></input>
 
 <table width="98%" border="0" cellpadding="0" cellspacing="0" align="center">
-	<tr>
-		<td align='center' colspan='2'>
-			<table width="100%" border="0" cellpadding="0" cellspacing="0" class="border">
-				<tr class="content1">
-			        <td style="width: 15%" align="center">单据类型:</td>
-			        <td align="center" style="width: 35%">
-			        	<select name="payOrderType" id="payOrderType" class="select_class" values="${queryMap.payOrderType}">
-							<option value="">--</option>
-							<option value="1">采购付款</option>
-							<option value="2">采购预付款</option>
-							<option value="3">借款申请付款</option>
-							<option value="4">报销申请付款</option>
-							<option value="5">预收退款</option>
-						</select>
-			        </td>
-			        <td align="center" style="width: 15%">单据号:</td>
-			        <td align="center"><input type="text" name="payOrderNo" value="${queryMap.payOrderNo }"/>
-			        </td>
-			    </tr>
-			
-				<tr class="content2">
-					<td style="width: 15%" align="center">收款银行:</td>
-					<td align="center"><input type="text" name="payeeBank" value="${queryMap.payeeBank }"/></td>
-					<td style="width: 15%" align="center">收款户名：</td>
-					<td align="center"><input type="text" name="payeeAccName" value="${queryMap.payeeAccName }"/></td>
-				</tr>
-			
-				<tr class="content1">
-					<td width="15%" align="center">收款帐号:</td>
-					<td align="center"><input type="text" name="payeeAcc" value="${queryMap.payeeAcc }"/></td>
-					<td width="15%" align="center">收款金额（元）:</td>
-					<td align="center"><input type="text" name="payeeAmount" value="${queryMap.payeeAmount }"/></td>
-				</tr>
-			
-				<tr class="content2">
-					<td width="15%" align="center">单据日期:</td>
-					<td align="center" colspan="1"><p:plugin name="billTime" type="0" size="20" value="${queryMap.billTime }"/></td>
-					
-					<td width="15%" align="center">单据状态:</td>
-			        <td align="center">
-				         <select name="payOrderStatus" id="payOrderStatus" class="select_class" values="${queryMap.payOrderStatus}">
-				              <option value="1">待付款</option>
-				              <option value="2">待确认</option>
-				              <option value="3">已付款</option>
-				              <option value="4">未成功待付款</option>
-				         </select>
-			         </td>
-				</tr>
-				<tr class="content1">
-					<td colspan="4" align="right">
-						<input type="button" id="query_b" onclick="query()" class="button_class" value="&nbsp;&nbsp;查 询&nbsp;&nbsp;"/>&nbsp;&nbsp;
-						<input type="button" onclick="res()" class="button_class" value="&nbsp;&nbsp;重 置&nbsp;&nbsp;"/>
-					</td>
-				</tr>
-			</table>
+	<tr class="content1">
+        <td style="width: 15%" align="center">单据类型:</td>
+        <td align="center" style="width: 35%">
+        	<select name="payOrderType" id="payOrderType" class="select_class" values="${queryMap.payOrderType}">
+				<option value="">--</option>
+				<option value="1">采购付款</option>
+				<option value="2">采购预付款</option>
+				<option value="3">借款申请付款</option>
+				<option value="4">报销申请付款</option>
+				<option value="5">预收退款</option>
+			</select>
+        </td>
+        <td align="center" style="width: 15%">单据号:</td>
+        <td align="center"><input type="text" name="payOrderNo" value="${queryMap.payOrderNo }"/>
+        </td>
+    </tr>
+
+	<tr class="content2">
+		<td style="width: 15%" align="center">收款银行:</td>
+		<td align="center"><input type="text" name="payeeBank" value="${queryMap.payeeBank }"/></td>
+		<td style="width: 15%" align="center">收款户名：</td>
+		<td align="center"><input type="text" name="payeeAccName" value="${queryMap.payeeAccName }"/></td>
+	</tr>
+
+	<tr class="content1">
+		<td width="15%" align="center">收款帐号:</td>
+		<td align="center"><input type="text" name="payeeAcc" value="${queryMap.payeeAcc }"/></td>
+		<td width="15%" align="center">收款金额（元）:</td>
+		<td align="center"><input type="text" name="payeeAmount" value="${queryMap.payeeAmount }"/></td>
+	</tr>
+
+	<tr class="content2">
+		<td width="15%" align="center">单据日期:</td>
+		<td align="center" colspan="1"><p:plugin name="billTime" type="0" size="20" value="${queryMap.billTime }"/></td>
+		
+		<td width="15%" align="center">单据状态:</td>
+        <td align="center">
+	         <select name="payOrderStatus" id="payOrderStatus" class="select_class" values="${queryMap.payOrderStatus}">
+	              <option value="1">待付款</option>
+	              <option value="2">待确认</option>
+	              <option value="3">已付款</option>
+	              <option value="4">未成功待付款</option>
+	         </select>
+         </td>
+	</tr>
+	<tr class="content1">
+		<td colspan="4" align="right">
+			<input type="button" id="query_b" onclick="query()" class="button_class" value="&nbsp;&nbsp;查 询&nbsp;&nbsp;"/>&nbsp;&nbsp;
+			<input type="button" onclick="res()" class="button_class" value="&nbsp;&nbsp;重 置&nbsp;&nbsp;"/>
 		</td>
 	</tr>
 	
@@ -168,6 +159,9 @@ function singleck(obj)
 							<td align="center" onclick="tableSort(this)" class="td_class">收款帐号</td>
 							<td align="center" onclick="tableSort(this)" class="td_class">单据状态</td>
 							<td align="center" onclick="tableSort(this)" class="td_class">付款备注</td>
+							<c:if test="${payOrderStatus != 1}">
+							<td align="center" onclick="tableSort(this)" class="td_class">付款结果</td>
+							</c:if>
 						</tr>
 						<tbody id="tbdata">
 						<c:if test="${payOrderStatus == 1}">
@@ -257,6 +251,7 @@ function singleck(obj)
 										<td align="center">未成功待付款</td>
 										</c:if>
 										<td align="center">${item.description}</td>
+										<td align="center">${item.message}</td>
 									</tr>
 								</c:forEach>
 							</c:if>

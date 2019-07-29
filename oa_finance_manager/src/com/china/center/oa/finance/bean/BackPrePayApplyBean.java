@@ -114,10 +114,10 @@ public class BackPrePayApplyBean implements Serializable
 
     private String bankId = "";
     
-    @Html(title = "开户城市", readonly = true)
+    @Html(title = "开户城市", readonly = true, must = true)
     private String bankcity="";
     
-    @Html(title = "开户省份", readonly = true)
+    @Html(title = "开户省份", readonly = true, must = true)
     private String bankprovince="";
     
     /**

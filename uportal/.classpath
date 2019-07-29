@@ -1,8 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="src" path="job_manager_src"/>
+	<classpathentry excluding="main/resources/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" path="job_inner_src"/>
+	<classpathentry kind="src" path="flow_manager_dy_src"/>
+	<classpathentry kind="src" path="tcp_inner_src"/>
+	<classpathentry kind="src" path="tax_glue_src"/>
+	<classpathentry kind="src" path="config"/>
+	<classpathentry kind="src" path="stockvssail_glue_src"/>
+	<classpathentry kind="src" path="note_manager_src"/>
+	<classpathentry kind="src" path="tax_inner_src"/>
+	<classpathentry kind="src" path="stock_inner_src"/>
+	<classpathentry kind="src" path="customer_inner_src"/>
+	<classpathentry kind="src" path="product_inner_src"/>
+	<classpathentry kind="src" path="sail_inner_src"/>
+	<classpathentry kind="src" path="commission_inner_src"/>
+	<classpathentry kind="src" path="finance_inner_src"/>
+	<classpathentry kind="src" path="tcp_manager_src"/>
+	<classpathentry kind="src" path="tax_manager_src"/>
+	<classpathentry kind="src" path="stock_manager_src"/>
+	<classpathentry kind="src" path="sail_manager_src"/>
+	<classpathentry kind="src" path="public_inner_src"/>
+	<classpathentry kind="src" path="product_manager_src"/>
+	<classpathentry kind="src" path="mailandgroup_manager_src"/>
+	<classpathentry kind="src" path="flow_manager_src"/>
+	<classpathentry kind="src" path="finance_manager_src"/>
+	<classpathentry kind="src" path="customervssail_glue_src"/>
+	<classpathentry kind="src" path="customer_manager_src"/>
+	<classpathentry kind="src" path="commission_manager_src"/>
+	<classpathentry kind="src" path="budget_manager_src"/>
+	<classpathentry kind="src" path="public_manager_src"/>
+	<classpathentry kind="src" path="budget_inner_src"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_customer_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_public_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_sail_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_product_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_finance_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_tax_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_customervssail_glue"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_tcp_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_commission_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_budget_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_flow_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_mailandgroup_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_stock_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_public_inner"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/buffalo-2.0-osgi.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/catalina.configuration-1.2.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/catalina.start.osgi.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.budget.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.budget.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.commission.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.customer.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.customer.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.customer.portal_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.customerservice.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.customerservice.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.customervssail.glue_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.finance.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.finance.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.finance.portal_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.mailgroup.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.mailgroup.portal_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.note.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.product.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.product.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.product.portal_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.project.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.project.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.publics.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.publics.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.publics.portal_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.sail.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.sail.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.sail.portal_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.stock.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.stock.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.stockvssail.glue_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.tax.glue_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.tax.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.tax.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.tcp.inner_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.tcp.manager_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.oa.tcp.portal_1.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.actionhelper_1.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.command.customize_1.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.config_1.0.0.jar"/>
@@ -11,99 +95,104 @@
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.il18n_1.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.jdbc_1.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.monitor_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.public_1.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.taglib_1.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.tools_1.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.webportal_1.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.china.center.osgi.webservice_1.0.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.com.caucho-3.1.6.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.com.ibatis-2.3.4.726.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.edu.emory.mathcs.backport-3.1.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.activation.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.annotation.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.ejb.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.mail.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.persistence.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.servlet.jsp.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.servlet.jsp.jstl.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.transaction-1.1.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.xml.bind.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.xml.rpc.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.xml.soap.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.xml.stream.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.javax.xml.ws.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.junit.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.net.sf.cglib.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.net.sf.ehcache-1.5.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.aopalliance.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.catalina.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.attributes-2.2.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.beanutils-1.8.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.codec-1.4.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.digester-1.8.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.discovery-0.4.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.el.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.fileupload-1.2.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.httpclient-3.1.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.io-1.4.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.lang-2.4.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.modeler-2.0.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.pool-1.5.3.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.validator-1.3.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.coyote.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.juli.extras.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.oro-2.0.8.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.struts-1.2.9.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.taglibs.standard.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.xmlcommons.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.jaxen-1.1.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.jdom-1.1.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.objectweb.asm.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.quartz-1.6.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.slf4j.api.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.slf4j.log4j.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.slf4j.org.apache.commons.logging.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/core-3.2.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/easymock.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/hibernate3.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jackson-all-1.6.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jackson-annotations-2.2.2.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jackson-core-2.2.2.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jackson-databind-2.2.2.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jackson-module-jaxb-annotations-2.2.2.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jasper.osgi.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jcommon-1.0.14.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jfreechart-1.0.11.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jfreechart-1.0.11-experimental.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jfreechart-1.0.11-swt.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/jxl.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/log4j.configuration-1.2.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/log4j.osgi.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.eclipse.osgi.services.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.eclipse.osgi.services_3.1.200.v20070605.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.eclipse.osgi_3.3.2.R33x_v20080105.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.aop.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.beans.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.context.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.context.support.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.core.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.jdbc-2.5.6.A.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.orm-2.5.6.A.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.test.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.transaction-2.5.6.A.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.web.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/org.springframework.web.servlet.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/poi-2.5.1.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/readWord.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/spring-ex-0.9.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/spring-iaop-1.0.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/spring-osgi-core.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/spring-osgi-extender.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/spring-osgi-io.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/spring-osgi-test.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/spring-osgi-web.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/spring-osgi-web-extender.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/catalina.configuration-1.2.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/catalina.start.osgi.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.com.caucho-3.1.6.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.com.ibatis-2.3.4.726.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.edu.emory.mathcs.backport-3.1.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.activation.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.annotation.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.ejb.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.el.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.mail.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.persistence.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.servlet.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.servlet.jsp.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.servlet.jsp.jstl.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.transaction-1.1.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.xml.bind.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.xml.rpc.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.xml.soap.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.xml.stream.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.javax.xml.ws.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.junit.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.net.sf.cglib.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.net.sf.ehcache-1.5.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.aopalliance.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.catalina.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.attributes-2.2.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.beanutils-1.8.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.codec-1.4.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.digester-1.8.1.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.discovery-0.4.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.el.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.fileupload-1.2.1.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.httpclient-3.1.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.io-1.4.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.lang-2.4.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.modeler-2.0.1.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.pool-1.5.3.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.commons.validator-1.3.1.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.coyote.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.juli.extras.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.oro-2.0.8.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.struts-1.2.9.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.taglibs.standard.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.apache.xmlcommons.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.jaxen-1.1.1.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.jdom-1.1.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.objectweb.asm.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.org.quartz-1.6.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.slf4j.api.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.slf4j.log4j.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/com.springsource.slf4j.org.apache.commons.logging.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/easymock.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/jasper.osgi.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/log4j.configuration-1.2.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/log4j.osgi.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.eclipse.osgi.services_3.1.200.v20070605.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.eclipse.osgi_3.3.2.R33x_v20080105.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.aop.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.beans.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.context.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.context.support.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.core.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.jdbc-2.5.6.A.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.orm-2.5.6.A.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.test.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.transaction-2.5.6.A.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.web.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/org.springframework.web.servlet.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/spring-ex-0.9.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/spring-iaop-1.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/spring-osgi-core.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/spring-osgi-extender.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/spring-osgi-io.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/spring-osgi-test.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib/spring-osgi-web.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/buffalo-2.0-osgi.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/com.china.center.osgi.public_1.0.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/jcommon-1.0.14.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/jfreechart-1.0.11.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/jfreechart-1.0.11-experimental.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/jfreechart-1.0.11-swt.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/jxl.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/poi-2.5.1.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/readWord.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/xstream-1.4.3.jar"/>
+	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/zxing-client-3.2.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v6.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="webroot/WEB-INF/classes"/>
 </classpath>

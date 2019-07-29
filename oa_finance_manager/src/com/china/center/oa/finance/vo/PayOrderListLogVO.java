@@ -50,6 +50,8 @@ public class PayOrderListLogVO implements Serializable {
 	private String payBankId;
 	
 	private String operatorId;
+	
+	private String message;
 
 	public String getId() {
 		return id;
@@ -217,6 +219,14 @@ public class PayOrderListLogVO implements Serializable {
 
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 }

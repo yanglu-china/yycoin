@@ -1,5 +1,6 @@
 # Compiled source #
 *.class
+*.classpath
 *.iml
 
 # Intellij #
@@ -19,3 +20,10 @@ build
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 dump*
 /.idea
+.settings/org.eclipse.core.resources.prefs
+.classpath
+.project
+*.prefs
+oa_budget_inner/.classpath
+oa_commission_inner/.classpath
+oa_customer_inner/.classpath

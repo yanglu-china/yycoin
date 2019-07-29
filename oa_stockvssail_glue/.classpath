@@ -105,5 +105,9 @@
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/jxl.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/poi-2.5.1.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/lib_self/readWord.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_product_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_stock_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_sail_manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oa_public_manager"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
