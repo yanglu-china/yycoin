@@ -2593,6 +2593,8 @@ public class ShipAction extends DispatchAction
             String productImportId = baseBean.getProductImportId();
             ProductImportBean productImportBean = this.productImportDAO.find(productImportId);
             if (productImportBean == null){
+                _logger.error("productImportId not exist***"+productImportId);
+            } else{
                 productName = productImportBean.getBankProductName();
 
                 //#310
@@ -2603,8 +2605,6 @@ public class ShipAction extends DispatchAction
                 try {
                     item.setProductWeight(productImportBean.getWeight());
                 }catch(Exception e){}
-            } else{
-                _logger.error("productImportId not exist***"+productImportId);
             }
         }
 
