@@ -62,6 +62,7 @@ function getProvinces(oos)
 {
     var obj = oos[0];
     cityObj.value = obj.pname;
+    $O('provinceId').value=obj.value;
 }
 function selectOpeningBank(obj)
 {
@@ -86,7 +87,7 @@ function getOpeningBank(oos)
 <input type="hidden" name="stafferId" value="${g_stafferBean.id}"> 
 <input type="hidden" name="departmentId" value="${g_stafferBean.principalshipId}"> 
 <input type="hidden" name="stype" value="${g_stafferBean.otype}">
-
+<input type="hidden" name="provinceId" value="">
 <p:navigation height="22">
 	<td width="550" class="navigation">差旅费报销</td>
 	<td width="85"></td>
