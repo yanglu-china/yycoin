@@ -81,7 +81,7 @@ function singleck(obj)
         <td align="center" style="width: 35%">
         	<select name="payOrderType" id="payOrderType" class="select_class" values="${queryMap.payOrderType}">
 				<option value="">--</option>
-				<option value="1">采购付款</option>
+				<!-- <option value="1">采购付款</option> -->
 				<option value="2">采购预付款</option>
 				<option value="3">借款申请付款</option>
 				<option value="4">报销申请付款</option>

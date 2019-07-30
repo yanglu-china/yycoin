@@ -46,22 +46,24 @@
 
 	<select id="queryPayOrderList" parameterClass="java.util.Map" resultMap="PayOrder">
         select * from (
+        <![CDATA[/*注释采购付款
         SELECT a.*,b.name as cityname FROM (
 		SELECT id AS billno,'1' AS billtype ,'采购付款' AS billtypedesc,paydate AS billdate ,'1' AS billstatus,logtime,description,
-		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpayapply WHERE STATUS=3) 
+		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpayapply a WHERE STATUS=3) 
 		a LEFT JOIN	t_center_city  b ON a.cityid=b.id
 		UNION
+		*/]]>
 		SELECT a.*,b.name as cityname FROM (
-		SELECT id AS billno,'2' AS billtype ,'采购预付款' AS billtypedesc,paydate AS billdate ,'1' AS billstatus,logtime,description,
-		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpreapply WHERE STATUS=3) 
+		SELECT id AS billno,'2' AS billtype ,'采购预付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate ,'1' AS billstatus,logtime,description,
+		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpreapply a WHERE STATUS=3) 
 		a LEFT JOIN t_center_city  b ON a.cityid=b.id
 		UNION
-		SELECT a.id AS billNo,'3' AS billtype,'借款申请付款' AS billtypedesc,a.begindate AS billdate,'1' AS billstatus,a.logtime,a.description,
+		SELECT a.id AS billNo,'3' AS billtype,'借款申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100 AS payeeAmount,'' AS cityid,'' as cityname
 		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
 		AND a.status=22 AND a.type NOT IN (8,10,15,22)
 		UNION
-		SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,a.begindate AS billdate,'1' AS billstatus,a.logtime,a.description,
+		SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,'' as cityname
 		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
 		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0
@@ -97,7 +99,7 @@
     
     <select id="queryPayOrderList41" parameterClass="java.util.Map" resultMap="PayOrder">
     	SELECT a.*,b.name as cityname FROM (
-		SELECT id AS billno,'1' AS billtype ,'采购付款' AS billtypedesc,paydate AS billdate ,'1' AS billstatus,logtime,description,
+		SELECT id AS billno,'1' AS billtype ,'采购付款' AS billtypedesc,DATE_FORMAT(logtime,'%Y-%m-%d') AS billdate ,'1' AS billstatus,logtime,description,
 		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpayapply 
 		WHERE STATUS=3  and realmoneys>0) a LEFT JOIN	t_center_city  b ON a.cityid=b.id AND a.billno not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=a.billno)
 		<dynamic prepend="where"> 
@@ -125,7 +127,7 @@
     
     <select id="queryPayOrderList42" parameterClass="java.util.Map" resultMap="PayOrder">
     	SELECT a.*,b.name as cityname FROM (
-		SELECT id AS billno,'2' AS billtype ,'采购预付款' AS billtypedesc,paydate AS billdate ,'1' AS billstatus,logtime,description,
+		SELECT id AS billno,'2' AS billtype ,'采购预付款' AS billtypedesc,DATE_FORMAT(logtime,'%Y-%m-%d') AS billdate ,'1' AS billstatus,logtime,description,
 		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpreapply 
 		WHERE STATUS=3  and realmoneys>0) a LEFT JOIN t_center_city  b ON a.cityid=b.id AND a.billno not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=a.billno)
 		<dynamic prepend="where">
@@ -152,7 +154,7 @@
     </select>
     
     <select id="queryPayOrderList43" parameterClass="java.util.Map" resultMap="PayOrder">
-    	SELECT a.id AS billNo,'3' AS billtype,'借款申请付款' AS billtypedesc,a.begindate AS billdate,'1' AS billstatus,a.logtime,a.description,
+    	SELECT a.id AS billNo,'3' AS billtype,'借款申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100 AS payeeAmount,TRIM(b.bankcity) as cityname,'' as cityid
 		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
 		AND a.status=22 AND a.type NOT IN (8,10,15,22) and cmoneys>0 AND a.id not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=a.id)
@@ -180,7 +182,7 @@
     </select>
     
     <select id="queryPayOrderList44" parameterClass="java.util.Map" resultMap="PayOrder">
-    	SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,a.begindate AS billdate,'1' AS billstatus,a.logtime,a.description,
+    	SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,TRIM(b.bankcity) as cityname,'' as cityid
 		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
 		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0 AND a.id not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=a.id)
