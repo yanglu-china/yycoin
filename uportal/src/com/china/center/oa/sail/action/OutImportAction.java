@@ -408,6 +408,18 @@
 
                  importError = true;
              }else{
+                 //#731
+                 CustomerBean customerBean = cbeans.get(0);
+                 if (customerBean.getOstatus() !=0){
+                     _logger.error("Fuckyou****");
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("客户已停用：" + custName )
+                             .append("<br>");
+
+                     importError = true;
+                 }
+
                  if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
                  {
                      StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cbeans.get(0).getId());
@@ -1672,6 +1684,17 @@
 
                  importError = true;
              }else{
+                 //#731
+                 CustomerBean customerBean = cbeans.get(0);
+                 if (customerBean.getOstatus() !=0){
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("客户已停用：" + custName )
+                             .append("<br>");
+
+                     importError = true;
+                 }
+
                  if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
                  {
                      StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cbeans.get(0).getId());
