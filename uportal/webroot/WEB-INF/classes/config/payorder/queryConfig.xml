@@ -26,10 +26,21 @@
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
+		<condtion name="cdSign" caption="收支方向">
+			<opr>=</opr>
+            <datatype>1</datatype>
+            <type>select</type>
+            <option>$cdSign</option>
+        </condtion>
 		<condtion name="amt" caption="交易金额">
 			<opr>=</opr>
 			<type>text</type>
 		</condtion>
+		<condtion name="transDate" caption="交易日期">
+            <opr>=</opr>
+            <type>date</type>
+            <inner></inner>
+        </condtion>
 		<condtion name="uses" caption="用途">
 			<opr>like</opr>
 			<type>text</type>

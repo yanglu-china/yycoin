@@ -106,10 +106,12 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 			_logger.info("start query billno:" + erpno);
 			Map<String,String> retMap = nbPay.queryTransfer(erpno);
 			String retCode = retMap.get("retCode");
+			_logger.info("billno:" + erpno + " retCode:" + retCode);
 			Map<String,String> map = new HashMap<String, String>();
 			if(StringUtils.isNotEmpty(retCode) && "0".equals(retCode))
 			{
 				String payStatus = retMap.get("payState");
+				_logger.info("billno:" + erpno + " payStatus:" + payStatus);
 				if(StringUtils.isNotEmpty(payStatus) && "00".equals(payStatus))
 				{
 					//付款成功，更新log表的状态

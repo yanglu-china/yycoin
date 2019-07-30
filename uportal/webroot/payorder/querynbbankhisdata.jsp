@@ -3,7 +3,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<p:link title="宁波银行账户明细" link="true" guid="true" cal="false" dialog="true"/>
+<p:link title="宁波银行账户明细" link="true" guid="true" cal="true" dialog="true"/>
 <script src="../js/common.js"></script>
 <script src="../js/public.js"></script>
 <script src="../js/pop.js"></script>
@@ -22,19 +22,18 @@ function load()
 		 title: '明细列表',
 		 url: '../payorder/queryHisData.do?method=queryHisData',
 		 colModel : [
-		     {display: '账号', name : 'bankAcc', width : '5%', sortable : false, align: 'left'},
-		     {display: '开户银行', name : 'bankName', width : '5%', sortable : false, align: 'left'},
-		     {display: '户名', name : 'accName', width : '8%', sortable : false, align: 'left'},
-		     {display: '对方账号', name : 'oppAccNo', width : '15%', sortable : true, align: 'left'},
-		     {display: '对方户名', name : 'oppAccName', width : '15%', sortable : false, align: 'left'},
-		     {display: '对方开户行', name : 'oppAccBank', width : '10%', sortable : false, align: 'left'},
-		     {display: '收支方向', name : 'cdSign', width : '5%', sortable : false, align: 'left',process:formatCdSign},
-		     {display: '交易金额', name : 'amt', width : '6%'},
-		     {display: '明细余额', name : 'bal', width : '6%',  toFixed: 2},
-		     {display: '凭证号号', name : 'voucherNo', width : '8%', sortable : false},
+		     {display: '账号', name : 'bankAcc', width : '6%', sortable : false, align: 'left'},
+		     {display: '开户银行', name : 'bankName', width : '12%', sortable : false, align: 'left'},
+		     {display: '户名', name : 'accName', width : '10%', sortable : false, align: 'left'},
+		     {display: '对方账号', name : 'oppAccNo', width : '8%', sortable : true, align: 'left'},
+		     {display: '对方户名', name : 'oppAccName', width : '12%', sortable : false, align: 'left'},
+		     {display: '对方开户行', name : 'oppAccBank', width : '15%', sortable : false, align: 'left'},
+		     {display: '收支方向', name : 'cdSign', width : '5%', sortable : false, align: 'left',process:formatCdSign,cc:'cdSign'},
+		     {display: '交易金额', name : 'amt', width : '5%'},
+		     {display: '明细余额', name : 'bal', width : '5%',  toFixed: 2},
+		     //{display: '凭证号号', name : 'voucherNo', width : '8%', sortable : false},
 		     {display: '交易日期', name : 'transDate', width : '5%', sortable : false},
-		     {display: '用途', name : 'uses', width : '8%', sortable : false},
-		     {display: '备注', name : 'remark', width : '5%', sortable : false}
+		     {display: '用途', name : 'uses', width : '17%', sortable : false}
 		     ],
 		 buttons : [
 		     {id: 'search', bclass: 'search', onpress : doSearch}

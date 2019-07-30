@@ -20,4 +20,6 @@
 	<bean id="sailPriceJobManager" class="com.china.center.oa.job.manager.impl.SailPriceJobManagerImpl" />
 	
 	<bean id="nbBankPayOrderQueryJobManager" class="com.china.center.oa.job.manager.impl.NbBankPayOrderQueryImpl" />
+	
+	<bean id="nbBankPayOrderQueryHisDataManager" class="com.china.center.oa.job.manager.impl.NbBankPayOrderQueryHisDataImpl" />
 </beans>

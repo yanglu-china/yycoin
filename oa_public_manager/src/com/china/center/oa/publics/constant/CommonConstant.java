@@ -57,4 +57,10 @@ public interface CommonConstant
 
     @Defined(key = "commonResult", value = "异常")
     int RESULT_ERROR = 2;
+    
+    @Defined(key = "cdSign", value = "收入")
+    int CDSIGN_0 = 0;
+
+    @Defined(key = "cdSign", value = "支出")
+    int CDSIGN_1 = 1;
 }
