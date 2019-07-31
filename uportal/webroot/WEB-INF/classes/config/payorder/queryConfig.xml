@@ -6,7 +6,7 @@
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
-		<condtion name="bankName" caption="开户银行">
+		<!-- <condtion name="bankName" caption="开户银行">
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
@@ -25,7 +25,7 @@
 		<condtion name="oppAccBank" caption="对方开户行">
 			<opr>like</opr>
 			<type>text</type>
-		</condtion>
+		</condtion> -->
 		<condtion name="cdSign" caption="收支方向">
 			<opr>=</opr>
             <datatype>1</datatype>
@@ -41,13 +41,13 @@
             <type>date</type>
             <inner></inner>
         </condtion>
-		<condtion name="uses" caption="用途">
+		<!-- <condtion name="uses" caption="用途">
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
 		<condtion name="remark" caption="备注">
 			<opr>like</opr>
 			<type>text</type>
-		</condtion>
+		</condtion> -->
 	</item>
 </query>

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,8 +55,11 @@ public class NbBankPayOrderQueryHisDataImpl implements JobManager {
 		Map<String, String> paramMap = new HashMap<String, String>();
 		paramMap.put("beginDate", yesterday);
 		paramMap.put("endDate", yesterday);
+//		bankList.clear();
+//		bankList.add(new BankBean());
 		for (BankBean bankBean : bankList) {
 			String bankAcc = bankBean.getBankNo();
+//			bankAcc = "125902780610502";
 			paramMap.put("bankAcc", bankAcc);
 			_logger.info("start queryHisDtl bankAcc:" + bankAcc + ";date:" + yesterday);
 			List<NbBankQueryHisDtlLoopData> resultDataList = nbPay.queryHisDtl(paramMap);
@@ -69,9 +73,30 @@ public class NbBankPayOrderQueryHisDataImpl implements JobManager {
 				hisDataBean.setBankName(loopData.getBankName());
 				hisDataBean.setCdSign(loopData.getCdSign());
 				hisDataBean.setCur(loopData.getCur());
-				hisDataBean.setOppAccBank(loopData.getOppAccBank());
-				hisDataBean.setOppAccName(loopData.getOppAccName());
-				hisDataBean.setOppAccNo(loopData.getOppAccNo());
+				if(StringUtils.isEmpty(loopData.getOppAccBank()) || "null".equals(loopData.getOppAccBank()))
+				{
+					hisDataBean.setOppAccBank(null);
+				}
+				else
+				{
+					hisDataBean.setOppAccBank(loopData.getOppAccBank());
+				}
+				if(StringUtils.isEmpty(loopData.getOppAccName()) || "null".equals(loopData.getOppAccName()))
+				{
+					hisDataBean.setOppAccName(null);
+				}
+				else
+				{
+					hisDataBean.setOppAccName(loopData.getOppAccName());
+				}
+				if(StringUtils.isEmpty(loopData.getOppAccNo()) || "null".equals(loopData.getOppAccNo()))
+				{
+					hisDataBean.setOppAccNo(null);
+				}
+				else
+				{
+					hisDataBean.setOppAccNo(loopData.getOppAccNo());
+				}
 				hisDataBean.setRemark(loopData.getAbs());
 				hisDataBean.setSerialId(loopData.getSerialId());
 				hisDataBean.setTransDate(loopData.getTransDate().substring(0, 10));

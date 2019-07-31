@@ -8,6 +8,7 @@
 <script src="../js/public.js"></script>
 <script src="../js/pop.js"></script>
 <script src="../js/json.js"></script>
+<script src="../js/jquery.js"></script>
 <script src="../js/plugin/highlight/jquery.highlight.js"></script>
 <script type="text/javascript">
 var guidMap;
@@ -36,7 +37,8 @@ function load()
 		     {display: '用途', name : 'uses', width : '17%', sortable : false}
 		     ],
 		 buttons : [
-		     {id: 'search', bclass: 'search', onpress : doSearch}
+		     {id: 'search', bclass: 'search', onpress : doSearch},
+		     {id: 'export', bclass: 'replied',  caption: '导出', onpress : exports}
 		     ],
 		 <p:conf/>
 	 };
@@ -68,6 +70,31 @@ function formatCdSign(obj)
 	{
 		$(obj).text("收入");
 	}
+}
+function exports()
+{
+	var transDate = "";
+	var bankAcc = "";
+	var cdSign = "";
+	var amt = "";
+	if(typeof($("#transDate").val()) != 'undefined')
+	{
+		transDate = $O("transDate").value;
+	}
+	if(typeof($("#bankAcc").val()) != 'undefined')
+	{
+		bankAcc = $O("bankAcc").value;
+	}
+	if(typeof($("#cdSign").val()) != 'undefined')
+	{
+		cdSign = $O("cdSign").value;
+	}
+	if(typeof($("#amt").val()) != 'undefined')
+	{
+		amt = $O("amt").value;
+	}
+	
+    document.location.href = '../payorder/queryHisData.do?method=exportHisData&transDate=' +transDate + "&bankAcc=" + bankAcc + "&cdSign="+cdSign+"&amt="+amt;
 }
 </script>
 </head>
