@@ -23,6 +23,7 @@ function getProvinces(oos)
 {
     var obj = oos[0];
     cityObj.value = obj.pname;
+    $O('provinceId').value=obj.value;
 }
 function getCitys(oos)
 {
@@ -32,8 +33,9 @@ function getCitys(oos)
 }
 function selectCity(obj)
 {
+	var provinceId = $O('provinceId').value;
 	cityObj = obj;
-    window.common.modal('../admin/pop.do?method=rptQueryCity&load=1&selectMode=1');
+    window.common.modal('../admin/pop.do?method=rptQueryCity&load=1&selectMode=1&provinceId=' + provinceId);
 }
 </script>
 
@@ -43,6 +45,7 @@ function selectCity(obj)
 <input type="hidden" name="method" value="updateBank">
 <input type="hidden" name="id" value="${bean.id}">
 <input type="hidden" name="mtype" value="${bean.mtype}">
+<input type="hidden" name="provinceId" value="">
 <p:navigation
 	height="22">
 	<td width="550" class="navigation"><span style="cursor: pointer;"

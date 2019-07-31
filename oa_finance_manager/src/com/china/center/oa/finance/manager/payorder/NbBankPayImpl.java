@@ -64,7 +64,7 @@ public class NbBankPayImpl {
 	//test
 	 private static final String erpSysCode="erpnjg002";
 	 //prod
-	 //	private static final String erpSysCode="ERP001";
+//	 	private static final String erpSysCode="ERP001";
 	
 	/**
 	 * 客户编号 
@@ -431,14 +431,6 @@ public class NbBankPayImpl {
 		    	NbBankQueryHisDtlLoopResp loopResp = queryBodyResp.getLoopResp();
 		    	
 			    respList = loopResp.getLoopData();
-			    if(respList != null)
-			    {
-			    	for(NbBankQueryHisDtlLoopData loopData:respList)
-			    	{
-			    		_logger.info(loopData.toString());
-			    	}
-			    }
-				
 			}
 			else
 			{

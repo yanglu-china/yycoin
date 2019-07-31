@@ -42,7 +42,7 @@
 
 	<bean id="provinceDAO" class="com.china.center.oa.publics.dao.impl.ProvinceDAOImpl" />
 	
-	<bean id="opengingBankDAO" class="com.china.center.oa.publics.dao.impl.OpeningBankDAOImpl" />
+	<bean id="openingBankDAO" class="com.china.center.oa.publics.dao.impl.OpeningBankDAOImpl" />
 
 	<bean id="roleAuthDAO" class="com.china.center.oa.publics.dao.impl.RoleAuthDAOImpl" />
 

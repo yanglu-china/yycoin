@@ -8,12 +8,39 @@
  */
 package com.china.center.oa.finance.portal.action;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
-import com.china.center.actionhelper.common.*;
+import com.china.center.actionhelper.common.ActionTools;
+import com.china.center.actionhelper.common.JSONPageSeparateTools;
+import com.china.center.actionhelper.common.JSONTools;
+import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.actionhelper.common.PageSeparateTools;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
@@ -30,13 +57,28 @@ import com.china.center.oa.finance.bean.InBillBean;
 import com.china.center.oa.finance.bean.PaymentApplyBean;
 import com.china.center.oa.finance.bean.PaymentBean;
 import com.china.center.oa.finance.constant.FinanceConstant;
-import com.china.center.oa.finance.dao.*;
+import com.china.center.oa.finance.dao.BackPayApplyDAO;
+import com.china.center.oa.finance.dao.BankBalanceDAO;
+import com.china.center.oa.finance.dao.BankDAO;
+import com.china.center.oa.finance.dao.InBillDAO;
+import com.china.center.oa.finance.dao.OutBillDAO;
+import com.china.center.oa.finance.dao.PaymentApplyDAO;
+import com.china.center.oa.finance.dao.PaymentDAO;
+import com.china.center.oa.finance.dao.PaymentVSOutDAO;
+import com.china.center.oa.finance.dao.StatBankDAO;
 import com.china.center.oa.finance.facade.FinanceFacade;
 import com.china.center.oa.finance.manager.BankManager;
 import com.china.center.oa.finance.manager.BillManager;
 import com.china.center.oa.finance.manager.PaymentManager;
 import com.china.center.oa.finance.manager.StatBankManager;
-import com.china.center.oa.finance.vo.*;
+import com.china.center.oa.finance.vo.BankBalanceVO;
+import com.china.center.oa.finance.vo.BankVO;
+import com.china.center.oa.finance.vo.BatchSplitInBillWrap;
+import com.china.center.oa.finance.vo.InBillVO;
+import com.china.center.oa.finance.vo.OutBillVO;
+import com.china.center.oa.finance.vo.PaymentApplyVO;
+import com.china.center.oa.finance.vo.PaymentVO;
+import com.china.center.oa.finance.vo.PrePaymentWrap;
 import com.china.center.oa.finance.vs.PaymentVSOutBean;
 import com.china.center.oa.publics.DateTimeUtils;
 import com.china.center.oa.publics.Helper;
@@ -44,7 +86,11 @@ import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
-import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.publics.dao.DutyDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.InvoiceDAO;
+import com.china.center.oa.publics.dao.ParameterDAO;
+import com.china.center.oa.publics.dao.RoleAuthDAO;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vs.RoleAuthBean;
@@ -57,22 +103,16 @@ import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
-import com.china.center.tools.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.*;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.SequenceTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.UtilStream;
+import com.china.center.tools.WriteFileBuffer;
 
 /**
  * BankAction
@@ -554,6 +594,11 @@ public class FinanceAction extends DispatchAction {
 			}else{
 				condtion.addIntCondition("BankBean.mtype", "=", PublicConstant.MANAGER_TYPE_COMMON);
 			}
+		}
+		String payType = request.getParameter("payType");
+		if (!StringTools.isNullOrNone(payType))
+		{
+			condtion.addCondition("BankBean.payType", "=", payType);
 		}
 
 		condtion.addCondition("order by BankBean.id desc");

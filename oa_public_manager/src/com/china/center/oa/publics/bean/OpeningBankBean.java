@@ -17,6 +17,8 @@ public class OpeningBankBean implements Serializable {
 	private String bankName;
 	
 	private String unionBankCode;
+	
+	private String bankTypeName;
 
 	public String getBankName() {
 		return bankName;
@@ -32,6 +34,14 @@ public class OpeningBankBean implements Serializable {
 
 	public void setUnionBankCode(String unionBankCode) {
 		this.unionBankCode = unionBankCode;
+	}
+
+	public String getBankTypeName() {
+		return bankTypeName;
+	}
+
+	public void setBankTypeName(String bankTypeName) {
+		this.bankTypeName = bankTypeName;
 	}
 
 }

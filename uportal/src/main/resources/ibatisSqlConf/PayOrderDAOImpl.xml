@@ -90,7 +90,10 @@
                     aaa.payeeAmount=$payeeAmount$
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billTime"> 
-                    aaa.billdate=#billTime#
+                    aaa.billdate>=#billTime#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="billEndTime"> 
+                    <![CDATA[aaa.billdate<=#billEndTime#]]>
             </isNotEmpty>
        </dynamic>
        order by billdate desc
@@ -119,7 +122,10 @@
                     a.payeeAmount=$payeeAmount$
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billTime"> 
-                    a.billdate=#billTime#
+                    a.billdate>=#billTime#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="billEndTime"> 
+                    <![CDATA[q.billdate<=#billEndTime#]]>
             </isNotEmpty>
        </dynamic> 
        order by billdate desc
@@ -147,7 +153,10 @@
                     a.payeeAmount=$payeeAmount$
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billTime"> 
-                    a.billdate=#billTime#
+                    a.billdate>=#billTime#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="billEndTime"> 
+                    <![CDATA[a.billdate<=#billEndTime#]]>
             </isNotEmpty>
         </dynamic> 
         order by billdate desc
@@ -175,7 +184,10 @@
                     (b.cmoneys/100)=$payeeAmount$
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billTime"> 
-                    a.begindate=#billTime#
+                    a.begindate>=#billTime#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="billEndTime"> 
+                    <![CDATA[a.begindate<=#billEndTime#]]>
             </isNotEmpty>
          </dynamic>
          order by billdate desc
@@ -203,7 +215,10 @@
                     (b.cmoneys/100)=$payeeAmount$
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billTime"> 
-                    a.begindate=#billTime#
+                    a.begindate>=#billTime#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="billEndTime"> 
+                    <![CDATA[a.begindate<=#billEndTime#]]>
             </isNotEmpty>
         </dynamic>
         order by billdate desc
@@ -231,7 +246,10 @@
                    (a.checktotal/100)=$payeeAmount$
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billTime"> 
-                    DATE_FORMAT(a.logtime,'%Y-%m-%d')=#billTime#
+                    DATE_FORMAT(a.logtime,'%Y-%m-%d')>=#billTime#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="billEndTime"> 
+                    <![CDATA[DATE_FORMAT(a.logtime,'%Y-%m-%d')<=#billEndTime#]]>
             </isNotEmpty>
        </dynamic> 
        order by billdate desc
@@ -256,7 +274,10 @@
                     money=$payeeAmount$
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billTime"> 
-                    DATE_FORMAT(outidtime,'%Y-%m-%d')=#billTime#
+                    DATE_FORMAT(outidtime,'%Y-%m-%d')>=#billTime#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="billEndTime"> 
+                    <![CDATA[DATE_FORMAT(outidtime,'%Y-%m-%d')<=#billEndTime#]]>
             </isNotEmpty>
             <isNotEmpty prepend="and" property="payOrderNo"> 
                     outid=#payOrderNo#

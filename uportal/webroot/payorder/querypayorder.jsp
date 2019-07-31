@@ -34,6 +34,7 @@ function res()
 	$O("payeeAcc").value = '';
 	$O("payeeAmount").value = '';
 	$O("billTime").value = '';
+	$O("billEndTime").value = '';
 	$O('payeeBank').value = '';
 	$('#payOrderType').val(0);
 	$('#payOrderStatus').val(0);
@@ -108,9 +109,13 @@ function singleck(obj)
 	</tr>
 
 	<tr class="content2">
-		<td width="15%" align="center">单据日期:</td>
+		<td width="15%" align="center">开始日期:</td>
 		<td align="center" colspan="1"><p:plugin name="billTime" type="0" size="20" value="${queryMap.billTime }"/></td>
 		
+		<td width="15%" align="center">结束日期:</td>
+		<td align="center" colspan="1"><p:plugin name="billEndTime" type="0" size="20" value="${queryMap.billEndTime }"/></td>
+	</tr>
+	<tr class="content2">
 		<td width="15%" align="center">单据状态:</td>
         <td align="center">
 	         <select name="payOrderStatus" id="payOrderStatus" class="select_class" values="${queryMap.payOrderStatus}">

@@ -105,7 +105,7 @@ public class PopQueryAction extends DispatchAction
     
     private ProvinceDAO provinceDAO;
     
-    private OpeningBankDAO opengingBankDAO;
+    private OpeningBankDAO openingBankDAO;
 
     private static String RPTQUERYSTAFFER = "rptQueryStaffer";
 
@@ -476,19 +476,19 @@ public class PopQueryAction extends DispatchAction
                 condtion.addCondition("OpeningBankBean.bankname", "like", bankName);
             }
 
-            int total = opengingBankDAO.countVOByCondition(condtion.toString());
+            int total = openingBankDAO.countVOByCondition(condtion.toString());
 
             PageSeparate page = new PageSeparate(total, PublicConstant.PAGE_COMMON_SIZE);
 
             PageSeparateTools.initPageSeparate(condtion, page, request, cacheKey);
 
-            list = opengingBankDAO.queryEntityVOsByCondition(condtion, page);
+            list = openingBankDAO.queryEntityVOsByCondition(condtion, page);
         }
         else
         {
             PageSeparateTools.processSeparate(request, cacheKey);
 
-            list = opengingBankDAO.queryEntityVOsByCondition(PageSeparateTools.getCondition(request,
+            list = openingBankDAO.queryEntityVOsByCondition(PageSeparateTools.getCondition(request,
                 cacheKey), PageSeparateTools.getPageSeparate(request, cacheKey));
         }
 
@@ -980,13 +980,11 @@ public class PopQueryAction extends DispatchAction
 		this.provinceDAO = provinceDAO;
 	}
 
-	public OpeningBankDAO getOpengingBankDAO() {
-		return opengingBankDAO;
+	public OpeningBankDAO getOpeningBankDAO() {
+		return openingBankDAO;
 	}
 
-	public void setOpengingBankDAO(OpeningBankDAO opengingBankDAO) {
-		this.opengingBankDAO = opengingBankDAO;
+	public void setOpeningBankDAO(OpeningBankDAO openingBankDAO) {
+		this.openingBankDAO = openingBankDAO;
 	}
-
-    
 }

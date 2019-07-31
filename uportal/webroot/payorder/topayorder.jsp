@@ -49,7 +49,7 @@ function selectBank(obj)
     g_obj = obj;
     
     //单选
-    window.common.modal('../finance/bank.do?method=rptQueryBank&load=1&invoiceId=${bean.invoiceId}');
+    window.common.modal('../finance/bank.do?method=rptQueryBank&load=1&invoiceId=${bean.invoiceId}&payType=1');
 }
 
 function getBank(obj)

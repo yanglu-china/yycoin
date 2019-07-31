@@ -88,6 +88,13 @@ public class BankBean implements Serializable
     
     @Html(title = "开户省份", readonly = true,must = true)
     private String bankprovince="";
+    
+    /**
+     * 是否线上支付账户:0-否;1-是
+     */
+    private String paytype;
+    
+    private String bankName;
 
     @Ignore
     private String parentTaxId = "";
@@ -465,6 +472,22 @@ public class BankBean implements Serializable
 
 	public void setBankprovince(String bankprovince) {
 		this.bankprovince = bankprovince;
+	}
+
+	public String getPaytype() {
+		return paytype;
+	}
+
+	public void setPaytype(String paytype) {
+		this.paytype = paytype;
+	}
+
+	public String getBankName() {
+		return bankName;
+	}
+
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
 	}
 
 	/**
