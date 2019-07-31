@@ -3641,8 +3641,24 @@ public class OutImportManagerImpl implements OutImportManager
 						out.setPresentFlag(olOutBean.getPresentFlag());
 						out.setStafferId(olOutBean.getStafferId());
                         out.setStafferName(olOutBean.getStafferName());
-                        out.setCustomerId(olOutBean.getCustomerId());
+                        String customerId = olOutBean.getCustomerId();
+                        out.setCustomerId(customerId);
                         out.setCustomerName(olOutBean.getCustomerName());
+
+                        //#731
+                        if (!StringTools.isNullOrNone(customerId)){
+                            CustomerBean customerBean = this.customerMainDAO.find(customerId);
+                            if (customerBean == null){
+                                _logger.error("客户不存在:"+customerId);
+                                this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"客户不存在:"+customerId);
+                                continue;
+                            } else if (customerBean.getOstatus()!= 0){
+                                _logger.error("客户已停用:"+customerId);
+                                this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"客户已停用:"+customerId);
+                                continue;
+                            }
+                        }
+
                         //在生成OA订单时，把olfullid写入订单备注
 						String prefix = "___线下单号___";
 						if (StringTools.isNullOrNone(olOutBean.getDescription())){
