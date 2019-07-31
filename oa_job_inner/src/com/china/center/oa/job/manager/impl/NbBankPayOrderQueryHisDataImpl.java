@@ -55,58 +55,65 @@ public class NbBankPayOrderQueryHisDataImpl implements JobManager {
 		Map<String, String> paramMap = new HashMap<String, String>();
 		paramMap.put("beginDate", yesterday);
 		paramMap.put("endDate", yesterday);
-//		bankList.clear();
-//		bankList.add(new BankBean());
-		for (BankBean bankBean : bankList) {
-			String bankAcc = bankBean.getBankNo();
-//			bankAcc = "125902780610502";
-			paramMap.put("bankAcc", bankAcc);
-			_logger.info("start queryHisDtl bankAcc:" + bankAcc + ";date:" + yesterday);
-			List<NbBankQueryHisDtlLoopData> resultDataList = nbPay.queryHisDtl(paramMap);
-			List<NbBankHisDataBean> hisDataList = new ArrayList<NbBankHisDataBean>();
-			for (NbBankQueryHisDtlLoopData loopData : resultDataList) {
-				NbBankHisDataBean hisDataBean = new NbBankHisDataBean();
-				hisDataBean.setAccName(loopData.getAccName());
-				hisDataBean.setAmt(new BigDecimal(loopData.getAmt()));
-				hisDataBean.setBal(new BigDecimal(loopData.getBal()));
-				hisDataBean.setBankAcc(loopData.getBankAcc());
-				hisDataBean.setBankName(loopData.getBankName());
-				hisDataBean.setCdSign(loopData.getCdSign());
-				hisDataBean.setCur(loopData.getCur());
-				if(StringUtils.isEmpty(loopData.getOppAccBank()) || "null".equals(loopData.getOppAccBank()))
+		try
+		{
+			for (BankBean bankBean : bankList) {
+				String bankAcc = bankBean.getBankNo();
+				paramMap.put("bankAcc", bankAcc);
+				_logger.info("start queryHisDtl bankAcc:" + bankAcc + ";date:" + yesterday);
+				List<NbBankQueryHisDtlLoopData> resultDataList = nbPay.queryHisDtl(paramMap);
+				if(resultDataList != null)
 				{
-					hisDataBean.setOppAccBank(null);
+					List<NbBankHisDataBean> hisDataList = new ArrayList<NbBankHisDataBean>();
+					for (NbBankQueryHisDtlLoopData loopData : resultDataList) {
+						NbBankHisDataBean hisDataBean = new NbBankHisDataBean();
+						hisDataBean.setAccName(loopData.getAccName());
+						hisDataBean.setAmt(new BigDecimal(loopData.getAmt()));
+						hisDataBean.setBal(new BigDecimal(loopData.getBal()));
+						hisDataBean.setBankAcc(loopData.getBankAcc());
+						hisDataBean.setBankName(loopData.getBankName());
+						hisDataBean.setCdSign(loopData.getCdSign());
+						hisDataBean.setCur(loopData.getCur());
+						if(StringUtils.isEmpty(loopData.getOppAccBank()) || "null".equals(loopData.getOppAccBank()))
+						{
+							hisDataBean.setOppAccBank(null);
+						}
+						else
+						{
+							hisDataBean.setOppAccBank(loopData.getOppAccBank());
+						}
+						if(StringUtils.isEmpty(loopData.getOppAccName()) || "null".equals(loopData.getOppAccName()))
+						{
+							hisDataBean.setOppAccName(null);
+						}
+						else
+						{
+							hisDataBean.setOppAccName(loopData.getOppAccName());
+						}
+						if(StringUtils.isEmpty(loopData.getOppAccNo()) || "null".equals(loopData.getOppAccNo()))
+						{
+							hisDataBean.setOppAccNo(null);
+						}
+						else
+						{
+							hisDataBean.setOppAccNo(loopData.getOppAccNo());
+						}
+						hisDataBean.setRemark(loopData.getAbs());
+						hisDataBean.setSerialId(loopData.getSerialId());
+						hisDataBean.setTransDate(loopData.getTransDate().substring(0, 10));
+						hisDataBean.setUses(loopData.getUses());
+						hisDataBean.setVoucherNo(loopData.getVoucherNo());
+						hisDataList.add(hisDataBean);
+					}
+					nbBankHisDataDao.saveAllEntityBeans(hisDataList);
 				}
-				else
-				{
-					hisDataBean.setOppAccBank(loopData.getOppAccBank());
-				}
-				if(StringUtils.isEmpty(loopData.getOppAccName()) || "null".equals(loopData.getOppAccName()))
-				{
-					hisDataBean.setOppAccName(null);
-				}
-				else
-				{
-					hisDataBean.setOppAccName(loopData.getOppAccName());
-				}
-				if(StringUtils.isEmpty(loopData.getOppAccNo()) || "null".equals(loopData.getOppAccNo()))
-				{
-					hisDataBean.setOppAccNo(null);
-				}
-				else
-				{
-					hisDataBean.setOppAccNo(loopData.getOppAccNo());
-				}
-				hisDataBean.setRemark(loopData.getAbs());
-				hisDataBean.setSerialId(loopData.getSerialId());
-				hisDataBean.setTransDate(loopData.getTransDate().substring(0, 10));
-				hisDataBean.setUses(loopData.getUses());
-				hisDataBean.setVoucherNo(loopData.getVoucherNo());
-				hisDataList.add(hisDataBean);
+				
 			}
-			nbBankHisDataDao.saveAllEntityBeans(hisDataList);
 		}
-
+		catch(Exception e)
+		{
+			_logger.error("queryHisDtl error",e);
+		}
 		_logger.info("end queryHisDtl");
 	}
 	
