@@ -1837,6 +1837,7 @@ public class ClientAction extends DispatchAction
 
         ActionTools.processJSONQueryCondition(QUERYCLIENT, request, condtion);
 
+		condtion.addIntCondition("CustomerBean.ostatus", "=", 0);
         condtion.addCondition("order by CustomerBean.logTime desc");
 
         jsonstr = ActionTools.querySelfBeanByJSONAndToString(QUERYCLIENT, request, condtion,
