@@ -1,9 +1,11 @@
 package com.china.center.oa.payorder;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,22 +103,22 @@ public class PayOrderAction extends DispatchAction {
 		queryMap.put("payOrderType", payOrderType);
 		queryMap.put("payOrderStatus", payOrderStatus);
 		//起始日期大于2019-08-01
-//		if(StringUtils.isEmpty(billTime))
-//		{
-//			billTime = "2019-08-01";
-//		}
-//		else
-//		{
-//			try {
-//				Date date = new SimpleDateFormat("yyyy-MM-dd").parse(billTime);
-//				Date date81 = new SimpleDateFormat("yyyy-MM-dd").parse("2019-08-01");
-//				if(date.compareTo(date81) < 0)
-//				{
-//					billTime = "2019-08-01";
-//				}
-//			} catch (ParseException e) {
-//			}
-//		}
+		if(StringUtils.isEmpty(billTime))
+		{
+			billTime = "2019-08-01";
+		}
+		else
+		{
+			try {
+				Date date = new SimpleDateFormat("yyyy-MM-dd").parse(billTime);
+				Date date81 = new SimpleDateFormat("yyyy-MM-dd").parse("2019-08-01");
+				if(date.compareTo(date81) < 0)
+				{
+					billTime = "2019-08-01";
+				}
+			} catch (ParseException e) {
+			}
+		}
 		queryMap.put("billTime", billTime);
 		if (StringUtils.isEmpty(payOrderStatus)) {
 			payOrderStatus = CONSTANTS_PAYORDERSTATUS_1;
