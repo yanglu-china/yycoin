@@ -156,7 +156,7 @@ public class NbBankPayImpl {
             _logger.info(writer.toString());
             String encryptStr = AesCode.encrypt(writer.toString());
 			String result = stub.serverErpXml(encryptStr);
-			String decryptUTF8Str = AesCode.decrypt2UTF8(result);
+			String decryptUTF8Str = AesCode.decrypt2GBK(result);
 			_logger.info(decryptUTF8Str);
 			JAXBContext contextResult = JAXBContext.newInstance(NbBankTransferBodyResp.class);
 			Unmarshaller unmarshaller = contextResult.createUnmarshaller();
@@ -224,7 +224,7 @@ public class NbBankPayImpl {
 			_logger.info(reqXml);
             String encryptStr = AesCode.encrypt(reqXml);
 			String result = stub.serverErpXml(encryptStr);
-			String decryptUTF8Str = AesCode.decrypt2UTF8(result);
+			String decryptUTF8Str = AesCode.decrypt2GBK(result);
 			_logger.info(decryptUTF8Str);
 			NbBankQueryTransferBodyResp queryBodyResp =  (NbBankQueryTransferBodyResp) unMarShallerResp(decryptUTF8Str, new NbBankQueryTransferBodyResp());
 			
@@ -288,7 +288,7 @@ public class NbBankPayImpl {
 			_logger.info(reqXml);
             String encryptStr = AesCode.encrypt(reqXml);
 			String result = stub.serverErpXml(encryptStr);
-			String decryptUTF8Str = AesCode.decrypt2UTF8(result);
+			String decryptUTF8Str = AesCode.decrypt2GBK(result);
 			_logger.info(decryptUTF8Str);
 			NbBankQueryCrudTlBodyResp queryBodyResp =  (NbBankQueryCrudTlBodyResp) unMarShallerResp(decryptUTF8Str, new NbBankQueryCrudTlBodyResp());
 			
@@ -354,7 +354,7 @@ public class NbBankPayImpl {
 			_logger.info(reqXml);
             String encryptStr = AesCode.encrypt(reqXml);
 			String result = stub.serverErpXml(encryptStr);
-			String decryptUTF8Str = AesCode.decrypt2UTF8(result);
+			String decryptUTF8Str = AesCode.decrypt2GBK(result);
 			_logger.info(decryptUTF8Str);
 			NbBankQueryAccListBodyResp queryBodyResp =  (NbBankQueryAccListBodyResp) unMarShallerResp(decryptUTF8Str, new NbBankQueryAccListBodyResp());
 			
@@ -417,7 +417,7 @@ public class NbBankPayImpl {
 			_logger.info(reqXml);
             String encryptStr = AesCode.encrypt(reqXml);
 			String result = stub.serverErpXml(encryptStr);
-			String decryptUTF8Str = AesCode.decrypt2UTF8(result);
+			String decryptUTF8Str = AesCode.decrypt2GBK(result);
 			_logger.info(decryptUTF8Str);
 			NbBankQueryHisDtlBodyResp queryBodyResp =  (NbBankQueryHisDtlBodyResp) unMarShallerResp(decryptUTF8Str, new NbBankQueryHisDtlBodyResp());
 			
@@ -470,7 +470,7 @@ public class NbBankPayImpl {
 			_logger.info(reqXml);
             String encryptStr = AesCode.encrypt(reqXml);
 			String result = stub.serverErpXml(encryptStr);
-			String decryptUTF8Str = AesCode.decrypt2UTF8(result);
+			String decryptUTF8Str = AesCode.decrypt2GBK(result);
 			_logger.info(decryptUTF8Str);
 			
 			
