@@ -44,7 +44,7 @@ public class NbBankPayOrderQueryHisDataImpl implements JobManager {
 
 		con.addWhereStr();
 
-		con.addCondition(" and bankno is not null");
+		con.addCondition("paytype","=",1);
 
 		List<BankBean> bankList = bankDAO.queryEntityBeansByCondition(con);
 		// 查询昨日明细
