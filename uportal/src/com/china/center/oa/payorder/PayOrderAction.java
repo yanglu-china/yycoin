@@ -485,7 +485,7 @@ public class PayOrderAction extends DispatchAction {
 			}
 			if (CONSTANTS_PAYORDERTYPE_3.equals(billType)) {
 				List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList43(paramMap);
-				if (payOrderVOList.size() == 0 || payOrderVOList.size() > 1) {
+				if (payOrderVOList.size() == 0) {
 					errmsg.append("查询单据编号:" + billNo + "出错!");
 					continue;
 				}
@@ -585,7 +585,7 @@ public class PayOrderAction extends DispatchAction {
 			if (CONSTANTS_PAYORDERTYPE_4.equals(billType)) {
 
 				List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList44(paramMap);
-				if (payOrderVOList.size() == 0 || payOrderVOList.size() > 1) {
+				if (payOrderVOList.size() == 0) {
 					errmsg.append("查询单据编号:" + billNo + "出错!");
 					continue;
 				}
