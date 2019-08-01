@@ -487,6 +487,7 @@ public class PayOrderAction extends DispatchAction {
 				List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList43(paramMap);
 				if (payOrderVOList.size() == 0) {
 					errmsg.append("查询单据编号:" + billNo + "出错!");
+					
 					continue;
 				}
 				PayOrderVO vo = payOrderVOList.get(0);
