@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
+import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.finance.bean.BankBean;
 import com.china.center.oa.finance.bean.OutBillBean;
 import com.china.center.oa.finance.dao.BankDAO;
@@ -21,6 +22,7 @@ import com.china.center.oa.finance.facade.FinanceFacade;
 import com.china.center.oa.finance.manager.payorder.NbBankPayImpl;
 import com.china.center.oa.finance.vo.PayOrderListLogVO;
 import com.china.center.oa.job.manager.JobManager;
+import com.china.center.oa.publics.bean.UserBean;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.dao.UserDAO;
 import com.china.center.oa.publics.vo.UserVO;
@@ -132,13 +134,21 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 						}
 						if(CONSTANTS_PAYORDERTYPE_3.equals(vo.getType()))
 						{
-							UserVO user = userDAO.findVO(vo.getOperatorId());
+							ConditionParse cc = new ConditionParse();
+							cc.addCondition("stafferid", "=", vo.getOperator());
+							List<UserBean> userList = userDAO.queryEntityBeansByCondition(cc);
+							UserBean userBean= (UserBean) userList.get(0);
+							UserVO user = userDAO.findVO(userBean.getId());
 							BankBean bankBean = bankDAO.find(vo.getPayBankId());
 							endPayOrder3ByCash(user, user.getId(), erpno, vo.getPayBankId(), vo.getMoney(), bankBean);
 						}
 						if(CONSTANTS_PAYORDERTYPE_4.equals(vo.getType()))
 						{
-							UserVO user = userDAO.findVO(vo.getOperatorId());
+							ConditionParse cc = new ConditionParse();
+							cc.addCondition("stafferid", "=", vo.getOperator());
+							List<UserBean> userList = userDAO.queryEntityBeansByCondition(cc);
+							UserBean userBean= (UserBean) userList.get(0);
+							UserVO user = userDAO.findVO(userBean.getId());
 							endPayOrder4ByCash(user, erpno, vo.getPayBankId(), vo.getMoney());
 						}
 						if(CONSTANTS_PAYORDERTYPE_5.equals(vo.getType()))

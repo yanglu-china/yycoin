@@ -34,7 +34,9 @@ import com.china.center.oa.finance.vo.PayOrderVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.OpeningBankBean;
 import com.china.center.oa.publics.dao.OpeningBankDAO;
+import com.china.center.oa.tcp.bean.TcpApproveBean;
 import com.china.center.oa.tcp.bean.TravelApplyPayBean;
+import com.china.center.oa.tcp.dao.TcpApproveDAO;
 import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
 
 public class PayOrderAction extends DispatchAction {
@@ -80,6 +82,8 @@ public class PayOrderAction extends DispatchAction {
 	private TravelApplyPayDAO travelApplyPayDAO;
 
 	private OpeningBankDAO openingBankDAO;
+	
+	private TcpApproveDAO tcpApproveDAO;
 
 	public ActionForward queryPayOrder(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException {
@@ -545,7 +549,12 @@ public class PayOrderAction extends DispatchAction {
 							logvo.setOutbillid(payBean.getId());
 							// 付款中
 							logvo.setStatus("2");
-							logvo.setOperator(user.getStafferId());
+							//审批人id
+							List<TcpApproveBean> approveList = tcpApproveDAO.queryEntityBeansByFK(billNo);
+							if(approveList != null && approveList.size() > 0)
+							{
+								logvo.setOperator(approveList.get(0).getApproverId());
+							}
 							logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
 							logvo.setPayaccount(bankBean.getBankNo());
 							logvo.setPaybank(bankBean.getName());
@@ -644,7 +653,12 @@ public class PayOrderAction extends DispatchAction {
 							logvo.setOutbillid(payBean.getId());
 							// 付款中
 							logvo.setStatus("2");
-							logvo.setOperator(user.getStafferId());
+							//审批人id
+							List<TcpApproveBean> approveList = tcpApproveDAO.queryEntityBeansByFK(billNo);
+							if(approveList != null && approveList.size() > 0)
+							{
+								logvo.setOperator(approveList.get(0).getApproverId());
+							}
 							logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
 							logvo.setPayaccount(bankBean.getBankNo());
 							logvo.setPaybank(bankBean.getName());
@@ -777,6 +791,14 @@ public class PayOrderAction extends DispatchAction {
 
 	public void setOpeningBankDAO(OpeningBankDAO openingBankDAO) {
 		this.openingBankDAO = openingBankDAO;
+	}
+
+	public TcpApproveDAO getTcpApproveDAO() {
+		return tcpApproveDAO;
+	}
+
+	public void setTcpApproveDAO(TcpApproveDAO tcpApproveDAO) {
+		this.tcpApproveDAO = tcpApproveDAO;
 	}
 
 }
