@@ -62,14 +62,7 @@ function doSearch()
 function formatCdSign(obj)
 {
 	var val = $(obj).text();
-	if(val == 1)
-	{
-		$(obj).text("支出");
-	}
-	else
-	{
-		$(obj).text("收入");
-	}
+	$(obj).text(val);
 }
 function exports()
 {

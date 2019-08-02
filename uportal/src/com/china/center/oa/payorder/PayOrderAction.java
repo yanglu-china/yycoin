@@ -186,12 +186,19 @@ public class PayOrderAction extends DispatchAction {
 		}
 
 		List<PayOrderVO> payOrderList = new ArrayList<PayOrderVO>();
+		
+		Map<String,String> checkMap = new HashMap<String, String>();
 
 		for (int i = 0; i < billNoArray.length; i++) {
 			String billNoAndType = billNoArray[i];
 			String[] array = StringUtils.split(billNoAndType, "_");
 			String billNo = array[0];
 			String billType = array[1];
+			if(checkMap.containsKey(billNo))
+			{
+				continue;
+			}
+			checkMap.put(billNo, billNo);
 			Map<String, String> paramMap = new HashMap<String, String>();
 			paramMap.put("payOrderNo", billNo);
 			if (CONSTANTS_PAYORDERTYPE_1.contentEquals(billType)) {
@@ -333,8 +340,19 @@ public class PayOrderAction extends DispatchAction {
 					//异地
 					payInfoMap.put("areaSign", "1");
 				}
-				String peeBankName = vo.getPayeeBank();
-				if(peeBankName.indexOf(payBankName) != -1)
+				//查询收款账户的联行号
+				String payeeBank = vo.getPayeeBank();
+				ConditionParse cond = new ConditionParse();
+				cond.addWhereStr();
+				cond.addCondition("bankname", "=", payeeBank);
+				List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
+				if(openBankList.size() == 0)
+				{
+					errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
+					continue;
+				}
+				OpeningBankBean openingBank = openBankList.get(0);
+				if(openingBank.getBankTypeName().indexOf(payBankName) != -1)
 				{
 					//同行标识
 					payInfoMap.put("difSign","0");
@@ -349,18 +367,6 @@ public class PayOrderAction extends DispatchAction {
 				if (tempFlag) {
 					payInfoMap.put("payeeAccNo", vo.getPayeeBankAcc());
 					payInfoMap.put("payeeAccName", vo.getPayeeBankAccName());
-					//查询收款账户的联行号
-					String payeeBank = vo.getPayeeBank();
-					ConditionParse cond = new ConditionParse();
-					cond.addWhereStr();
-					cond.addCondition("bankname", "=", payeeBank);
-					List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
-					if(openBankList.size() == 0)
-					{
-						errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
-						continue;
-					}
-					OpeningBankBean openingBank = openBankList.get(0);
 					payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
 					payInfoMap.put("payMoney", vo.getPayeeAmount());
 					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
@@ -383,6 +389,7 @@ public class PayOrderAction extends DispatchAction {
 					logvo.setDescription(vo.getDescription());
 					logvo.setOutidtime(vo.getLogTime());
 					logvo.setCity(peeCity);
+					logvo.setOutbillid(billNo);
 					//付款中
 					logvo.setStatus("2");
 					logvo.setOperator(user.getStafferId());
@@ -420,8 +427,19 @@ public class PayOrderAction extends DispatchAction {
 					//异地
 					payInfoMap.put("areaSign", "1");
 				}
-				String peeBankName = vo.getPayeeBank();
-				if(peeBankName.indexOf(payBankName) != -1)
+				//查询收款账户的联行号
+				String payeeBank = vo.getPayeeBank();
+				ConditionParse cond = new ConditionParse();
+				cond.addWhereStr();
+				cond.addCondition("bankname", "=", payeeBank);
+				List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
+				if(openBankList.size() == 0)
+				{
+					errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
+					continue;
+				}
+				OpeningBankBean openingBank = openBankList.get(0);
+				if(openingBank.getBankTypeName().indexOf(payBankName) != -1)
 				{
 					//同行标识
 					payInfoMap.put("difSign","0");
@@ -435,18 +453,6 @@ public class PayOrderAction extends DispatchAction {
 				payInfoMap.put("payPurpose", "采购预付款");
 				// bank支持电子支付
 				if (tempFlag) {
-					//查询收款账户的联行号
-					String payeeBank = vo.getPayeeBank();
-					ConditionParse cond = new ConditionParse();
-					cond.addWhereStr();
-					cond.addCondition("bankname", "=", payeeBank);
-					List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
-					if(openBankList.size() == 0)
-					{
-						errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
-						continue;
-					}
-					OpeningBankBean openingBank = openBankList.get(0);
 					payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
 					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 					String retCode = retMap.get("retCode");
@@ -468,6 +474,7 @@ public class PayOrderAction extends DispatchAction {
 					logvo.setCity(peeCity);
 					logvo.setDescription(vo.getDescription());
 					logvo.setOutidtime(vo.getLogTime());
+					logvo.setOutbillid(billNo);
 					//付款中
 					logvo.setStatus("2");
 					logvo.setOperator(user.getStafferId());
@@ -504,6 +511,14 @@ public class PayOrderAction extends DispatchAction {
 				//按收款明细支付
 				for(TravelApplyPayBean payBean:applyPayList)
 				{
+					//查询log表是否已经支付
+					Map<String,String> queryMap = new HashMap<String, String>();
+					queryMap.put("outBillId", payBean.getId());
+					List<PayOrderListLogVO> existsList = payOrderDao.queryPayOrderLogList(queryMap);
+					if(existsList.size() >0)
+					{
+						continue;
+					}
 					// bank支持电子支付
 					if (tempFlag) {
 						//同城
@@ -518,17 +533,6 @@ public class PayOrderAction extends DispatchAction {
 							//异地
 							payInfoMap.put("areaSign", "1");
 						}
-						String peeBankName = payBean.getBankName();
-						if(peeBankName.indexOf(payBankName) != -1)
-						{
-							//同行标识
-							payInfoMap.put("difSign","0");
-						}
-						else
-						{
-							//跨行标识
-							payInfoMap.put("difSign","1");
-						}
 						//查询收款账户的联行号
 						String payeeBank = vo.getPayeeBank();
 						ConditionParse cond = new ConditionParse();
@@ -541,11 +545,24 @@ public class PayOrderAction extends DispatchAction {
 							continue;
 						}
 						OpeningBankBean openingBank = openBankList.get(0);
+						if(openingBank.getBankTypeName().indexOf(payBankName) != -1)
+						{
+							//同行标识
+							payInfoMap.put("difSign","0");
+						}
+						else
+						{
+							//跨行标识
+							payInfoMap.put("difSign","1");
+						}
+						
 						payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
 						payInfoMap.put("payeeAccNo", payBean.getBankNo());
 						payInfoMap.put("payeeAccName", payBean.getUserName());
 						payInfoMap.put("payMoney", vo.getPayeeAmount());
 						payInfoMap.put("payPurpose", "借款申请付款");
+						//一笔款多条收款明细,用明细id作为erpno
+						payInfoMap.put("erpReqNo", payBean.getId());
 						Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 						String retCode = retMap.get("retCode");
 						String retMsg = retMap.get("retMsg");
@@ -567,6 +584,7 @@ public class PayOrderAction extends DispatchAction {
 						logvo.setCity(payBean.getBankcity());
 						logvo.setDescription(vo.getDescription());
 						logvo.setOutidtime(vo.getLogTime());
+						logvo.setOutbillid(payBean.getId());
 						//付款中
 						logvo.setStatus("2");
 						logvo.setOperator(user.getStafferId());
@@ -604,6 +622,14 @@ public class PayOrderAction extends DispatchAction {
 				//按收款明细支付
 				for(TravelApplyPayBean payBean:applyPayList)
 				{
+					//查询log表是否已经支付
+					Map<String,String> queryMap = new HashMap<String, String>();
+					queryMap.put("outBillId", payBean.getId());
+					List<PayOrderListLogVO> existsList = payOrderDao.queryPayOrderLogList(queryMap);
+					if(existsList.size() >0)
+					{
+						continue;
+					}
 					// bank支持电子支付
 					if (tempFlag) {
 						String peeCity = payBean.getBankcity();
@@ -617,17 +643,6 @@ public class PayOrderAction extends DispatchAction {
 							//异地
 							payInfoMap.put("areaSign", "1");
 						}
-						String peeBankName = payBean.getBankName();
-						if(peeBankName.indexOf(payBankName) != -1)
-						{
-							//同行标识
-							payInfoMap.put("difSign","0");
-						}
-						else
-						{
-							//跨行标识
-							payInfoMap.put("difSign","1");
-						}
 						//查询收款账户的联行号
 						String payeeBank = vo.getPayeeBank();
 						ConditionParse cond = new ConditionParse();
@@ -640,11 +655,24 @@ public class PayOrderAction extends DispatchAction {
 							continue;
 						}
 						OpeningBankBean openingBank = openBankList.get(0);
+						if(openingBank.getBankTypeName().indexOf(payBankName) != -1)
+						{
+							//同行标识
+							payInfoMap.put("difSign","0");
+						}
+						else
+						{
+							//跨行标识
+							payInfoMap.put("difSign","1");
+						}
+						
 						payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
 						payInfoMap.put("payeeAccNo", payBean.getBankNo());
 						payInfoMap.put("payeeAccName", payBean.getUserName());
 						payInfoMap.put("payMoney", vo.getPayeeAmount());
 						payInfoMap.put("payPurpose", "报销申请付款");
+						//一笔款多条收款明细,用明细id作为erpno
+						payInfoMap.put("erpReqNo", payBean.getId());
 						Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
 						String retCode = retMap.get("retCode");
 						String retMsg = retMap.get("retMsg");
@@ -666,6 +694,7 @@ public class PayOrderAction extends DispatchAction {
 						logvo.setCity(payBean.getBankcity());
 						logvo.setDescription(vo.getDescription());
 						logvo.setOutidtime(vo.getLogTime());
+						logvo.setOutbillid(payBean.getId());
 						//付款中
 						logvo.setStatus("2");
 						logvo.setOperator(user.getStafferId());
@@ -702,17 +731,6 @@ public class PayOrderAction extends DispatchAction {
 						//异地
 						payInfoMap.put("areaSign", "1");
 					}
-					String peeBankName = vo.getPayeeBank();
-					if(peeBankName.indexOf(payBankName) != -1)
-					{
-						//同行标识
-						payInfoMap.put("difSign","0");
-					}
-					else
-					{
-						//跨行标识
-						payInfoMap.put("difSign","1");
-					}
 					//查询收款账户的联行号
 					String payeeBank = vo.getPayeeBank();
 					ConditionParse cond = new ConditionParse();
@@ -725,6 +743,17 @@ public class PayOrderAction extends DispatchAction {
 						continue;
 					}
 					OpeningBankBean openingBank = openBankList.get(0);
+					if(openingBank.getBankTypeName().indexOf(payBankName) != -1)
+					{
+						//同行标识
+						payInfoMap.put("difSign","0");
+					}
+					else
+					{
+						//跨行标识
+						payInfoMap.put("difSign","1");
+					}
+					
 					payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
 					payInfoMap.put("payeeAccNo", vo.getPayeeBankAcc());
 					payInfoMap.put("payeeAccName", vo.getPayeeBankAccName());
@@ -752,6 +781,7 @@ public class PayOrderAction extends DispatchAction {
 					logvo.setCity(peeCity);
 					logvo.setDescription(vo.getDescription());
 					logvo.setOutidtime(vo.getLogTime());
+					logvo.setOutbillid(billNo);
 					//付款中
 					logvo.setStatus("2");
 					logvo.setOperator(user.getStafferId());

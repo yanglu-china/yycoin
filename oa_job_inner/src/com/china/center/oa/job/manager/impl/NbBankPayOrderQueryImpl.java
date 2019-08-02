@@ -96,75 +96,81 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 	@Override
 	@Transactional(rollbackFor = {Exception.class})
 	public void run() throws MYException {
-		
 		_logger.info("start NbBankPayOrderQueryImpl");
 		List<PayOrderListLogVO> list = payOrderDao.queryPayOrderLogStatusList();
 		NbBankPayImpl nbPay = new NbBankPayImpl();
-		for(PayOrderListLogVO vo : list)
+		try
 		{
-			String erpno = vo.getOutid();
-			_logger.info("start query billno:" + erpno);
-			Map<String,String> retMap = nbPay.queryTransfer(erpno);
-			String retCode = retMap.get("retCode");
-			_logger.info("billno:" + erpno + " retCode:" + retCode);
-			Map<String,String> map = new HashMap<String, String>();
-			if(StringUtils.isNotEmpty(retCode) && "0".equals(retCode))
+			for(PayOrderListLogVO vo : list)
 			{
-				String payStatus = retMap.get("payState");
-				_logger.info("billno:" + erpno + " payStatus:" + payStatus);
-				if(StringUtils.isNotEmpty(payStatus) && "00".equals(payStatus))
+				String erpno = vo.getOutbillid();
+				_logger.info("start query billno:" + erpno);
+				Map<String,String> retMap = nbPay.queryTransfer(erpno);
+				String retCode = retMap.get("retCode");
+				_logger.info("billno:" + erpno + " retCode:" + retCode);
+				Map<String,String> map = new HashMap<String, String>();
+				if(StringUtils.isNotEmpty(retCode) && "0".equals(retCode))
 				{
-					//付款成功，更新log表的状态
-					map.put("status", "3");
-					map.put("bankStatus", payStatus);
-					map.put("outId", erpno);
-					payOrderDao.updatePayOrderLog(map);
-					
-					//生成凭证
-					if(CONSTANTS_PAYORDERTYPE_1.equals(vo.getType()))
+					String payStatus = retMap.get("payState");
+					_logger.info("billno:" + erpno + " payStatus:" + payStatus);
+					if(StringUtils.isNotEmpty(payStatus) && "00".equals(payStatus))
 					{
-						endPayOrder1ByCash(vo.getOperatorId(), erpno, vo.getPayBankId(), vo.getMoney());
-					}
-					if(CONSTANTS_PAYORDERTYPE_2.equals(vo.getType()))
-					{
-						endPayOrder2ByCash(vo.getOperatorId(), erpno, vo.getPayBankId(), vo.getMoney());
-					}
-					if(CONSTANTS_PAYORDERTYPE_3.equals(vo.getType()))
-					{
-						UserVO user = userDAO.findVO(vo.getOperatorId());
-						BankBean bankBean = bankDAO.find(vo.getPayBankId());
-						endPayOrder3ByCash(user, user.getId(), erpno, vo.getPayBankId(), vo.getMoney(), bankBean);
-					}
-					if(CONSTANTS_PAYORDERTYPE_4.equals(vo.getType()))
-					{
-						UserVO user = userDAO.findVO(vo.getOperatorId());
-						endPayOrder4ByCash(user, erpno, vo.getPayBankId(), vo.getMoney());
-					}
-					if(CONSTANTS_PAYORDERTYPE_5.equals(vo.getType()))
-					{
-						UserVO user = userDAO.findVO(vo.getOperatorId());
-						endPayOrder5ByCash(user, erpno,vo.getPayBankId(), vo.getMoney());
-					}
-				}
-				else
-				{
-					//95 付款已删除
-					//96 付款已打回
-					//97付款不存在
-					//98付款失败
-					if("95".equals(payStatus) || "96".equals(payStatus) || "97".equals(payStatus) || "98".equals(payStatus))
-					{
-						//付款失败，更新log表的状态
-						map.put("status", "4");
+						//付款成功，更新log表的状态
+						map.put("status", "3");
 						map.put("bankStatus", payStatus);
-						map.put("outId", erpno);
+						map.put("outBillId", erpno);
 						payOrderDao.updatePayOrderLog(map);
 						
+						//生成凭证
+						if(CONSTANTS_PAYORDERTYPE_1.equals(vo.getType()))
+						{
+							endPayOrder1ByCash(vo.getOperatorId(), erpno, vo.getPayBankId(), vo.getMoney());
+						}
+						if(CONSTANTS_PAYORDERTYPE_2.equals(vo.getType()))
+						{
+							endPayOrder2ByCash(vo.getOperatorId(), erpno, vo.getPayBankId(), vo.getMoney());
+						}
+						if(CONSTANTS_PAYORDERTYPE_3.equals(vo.getType()))
+						{
+							UserVO user = userDAO.findVO(vo.getOperatorId());
+							BankBean bankBean = bankDAO.find(vo.getPayBankId());
+							endPayOrder3ByCash(user, user.getId(), erpno, vo.getPayBankId(), vo.getMoney(), bankBean);
+						}
+						if(CONSTANTS_PAYORDERTYPE_4.equals(vo.getType()))
+						{
+							UserVO user = userDAO.findVO(vo.getOperatorId());
+							endPayOrder4ByCash(user, erpno, vo.getPayBankId(), vo.getMoney());
+						}
+						if(CONSTANTS_PAYORDERTYPE_5.equals(vo.getType()))
+						{
+							UserVO user = userDAO.findVO(vo.getOperatorId());
+							endPayOrder5ByCash(user, erpno,vo.getPayBankId(), vo.getMoney());
+						}
+					}
+					else
+					{
+						//95 付款已删除
+						//96 付款已打回
+						//97付款不存在
+						//98付款失败
+						if("95".equals(payStatus) || "96".equals(payStatus) || "97".equals(payStatus) || "98".equals(payStatus))
+						{
+							//付款失败，更新log表的状态
+							map.put("status", "4");
+							map.put("bankStatus", payStatus);
+							map.put("outId", erpno);
+							payOrderDao.updatePayOrderLog(map);
+							
+						}
 					}
 				}
 			}
 		}
-		
+		catch(Exception e)
+		{
+			_logger.error("NbBankPayOrderQueryImpl error",e);
+			throw e;
+		}
 		
 		_logger.info("end NbBankPayOrderQueryImpl");
 	}
