@@ -50,28 +50,28 @@
         SELECT a.*,b.name as cityname FROM (
 		SELECT id AS billno,'1' AS billtype ,'采购付款' AS billtypedesc,paydate AS billdate ,'1' AS billstatus,logtime,description,
 		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpayapply a WHERE STATUS=3) 
-		a LEFT JOIN	t_center_city  b ON a.cityid=b.id
+		a LEFT JOIN	t_center_city  b ON a.cityid=b.id AND a.billno not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=a.billno)
 		UNION
 		*/]]>
 		SELECT a.*,b.name as cityname FROM (
 		SELECT id AS billno,'2' AS billtype ,'采购预付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate ,'1' AS billstatus,logtime,description,
 		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpreapply a WHERE STATUS=3) 
-		a LEFT JOIN t_center_city  b ON a.cityid=b.id
+		a LEFT JOIN t_center_city  b ON a.cityid=b.id AND a.billno not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=a.billno)
 		UNION
 		SELECT a.id AS billNo,'3' AS billtype,'借款申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
-		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100 AS payeeAmount,'' AS cityid,'' as cityname
-		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
-		AND a.status=22 AND a.type NOT IN (8,10,15,22)
+		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100 AS payeeAmount,'' AS cityid,b.bankcity as cityname
+		FROM t_center_travelapply a ,(SELECT * FROM T_CENTER_TRAVELAPPLYPAY GROUP BY parentid HAVING COUNT(parentid)=1) b WHERE a.id=b.parentId
+		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND b.id not IN (SELECT outbillid  FROM t_center_paylistlog WHERE outbillid=b.id)
 		UNION
 		SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
-		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,'' as cityname
-		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
-		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0
+		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,b.bankcity as cityname
+		FROM t_center_tcpexpense a ,(SELECT * FROM T_CENTER_TRAVELAPPLYPAY GROUP BY parentid HAVING COUNT(parentid)=1) b WHERE a.id=b.parentId
+		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0 AND b.id not IN (SELECT outbillid  FROM t_center_paylistlog WHERE outbillid=b.id)
 		UNION 
-		SELECT a.APPLYID AS billNo,'5' AS billtype,'预收退款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
+		SELECT a.APPLYID AS billNo,'5' AS billtype,'预收退款' AS billtypedesc,DATE_FORMAT(b.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,b.logtime,a.description,
 		TRIM(b.receiveBank) AS  payeebank,TRIM(b.receiver) AS payeeBankAccName,TRIM(b.receiveAccount) AS payeeBankAcc,a.checktotal/100  AS payeeAmount,TRIM(b.bankcity) as cityname,'' as cityid
 		FROM T_CENTER_TCPAPPROVE a ,T_CENTER_BACKPREPAY_APPLY b
-		WHERE a.TYPE=23 AND a.STATUS=29 and a.checktotal>0 and b.id=a.applyid) aaa where aaa.payeeAmount>0 AND aaa.billno not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=aaa.billno)
+		WHERE a.TYPE=23 AND a.STATUS=29 and a.checktotal>0 and b.id=a.applyid AND a.APPLYID not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=a.APPLYID)) aaa where aaa.payeeAmount>0
 		<dynamic prepend=""> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
                     aaa.billNo= #payOrderNo#
@@ -165,8 +165,8 @@
     <select id="queryPayOrderList43" parameterClass="java.util.Map" resultMap="PayOrder">
     	SELECT a.id AS billNo,'3' AS billtype,'借款申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100 AS payeeAmount,TRIM(b.bankcity) as cityname,'' as cityid
-		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
-		AND a.status=22 AND a.type NOT IN (8,10,15,22) and cmoneys>0 AND a.id not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=a.id)
+		FROM t_center_travelapply a ,(SELECT * FROM T_CENTER_TRAVELAPPLYPAY GROUP BY parentid HAVING COUNT(parentid)=1) b WHERE a.id=b.parentId
+		AND a.status=22 AND a.type NOT IN (8,10,15,22) and cmoneys>0 AND b.id not IN (SELECT outbillid  FROM t_center_paylistlog WHERE outbillid=b.id)
 		<dynamic prepend=""> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
                     a.id= #payOrderNo#
@@ -184,10 +184,10 @@
                     (b.cmoneys/100)=$payeeAmount$
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billTime"> 
-                    a.begindate>=#billTime#
+                    DATE_FORMAT(a.logtime,'%Y-%m-%d')>=#billTime#
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billEndTime"> 
-                    <![CDATA[a.begindate<=#billEndTime#]]>
+                    <![CDATA[DATE_FORMAT(a.logtime,'%Y-%m-%d')<=#billEndTime#]]>
             </isNotEmpty>
          </dynamic>
          order by billdate desc
@@ -196,8 +196,8 @@
     <select id="queryPayOrderList44" parameterClass="java.util.Map" resultMap="PayOrder">
     	SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,TRIM(b.bankcity) as cityname,'' as cityid
-		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
-		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0 AND a.id not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=a.id)
+		FROM t_center_tcpexpense a ,(SELECT * FROM T_CENTER_TRAVELAPPLYPAY GROUP BY parentid HAVING COUNT(parentid)=1) b WHERE a.id=b.parentId
+		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0 AND b.id not IN (SELECT outbillid  FROM t_center_paylistlog WHERE outbillid=b.id)
 		<dynamic prepend=""> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
                     a.id= #payOrderNo#
@@ -215,17 +215,17 @@
                     (b.cmoneys/100)=$payeeAmount$
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billTime"> 
-                    a.begindate>=#billTime#
+                    DATE_FORMAT(a.logtime,'%Y-%m-%d')>=#billTime#
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billEndTime"> 
-                    <![CDATA[a.begindate<=#billEndTime#]]>
+                    <![CDATA[DATE_FORMAT(a.logtime,'%Y-%m-%d')<=#billEndTime#]]>
             </isNotEmpty>
         </dynamic>
         order by billdate desc
     </select>
     
     <select id="queryPayOrderList45" parameterClass="java.util.Map" resultMap="PayOrder">
-    	SELECT a.APPLYID AS billNo,'5' AS billtype,'预收退款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
+    	SELECT a.APPLYID AS billNo,'5' AS billtype,'预收退款' AS billtypedesc,DATE_FORMAT(b.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,b.logtime,a.description,
 		TRIM(b.receiveBank) AS  payeebank,TRIM(b.receiver) AS payeeBankAccName,TRIM(b.receiveAccount) AS payeeBankAcc,a.checktotal/100  AS payeeAmount,TRIM(b.bankcity) as cityname,'' as cityid
 		FROM T_CENTER_TCPAPPROVE a ,T_CENTER_BACKPREPAY_APPLY b
 		WHERE a.TYPE=23 AND a.STATUS=29 and a.checktotal>0 and b.id=a.applyid AND a.APPLYID not IN (SELECT outid  FROM t_center_paylistlog WHERE outid=a.APPLYID)
@@ -246,10 +246,10 @@
                    (a.checktotal/100)=$payeeAmount$
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billTime"> 
-                    DATE_FORMAT(a.logtime,'%Y-%m-%d')>=#billTime#
+                    DATE_FORMAT(b.logtime,'%Y-%m-%d')>=#billTime#
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billEndTime"> 
-                    <![CDATA[DATE_FORMAT(a.logtime,'%Y-%m-%d')<=#billEndTime#]]>
+                    <![CDATA[DATE_FORMAT(b.logtime,'%Y-%m-%d')<=#billEndTime#]]>
             </isNotEmpty>
        </dynamic> 
        order by billdate desc
@@ -285,6 +285,9 @@
             <isNotEmpty prepend="and" property="payOrderType"> 
                     type=#payOrderType#
             </isNotEmpty>
+            <isNotEmpty prepend="and" property="outBillId"> 
+                    outBillId=#outBillId#
+            </isNotEmpty>
        </dynamic> 
     </select>
     
@@ -301,6 +304,6 @@
     </select>
     
     <update id="updatePayOrderLog" parameterClass="java.util.Map">
-    	update t_center_paylistlog set status=#status#,bankstatus=#bankStatus#,bankpaytime=sysdate() where outid=#outId# and status=2
+    	update t_center_paylistlog set status=#status#,bankstatus=#bankStatus#,bankpaytime=sysdate() where outbillid=#outBillId# and status=2
     </update>
 </sqlMap>
