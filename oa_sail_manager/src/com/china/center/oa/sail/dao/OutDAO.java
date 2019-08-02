@@ -41,6 +41,8 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     
     List<OutBean> queryOutByConditions1(String cid,String pid);
     
+    List<OutBean> queryOutBySql(String sql);
+    
     List<BaseBean> queryBaseByConditions(final Map dataMap)
     throws MYException;
     

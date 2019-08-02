@@ -150,6 +150,15 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
 		}
 		return null;
     }
+    
+    public List<OutBean> queryOutBySql(String sql){
+    	List<OutBean> list = this.jdbcOperation.queryObjectsBySql(sql).list(OutBean.class);
+		if(list !=null && list.size() > 0 )
+		{
+			return list;
+		}
+		return null;  	
+    }
 
     public boolean updatePay(String fullId, int pay)
     {

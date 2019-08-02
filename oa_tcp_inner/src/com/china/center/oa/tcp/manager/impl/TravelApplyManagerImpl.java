@@ -3261,6 +3261,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //每天夜里跑JOB统计从15.4.1日到当天的未申请的中收和激励数据
         //所有中收激励统计均为“已出库”、“已发货”状态的订单，退库订单的状态均为“待核对”状态
         //销售退库订单的对应中收、激励金额为负数也列入统计及明细
+    	long t1 = System.currentTimeMillis();
         _logger.info("*****ibReportJob running******");
         //#417 先把数据清理掉
         this.tcpIbReportItemDAO.deleteAllEntityBean();
@@ -3270,7 +3271,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         Map<String, List<OutBean>>  customerToOutMap = new HashMap<String,List<OutBean>>();
 
         final String beginDate = "2015-04-01";
+        
         //所有中收激励统计均为销售出库订单
+        /*
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         //销售单
@@ -3281,7 +3284,27 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         con.addCondition(" and OutBean.status !=2 ");
         con.addCondition("outTime", ">", beginDate);
         con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0 or OutBean.ibFlag2 =0 or OutBean.motivationFlag2=0 or OutBean.platformFlag=0)");
-        List<OutBean> outList = this.outDAO.queryEntityBeansByCondition(con);
+        */
+        
+        StringBuffer sqlBuffer = new StringBuffer();
+        
+        sqlBuffer.append(" select OutBean.*"); 
+        sqlBuffer.append(" from t_center_out OutBean"); 
+        sqlBuffer.append(" left outer join t_center_base BaseBean on BaseBean.outId=OutBean.fullId");
+        //销售单
+        sqlBuffer.append(" where OutBean.type=").append(OutConstant.OUT_TYPE_OUTBILL); 
+        //销售出库
+        sqlBuffer.append(" and OutBean.outType=").append(OutConstant.OUTTYPE_OUT_COMMON); 
+        sqlBuffer.append(" and OutBean.status!=2");
+        sqlBuffer.append(" and OutBean.outTime>'"+beginDate+"'"); 
+        sqlBuffer.append(" and ((OutBean.ibFlag=0 and BaseBean.ibMoney>0)"); 
+        sqlBuffer.append(" or (OutBean.ibFlag2=0 and BaseBean.ibMoney2>0)"); 
+        sqlBuffer.append(" or (OutBean.motivationFlag=0 and BaseBean.motivationMoney>0) "); 
+        sqlBuffer.append(" or (OutBean.motivationFlag2=0 and BaseBean.motivationMoney2>0)");
+        sqlBuffer.append(" or (OutBean.platformFlag=0 and BaseBean.platformFee>0))");
+        
+        List<OutBean> outList = this.outDAO.queryOutBySql(sqlBuffer.toString());
+        
         if (!ListTools.isEmptyOrNull(outList)){
             _logger.info("ibReport outList1 size:"+outList.size());
              for (OutBean out: outList){
@@ -3296,6 +3319,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                  }
              }
         }
+        
+        //#692 使用完毕，释放内存
+        outList.clear();
 
         //退库订单的状态均为“待核对”状态
         ConditionParse con1 = new ConditionParse();
@@ -3305,7 +3331,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //销售退库
         con1.addCondition("OutBean.outType", "=", OutConstant.OUTTYPE_IN_OUTBACK);
         con1.addCondition("outTime",">",beginDate);
-        con.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0)");
+        con1.addCondition(" and (OutBean.ibFlag =0 or OutBean.motivationFlag=0)");
         //#315 “待核对”和结束状态
         con1.addCondition(" and OutBean.status in(3,4)");
         List<OutBean> outList2 = this.outDAO.queryEntityBeansByCondition(con1);
@@ -3330,14 +3356,24 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         }
 
         final double zero = 0.000001;
-        for (String customerId : customerToOutMap.keySet()){
+        
+        //#692
+        Collection<List<OutBean>> outCol = customerToOutMap.values();
+        for(List<OutBean> outVOs : outCol){
+        //for (String customerId : customerToOutMap.keySet()){
             List<TcpIbReportItemBean> itemList = new ArrayList<TcpIbReportItemBean>();
 
             TcpIbReportBean ibReport = new TcpIbReportBean();
-            ibReport.setId(commonDAO.getSquenceString20());
-            ibReport.setCustomerId(customerId);
-            List<OutBean> outVOs = customerToOutMap.get(customerId);
+            
+            //#692 使用uuid
+            //ibReport.setId(commonDAO.getSquenceString20());
+            ibReport.setId(this.getRandomnUUID());
+            
+            //ibReport.setCustomerId(customerId);
+            //List<OutBean> outVOs = customerToOutMap.get(customerId);
             if (!ListTools.isEmptyOrNull(outVOs)){
+            	ibReport.setCustomerId(outVOs.get(0).getCustomerId().trim());
+            	
                 ibReport.setCustomerName(outVOs.get(0).getCustomerName().trim());
                 double ibTotal = 0.0d;
                 double moTotal = 0.0d;
@@ -3441,7 +3477,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 _logger.info("****save ibReport**********"+ibReport);
 
                 for (TcpIbReportItemBean item : itemList) {
-                    item.setId(commonDAO.getSquenceString20());
+                	//#692 使用uuid
+                    //item.setId(commonDAO.getSquenceString20());
+                    item.setId(this.getRandomnUUID());
                     item.setRefId(ibReport.getId());
                     _logger.info("****create TcpIbReportItemBean***"+item);
                 }
@@ -3449,7 +3487,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             }
 
         }
-        _logger.info("************finish ibReport job*************");
+        long t2 = System.currentTimeMillis();
+        _logger.info("************finish ibReport job************* time elapse:"+(t2-t1)+"millis");
+    }
+    
+    private String getRandomnUUID(){
+    	String rst = UUID.randomUUID().toString();
+    	return rst.replaceAll("-", "");
     }
 
     /**
