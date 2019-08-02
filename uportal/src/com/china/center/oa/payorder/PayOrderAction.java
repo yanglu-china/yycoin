@@ -76,9 +76,9 @@ public class PayOrderAction extends DispatchAction {
 	private PayOrderDAO payOrderDao;
 
 	private BankDAO bankDAO;
-	
+
 	private TravelApplyPayDAO travelApplyPayDAO;
-	
+
 	private OpeningBankDAO openingBankDAO;
 
 	public ActionForward queryPayOrder(ActionMapping mapping, ActionForm form, HttpServletRequest request,
@@ -102,18 +102,14 @@ public class PayOrderAction extends DispatchAction {
 		queryMap.put("billEndTime", billEndTime);
 		queryMap.put("payOrderType", payOrderType);
 		queryMap.put("payOrderStatus", payOrderStatus);
-		//起始日期大于2019-08-01
-		if(StringUtils.isEmpty(billTime))
-		{
+		// 起始日期大于2019-08-01
+		if (StringUtils.isEmpty(billTime)) {
 			billTime = "2019-08-01";
-		}
-		else
-		{
+		} else {
 			try {
 				Date date = new SimpleDateFormat("yyyy-MM-dd").parse(billTime);
 				Date date81 = new SimpleDateFormat("yyyy-MM-dd").parse("2019-08-01");
-				if(date.compareTo(date81) < 0)
-				{
+				if (date.compareTo(date81) < 0) {
 					billTime = "2019-08-01";
 				}
 			} catch (ParseException e) {
@@ -129,27 +125,20 @@ public class PayOrderAction extends DispatchAction {
 			// 查询所有单据的待付款
 			if (StringUtils.isEmpty(payOrderType)) {
 				list = payOrderDao.queryPayOrderList(queryMap);
-			} 
-			else 
-			{
-				if (CONSTANTS_PAYORDERTYPE_1.equals(payOrderType)) 
-				{
+			} else {
+				if (CONSTANTS_PAYORDERTYPE_1.equals(payOrderType)) {
 					list = payOrderDao.queryPayOrderList41(queryMap);
 				}
-				if (CONSTANTS_PAYORDERTYPE_2.equals(payOrderType)) 
-				{
+				if (CONSTANTS_PAYORDERTYPE_2.equals(payOrderType)) {
 					list = payOrderDao.queryPayOrderList42(queryMap);
 				}
-				if (CONSTANTS_PAYORDERTYPE_3.equals(payOrderType)) 
-				{
+				if (CONSTANTS_PAYORDERTYPE_3.equals(payOrderType)) {
 					list = payOrderDao.queryPayOrderList43(queryMap);
 				}
-				if (CONSTANTS_PAYORDERTYPE_4.equals(payOrderType)) 
-				{
+				if (CONSTANTS_PAYORDERTYPE_4.equals(payOrderType)) {
 					list = payOrderDao.queryPayOrderList44(queryMap);
 				}
-				if (CONSTANTS_PAYORDERTYPE_5.equals(payOrderType)) 
-				{
+				if (CONSTANTS_PAYORDERTYPE_5.equals(payOrderType)) {
 					list = payOrderDao.queryPayOrderList45(queryMap);
 				}
 			}
@@ -186,16 +175,15 @@ public class PayOrderAction extends DispatchAction {
 		}
 
 		List<PayOrderVO> payOrderList = new ArrayList<PayOrderVO>();
-		
-		Map<String,String> checkMap = new HashMap<String, String>();
+
+		Map<String, String> checkMap = new HashMap<String, String>();
 
 		for (int i = 0; i < billNoArray.length; i++) {
 			String billNoAndType = billNoArray[i];
 			String[] array = StringUtils.split(billNoAndType, "_");
 			String billNo = array[0];
 			String billType = array[1];
-			if(checkMap.containsKey(billNo))
-			{
+			if (checkMap.containsKey(billNo)) {
 				continue;
 			}
 			checkMap.put(billNo, billNo);
@@ -223,8 +211,8 @@ public class PayOrderAction extends DispatchAction {
 			BigDecimal amount = new BigDecimal(vo.getPayeeAmount());
 			totalAmount = totalAmount.add(amount);
 		}
-		
-		//返回初始页面的所有参数都带上
+
+		// 返回初始页面的所有参数都带上
 		Map<String, String> queryMap = new HashMap<String, String>();
 		String payOrderType = request.getParameter("payOrderType");
 		String payOrderStatus = request.getParameter("payOrderStatus");
@@ -281,532 +269,483 @@ public class PayOrderAction extends DispatchAction {
 		User user = Helper.getUser(request);
 
 		String payBankCity = bankBean.getBankcity();
-		if(StringUtils.isEmpty(payBankCity))
-		{
-			return JSONTools.writeResponse(response, "付款银行账号的开户省/市为空,银行账号名称:"+ bankBean.getName() +",请完善信息!");
+		if (StringUtils.isEmpty(payBankCity)) {
+			return JSONTools.writeResponse(response, "付款银行账号的开户省/市为空,银行账号名称:" + bankBean.getName() + ",请完善信息!");
 		}
 		payBankCity = payBankCity.trim();
 		String payBankNo = bankBean.getBankNo();
-		if(StringUtils.isEmpty(payBankNo))
-		{
-			return JSONTools.writeResponse(response, "付款银行的付款账号为空,银行账号名称:"+ bankBean.getName() +",请完善信息!");
+		if (StringUtils.isEmpty(payBankNo)) {
+			return JSONTools.writeResponse(response, "付款银行的付款账号为空,银行账号名称:" + bankBean.getName() + ",请完善信息!");
 		}
 		payBankNo = payBankNo.trim();
 		String payBankName = bankBean.getBankName();
-		if(StringUtils.isEmpty(payBankName))
-		{
-			return JSONTools.writeResponse(response, "付款银行的银行名称为空,银行账号名称:"+ bankBean.getName() +",请完善信息!");
+		if (StringUtils.isEmpty(payBankName)) {
+			return JSONTools.writeResponse(response, "付款银行的银行名称为空,银行账号名称:" + bankBean.getName() + ",请完善信息!");
 		}
 		// 付款银行信息
 		NbBankPayImpl nbBankPay = new NbBankPayImpl();
-
-		boolean tempFlag = true;
 		StringBuffer errmsg = new StringBuffer();
-		for (int i = 0; i < billNoArray.length; i++) {
-			Map<String, String> payInfoMap = new HashMap<String, String>();
-			String billNoAndType = billNoArray[i];
-			String[] array = StringUtils.split(billNoAndType, "_");
-			// 单号
-			String billNo = array[0];
-			// 单据类型
-			String billType = array[1];
-			Map<String, String> paramMap = new HashMap<String, String>();
-			paramMap.put("payOrderNo", billNo);
-			payInfoMap.put("payerAccNo", bankBean.getBankNo());
-			payInfoMap.put("payeeAccNo", "");
-			payInfoMap.put("payeeAccName", "");
-			payInfoMap.put("payMoney", "");
-			payInfoMap.put("payPurpose", "");
-			payInfoMap.put("erpReqNo", billNo);
-			
-			if (CONSTANTS_PAYORDERTYPE_1.equals(billType)) {
-				List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList41(paramMap);
-				if (payOrderVOList.size() == 0 || payOrderVOList.size() > 1) {
-					errmsg.append("查询单据编号:" + billNo + "出错!");
-					continue;
-				}
-				
-				PayOrderVO vo = payOrderVOList.get(0);
-				//同城
-				String peeCity = vo.getCityName();
-				
-				if(payBankCity.equals(peeCity))
-				{
-					//同城
-					payInfoMap.put("areaSign", "0");
-				}
-				else
-				{
-					//异地
-					payInfoMap.put("areaSign", "1");
-				}
-				//查询收款账户的联行号
-				String payeeBank = vo.getPayeeBank();
-				ConditionParse cond = new ConditionParse();
-				cond.addWhereStr();
-				cond.addCondition("bankname", "=", payeeBank);
-				List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
-				if(openBankList.size() == 0)
-				{
-					errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
-					continue;
-				}
-				OpeningBankBean openingBank = openBankList.get(0);
-				if(openingBank.getBankTypeName().indexOf(payBankName) != -1)
-				{
-					//同行标识
-					payInfoMap.put("difSign","0");
-				}
-				else
-				{
-					//跨行标识
-					payInfoMap.put("difSign","1");
-				}
-				payInfoMap.put("payPurpose", "采购付款");
-				// bank支持电子支付
-				if (tempFlag) {
-					payInfoMap.put("payeeAccNo", vo.getPayeeBankAcc());
-					payInfoMap.put("payeeAccName", vo.getPayeeBankAccName());
-					payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
-					payInfoMap.put("payMoney", vo.getPayeeAmount());
-					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
-					String retCode = retMap.get("retCode");
-					String retMsg = retMap.get("retMsg");
-					//success
-					if(!"0".equals(retCode))
-					{
-						errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
-					}
-					//先生成付款日志数据
-					PayOrderListLogVO logvo = new PayOrderListLogVO();
-					logvo.setId(String.valueOf(System.currentTimeMillis()));
-					logvo.setOutid(billNo);
-					logvo.setType(CONSTANTS_PAYORDERTYPE_1);
-					logvo.setBankName(vo.getPayeeBank());
-					logvo.setUserName(vo.getPayeeBankAccName());
-					logvo.setBankNo(vo.getPayeeBankAcc());
-					logvo.setMoney(vo.getPayeeAmount());
-					logvo.setDescription(vo.getDescription());
-					logvo.setOutidtime(vo.getLogTime());
-					logvo.setCity(peeCity);
-					logvo.setOutbillid(billNo);
-					//付款中
-					logvo.setStatus("2");
-					logvo.setOperator(user.getStafferId());
-					logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
-					logvo.setPayaccount(bankBean.getBankNo());
-					logvo.setPaybank(bankBean.getName());
-					//待确认
-					logvo.setBankstatus("0");
-					logvo.setPayBankId(bankId);
-					logvo.setOperatorId(user.getId());
-					logvo.setMessage(retMsg);
-					//先生成付款日志数据
-					payOrderDao.createPayListLog(logvo);
-					
-				}
-				
-			}
-			if (CONSTANTS_PAYORDERTYPE_2.equals(billType)) {
-				List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList42(paramMap);
-				if (payOrderVOList.size() == 0 || payOrderVOList.size() > 1) {
-					errmsg.append("查询单据编号:" + billNo + "出错!");
-					continue;
-				}
-				PayOrderVO vo = payOrderVOList.get(0);
-				//同城
-				String peeCity = vo.getCityName();
-				
-				if(payBankCity.equals(peeCity))
-				{
-					//同城
-					payInfoMap.put("areaSign", "0");
-				}
-				else
-				{
-					//异地
-					payInfoMap.put("areaSign", "1");
-				}
-				//查询收款账户的联行号
-				String payeeBank = vo.getPayeeBank();
-				ConditionParse cond = new ConditionParse();
-				cond.addWhereStr();
-				cond.addCondition("bankname", "=", payeeBank);
-				List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
-				if(openBankList.size() == 0)
-				{
-					errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
-					continue;
-				}
-				OpeningBankBean openingBank = openBankList.get(0);
-				if(openingBank.getBankTypeName().indexOf(payBankName) != -1)
-				{
-					//同行标识
-					payInfoMap.put("difSign","0");
-				}
-				else
-				{
-					//跨行标识
-					payInfoMap.put("difSign","1");
-				}
-				payInfoMap.put("payMoney", vo.getPayeeAmount());
-				payInfoMap.put("payPurpose", "采购预付款");
-				// bank支持电子支付
-				if (tempFlag) {
-					payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
-					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
-					String retCode = retMap.get("retCode");
-					String retMsg = retMap.get("retMsg");
-					//success
-					if(!"0".equals(retCode))
-					{
-						errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
-					}
-					//先生成付款日志数据
-					PayOrderListLogVO logvo = new PayOrderListLogVO();
-					logvo.setId(String.valueOf(System.currentTimeMillis()));
-					logvo.setOutid(billNo);
-					logvo.setType(CONSTANTS_PAYORDERTYPE_2);
-					logvo.setBankName(vo.getPayeeBank());
-					logvo.setUserName(vo.getPayeeBankAccName());
-					logvo.setBankNo(vo.getPayeeBankAcc());
-					logvo.setMoney(vo.getPayeeAmount());
-					logvo.setCity(peeCity);
-					logvo.setDescription(vo.getDescription());
-					logvo.setOutidtime(vo.getLogTime());
-					logvo.setOutbillid(billNo);
-					//付款中
-					logvo.setStatus("2");
-					logvo.setOperator(user.getStafferId());
-					logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
-					logvo.setPayaccount(bankBean.getBankNo());
-					logvo.setPaybank(bankBean.getName());
-					logvo.setPayBankId(bankId);
-					logvo.setOperatorId(user.getId());
-					logvo.setMessage(retMsg);
-					//待确认
-					logvo.setBankstatus("0");
-					payOrderDao.createPayListLog(logvo);
-				}
+		try {
+			boolean tempFlag = true;
+			for (int i = 0; i < billNoArray.length; i++) {
+				Map<String, String> payInfoMap = new HashMap<String, String>();
+				String billNoAndType = billNoArray[i];
+				String[] array = StringUtils.split(billNoAndType, "_");
+				// 单号
+				String billNo = array[0];
+				// 单据类型
+				String billType = array[1];
+				Map<String, String> paramMap = new HashMap<String, String>();
+				paramMap.put("payOrderNo", billNo);
+				payInfoMap.put("payerAccNo", bankBean.getBankNo());
+				payInfoMap.put("payeeAccNo", "");
+				payInfoMap.put("payeeAccName", "");
+				payInfoMap.put("payMoney", "");
+				payInfoMap.put("payPurpose", "");
+				payInfoMap.put("erpReqNo", billNo);
 
-			}
-			if (CONSTANTS_PAYORDERTYPE_3.equals(billType)) {
-				List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList43(paramMap);
-				if (payOrderVOList.size() == 0) {
-					errmsg.append("查询单据编号:" + billNo + "出错!");
-					
-					continue;
-				}
-				PayOrderVO vo = payOrderVOList.get(0);
-				//根据报销单，查找报销收款明细表
-				ConditionParse parse = new ConditionParse();
-				parse.addWhereStr();
-				parse.addCondition("parentid", "=", vo.getBillNo());
-				List<TravelApplyPayBean> applyPayList = travelApplyPayDAO.queryEntityBeansByCondition(parse);
-				if(applyPayList.size() == 0)
-				{
-					errmsg.append("查询单据明细出错，编号:" + billNo);
-					continue;
-				}
-				//按收款明细支付
-				for(TravelApplyPayBean payBean:applyPayList)
-				{
-					//查询log表是否已经支付
-					Map<String,String> queryMap = new HashMap<String, String>();
-					queryMap.put("outBillId", payBean.getId());
-					List<PayOrderListLogVO> existsList = payOrderDao.queryPayOrderLogList(queryMap);
-					if(existsList.size() >0)
-					{
+				if (CONSTANTS_PAYORDERTYPE_1.equals(billType)) {
+					List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList41(paramMap);
+					if (payOrderVOList.size() == 0 || payOrderVOList.size() > 1) {
+						errmsg.append("查询单据编号:" + billNo + "出错!");
 						continue;
 					}
-					// bank支持电子支付
-					if (tempFlag) {
-						//同城
-						String peeCity = payBean.getBankcity();
-						if(payBankCity.equals(peeCity))
-						{
-							//同城
-							payInfoMap.put("areaSign", "0");
-						}
-						else
-						{
-							//异地
-							payInfoMap.put("areaSign", "1");
-						}
-						//查询收款账户的联行号
-						String payeeBank = vo.getPayeeBank();
-						ConditionParse cond = new ConditionParse();
-						cond.addWhereStr();
-						cond.addCondition("bankname", "=", payeeBank);
-						List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
-						if(openBankList.size() == 0)
-						{
-							errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
-							continue;
-						}
-						OpeningBankBean openingBank = openBankList.get(0);
-						if(openingBank.getBankTypeName().indexOf(payBankName) != -1)
-						{
-							//同行标识
-							payInfoMap.put("difSign","0");
-						}
-						else
-						{
-							//跨行标识
-							payInfoMap.put("difSign","1");
-						}
-						
-						payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
-						payInfoMap.put("payeeAccNo", payBean.getBankNo());
-						payInfoMap.put("payeeAccName", payBean.getUserName());
-						payInfoMap.put("payMoney", vo.getPayeeAmount());
-						payInfoMap.put("payPurpose", "借款申请付款");
-						//一笔款多条收款明细,用明细id作为erpno
-						payInfoMap.put("erpReqNo", payBean.getId());
-						Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
-						String retCode = retMap.get("retCode");
-						String retMsg = retMap.get("retMsg");
-						//success
-						if(!"0".equals(retCode))
-						{
-							errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
-						}
-						//先生成付款日志数据
-						PayOrderListLogVO logvo = new PayOrderListLogVO();
-						logvo.setId(String.valueOf(System.currentTimeMillis()));
-						logvo.setOutid(billNo);
-						logvo.setType(CONSTANTS_PAYORDERTYPE_3);
-						logvo.setBankName(payBean.getBankName());
-						logvo.setUserName(payBean.getUserName());
-						logvo.setBankNo(payBean.getBankNo());
-						logvo.setMoney(vo.getPayeeAmount());
-						logvo.setProvince(payBean.getBankprovince());
-						logvo.setCity(payBean.getBankcity());
-						logvo.setDescription(vo.getDescription());
-						logvo.setOutidtime(vo.getLogTime());
-						logvo.setOutbillid(payBean.getId());
-						//付款中
-						logvo.setStatus("2");
-						logvo.setOperator(user.getStafferId());
-						logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
-						logvo.setPayaccount(bankBean.getBankNo());
-						logvo.setPaybank(bankBean.getName());
-						//待确认
-						logvo.setBankstatus("0");
-						logvo.setPayBankId(bankId);
-						logvo.setOperatorId(user.getId());
-						logvo.setMessage(retMsg);
-						payOrderDao.createPayListLog(logvo);
-					}
-				}
-				
-			}
-			if (CONSTANTS_PAYORDERTYPE_4.equals(billType)) {
 
-				List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList44(paramMap);
-				if (payOrderVOList.size() == 0) {
-					errmsg.append("查询单据编号:" + billNo + "出错!");
-					continue;
-				}
-				PayOrderVO vo = payOrderVOList.get(0);
-				//根据报销单，查找报销收款明细表
-				ConditionParse parse = new ConditionParse();
-				parse.addWhereStr();
-				parse.addCondition("parentid", "=", vo.getBillNo());
-				List<TravelApplyPayBean> applyPayList = travelApplyPayDAO.queryEntityBeansByCondition(parse);
-				if(applyPayList.size() == 0)
-				{
-					errmsg.append("查询单据明细出错，编号:" + billNo);
-					continue;
-				}
-				//按收款明细支付
-				for(TravelApplyPayBean payBean:applyPayList)
-				{
-					//查询log表是否已经支付
-					Map<String,String> queryMap = new HashMap<String, String>();
-					queryMap.put("outBillId", payBean.getId());
-					List<PayOrderListLogVO> existsList = payOrderDao.queryPayOrderLogList(queryMap);
-					if(existsList.size() >0)
-					{
-						continue;
-					}
-					// bank支持电子支付
-					if (tempFlag) {
-						String peeCity = payBean.getBankcity();
-						if(payBankCity.equals(peeCity))
-						{
-							//同城
-							payInfoMap.put("areaSign", "0");
-						}
-						else
-						{
-							//异地
-							payInfoMap.put("areaSign", "1");
-						}
-						//查询收款账户的联行号
-						String payeeBank = vo.getPayeeBank();
-						ConditionParse cond = new ConditionParse();
-						cond.addWhereStr();
-						cond.addCondition("bankname", "=", payeeBank);
-						List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
-						if(openBankList.size() == 0)
-						{
-							errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
-							continue;
-						}
-						OpeningBankBean openingBank = openBankList.get(0);
-						if(openingBank.getBankTypeName().indexOf(payBankName) != -1)
-						{
-							//同行标识
-							payInfoMap.put("difSign","0");
-						}
-						else
-						{
-							//跨行标识
-							payInfoMap.put("difSign","1");
-						}
-						
-						payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
-						payInfoMap.put("payeeAccNo", payBean.getBankNo());
-						payInfoMap.put("payeeAccName", payBean.getUserName());
-						payInfoMap.put("payMoney", vo.getPayeeAmount());
-						payInfoMap.put("payPurpose", "报销申请付款");
-						//一笔款多条收款明细,用明细id作为erpno
-						payInfoMap.put("erpReqNo", payBean.getId());
-						Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
-						String retCode = retMap.get("retCode");
-						String retMsg = retMap.get("retMsg");
-						//success
-						if(!"0".equals(retCode))
-						{
-							errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
-						}
-						//先生成付款日志数据
-						PayOrderListLogVO logvo = new PayOrderListLogVO();
-						logvo.setId(String.valueOf(System.currentTimeMillis()));
-						logvo.setOutid(billNo);
-						logvo.setType(CONSTANTS_PAYORDERTYPE_4);
-						logvo.setBankName(payBean.getBankName());
-						logvo.setUserName(payBean.getUserName());
-						logvo.setBankNo(payBean.getBankNo());
-						logvo.setMoney(vo.getPayeeAmount());
-						logvo.setProvince(payBean.getBankprovince());
-						logvo.setCity(payBean.getBankcity());
-						logvo.setDescription(vo.getDescription());
-						logvo.setOutidtime(vo.getLogTime());
-						logvo.setOutbillid(payBean.getId());
-						//付款中
-						logvo.setStatus("2");
-						logvo.setOperator(user.getStafferId());
-						logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
-						logvo.setPayaccount(bankBean.getBankNo());
-						logvo.setPaybank(bankBean.getName());
-						//待确认
-						logvo.setBankstatus("0");
-						logvo.setPayBankId(bankId);
-						logvo.setOperatorId(user.getId());
-						logvo.setMessage(retMsg);
-						//先生成付款日志数据
-						payOrderDao.createPayListLog(logvo);
-					}
-				}
-			}
-			if (CONSTANTS_PAYORDERTYPE_5.equals(billType)) {
-				List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList45(paramMap);
-				if (payOrderVOList.size() == 0 || payOrderVOList.size() > 1) {
-					errmsg.append("查询单据编号:" + billNo + "出错!");
-					continue;
-				}
-				PayOrderVO vo = payOrderVOList.get(0);
-				// bank支持电子支付
-				if (tempFlag) {
+					PayOrderVO vo = payOrderVOList.get(0);
+					// 同城
 					String peeCity = vo.getCityName();
-					if(payBankCity.equals(peeCity))
-					{
-						//同城
+
+					if (payBankCity.equals(peeCity)) {
+						// 同城
 						payInfoMap.put("areaSign", "0");
-					}
-					else
-					{
-						//异地
+					} else {
+						// 异地
 						payInfoMap.put("areaSign", "1");
 					}
-					//查询收款账户的联行号
+					// 查询收款账户的联行号
 					String payeeBank = vo.getPayeeBank();
 					ConditionParse cond = new ConditionParse();
 					cond.addWhereStr();
 					cond.addCondition("bankname", "=", payeeBank);
 					List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
-					if(openBankList.size() == 0)
-					{
+					if (openBankList.size() == 0) {
 						errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
 						continue;
 					}
 					OpeningBankBean openingBank = openBankList.get(0);
-					if(openingBank.getBankTypeName().indexOf(payBankName) != -1)
-					{
-						//同行标识
-						payInfoMap.put("difSign","0");
+					if (openingBank.getBankTypeName().indexOf(payBankName) != -1) {
+						// 同行标识
+						payInfoMap.put("difSign", "0");
+					} else {
+						// 跨行标识
+						payInfoMap.put("difSign", "1");
 					}
-					else
-					{
-						//跨行标识
-						payInfoMap.put("difSign","1");
+					payInfoMap.put("payPurpose", "采购付款");
+					// bank支持电子支付
+					if (tempFlag) {
+						payInfoMap.put("payeeAccNo", vo.getPayeeBankAcc());
+						payInfoMap.put("payeeAccName", vo.getPayeeBankAccName());
+						payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
+						payInfoMap.put("payMoney", vo.getPayeeAmount());
+						Map<String, String> retMap = nbBankPay.erpTransfer(payInfoMap);
+						String retCode = retMap.get("retCode");
+						String retMsg = retMap.get("retMsg");
+						// success
+						if (!"0".equals(retCode)) {
+							errmsg.append("单据号:" + billNo + "付款出错:" + retMsg);
+						}
+						// 先生成付款日志数据
+						PayOrderListLogVO logvo = new PayOrderListLogVO();
+						logvo.setId(String.valueOf(System.currentTimeMillis()));
+						logvo.setOutid(billNo);
+						logvo.setType(CONSTANTS_PAYORDERTYPE_1);
+						logvo.setBankName(vo.getPayeeBank());
+						logvo.setUserName(vo.getPayeeBankAccName());
+						logvo.setBankNo(vo.getPayeeBankAcc());
+						logvo.setMoney(vo.getPayeeAmount());
+						logvo.setDescription(vo.getDescription());
+						logvo.setOutidtime(vo.getLogTime());
+						logvo.setCity(peeCity);
+						logvo.setOutbillid(billNo);
+						// 付款中
+						logvo.setStatus("2");
+						logvo.setOperator(user.getStafferId());
+						logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
+						logvo.setPayaccount(bankBean.getBankNo());
+						logvo.setPaybank(bankBean.getName());
+						// 待确认
+						logvo.setBankstatus("0");
+						logvo.setPayBankId(bankId);
+						logvo.setOperatorId(user.getId());
+						logvo.setMessage(retMsg);
+						// 先生成付款日志数据
+						payOrderDao.createPayListLog(logvo);
+
 					}
-					
-					payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
-					payInfoMap.put("payeeAccNo", vo.getPayeeBankAcc());
-					payInfoMap.put("payeeAccName", vo.getPayeeBankAccName());
-					payInfoMap.put("payeeBankName",vo.getPayeeBank());
+
+				}
+				if (CONSTANTS_PAYORDERTYPE_2.equals(billType)) {
+					List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList42(paramMap);
+					if (payOrderVOList.size() == 0 || payOrderVOList.size() > 1) {
+						errmsg.append("查询单据编号:" + billNo + "出错!");
+						continue;
+					}
+					PayOrderVO vo = payOrderVOList.get(0);
+					// 同城
+					String peeCity = vo.getCityName();
+
+					if (payBankCity.equals(peeCity)) {
+						// 同城
+						payInfoMap.put("areaSign", "0");
+					} else {
+						// 异地
+						payInfoMap.put("areaSign", "1");
+					}
+					// 查询收款账户的联行号
+					String payeeBank = vo.getPayeeBank();
+					ConditionParse cond = new ConditionParse();
+					cond.addWhereStr();
+					cond.addCondition("bankname", "=", payeeBank);
+					List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
+					if (openBankList.size() == 0) {
+						errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
+						continue;
+					}
+					OpeningBankBean openingBank = openBankList.get(0);
+					if (openingBank.getBankTypeName().indexOf(payBankName) != -1) {
+						// 同行标识
+						payInfoMap.put("difSign", "0");
+					} else {
+						// 跨行标识
+						payInfoMap.put("difSign", "1");
+					}
 					payInfoMap.put("payMoney", vo.getPayeeAmount());
-					payInfoMap.put("payPurpose", "预收退款");
-					Map<String,String> retMap = nbBankPay.erpTransfer(payInfoMap);
-					String retCode = retMap.get("retCode");
-					String retMsg = retMap.get("retMsg");
-					//success
-					if(!"0".equals(retCode))
-					{
-						errmsg.append("单据号:" + billNo +  "付款出错:" + retMsg);
+					payInfoMap.put("payPurpose", "采购预付款");
+					// bank支持电子支付
+					if (tempFlag) {
+						payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
+						Map<String, String> retMap = nbBankPay.erpTransfer(payInfoMap);
+						String retCode = retMap.get("retCode");
+						String retMsg = retMap.get("retMsg");
+						// success
+						if (!"0".equals(retCode)) {
+							errmsg.append("单据号:" + billNo + "付款出错:" + retMsg);
+						}
+						// 先生成付款日志数据
+						PayOrderListLogVO logvo = new PayOrderListLogVO();
+						logvo.setId(String.valueOf(System.currentTimeMillis()));
+						logvo.setOutid(billNo);
+						logvo.setType(CONSTANTS_PAYORDERTYPE_2);
+						logvo.setBankName(vo.getPayeeBank());
+						logvo.setUserName(vo.getPayeeBankAccName());
+						logvo.setBankNo(vo.getPayeeBankAcc());
+						logvo.setMoney(vo.getPayeeAmount());
+						logvo.setCity(peeCity);
+						logvo.setDescription(vo.getDescription());
+						logvo.setOutidtime(vo.getLogTime());
+						logvo.setOutbillid(billNo);
+						// 付款中
+						logvo.setStatus("2");
+						logvo.setOperator(user.getStafferId());
+						logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
+						logvo.setPayaccount(bankBean.getBankNo());
+						logvo.setPaybank(bankBean.getName());
+						logvo.setPayBankId(bankId);
+						logvo.setOperatorId(user.getId());
+						logvo.setMessage(retMsg);
+						// 待确认
+						logvo.setBankstatus("0");
+						payOrderDao.createPayListLog(logvo);
 					}
-					//先生成付款日志数据
-					PayOrderListLogVO logvo = new PayOrderListLogVO();
-					logvo.setId(String.valueOf(System.currentTimeMillis()));
-					logvo.setOutid(billNo);
-					logvo.setType(CONSTANTS_PAYORDERTYPE_5);
-					logvo.setBankName(vo.getPayeeBank());
-					logvo.setUserName(vo.getPayeeBankAccName());
-					logvo.setBankNo(vo.getPayeeBankAcc());
-					logvo.setMoney(vo.getPayeeAmount());
+
+				}
+				if (CONSTANTS_PAYORDERTYPE_3.equals(billType)) {
+					List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList43(paramMap);
+					if (payOrderVOList.size() == 0) {
+						errmsg.append("查询单据编号:" + billNo + "出错!");
+
+						continue;
+					}
+					PayOrderVO vo = payOrderVOList.get(0);
+					// 根据报销单，查找报销收款明细表
+					ConditionParse parse = new ConditionParse();
+					parse.addWhereStr();
+					parse.addCondition("parentid", "=", vo.getBillNo());
+					List<TravelApplyPayBean> applyPayList = travelApplyPayDAO.queryEntityBeansByCondition(parse);
+					if (applyPayList.size() == 0) {
+						errmsg.append("查询单据明细出错，编号:" + billNo);
+						continue;
+					}
+					// 按收款明细支付
+					for (TravelApplyPayBean payBean : applyPayList) {
+						// 查询log表是否已经支付
+						Map<String, String> queryMap = new HashMap<String, String>();
+						queryMap.put("outBillId", payBean.getId());
+						List<PayOrderListLogVO> existsList = payOrderDao.queryPayOrderLogList(queryMap);
+						if (existsList.size() > 0) {
+							continue;
+						}
+						// bank支持电子支付
+						if (tempFlag) {
+							// 同城
+							String peeCity = payBean.getBankcity();
+							if (payBankCity.equals(peeCity)) {
+								// 同城
+								payInfoMap.put("areaSign", "0");
+							} else {
+								// 异地
+								payInfoMap.put("areaSign", "1");
+							}
+							// 查询收款账户的联行号
+							String payeeBank = vo.getPayeeBank();
+							ConditionParse cond = new ConditionParse();
+							cond.addWhereStr();
+							cond.addCondition("bankname", "=", payeeBank);
+							List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
+							if (openBankList.size() == 0) {
+								errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
+								continue;
+							}
+							OpeningBankBean openingBank = openBankList.get(0);
+							if (openingBank.getBankTypeName().indexOf(payBankName) != -1) {
+								// 同行标识
+								payInfoMap.put("difSign", "0");
+							} else {
+								// 跨行标识
+								payInfoMap.put("difSign", "1");
+							}
+
+							payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
+							payInfoMap.put("payeeAccNo", payBean.getBankNo());
+							payInfoMap.put("payeeAccName", payBean.getUserName());
+							payInfoMap.put("payMoney", vo.getPayeeAmount());
+							payInfoMap.put("payPurpose", "借款申请付款");
+							// 一笔款多条收款明细,用明细id作为erpno
+							payInfoMap.put("erpReqNo", payBean.getId());
+							Map<String, String> retMap = nbBankPay.erpTransfer(payInfoMap);
+							String retCode = retMap.get("retCode");
+							String retMsg = retMap.get("retMsg");
+							// success
+							if (!"0".equals(retCode)) {
+								errmsg.append("单据号:" + billNo + "付款出错:" + retMsg);
+							}
+							// 先生成付款日志数据
+							PayOrderListLogVO logvo = new PayOrderListLogVO();
+							logvo.setId(String.valueOf(System.currentTimeMillis()));
+							logvo.setOutid(billNo);
+							logvo.setType(CONSTANTS_PAYORDERTYPE_3);
+							logvo.setBankName(payBean.getBankName());
+							logvo.setUserName(payBean.getUserName());
+							logvo.setBankNo(payBean.getBankNo());
+							logvo.setMoney(vo.getPayeeAmount());
+							logvo.setProvince(payBean.getBankprovince());
+							logvo.setCity(payBean.getBankcity());
+							logvo.setDescription(vo.getDescription());
+							logvo.setOutidtime(vo.getLogTime());
+							logvo.setOutbillid(payBean.getId());
+							// 付款中
+							logvo.setStatus("2");
+							logvo.setOperator(user.getStafferId());
+							logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
+							logvo.setPayaccount(bankBean.getBankNo());
+							logvo.setPaybank(bankBean.getName());
+							// 待确认
+							logvo.setBankstatus("0");
+							logvo.setPayBankId(bankId);
+							logvo.setOperatorId(user.getId());
+							logvo.setMessage(retMsg);
+							payOrderDao.createPayListLog(logvo);
+						}
+					}
+
+				}
+				if (CONSTANTS_PAYORDERTYPE_4.equals(billType)) {
+
+					List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList44(paramMap);
+					if (payOrderVOList.size() == 0) {
+						errmsg.append("查询单据编号:" + billNo + "出错!");
+						continue;
+					}
+					PayOrderVO vo = payOrderVOList.get(0);
+					// 根据报销单，查找报销收款明细表
+					ConditionParse parse = new ConditionParse();
+					parse.addWhereStr();
+					parse.addCondition("parentid", "=", vo.getBillNo());
+					List<TravelApplyPayBean> applyPayList = travelApplyPayDAO.queryEntityBeansByCondition(parse);
+					if (applyPayList.size() == 0) {
+						errmsg.append("查询单据明细出错，编号:" + billNo);
+						continue;
+					}
+					// 按收款明细支付
+					for (TravelApplyPayBean payBean : applyPayList) {
+						// 查询log表是否已经支付
+						Map<String, String> queryMap = new HashMap<String, String>();
+						queryMap.put("outBillId", payBean.getId());
+						List<PayOrderListLogVO> existsList = payOrderDao.queryPayOrderLogList(queryMap);
+						if (existsList.size() > 0) {
+							continue;
+						}
+						// bank支持电子支付
+						if (tempFlag) {
+							String peeCity = payBean.getBankcity();
+							if (payBankCity.equals(peeCity)) {
+								// 同城
+								payInfoMap.put("areaSign", "0");
+							} else {
+								// 异地
+								payInfoMap.put("areaSign", "1");
+							}
+							// 查询收款账户的联行号
+							String payeeBank = vo.getPayeeBank();
+							ConditionParse cond = new ConditionParse();
+							cond.addWhereStr();
+							cond.addCondition("bankname", "=", payeeBank);
+							List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
+							if (openBankList.size() == 0) {
+								errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
+								continue;
+							}
+							OpeningBankBean openingBank = openBankList.get(0);
+							if (openingBank.getBankTypeName().indexOf(payBankName) != -1) {
+								// 同行标识
+								payInfoMap.put("difSign", "0");
+							} else {
+								// 跨行标识
+								payInfoMap.put("difSign", "1");
+							}
+
+							payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
+							payInfoMap.put("payeeAccNo", payBean.getBankNo());
+							payInfoMap.put("payeeAccName", payBean.getUserName());
+							payInfoMap.put("payMoney", vo.getPayeeAmount());
+							payInfoMap.put("payPurpose", "报销申请付款");
+							// 一笔款多条收款明细,用明细id作为erpno
+							payInfoMap.put("erpReqNo", payBean.getId());
+							Map<String, String> retMap = nbBankPay.erpTransfer(payInfoMap);
+							String retCode = retMap.get("retCode");
+							String retMsg = retMap.get("retMsg");
+							// success
+							if (!"0".equals(retCode)) {
+								errmsg.append("单据号:" + billNo + "付款出错:" + retMsg);
+							}
+							// 先生成付款日志数据
+							PayOrderListLogVO logvo = new PayOrderListLogVO();
+							logvo.setId(String.valueOf(System.currentTimeMillis()));
+							logvo.setOutid(billNo);
+							logvo.setType(CONSTANTS_PAYORDERTYPE_4);
+							logvo.setBankName(payBean.getBankName());
+							logvo.setUserName(payBean.getUserName());
+							logvo.setBankNo(payBean.getBankNo());
+							logvo.setMoney(vo.getPayeeAmount());
+							logvo.setProvince(payBean.getBankprovince());
+							logvo.setCity(payBean.getBankcity());
+							logvo.setDescription(vo.getDescription());
+							logvo.setOutidtime(vo.getLogTime());
+							logvo.setOutbillid(payBean.getId());
+							// 付款中
+							logvo.setStatus("2");
+							logvo.setOperator(user.getStafferId());
+							logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
+							logvo.setPayaccount(bankBean.getBankNo());
+							logvo.setPaybank(bankBean.getName());
+							// 待确认
+							logvo.setBankstatus("0");
+							logvo.setPayBankId(bankId);
+							logvo.setOperatorId(user.getId());
+							logvo.setMessage(retMsg);
+							// 先生成付款日志数据
+							payOrderDao.createPayListLog(logvo);
+						}
+					}
+				}
+				if (CONSTANTS_PAYORDERTYPE_5.equals(billType)) {
+					List<PayOrderVO> payOrderVOList = payOrderDao.queryPayOrderList45(paramMap);
+					if (payOrderVOList.size() == 0 || payOrderVOList.size() > 1) {
+						errmsg.append("查询单据编号:" + billNo + "出错!");
+						continue;
+					}
+					PayOrderVO vo = payOrderVOList.get(0);
+					// bank支持电子支付
+					if (tempFlag) {
+						String peeCity = vo.getCityName();
+						if (payBankCity.equals(peeCity)) {
+							// 同城
+							payInfoMap.put("areaSign", "0");
+						} else {
+							// 异地
+							payInfoMap.put("areaSign", "1");
+						}
+						// 查询收款账户的联行号
+						String payeeBank = vo.getPayeeBank();
+						ConditionParse cond = new ConditionParse();
+						cond.addWhereStr();
+						cond.addCondition("bankname", "=", payeeBank);
+						List<OpeningBankBean> openBankList = openingBankDAO.queryEntityBeansByCondition(cond);
+						if (openBankList.size() == 0) {
+							errmsg.append("单据编号:" + billNo + "的收款账户联行号查询失败");
+							continue;
+						}
+						OpeningBankBean openingBank = openBankList.get(0);
+						if (openingBank.getBankTypeName().indexOf(payBankName) != -1) {
+							// 同行标识
+							payInfoMap.put("difSign", "0");
+						} else {
+							// 跨行标识
+							payInfoMap.put("difSign", "1");
+						}
+
+						payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
+						payInfoMap.put("payeeAccNo", vo.getPayeeBankAcc());
+						payInfoMap.put("payeeAccName", vo.getPayeeBankAccName());
+						payInfoMap.put("payeeBankName", vo.getPayeeBank());
+						payInfoMap.put("payMoney", vo.getPayeeAmount());
+						payInfoMap.put("payPurpose", "预收退款");
+						Map<String, String> retMap = nbBankPay.erpTransfer(payInfoMap);
+						String retCode = retMap.get("retCode");
+						String retMsg = retMap.get("retMsg");
+						// success
+						if (!"0".equals(retCode)) {
+							errmsg.append("单据号:" + billNo + "付款出错:" + retMsg);
+						}
+						// 先生成付款日志数据
+						PayOrderListLogVO logvo = new PayOrderListLogVO();
+						logvo.setId(String.valueOf(System.currentTimeMillis()));
+						logvo.setOutid(billNo);
+						logvo.setType(CONSTANTS_PAYORDERTYPE_5);
+						logvo.setBankName(vo.getPayeeBank());
+						logvo.setUserName(vo.getPayeeBankAccName());
+						logvo.setBankNo(vo.getPayeeBankAcc());
+						logvo.setMoney(vo.getPayeeAmount());
 //					logvo.setProvince("");
-					logvo.setCity(peeCity);
-					logvo.setDescription(vo.getDescription());
-					logvo.setOutidtime(vo.getLogTime());
-					logvo.setOutbillid(billNo);
-					//付款中
-					logvo.setStatus("2");
-					logvo.setOperator(user.getStafferId());
-					logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
-					logvo.setPayaccount(bankBean.getBankNo());
-					logvo.setPaybank(bankBean.getName());
-					//待确认
-					logvo.setBankstatus("0");
-					logvo.setPayBankId(bankId);
-					logvo.setOperatorId(user.getId());
-					logvo.setMessage(retMsg);
-					//先生成付款日志数据
-					payOrderDao.createPayListLog(logvo);
+						logvo.setCity(peeCity);
+						logvo.setDescription(vo.getDescription());
+						logvo.setOutidtime(vo.getLogTime());
+						logvo.setOutbillid(billNo);
+						// 付款中
+						logvo.setStatus("2");
+						logvo.setOperator(user.getStafferId());
+						logvo.setPaytime(format.format(Calendar.getInstance().getTime()));
+						logvo.setPayaccount(bankBean.getBankNo());
+						logvo.setPaybank(bankBean.getName());
+						// 待确认
+						logvo.setBankstatus("0");
+						logvo.setPayBankId(bankId);
+						logvo.setOperatorId(user.getId());
+						logvo.setMessage(retMsg);
+						// 先生成付款日志数据
+						payOrderDao.createPayListLog(logvo);
+					}
 				}
 			}
-		}
 
-		if (errmsg.length() == 0) {
-			errmsg.append("付款成功");
+			if (errmsg.length() == 0) {
+				errmsg.append("付款成功");
+			}
+		} catch (Exception e) {
+			payLog.error("pay error", e);
 		}
-
 		return JSONTools.writeResponse(response, errmsg.toString());
 	}
-
-	
 
 	public PayOrderDAO getPayOrderDao() {
 		return payOrderDao;
