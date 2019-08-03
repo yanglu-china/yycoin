@@ -12946,8 +12946,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (!ListTools.isEmptyOrNull(frDbBeans)){
             _logger.info("***frDbBeans size***"+frDbBeans.size());
             //根据流程ID_目的库_源仓库作为联合主键合并开单
+            //#735 根据流程ID_目的库_源仓库_productId_priceKey作为联合主键合并开单
             for (FrDbBean frDbBean: frDbBeans){
-                String key = frDbBean.getOutId()+"_"+frDbBean.getMdk()+"_"+frDbBean.getYcq();
+//                String key = frDbBean.getOutId()+"_"+frDbBean.getMdk()+"_"+frDbBean.getYcq();
+                String priceKey = StorageRelationHelper.getPriceKey(NumberUtils.roundDouble(frDbBean.getCb()));
+                String key = frDbBean.getOutId()+"_"+frDbBean.getMdk()+"_"+frDbBean.getYcq()+"_"+frDbBean.getProductId()+"_"+priceKey;
                 if(map.containsKey(key)){
                     List<FrDbBean> frDbBeanList = map.get(key);
                     frDbBeanList.add(frDbBean);
