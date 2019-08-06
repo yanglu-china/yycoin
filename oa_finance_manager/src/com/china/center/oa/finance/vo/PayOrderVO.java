@@ -2,6 +2,11 @@ package com.china.center.oa.finance.vo;
 
 import java.io.Serializable;
 
+import com.china.center.jdbc.annotation.Entity;
+import com.china.center.jdbc.annotation.Table;
+
+@Entity(name = "资金付款日志表")
+@Table(name = "T_CENTER_PAYLISTLOG")
 public class PayOrderVO implements Serializable {
 
 	/**

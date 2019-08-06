@@ -15,5 +15,9 @@
 	<bean name="payOrderDao" id="payOrderDao" class="com.china.center.oa.finance.dao.impl.PayOrderDAOImpl" />
 	
 	<bean name="nbBankHisDataDao" id="nbBankHisDataDao" class="com.china.center.oa.finance.dao.impl.NbBankHisDataDAOImpl" />
+	
+	<bean name="payOrderModifyDAO" id="payOrderModifyDAO" class="com.china.center.oa.finance.dao.impl.PayOrderModifyDAOImpl"></bean>
+	
+	<bean name="payOrderManager" id="payOrderManager" class="com.china.center.oa.tcp.manager.impl.PayOrderManagerImpl"></bean>
 		
 </beans>

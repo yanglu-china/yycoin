@@ -114,6 +114,7 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 				if(StringUtils.isNotEmpty(retCode) && "0".equals(retCode))
 				{
 					String payStatus = retMap.get("payState");
+					String payMsg = retMap.get("payMsg");
 					_logger.info("billno:" + erpno + " payStatus:" + payStatus);
 					if(StringUtils.isNotEmpty(payStatus) && "00".equals(payStatus))
 					{
@@ -121,16 +122,20 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 						map.put("status", "3");
 						map.put("bankStatus", payStatus);
 						map.put("outBillId", erpno);
+						map.put("payMsg",payMsg);
 						payOrderDao.updatePayOrderLog(map);
 						
 						//生成凭证
 						if(CONSTANTS_PAYORDERTYPE_1.equals(vo.getType()))
 						{
 							endPayOrder1ByCash(vo.getOperatorId(), erpno, vo.getPayBankId(), vo.getMoney());
+							//更新付款单表的状态为2
+							payOrderDao.updateStockPayApply(erpno, "2");
 						}
 						if(CONSTANTS_PAYORDERTYPE_2.equals(vo.getType()))
 						{
 							endPayOrder2ByCash(vo.getOperatorId(), erpno, vo.getPayBankId(), vo.getMoney());
+							payOrderDao.updateStockPrePayApply(erpno, "2");
 						}
 						if(CONSTANTS_PAYORDERTYPE_3.equals(vo.getType()))
 						{
@@ -140,7 +145,8 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 							UserBean userBean= (UserBean) userList.get(0);
 							UserVO user = userDAO.findVO(userBean.getId());
 							BankBean bankBean = bankDAO.find(vo.getPayBankId());
-							endPayOrder3ByCash(user, user.getId(), erpno, vo.getPayBankId(), vo.getMoney(), bankBean);
+							endPayOrder3ByCash(user, user.getId(), vo.getOutid(), vo.getPayBankId(), vo.getMoney(), bankBean);
+							payOrderDao.updateTravelPayApply(erpno, "2");
 						}
 						if(CONSTANTS_PAYORDERTYPE_4.equals(vo.getType()))
 						{
@@ -149,12 +155,14 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 							List<UserBean> userList = userDAO.queryEntityBeansByCondition(cc);
 							UserBean userBean= (UserBean) userList.get(0);
 							UserVO user = userDAO.findVO(userBean.getId());
-							endPayOrder4ByCash(user, erpno, vo.getPayBankId(), vo.getMoney());
+							endPayOrder4ByCash(user, vo.getOutid(), vo.getPayBankId(), vo.getMoney());
+							payOrderDao.updateTravelPayApply(erpno, "2");
 						}
 						if(CONSTANTS_PAYORDERTYPE_5.equals(vo.getType()))
 						{
 							UserVO user = userDAO.findVO(vo.getOperatorId());
 							endPayOrder5ByCash(user, erpno,vo.getPayBankId(), vo.getMoney());
+							payOrderDao.updateBackPrePayApply(erpno, "2");
 						}
 					}
 					else
@@ -168,8 +176,30 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 							//付款失败，更新log表的状态
 							map.put("status", "4");
 							map.put("bankStatus", payStatus);
-							map.put("outId", erpno);
+							map.put("outBillId", erpno);
+							map.put("payMsg",payMsg);
 							payOrderDao.updatePayOrderLog(map);
+//							//原付款单改为待付款
+//							if(CONSTANTS_PAYORDERTYPE_1.equals(vo.getType()))
+//							{
+//								payOrderDao.updateStockPayApply(erpno, "0");
+//							}
+//							if(CONSTANTS_PAYORDERTYPE_2.equals(vo.getType()))
+//							{
+//								payOrderDao.updateStockPrePayApply(erpno, "0");
+//							}
+//							if(CONSTANTS_PAYORDERTYPE_3.equals(vo.getType()))
+//							{
+//								payOrderDao.updateTravelPayApply(erpno, "0");
+//							}
+//							if(CONSTANTS_PAYORDERTYPE_4.equals(vo.getType()))
+//							{
+//								payOrderDao.updateTravelPayApply(erpno, "0");
+//							}
+//							if(CONSTANTS_PAYORDERTYPE_5.equals(vo.getType()))
+//							{
+//								payOrderDao.updateBackPrePayApply(erpno, "0");
+//							}
 							
 						}
 					}

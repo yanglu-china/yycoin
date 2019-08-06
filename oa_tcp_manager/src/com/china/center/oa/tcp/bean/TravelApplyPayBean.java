@@ -61,6 +61,11 @@ public class TravelApplyPayBean implements Serializable
      * 核对
      */
     private long cmoneys = 0L;
+    
+    /**
+     * 	资金平台是否已付款:0-未付款;1:待确认;2:已付款
+     */
+    private String payFlag;
 
     /**
      * default constructor
@@ -253,6 +258,14 @@ public class TravelApplyPayBean implements Serializable
 
 	public void setBankprovince(String bankprovince) {
 		this.bankprovince = bankprovince;
+	}
+
+	public String getPayFlag() {
+		return payFlag;
+	}
+
+	public void setPayFlag(String payFlag) {
+		this.payFlag = payFlag;
 	}
 
 	/**
