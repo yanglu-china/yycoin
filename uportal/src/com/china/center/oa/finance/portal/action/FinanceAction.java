@@ -1780,6 +1780,17 @@ public class FinanceAction extends DispatchAction {
             					
             					if (out.getOutType() == OutConstant.OUTTYPE_OUT_COMMON && out.getPay() == OutConstant.PAY_NOT)
             					{
+
+            						//#736 驳回的订单不能拆款
+            						if (out.getStatus() == OutConstant.STATUS_REJECT){
+										builder
+												.append("第[" + currentNumber + "]错误:")
+												.append("销售单驳回状态不能拆款:"+out.getFullId())
+												.append("<br>");
+
+										importError = true;
+									}
+
             						if (out.getCustomerId().equals(bean.getCustomerId()))
             						{
             							// 增加票款一致的检查  ---- begin-------
