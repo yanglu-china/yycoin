@@ -35,11 +35,11 @@ import com.china.center.oa.tcp.wrap.TcpParamWrap;
 import com.china.center.tools.MathTools;
 
 public class NbBankPayOrderQueryImpl implements JobManager {
-	
+
 	private final Log _logger = LogFactory.getLog("taobao");
-	
+
 	private PayOrderDAO payOrderDao;
-	
+
 	private BackPrePayManager backPrePayManager;
 
 	private ExpenseManager expenseManager;
@@ -49,15 +49,15 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 	private TravelApplyPayDAO travelApplyPayDAO;
 
 	private TravelApplyManager travelApplyManager;
-	
+
 	private FinanceFacade financeFacade;
-	
+
 	private StafferDAO stafferDao;
-	
+
 	private UserDAO userDAO;
-	
+
 	private BankDAO bankDAO;
-	
+
 	/**
 	 * 采购付款
 	 */
@@ -84,163 +84,241 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 	private final String CONSTANTS_PAYORDERTYPE_5 = "5";
 
 	/**
-	 * 查询宁波银行付款结果
-	 * 00付款成功
-	 * 01付款待提交
-     * 02付款流程中
-	 * 03 等待银行结果
-	 * 95 付款已删除
-	 * 96 付款已打回
-	 * 97付款不存在
-	 * 98付款失败
+	 * 查询宁波银行付款结果 00付款成功 01付款待提交 02付款流程中 03 等待银行结果 95 付款已删除 96 付款已打回 97付款不存在 98付款失败
 	 * 99 其他状态
 	 */
 	@Override
-	@Transactional(rollbackFor = {Exception.class})
 	public void run() throws MYException {
 		_logger.info("start NbBankPayOrderQueryImpl");
 		List<PayOrderListLogVO> list = payOrderDao.queryPayOrderLogStatusList();
 		NbBankPayImpl nbPay = new NbBankPayImpl();
-		try
-		{
-			for(PayOrderListLogVO vo : list)
-			{
+
+		for (PayOrderListLogVO vo : list) {
+			try {
 				String erpno = vo.getOutbillid();
 				_logger.info("start query billno:" + erpno);
-				Map<String,String> retMap = nbPay.queryTransfer(erpno);
+				Map<String, String> retMap = nbPay.queryTransfer(erpno);
 				String retCode = retMap.get("retCode");
 				_logger.info("billno:" + erpno + " retCode:" + retCode);
-				Map<String,String> map = new HashMap<String, String>();
-				if(StringUtils.isNotEmpty(retCode) && "0".equals(retCode))
-				{
+				
+				if (StringUtils.isNotEmpty(retCode) && "0".equals(retCode)) {
 					String payStatus = retMap.get("payState");
 					String payMsg = retMap.get("payMsg");
 					_logger.info("billno:" + erpno + " payStatus:" + payStatus);
-					if(StringUtils.isNotEmpty(payStatus) && "00".equals(payStatus))
-					{
-						//付款成功，更新log表的状态
-						map.put("status", "3");
-						map.put("bankStatus", payStatus);
-						map.put("outBillId", erpno);
-						map.put("payMsg",payMsg);
-						payOrderDao.updatePayOrderLog(map);
-						
-						//生成凭证
-						if(CONSTANTS_PAYORDERTYPE_1.equals(vo.getType()))
-						{
-							endPayOrder1ByCash(vo.getOperatorId(), erpno, vo.getPayBankId(), vo.getMoney());
-							//更新付款单表的状态为2
-							payOrderDao.updateStockPayApply(erpno, "2");
+					if (StringUtils.isNotEmpty(payStatus) && "00".equals(payStatus)) {
+						// 生成凭证
+						if (CONSTANTS_PAYORDERTYPE_1.equals(vo.getType())) {
+							createPz1(vo, erpno,payStatus,payMsg);
 						}
-						if(CONSTANTS_PAYORDERTYPE_2.equals(vo.getType()))
-						{
-							endPayOrder2ByCash(vo.getOperatorId(), erpno, vo.getPayBankId(), vo.getMoney());
-							payOrderDao.updateStockPrePayApply(erpno, "2");
+						if (CONSTANTS_PAYORDERTYPE_2.equals(vo.getType())) {
+							createPz2(vo, erpno,payStatus,payMsg);
 						}
-						if(CONSTANTS_PAYORDERTYPE_3.equals(vo.getType()))
-						{
-							ConditionParse cc = new ConditionParse();
-							cc.addCondition("stafferid", "=", vo.getOperator());
-							List<UserBean> userList = userDAO.queryEntityBeansByCondition(cc);
-							UserBean userBean= (UserBean) userList.get(0);
-							UserVO user = userDAO.findVO(userBean.getId());
-							BankBean bankBean = bankDAO.find(vo.getPayBankId());
-							//判断所有单据是否已经付款完毕
-							int count = travelApplyPayDAO.countByCondition(" where parentid=?", vo.getOutid());
-							if(count > 1)
-							{
-								//多条收款信息是否已经都付款完毕
-								payOrderDao.updateTravelPayApply(erpno, "2");
-								int payCount = travelApplyPayDAO.countByCondition(" where parentid=? and payflag=2", vo.getOutid());
-								if(payCount == count)
-								{
-									endPayOrder3ByCash(user, user.getId(), vo.getOutid(), vo.getPayBankId(), vo.getMoney(), bankBean);
-								}
-							}
-							else
-							{
-								endPayOrder3ByCash(user, user.getId(), vo.getOutid(), vo.getPayBankId(), vo.getMoney(), bankBean);
-							}
+						if (CONSTANTS_PAYORDERTYPE_3.equals(vo.getType())) {
+							createPz3(vo, erpno,payStatus,payMsg);
 						}
-						if(CONSTANTS_PAYORDERTYPE_4.equals(vo.getType()))
-						{
-							ConditionParse cc = new ConditionParse();
-							cc.addCondition("stafferid", "=", vo.getOperator());
-							List<UserBean> userList = userDAO.queryEntityBeansByCondition(cc);
-							UserBean userBean= (UserBean) userList.get(0);
-							UserVO user = userDAO.findVO(userBean.getId());
-							//判断所有单据是否已经付款完毕
-							int count = travelApplyPayDAO.countByCondition(" where parentid=?", vo.getOutid());
-							if(count > 1)
-							{
-								//多条收款信息是否已经都付款完毕
-								payOrderDao.updateTravelPayApply(erpno, "2");
-								int payCount = travelApplyPayDAO.countByCondition(" where parentid=? and payflag=2", vo.getOutid());
-								if(payCount == count)
-								{
-									endPayOrder4ByCash(user, vo.getOutid(), vo.getPayBankId(), vo.getMoney());
-								}
-							}
-							else
-							{
-								endPayOrder4ByCash(user, vo.getOutid(), vo.getPayBankId(), vo.getMoney());
-							}
+						if (CONSTANTS_PAYORDERTYPE_4.equals(vo.getType())) {
+							createPz4(vo, erpno,payStatus,payMsg);
 						}
-						if(CONSTANTS_PAYORDERTYPE_5.equals(vo.getType()))
-						{
-							UserVO user = userDAO.findVO(vo.getOperatorId());
-							endPayOrder5ByCash(user, erpno,vo.getPayBankId(), vo.getMoney());
-							payOrderDao.updateBackPrePayApply(erpno, "2");
+						if (CONSTANTS_PAYORDERTYPE_5.equals(vo.getType())) {
+							createPz5(vo, erpno,payStatus,payMsg);
 						}
-					}
-					else
-					{
-						//95 付款已删除
-						//96 付款已打回
-						//97付款不存在
-						//98付款失败
-						if("95".equals(payStatus) || "96".equals(payStatus) || "97".equals(payStatus) || "98".equals(payStatus))
-						{
-							//付款失败，更新log表的状态
+					} else {
+						// 95 付款已删除
+						// 96 付款已打回
+						// 97付款不存在
+						// 98付款失败
+						if ("95".equals(payStatus) || "96".equals(payStatus) || "97".equals(payStatus)
+								|| "98".equals(payStatus)) {
+							Map<String, String> map = new HashMap<String, String>();
+							// 付款失败，更新log表的状态
 							map.put("status", "4");
 							map.put("bankStatus", payStatus);
 							map.put("outBillId", erpno);
-							map.put("payMsg",payMsg);
+							map.put("payMsg", payMsg);
 							payOrderDao.updatePayOrderLog(map);
-//							//原付款单改为待付款
-//							if(CONSTANTS_PAYORDERTYPE_1.equals(vo.getType()))
-//							{
-//								payOrderDao.updateStockPayApply(erpno, "0");
-//							}
-//							if(CONSTANTS_PAYORDERTYPE_2.equals(vo.getType()))
-//							{
-//								payOrderDao.updateStockPrePayApply(erpno, "0");
-//							}
-//							if(CONSTANTS_PAYORDERTYPE_3.equals(vo.getType()))
-//							{
-//								payOrderDao.updateTravelPayApply(erpno, "0");
-//							}
-//							if(CONSTANTS_PAYORDERTYPE_4.equals(vo.getType()))
-//							{
-//								payOrderDao.updateTravelPayApply(erpno, "0");
-//							}
-//							if(CONSTANTS_PAYORDERTYPE_5.equals(vo.getType()))
-//							{
-//								payOrderDao.updateBackPrePayApply(erpno, "0");
-//							}
-							
+
 						}
 					}
 				}
+			} catch (Exception e) {
+				_logger.error("NbBankPayOrderQueryImpl error", e);
+//				throw e;
 			}
 		}
-		catch(Exception e)
-		{
-			_logger.error("NbBankPayOrderQueryImpl error",e);
-			throw e;
-		}
-		
+
 		_logger.info("end NbBankPayOrderQueryImpl");
+	}
+	
+	
+	/**
+	 * 	采购付款凭证
+	 * @param vo
+	 * @param erpno
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public void createPz1(PayOrderListLogVO vo,String erpno,String payStatus,String payMsg) throws Exception
+	{
+		endPayOrder1ByCash(vo.getOperatorId(), erpno, vo.getPayBankId(), vo.getMoney());
+		// 更新付款单表的状态为2
+		payOrderDao.updateStockPayApply(erpno, "2");
+		Map<String, String> map = new HashMap<String, String>();
+		// 付款成功，更新log表的状态
+		map.put("status", "3");
+		map.put("bankStatus", payStatus);
+		map.put("outBillId", erpno);
+		map.put("payMsg", payMsg);
+		payOrderDao.updatePayOrderLog(map);
+	}
+	
+	/**
+	 * 	采购预付款凭证
+	 * @param vo
+	 * @param erpno
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public void createPz2(PayOrderListLogVO vo,String erpno,String payStatus,String payMsg) throws Exception
+	{
+		endPayOrder2ByCash(vo.getOperatorId(), erpno, vo.getPayBankId(), vo.getMoney());
+		payOrderDao.updateStockPrePayApply(erpno, "2");
+		Map<String, String> map = new HashMap<String, String>();
+		// 付款成功，更新log表的状态
+		map.put("status", "3");
+		map.put("bankStatus", payStatus);
+		map.put("outBillId", erpno);
+		map.put("payMsg", payMsg);
+		payOrderDao.updatePayOrderLog(map);
+	}
+	
+	/**
+	 * 	借款申请凭证
+	 * @param vo
+	 * @param erpno
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public void createPz3(PayOrderListLogVO vo,String erpno,String payStatus,String payMsg) throws Exception
+	{
+		ConditionParse cc = new ConditionParse();
+		cc.addCondition("stafferid", "=", vo.getOperator());
+		List<UserBean> userList = userDAO.queryEntityBeansByCondition(cc);
+		UserBean userBean = (UserBean) userList.get(0);
+		UserVO user = userDAO.findVO(userBean.getId());
+		BankBean bankBean = bankDAO.find(vo.getPayBankId());
+		// 判断所有单据是否已经付款完毕
+		int count = travelApplyPayDAO.countByCondition(" where parentid=?", vo.getOutid());
+		if (count > 1) {
+			// 多条收款信息是否已经都付款完毕
+			int payCount = travelApplyPayDAO.countByCondition(" where parentid=? and payflag=2",
+					vo.getOutid());
+			if (payCount == count) {
+				endPayOrder3ByCash(user, user.getId(), vo.getOutid(), vo.getPayBankId(),
+						vo.getMoney(), bankBean);
+				Map<String, String> map = new HashMap<String, String>();
+				// 付款成功，更新log表的状态
+				map.put("status", "3");
+				map.put("bankStatus", payStatus);
+				map.put("outBillId", erpno);
+				map.put("payMsg", payMsg);
+				payOrderDao.updatePayOrderLog(map);
+				payOrderDao.updateTravelPayApply(erpno, "2");
+			}
+			else
+			{
+				Map<String, String> map = new HashMap<String, String>();
+				// 付款成功，更新log表的状态
+				map.put("status", "3");
+				map.put("bankStatus", payStatus);
+				map.put("outBillId", erpno);
+				map.put("payMsg", payMsg);
+				payOrderDao.updatePayOrderLog(map);
+				payOrderDao.updateTravelPayApply(erpno, "2");
+			}
+		} else {
+			endPayOrder3ByCash(user, user.getId(), vo.getOutid(), vo.getPayBankId(), vo.getMoney(),
+					bankBean);
+			Map<String, String> map = new HashMap<String, String>();
+			// 付款成功，更新log表的状态
+			map.put("status", "3");
+			map.put("bankStatus", payStatus);
+			map.put("outBillId", erpno);
+			map.put("payMsg", payMsg);
+			payOrderDao.updatePayOrderLog(map);
+			payOrderDao.updateTravelPayApply(erpno, "2");
+		}
+	
+	}
+	
+	/**
+	 * 	报销申请凭证
+	 * @param vo
+	 * @param erpno
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public void createPz4(PayOrderListLogVO vo,String erpno,String payStatus,String payMsg) throws Exception
+	{
+		ConditionParse cc = new ConditionParse();
+		cc.addCondition("stafferid", "=", vo.getOperator());
+		List<UserBean> userList = userDAO.queryEntityBeansByCondition(cc);
+		UserBean userBean = (UserBean) userList.get(0);
+		UserVO user = userDAO.findVO(userBean.getId());
+		// 判断所有单据是否已经付款完毕
+		int count = travelApplyPayDAO.countByCondition(" where parentid=?", vo.getOutid());
+		if (count > 1) {
+			// 多条收款信息是否已经都付款完毕
+			int payCount = travelApplyPayDAO.countByCondition(" where parentid=? and payflag=2",
+					vo.getOutid());
+			if (payCount == count) {
+				endPayOrder4ByCash(user, vo.getOutid(), vo.getPayBankId(), vo.getMoney());
+				Map<String, String> map = new HashMap<String, String>();
+				// 付款成功，更新log表的状态
+				map.put("status", "3");
+				map.put("bankStatus", payStatus);
+				map.put("outBillId", erpno);
+				map.put("payMsg", payMsg);
+				payOrderDao.updatePayOrderLog(map);
+				payOrderDao.updateTravelPayApply(erpno, "2");
+			}
+			else
+			{
+				Map<String, String> map = new HashMap<String, String>();
+				// 付款成功，更新log表的状态
+				map.put("status", "3");
+				map.put("bankStatus", payStatus);
+				map.put("outBillId", erpno);
+				map.put("payMsg", payMsg);
+				payOrderDao.updatePayOrderLog(map);
+				payOrderDao.updateTravelPayApply(erpno, "2");
+			}
+		} else {
+			endPayOrder4ByCash(user, vo.getOutid(), vo.getPayBankId(), vo.getMoney());
+			payOrderDao.updateTravelPayApply(erpno, "2");
+			Map<String, String> map = new HashMap<String, String>();
+			// 付款成功，更新log表的状态
+			map.put("status", "3");
+			map.put("bankStatus", payStatus);
+			map.put("outBillId", erpno);
+			map.put("payMsg", payMsg);
+			payOrderDao.updatePayOrderLog(map);
+		}
+	}
+	
+	/**
+	 * 	预收退款凭证
+	 * @param vo
+	 * @param erpno
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public void createPz5(PayOrderListLogVO vo,String erpno,String payStatus,String payMsg) throws Exception
+	{
+		UserVO user = userDAO.findVO(vo.getOperatorId());
+		endPayOrder5ByCash(user, erpno, vo.getPayBankId(), vo.getMoney());
+		payOrderDao.updateBackPrePayApply(erpno, "2");
+		Map<String, String> map = new HashMap<String, String>();
+		// 付款成功，更新log表的状态
+		map.put("status", "3");
+		map.put("bankStatus", payStatus);
+		map.put("outBillId", erpno);
+		map.put("payMsg", payMsg);
+		payOrderDao.updatePayOrderLog(map);
 	}
 
 	/**
@@ -251,7 +329,7 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 	 * @param bankId
 	 * @param amount
 	 */
-	public String endPayOrder1ByCash(String userId, String billNo, String bankId, String amount) {
+	public String endPayOrder1ByCash(String userId, String billNo, String bankId, String amount) throws Exception {
 		String retMsg = "";
 		List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
 		OutBillBean outBill = new OutBillBean();
@@ -263,9 +341,10 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 		try {
 			// 结束采购付款
 			financeFacade.endStockPayBySEC(userId, billNo, "集中付款-现金-采购付款", outBillList);
-		} catch (MYException e) {
+		} catch (Exception e) {
 			_logger.error("endPayOrder1ByCash error", e);
 			retMsg = e.getMessage();
+			throw e;
 		}
 		return retMsg;
 	}
@@ -279,7 +358,7 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 	 * @param amount
 	 * @return
 	 */
-	public String endPayOrder2ByCash(String userId, String billNo, String bankId, String amount) {
+	public String endPayOrder2ByCash(String userId, String billNo, String bankId, String amount) throws Exception {
 		String retMsg = "";
 		List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
 		OutBillBean outBill = new OutBillBean();
@@ -292,9 +371,10 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 			// 结束采购预付款
 			financeFacade.endStockPrePayBySEC(userId, billNo, "集中付款-现金-采购预付款", outBillList);
 
-		} catch (MYException e) {
+		} catch (Exception e) {
 			retMsg = e.getMessage();
 			_logger.error("endPayOrder2ByCash error", e);
+			throw e;
 		}
 
 		return retMsg;
@@ -311,7 +391,8 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 	 * @return
 	 */
 
-	public String endPayOrder3ByCash(User user, String userId, String billNo, String bankId, String amount,BankBean bankBean) {
+	public String endPayOrder3ByCash(User user, String userId, String billNo, String bankId, String amount,
+			BankBean bankBean) throws Exception {
 		String retMsg = "";
 		try {
 			TcpParamWrap param = new TcpParamWrap();
@@ -329,15 +410,16 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 			outBill.setMoneys(MathTools.parseDouble(amount));
 			outBillList.add(outBill);
 			param.setOther(outBillList);
-			
+
 			param.setDutyId(bankBean.getDutyId());
 
 			// 提交
 			travelApplyManager.passTravelApplyBean(user, param);
 
-		} catch (MYException e) {
+		} catch (Exception e) {
 			retMsg = e.getMessage();
 			_logger.error("endPayOrder3ByCash error", e);
+			throw e;
 		}
 		return retMsg;
 	}
@@ -351,7 +433,7 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 	 * @param amount
 	 * @return
 	 */
-	public String endPayOrder4ByCash(User user, String billNo, String bankId, String amount) {
+	public String endPayOrder4ByCash(User user, String billNo, String bankId, String amount) throws Exception{
 		String retMsg = "";
 		try {
 			TcpParamWrap param = new TcpParamWrap();
@@ -380,18 +462,19 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 		} catch (MYException e) {
 			_logger.error("endPayOrder4ByCash error", e);
 			retMsg = e.getMessage();
+			throw e;
 		}
 
 		return retMsg;
 
 	}
-	
+
 	/**
 	 * 非网银付款--预收退款
 	 * 
 	 * @return
 	 */
-	public String endPayOrder5ByCash(User user, String billNo, String bankId, String amount) {
+	public String endPayOrder5ByCash(User user, String billNo, String bankId, String amount) throws Exception{
 		String retMsg = "";
 		TcpParamWrap param = new TcpParamWrap();
 		param.setId(billNo);
@@ -412,6 +495,7 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 		} catch (MYException e) {
 			retMsg = e.getMessage();
 			_logger.error("endPayOrder5ByCash error", e);
+			throw e;
 		}
 		return retMsg;
 	}
@@ -423,7 +507,7 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 	public void setPayOrderDao(PayOrderDAO payOrderDao) {
 		this.payOrderDao = payOrderDao;
 	}
-	
+
 	public BackPrePayManager getBackPrePayManager() {
 		return backPrePayManager;
 	}
@@ -431,7 +515,7 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 	public void setBackPrePayManager(BackPrePayManager backPrePayManager) {
 		this.backPrePayManager = backPrePayManager;
 	}
-	
+
 	public ExpenseManager getExpenseManager() {
 		return expenseManager;
 	}
@@ -463,7 +547,7 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 	public void setTravelApplyManager(TravelApplyManager travelApplyManager) {
 		this.travelApplyManager = travelApplyManager;
 	}
-	
+
 	public FinanceFacade getFinanceFacade() {
 		return financeFacade;
 	}

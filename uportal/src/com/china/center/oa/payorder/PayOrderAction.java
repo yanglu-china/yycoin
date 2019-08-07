@@ -573,7 +573,7 @@ public class PayOrderAction extends DispatchAction {
 							payInfoMap.put("payeeAccName", payBean.getUserName());
 							BigDecimal payAmt = new BigDecimal(payBean.getCmoneys());
 							payAmt = payAmt.divide(new BigDecimal(100));
-							payInfoMap.put("payMoney", String.valueOf(payAmt.longValue()));
+							payInfoMap.put("payMoney", payAmt.toString());
 							payInfoMap.put("payPurpose", "借款申请付款");
 							// 一笔款多条收款明细,用明细id作为erpno
 							payInfoMap.put("erpReqNo", payBean.getId());
@@ -586,7 +586,7 @@ public class PayOrderAction extends DispatchAction {
 							logvo.setBankName(payBean.getBankName());
 							logvo.setUserName(payBean.getUserName());
 							logvo.setBankNo(payBean.getBankNo());
-							logvo.setMoney(String.valueOf(payAmt.longValue()));
+							logvo.setMoney(payAmt.toString());
 							logvo.setProvince(payBean.getBankprovince());
 							logvo.setCity(payBean.getBankcity());
 							logvo.setDescription(vo.getDescription());
@@ -684,7 +684,7 @@ public class PayOrderAction extends DispatchAction {
 							payInfoMap.put("payeeBankCode", openingBank.getUnionBankCode());
 							payInfoMap.put("payeeAccNo", payBean.getBankNo());
 							payInfoMap.put("payeeAccName", payBean.getUserName());
-							payInfoMap.put("payMoney", String.valueOf(payAmt.longValue()));
+							payInfoMap.put("payMoney", payAmt.toString());
 							payInfoMap.put("payPurpose", "报销申请付款");
 							// 一笔款多条收款明细,用明细id作为erpno
 							payInfoMap.put("erpReqNo", payBean.getId());
@@ -697,7 +697,7 @@ public class PayOrderAction extends DispatchAction {
 							logvo.setBankName(payBean.getBankName());
 							logvo.setUserName(payBean.getUserName());
 							logvo.setBankNo(payBean.getBankNo());
-							logvo.setMoney(String.valueOf(payAmt.longValue()));
+							logvo.setMoney(payAmt.toString());
 							logvo.setProvince(payBean.getBankprovince());
 							logvo.setCity(payBean.getBankcity());
 							logvo.setDescription(vo.getDescription());
