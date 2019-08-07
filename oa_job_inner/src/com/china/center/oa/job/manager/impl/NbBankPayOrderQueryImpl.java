@@ -145,8 +145,22 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 							UserBean userBean= (UserBean) userList.get(0);
 							UserVO user = userDAO.findVO(userBean.getId());
 							BankBean bankBean = bankDAO.find(vo.getPayBankId());
-							endPayOrder3ByCash(user, user.getId(), vo.getOutid(), vo.getPayBankId(), vo.getMoney(), bankBean);
-							payOrderDao.updateTravelPayApply(erpno, "2");
+							//判断所有单据是否已经付款完毕
+							int count = travelApplyPayDAO.countByCondition(" where parentid=?", vo.getOutid());
+							if(count > 1)
+							{
+								//多条收款信息是否已经都付款完毕
+								payOrderDao.updateTravelPayApply(erpno, "2");
+								int payCount = travelApplyPayDAO.countByCondition(" where parentid=? and payflag=2", vo.getOutid());
+								if(payCount == count)
+								{
+									endPayOrder3ByCash(user, user.getId(), vo.getOutid(), vo.getPayBankId(), vo.getMoney(), bankBean);
+								}
+							}
+							else
+							{
+								endPayOrder3ByCash(user, user.getId(), vo.getOutid(), vo.getPayBankId(), vo.getMoney(), bankBean);
+							}
 						}
 						if(CONSTANTS_PAYORDERTYPE_4.equals(vo.getType()))
 						{
@@ -155,8 +169,22 @@ public class NbBankPayOrderQueryImpl implements JobManager {
 							List<UserBean> userList = userDAO.queryEntityBeansByCondition(cc);
 							UserBean userBean= (UserBean) userList.get(0);
 							UserVO user = userDAO.findVO(userBean.getId());
-							endPayOrder4ByCash(user, vo.getOutid(), vo.getPayBankId(), vo.getMoney());
-							payOrderDao.updateTravelPayApply(erpno, "2");
+							//判断所有单据是否已经付款完毕
+							int count = travelApplyPayDAO.countByCondition(" where parentid=?", vo.getOutid());
+							if(count > 1)
+							{
+								//多条收款信息是否已经都付款完毕
+								payOrderDao.updateTravelPayApply(erpno, "2");
+								int payCount = travelApplyPayDAO.countByCondition(" where parentid=? and payflag=2", vo.getOutid());
+								if(payCount == count)
+								{
+									endPayOrder4ByCash(user, vo.getOutid(), vo.getPayBankId(), vo.getMoney());
+								}
+							}
+							else
+							{
+								endPayOrder4ByCash(user, vo.getOutid(), vo.getPayBankId(), vo.getMoney());
+							}
 						}
 						if(CONSTANTS_PAYORDERTYPE_5.equals(vo.getType()))
 						{
