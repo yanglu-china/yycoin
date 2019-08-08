@@ -65,6 +65,10 @@ function singleck(obj)
 	}
 	$("#billNoArrString").val(billNoArr);
 }
+function change(outid,outbillid,billtype)
+{
+	window.location.href='../payorder/queryPayOrder.do?method=modifyPayOrder&outid=' + outid +"&outbillid=" + outbillid;
+}
 </script>
 </head>
 <body>
@@ -83,7 +87,7 @@ function singleck(obj)
         	<select name="payOrderType" id="payOrderType" class="select_class" values="${queryMap.payOrderType}">
 				<option value="">--</option>
 				<!-- <option value="1">采购付款</option> -->
-				<option value="2">采购预付款</option>
+				<!-- <option value="2">采购预付款</option> -->
 				<option value="3">借款申请付款</option>
 				<option value="4">报销申请付款</option>
 				<option value="5">预收退款</option>
@@ -166,6 +170,9 @@ function singleck(obj)
 							<td align="center" onclick="tableSort(this)" class="td_class">付款备注</td>
 							<c:if test="${payOrderStatus != 1}">
 							<td align="center" onclick="tableSort(this)" class="td_class">付款结果</td>
+							</c:if>
+							<c:if test="${payOrderStatus == 4}">
+							<td align="center" onclick="tableSort(this)" class="td_class">操作</td>
 							</c:if>
 						</tr>
 						<tbody id="tbdata">
@@ -257,6 +264,11 @@ function singleck(obj)
 										</c:if>
 										<td align="center">${item.description}</td>
 										<td align="center">${item.message}</td>
+										<c:if test="${payOrderStatus == 4}">
+											<c:if test="${hasAuth == 1}">
+												<td align="center"><input type="button" onclick="change('${item.outid}','${item.outbillid}')" class="button_class" value="&nbsp;&nbsp;修改&nbsp;&nbsp;"/></td>
+											</c:if>
+										</c:if>
 									</tr>
 								</c:forEach>
 							</c:if>

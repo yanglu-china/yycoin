@@ -882,9 +882,40 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	        {
 	            throw new MYException("数据错误,请确认操作");
 	        }
-	
-	        BaseBean base = baseDAO.find(item.getBaseId());
-	
+
+	        String[] baseIds = item.getBaseId().split(",");
+//	        double totalInvoiceMoney = 0;
+//	        double totalValue = 0;
+//	        for (String baseId: baseIds){
+//                BaseBean base = baseDAO.find(baseId);
+//                _logger.info("***find base***"+base);
+//                totalInvoiceMoney += base.getInvoiceMoney();
+//                totalValue += base.getValue();
+//            }
+
+//            if (MathTools.compare(item.getMoneys() + totalInvoiceMoney, totalValue) > 0)
+//            {
+//                throw new MYException("单据[%s]开票溢出,开票金额[%.2f],销售项金额[%.2f]", out.getFullId(),
+//                        (item.getMoneys() + totalInvoiceMoney), totalValue);
+//            }
+
+            // #732 把本次开票金额分摊到base表中
+            for (String baseId: baseIds){
+                BaseBean base = baseDAO.find(baseId);
+                _logger.info("***find base***"+base);
+                //本次开票金额+已开票金额(累计开票金额)
+                double value = item.getMoneys() + base.getInvoiceMoney();
+                // 累计开票金额 >= base表中金额,直接取base表金额,否则取累计开票金额(因为有部分开票的情况!)
+                double invoiceMoney = (value >= base.getValue() ? base.getValue(): value);
+                baseDAO.updateInvoice(base.getId(), invoiceMoney);
+            }
+//            if (MathTools.compare(item.getMoneys() + base.getInvoiceMoney(), base
+//                    .getValue()) <= 0)
+//            {
+//                baseDAO.updateInvoice(base.getId(), (item.getMoneys() + base
+//                        .getInvoiceMoney()));
+//            }
+
 	        // TODO 溢出的
 //	        if (MathTools.compare(item.getMoneys() + base.getInvoiceMoney(), base
 //	            .getValue()) > 0)
@@ -893,12 +924,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 //	                (item.getMoneys() + base.getInvoiceMoney()), base.getValue());
 //	        }
 	
-	        if (MathTools.compare(item.getMoneys() + base.getInvoiceMoney(), base
-	            .getValue()) <= 0)
-	        {
-	            baseDAO.updateInvoice(base.getId(), (item.getMoneys() + base
-						.getInvoiceMoney()));
-	        }
+//	        if (MathTools.compare(item.getMoneys() + base.getInvoiceMoney(), base
+//	            .getValue()) <= 0)
+//	        {
+//	            baseDAO.updateInvoice(base.getId(), (item.getMoneys() + base
+//						.getInvoiceMoney()));
+//	        }
 	
 	        // 更新主单据
 	        updateOut(out);
@@ -3298,11 +3329,9 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                     item.setAmount(baseBean.getAmount());
                                 }
 
-                                if (baseBean!= null){
-                                    item.setPrice(baseBean.getPrice());
-                                    item.setBaseId(baseBean.getId());
-                                    item.setCostPrice(baseBean.getCostPrice());
-                                }
+                                item.setPrice(baseBean.getPrice());
+                                item.setBaseId(baseBean.getId());
+                                item.setCostPrice(baseBean.getCostPrice());
                                 item.setMoneys(item.getAmount() * item.getPrice());
                                 item.setOutId(eachb.getOutId());
                                 item.setProductId(eachb.getProductId());
@@ -3527,6 +3556,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 InvoiceinsItemBean i = map.get(key);
                 i.setAmount(i.getAmount()+item.getAmount());
                 i.setMoneys(i.getAmount()*i.getPrice());
+                //#732 把原商品行的baseId也合并
+                i.setBaseId(item.getBaseId()+","+i.getBaseId());
             } else{
                 map.put(key, item);
             }
@@ -3548,6 +3579,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         for (BaseBean baseBean : baseBeans){
             if (baseBean.getProductId().equals(bean.getProductId())
 					&& baseBean.getAmount() == bean.getAmount()
+                    //#732 base表已开票金额必须<base表可开票金额
+                    && baseBean.getInvoiceMoney() < baseBean.getValue()
                     //尚未开票的base表
 					&& baseBean.getTempInvoiceMoney() <0.01){
 				baseBean.setTempInvoiceMoney(bean.getInvoiceMoney());

@@ -108,6 +108,21 @@ public class StockPayApplyBean implements Serializable
      * 是否已核销完全
      */
     private int hasConfirm = 0;
+    
+    private String custAccountName;
+    
+    private String custAccountBank;
+    
+    private String custAccount;
+    
+    private String provinceId;
+    
+    private String cityId;
+    
+    /**
+     * 	资金平台是否已付款:0-未付款;1:待确认;2:已付款
+     */
+    private String payFlag;
 
     /**
      * default constructor
@@ -464,6 +479,54 @@ public class StockPayApplyBean implements Serializable
 	public void setHasConfirm(int hasConfirm)
 	{
 		this.hasConfirm = hasConfirm;
+	}
+
+	public String getCustAccountName() {
+		return custAccountName;
+	}
+
+	public void setCustAccountName(String custAccountName) {
+		this.custAccountName = custAccountName;
+	}
+
+	public String getCustAccountBank() {
+		return custAccountBank;
+	}
+
+	public void setCustAccountBank(String custAccountBank) {
+		this.custAccountBank = custAccountBank;
+	}
+
+	public String getCustAccount() {
+		return custAccount;
+	}
+
+	public void setCustAccount(String custAccount) {
+		this.custAccount = custAccount;
+	}
+
+	public String getProvinceId() {
+		return provinceId;
+	}
+
+	public void setProvinceId(String provinceId) {
+		this.provinceId = provinceId;
+	}
+
+	public String getCityId() {
+		return cityId;
+	}
+
+	public void setCityId(String cityId) {
+		this.cityId = cityId;
+	}
+
+	public String getPayFlag() {
+		return payFlag;
+	}
+
+	public void setPayFlag(String payFlag) {
+		this.payFlag = payFlag;
 	}
 
 	/**

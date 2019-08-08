@@ -1,5 +1,6 @@
 package com.china.center.oa.finance.dao.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +82,52 @@ public class PayOrderDAOImpl extends IbatisDaoSupportImpl implements PayOrderDAO
 	public void updatePayOrderLog(Map<String, String> map) {
 		// TODO Auto-generated method stub
 		this.update("PayOrderDaoImpl.updatePayOrderLog", map);
+	}
+
+	@Override
+	@Transactional
+	public void deletePayListVo(PayOrderListLogVO vo) {
+		this.delete("PayOrderDaoImpl.deletePayListVo", vo);
+		
+	}
+
+	@Override
+	@Transactional
+	public void updateStockPayApply(String billNo, String payFlag) {
+		Map<String,String> paramMap = new HashMap<String,String>();
+		paramMap.put("payFlag", payFlag);
+		paramMap.put("billNo", billNo);
+		this.update("PayOrderDaoImpl.updateStockPayApply", paramMap);
+		
+	}
+
+	@Override
+	@Transactional
+	public void updateStockPrePayApply(String billNo, String payFlag) {
+		Map<String,String> paramMap = new HashMap<String,String>();
+		paramMap.put("payFlag", payFlag);
+		paramMap.put("billNo", billNo);
+		this.update("PayOrderDaoImpl.updateStockPrePayApply", paramMap);
+		
+	}
+
+	@Override
+	@Transactional
+	public void updateTravelPayApply(String billNo, String payFlag) {
+		Map<String,String> paramMap = new HashMap<String,String>();
+		paramMap.put("payFlag", payFlag);
+		paramMap.put("billNo", billNo);
+		this.update("PayOrderDaoImpl.updateTravelPayApply", paramMap);
+		
+	}
+
+	@Override
+	@Transactional
+	public void updateBackPrePayApply(String billNo, String payFlag) {
+		Map<String,String> paramMap = new HashMap<String,String>();
+		paramMap.put("payFlag",payFlag);
+		paramMap.put("billNo", billNo);
+		this.update("PayOrderDaoImpl.updateBackPrePayApply", paramMap);
 	}
 
 }

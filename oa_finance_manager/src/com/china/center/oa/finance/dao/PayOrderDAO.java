@@ -27,5 +27,15 @@ public interface PayOrderDAO {
 	public List<PayOrderListLogVO> queryPayOrderLogStatusList();
 	
 	public void updatePayOrderLog(Map<String,String> map);
+	
+	public void deletePayListVo(PayOrderListLogVO vo);
+	
+	public void updateStockPayApply(String billNo,String payFlag);
+	
+	public void updateStockPrePayApply(String billNo,String payFlag);
+	
+	public void updateTravelPayApply(String billNo,String payFlag);
+	
+	public void updateBackPrePayApply(String billNo,String payFlag);
 
 }
