@@ -732,6 +732,18 @@ public class InvoiceinsAction extends DispatchAction
         		if (null != base) {
         			each.setTaxrate(base.getTaxrate());
         		}
+
+        		//#738
+                ConditionParse conditionParse = new ConditionParse();
+        		conditionParse.addWhereStr();
+        		conditionParse.addCondition("outId", "=", each.getOutId());
+        		conditionParse.addCondition("refInsId","=", each.getParentId());
+        		conditionParse.addCondition("productId","=", each.getProductId());
+        		conditionParse.addCondition("amount","=", each.getAmount());
+        		List<InvoiceinsImportBean> invoiceinsImportBeans = this.invoiceinsImportDAO.queryEntityBeansByCondition(conditionParse);
+        		if (!ListTools.isEmptyOrNull(invoiceinsImportBeans)){
+        		    each.setSpmc(invoiceinsImportBeans.get(0).getSpmc());
+                }
         	} else {
         		BaseBalanceBean baseBalance = baseBalanceDAO.find(each.getBaseId());
         		
@@ -4677,7 +4689,7 @@ public class InvoiceinsAction extends DispatchAction
                         String zzsInfo = obj[20].trim();
                         bean.setZzsInfo(zzsInfo);
                     } else{
-                        if ("增值税专用发票17%".equals(obj[3].trim())){
+                        if ("增值税专用发票17%".equals(obj[3].trim()))
                             builder
                                     .append("第[" + currentNumber + "]错误:")
                                     .append("增值税专用发票17%增值税发票信息不能为空")
