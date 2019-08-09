@@ -11,11 +11,7 @@ package com.china.center.oa.finance.bean;
 
 import java.io.Serializable;
 
-import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.FK;
-import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Join;
-import com.china.center.jdbc.annotation.Table;
+import com.china.center.jdbc.annotation.*;
 import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.tools.TimeTools;
@@ -42,6 +38,9 @@ public class InvoiceinsItemBean implements Serializable
     private String showId = "";
 
     private String showName = "";
+
+    @Ignore
+    private String spmc = "";
 
     /**
      * 规格
@@ -312,6 +311,14 @@ public class InvoiceinsItemBean implements Serializable
 
     public void setLogTime(String logTime) {
         this.logTime = logTime;
+    }
+
+    public String getSpmc() {
+        return spmc;
+    }
+
+    public void setSpmc(String spmc) {
+        this.spmc = spmc;
     }
 
     @Override

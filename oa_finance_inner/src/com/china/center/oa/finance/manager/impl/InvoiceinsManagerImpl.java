@@ -22,6 +22,7 @@ import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.tools.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -3207,7 +3208,9 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			bean.setLogTime(TimeTools.now());
 			bean.setLocationId("999");
 			bean.setZzsInfo(first.getZzsInfo());
-            bean.setSpmc(first.getSpmc());
+//            bean.setSpmc(first.getSpmc());
+            //# 738
+            bean.setSpmc(this.concatSpmc(elist));
 
 			//2015/2/1 票随货发
 			bean.setInvoiceFollowOut(first.getInvoiceFollowOut());
@@ -3544,6 +3547,25 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 		}
 	}
+
+    /**
+     * #738 多个商品合并开票时把开票品名也合并(并且去重)
+     * @param list
+     * @return
+     */
+	private String concatSpmc(List<InvoiceinsImportBean> list){
+	    Set<String> set = new HashSet<>();
+	    StringBuilder sb = new StringBuilder();
+        for (InvoiceinsImportBean importBean: list){
+            String spmc = importBean.getSpmc();
+            if (!StringUtils.isEmpty(spmc) && !set.contains(spmc)){
+                sb.append(spmc).append(",");
+                set.add(spmc);
+            }
+        }
+        String spmc = sb.toString();
+        return StringUtils.removeEnd(spmc, ",");
+    }
 
 	//#695 开票明细invoiceins_item表，针对同一商品不同成本合并为一行
 	private List<InvoiceinsItemBean> mergeItems(List<InvoiceinsItemBean> items){
