@@ -11,6 +11,11 @@
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../tcp_js/travelApply.js"></script>
 <script language="JavaScript" src="../tcp_js/expensePay.js"></script>
+
+<script language="JavaScript" src="../js/string.js"></script>
+<script language="JavaScript" src="../js/compatible.js"></script>
+<script language="JavaScript" src="../js/json.js"></script> 
+<script language="JavaScript" src="../tcp_js/expense.js"></script> 
 <script language="javascript">
 function load()
 {
@@ -277,7 +282,6 @@ function checkMoney2()
 	<p:subBody width="98%">
 	
 	    <p:class value="com.china.center.oa.tcp.bean.TravelApplyBean" opr="2"/>
-	    
 		<p:table cells="2">
 		    <p:cell title="处理流程" width="8" end="true">
             ${bean.flowDescription}
@@ -388,7 +392,25 @@ function checkMoney2()
                     <tr align="center" class="content1">
                         <td width="15%" align="center">${item.beginDate}</td>
                         <td width="15%" align="center">${item.endDate}</td>
-                        <td width="15%" align="center">${item.feeItemName}</td>
+                        
+                        <td width="15%" align="center">
+
+					      <!--可修改-->
+					      <c:if test="${bean.status == 20}">   
+					         <select name="i_feeItem" class="select_class" style="width: 100%;" oncheck="notNone" values="${item.feeItemId}">
+					             <option value="">--</option>
+					             <c:forEach var="feeItem" items="${feeItemList}">
+					                 <option value="${feeItem.id}">${feeItem.name}</option>
+					             </c:forEach>
+					         </select>					      
+					      </c:if>
+					      <!--只读 -->
+					      <c:if test="${bean.status != 20}"> 
+				                        ${item.feeItemName}					
+					      </c:if>
+	      
+                        </td>                        
+                        
                         <td width="10%" align="center">${my:formatNum(item.moneys / 100.0)}</td>
                         <c:if test="${bean.status == 20 && bean.payType == 1}">
                             <td align="center">
