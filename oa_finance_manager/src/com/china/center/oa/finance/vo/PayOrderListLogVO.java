@@ -1,6 +1,10 @@
 package com.china.center.oa.finance.vo;
 
 import java.io.Serializable;
+import java.util.List;
+
+import com.china.center.jdbc.annotation.Ignore;
+import com.china.center.oa.publics.bean.AttachmentBean;
 
 public class PayOrderListLogVO implements Serializable {
 
@@ -52,6 +56,12 @@ public class PayOrderListLogVO implements Serializable {
 	private String operatorId;
 	
 	private String message;
+	
+	 /**
+	  *	 附件列表
+     */
+    @Ignore
+    private List<AttachmentBean> attachmentList;
 
 	public String getId() {
 		return id;
@@ -227,6 +237,14 @@ public class PayOrderListLogVO implements Serializable {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public List<AttachmentBean> getAttachmentList() {
+		return attachmentList;
+	}
+
+	public void setAttachmentList(List<AttachmentBean> attachmentList) {
+		this.attachmentList = attachmentList;
 	}
 
 }

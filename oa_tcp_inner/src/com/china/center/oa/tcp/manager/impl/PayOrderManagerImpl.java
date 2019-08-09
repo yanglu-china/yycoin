@@ -1,5 +1,7 @@
 package com.china.center.oa.tcp.manager.impl;
 
+import java.util.List;
+
 import org.china.center.spring.ex.annotation.Exceptional;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,9 @@ import com.china.center.oa.finance.dao.StockPayApplyDAO;
 import com.china.center.oa.finance.dao.StockPrePayApplyDAO;
 import com.china.center.oa.finance.vo.PayOrderListLogVO;
 import com.china.center.oa.finance.vo.PayOrderModifyListLogVO;
+import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.dao.AttachmentDAO;
+import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.tcp.bean.TravelApplyPayBean;
 import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
 import com.china.center.oa.tcp.manager.PayOrderManager;
@@ -31,6 +36,10 @@ public class PayOrderManagerImpl implements PayOrderManager {
 	private PayOrderModifyDAO payOrderModifyDAO;
 	
 	private PayOrderDAO payOrderDao;
+	
+	private AttachmentDAO attachmentDAO;
+	
+	private CommonDAO commonDAO;
 	
 	@Transactional(rollbackFor = Exception.class)
 	@Override
@@ -72,6 +81,26 @@ public class PayOrderManagerImpl implements PayOrderManager {
 		backPrePayApplyDAO.updateEntityBean(backPreApplyBean);
 		payOrderModifyDAO.saveEntityBean(modifyVo);
 		payOrderDao.deletePayListVo(logVo);
+	}
+	
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void uploadPayOrderAttachement(PayOrderListLogVO payVo,List<String> deleteIdList) throws Exception {
+		if(deleteIdList.size() > 0)
+		{
+			//先删除关联的附件
+			attachmentDAO.deleteByIds(deleteIdList);
+		}
+        
+        List<AttachmentBean> attachmentList = payVo.getAttachmentList();
+        
+        for (AttachmentBean attachmentBean : attachmentList) {
+            attachmentBean.setId(commonDAO.getSquenceString20());
+            attachmentBean.setRefId(payVo.getId());
+        }
+
+        attachmentDAO.saveAllEntityBeans(attachmentList);
+		
 	}
 
 	public StockPayApplyDAO getStockPayApplyDAO() {
@@ -122,4 +151,20 @@ public class PayOrderManagerImpl implements PayOrderManager {
 		this.payOrderDao = payOrderDao;
 	}
 
+	public AttachmentDAO getAttachmentDAO() {
+		return attachmentDAO;
+	}
+
+	public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
+		this.attachmentDAO = attachmentDAO;
+	}
+
+	public CommonDAO getCommonDAO() {
+		return commonDAO;
+	}
+
+	public void setCommonDAO(CommonDAO commonDAO) {
+		this.commonDAO = commonDAO;
+	}
+	
 }

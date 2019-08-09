@@ -10,6 +10,10 @@
             <forward name="queryPayOrder" path="/payorder/querypayorder.jsp" />
             <forward name="toPayOrder" path="/payorder/topayorder.jsp" />
             <forward name="toModifyPayOrder" path="/payorder/tomodifypayorder.jsp" />
+            <forward name="queryAttachement" path="/payorder/querypayorderattachement.jsp"/>
+            <forward name="toUploadAttachement" path="/payorder/uploadattachement.jsp"/>
+            
+            
         </action>
         
         <action path="/payorder/queryHisData" parameter="method"

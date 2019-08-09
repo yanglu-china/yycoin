@@ -1,5 +1,7 @@
 package com.china.center.oa.tcp.manager;
 
+import java.util.List;
+
 import com.china.center.oa.finance.bean.BackPrePayApplyBean;
 import com.china.center.oa.finance.bean.StockPayApplyBean;
 import com.china.center.oa.finance.bean.StockPrePayApplyBean;
@@ -44,5 +46,12 @@ public interface PayOrderManager {
 	 * @throws Exception
 	 */
 	void updateBackPrePayApply(BackPrePayApplyBean backPreApplyBean,PayOrderModifyListLogVO modifyVo,PayOrderListLogVO logVo) throws Exception;
+	
+	/**
+	 * 	上传付款单的附件
+	 * @param logVo
+	 * @throws Exception
+	 */
+	void uploadPayOrderAttachement(PayOrderListLogVO logVo,List<String> deleteIdList) throws Exception;
 
 }

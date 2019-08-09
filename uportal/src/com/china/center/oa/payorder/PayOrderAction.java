@@ -1,5 +1,12 @@
 package com.china.center.oa.payorder;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,11 +16,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,8 +33,11 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
+import com.china.center.actionhelper.common.ActionTools;
 import com.china.center.actionhelper.common.JSONTools;
+import com.china.center.actionhelper.common.KeyConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.finance.bean.BackPrePayApplyBean;
 import com.china.center.oa.finance.bean.BankBean;
@@ -41,9 +54,11 @@ import com.china.center.oa.finance.vo.PayOrderListLogVO;
 import com.china.center.oa.finance.vo.PayOrderModifyListLogVO;
 import com.china.center.oa.finance.vo.PayOrderVO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.CityBean;
 import com.china.center.oa.publics.bean.OpeningBankBean;
 import com.china.center.oa.publics.bean.ProvinceBean;
+import com.china.center.oa.publics.dao.AttachmentDAO;
 import com.china.center.oa.publics.dao.CityDAO;
 import com.china.center.oa.publics.dao.OpeningBankDAO;
 import com.china.center.oa.publics.dao.ProvinceDAO;
@@ -54,6 +69,15 @@ import com.china.center.oa.tcp.dao.TcpApproveDAO;
 import com.china.center.oa.tcp.dao.TravelApplyDAO;
 import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
 import com.china.center.oa.tcp.manager.PayOrderManager;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.FileTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.SequenceTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.UtilStream;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class PayOrderAction extends DispatchAction {
 
@@ -88,6 +112,11 @@ public class PayOrderAction extends DispatchAction {
 	 * 待付款
 	 */
 	private final String CONSTANTS_PAYORDERSTATUS_1 = "1";
+	
+	/**
+	 * 	已付款
+	 */
+	private final String CONSTANTS_PAYORDERSTATUS_3 = "3";
 
 	private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -116,7 +145,9 @@ public class PayOrderAction extends DispatchAction {
 	private ProvinceDAO provinceDAO;
 	
 	private CityDAO cityDAO;
-
+	
+	private AttachmentDAO attachmentDAO;
+	
 	public ActionForward queryPayOrder(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException {
 		Map<String, String> queryMap = new HashMap<String, String>();
@@ -1051,6 +1082,299 @@ public class PayOrderAction extends DispatchAction {
 		return JSONTools.writeResponse(response, "修改成功");
 		
 	}
+	
+	/**
+	 * 	查询付款成功的单据
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward queryAttachement(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException {
+		Map<String, String> queryMap = new HashMap<String, String>();
+		String payOrderType = request.getParameter("payOrderType");
+		String payOrderNo = request.getParameter("payOrderNo");
+		String payeeBank = request.getParameter("payeeBank");
+		String payeeAccName = request.getParameter("payeeAccName");
+		String payeeAcc = request.getParameter("payeeAcc");
+		String payeeAmount = request.getParameter("payeeAmount");
+		String billTime = request.getParameter("billTime");
+		String billEndTime = request.getParameter("billEndTime");
+		queryMap.put("payOrderNo", payOrderNo);
+		queryMap.put("payeeBank", payeeBank);
+		queryMap.put("payeeAccName", payeeAccName);
+		queryMap.put("payeeAcc", payeeAcc);
+		queryMap.put("payeeAmount", payeeAmount);
+		queryMap.put("billEndTime", billEndTime);
+		queryMap.put("payOrderType", payOrderType);
+		queryMap.put("payOrderStatus", CONSTANTS_PAYORDERSTATUS_3);
+		
+		User user = Helper.getUser(request);
+		List<RoleAuthBean> authList =  user.getAuth();
+		for(RoleAuthBean authBean:authList)
+		{
+			if("1660".equals(authBean.getAuthId()))
+			{
+				request.setAttribute("hasAuth", 1);
+				break;
+			}
+		}
+		
+		// 起始日期大于2019-08-01
+		if (StringUtils.isEmpty(billTime)) {
+			billTime = "2019-08-01";
+		} else {
+			try {
+				Date date = new SimpleDateFormat("yyyy-MM-dd").parse(billTime);
+				Date date81 = new SimpleDateFormat("yyyy-MM-dd").parse("2019-08-01");
+				if (date.compareTo(date81) < 0) {
+					billTime = "2019-08-01";
+				}
+			} catch (ParseException e) {
+			}
+		}
+		queryMap.put("billTime", billTime);
+
+		List<PayOrderListLogVO> list = payOrderDao.queryPayOrderLogList(queryMap);
+		request.setAttribute("payOrderLogList", list);
+		request.setAttribute("queryMap", queryMap);
+		return mapping.findForward("queryAttachement");
+
+	}
+	
+	/**
+	 * 	查询付款成功的单据
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward toUploadAttachement(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException {
+		String outId = request.getParameter("outid");
+		String outBillId = request.getParameter("outbillid");
+	 	Map<String,String> paramMap = new HashMap<String, String>();
+	 	paramMap.put("payOrderNo", outId);
+	 	paramMap.put("outBillId", outBillId);
+	 	paramMap.put("payOrderStatus", CONSTANTS_PAYORDERSTATUS_3);
+	 	List<PayOrderListLogVO> payOrderLogVoList = payOrderDao.queryPayOrderLogList(paramMap);
+	 	for(PayOrderListLogVO vo : payOrderLogVoList)
+	 	{
+	 		String id = vo.getId();
+	 		ConditionParse cond = new ConditionParse();
+	 		cond.addCondition("refid", "=", id);
+	 		List<AttachmentBean> attachmentList = attachmentDAO.queryEntityBeansByCondition(cond);
+	 		vo.setAttachmentList(attachmentList);
+	 	}
+	 	request.setAttribute("outbillid", outBillId);
+	 	request.setAttribute("outid", outId);
+		request.setAttribute("payOrderLogVoList", payOrderLogVoList);
+		return mapping.findForward("toUploadAttachement");
+
+	}
+	
+	/**
+	 * 	上传附件
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward uploadAttachement(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException {
+	 	// 模板最多20M
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
+        
+        try
+        {
+            rds.parser();
+        }
+        catch (FileUploadBase.SizeLimitExceededException e)
+        {
+            payLog.error("上传附件失败，超过20M", e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件不能超过20M");
+			return mapping.findForward("toUploadAttachement");
+        }
+        catch (Exception e)
+        {
+        	payLog.error("上传附件失败", e);
+        	request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:" + e.getMessage());
+			return mapping.findForward("toUploadAttachement");
+        }
+        
+        String outId = rds.getParameter("outid");
+		String outBillId = rds.getParameter("outbillid");
+		String delAttaId = rds.getParameter("delAttaId");
+	 	Map<String,String> paramMap = new HashMap<String, String>();
+	 	paramMap.put("payOrderNo", outId);
+	 	paramMap.put("outBillId", outBillId);
+	 	paramMap.put("payOrderStatus", CONSTANTS_PAYORDERSTATUS_3);
+	 	List<PayOrderListLogVO> payOrderLogVoList = payOrderDao.queryPayOrderLogList(paramMap);
+	 	if(payOrderLogVoList.size() == 0 || payOrderLogVoList.size() >1)
+	 	{
+	 		request.setAttribute(KeyConstant.ERROR_MESSAGE, "查询单据出错，单据号:" + outBillId);
+
+			return mapping.findForward("toUploadAttachement");
+	 	}
+        
+        
+        
+        PayOrderListLogVO payVo = payOrderLogVoList.get(0);
+        
+        BeanUtil.getBean(payVo, rds.getParmterMap());
+        
+        if ( !rds.haveStream())
+        {
+            return null;
+        }
+        
+        Map<String, InputStream> streamMap = rds.getStreamMap();
+        
+        List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
+
+        for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
+        {
+            AttachmentBean bean = new AttachmentBean();
+
+            BufferedOutputStream out = null;
+
+            UtilStream ustream = null;
+
+            try
+            {
+            	String attachePath = ConfigLoader.getProperty("financeAttachmentPath");
+                String savePath = mkdir(attachePath);
+
+                String fileAlais = SequenceTools.getSequence();
+
+                String fileName = FileTools.getFileName(rds.getFileName(entry.getKey()));
+
+                String rabsPath = '/' + savePath + '/' + fileAlais + "."
+                                  + FileTools.getFilePostfix(fileName).toLowerCase();
+
+                String filePath = attachePath + '/' + rabsPath;
+
+                bean.setName(fileName);
+
+                bean.setPath(rabsPath);
+
+                bean.setLogTime(TimeTools.now());
+
+                out = new BufferedOutputStream(new FileOutputStream(filePath));
+
+                ustream = new UtilStream(entry.getValue(), out);
+
+                ustream.copyStream();
+
+                attachmentList.add(bean);
+            }
+            catch (IOException e)
+            {
+                payLog.error("上传附件失败", e);
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "上传附件失败:" + e.getMessage());
+    			return mapping.findForward("toUploadAttachement");
+            }
+            finally
+            {
+            	IOUtils.closeQuietly(out);
+                if (ustream != null)
+                {
+                    try
+                    {
+                        ustream.close();
+                    }
+                    catch (IOException e)
+                    {
+                        payLog.error("close stream error", e);
+                    }
+                }
+            }
+        }
+        
+        try
+        {
+        	String[] delArray = new String[] {};
+        	if(StringUtils.isNotEmpty(delAttaId))
+        	{
+        		delArray = StringUtils.split(delAttaId,",");
+        	}
+        	List<String> deleteIdList = Arrays.asList(delArray);
+        	payVo.setAttachmentList(attachmentList);
+        	payOrderManager.uploadPayOrderAttachement(payVo,deleteIdList);
+        }
+        catch(Exception e)
+        {
+        	payLog.error("保存附件失败", e);
+        	request.setAttribute(KeyConstant.ERROR_MESSAGE,"保存附件失败:" + e.getMessage());
+			return mapping.findForward("toUploadAttachement");
+        }
+        
+        request.setAttribute(KeyConstant.MESSAGE, "上传成功");
+
+		return mapping.findForward("toUploadAttachement");
+	}
+	
+	
+	/**
+     * downAttachmentFile
+     * 
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     * @throws IOException
+     */
+    public ActionForward downAttachmentFile(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException
+    {
+        String path = ConfigLoader.getProperty("financeAttachmentPath");
+
+        String id = request.getParameter("id");
+
+        AttachmentBean bean = attachmentDAO.find(id);
+
+        if (bean == null)
+        {
+            return ActionTools.toError(mapping, request);
+        }
+
+        path += bean.getPath();
+
+        File file = new File(path);
+
+        OutputStream out = response.getOutputStream();
+
+        response.setHeader("Content-Disposition", "attachment; filename="
+                                                  + StringTools.getStringBySet(bean.getName(),
+                                                      "GBK", "ISO8859-1"));
+
+        UtilStream us = new UtilStream(new FileInputStream(file), out);
+        
+        us.copyAndCloseStream();
+
+        IOUtils.closeQuietly(out);
+        return null;
+    }
+	
+	private String mkdir(String root)
+    {
+        String path = TimeTools.now("yyyy/MM/dd/HH") + "/"
+                      + SequenceTools.getSequence(String.valueOf(new Random().nextInt(1000)));
+
+        FileTools.mkdirs(root + '/' + path);
+
+        return path;
+    }
 
 	public PayOrderDAO getPayOrderDao() {
 		return payOrderDao;
@@ -1154,6 +1478,14 @@ public class PayOrderAction extends DispatchAction {
 
 	public void setPayOrderManager(PayOrderManager payOrderManager) {
 		this.payOrderManager = payOrderManager;
+	}
+
+	public AttachmentDAO getAttachmentDAO() {
+		return attachmentDAO;
+	}
+
+	public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
+		this.attachmentDAO = attachmentDAO;
 	}
 
 }
