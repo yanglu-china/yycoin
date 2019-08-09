@@ -3288,7 +3288,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         
         StringBuffer sqlBuffer = new StringBuffer();
         
-        sqlBuffer.append(" select OutBean.*"); 
+        sqlBuffer.append(" select distinct OutBean.*"); 
         sqlBuffer.append(" from t_center_out OutBean"); 
         sqlBuffer.append(" left outer join t_center_base BaseBean on BaseBean.outId=OutBean.fullId");
         //销售单

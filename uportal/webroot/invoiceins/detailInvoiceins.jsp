@@ -296,7 +296,7 @@ function load()
                 <td align="center">${my:get('200', item.unit)}</td>
                 </c:if>
                 
-                <td align="center">${item.showName}</td>
+                <td align="center">${item.spmc}</td>
             </tr>
             </c:forEach>
 
