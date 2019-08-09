@@ -9,6 +9,36 @@
 package com.china.center.oa.finance.portal.action;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
@@ -24,10 +54,24 @@ import com.china.center.common.MYException;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.finance.bean.*;
+import com.china.center.oa.finance.bean.InsVSInvoiceNumBean;
+import com.china.center.oa.finance.bean.InvoiceBindOutBean;
+import com.china.center.oa.finance.bean.InvoiceStorageBean;
+import com.china.center.oa.finance.bean.InvoiceinsBean;
+import com.china.center.oa.finance.bean.InvoiceinsDetailBean;
+import com.china.center.oa.finance.bean.InvoiceinsImportBean;
+import com.china.center.oa.finance.bean.InvoiceinsItemBean;
+import com.china.center.oa.finance.bean.StockPayApplyBean;
 import com.china.center.oa.finance.constant.FinanceConstant;
 import com.china.center.oa.finance.constant.InvoiceinsConstants;
-import com.china.center.oa.finance.dao.*;
+import com.china.center.oa.finance.dao.InsImportLogDAO;
+import com.china.center.oa.finance.dao.InsVSInvoiceNumDAO;
+import com.china.center.oa.finance.dao.InsVSOutDAO;
+import com.china.center.oa.finance.dao.InvoiceStorageDAO;
+import com.china.center.oa.finance.dao.InvoiceinsDAO;
+import com.china.center.oa.finance.dao.InvoiceinsImportDAO;
+import com.china.center.oa.finance.dao.InvoiceinsItemDAO;
+import com.china.center.oa.finance.dao.StockPayApplyDAO;
 import com.china.center.oa.finance.facade.FinanceFacade;
 import com.china.center.oa.finance.manager.InvoiceinsManager;
 import com.china.center.oa.finance.vo.InvoiceStorageVO;
@@ -36,42 +80,70 @@ import com.china.center.oa.finance.vo.InvoiceinsVO;
 import com.china.center.oa.finance.vs.InsVSOutBean;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.NumberUtils;
-import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.bean.CityBean;
+import com.china.center.oa.publics.bean.DutyBean;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.InvoiceBean;
+import com.china.center.oa.publics.bean.ProvinceBean;
+import com.china.center.oa.publics.bean.ShowBean;
+import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.InvoiceConstant;
-import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.publics.dao.AttachmentDAO;
+import com.china.center.oa.publics.dao.CityDAO;
+import com.china.center.oa.publics.dao.DutyDAO;
+import com.china.center.oa.publics.dao.DutyVSInvoiceDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.InvoiceDAO;
+import com.china.center.oa.publics.dao.ProvinceDAO;
+import com.china.center.oa.publics.dao.ShowDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.publics.manager.StafferManager;
 import com.china.center.oa.publics.vs.DutyVSInvoiceBean;
 import com.china.center.oa.publics.vs.RoleAuthBean;
-import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.bean.BaseBalanceBean;
 import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.bean.ExpressBean;
+import com.china.center.oa.sail.bean.OutBalanceBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.OutImportBean;
+import com.china.center.oa.sail.bean.OutTransferBean;
+import com.china.center.oa.sail.bean.UnitViewBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
-import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.dao.BaseBalanceDAO;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.DistributionDAO;
+import com.china.center.oa.sail.dao.ExpressDAO;
+import com.china.center.oa.sail.dao.OutBalanceDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.dao.OutImportDAO;
+import com.china.center.oa.sail.dao.UnitViewDAO;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.vo.DistributionVO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
-import com.china.center.tools.*;
-import jxl.Workbook;
-import jxl.write.*;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.FileTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.RequestTools;
+import com.china.center.tools.SequenceTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.UtilStream;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
 
 
 /**
@@ -4689,7 +4761,7 @@ public class InvoiceinsAction extends DispatchAction
                         String zzsInfo = obj[20].trim();
                         bean.setZzsInfo(zzsInfo);
                     } else{
-                        if ("增值税专用发票17%".equals(obj[3].trim()))
+                        if ("增值税专用发票17%".equals(obj[3].trim())) {
                             builder
                                     .append("第[" + currentNumber + "]错误:")
                                     .append("增值税专用发票17%增值税发票信息不能为空")
