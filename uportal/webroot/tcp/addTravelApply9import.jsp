@@ -440,12 +440,12 @@ function getOpeningBank(oos)
          
          <td align="left">
          <input type="text" style="width: 100%"
-                    name="p_userName" value="" >
+                    name="p_userName" value="" oncheck="notNone;">
          </td>
          
          <td align="left">
-         <td align="left"><input type="text" style="width: 100%"
-                    name="p_bank" value="" id="p_bank" onclick='selectOpeningBank(this)' readonly=readonly oncheck="notNone;" style='cursor: pointer;'>
+         <input type="text" style="width: 100%"
+                    name="p_bankNo" value="" oncheck="notNone;">
          </td>
          
          <td align="left">

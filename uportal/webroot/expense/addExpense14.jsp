@@ -376,12 +376,12 @@ function getOpeningBank(oos)
          
          <td align="left">
          <input type="text" style="width: 100%"
-                    name="p_userName" value="" >
+                    name="p_userName" value="" oncheck="notNone;">
          </td>
          
          <td align="left">
          <input type="text" style="width: 100%"
-                    name="p_bankNo" value="" >
+                    name="p_bankNo" value="" oncheck="notNone;">
          </td>
          
          <td align="left">

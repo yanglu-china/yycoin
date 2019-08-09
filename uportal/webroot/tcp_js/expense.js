@@ -183,6 +183,19 @@ function calDateInner(obj, name)
 // deprecated
 function checks()
 {
+	var bankNoArray = $('[name=p_bankNo]');
+	for(var i=0;i<bankNoArray.length;i++){
+		var bankNoVal = $(bankNoArray[i]).val();
+		//字符串是否包含空格
+	    var reg =/\s/;
+	    var result = reg.test(bankNoVal);
+	    if(result)
+		{
+		    alert("收款账号不能有空格!");
+		    $(bankNoArray[i]).focus();
+	    	return false;
+		}
+	}
     var fileName = $O('atts').value;
 
     if ("" == fileName)
@@ -243,6 +256,19 @@ function checks()
 // #447
 function checks2()
 {
+	var bankNoArray = $('[name=p_bankNo]');
+	for(var i=0;i<bankNoArray.length;i++){
+		var bankNoVal = $(bankNoArray[i]).val();
+		//字符串是否包含空格
+	    var reg =/\s/;
+	    var result = reg.test(bankNoVal);
+	    if(result)
+		{
+		    alert("收款账号不能有空格!");
+		    $(bankNoArray[i]).focus();
+	    	return false;
+		}
+	}
     var fileName = $O('atts').value;
 
     if ("" == fileName)
