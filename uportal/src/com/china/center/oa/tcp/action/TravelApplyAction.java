@@ -68,6 +68,8 @@ import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.bean.OutBillBean;
 import com.china.center.oa.finance.dao.OutBillDAO;
+import com.china.center.oa.finance.dao.PayOrderDAO;
+import com.china.center.oa.finance.vo.PayOrderListLogVO;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.dao.ProductDAO;
@@ -227,7 +229,9 @@ public class TravelApplyAction extends DispatchAction
     private OrgManager orgManager      = null;
 
     private TcpVSOutDAO tcpVSOutDAO = null;
-
+    
+    private PayOrderDAO payOrderDao;
+    
     private static String QUERYSELFTRAVELAPPLY = "tcp.querySelfTravelApply";
     
     private static String QUERYSELFCOMMISSION = "tcp.querySelfCommission";
@@ -840,6 +844,24 @@ public class TravelApplyAction extends DispatchAction
         List<FinanceBean> financeList = financeDAO.queryEntityBeansByFK(id);
 
         request.setAttribute("financeList", financeList);
+        
+        //add by zhangxian 2019-08-09
+        //查询银行回单附件
+        Map<String,String> paramMap = new HashMap<String, String>();
+        paramMap.put("payOrderNo", id);
+        List<PayOrderListLogVO> payOrderList = payOrderDao.queryPayOrderLogList(paramMap);
+        List<AttachmentBean> payOrderAttachmentList =  new ArrayList<AttachmentBean>();
+        for(PayOrderListLogVO payOrder:payOrderList)
+        {
+        	String payLogId = payOrder.getId();
+        	ConditionParse cond = new ConditionParse();
+        	cond.addCondition("refid", "=", payLogId);
+        	List<AttachmentBean> subList =  attachmentDAO.queryEntityBeansByCondition(cond);
+        	payOrderAttachmentList.addAll(subList);
+        }
+        request.setAttribute("payOrderAttachmentList", payOrderAttachmentList);
+        
+        //end add
 
         if(purposeType == 12 || purposeType == 22 ||
         		purposeType == 32 || purposeType == 21 ||purposeType == 31)
@@ -6303,4 +6325,14 @@ public class TravelApplyAction extends DispatchAction
     public void setTcpVSOutDAO(TcpVSOutDAO tcpVSOutDAO) {
         this.tcpVSOutDAO = tcpVSOutDAO;
     }
+
+	public PayOrderDAO getPayOrderDao() {
+		return payOrderDao;
+	}
+
+	public void setPayOrderDao(PayOrderDAO payOrderDao) {
+		this.payOrderDao = payOrderDao;
+	}
+    
+    
 }

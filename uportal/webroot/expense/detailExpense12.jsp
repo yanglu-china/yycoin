@@ -113,7 +113,18 @@ function load()
                 <a href="../finance/finance.do?method=findFinance&id=${item.id}">${item.id}</a>&nbsp;&nbsp;
                 </c:forEach>
             </p:cell>
-
+			<p:cell title="银行回单附件" width="8" end="true">
+                <c:forEach items="${payOrderAttachmentList}" var="attachitem" varStatus="vs">
+		            <span id="span_${attachitem.id}">
+		            	<img src="../images/oa/attachment.gif"/>
+		            	<a target="_blank" href="../payorder/queryPayOrder.do?method=downAttachmentFile&id=${attachitem.id}">${attachitem.name}</a>
+		            </span>
+		            &nbsp;&nbsp;&nbsp;&nbsp;
+		            <c:if test="${!vs.last}">
+		            <br>
+		            </c:if>
+	            </c:forEach>
+            </p:cell>
             <p:pro field="compliance" cell="0">
             	<p:option type="tcpComplianceType" empty="true"/>
             </p:pro>
