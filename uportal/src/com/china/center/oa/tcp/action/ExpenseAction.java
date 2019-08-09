@@ -1347,6 +1347,11 @@ public class ExpenseAction extends DispatchAction
         if (fid != null && fid.length > 0)
         {
             String[] fcmoneysList = request.getParameterValues("f_cmoneys");
+            String[] feeItemList = request.getParameterValues("i_feeItem");
+            
+            _logger.debug("feeItemList:");
+            _logger.debug(feeItemList);
+            
             List<TravelApplyItemBean> payList = travelApplyItemDAO
                     .queryEntityBeansByFK(param.getId());
             for (int i = 0; i < fid.length; i++ )
@@ -1356,6 +1361,7 @@ public class ExpenseAction extends DispatchAction
                     if (travelApplyPayBean.getId().equals(fid[i]))
                     {
                         travelApplyPayBean.setCmoneys(MathTools.doubleToLong2(fcmoneysList[i]));
+                        travelApplyPayBean.setFeeItemId(feeItemList[i]);
                     }
                 }
             }
