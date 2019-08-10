@@ -34,7 +34,7 @@ import com.china.center.oa.publics.constant.PublicConstant;
  */
 @Entity
 @Table(name = "T_CENTER_COMPOSE")
-public class ComposeProductBean implements Serializable
+public class ComposeProductBean implements Serializable, ComposeInterface
 {
     @Id
     private String id = "";

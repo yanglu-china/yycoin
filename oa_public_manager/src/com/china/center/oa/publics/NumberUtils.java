@@ -1,6 +1,8 @@
 package com.china.center.oa.publics;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class NumberUtils {
@@ -40,7 +42,46 @@ public class NumberUtils {
         return new BigDecimal(Math.round(value)).intValueExact();
     }
 
+    /**
+     * find Entry with max value, return NULL if exists multiple entries with same max value
+     * @param map
+     * @return
+     */
+    public static Map.Entry findMax(Map<String, Double> map){
+        Map.Entry<String, Double> maxEntry = null;
+        //find max entry
+        for (Map.Entry<String, Double> entry : map.entrySet()) {
+            if (maxEntry == null || entry.getValue()
+                    .compareTo(maxEntry.getValue()) > 0) {
+                maxEntry = entry;
+            }
+        }
+
+        //检查是否有多个最大值
+        int maxValue = 0;
+        for (Map.Entry<String, Double> entry : map.entrySet()) {
+            if (entry.getValue().compareTo(maxEntry.getValue()) == 0){
+                maxValue += 1;
+            }
+        }
+
+        if (maxValue == 1){
+            return maxEntry;
+        } else{
+            return null;
+        }
+    }
+
     public static void main(String[] args){
         System.out.println(roundDouble(1.7000000476837158));
+        Map<String, Double> map = new HashMap<String, Double>();
+        map.put("90000000000000000000", 1000.2);
+        map.put("90000000000000000001", 1900.2);
+        map.put("90000000000000000003", 800.3);
+        Map.Entry max = findMax(map);
+        System.out.println(max);
+        map.put("90000000000000000004", 1900.2);
+        max = findMax(map);
+        System.out.println(max);
     }
 }

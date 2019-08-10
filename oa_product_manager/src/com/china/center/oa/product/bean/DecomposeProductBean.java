@@ -34,7 +34,7 @@ import com.china.center.oa.publics.constant.PublicConstant;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "T_CENTER_DECOMPOSE")
-public class DecomposeProductBean implements Serializable
+public class DecomposeProductBean implements Serializable, ComposeInterface
 {
     @Id
     private String id = "";
@@ -298,6 +298,11 @@ public class DecomposeProductBean implements Serializable
 	public void setItemList(List<ComposeItemBean> itemList)
 	{
 		this.itemList = itemList;
+	}
+
+	@Override
+	public String getDirTargerName() {
+		return null;
 	}
 
 	@Override

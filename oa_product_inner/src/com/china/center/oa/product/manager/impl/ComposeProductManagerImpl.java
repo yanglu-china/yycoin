@@ -9,11 +9,7 @@
 package com.china.center.oa.product.manager.impl;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.jdbc.util.ConditionParse;
@@ -22,10 +18,12 @@ import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.NumberUtils;
+import com.china.center.oa.publics.bean.InvoiceBean;
 import com.china.center.oa.publics.bean.LogBean;
 import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.ModuleConstant;
 import com.china.center.oa.publics.constant.OperationConstant;
+import com.china.center.oa.publics.dao.InvoiceDAO;
 import com.china.center.oa.publics.dao.LogDAO;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
@@ -100,6 +98,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
     private LogDAO logDAO = null;
 
+    private InvoiceDAO invoiceDAO = null;
+
     /**
      * default constructor
      */
@@ -158,22 +158,22 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
      * @param bean
      * @throws MYException
      */
-    private void checkCompose(ComposeProductBean bean)
+    private void checkCompose(ComposeInterface bean)
         throws MYException
     {
-        // 检查合成逻辑
+        // 检查产品
         String productId = bean.getProductId();
         
-        ProductBean compose = productDAO.find(productId);
+        ProductBean productBean = productDAO.find(productId);
 
-        if (compose == null)
+        if (productBean == null)
         {
             if (!StringTools.isNullOrNone(bean.getDirTargerName())){
-                compose = this.productDAO.findByName(bean.getDirTargerName());
-                if (compose == null){
+                productBean = this.productDAO.findByName(bean.getDirTargerName());
+                if (productBean == null){
                     throw new MYException("产品不存在："+productId);
                 } else{
-                    bean.setProductId(compose.getId());
+                    bean.setProductId(productBean.getId());
                 }
             } else{
                 throw new MYException("产品不存在："+productId);
@@ -219,29 +219,58 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         
         List<ComposeItemBean> itemList = bean.getItemList();
 
+        //#742 <sailInvoice,对应税率的配件累计金额>
+        Map<String, Double> sailInvoiceToValue = new HashMap<>();
         for (ComposeItemBean composeItemBean : itemList)
         {
             ProductBean each = productDAO.find(composeItemBean.getProductId());
 
             if (each == null)
             {
-                throw new MYException("数据错误,请确认操作");
+                throw new MYException("产品不存在:"+composeItemBean.getProductId());
             }
             
             composeItemBean.setMtype(MathTools.parseInt(each.getReserve4()));
             
             counter += composeItemBean.getMtype();
+
+            String sailInvoice = each.getSailInvoice();
+            double value = composeItemBean.getAmount()*composeItemBean.getPrice();
+            if (sailInvoiceToValue.containsKey(sailInvoice)){
+                sailInvoiceToValue.put(sailInvoice, value+sailInvoiceToValue.get(sailInvoice));
+            } else{
+                sailInvoiceToValue.put(sailInvoice, value);
+            }
         }
-        
-        // 全部管理 或 普通 ， 合成产品的管理属性须与源产品的管理属性一致
-        if (counter == 0 || counter == itemList.size())
-        {
-        	if (bean.getMtype() != itemList.get(0).getMtype())
-        	{
-        		throw new MYException("合成的源产品的管理属性全为普通或管理时，合成产品管理属性须与源产品一致");
-        	}
+
+        //主产品的销项税率
+        String sailInvoice = productBean.getSailInvoice();
+        Map.Entry<String, Double> max = NumberUtils.findMax(sailInvoiceToValue);
+        if (max == null){
+            throw new MYException("存在相同的配件金额占比，请重新确认合成配件");
+        } else if(!max.getKey().equals(sailInvoice)){
+            InvoiceBean invoice = invoiceDAO.find(max.getKey());
+            throw new MYException("配件金额占比最大的税率[%f]与成品名税率标识不一致，请重新确认合成配件", invoice.getVal());
+        }
+
+        if (bean instanceof ComposeProductBean){
+            // 全部管理 或 普通 ， 合成产品的管理属性须与源产品的管理属性一致
+            if (counter == 0 || counter == itemList.size())
+            {
+                if (bean.getMtype() != itemList.get(0).getMtype())
+                {
+                    throw new MYException("合成的源产品的管理属性全为普通或管理时，合成产品管理属性须与源产品一致");
+                }
+            }
+        } else{
+            if (OATools.isCommon(productBean.getReserve4())){
+                bean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
+            } else{
+                bean.setMtype(PublicConstant.MANAGER_TYPE_MANAGER);
+            }
         }
     }
+
 
     /**
      * 2015/7/27 预合成JOB检查
@@ -1365,15 +1394,16 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         _logger.info("***addDecomposeProduct***"+bean);
         JudgeTools.judgeParameterIsNull(user, bean);
 
+        this.checkCompose(bean);
+
         // 检查合成逻辑
-        String productId = bean.getProductId();
-
-        ProductBean compose = productDAO.find(productId);
-
-        if (compose == null)
-        {
-            throw new MYException("产品不存在："+productId);
-        }
+//        String productId = bean.getProductId();
+//        ProductBean compose = productDAO.find(productId);
+//
+//        if (compose == null)
+//        {
+//            throw new MYException("产品不存在："+productId);
+//        }
 
         // #433 产品分拆配件不能拆分的控制去掉
 //        if (compose.getCtype() != ProductConstant.CTYPE_YES)
@@ -1382,33 +1412,33 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 //        }
 
         // MANAGER 合成产品增加的管理逻辑
-        if (OATools.isCommon(compose.getReserve4()))
-        {
-            // 必须都是普通产品才能合成
-            List<ComposeItemBean> itemList = bean.getItemList();
-
-            for (ComposeItemBean composeItemBean : itemList)
-            {
-                ProductBean each = productDAO.find(composeItemBean.getProductId());
-
-                if (each == null)
-                {
-                    throw new MYException("数据错误,请确认操作");
-                }
-
-                // 会有什么影响？？ 130725
-/*                if (OATools.getManagerType(each.getReserve4()) != PublicConstant.MANAGER_TYPE_COMMON)
-                {
-                    throw new MYException("合成的源产品的管理类型必须都是普通,错误产品:%s", each.getName());
-                }*/
-            }
-
-            bean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
-        }
-        else
-        {
-            bean.setMtype(PublicConstant.MANAGER_TYPE_MANAGER);
-        }
+//        if (OATools.isCommon(compose.getReserve4()))
+//        {
+////            // 必须都是普通产品才能合成
+////            List<ComposeItemBean> itemList = bean.getItemList();
+////
+////            for (ComposeItemBean composeItemBean : itemList)
+////            {
+////                ProductBean each = productDAO.find(composeItemBean.getProductId());
+////
+////                if (each == null)
+////                {
+////                    throw new MYException("数据错误,请确认操作");
+////                }
+////
+////                // 会有什么影响？？ 130725
+/////*                if (OATools.getManagerType(each.getReserve4()) != PublicConstant.MANAGER_TYPE_COMMON)
+////                {
+////                    throw new MYException("合成的源产品的管理类型必须都是普通,错误产品:%s", each.getName());
+////                }*/
+////            }
+//
+//            bean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
+//        }
+//        else
+//        {
+//            bean.setMtype(PublicConstant.MANAGER_TYPE_MANAGER);
+//        }
 
         bean.setId(commonDAO.getSquenceString20());
 
@@ -1427,7 +1457,6 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             }
         }
 
-        System.out.println(bean.getId()+"****************itemList size***********"+itemList.size());
         composeItemDAO.saveAllEntityBeans(itemList);
         
         FlowLogBean log = new FlowLogBean();
@@ -1793,5 +1822,9 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
     public void setPriceConfigManager(PriceConfigManager priceConfigManager) {
         this.priceConfigManager = priceConfigManager;
+    }
+
+    public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
+        this.invoiceDAO = invoiceDAO;
     }
 }
