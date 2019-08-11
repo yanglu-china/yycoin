@@ -2211,6 +2211,284 @@ public class StockAction extends DispatchAction
         }
     }
 
+    public ActionForward backStock(ActionMapping mapping, ActionForm form,
+                                   HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        String id = request.getParameter("id");
+
+        String ltype = getLType(request);
+
+        int queryType = CommonTools.parseInt(ltype);
+
+        request.setAttribute("ltype", ltype);
+
+        if (StringTools.isNullOrNone(id))
+        {
+            id = (String)request.getAttribute("stockId");
+        }
+
+        String out = request.getParameter("out");
+
+        String update = request.getParameter("update");
+
+        String stockAskChange = request.getParameter("stockAskChange");
+
+        if (StringTools.isNullOrNone(stockAskChange))
+        {
+            stockAskChange = (String)request.getAttribute("stockAskChange");
+        }
+
+        String process = request.getParameter("process");
+
+        if (StringTools.isNullOrNone(process))
+        {
+            process = (String)request.getAttribute("process");
+        }
+
+        StockVO vo = null;
+
+        vo = stockManager.findStockVO(id);
+
+        request.setAttribute("bean", vo);
+//        request.setAttribute("divMap", vo.getDivMap());
+
+        prepare(request);
+
+        if ( !StringTools.isNullOrNone(update))
+        {
+            if ( !"2".equals(update))
+            {
+                int last = 20 - vo.getItemVO().size();
+
+                // 补齐
+                for (int i = 0; i < last; i++ )
+                {
+                    vo.getItemVO().add(new StockItemVO());
+                }
+
+                request.setAttribute("maxItem", 20 - last);
+            }
+
+            if ("1".equals(update))
+            {
+                return mapping.findForward("updateStock");
+            }
+            else
+            {
+                // 如果没有询价不能配置
+                List<StockItemVO> itemVO = vo.getItemVO();
+
+                //2015/10/24 取消询价
+//                for (StockItemVO stockItemVO : itemVO)
+//                {
+//                    if (stockItemVO.getStatus() == StockConstant.STOCK_ITEM_STATUS_INIT)
+//                    {
+//                        return ActionTools.toError("还没有全部询价,不能配置税务属性", mapping, request);
+//                    }
+//                }
+
+                // 过滤管理
+                if (OATools.getManagerFlag())
+                {
+                    List<DutyBean> dutyList = dutyDAO.listEntityBeans();
+
+/*                    if (vo.getMtype() == PublicConstant.MANAGER_TYPE_COMMON)
+                    {
+                        DutyBean defalit = dutyDAO.find(PublicConstant.DEFAULR_DUTY_ID);
+
+                        dutyList.add(defalit);
+                    }
+                    else
+                    {
+
+                        DutyBean manager = dutyDAO.find(PublicConstant.MANAGER_DUTY_ID);
+
+                        dutyList.add(manager);
+                    }*/
+
+                    for (Iterator<DutyBean> iterator = dutyList.iterator(); iterator.hasNext();)
+                    {
+                        DutyBean dbean = iterator.next();
+
+                        // 去掉管理
+                        if (dbean.getMtype() == 0)
+                        {
+                            iterator.remove();
+
+                            continue;
+                        }
+
+                        if (dbean.getName().contains("停用"))
+                        {
+                            iterator.remove();
+                        }
+                    }
+
+                    if (vo.getMtype() == StockConstant.MANAGER_TYPE_MANAGER)
+                    {
+                        dutyList.clear();
+
+                        DutyBean manager = dutyDAO.find(PublicConstant.MANAGER_DUTY_ID);
+
+                        dutyList.add(manager);
+                    }
+
+                    // 管理默认为 17%
+                    /*if (vo.getMtype() == StockConstant.MANAGER_TYPE_COMMON)
+                    {
+                    	for(StockItemVO eachitem : vo.getItemVO())
+                    	{
+                    		eachitem.setInvoiceType("90000000000000000001");
+                    	}
+                    }*/
+                    /*else if(vo.getMtype() == StockConstant.MANAGER_TYPE_COMMON3)
+                    {
+                    	for(StockItemVO eachitem : vo.getItemVO())
+                    	{
+                    		eachitem.setInvoiceType("90000000000000000002");
+                    	}
+                    }
+                    else // 默认为空
+                    {
+                    	for(StockItemVO eachitem : vo.getItemVO())
+                    	{
+                    		eachitem.setInvoiceType("");
+                    	}
+                    }*/
+
+                    request.setAttribute("dutyList", dutyList);
+                }
+
+                return mapping.findForward("updateStockDutyConfig");
+            }
+        }
+
+        if ("1".equals(process))
+        {
+            return mapping.findForward("processStock");
+        }
+
+        // 询价人拿货
+        if ("2".equals(process) || "21".equals(process))
+        {
+            List<DepotpartBean> depotpartList = new ArrayList<DepotpartBean>();
+
+            //#531 去掉采购中心库
+//            if (vo.getMode() == StockConstant.STOCK_MODE_SAIL)
+//            {
+//                // 查询采购中心的良品仓区
+//                depotpartList = depotpartDAO.queryOkDepotpartInDepot(DepotConstant.STOCK_DEPOT_ID);
+//            }
+            //#107
+//            else
+//            {
+//                // 查询生产库
+//                depotpartList = depotpartDAO.queryOkDepotpartInDepot(DepotConstant.MAKE_DEPOT_ID);
+//            }
+
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            // #486 去掉到货预告库_默认仓区
+//            conditionParse.addCondition("name","=","在售仓");
+//            conditionParse.addCondition(" and name in ('在售仓','到货预告库_默认仓区')");
+            //#531 生产作业库-采购仓，生产作业库-深圳百吉仓，生产作业库-东莞铭丰仓，生产作业库-其他生产仓，生产作业库-无锡巨洋仓，生产作业库-南京国声仓
+            conditionParse.addCondition(" and name in ('在售仓','采购仓','深圳百吉仓','东莞铭丰仓','其他生产仓','无锡巨洋仓','南京国声仓')");
+            List<DepotpartBean> depotpartBeans = this.depotpartDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(depotpartBeans)){
+                depotpartList.addAll(depotpartBeans);
+            }
+            List<DepotpartVO> voList = new ArrayList<>();
+            for (DepotpartBean bean: depotpartList){
+                DepotpartVO depotpartVO = new DepotpartVO();
+                BeanUtil.copyProperties(depotpartVO, bean);
+                DepotpartVO temp = this.depotpartDAO.findVO(bean.getId());
+                depotpartVO.setLocationName(temp.getLocationName());
+                voList.add(depotpartVO);
+            }
+            request.setAttribute("depotpartList", voList);
+            List<StockItemArrivalVO> stockItemArrivalBeans = this.stockItemArrivalDAO.queryEntityVOsByFK(vo.getId());
+            vo.setStockItemArrivalVOs(stockItemArrivalBeans);
+            _logger.info("***stockItemArrivalBeans***"+stockItemArrivalBeans.size());
+            if ("2".equals(process)) {
+                return mapping.findForward("processStock2");
+            }
+            else {
+                return mapping.findForward("processStock21");
+            }
+        }
+
+        // 获取审批日志
+        List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByFK(id);
+
+        List<FlowLogVO> logsVO = new ArrayList<FlowLogVO>();
+
+        for (FlowLogBean flowLogBean : logs)
+        {
+            FlowLogVO flowLogVO = StockHelper.getStockFlowLogVO(flowLogBean);
+            if (!StringTools.isNullOrNone(flowLogBean.getReserved1())){
+                ProductBean productBean = this.productDAO.find(flowLogBean.getReserved1());
+                if(productBean!= null){
+                    flowLogVO.setProductName(productBean.getName());
+                }
+            }
+
+            logsVO.add(flowLogVO);
+        }
+
+        // 获得询价的列表
+        Map<String, String> map = new HashMap<String, String>();
+        Map<String, List<PriceAskProviderBeanVO>> map1 = new HashMap<String, List<PriceAskProviderBeanVO>>();
+
+        for (StockItemVO StockItemVO : vo.getItemVO())
+        {
+            if (StockItemVO.getStatus() > StockConstant.STOCK_ITEM_STATUS_INIT)
+            {
+                List<PriceAskProviderBeanVO> items = priceAskProviderDAO
+                        .queryEntityVOsByFK(StockItemVO.getId());
+
+                map1.put(StockItemVO.getId(), items);
+
+                User user = Helper.getUser(request);
+
+                map.put(StockItemVO.getId(), PriceAskHelper.createTable(items, user));
+
+                // 业务员和区域经理不能看到供应商
+                if (queryType == 0 || queryType == 1)
+                {
+                    StockItemVO.setProviderName("");
+                }
+            }
+        }
+
+        request.setAttribute("map", map);
+        request.setAttribute("map1", map1);
+
+        request.setAttribute("logs", logsVO);
+
+        if ("1".equals(stockAskChange))
+        {
+            return mapping.findForward("stockAskChange");
+        }
+
+        if ("1".equals(out))
+        {
+            request.setAttribute("out", 1);
+        }
+
+        // 关联的
+        List<FinanceBean> financeBeanList = financeDAO.queryRefFinanceItemByStockId(id);
+
+        request.setAttribute("financeBeanList", financeBeanList);
+
+        List<StockWorkBean> swList = stockWorkDAO.queryEntityBeansByFK(id);
+
+        request.setAttribute("stockWorkBeanList", swList);
+
+        String addStockArrival = request.getParameter("addStockArrival");
+        String updateStockArrival = request.getParameter("updateStockArrival");
+        return mapping.findForward("addStockBack");
+    }
 
     /**
      * 拿货时找到对应的需求确认单
@@ -3402,6 +3680,7 @@ public class StockAction extends DispatchAction
 
         return queryStock(mapping, form, request, reponse);
     }
+
 
     /**
      * 导出查询中的stock

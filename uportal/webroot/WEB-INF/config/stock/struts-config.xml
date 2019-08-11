@@ -43,6 +43,7 @@
 			 <forward name="updateStockDutyConfig" path="/stock/updateStockDutyConfig.jsp"/>
              <forward name="addStockArrival" path="/stock/addStockArrival.jsp"/>
              <forward name="updateStockArrival" path="/stock/updateStockArrival.jsp"/>
+            <forward name="addStockBack" path="/stock/addStockBack.jsp"/>
         </action>
         
         <action path="/stock/work" parameter="method"
