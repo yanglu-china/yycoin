@@ -34,7 +34,7 @@ public class TcpVSOutBean implements Serializable
     private String refId = "";
 
     /**
-     * 申请类型：中收: 0 激励：1 中收2: 2 激励2：3
+     * 申请类型：中收: 0 激励：1 中收2: 2 激励2：3 平台手续费:4
      */
     /**
      * 类型+单号唯一约束
