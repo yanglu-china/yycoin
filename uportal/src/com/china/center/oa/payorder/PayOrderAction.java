@@ -1,5 +1,6 @@
 package com.china.center.oa.payorder;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -1351,18 +1352,23 @@ public class PayOrderAction extends DispatchAction {
         path += bean.getPath();
 
         File file = new File(path);
-
-        OutputStream out = response.getOutputStream();
-
-        response.setHeader("Content-Disposition", "attachment; filename="
-                                                  + StringTools.getStringBySet(bean.getName(),
-                                                      "GBK", "ISO8859-1"));
-
-        UtilStream us = new UtilStream(new FileInputStream(file), out);
         
-        us.copyAndCloseStream();
-
-        IOUtils.closeQuietly(out);
+        InputStream fis = new BufferedInputStream(new FileInputStream(file));
+        byte[] buffer = new byte[fis.available()];
+        fis.read(buffer);
+        fis.close();
+        // 清空response
+        response.reset();
+        // 设置response的Header
+        response.addHeader("Content-Disposition", "attachment;filename=" + StringTools.getStringBySet(bean.getName(),
+                "GBK", "ISO8859-1"));
+        response.addHeader("Content-Length", "" + file.length());
+        OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
+        response.setContentType("application/octet-stream");
+        toClient.write(buffer);
+        toClient.flush();
+        toClient.close();
+        IOUtils.closeQuietly(toClient);
         return null;
     }
 	

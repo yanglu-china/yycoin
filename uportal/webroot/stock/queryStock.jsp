@@ -62,6 +62,13 @@ function del(id)
 	}
 }
 
+function back(id)
+{
+    $O('method').value = 'backStock';
+    $O('id').value = id;
+    formEntry.submit();
+}
+
 function reject(id)
 {
 	if (window.confirm('确定驳回此采购单?'))
@@ -599,8 +606,9 @@ function exports()
                                 <a title="修改到货信息" href="javascript:updateStockArrival('${item.id}')">
                                     <img src="../images/opr/change.gif" border="0" height="15" width="15">
                                 </a>
+								<a title="采购退货" href="javascript:back('${item.id}')"> <img
+										src="../images/opr/reject.gif" border="0" height="15" width="15"></a>
                             </c:if>
-
                         </c:if>
 
                     </td>
