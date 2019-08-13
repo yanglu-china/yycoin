@@ -50,30 +50,30 @@
         SELECT a.*,b.name as cityname FROM (
 		SELECT id AS billno,'1' AS billtype ,'采购付款' AS billtypedesc,paydate AS billdate ,'1' AS billstatus,logtime,description,
 		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpayapply a 
-		WHERE STATUS=3 AND a.payflag=0) 
+		WHERE STATUS=3 AND (a.payflag=0 or a.payflag is null)) 
 		a LEFT JOIN	t_center_city  b ON a.cityid=b.id
 		UNION
 		*/]]>
 		SELECT a.*,b.name as cityname FROM (
 		SELECT id AS billno,'2' AS billtype ,'采购预付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate ,'1' AS billstatus,logtime,description,
 		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpreapply a 
-		WHERE STATUS=3 AND a.payflag=0) 
+		WHERE STATUS=3 AND (a.payflag=0 or a.payflag is null)) 
 		a LEFT JOIN t_center_city  b ON a.cityid=b.id
 		UNION
 		SELECT a.id AS billNo,'3' AS billtype,'借款申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100 AS payeeAmount,'' AS cityid,b.bankcity as cityname
-		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId AND b.payflag=0
+		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId AND (b.payflag=0 or b.payflag is null)
 		AND a.status=22 AND a.type NOT IN (8,10,15,22)
 		UNION
 		SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,b.bankcity as cityname
 		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
-		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0 AND b.payflag=0
+		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0 AND (b.payflag=0 or b.payflag is null)
 		UNION 
 		SELECT a.APPLYID AS billNo,'5' AS billtype,'预收退款' AS billtypedesc,DATE_FORMAT(b.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,b.logtime,a.description,
 		TRIM(b.receiveBank) AS  payeebank,TRIM(b.receiver) AS payeeBankAccName,TRIM(b.receiveAccount) AS payeeBankAcc,a.checktotal/100  AS payeeAmount,TRIM(b.bankcity) as cityname,'' as cityid
 		FROM T_CENTER_TCPAPPROVE a ,T_CENTER_BACKPREPAY_APPLY b
-		WHERE a.TYPE=23 AND a.STATUS=29 and a.checktotal>0 and b.id=a.applyid AND b.payflag=0) aaa where aaa.payeeAmount>0
+		WHERE a.TYPE=23 AND a.STATUS=29 and a.checktotal>0 and b.id=a.applyid AND (b.payflag=0 or b.payflag is null)) aaa where aaa.payeeAmount>0
 		<dynamic prepend=""> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
                     aaa.billNo= #payOrderNo#
@@ -106,7 +106,7 @@
     	SELECT a.*,b.name as cityname FROM (
 		SELECT id AS billno,'1' AS billtype ,'采购付款' AS billtypedesc,paydate AS billdate ,'1' AS billstatus,logtime,description,
 		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpayapply a 
-		WHERE STATUS=3 AND a.payflag=0 and realmoneys>0) 
+		WHERE STATUS=3 AND (a.payflag=0 or a.payflag is null) and realmoneys>0) 
 		a LEFT JOIN	t_center_city  b ON a.cityid=b.id
 		<dynamic prepend="where"> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
@@ -138,7 +138,7 @@
     	SELECT a.*,b.name as cityname FROM (
 		SELECT id AS billno,'2' AS billtype ,'采购预付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate ,'1' AS billstatus,logtime,description,
 		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpreapply a 
-		WHERE STATUS=3 AND a.payflag=0 and realmoneys>0) 
+		WHERE STATUS=3 AND (a.payflag=0 or a.payflag is null) and realmoneys>0) 
 		a LEFT JOIN t_center_city  b ON a.cityid=b.id
 		<dynamic prepend="where">
             <isNotEmpty prepend="and" property="payOrderNo"> 
@@ -169,7 +169,7 @@
     <select id="queryPayOrderList43" parameterClass="java.util.Map" resultMap="PayOrder">
     	SELECT a.id AS billNo,'3' AS billtype,'借款申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100 AS payeeAmount,'' AS cityid,b.bankcity as cityname
-		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId AND b.payflag=0
+		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId AND (b.payflag=0 or b.payflag is null)
 		AND a.status=22 AND a.type NOT IN (8,10,15,22) and b.cmoneys>0
 		<dynamic prepend=""> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
@@ -201,7 +201,7 @@
     	SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,b.bankcity as cityname
 		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
-		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0 AND b.payflag=0 and b.cmoneys>0
+		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0 AND (b.payflag=0 or b.payflag is null) and b.cmoneys>0
 		<dynamic prepend=""> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
                     a.id= #payOrderNo#
@@ -232,7 +232,7 @@
     	SELECT a.APPLYID AS billNo,'5' AS billtype,'预收退款' AS billtypedesc,DATE_FORMAT(b.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,b.logtime,a.description,
 		TRIM(b.receiveBank) AS  payeebank,TRIM(b.receiver) AS payeeBankAccName,TRIM(b.receiveAccount) AS payeeBankAcc,a.checktotal/100  AS payeeAmount,TRIM(b.bankcity) as cityname,'' as cityid
 		FROM T_CENTER_TCPAPPROVE a ,T_CENTER_BACKPREPAY_APPLY b
-		WHERE a.TYPE=23 AND a.STATUS=29 and a.checktotal>0 and b.id=a.applyid AND b.payflag=0 and a.checktotal>0
+		WHERE a.TYPE=23 AND a.STATUS=29 and a.checktotal>0 and b.id=a.applyid AND (b.payflag=0 or b.payflag is null) and a.checktotal>0
 		<dynamic prepend=""> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
                     a.APPLYID= #payOrderNo#
