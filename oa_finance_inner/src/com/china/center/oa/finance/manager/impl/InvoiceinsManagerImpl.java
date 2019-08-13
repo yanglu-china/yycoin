@@ -3339,6 +3339,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                 item.setOutId(eachb.getOutId());
                                 item.setProductId(eachb.getProductId());
                                 item.setType(eachb.getType());
+                                //#753
+                                item.setSpmc(eachb.getSpmc());
 
                                 _logger.info("生成发票项:"+item);
                                 itemList.add(item);
@@ -3367,6 +3369,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                 item.setProductId(eachitem.getProductId());
                                 item.setType(eachb.getType());
                                 item.setCostPrice(eachitem.getCostPrice());
+                                //#753
+                                item.setSpmc(eachb.getSpmc());
                                 _logger.info("生成发票项:"+item);
                                 itemList.add(item);
 

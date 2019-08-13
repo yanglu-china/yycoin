@@ -39,7 +39,8 @@ public class InvoiceinsItemBean implements Serializable
 
     private String showName = "";
 
-    @Ignore
+    //@Ignore
+    //#753 保存导入模板中的开票品名
     private String spmc = "";
 
     /**
