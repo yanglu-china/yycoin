@@ -31,6 +31,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.publics.StringUtils;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1341,7 +1342,12 @@ public class InvoiceinsAction extends DispatchAction
                         ws.addCell(new Label(j++ , i, element.getHeadContent()));
 //                        ws.addCell(new Label(j++ , i, element.getSpmc()));
                        //#753
-                        ws.addCell(new Label(j++ , i, eachVS.getSpmc()));
+                        if (StringTools.isNullOrNone(eachVS.getSpmc())){
+                            ws.addCell(new Label(j++ , i, element.getSpmc()));
+                        } else{
+                            ws.addCell(new Label(j++ , i, eachVS.getSpmc()));
+                        }
+
                         ws.addCell(new Label(j++ , i, element.getCustomerName()));
                         ws.addCell(new Label(j++ , i, element.getInvoiceName()));
                         ws.addCell(new Label(j++ , i, element.getZzsInfo()));
