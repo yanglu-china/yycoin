@@ -417,6 +417,12 @@ public interface TcpConstanst
     int TCP_APPLYTYPE_PLATFORM = 16;
 
     /**
+     * 未回款订单激励
+     */
+    @Defined(key = "tcpType", value = "未回款订单激励")
+    int TCP_APPLYTYPE_MOTIVATION3 = 17;
+
+    /**
      * 差旅费报销
      */
     @Defined(key = "tcpType", value = "差旅费报销")
@@ -730,8 +736,12 @@ public interface TcpConstanst
     @Defined(key = "type", value = "平台手续费")
     int PLATFORM_TYPE = 4;
 
+    @Defined(key = "type", value = "未回款订单激励")
+    int MOTIVATION_TYPE3 = 5;
+
     String IB_TYPE_STR = "中收";
     String MOTIVATION_TYPE_STR = "激励";
+    String MOTIVATION_TYPE_STR_NOT_PAYED = "未回款订单激励";
 
     String IB_TYPE_STR2 = "中收2";
     String MOTIVATION_TYPE_STR2 = "其他费用";
