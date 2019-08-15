@@ -54,7 +54,8 @@ public abstract class TCPHelper
             if (bean instanceof TravelApplyBean){
                 TravelApplyBean apply = (TravelApplyBean)bean;
                 if (apply.getIbType() == TcpConstanst.MOTIVATION_TYPE
-                        ||apply.getIbType() == TcpConstanst.MOTIVATION_TYPE2)  {
+                        ||apply.getIbType() == TcpConstanst.MOTIVATION_TYPE2
+                        || apply.getIbType() == TcpConstanst.MOTIVATION_TYPE3)  {
                     bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_MOTIVATION);
                     return;
                 } else if (apply.getIbType() == TcpConstanst.IB_TYPE
@@ -245,7 +246,8 @@ public abstract class TCPHelper
             if (bean instanceof TravelApplyBean){
                 TravelApplyBean apply = (TravelApplyBean)bean;
                 if (apply.getIbType() == TcpConstanst.MOTIVATION_TYPE
-                        ||apply.getIbType() == TcpConstanst.MOTIVATION_TYPE2)  {
+                        ||apply.getIbType() == TcpConstanst.MOTIVATION_TYPE2
+                        || apply.getIbType() == TcpConstanst.MOTIVATION_TYPE3)  {
                     bean.setFlowKey(TcpFlowConstant.TRAVELAPPLY_MOTIVATION);
                     return;
                 } else if (apply.getIbType() == TcpConstanst.IB_TYPE
@@ -565,7 +567,8 @@ public abstract class TCPHelper
         vo.setShowTotal(MathTools.formatNum(MathTools.longToDouble2(vo.getTotal())));
         vo.setShowCheckTotal(MathTools.formatNum(MathTools.longToDouble2(vo.getCheckTotal())));
 
-        if (vo.getType() <= 10 || vo.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM)
+        if (vo.getType() <= 10 || vo.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM
+                || vo.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION3)
         {
             vo.setUrl(TcpConstanst.TCP_TRAVELAPPLY_PROCESS_URL + vo.getApplyId());
         }

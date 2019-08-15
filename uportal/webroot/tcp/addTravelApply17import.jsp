@@ -29,7 +29,7 @@ function addBean(opr)
 
     //2015/5/14 disabled HTML select will not submit value ,need to remove disabled before submit
     $(".select_class").removeAttr('disabled');
-    submit('确定激励申请?', null, checks);
+    submit('确定未回款订单激励申请?', null, checks);
 }
 
 function load()

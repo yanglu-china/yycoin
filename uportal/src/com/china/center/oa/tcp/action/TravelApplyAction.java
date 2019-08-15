@@ -345,7 +345,7 @@ public class TravelApplyAction extends DispatchAction
         ActionTools.processJSONQueryCondition(QUERYSELFTRAVELAPPLY, request, condtion);
 
         condtion.addCondition("TravelApplyBean.stafferId", "=", user.getStafferId());
-        condtion.addCondition(" and TravelApplyBean.type in(7,8,9,10,16)");
+        condtion.addCondition(" and TravelApplyBean.type in(7,8,9,10,16,17)");
         condtion.addCondition(" and TravelApplyBean.purposeType not in (21,31,22,12,32)");
 
         condtion.addCondition("order by TravelApplyBean.logTime desc");

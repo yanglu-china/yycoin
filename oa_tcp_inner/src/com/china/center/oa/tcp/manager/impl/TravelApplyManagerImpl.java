@@ -196,7 +196,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         // 获取flowKey
         TCPHelper.setFlowKey(bean);
-        _logger.info("***addTravelApplyBean***"+bean);
+        _logger.info(bean.getType()+"***addTravelApplyBean***"+bean);
         // TravelApplyItemBean
         List<TravelApplyItemBean> itemList = bean.getItemList();
         
@@ -296,7 +296,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
 	        attachmentDAO.saveAllEntityBeans(attachmentList);
         }
-        
+
+        _logger.info(bean.getType()+"***addTravelApplyBean222***"+bean);
         travelApplyDAO.saveEntityBean(bean);
 
         saveApply(user, bean);
