@@ -298,6 +298,8 @@ function load()
                                             </c:if>
                                             <c:if test="${item.type ==1}">激励
                                             </c:if>
+                                            <c:if test="${item.type ==17}">未回款订单激励
+                                            </c:if>
                                         </td>
                                         <td align="center">${item.customerName}</td>
                                         <%--<td align="center">${item.fullId}</td>--%>
