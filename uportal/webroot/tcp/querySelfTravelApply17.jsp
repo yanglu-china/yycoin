@@ -23,7 +23,7 @@ function load()
      
      guidMap = {
          title: '未回款订单激励申请列表',
-         url: gurl + 'querySelfTravelApply&type=8',
+         url: gurl + 'querySelfTravelApply&type=17',
          colModel : [
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status}>', width : 40, align: 'center'},
              {display: '标识', name : 'id', width : '15%'},
