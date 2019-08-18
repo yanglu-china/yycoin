@@ -207,7 +207,13 @@ public interface TaxItemConstanst
     /**
      * 营业费用-激励
      */
-    String SALE_FEE_MOTIVATIO = "5504-0001";
+    String SALE_FEE_MOTIVATION = "5504-0001";
+
+
+    /**
+     * 营业费用-平台手续费
+     */
+    String SALE_FEE_PLATFORM = "5504-56";
     
     /**
      * 预提费用

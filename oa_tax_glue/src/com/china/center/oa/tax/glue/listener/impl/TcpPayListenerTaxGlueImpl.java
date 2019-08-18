@@ -545,8 +545,11 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         }
 
         String name = "营业费用-中收中收申请借款:" + bean.getId() + '.';
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION
+                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION3){
             name = "营业费用-激励:激励申请借款:" + bean.getId() + '.';
+        } else if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM){
+            name = "营业费用-平台手续费申请借款:" + bean.getId() + '.';
         }
 
 
@@ -554,7 +557,9 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MID);
 
         if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
-            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MOTIVATIO);
+            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MOTIVATION);
+        } else if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM){
+            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_PLATFORM);
         }
 
         if (inTax == null)
@@ -1390,6 +1395,8 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         String name = "营业费用-中收中收申请金额:" + bean.getId() + '.';
         if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
             name = "营业费用-激励激励申请金额:" + bean.getId() + '.';
+        } else if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM){
+            name = "营业费用-平台手续费申请借款:" + bean.getId() + '.';
         }
 
         List<TcpShareVO> beans = new ArrayList<TcpShareVO>();
@@ -1404,7 +1411,9 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MID);
 
         if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
-            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MOTIVATIO);
+            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MOTIVATION);
+        } else if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM){
+            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_PLATFORM);
         }
 
         if (inTax == null)
