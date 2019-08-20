@@ -120,6 +120,24 @@ public class StringUtils {
         return builder.toString();
     }
 
+    /**
+     * concat str with deliminator and remove last deliminator
+     * @param collection
+     * @param deliminator1
+     * @return
+     */
+    public static String toString(Collection<String> collection, String deliminator1)
+    {
+        StringBuilder builder = new StringBuilder();
+
+        for (String str : collection)
+        {
+            builder.append(str).append(deliminator1);
+        }
+
+        return org.apache.commons.lang.StringUtils.removeEnd(builder.toString(), deliminator1);
+    }
+
     public static String getSecondPart(String str, String deliminator){
         String[] arrs = str.split(deliminator);
 //        for (String s: arrs){
@@ -181,5 +199,10 @@ public class StringUtils {
         System.out.println(getMonthKey("2016-05-01"));
         System.out.println(getMonthKey("2019-01-31"));
         System.out.println(getMonthKey("2019-01-30"));
+        Set<String> productNames  = new HashSet<>();
+        productNames.add("YZ0010300 貔貅手串");
+        productNames.add("YZ0010300 貔貅手串1");
+        productNames.add("YZ0010300 貔貅手串");
+        System.out.println(toString(productNames,","));
     }
 }
