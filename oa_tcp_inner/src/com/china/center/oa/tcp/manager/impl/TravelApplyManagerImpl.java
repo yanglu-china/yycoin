@@ -2780,7 +2780,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         apply.setName(bean.getId());
         apply.setFlowKey(bean.getFlowKey());
         apply.setApplyId(bean.getId());
-        apply.setApplyId(user.getStafferId());
+        apply.setApplyerId(user.getStafferId());
         apply.setDepartmentId(bean.getDepartmentId());
         apply.setType(bean.getType());
         apply.setStype(bean.getStype());
