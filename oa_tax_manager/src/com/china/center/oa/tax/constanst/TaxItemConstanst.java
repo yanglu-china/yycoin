@@ -213,7 +213,12 @@ public interface TaxItemConstanst
     /**
      * 营业费用-平台手续费
      */
-    String SALE_FEE_PLATFORM = "5504-56";
+    String SALE_FEE_PLATFORM = "5504-55";
+
+    /**
+     * 体外营业费用-平台手续费
+     */
+    String SALE_FEE_PLATFORM_TW = "5504-56";
     
     /**
      * 预提费用

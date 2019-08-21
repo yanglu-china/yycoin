@@ -153,4 +153,6 @@ public interface SysConfigConstant
      */
     String YULIN_PRESENT_CONSTRUCTION_ACCOUNT = "YULIN_PRESENT_CONSTRUCTION_ACCOUNT";
 
+    String APP_NAME = "APP_NAME";
+
 }
