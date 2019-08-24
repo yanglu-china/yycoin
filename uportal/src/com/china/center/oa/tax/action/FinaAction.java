@@ -8,22 +8,15 @@
  */
 package com.china.center.oa.tax.action;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import java.io.*;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.tools.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -96,17 +89,6 @@ import com.china.center.oa.tax.vo.FinanceTempVO;
 import com.china.center.oa.tax.vo.FinanceTurnVO;
 import com.china.center.oa.tax.vo.FinanceVO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.FileTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.RequestDataStream;
-import com.china.center.tools.RequestTools;
-import com.china.center.tools.SequenceTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
-import com.china.center.tools.UtilStream;
-import com.china.center.tools.WriteFileBuffer;
 
 /**
  * FinaAction
@@ -342,6 +324,17 @@ public class FinaAction extends ParentQueryFinaAction
 		return JSONTools.writeResponse(response, jsonstr);
 	}
 
+	public static Map<String, String> splitQuery(URL url) throws UnsupportedEncodingException {
+		Map<String, String> query_pairs = new LinkedHashMap<>();
+		String query = url.getQuery();
+		String[] pairs = query.split("&");
+		for (String pair : pairs) {
+			int idx = pair.indexOf("=");
+			query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+		}
+		return query_pairs;
+	}
+
 	/**
 	 * exportFinanceItem
 	 * 
@@ -386,6 +379,25 @@ public class FinaAction extends ParentQueryFinaAction
 					request);
 		}
 
+		String referer = request.getHeader("REFERER");
+		_logger.info(referer);
+		List<FinanceBean> financeBeans = new ArrayList<>();
+		try {
+			//parse parameter from HTTP referer
+			Map<String,String> parameters = splitQuery(new URL(referer));
+			_logger.info(parameters);
+			if (parameters.containsKey("beginDate") && parameters.containsKey("endDate")){
+				ConditionParse conditionParse = new ConditionParse();
+				conditionParse.addWhereStr();
+				conditionParse.addCondition("financeDate",">=", parameters.get("beginDate"));
+				conditionParse.addCondition("financeDate","<=", parameters.get("endDate"));
+				financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse);
+				_logger.info("financeBean size***"+financeBeans.size());
+			}
+		}catch (Exception e){
+			_logger.error(e);
+		}
+
 		try
 		{
 			out = response.getOutputStream();
@@ -415,8 +427,16 @@ public class FinaAction extends ParentQueryFinaAction
 
 					fillItemVO(financeItemVO);
 
-					FinanceBean finance = financeDAO.find(financeItemVO
-							.getPid());
+//					FinanceBean finance = financeDAO.find(financeItemVO
+//							.getPid());
+
+					String pid = financeItemVO.getPid();
+					FinanceBean finance = this.find(financeBeans, pid);
+					if (finance == null){
+						finance = financeDAO.find(pid);
+					} else{
+						_logger.info("find finance****"+pid);
+					}
 
 					if (finance == null)
 					{
@@ -569,6 +589,18 @@ public class FinaAction extends ParentQueryFinaAction
 			}
 		}
 
+		return null;
+	}
+
+	private FinanceBean find(List<FinanceBean> financeBeans, String pid){
+		if (ListTools.isEmptyOrNull(financeBeans)){
+			return null;
+		}
+		for (FinanceBean financeBean: financeBeans){
+			if (financeBean.getId().equals(pid)){
+				return financeBean;
+			}
+		}
 		return null;
 	}
 
