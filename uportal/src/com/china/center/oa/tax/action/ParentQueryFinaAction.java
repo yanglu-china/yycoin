@@ -2870,7 +2870,11 @@ public class ParentQueryFinaAction extends DispatchAction
                 if(queryPrincipalShipBean){
                     //#758
                     PrincipalshipBean prin = principalshipDAO.find(sb.getIndustryId());
-                    item.setPrincipalshipName(prin.getName());
+                    if (prin == null){
+                        _logger.error("pricinal not found***"+sb.getIndustryId());
+                    } else{
+                        item.setPrincipalshipName(prin.getName());
+                    }
                 }
             }
         }
