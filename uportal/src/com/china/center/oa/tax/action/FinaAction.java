@@ -314,7 +314,7 @@ public class FinaAction extends ParentQueryFinaAction
 				{
 					public void handle(FinanceItemVO obj)
 					{
-						fillItemVO(obj);
+						fillItemVO(obj, false);
 					}
 				});
 
@@ -367,7 +367,7 @@ public class FinaAction extends ParentQueryFinaAction
 		{
 			return null;
 		}
-
+        long begin = System.currentTimeMillis();
 		ConditionParse condtion = JSONPageSeparateTools.getCondition(request,
 				key.toString());
 
@@ -415,7 +415,7 @@ public class FinaAction extends ParentQueryFinaAction
 			WriteFileBuffer line = new WriteFileBuffer(write);
 
 			int item = 0;
-
+//            int number = 0;
 			while (page.nextPage())
 			{
 				List<FinanceItemVO> voList = financeItemDAO
@@ -425,7 +425,7 @@ public class FinaAction extends ParentQueryFinaAction
 				{
 					item++;
 
-					fillItemVO(financeItemVO);
+					fillItemVO(financeItemVO, true);
 
 //					FinanceBean finance = financeDAO.find(financeItemVO
 //							.getPid());
@@ -434,14 +434,19 @@ public class FinaAction extends ParentQueryFinaAction
 					FinanceBean finance = this.find(financeBeans, pid);
 					if (finance == null){
 						finance = financeDAO.find(pid);
-					} else{
-						_logger.info("find finance****"+pid);
+						if (finance == null){
+						    continue;
+                        }
 					}
-
-					if (finance == null)
-					{
-						continue;
-					}
+//					else{
+//						_logger.info("find finance****"+pid);
+//                        number++;
+//					}
+//
+//					if (finance == null)
+//					{
+//						continue;
+//					}
 
 					line.reset();
 
@@ -532,28 +537,31 @@ public class FinaAction extends ParentQueryFinaAction
 					line.writeColumn(financeItemVO.getDepotName());
 					line.writeColumn(financeItemVO.getDuty2Name());
 
-					TaxBean tax = taxDAO.find(financeItemVO.getTaxId());
-
-					if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
-							|| !StringTools.isNullOrNone(financeItemVO
-									.getStafferId()))
-					{
-						StafferBean sb = stafferDAO.find(financeItemVO
-								.getStafferId());
-
-						if (sb != null)
-						{
-							PrincipalshipBean prin = principalshipDAO.find(sb
-									.getIndustryId());
-							line.writeColumn(prin.getName());
-						}
-					}
+//					TaxBean tax = taxDAO.find(financeItemVO.getTaxId());
+//
+//					if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
+//							|| !StringTools.isNullOrNone(financeItemVO
+//									.getStafferId()))
+//					{
+//						StafferBean sb = stafferDAO.find(financeItemVO
+//								.getStafferId());
+//
+//						if (sb != null)
+//						{
+//							PrincipalshipBean prin = principalshipDAO.find(sb
+//									.getIndustryId());
+//							line.writeColumn(prin.getName());
+//						}
+//					}
+					//#758
+					line.writeColumn(financeItemVO.getPrincipalshipName());
 
 					line.writeLine();
 				}
 			}
 
-			write.writeLine("导出结束,凭证项:" + item);
+            long end = System.currentTimeMillis();
+			write.writeLine("导出结束,凭证项:" + item+".用时(秒)："+(end-begin)/1000);
 
 			write.close();
 		}
@@ -683,7 +691,7 @@ public class FinaAction extends ParentQueryFinaAction
 						for (FinanceItemVO financeItemVO: vos){
 							item++;
 
-							fillItemVO(financeItemVO);
+							fillItemVO(financeItemVO, true);
 
 							line.reset();
 
@@ -774,23 +782,23 @@ public class FinaAction extends ParentQueryFinaAction
 							line.writeColumn(financeItemVO.getDepotName());
 							line.writeColumn(financeItemVO.getDuty2Name());
 
-							TaxBean tax = taxDAO.find(financeItemVO.getTaxId());
-
-							if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
-									|| !StringTools.isNullOrNone(financeItemVO
-									.getStafferId()))
-							{
-								StafferBean sb = stafferDAO.find(financeItemVO
-										.getStafferId());
-
-								if (sb != null)
-								{
-									PrincipalshipBean prin = principalshipDAO.find(sb
-											.getIndustryId());
-									line.writeColumn(prin.getName());
-								}
-							}
-
+//							TaxBean tax = taxDAO.find(financeItemVO.getTaxId());
+//
+//							if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
+//									|| !StringTools.isNullOrNone(financeItemVO
+//									.getStafferId()))
+//							{
+//								StafferBean sb = stafferDAO.find(financeItemVO
+//										.getStafferId());
+//
+//								if (sb != null)
+//								{
+//									PrincipalshipBean prin = principalshipDAO.find(sb
+//											.getIndustryId());
+//									line.writeColumn(prin.getName());
+//								}
+//							}
+							line.writeColumn(financeItemVO.getPrincipalshipName());
 							line.writeLine();
 						}
 					}
@@ -1023,7 +1031,7 @@ public class FinaAction extends ParentQueryFinaAction
 					{
 						item++;
 
-						fillItemVO(financeItemVO);
+						fillItemVO(financeItemVO, false);
 
 						line.reset();
 
@@ -2122,7 +2130,7 @@ public class FinaAction extends ParentQueryFinaAction
 
 			for (FinanceItemVO item : voList)
 			{
-				fillItemVO(item);
+				fillItemVO(item, false);
 			}
 
 			bean.setItemVOList(voList);
@@ -2170,7 +2178,7 @@ public class FinaAction extends ParentQueryFinaAction
 
 			for (FinanceItemVO item : itemList)
 			{
-				fillItemVO(item);
+				fillItemVO(item, false);
 			}
 
 			bean.setItemVOList(itemList);

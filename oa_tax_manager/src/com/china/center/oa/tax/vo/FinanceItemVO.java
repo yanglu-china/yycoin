@@ -105,6 +105,10 @@ public class FinanceItemVO extends FinanceItemBean
     @Ignore
     private long lastmoney = 0;
 
+    @Ignore
+    private String principalshipName = "";
+
+
     /**
      * default constructor
      */
@@ -451,6 +455,14 @@ public class FinanceItemVO extends FinanceItemBean
         this.showChineseLastmoney = FinanceHelper.longToChineseString(getLastmoney());
 
         return showChineseLastmoney;
+    }
+
+    public String getPrincipalshipName() {
+        return principalshipName;
+    }
+
+    public void setPrincipalshipName(String principalshipName) {
+        this.principalshipName = principalshipName;
     }
 
     /**
