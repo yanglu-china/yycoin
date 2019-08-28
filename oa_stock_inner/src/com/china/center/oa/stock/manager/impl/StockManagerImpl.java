@@ -1332,7 +1332,13 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
         try{
             item.setDepotpartId(depotpartId);
-            item.setTotalWarehouseNum(warehouseNum+item.getTotalWarehouseNum());
+            int totalWarehouseNum = warehouseNum+item.getTotalWarehouseNum();
+            if (totalWarehouseNum > item.getAmount()){
+                //累计入库数量大于采量
+                _logger.error(arrivalItemId+" 入库总量大于采量");
+                throw new MYException("累计入库数量[%d]大于采量[%d]", totalWarehouseNum, item.getAmount());
+            }
+            item.setTotalWarehouseNum(totalWarehouseNum);
 
             // 更新item
             this.stockItemArrivalDAO.updateEntityBean(item);

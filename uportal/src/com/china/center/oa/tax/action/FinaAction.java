@@ -8,22 +8,15 @@
  */
 package com.china.center.oa.tax.action;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import java.io.*;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.tools.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -96,17 +89,6 @@ import com.china.center.oa.tax.vo.FinanceTempVO;
 import com.china.center.oa.tax.vo.FinanceTurnVO;
 import com.china.center.oa.tax.vo.FinanceVO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.FileTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.RequestDataStream;
-import com.china.center.tools.RequestTools;
-import com.china.center.tools.SequenceTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
-import com.china.center.tools.UtilStream;
-import com.china.center.tools.WriteFileBuffer;
 
 /**
  * FinaAction
@@ -332,7 +314,7 @@ public class FinaAction extends ParentQueryFinaAction
 				{
 					public void handle(FinanceItemVO obj)
 					{
-						fillItemVO(obj);
+						fillItemVO(obj, false);
 					}
 				});
 
@@ -340,6 +322,17 @@ public class FinaAction extends ParentQueryFinaAction
 				QUERYFINANCEITEM);
 
 		return JSONTools.writeResponse(response, jsonstr);
+	}
+
+	public static Map<String, String> splitQuery(URL url) throws UnsupportedEncodingException {
+		Map<String, String> query_pairs = new LinkedHashMap<>();
+		String query = url.getQuery();
+		String[] pairs = query.split("&");
+		for (String pair : pairs) {
+			int idx = pair.indexOf("=");
+			query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+		}
+		return query_pairs;
 	}
 
 	/**
@@ -374,7 +367,7 @@ public class FinaAction extends ParentQueryFinaAction
 		{
 			return null;
 		}
-
+        long begin = System.currentTimeMillis();
 		ConditionParse condtion = JSONPageSeparateTools.getCondition(request,
 				key.toString());
 
@@ -384,6 +377,25 @@ public class FinaAction extends ParentQueryFinaAction
 		{
 			return ActionTools.toError("导出数量大于65535,请重新选择时间段导出", mapping,
 					request);
+		}
+
+		String referer = request.getHeader("REFERER");
+		_logger.info(referer);
+		List<FinanceBean> financeBeans = new ArrayList<>();
+		try {
+			//parse parameter from HTTP referer
+			Map<String,String> parameters = splitQuery(new URL(referer));
+			_logger.info(parameters);
+			if (parameters.containsKey("beginDate") && parameters.containsKey("endDate")){
+				ConditionParse conditionParse = new ConditionParse();
+				conditionParse.addWhereStr();
+				conditionParse.addCondition("financeDate",">=", parameters.get("beginDate"));
+				conditionParse.addCondition("financeDate","<=", parameters.get("endDate"));
+				financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse);
+				_logger.info("financeBean size***"+financeBeans.size());
+			}
+		}catch (Exception e){
+			_logger.error(e);
 		}
 
 		try
@@ -403,7 +415,7 @@ public class FinaAction extends ParentQueryFinaAction
 			WriteFileBuffer line = new WriteFileBuffer(write);
 
 			int item = 0;
-
+//            int number = 0;
 			while (page.nextPage())
 			{
 				List<FinanceItemVO> voList = financeItemDAO
@@ -413,15 +425,28 @@ public class FinaAction extends ParentQueryFinaAction
 				{
 					item++;
 
-					fillItemVO(financeItemVO);
+					fillItemVO(financeItemVO, true);
 
-					FinanceBean finance = financeDAO.find(financeItemVO
-							.getPid());
+//					FinanceBean finance = financeDAO.find(financeItemVO
+//							.getPid());
 
-					if (finance == null)
-					{
-						continue;
+					String pid = financeItemVO.getPid();
+					FinanceBean finance = this.find(financeBeans, pid);
+					if (finance == null){
+						finance = financeDAO.find(pid);
+						if (finance == null){
+						    continue;
+                        }
 					}
+//					else{
+//						_logger.info("find finance****"+pid);
+//                        number++;
+//					}
+//
+//					if (finance == null)
+//					{
+//						continue;
+//					}
 
 					line.reset();
 
@@ -512,28 +537,31 @@ public class FinaAction extends ParentQueryFinaAction
 					line.writeColumn(financeItemVO.getDepotName());
 					line.writeColumn(financeItemVO.getDuty2Name());
 
-					TaxBean tax = taxDAO.find(financeItemVO.getTaxId());
-
-					if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
-							|| !StringTools.isNullOrNone(financeItemVO
-									.getStafferId()))
-					{
-						StafferBean sb = stafferDAO.find(financeItemVO
-								.getStafferId());
-
-						if (sb != null)
-						{
-							PrincipalshipBean prin = principalshipDAO.find(sb
-									.getIndustryId());
-							line.writeColumn(prin.getName());
-						}
-					}
+//					TaxBean tax = taxDAO.find(financeItemVO.getTaxId());
+//
+//					if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
+//							|| !StringTools.isNullOrNone(financeItemVO
+//									.getStafferId()))
+//					{
+//						StafferBean sb = stafferDAO.find(financeItemVO
+//								.getStafferId());
+//
+//						if (sb != null)
+//						{
+//							PrincipalshipBean prin = principalshipDAO.find(sb
+//									.getIndustryId());
+//							line.writeColumn(prin.getName());
+//						}
+//					}
+					//#758
+					line.writeColumn(financeItemVO.getPrincipalshipName());
 
 					line.writeLine();
 				}
 			}
 
-			write.writeLine("导出结束,凭证项:" + item);
+            long end = System.currentTimeMillis();
+			write.writeLine("导出结束,凭证项:" + item+".用时(秒)："+(end-begin)/1000);
 
 			write.close();
 		}
@@ -569,6 +597,18 @@ public class FinaAction extends ParentQueryFinaAction
 			}
 		}
 
+		return null;
+	}
+
+	private FinanceBean find(List<FinanceBean> financeBeans, String pid){
+		if (ListTools.isEmptyOrNull(financeBeans)){
+			return null;
+		}
+		for (FinanceBean financeBean: financeBeans){
+			if (financeBean.getId().equals(pid)){
+				return financeBean;
+			}
+		}
 		return null;
 	}
 
@@ -651,7 +691,7 @@ public class FinaAction extends ParentQueryFinaAction
 						for (FinanceItemVO financeItemVO: vos){
 							item++;
 
-							fillItemVO(financeItemVO);
+							fillItemVO(financeItemVO, true);
 
 							line.reset();
 
@@ -742,23 +782,23 @@ public class FinaAction extends ParentQueryFinaAction
 							line.writeColumn(financeItemVO.getDepotName());
 							line.writeColumn(financeItemVO.getDuty2Name());
 
-							TaxBean tax = taxDAO.find(financeItemVO.getTaxId());
-
-							if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
-									|| !StringTools.isNullOrNone(financeItemVO
-									.getStafferId()))
-							{
-								StafferBean sb = stafferDAO.find(financeItemVO
-										.getStafferId());
-
-								if (sb != null)
-								{
-									PrincipalshipBean prin = principalshipDAO.find(sb
-											.getIndustryId());
-									line.writeColumn(prin.getName());
-								}
-							}
-
+//							TaxBean tax = taxDAO.find(financeItemVO.getTaxId());
+//
+//							if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
+//									|| !StringTools.isNullOrNone(financeItemVO
+//									.getStafferId()))
+//							{
+//								StafferBean sb = stafferDAO.find(financeItemVO
+//										.getStafferId());
+//
+//								if (sb != null)
+//								{
+//									PrincipalshipBean prin = principalshipDAO.find(sb
+//											.getIndustryId());
+//									line.writeColumn(prin.getName());
+//								}
+//							}
+							line.writeColumn(financeItemVO.getPrincipalshipName());
 							line.writeLine();
 						}
 					}
@@ -991,7 +1031,7 @@ public class FinaAction extends ParentQueryFinaAction
 					{
 						item++;
 
-						fillItemVO(financeItemVO);
+						fillItemVO(financeItemVO, false);
 
 						line.reset();
 
@@ -2090,7 +2130,7 @@ public class FinaAction extends ParentQueryFinaAction
 
 			for (FinanceItemVO item : voList)
 			{
-				fillItemVO(item);
+				fillItemVO(item, false);
 			}
 
 			bean.setItemVOList(voList);
@@ -2138,7 +2178,7 @@ public class FinaAction extends ParentQueryFinaAction
 
 			for (FinanceItemVO item : itemList)
 			{
-				fillItemVO(item);
+				fillItemVO(item, false);
 			}
 
 			bean.setItemVOList(itemList);

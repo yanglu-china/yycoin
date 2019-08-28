@@ -140,17 +140,19 @@ function change(outid,outbillid,billtype)
 	<tr>
 		<td background="../images/dot_line.gif" colspan='2'></td>
 	</tr>
-
+	
 	<tr>
 		<table width="100%" border="0" cellpadding="0" cellspacing="0" class="border">
 			<tr>
 				<td align="center">
+				<c:if test="${payOrderStatus == 1}">
 					<input type="button" id="todopay" onclick="dopay()" class="button_class" value="&nbsp;&nbsp;提取付款单&nbsp;&nbsp;"/>
+				</c:if>
 				</td>
 			</tr>
 		</table>
 	</tr>
-
+	
 	<tr>
 		<td align='center' colspan='2'>
 		<table width="100%" border="0" cellpadding="0" cellspacing="0" class="border">
@@ -158,7 +160,9 @@ function change(outid,outbillid,billtype)
 				<td>
 					<table width="100%" border="0" cellspacing='1' id="mainTable">
 						<tr align="center" class="content0">
+						<c:if test="${payOrderStatus == 1}">
 							<td align="center" width="5%" align="center"><input type="checkbox" name="chall" id="ckall" onclick="checkall(this)"></input></td>
+						</c:if>
 							<td align="center" onclick="tableSort(this)" class="td_class">单据号</td>
 							<td align="center" onclick="tableSort(this)" class="td_class">单据类型</td>
 							<td align="center" onclick="tableSort(this)" class="td_class">单据日期</td>
@@ -223,7 +227,7 @@ function change(outid,outbillid,billtype)
 							<c:if test="${payOrderStatus != 1}">
 								<c:forEach items="${payOrderLogList}" var="item" varStatus="vs">
 									<tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
-										<td></td>
+										
 										<td align="center">
 											<c:if test="${item.type == 1}">
 											<a onclick="" href="../finance/stock.do?method=findStockPayApply&id=${item.outid}">${item.outid}</a>

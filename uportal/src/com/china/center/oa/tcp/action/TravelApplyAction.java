@@ -345,7 +345,7 @@ public class TravelApplyAction extends DispatchAction
         ActionTools.processJSONQueryCondition(QUERYSELFTRAVELAPPLY, request, condtion);
 
         condtion.addCondition("TravelApplyBean.stafferId", "=", user.getStafferId());
-        condtion.addCondition(" and TravelApplyBean.type in(7,8,9,10,16)");
+        condtion.addCondition(" and TravelApplyBean.type in(7,8,9,10,16,17)");
         condtion.addCondition(" and TravelApplyBean.purposeType not in (21,31,22,12,32)");
 
         condtion.addCondition("order by TravelApplyBean.logTime desc");
@@ -4164,7 +4164,7 @@ public class TravelApplyAction extends DispatchAction
                 if (obj.length >= 2 )
                 {
                     TcpIbBean item = new TcpIbBean();
-                    TcpVSOutBean item2 = new TcpVSOutBean();
+                    TcpVSOutBean vsOutBean = new TcpVSOutBean();
                     // 申请类型
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
@@ -4199,6 +4199,9 @@ public class TravelApplyAction extends DispatchAction
                         } else if (TcpConstanst.PLATFORM_TYPE_STR.equals(name)){
                             item.setType(TcpConstanst.PLATFORM_TYPE);
                             type = TcpConstanst.PLATFORM_TYPE;
+                        } else if (TcpConstanst.MOTIVATION_TYPE_STR_NOT_PAYED.equals(name)){
+                            item.setType(TcpConstanst.MOTIVATION_TYPE3);
+                            type = TcpConstanst.MOTIVATION_TYPE3;
                         } else{
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -4215,25 +4218,12 @@ public class TravelApplyAction extends DispatchAction
 
                         importError = true;
                     }
-                    item2.setType(item.getType());
+                    vsOutBean.setType(item.getType());
 
                     // 客户名
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
                         String name = obj[1].trim();
-//                        ConditionParse con = new ConditionParse();
-//                        con.addWhereStr();
-//                        con.addCondition("name", "=",name);
-//                        List<CustomerBean> cbeanList = customerMainDAO.queryEntityBeansByCondition(con);
-//                        if (ListTools.isEmptyOrNull(cbeanList)){
-//                            builder
-//                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
-//                                    .append("客户名不存在")
-//                                    .append("</font><br>");
-//
-//                            importError = true;
-//                        }
-
                         CustomerBean customerBean = this.getCustomer(customerBeans, name);
                         if (customerBean == null){
                             builder
@@ -4244,7 +4234,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         item.setCustomerName(name);
-                        item2.setCustomerName(name);
+                        vsOutBean.setCustomerName(name);
 
                     String stafferId = "";
                     // 订单号
@@ -4252,7 +4242,7 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String outId = obj[2];
                         item.setFullId(outId);
-                        item2.setFullId(outId);
+                        vsOutBean.setFullId(outId);
                         //#596
                         if (importItems.contains(outId)){
                             builder
@@ -4264,7 +4254,6 @@ public class TravelApplyAction extends DispatchAction
                             importItems.add(outId);
                         }
 
-//                        OutVO out = this.outDAO.findVO(outId);
                         OutBean out = this.outDAO.find(outId);
                         if (out == null){
                             builder
@@ -4346,7 +4335,8 @@ public class TravelApplyAction extends DispatchAction
                             }
 
                             //检查订单的付款状态
-                            if (out.getPay() == OutConstant.PAY_NOT){
+                            if (out.getPay() == OutConstant.PAY_NOT
+                                    && type != TcpConstanst.MOTIVATION_TYPE3){
                                 builder
                                         .append("<font color=red>第[" + currentNumber + "]行错误:")
                                         .append("订单未付款")
@@ -4437,20 +4427,6 @@ public class TravelApplyAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[3]))
                     {
                         String productName = obj[3];
-
-//                        ConditionParse con2 = new ConditionParse();
-//                        con2.addWhereStr();
-//                        con2.addCondition("name", "=",productName);
-//                        List<ProductBean> productList = this.productDAO.queryEntityBeansByCondition(con2);
-//                        if (ListTools.isEmptyOrNull(productList)){
-//                            builder
-//                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
-//                                    .append("商品名[").append(productName)
-//                                    .append("]不存在")
-//                                    .append("</font><br>");
-//
-//                            importError = true;
-//                        }
                         ProductBean productBean = this.getProduct(productBeans, productName);
                         if (productBean == null){
                             builder
@@ -4462,7 +4438,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         item.setProductName(productName);
-                        item2.setProductName(productName);
+                        vsOutBean.setProductName(productName);
 
                         //#401
                         ConditionParse conditionParse = new ConditionParse();
@@ -4495,7 +4471,7 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String amount = obj[4];
                         item.setAmount(Integer.valueOf(amount));
-                        item2.setAmount(item.getAmount());
+                        vsOutBean.setAmount(item.getAmount());
                     }
 
                     //中收/激励金额
@@ -4511,15 +4487,15 @@ public class TravelApplyAction extends DispatchAction
 
                         if (type == TcpConstanst.IB_TYPE){
                             item.setIbMoney(MathTools.parseDouble(money));
-                            item2.setIbMoney(MathTools.parseDouble(money));
+                            vsOutBean.setIbMoney(MathTools.parseDouble(money));
                             if (customerToIbMap.containsKey(item.getCustomerName())){
                                 customerToIbMap.put(item.getCustomerName(),customerToIbMap.get(item.getCustomerName())+item.getIbMoney()*item.getAmount());
                             } else{
                                 customerToIbMap.put(item.getCustomerName(), item.getIbMoney()*item.getAmount());
                             }
-                        } else if (type == TcpConstanst.MOTIVATION_TYPE){
+                        } else if (type == TcpConstanst.MOTIVATION_TYPE || type == TcpConstanst.MOTIVATION_TYPE3){
                             item.setMotivationMoney(MathTools.parseDouble(money));
-                            item2.setMotivationMoney(MathTools.parseDouble(money));
+                            vsOutBean.setMotivationMoney(MathTools.parseDouble(money));
                             if(customerToMotivationMap.containsKey(item.getCustomerName())){
                                 customerToMotivationMap.put(item.getCustomerName(),
                                         customerToMotivationMap.get(item.getCustomerName())+item.getMotivationMoney()*item.getAmount());
@@ -4528,7 +4504,7 @@ public class TravelApplyAction extends DispatchAction
                             }
                         } else if (type == TcpConstanst.IB_TYPE2){
                             item.setIbMoney2(MathTools.parseDouble(money));
-                            item2.setIbMoney2(MathTools.parseDouble(money));
+                            vsOutBean.setIbMoney2(MathTools.parseDouble(money));
                             if (customerToIbMap2.containsKey(item.getCustomerName())){
                                 customerToIbMap2.put(item.getCustomerName(),customerToIbMap2.get(item.getCustomerName())+item.getIbMoney2()*item.getAmount());
                             } else{
@@ -4536,7 +4512,7 @@ public class TravelApplyAction extends DispatchAction
                             }
                         }else if (type == TcpConstanst.MOTIVATION_TYPE2){
                             item.setMotivationMoney2(MathTools.parseDouble(money));
-                            item2.setMotivationMoney2(MathTools.parseDouble(money));
+                            vsOutBean.setMotivationMoney2(MathTools.parseDouble(money));
                             if(customerToMotivationMap2.containsKey(item.getCustomerName())){
                                 customerToMotivationMap2.put(item.getCustomerName(),
                                         customerToMotivationMap2.get(item.getCustomerName())+item.getMotivationMoney2()*item.getAmount());
@@ -4545,7 +4521,7 @@ public class TravelApplyAction extends DispatchAction
                             }
                         } else if (type == TcpConstanst.PLATFORM_TYPE){
                             item.setPlatformFee(MathTools.parseDouble(money));
-                            item2.setPlatformFee(MathTools.parseDouble(money));
+                            vsOutBean.setPlatformFee(MathTools.parseDouble(money));
                             if(customerToPlatformMap.containsKey(item.getCustomerName())){
                                 customerToPlatformMap.put(item.getCustomerName(),
                                         customerToPlatformMap.get(item.getCustomerName())+item.getPlatformFee()*item.getAmount());
@@ -4569,7 +4545,6 @@ public class TravelApplyAction extends DispatchAction
                         TcpShareVO share = new TcpShareVO();
                         String budget = obj[6];
                         share.setBudgetName(budget);
-//                        BudgetBean budgetBean = this.budgetDAO.findByUnique(budget);
                         BudgetBean budgetBean = this.getBudget(budgetBeans, budget);
                         if(budgetBean == null){
                             builder
@@ -4629,7 +4604,7 @@ public class TravelApplyAction extends DispatchAction
 
                     importError = true;
                 }
-                importItemList2.add(item2);
+                importItemList2.add(vsOutBean);
             }
         }
 
@@ -4658,7 +4633,7 @@ public class TravelApplyAction extends DispatchAction
                         }
                     }
                 }
-            } else if (type == TcpConstanst.MOTIVATION_TYPE){
+            } else if (type == TcpConstanst.MOTIVATION_TYPE || type == TcpConstanst.MOTIVATION_TYPE3){
                 for(String customerName : customerToMotivationMap.keySet()){
                     ConditionParse con = new ConditionParse();
                     con.addWhereStr();
@@ -4754,7 +4729,8 @@ public class TravelApplyAction extends DispatchAction
 
             //#357 激励费用根据单据对应的省级经理合并分担
             Map<String,TcpShareVO> managerToMoney = new HashMap<String,TcpShareVO>();
-            if (type == TcpConstanst.MOTIVATION_TYPE){
+            if (type == TcpConstanst.MOTIVATION_TYPE
+                    || type == TcpConstanst.MOTIVATION_TYPE3){
                 for(TcpShareVO share: shareList){
                     String bearId = share.getBearId();
                     if (!StringTools.isNullOrNone(bearId)){
@@ -4810,7 +4786,8 @@ public class TravelApplyAction extends DispatchAction
                     bean.setFullId(this.listToString(customerToOutMap.get(name)));
                     importItemList.add(bean);
                 }
-            } else if (type == TcpConstanst.MOTIVATION_TYPE){
+            } else if (type == TcpConstanst.MOTIVATION_TYPE
+                    || type == TcpConstanst.MOTIVATION_TYPE3){
                 for (String name : customerToMotivationMap.keySet()){
                     TcpIbBean bean = new TcpIbBean();
                     bean.setCustomerName(name);
@@ -4891,7 +4868,9 @@ public class TravelApplyAction extends DispatchAction
             return mapping.findForward("addTravelApply10import");
         } else if (type == TcpConstanst.PLATFORM_TYPE) {
             return mapping.findForward("addTravelApply16import");
-        }else{
+        } else if (type == TcpConstanst.MOTIVATION_TYPE3) {
+            return mapping.findForward("addTravelApply17import");
+        } else{
             return mapping.findForward("addTravelApply7import");
         }
     }

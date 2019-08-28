@@ -259,7 +259,7 @@ public class ParentQueryFinaAction extends DispatchAction
 
             for (FinanceItemVO financeItemVO : list)
             {
-                fillItemVO(financeItemVO);
+                fillItemVO(financeItemVO, false);
 
                 lastmoney = financeItemVO.getLastmoney() + lastmoney;
 
@@ -373,7 +373,7 @@ public class ParentQueryFinaAction extends DispatchAction
 
         for (FinanceItemVO financeItemVO : list)
         {
-            fillItemVO(financeItemVO);
+            fillItemVO(financeItemVO, false);
         }
 
         list.add(currentTotal);
@@ -870,7 +870,7 @@ public class ParentQueryFinaAction extends DispatchAction
 
         head.setTaxId(tax.getId());
 
-        fillItemVO(head);
+        fillItemVO(head, false);
 
         // 开始日期前累计余额
         head.setLastmoney(last);
@@ -917,7 +917,7 @@ public class ParentQueryFinaAction extends DispatchAction
 
         currentTotal.setOutmoney(sumMoneryByCondition[1]);
 
-        fillItemVO(currentTotal);
+        fillItemVO(currentTotal, false);
 
         request.getSession().setAttribute("queryTaxFinance1_currentTotal", currentTotal);
 
@@ -929,7 +929,6 @@ public class ParentQueryFinaAction extends DispatchAction
      * 
      * @param request
      * @param user
-     * @param condtion
      * @return
      * @throws MYException
      */
@@ -954,7 +953,7 @@ public class ParentQueryFinaAction extends DispatchAction
 
         allTotal.setOutmoney(sumMoneryByCondition[1]);
 
-        fillItemVO(allTotal);
+        fillItemVO(allTotal, false);
 
         FinanceItemVO current = (FinanceItemVO)request.getSession().getAttribute(
             "queryTaxFinance1_currentTotal");
@@ -2258,7 +2257,6 @@ public class ParentQueryFinaAction extends DispatchAction
      * @param user
      * @param isTotal
      *            isTotal
-     * @param tax
      * @throws MYException
      */
     private List<FinanceShowVO> processUnitLastQuery(HttpServletRequest request, User user,
@@ -2275,7 +2273,7 @@ public class ParentQueryFinaAction extends DispatchAction
 
         String unitId = request.getParameter("unitId");
 
-        List<String> unitList = new LinkedList<String>();
+        List<String> unitList = new LinkedList<>();
 
         String beginDate = request.getParameter("beginDate");
 
@@ -2844,7 +2842,7 @@ public class ParentQueryFinaAction extends DispatchAction
      * 
      * @param item
      */
-    protected void fillItemVO(FinanceItemVO item)
+    protected void fillItemVO(FinanceItemVO item,boolean queryPrincipalShipBean)
     {
         TaxBean tax = taxDAO.find(item.getTaxId());
 
@@ -2869,6 +2867,15 @@ public class ParentQueryFinaAction extends DispatchAction
             if (sb != null)
             {
                 item.setStafferName(sb.getName());
+                if(queryPrincipalShipBean){
+                    //#758
+                    PrincipalshipBean prin = principalshipDAO.find(sb.getIndustryId());
+                    if (prin == null){
+                        _logger.error("pricinal not found***"+sb.getIndustryId());
+                    } else{
+                        item.setPrincipalshipName(prin.getName());
+                    }
+                }
             }
         }
 
@@ -3091,7 +3098,6 @@ public class ParentQueryFinaAction extends DispatchAction
      * handleStafferId
      * 
      * @param obj
-     * @param stafferId
      * @return
      */
     private String getStafferId(String[] obj) throws MYException

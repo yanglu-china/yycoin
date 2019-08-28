@@ -11,7 +11,6 @@ package com.china.center.oa.tax.glue.listener.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
@@ -23,6 +22,8 @@ import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.finance.dao.OutBillDAO;
 import com.china.center.oa.finance.dao.PaymentDAO;
 import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.AppConstant;
+import com.china.center.oa.publics.constant.SysConfigConstant;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.DepartmentDAO;
 import com.china.center.oa.publics.dao.DutyDAO;
@@ -545,8 +546,11 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         }
 
         String name = "营业费用-中收中收申请借款:" + bean.getId() + '.';
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION
+                || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION3){
             name = "营业费用-激励:激励申请借款:" + bean.getId() + '.';
+        } else if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM){
+            name = "营业费用-平台手续费申请借款:" + bean.getId() + '.';
         }
 
 
@@ -554,7 +558,14 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MID);
 
         if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
-            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MOTIVATIO);
+            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MOTIVATION);
+        } else if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM){
+            String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+            if (AppConstant.APP_NAME_TW.equals(appName)){
+                inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_PLATFORM_TW);
+            } else{
+                inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_PLATFORM);
+            }
         }
 
         if (inTax == null)
@@ -1390,6 +1401,8 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         String name = "营业费用-中收中收申请金额:" + bean.getId() + '.';
         if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
             name = "营业费用-激励激励申请金额:" + bean.getId() + '.';
+        } else if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM){
+            name = "营业费用-平台手续费申请借款:" + bean.getId() + '.';
         }
 
         List<TcpShareVO> beans = new ArrayList<TcpShareVO>();
@@ -1404,7 +1417,14 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MID);
 
         if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION){
-            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MOTIVATIO);
+            inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_MOTIVATION);
+        } else if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM){
+            String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+            if (AppConstant.APP_NAME_TW.equals(appName)){
+                inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_PLATFORM_TW);
+            } else{
+                inTax = taxDAO.findByUnique(TaxItemConstanst.SALE_FEE_PLATFORM);
+            }
         }
 
         if (inTax == null)

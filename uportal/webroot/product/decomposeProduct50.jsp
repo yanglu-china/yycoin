@@ -46,6 +46,13 @@ function getPrices(){
             srcDepotparts[i].value = '';
         }
 
+        //#747
+        if (srcAmounts[i].value == '0')
+        {
+            alert('配件数量不能为0!');
+            return false;
+        }
+
         parts += parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value);
         // console.log(parseFloat(srcAmounts[i].value) * parseFloat(srcPrices[i].value));
         // console.log(parts);
@@ -75,22 +82,26 @@ function checks()
 	}
 
     var prices = getPrices();
-	var parts = prices[0];
-	var finishedProduct = prices[1];
-	var vPriceTotal = prices[2];
-	var finishedProductVirtualTotal = prices[3];
-    var precision = 0.03;
-    if (compareDouble(parts, finishedProduct) != 0 && Math.abs(parts-finishedProduct) >=precision )
-    {
-    	alert('配件成本之和:'+parts+'要与成品成本一致:'+finishedProduct);
-        return false;
-    } else if (compareDouble(vPriceTotal, finishedProductVirtualTotal) != 0 && Math.abs(parts-finishedProduct) >=precision)
-    {
-        alert('配件虚料金额之和:'+vPriceTotal+'要与成品虚料金额一致:'+finishedProductVirtualTotal);
-        return false;
+	if (prices){
+        var parts = prices[0];
+        var finishedProduct = prices[1];
+        var vPriceTotal = prices[2];
+        var finishedProductVirtualTotal = prices[3];
+        var precision = 0.03;
+        if (compareDouble(parts, finishedProduct) != 0 && Math.abs(parts-finishedProduct) >=precision )
+        {
+            alert('配件成本之和:'+parts+'要与成品成本一致:'+finishedProduct);
+            return false;
+        } else if (compareDouble(vPriceTotal, finishedProductVirtualTotal) != 0 && Math.abs(parts-finishedProduct) >=precision)
+        {
+            alert('配件虚料金额之和:'+vPriceTotal+'要与成品虚料金额一致:'+finishedProductVirtualTotal);
+            return false;
+        }
+
+        return true;
+    } else{
+	    return false;
     }
-    
-    return true;
 }
 
 

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -42,7 +43,9 @@ import com.china.center.oa.finance.bean.BackPrePayApplyBean;
 import com.china.center.oa.finance.bean.OutBillBean;
 import com.china.center.oa.finance.dao.BackPrePayApplyDAO;
 import com.china.center.oa.finance.dao.InBillDAO;
+import com.china.center.oa.finance.dao.PayOrderDAO;
 import com.china.center.oa.finance.vo.BackPrePayApplyVO;
+import com.china.center.oa.finance.vo.PayOrderListLogVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
@@ -97,6 +100,8 @@ public class BackPrePayAction extends DispatchAction
 	private TcpFlowDAO tcpFlowDAO = null;
 	
 	private AttachmentDAO attachmentDAO = null;
+	
+	private PayOrderDAO payOrderDao;
 	
 	private final static String QUERYSELFBACKPREPAY = "tcp.querySelfBackPrePay";
 	
@@ -917,6 +922,22 @@ public class BackPrePayAction extends DispatchAction
         }
 
         request.setAttribute("logList", logsVO);
+        
+        //add by zhangxian 2019-08-14
+        //查询银行回单附件
+        Map<String,String> paramMap = new HashMap<String, String>();
+        paramMap.put("payOrderNo", id);
+        List<PayOrderListLogVO> payOrderList = payOrderDao.queryPayOrderLogList(paramMap);
+        List<AttachmentBean> payOrderAttachmentList =  new ArrayList<AttachmentBean>();
+        for(PayOrderListLogVO payOrder:payOrderList)
+        {
+        	String payLogId = payOrder.getId();
+        	ConditionParse cond = new ConditionParse();
+        	cond.addCondition("refid", "=", payLogId);
+        	List<AttachmentBean> subList =  attachmentDAO.queryEntityBeansByCondition(cond);
+        	payOrderAttachmentList.addAll(subList);
+        }
+        request.setAttribute("payOrderAttachmentList", payOrderAttachmentList);
 
         // 处理
         if ("2".equals(update))
@@ -1123,4 +1144,13 @@ public class BackPrePayAction extends DispatchAction
 	public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
 		this.attachmentDAO = attachmentDAO;
 	}
+
+	public PayOrderDAO getPayOrderDao() {
+		return payOrderDao;
+	}
+
+	public void setPayOrderDao(PayOrderDAO payOrderDao) {
+		this.payOrderDao = payOrderDao;
+	}
+	
 }

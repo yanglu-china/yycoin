@@ -196,7 +196,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         // 获取flowKey
         TCPHelper.setFlowKey(bean);
-        _logger.info("***addTravelApplyBean***"+bean);
+        _logger.info(bean.getType()+"***addTravelApplyBean***"+bean);
         // TravelApplyItemBean
         List<TravelApplyItemBean> itemList = bean.getItemList();
         
@@ -296,7 +296,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
 	        attachmentDAO.saveAllEntityBeans(attachmentList);
         }
-        
+
+        _logger.info(bean.getType()+"***addTravelApplyBean222***"+bean);
         travelApplyDAO.saveEntityBean(bean);
 
         saveApply(user, bean);
@@ -2052,7 +2053,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     if (bean.getIbType() == TcpConstanst.IB_TYPE){
                                         out.setIbFlag(1);
                                         out.setIbApplyId(bean.getId());
-                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE
+                                            || bean.getIbType() == TcpConstanst.MOTIVATION_TYPE3){
                                         out.setMotivationFlag(1);
                                         out.setMotivationApplyId(bean.getId());
                                     }  else if (bean.getIbType() == TcpConstanst.IB_TYPE2){
@@ -2114,7 +2116,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 if (bean.getIbType() == TcpConstanst.IB_TYPE){
                                     out.setIbFlag(0);
                                     out.setIbApplyId("");
-                                } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+                                } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE
+                                        || bean.getIbType() == TcpConstanst.MOTIVATION_TYPE3){
                                     out.setMotivationFlag(0);
                                     out.setMotivationApplyId("");
                                 } else if (bean.getIbType() == TcpConstanst.IB_TYPE2){
@@ -2777,7 +2780,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         apply.setName(bean.getId());
         apply.setFlowKey(bean.getFlowKey());
         apply.setApplyId(bean.getId());
-        apply.setApplyId(user.getStafferId());
+        apply.setApplyerId(user.getStafferId());
         apply.setDepartmentId(bean.getDepartmentId());
         apply.setType(bean.getType());
         apply.setStype(bean.getStype());

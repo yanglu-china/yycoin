@@ -31,6 +31,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.publics.StringUtils;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -805,17 +806,17 @@ public class InvoiceinsAction extends DispatchAction
         			each.setTaxrate(base.getTaxrate());
         		}
 
-        		//#738
-                ConditionParse conditionParse = new ConditionParse();
-        		conditionParse.addWhereStr();
-        		conditionParse.addCondition("outId", "=", each.getOutId());
-        		conditionParse.addCondition("refInsId","=", each.getParentId());
-        		conditionParse.addCondition("productId","=", each.getProductId());
-        		conditionParse.addCondition("amount","=", each.getAmount());
-        		List<InvoiceinsImportBean> invoiceinsImportBeans = this.invoiceinsImportDAO.queryEntityBeansByCondition(conditionParse);
-        		if (!ListTools.isEmptyOrNull(invoiceinsImportBeans)){
-        		    each.setSpmc(invoiceinsImportBeans.get(0).getSpmc());
-                }
+        		//#738 #753
+//                ConditionParse conditionParse = new ConditionParse();
+//        		conditionParse.addWhereStr();
+//        		conditionParse.addCondition("outId", "=", each.getOutId());
+//        		conditionParse.addCondition("refInsId","=", each.getParentId());
+//        		conditionParse.addCondition("productId","=", each.getProductId());
+//        		conditionParse.addCondition("amount","=", each.getAmount());
+//        		List<InvoiceinsImportBean> invoiceinsImportBeans = this.invoiceinsImportDAO.queryEntityBeansByCondition(conditionParse);
+//        		if (!ListTools.isEmptyOrNull(invoiceinsImportBeans)){
+//        		    each.setSpmc(invoiceinsImportBeans.get(0).getSpmc());
+//                }
         	} else {
         		BaseBalanceBean baseBalance = baseBalanceDAO.find(each.getBaseId());
         		
@@ -1339,7 +1340,14 @@ public class InvoiceinsAction extends DispatchAction
                         ws.addCell(new Label(j++ , i, element.getId()));
                         ws.addCell(new Label(j++ , i, element.getDutyName()));
                         ws.addCell(new Label(j++ , i, element.getHeadContent()));
-                        ws.addCell(new Label(j++ , i, element.getSpmc()));
+//                        ws.addCell(new Label(j++ , i, element.getSpmc()));
+                       //#753
+                        if (StringTools.isNullOrNone(eachVS.getSpmc())){
+                            ws.addCell(new Label(j++ , i, element.getSpmc()));
+                        } else{
+                            ws.addCell(new Label(j++ , i, eachVS.getSpmc()));
+                        }
+
                         ws.addCell(new Label(j++ , i, element.getCustomerName()));
                         ws.addCell(new Label(j++ , i, element.getInvoiceName()));
                         ws.addCell(new Label(j++ , i, element.getZzsInfo()));
