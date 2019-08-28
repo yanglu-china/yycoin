@@ -1097,7 +1097,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                         long money = Math.round(share*ratioPerBudgetItem*100);
                         _logger.info("share is***"+share+"***ratioPerBudgetItem***"+ratioPerBudgetItem+"***money****"+money);
                         */
-                        moneyList.add(item.getCmoneys());
+                        moneyList.add(item.getCmoneys()*100);
                         stafferIdList.add(bearId);
                     }
                 }
