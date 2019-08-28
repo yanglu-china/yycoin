@@ -1091,11 +1091,13 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                         }
 
                         //按照预算科目/总费用计算比例(考虑稽核)
+                        /*不太理解这段复杂计算，导致2个问题，1：稽核金额为0时，凭证金额不对；2：导致计算精度误差
                         long itemMoney = item.getCmoneys() > 0 ?item.getCmoneys(): item.getMoneys();
                         double ratioPerBudgetItem = (double)itemMoney/realTotal;
                         long money = Math.round(share*ratioPerBudgetItem*100);
                         _logger.info("share is***"+share+"***ratioPerBudgetItem***"+ratioPerBudgetItem+"***money****"+money);
-                        moneyList.add(money);
+                        */
+                        moneyList.add(item.getCmoneys());
                         stafferIdList.add(bearId);
                     }
                 }
