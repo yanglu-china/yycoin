@@ -24,6 +24,7 @@ import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.Unique;
 import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.jdbc.annotation.enums.JoinType;
+import com.china.center.oa.publics.IdInterface;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.StafferConstant;
 import com.china.center.oa.publics.vs.StafferVSPriBean;
@@ -39,7 +40,7 @@ import com.china.center.oa.publics.vs.StafferVSPriBean;
  */
 @Entity
 @Table(name = "T_CENTER_OASTAFFER")
-public class StafferBean implements Serializable
+public class StafferBean implements Serializable, IdInterface
 {
     @Id
     private String id = "";

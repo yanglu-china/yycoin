@@ -15,7 +15,7 @@ import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import com.china.center.oa.publics.CollectionUtils;
 import com.china.center.tools.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.struts.action.ActionForm;
@@ -335,6 +335,28 @@ public class FinaAction extends ParentQueryFinaAction
 		return query_pairs;
 	}
 
+	private List<FinanceBean> getFinanceBeansFromRequest(HttpServletRequest request){
+        String referer = request.getHeader("REFERER");
+        _logger.info(referer);
+        List<FinanceBean> financeBeans = new ArrayList<>();
+        try {
+            //parse parameter from HTTP referer
+            Map<String,String> parameters = splitQuery(new URL(referer));
+            _logger.info(parameters);
+            if (parameters.containsKey("beginDate") && parameters.containsKey("endDate")){
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("financeDate",">=", parameters.get("beginDate"));
+                conditionParse.addCondition("financeDate","<=", parameters.get("endDate"));
+                financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse);
+                _logger.info("financeBean size***"+financeBeans.size());
+            }
+        }catch (Exception e){
+            _logger.error(e);
+        }
+        return financeBeans;
+    }
+
 	/**
 	 * exportFinanceItem
 	 * 
@@ -379,24 +401,7 @@ public class FinaAction extends ParentQueryFinaAction
 					request);
 		}
 
-		String referer = request.getHeader("REFERER");
-		_logger.info(referer);
-		List<FinanceBean> financeBeans = new ArrayList<>();
-		try {
-			//parse parameter from HTTP referer
-			Map<String,String> parameters = splitQuery(new URL(referer));
-			_logger.info(parameters);
-			if (parameters.containsKey("beginDate") && parameters.containsKey("endDate")){
-				ConditionParse conditionParse = new ConditionParse();
-				conditionParse.addWhereStr();
-				conditionParse.addCondition("financeDate",">=", parameters.get("beginDate"));
-				conditionParse.addCondition("financeDate","<=", parameters.get("endDate"));
-				financeBeans = this.financeDAO.queryEntityBeansByCondition(conditionParse);
-				_logger.info("financeBean size***"+financeBeans.size());
-			}
-		}catch (Exception e){
-			_logger.error(e);
-		}
+        List<FinanceBean> financeBeans = this.getFinanceBeansFromRequest(request);
 
 		try
 		{
@@ -414,6 +419,10 @@ public class FinaAction extends ParentQueryFinaAction
 
 			WriteFileBuffer line = new WriteFileBuffer(write);
 
+			List<TaxBean> taxBeans = this.taxDAO.listEntityBeans();
+			List<PrincipalshipBean> principalshipBeans = this.principalshipDAO.listEntityBeans();
+			List<ProductBean> productBeans = this.productDAO.listEntityBeans();
+			List<StafferVO> stafferVOS = this.stafferDAO.listEntityVOs();
 			int item = 0;
 //            int number = 0;
 			while (page.nextPage())
@@ -425,28 +434,21 @@ public class FinaAction extends ParentQueryFinaAction
 				{
 					item++;
 
-					fillItemVO(financeItemVO, true);
+//					fillItemVO(financeItemVO, true);
+                    this.fillItemVO(financeItemVO, true,taxBeans
+                    ,principalshipBeans,stafferVOS, productBeans);
 
 //					FinanceBean finance = financeDAO.find(financeItemVO
 //							.getPid());
 
 					String pid = financeItemVO.getPid();
-					FinanceBean finance = this.find(financeBeans, pid);
+					FinanceBean finance = CollectionUtils.find(financeBeans, pid);
 					if (finance == null){
 						finance = financeDAO.find(pid);
 						if (finance == null){
 						    continue;
                         }
 					}
-//					else{
-//						_logger.info("find finance****"+pid);
-//                        number++;
-//					}
-//
-//					if (finance == null)
-//					{
-//						continue;
-//					}
 
 					line.reset();
 
@@ -461,8 +463,9 @@ public class FinaAction extends ParentQueryFinaAction
 							.getShowLastmoney()));
 
 					// 事业部，大区，部门
-					StafferVO sv = this.stafferDAO.findVO(financeItemVO
-							.getStafferId());
+//					StafferVO sv = this.stafferDAO.findVO(financeItemVO
+//							.getStafferId());
+                    StafferVO sv = CollectionUtils.find(stafferVOS, financeItemVO.getStafferId());
 					if (null != sv)
 					{
 						if (sv.getIndustryName().length()>=5)
@@ -600,18 +603,6 @@ public class FinaAction extends ParentQueryFinaAction
 		return null;
 	}
 
-	private FinanceBean find(List<FinanceBean> financeBeans, String pid){
-		if (ListTools.isEmptyOrNull(financeBeans)){
-			return null;
-		}
-		for (FinanceBean financeBean: financeBeans){
-			if (financeBean.getId().equals(pid)){
-				return financeBean;
-			}
-		}
-		return null;
-	}
-
 	/**
 	 *
 	 * #584 导出凭证科目明细
@@ -626,6 +617,7 @@ public class FinaAction extends ParentQueryFinaAction
 										   ActionForm form, HttpServletRequest request,
 										   HttpServletResponse response) throws ServletException
 	{
+        long begin = System.currentTimeMillis();
 		OutputStream out = null;
 
 		String filenName = "FinanceItem_" + TimeTools.now("MMddHHmmss")
@@ -656,7 +648,8 @@ public class FinaAction extends ParentQueryFinaAction
 					request);
 		}
 
-		try
+        List<FinanceBean> financeBeans = this.getFinanceBeansFromRequest(request);
+        try
 		{
 			out = response.getOutputStream();
 
@@ -671,6 +664,10 @@ public class FinaAction extends ParentQueryFinaAction
 			page.reset2(count, 2000);
 
 			WriteFileBuffer line = new WriteFileBuffer(write);
+            List<TaxBean> taxBeans = this.taxDAO.listEntityBeans();
+            List<PrincipalshipBean> principalshipBeans = this.principalshipDAO.listEntityBeans();
+            List<ProductBean> productBeans = this.productDAO.listEntityBeans();
+            List<StafferVO> stafferVOS = this.stafferDAO.listEntityVOs();
 
 			int item = 0;
 
@@ -681,131 +678,121 @@ public class FinaAction extends ParentQueryFinaAction
 
 				for (FinanceItemVO vo : voList)
 				{
-					FinanceBean finance = financeDAO.find(vo.getPid());
+                    String pid = vo.getPid();
+                    FinanceBean finance = CollectionUtils.find(financeBeans, pid);
+                    if (finance == null){
+                        finance = financeDAO.find(pid);
+                        if (finance == null){
+                            continue;
+                        }
+                    }
 
-					if (finance == null)
-					{
-						continue;
-					} else{
-						List<FinanceItemVO> vos =this.financeItemDAO.queryEntityVOsByFK(finance.getId());
-						for (FinanceItemVO financeItemVO: vos){
-							item++;
+                    List<FinanceItemVO> vos =this.financeItemDAO.queryEntityVOsByFK(finance.getId());
+                    for (FinanceItemVO financeItemVO: vos){
+                        item++;
 
-							fillItemVO(financeItemVO, true);
+//							fillItemVO(financeItemVO, true);
+                        this.fillItemVO(financeItemVO, true,taxBeans
+                                ,principalshipBeans,stafferVOS, productBeans);
 
-							line.reset();
+                        line.reset();
 
-							line.writeColumn("[" + financeItemVO.getFinanceDate() + "]");
-							line.writeColumn(financeItemVO.getPid());
-							line.writeColumn(ElTools.get("financeType",
-									finance.getType()));
-							line.writeColumn(ElTools.get("financeCreateType",
-									finance.getCreateType()));
-							line.writeColumn(financeItemVO.getForwardName());
-							line.writeColumn(changeString(financeItemVO
-									.getShowLastmoney()));
+                        line.writeColumn("[" + financeItemVO.getFinanceDate() + "]");
+                        line.writeColumn(financeItemVO.getPid());
+                        line.writeColumn(ElTools.get("financeType",
+                                finance.getType()));
+                        line.writeColumn(ElTools.get("financeCreateType",
+                                finance.getCreateType()));
+                        line.writeColumn(financeItemVO.getForwardName());
+                        line.writeColumn(changeString(financeItemVO
+                                .getShowLastmoney()));
 
-							// 事业部，大区，部门
-							StafferVO sv = this.stafferDAO.findVO(financeItemVO
-									.getStafferId());
-							if (null != sv)
-							{
-								if (sv.getIndustryName().length()>=5)
-								{
-									line.writeColumn(sv.getIndustryName().substring(5));
-									line.writeColumn(" "
-											+ sv.getIndustryName().substring(0, 5) + " ");
-								}
-								else
-								{
-									line.writeColumn("");
-									line.writeColumn("");
-								}
-								if (sv.getIndustryName2().length() >= 8)
-								{
-									line.writeColumn(sv.getIndustryName2().substring(8));
-									line.writeColumn(" "
-											+ sv.getIndustryName2().substring(0, 8) + " ");
-								}
-								else
-								{
-									line.writeColumn("");
-									line.writeColumn("");
-								}
+                        // 事业部，大区，部门
+//                        StafferVO sv = this.stafferDAO.findVO(financeItemVO
+//                                .getStafferId());
+                        StafferVO sv = CollectionUtils.find(stafferVOS, financeItemVO.getStafferId());
+                        if (null != sv)
+                        {
+                            if (sv.getIndustryName().length()>=5)
+                            {
+                                line.writeColumn(sv.getIndustryName().substring(5));
+                                line.writeColumn(" "
+                                        + sv.getIndustryName().substring(0, 5) + " ");
+                            }
+                            else
+                            {
+                                line.writeColumn("");
+                                line.writeColumn("");
+                            }
+                            if (sv.getIndustryName2().length() >= 8)
+                            {
+                                line.writeColumn(sv.getIndustryName2().substring(8));
+                                line.writeColumn(" "
+                                        + sv.getIndustryName2().substring(0, 8) + " ");
+                            }
+                            else
+                            {
+                                line.writeColumn("");
+                                line.writeColumn("");
+                            }
 
-								if (sv.getIndustryName3().length() >= 11)
-								{
-									line.writeColumn(sv.getIndustryName3().substring(11));
-									line.writeColumn(" "
-											+ sv.getIndustryName3().substring(0, 11) + " ");
-								}
-								else
-								{
-									line.writeColumn("");
-									line.writeColumn("");
-								}
-							}
-							else
-							{
-								line.writeColumn("");
-								line.writeColumn("");
-								line.writeColumn("");
-								// 事业部，大区，部门编码
-								line.writeColumn("");
-								line.writeColumn("");
-								line.writeColumn("");
-							}
+                            if (sv.getIndustryName3().length() >= 11)
+                            {
+                                line.writeColumn(sv.getIndustryName3().substring(11));
+                                line.writeColumn(" "
+                                        + sv.getIndustryName3().substring(0, 11) + " ");
+                            }
+                            else
+                            {
+                                line.writeColumn("");
+                                line.writeColumn("");
+                            }
+                        }
+                        else
+                        {
+                            line.writeColumn("");
+                            line.writeColumn("");
+                            line.writeColumn("");
+                            // 事业部，大区，部门编码
+                            line.writeColumn("");
+                            line.writeColumn("");
+                            line.writeColumn("");
+                        }
 
-							line.writeColumn(finance.getRefId());
-							line.writeColumn(finance.getRefOut());
-							line.writeColumn(finance.getRefBill());
-							line.writeColumn(finance.getRefStock());
-							line.writeColumn(StringTools.getExportString(finance
-									.getRefChecks()));
+                        line.writeColumn(finance.getRefId());
+                        line.writeColumn(finance.getRefOut());
+                        line.writeColumn(finance.getRefBill());
+                        line.writeColumn(finance.getRefStock());
+                        line.writeColumn(StringTools.getExportString(finance
+                                .getRefChecks()));
 
-							line.writeColumn(StringTools.getExportString(financeItemVO
-									.getDescription()));
-							line.writeColumn(financeItemVO.getTaxId() + " "
-									+ financeItemVO.getTaxName());
+                        line.writeColumn(StringTools.getExportString(financeItemVO
+                                .getDescription()));
+                        line.writeColumn(financeItemVO.getTaxId() + " "
+                                + financeItemVO.getTaxName());
 
-							line.writeColumn(changeString(financeItemVO
-									.getShowInmoney()));
-							line.writeColumn(changeString(financeItemVO
-									.getShowOutmoney()));
-							line.writeColumn(financeItemVO.getProductAmountIn());
-							line.writeColumn(financeItemVO.getProductAmountOut());
+                        line.writeColumn(changeString(financeItemVO
+                                .getShowInmoney()));
+                        line.writeColumn(changeString(financeItemVO
+                                .getShowOutmoney()));
+                        line.writeColumn(financeItemVO.getProductAmountIn());
+                        line.writeColumn(financeItemVO.getProductAmountOut());
 
-							line.writeColumn(financeItemVO.getDepartmentName());
-							line.writeColumn(financeItemVO.getStafferName());
-							line.writeColumn(financeItemVO.getUnitName());
-							line.writeColumn(financeItemVO.getProductName());
-							line.writeColumn(financeItemVO.getDepotName());
-							line.writeColumn(financeItemVO.getDuty2Name());
+                        line.writeColumn(financeItemVO.getDepartmentName());
+                        line.writeColumn(financeItemVO.getStafferName());
+                        line.writeColumn(financeItemVO.getUnitName());
+                        line.writeColumn(financeItemVO.getProductName());
+                        line.writeColumn(financeItemVO.getDepotName());
+                        line.writeColumn(financeItemVO.getDuty2Name());
 
-//							TaxBean tax = taxDAO.find(financeItemVO.getTaxId());
-//
-//							if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
-//									|| !StringTools.isNullOrNone(financeItemVO
-//									.getStafferId()))
-//							{
-//								StafferBean sb = stafferDAO.find(financeItemVO
-//										.getStafferId());
-//
-//								if (sb != null)
-//								{
-//									PrincipalshipBean prin = principalshipDAO.find(sb
-//											.getIndustryId());
-//									line.writeColumn(prin.getName());
-//								}
-//							}
-							line.writeColumn(financeItemVO.getPrincipalshipName());
-							line.writeLine();
-						}
-					}
+                        line.writeColumn(financeItemVO.getPrincipalshipName());
+                        line.writeLine();
+                    }
 				}
 			}
 
-			write.writeLine("导出结束,凭证项:" + item);
+            long end = System.currentTimeMillis();
+            write.writeLine("导出结束,凭证项:" + item+".用时(秒)："+(end-begin)/1000);
 
 			write.close();
 		}

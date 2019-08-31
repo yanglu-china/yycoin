@@ -25,6 +25,7 @@ import com.china.center.oa.product.bean.DepotBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.dao.DepotDAO;
 import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.publics.CollectionUtils;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
@@ -2948,6 +2949,122 @@ public class ParentQueryFinaAction extends DispatchAction
         item.getShowChineseOutmoney();
         item.getShowChineseLastmoney();
     }
+
+    protected void fillItemVO(FinanceItemVO item,boolean queryPrincipalShipBean,
+                              List<TaxBean> taxBeans,
+                              List<PrincipalshipBean> principalshipBeans,
+                              List<? extends StafferBean> stafferBeans,
+                              List<ProductBean> productBeans)
+    {
+        TaxBean tax = CollectionUtils.find(taxBeans, item.getTaxId());
+
+        item.setForward(tax.getForward());
+
+        if (tax.getDepartment() == TaxConstanst.TAX_CHECK_YES
+                || !StringTools.isNullOrNone(item.getDepartmentId()))
+        {
+//            PrincipalshipBean depart = principalshipDAO.find(item.getDepartmentId());
+            PrincipalshipBean depart = CollectionUtils.find(principalshipBeans, item.getDepartmentId());
+            if (depart != null)
+            {
+                item.setDepartmentName(depart.getName());
+            }
+        }
+
+        if (tax.getStaffer() == TaxConstanst.TAX_CHECK_YES
+                || !StringTools.isNullOrNone(item.getStafferId()))
+        {
+//            StafferBean sb = stafferDAO.find(item.getStafferId());
+            StafferBean sb = CollectionUtils.find(stafferBeans, item.getStafferId());
+
+            if (sb != null)
+            {
+                item.setStafferName(sb.getName());
+                if(queryPrincipalShipBean){
+                    //#758
+//                    PrincipalshipBean prin = principalshipDAO.find(sb.getIndustryId());
+                    PrincipalshipBean prin = CollectionUtils.find(principalshipBeans, sb.getIndustryId());
+                    if (prin == null){
+                        _logger.error("pricinal not found***"+sb.getIndustryId());
+                    } else{
+                        item.setPrincipalshipName(prin.getName());
+                    }
+                }
+            }
+        }
+
+        if (tax.getUnit() == TaxConstanst.TAX_CHECK_YES
+                || !StringTools.isNullOrNone(item.getUnitId()))
+        {
+            UnitBean unit = unitDAO.find(item.getUnitId());
+
+            if (unit != null)
+            {
+                item.setUnitName(unit.getName());
+            }
+        }
+
+        if (tax.getProduct() == TaxConstanst.TAX_CHECK_YES
+                || !StringTools.isNullOrNone(item.getProductId()))
+        {
+//            ProductBean product = productDAO.find(item.getProductId());
+            ProductBean product = CollectionUtils.find(productBeans, item.getProductId());
+
+            if (product != null)
+            {
+                item.setProductName(product.getName());
+                item.setProductCode(product.getCode());
+            }
+        }
+
+        if (tax.getDepot() == TaxConstanst.TAX_CHECK_YES
+                || !StringTools.isNullOrNone(item.getDepotId()))
+        {
+            DepotBean depot = depotDAO.find(item.getDepotId());
+
+            if (depot != null)
+            {
+                item.setDepotName(depot.getName());
+            }
+        }
+
+        if (tax.getDuty() == TaxConstanst.TAX_CHECK_YES
+                || !StringTools.isNullOrNone(item.getDuty2Id()))
+        {
+            DutyBean duty2 = dutyDAO.find(item.getDuty2Id());
+
+            if (duty2 != null)
+            {
+                item.setDuty2Name(duty2.getName());
+            }
+        }
+
+        item.getShowInmoney();
+        item.getShowOutmoney();
+
+        long last = 0;
+
+        if (tax.getForward() == TaxConstanst.TAX_FORWARD_IN)
+        {
+            last = item.getInmoney() - item.getOutmoney();
+            item.setForwardName("借");
+        }
+        else
+        {
+            last = item.getOutmoney() - item.getInmoney();
+            item.setForwardName("贷");
+        }
+
+        item.setLastmoney(last);
+
+        item.setShowLastmoney(FinanceHelper.longToString(last));
+
+        item.getShowChineseInmoney();
+        item.getShowChineseOutmoney();
+        item.getShowChineseLastmoney();
+    }
+
+
 
     /**
      * 导入凭证

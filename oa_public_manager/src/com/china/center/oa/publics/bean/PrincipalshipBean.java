@@ -20,6 +20,7 @@ import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.Unique;
 import com.china.center.jdbc.annotation.enums.Element;
+import com.china.center.oa.publics.IdInterface;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.vs.OrgBean;
 
@@ -34,7 +35,7 @@ import com.china.center.oa.publics.vs.OrgBean;
  */
 @Entity
 @Table(name = "T_CENTER_PRINCIPALSHIP")
-public class PrincipalshipBean implements Serializable
+public class PrincipalshipBean implements Serializable, IdInterface
 {
     @Id
     private String id = "";

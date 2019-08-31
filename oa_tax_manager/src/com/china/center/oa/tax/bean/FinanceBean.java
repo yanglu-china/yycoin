@@ -19,6 +19,7 @@ import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Join;
 import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.enums.JoinType;
+import com.china.center.oa.publics.IdInterface;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.StafferBean;
@@ -36,7 +37,7 @@ import com.china.center.oa.tax.constanst.TaxConstanst;
  */
 @Entity
 @Table(name = "T_CENTER_FINANCE")
-public class FinanceBean implements Serializable
+public class FinanceBean implements Serializable, IdInterface
 {
     @Id
     private String id = "";
