@@ -50,6 +50,8 @@ public interface CustomerMainDAO extends DAO<CustomerBean, CustomerVO>
 
     List<String> listNotPayCustomerIds();
 
+    String queryBranchName(String customerName);
+
     boolean updateCustomerCredit(String id, String creditLevelId, int creditVal);
 
     boolean updateCustomerNewTypeToOld(String id);

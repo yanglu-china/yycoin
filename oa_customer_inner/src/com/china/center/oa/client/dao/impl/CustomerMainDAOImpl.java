@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.china.center.tools.ListTools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -205,6 +206,30 @@ public class CustomerMainDAOImpl extends BaseDAO<CustomerBean, CustomerVO> imple
             });
 
         return result;
+    }
+
+    @Override
+    public String queryBranchName(String customerName) {
+        String sql = "select c.reserve1 from t_center_customer_main c\n" +
+                "left outer join t_center_vs_stacus a on (a.customerid=c.id) where c.name=?";
+
+        final List<String> result = new ArrayList();
+
+        this.jdbcOperation.query(sql, new Object[] {customerName},
+                new RowCallbackHandler()
+                {
+                    public void processRow(ResultSet rst)
+                            throws SQLException
+                    {
+                        result.add(rst.getString("reserve1"));
+                    }
+                });
+
+        if (ListTools.isEmptyOrNull(result)){
+            return null;
+        } else{
+            return result.get(0);
+        }
     }
 
     /**
