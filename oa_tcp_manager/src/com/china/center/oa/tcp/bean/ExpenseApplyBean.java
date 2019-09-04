@@ -14,6 +14,7 @@ import java.io.Serializable;
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.Html;
 import com.china.center.jdbc.annotation.Id;
+import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
@@ -63,6 +64,12 @@ public class ExpenseApplyBean extends AbstractTcpBean implements Serializable
      * #526 审核通过时间
      */
     private String processTime = "";
+    
+    /**
+     * 总稽核金额
+     */
+    @Ignore
+    private long totalCmoney = 0;
 
     /**
      * default constructor
@@ -189,7 +196,15 @@ public class ExpenseApplyBean extends AbstractTcpBean implements Serializable
         this.processTime = processTime;
     }
 
-    /**
+    public long getTotalCmoney() {
+		return totalCmoney;
+	}
+
+	public void setTotalCmoney(long totalCmoney) {
+		this.totalCmoney = totalCmoney;
+	}
+
+	/**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
      * @return a <code>String</code> representation of this object.

@@ -414,6 +414,10 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         createAddItem4(user, bean, taxIdList, moneyList, financeBean, itemList, stafferIdList);
 
         financeBean.setItemList(itemList);
+        
+        //修复凭证金额和稽核金额不一致问题
+        financeBean.setInmoney(bean.getTotalCmoney());
+        financeBean.setOutmoney(bean.getTotalCmoney());
 
         financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
