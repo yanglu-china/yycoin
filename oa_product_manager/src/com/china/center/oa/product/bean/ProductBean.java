@@ -23,6 +23,7 @@ import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.vs.ProductCombinationBean;
+import com.china.center.oa.publics.IdInterface;
 import com.china.center.oa.publics.bean.StafferBean;
 
 
@@ -36,7 +37,7 @@ import com.china.center.oa.publics.bean.StafferBean;
  */
 @Entity
 @Table(name = "T_CENTER_PRODUCT")
-public class ProductBean implements Serializable
+public class ProductBean implements Serializable, IdInterface
 {
     @Id
     private String id = "";

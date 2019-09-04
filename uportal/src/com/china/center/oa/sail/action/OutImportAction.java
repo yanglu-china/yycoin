@@ -336,10 +336,11 @@
          boolean importError = false;
          ProductBean productBean = null;
          // 分行名称 （相当于客户）
-         if ( !StringTools.isNullOrNone(obj[0]))
-         {
-             bean.setBranchName(obj[0]);
-         }
+         //#761
+//         if ( !StringTools.isNullOrNone(obj[0]))
+//         {
+//             bean.setBranchName(obj[0]);
+//         }
 
          // 二级分行名称
          if ( !StringTools.isNullOrNone(obj[1]))
@@ -411,7 +412,6 @@
                  //#731
                  CustomerBean customerBean = cbeans.get(0);
                  if (customerBean.getOstatus() !=0){
-                     _logger.error("Fuckyou****");
                      builder
                              .append("第[" + currentNumber + "]错误:")
                              .append("客户已停用：" + custName )
@@ -445,6 +445,18 @@
                          } else {
                              bean.setComunicatonBranchName(custName);
                              bean.setStafferId2(stafferBean.getId());
+
+                             String branchName = this.customerMainDAO.queryBranchName(custName);
+                            if(StringTools.isNullOrNone(branchName)){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("t_center_customer表中reserver1字段(分行)不能为空：" + custName)
+                                        .append("<br>");
+
+                                importError = true;
+                            } else{
+                                bean.setBranchName(branchName);
+                            }
                          }
                      }
                  }else{
@@ -1614,10 +1626,10 @@
          ProductBean pbean = null;
 
          // 分行名称 （相当于客户）
-         if ( !StringTools.isNullOrNone(obj[0]))
-         {
-             bean.setBranchName(obj[0]);
-         }
+//         if ( !StringTools.isNullOrNone(obj[0]))
+//         {
+//             bean.setBranchName(obj[0]);
+//         }
 
          // 二级分行名称
          if ( !StringTools.isNullOrNone(obj[1]))
@@ -1719,6 +1731,18 @@
                              importError = true;
                          } else {
                              bean.setComunicatonBranchName(custName);
+
+                             String branchName = this.customerMainDAO.queryBranchName(custName);
+                             if(StringTools.isNullOrNone(branchName)){
+                                 builder
+                                         .append("第[" + currentNumber + "]错误:")
+                                         .append("t_center_customer表中reserver1字段(分行)不能为空：" + custName)
+                                         .append("<br>");
+
+                                 importError = true;
+                             } else{
+                                 bean.setBranchName(branchName);
+                             }
                          }
                      }
                  }else{
