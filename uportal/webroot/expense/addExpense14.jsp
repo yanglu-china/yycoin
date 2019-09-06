@@ -365,31 +365,31 @@ function getOpeningBank(oos)
     
     <tr class="content1" id="trCopy_pay" style="display: none;">
          <td align="left">
-         <select name="p_receiveType" class="select_class" style="width: 100%;" oncheck="notNone">
+         <select name="p_receiveType" id="p_receiveType" class="select_class" style="width: 100%;" oncheck="notNone">
             <p:option type="travelApplyReceiveType" empty="true"></p:option>
          </select>
          </td>
          
          <td align="left"><input type="text" style="width: 100%"
-                    name="p_bank" value="" id="p_bank" onclick='selectOpeningBank(this)' readonly=readonly oncheck="notNone;" style='cursor: pointer;'>
+                    name="p_bank" value="" id="p_bank" onclick='selectOpeningBank(this)' readonly=readonly style='cursor: pointer;'>
          </td>
          
          <td align="left">
          <input type="text" style="width: 100%"
-                    name="p_userName" value="" oncheck="notNone;">
+                    name="p_userName" value="">
          </td>
          
          <td align="left">
          <input type="text" style="width: 100%"
-                    name="p_bankNo" value="" oncheck="notNone;">
+                    name="p_bankNo" value="">
          </td>
          
          <td align="left">
-         	<input type=text name='bankprovince' head='开户省份'  id ='bankprovince' onclick='selectProvince(this)' style='cursor: pointer;'  readonly=readonly    oncheck="notNone;"  maxlength="100" > 
+         	<input type=text name='bankprovince' head='开户省份'  id ='bankprovince' onclick='selectProvince(this)' style='cursor: pointer;'  readonly=readonly   maxlength="100" > 
          </td>
          
 		 <td align="left" >
-		 	<input type=text name='bankcity' head='开户城市'  id ='bankcity' onclick='selectCity(this)' style='cursor: pointer;'  readonly=readonly    oncheck="notNone;"  maxlength="100" > 
+		 	<input type=text name='bankcity' head='开户城市'  id ='bankcity' onclick='selectCity(this)' style='cursor: pointer;'  readonly=readonly  maxlength="100" > 
 		 </td>
          
          <td align="left">
