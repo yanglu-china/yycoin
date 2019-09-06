@@ -311,9 +311,14 @@ public class FinanceManagerImpl implements FinanceManager {
             
             _logger.debug("getInmoney():"+financeItemBean.getInmoney()+", getOutmoney():"+financeItemBean.getOutmoney());
         }
-        bean.setInmoney(inTotal);
+        
+        if(bean.getInmoney() == 0){
+        	bean.setInmoney(inTotal);
+        }
 
-        bean.setOutmoney(outTotal);
+        if(bean.getOutmoney() == 0){
+        	bean.setOutmoney(outTotal);
+        }
 
         if (inTotal != outTotal) {
             String msg = FinanceHelper.longToString(inTotal)+"总借[%s],总贷[%s]不等,凭证增加错误:"+FinanceHelper.longToString(outTotal);

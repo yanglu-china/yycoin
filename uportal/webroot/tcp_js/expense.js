@@ -183,19 +183,6 @@ function calDateInner(obj, name)
 // deprecated
 function checks()
 {
-	var bankNoArray = $('[name=p_bankNo]');
-	for(var i=0;i<bankNoArray.length;i++){
-		var bankNoVal = $(bankNoArray[i]).val();
-		//字符串是否包含空格
-	    var reg =/\s/;
-	    var result = reg.test(bankNoVal);
-	    if(result)
-		{
-		    alert("收款账号不能有空格!");
-		    $(bankNoArray[i]).focus();
-	    	return false;
-		}
-	}
     var fileName = $O('atts').value;
 
     if ("" == fileName)
@@ -256,19 +243,71 @@ function checks()
 // #447
 function checks2()
 {
+	var receiveTypeArray = $('[name=p_receiveType]');
 	var bankNoArray = $('[name=p_bankNo]');
-	for(var i=0;i<bankNoArray.length;i++){
-		var bankNoVal = $(bankNoArray[i]).val();
-		//字符串是否包含空格
-	    var reg =/\s/;
-	    var result = reg.test(bankNoVal);
-	    if(result)
-		{
-		    alert("收款账号不能有空格!");
-		    $(bankNoArray[i]).focus();
-	    	return false;
-		}
+	var bankArray = $('[name=p_bank]');
+	var userNameArray = $('[name=p_userName]');
+	var provinceArray = $('[name=bankprovince]');
+	var cityArray = $('[name=bankcity]');
+	
+	for(var j=0;j<receiveTypeArray.length;j++)
+	{
+		type = receiveTypeArray[j].value;
+		if (type == 1)
+	    {
+			var bankNoVal = $(bankNoArray[j]).val();
+			if(bankNoVal == '')
+			{
+				alert("收款账号不能为空!");
+			    $(bankNoArray[j]).focus();
+		    	return false;
+			}
+			//字符串是否包含空格
+			var reg =/\s/;
+		    var result = reg.test(bankNoVal);
+		    if(result)
+			{
+			    alert("收款账号不能有空格!");
+			    $(bankNoArray[j]).focus();
+		    	return false;
+			}
+			
+			var bankVal = $(bankArray[j]).val();
+		    if(bankVal == '')
+			{
+			    alert("开户银行不能为空!");
+			    $(bankArray[j]).focus();
+		    	return false;
+			}
+			
+			var userNameVal = $(userNameArray[j]).val();
+		    if(userNameVal == '')
+			{
+			    alert("户名不能为空!");
+			    $(userNameArray[j]).focus();
+		    	return false;
+			}
+			
+			var provinceVal = $(provinceArray[j]).val();
+		    if(provinceVal == '')
+			{
+			    alert("开户省份不能为空!");
+			    $(provinceArray[j]).focus();
+		    	return false;
+			}
+			
+			var cityVal = $(cityArray[j]).val();
+		    if(cityVal == '')
+			{
+			    alert("开户城市不能为空!");
+			    $(cityArray[j]).focus();
+		    	return false;
+			}
+	    }
+		
+		
 	}
+	
     var fileName = $O('atts').value;
 
     if ("" == fileName)

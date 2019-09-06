@@ -1052,6 +1052,14 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
             _logger.info("****tcpShareBeans size***"+tcpShareBeans.size());
             _logger.info("****travelApplyItemVOS size***"+travelApplyItemVOS.size());
+            
+            //全部稽核金額
+            long totalCmoney = 0;
+            for(TravelApplyItemVO item: travelApplyItemVOS){
+            	totalCmoney += item.getCmoneys() *100;
+            }
+            bean.setTotalCmoney(totalCmoney);
+            
             //是否稽核修改过金额
             boolean isChecked = this.isChecked(payList);
 
@@ -1091,13 +1099,17 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                         }
 
                         //按照预算科目/总费用计算比例(考虑稽核)
-                        /*不太理解这段复杂计算，导致2个问题，1：稽核金额为0时，凭证金额不对；2：导致计算精度误差
-                        long itemMoney = item.getCmoneys() > 0 ?item.getCmoneys(): item.getMoneys();
+                        
+                        //long itemMoney = item.getCmoneys() > 0 ?item.getCmoneys(): item.getMoneys();
+                        long itemMoney = item.getCmoneys();
                         double ratioPerBudgetItem = (double)itemMoney/realTotal;
                         long money = Math.round(share*ratioPerBudgetItem*100);
                         _logger.info("share is***"+share+"***ratioPerBudgetItem***"+ratioPerBudgetItem+"***money****"+money);
-                        */
-                        moneyList.add(item.getCmoneys()*100);
+
+                        //moneyList.add(item.getCmoneys()*100);
+                        
+                        moneyList.add(money);
+                        
                         stafferIdList.add(bearId);
                     }
                 }

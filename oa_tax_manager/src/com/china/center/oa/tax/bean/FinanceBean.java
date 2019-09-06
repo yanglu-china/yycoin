@@ -135,6 +135,12 @@ public class FinanceBean implements Serializable, IdInterface
      * #478
      */
     private boolean checkUnit = true;
+    
+    /**
+     * 总稽核金额
+     */
+    @Ignore
+    private long totalCmoney = 0;
 
     /**
      * 附件列表
@@ -663,4 +669,13 @@ public class FinanceBean implements Serializable, IdInterface
     public void setAttachmentList(List<AttachmentBean> attachmentList) {
         this.attachmentList = attachmentList;
     }
+
+	public long getTotalCmoney() {
+		return totalCmoney;
+	}
+
+	public void setTotalCmoney(long totalCmoney) {
+		this.totalCmoney = totalCmoney;
+	}
+    
 }
