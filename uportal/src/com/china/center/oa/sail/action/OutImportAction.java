@@ -218,7 +218,10 @@
                      continue;
                  }
 
-                 if (StringTools.isNullOrNone(obj[0]))
+                 // #761 分行、网点、产品编码都为空表示是空行过滤掉
+                 if (StringTools.isNullOrNone(obj[0])
+                         && StringTools.isNullOrNone(obj[3])
+                         && StringTools.isNullOrNone(obj[4]))
                  {
                      continue;
                  }
@@ -508,15 +511,15 @@
              // 姓氏
              bean.setFirstName("N/A");
          }
-         else
-         {
-             builder
-                     .append("第[" + currentNumber + "]错误:")
-                     .append("产品不可为空")
-                     .append("<br>");
-
-             importError = true;
-         }
+//         else
+//         {
+//             builder
+//                     .append("第[" + currentNumber + "]错误:")
+//                     .append("产品不可为空")
+//                     .append("<br>");
+//
+//             importError = true;
+//         }
 
 
          // 数量
@@ -1516,7 +1519,11 @@
                      continue;
                  }
 
-                 if (StringTools.isNullOrNone(obj[0]))
+
+                 // #761 分行、网点、产品名称都为空表示是空行过滤掉
+                 if (StringTools.isNullOrNone(obj[0])
+                         && StringTools.isNullOrNone(obj[3])
+                         && StringTools.isNullOrNone(obj[5]))
                  {
                      continue;
                  }
