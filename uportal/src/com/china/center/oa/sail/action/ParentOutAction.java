@@ -27,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.publics.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -3295,7 +3296,9 @@ public class ParentOutAction extends DispatchAction
 								List<BaseBean> refBaseBeans = this.baseDAO.queryEntityBeansByFK(outBean.getFullId());
 								for(BaseBean baseBean: refBaseBeans){
 									if (!StringTools.isNullOrNone(baseBean.getProductId()) && baseBean.getProductId().equals(base.getProductId()) &&
-											!StringTools.isNullOrNone(baseBean.getCostPriceKey()) && baseBean.getCostPriceKey().equals(base.getCostPriceKey())){
+											//!StringTools.isNullOrNone(baseBean.getCostPriceKey()) && baseBean.getCostPriceKey().equals(base.getCostPriceKey())
+											//#764 base表中存在costPriceKey为空的情况,改为根据成本价相等来判断
+											NumberUtils.equals(baseBean.getCostPrice(),base.getCostPrice(), 0.001)){
 										backAmount += baseBean.getAmount();
 									}
 								}
