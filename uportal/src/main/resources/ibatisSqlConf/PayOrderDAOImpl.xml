@@ -295,6 +295,42 @@
        </dynamic> 
     </select>
     
+    <select id="queryPayOrderListHasNoAttachment" parameterClass="java.util.Map" resultMap="PayOrderListLogVO">
+    	select * from t_center_paylistlog where outid NOT IN (SELECT refid FROM t_center_oaattachment b)
+    	<dynamic prepend=""> 
+            <isNotEmpty prepend="and" property="payOrderStatus"> 
+                    status= #payOrderStatus#
+            </isNotEmpty> 
+            <isNotEmpty prepend="and" property="payeeBank"> 
+                    bankname like concat('%',#payeeBank#,'%')
+            </isNotEmpty> 
+            <isNotEmpty prepend="and" property="payeeAccName"> 
+                    username like concat('%',#payeeAccName#,'%')
+            </isNotEmpty> 
+            <isNotEmpty prepend="and" property="payeeAcc"> 
+                    bankno=#payeeAcc#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="payeeAmount"> 
+                    money=$payeeAmount$
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="billTime"> 
+                    DATE_FORMAT(outidtime,'%Y-%m-%d')>=#billTime#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="billEndTime"> 
+                    <![CDATA[DATE_FORMAT(outidtime,'%Y-%m-%d')<=#billEndTime#]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="payOrderNo"> 
+                    outid=#payOrderNo#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="payOrderType"> 
+                    type=#payOrderType#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="outBillId"> 
+                    outBillId=#outBillId#
+            </isNotEmpty>
+       </dynamic> 
+    </select>
+    
     <insert id="createPayListLog" parameterClass="com.china.center.oa.finance.vo.PayOrderListLogVO">
     	insert into t_center_paylistlog (id,outid,type,bankname,username, bankno,money,province,city,description,outidtime,status,
     	outbillid,operator,paytime,payaccount,paybank,bankstatus,bankpaytime,operatorid,paybankid,message) 

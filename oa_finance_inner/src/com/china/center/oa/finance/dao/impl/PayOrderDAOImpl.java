@@ -130,4 +130,10 @@ public class PayOrderDAOImpl extends IbatisDaoSupportImpl implements PayOrderDAO
 		this.update("PayOrderDaoImpl.updateBackPrePayApply", paramMap);
 	}
 
+	@Override
+	public List<PayOrderListLogVO> queryPayOrderListHasNoAttachment(Map<String, String> paramMap) {
+		List<PayOrderListLogVO> list = this.queryForList("PayOrderDaoImpl.queryPayOrderListHasNoAttachment", paramMap);
+		return list;
+	}
+
 }

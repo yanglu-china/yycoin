@@ -1139,7 +1139,7 @@ public class PayOrderAction extends DispatchAction {
 		}
 		queryMap.put("billTime", billTime);
 
-		List<PayOrderListLogVO> list = payOrderDao.queryPayOrderLogList(queryMap);
+		List<PayOrderListLogVO> list = payOrderDao.queryPayOrderListHasNoAttachment(queryMap);
 		request.setAttribute("payOrderLogList", list);
 		request.setAttribute("queryMap", queryMap);
 		return mapping.findForward("queryAttachement");

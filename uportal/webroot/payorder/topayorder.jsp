@@ -28,7 +28,7 @@ function dopay()
 	}
 	if (window.confirm('确定付款?'))
 	{
-		
+		$("#todopay").attr("style","display:none");
 		var formData = $("#adminForm").serialize();
 		$.ajax({
 	        type: "POST",
