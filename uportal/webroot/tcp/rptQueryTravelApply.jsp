@@ -16,8 +16,6 @@ function querys()
 function sures()
 {
 	add();
-    
-    closes();
 }
 
 function add()
@@ -29,11 +27,20 @@ function add()
     if (oo && oo.length == 0)
     {
         alert('请选择申请');
-        return;
+        return false;
     }
     
     if (oo)
-    opener.getTravelApply(oo);
+    {
+    	var maycurflag = oo[0].pmarketflag;
+    	if(maycurflag == 1)
+    	{
+    		alert('不能选择来源是每刻的申请单');
+    		return false;
+    	}
+	    opener.getTravelApply(oo);
+	    closes();    	
+    }
 }
 
 function closes()
@@ -124,6 +131,7 @@ function closesd()
 					pname="${item.name}"
 					pborrow="${item.borrow}"
 					pbtotal="${item.showBorrowTotal}"
+					pmarketflag="${item.marketingFlag}"
 					${vs.index == 0 ? 'checked' : ''}
 					value="${item.id}"/></td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.id}</td>

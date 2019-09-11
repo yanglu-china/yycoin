@@ -54,4 +54,6 @@
 	<bean id="preInvoiceManager" class="com.china.center.oa.tcp.manager.impl.PreInvoiceManagerImpl" />
 	
 	<bean id="backPrePayManager" class="com.china.center.oa.tcp.manager.impl.BackPrePayManagerImpl" />
+	
+	<bean id="mayCurConsumeSubmitDAO" class="com.china.center.oa.tcp.dao.impl.MayCurConsumeSubmitDAOImpl" />
 </beans>
