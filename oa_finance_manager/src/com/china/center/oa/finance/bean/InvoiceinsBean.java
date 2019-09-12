@@ -277,6 +277,27 @@ public class InvoiceinsBean implements Serializable
      * #404 开票品名
      */
     private String spmc = "";
+
+    /**
+     * #767 购方名称
+     */
+    private String gfmc = "";
+
+    /**
+     * 购方税号
+     */
+    private String gfsh = "";
+
+
+    /**
+     * 购方开户银行及银行账号
+     */
+    private String gfyh = "";
+
+    /**
+     * 购方企业地址及联系电话
+     */
+    private String gfdz = "";
     
 	//-----------------------------------distribution------------------------------
 	
@@ -1086,6 +1107,38 @@ public class InvoiceinsBean implements Serializable
 
     public void setSpmc(String spmc) {
         this.spmc = spmc;
+    }
+
+    public String getGfmc() {
+        return gfmc;
+    }
+
+    public void setGfmc(String gfmc) {
+        this.gfmc = gfmc;
+    }
+
+    public String getGfsh() {
+        return gfsh;
+    }
+
+    public void setGfsh(String gfsh) {
+        this.gfsh = gfsh;
+    }
+
+    public String getGfyh() {
+        return gfyh;
+    }
+
+    public void setGfyh(String gfyh) {
+        this.gfyh = gfyh;
+    }
+
+    public String getGfdz() {
+        return gfdz;
+    }
+
+    public void setGfdz(String gfdz) {
+        this.gfdz = gfdz;
     }
 
     /**

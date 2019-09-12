@@ -4338,18 +4338,6 @@ public class InvoiceinsAction extends DispatchAction
                                         importError = true;
                                     } else {
                                         bean.setInvoiceId(invoice.getId());
-//                                        if (outBean!= null){
-//                                            try {
-//                                                this.checkTaxRate(outBean, invoice.getVal());
-//                                            }catch (MYException e){
-//                                                builder
-//                                                        .append("第[" + currentNumber + "]错误:")
-//                                                        .append(e.getMessage())
-//                                                        .append("<br>");
-//
-//                                                importError = true;
-//                                            }
-//                                        }
                                     }
                                 }
                             }
@@ -4764,7 +4752,7 @@ public class InvoiceinsAction extends DispatchAction
                     }
 
                     // 增值税开票信息
-                    if ( !StringTools.isNullOrNone(obj[20]))
+                    /*if ( !StringTools.isNullOrNone(obj[20]))
                     {
                         String zzsInfo = obj[20].trim();
                         bean.setZzsInfo(zzsInfo);
@@ -4777,11 +4765,64 @@ public class InvoiceinsAction extends DispatchAction
 
                             importError = true;
                         }
+                    }*/
+
+                    // 增值税开票信息
+                    StringBuilder sb = new StringBuilder();
+                    //购方名称
+                    if ( !StringTools.isNullOrNone(obj[20]))
+                    {
+                        String gfmc = obj[20].trim();
+                        bean.setGfmc(gfmc);
+                        sb.append(gfmc).append(",");
+                    }
+
+                    //购方税号
+                    if ( !StringTools.isNullOrNone(obj[21]))
+                    {
+                        String gfsh = obj[21].trim();
+                        bean.setGfsh(gfsh);
+                        sb.append(gfsh).append(",");
+                    }
+
+                    //购方开户银行及银行账号
+                    if ( !StringTools.isNullOrNone(obj[22]))
+                    {
+                        String gfyh = obj[22].trim();
+                        bean.setGfyh(gfyh);
+                        sb.append(gfyh).append(",");
+                    }
+
+                    //购方企业地址及联系电话
+                    if ( !StringTools.isNullOrNone(obj[23]))
+                    {
+                        String gfdz = obj[23].trim();
+                        bean.setGfdz(gfdz);
+                        sb.append(gfdz);
+                    }
+
+                    if ("增值税专用发票17%".equals(obj[3].trim())){
+                        if (StringTools.isNullOrNone(bean.getGfmc())
+                                || StringTools.isNullOrNone(bean.getGfsh())
+                                || StringTools.isNullOrNone(bean.getGfyh())
+                                || StringTools.isNullOrNone(bean.getGfdz())){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("增值税专用发票17%增值税开票信息不能为空")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    }
+
+                    _logger.info(sb.toString()+"***fuck***");
+                    if (!StringTools.isNullOrNone(sb.toString())){
+                        bean.setZzsInfo(sb.toString());
                     }
 
                     // #404 开票品名
-                    if ( !StringTools.isNullOrNone(obj[21])) {
-                        String spmc = obj[21].trim();
+                    if ( !StringTools.isNullOrNone(obj[24])) {
+                        String spmc = obj[24].trim();
                         bean.setSpmc(spmc);
                     }else {
                         builder
