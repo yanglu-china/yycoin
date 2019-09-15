@@ -1060,7 +1060,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             }
             
             //借贷平衡，稽核金额为0，凭证金额为实际金额
-            if(totalCmoney==0 && (bean.getTotal() == bean.getBorrowTotal())){
+            if(totalCmoney==0 && bean.getPayType() == TcpConstanst.PAYTYPE_PAY_OK){
             	totalCmoney = bean.getTotal();
             }
             
