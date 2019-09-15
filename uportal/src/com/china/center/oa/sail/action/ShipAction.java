@@ -5748,21 +5748,6 @@ public class ShipAction extends DispatchAction
         return equals(x, y) || (Math.abs(y - x) <= eps);
     }
 
-    private Document convertStringToDocument(String xmlStr) {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-        try
-        {
-            builder = factory.newDocumentBuilder();
-//            Document doc = builder.parse( new InputSource( new StringReader( xmlStr ) ));
-            Document doc = builder.parse( new File("G:\\invoice.xml"));
-            return doc;
-        } catch (Exception e) {
-            e.printStackTrace();
-            _logger.error(e);
-        }
-        return null;
-    }
 
     public ActionForward generateInvoiceinsXml(ActionMapping mapping, ActionForm form,
                                                HttpServletRequest request,
@@ -5806,38 +5791,52 @@ public class ShipAction extends DispatchAction
             Element invhead = doc.createElement("invhead");
             rootElement.appendChild(invhead);
 
+            InvoiceBean invoiceBean = this.invoiceDAO.find(bean.getInvoiceId());
+            //TODO
+            String fpzl;
+            String gfmc;
+            String gfsh;
+            String gfyh;
+            String gfdz;
+            if (invoiceBean.getName().contains("增值税")){
+                fpzl = "2";
+                gfmc = bean.getGfmc();
+                gfsh = bean.getGfsh();
+                gfyh = bean.getGfyh();
+                gfdz = bean.getGfdz();
+            } else{
+                fpzl = "0";
+                gfmc = bean.getHeadContent();
+                gfsh = "";
+                gfyh = "";
+                gfdz = "";
+            }
             // carname element
-            Element fpzl = doc.createElement("fpzl");
-            fpzl.appendChild(
-                    doc.createTextNode("2"));
-            invhead.appendChild(fpzl);
+            Element fpzlElm = doc.createElement("fpzl");
+            fpzlElm.appendChild(doc.createTextNode(fpzl));
+            invhead.appendChild(fpzlElm);
 
             //Invoiceins 表的ID字段值
-            Element djhm = doc.createElement("djhm");
-            djhm.appendChild(
-                    doc.createTextNode(bean.getId()));
-            invhead.appendChild(djhm);
+            Element djhmElm = doc.createElement("djhm");
+            djhmElm.appendChild(doc.createTextNode(bean.getId()));
+            invhead.appendChild(djhmElm);
 
             //heakcontent字段值
-            Element gfmc = doc.createElement("gfmc");
-            gfmc.appendChild(
-                    doc.createTextNode(bean.getHeadContent()));
-            invhead.appendChild(gfmc);
+            Element gfmcElm = doc.createElement("gfmc");
+            gfmcElm.appendChild(doc.createTextNode(gfmc));
+            invhead.appendChild(gfmcElm);
 
-            Element gfsh = doc.createElement("gfsh");
-            gfsh.appendChild(
-                    doc.createTextNode(""));
-            invhead.appendChild(gfsh);
+            Element gfshElm = doc.createElement("gfsh");
+            gfshElm.appendChild(doc.createTextNode(gfsh));
+            invhead.appendChild(gfshElm);
 
-            Element gfyh = doc.createElement("gfyh");
-            gfyh.appendChild(
-                    doc.createTextNode(""));
-            invhead.appendChild(gfyh);
+            Element gfyhElm = doc.createElement("gfyh");
+            gfyhElm.appendChild(doc.createTextNode(gfyh));
+            invhead.appendChild(gfyhElm);
 
-            Element gfdz = doc.createElement("gfdz");
-            gfdz.appendChild(
-                    doc.createTextNode(""));
-            invhead.appendChild(gfdz);
+            Element gfdzElm = doc.createElement("gfdz");
+            gfdzElm.appendChild(doc.createTextNode(gfdz));
+            invhead.appendChild(gfdzElm);
 
             // 取invoiceid到 invoice表中取对应的VAL值，如果值是2，则值设为3
             Element fpsl = doc.createElement("fpsl");

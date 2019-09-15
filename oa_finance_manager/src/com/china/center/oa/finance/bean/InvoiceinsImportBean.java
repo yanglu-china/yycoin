@@ -176,6 +176,27 @@ public class InvoiceinsImportBean implements Serializable
 	private String spmc = "";
 
 	/**
+	 * #767 购方名称
+	 */
+	private String gfmc = "";
+
+	/**
+	 * 购方税号
+	 */
+	private String gfsh = "";
+
+
+	/**
+	 * 购方开户银行及银行账号
+	 */
+	private String gfyh = "";
+
+	/**
+	 * 购方企业地址及联系电话
+	 */
+	private String gfdz = "";
+
+	/**
 	 * 
 	 */
 	public InvoiceinsImportBean()
@@ -618,6 +639,38 @@ public class InvoiceinsImportBean implements Serializable
 		this.invoiceType = invoiceType;
 	}
 
+	public String getGfmc() {
+		return gfmc;
+	}
+
+	public void setGfmc(String gfmc) {
+		this.gfmc = gfmc;
+	}
+
+	public String getGfsh() {
+		return gfsh;
+	}
+
+	public void setGfsh(String gfsh) {
+		this.gfsh = gfsh;
+	}
+
+	public String getGfyh() {
+		return gfyh;
+	}
+
+	public void setGfyh(String gfyh) {
+		this.gfyh = gfyh;
+	}
+
+	public String getGfdz() {
+		return gfdz;
+	}
+
+	public void setGfdz(String gfdz) {
+		this.gfdz = gfdz;
+	}
+
 	@Override
 	public String toString() {
 		return "InvoiceinsImportBean{" +
@@ -630,6 +683,7 @@ public class InvoiceinsImportBean implements Serializable
 				", invoiceMoney=" + invoiceMoney +
 				", invoiceNum='" + invoiceNum + '\'' +
 				", invoiceCode='" + invoiceCode + '\'' +
+				", invoiceType='" + invoiceType + '\'' +
 				", virtualInvoiceNum='" + virtualInvoiceNum + '\'' +
 				", invoiceId='" + invoiceId + '\'' +
 				", invoiceHead='" + invoiceHead + '\'' +
@@ -658,6 +712,10 @@ public class InvoiceinsImportBean implements Serializable
 				", zzsInfo='" + zzsInfo + '\'' +
 				", splitFlag=" + splitFlag +
 				", spmc='" + spmc + '\'' +
+				", gfmc='" + gfmc + '\'' +
+				", gfsh='" + gfsh + '\'' +
+				", gfyh='" + gfyh + '\'' +
+				", gfdz='" + gfdz + '\'' +
 				'}';
 	}
 }

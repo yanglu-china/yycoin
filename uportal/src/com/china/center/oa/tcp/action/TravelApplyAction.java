@@ -114,6 +114,7 @@ import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
 import com.china.center.oa.tcp.dao.BankBuLevelDAO;
 import com.china.center.oa.tcp.dao.ExpenseApplyDAO;
+import com.china.center.oa.tcp.dao.MayCurConsumeSubmitDAO;
 import com.china.center.oa.tcp.dao.TcpApplyDAO;
 import com.china.center.oa.tcp.dao.TcpApproveDAO;
 import com.china.center.oa.tcp.dao.TcpFlowDAO;
@@ -231,6 +232,8 @@ public class TravelApplyAction extends DispatchAction
     private TcpVSOutDAO tcpVSOutDAO = null;
     
     private PayOrderDAO payOrderDao;
+    
+    private MayCurConsumeSubmitDAO mayCurConsumeSubmitDAO;
     
     private static String QUERYSELFTRAVELAPPLY = "tcp.querySelfTravelApply";
     
@@ -2090,6 +2093,19 @@ public class TravelApplyAction extends DispatchAction
 
         for (TravelApplyVO travelApplyVO : voList)
         {
+        	//add by zhangxian 2019-09-11
+        	//判断申请单是否为每刻的单据,利用markettingflag来识别
+        	String id = travelApplyVO.getId();
+        	int count = mayCurConsumeSubmitDAO.countByCondition(" where oaorderid=?", id);
+        	if(count == 1)
+        	{
+        		travelApplyVO.setMarketingFlag(1);
+        	}
+        	else
+        	{
+        		travelApplyVO.setMarketingFlag(0);
+        	}
+        	//end add
             TCPHelper.chageVO(travelApplyVO);
         }
 
@@ -6311,6 +6327,14 @@ public class TravelApplyAction extends DispatchAction
 
 	public void setPayOrderDao(PayOrderDAO payOrderDao) {
 		this.payOrderDao = payOrderDao;
+	}
+
+	public MayCurConsumeSubmitDAO getMayCurConsumeSubmitDAO() {
+		return mayCurConsumeSubmitDAO;
+	}
+
+	public void setMayCurConsumeSubmitDAO(MayCurConsumeSubmitDAO mayCurConsumeSubmitDAO) {
+		this.mayCurConsumeSubmitDAO = mayCurConsumeSubmitDAO;
 	}
     
     
