@@ -1058,6 +1058,12 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             for(TravelApplyItemVO item: travelApplyItemVOS){
             	totalCmoney += item.getCmoneys() *100;
             }
+            
+            //借贷平衡，稽核金额为0，凭证金额为实际金额
+            if(totalCmoney==0 && (bean.getTotal() == bean.getBorrowTotal())){
+            	totalCmoney = bean.getTotal();
+            }
+            
             bean.setTotalCmoney(totalCmoney);
             
             //是否稽核修改过金额
