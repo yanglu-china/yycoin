@@ -210,7 +210,7 @@
              reader.readFile(rds.getUniqueInputStream());
              while (reader.hasNext())
              {
-                 String[] obj = fillObj((String[])reader.next());
+                 String[] obj = StringUtils.fillObj((String[])reader.next(), 50);
 
                  // 第一行忽略
                  if (reader.getCurrentLineNumber() == 1)
@@ -218,11 +218,10 @@
                      continue;
                  }
 
-                 // #761 分行、网点、产品编码都为空表示是空行过滤掉
-                 if (StringTools.isNullOrNone(obj[0])
+                 // #761 列2、3、4都为空表示是空行过滤掉
+                 if (StringTools.isNullOrNone(obj[2])
                          && StringTools.isNullOrNone(obj[3])
-                         && StringTools.isNullOrNone(obj[4]))
-                 {
+                         && StringTools.isNullOrNone(obj[4])) {
                      continue;
                  }
 
@@ -234,7 +233,7 @@
 
                      bean.setItype(MathTools.parseInt(itype));
 
-                     boolean error = innerAdd2(bean, obj, builder, currentNumber);
+                     boolean error = innerAdd(1, bean, obj, builder, currentNumber);
 
                      if (!importError)
                      {
@@ -325,6 +324,1108 @@
          return mapping.findForward("queryOutImport");
      }
 
+     /**
+      * #770 重写中信导入,合并两种类型
+      * @param flag 1 代表中信,2代表其他(原浦发导入)
+      * @param bean
+      * @param obj
+      * @param builder
+      * @param currentNumber
+      * @return
+      */
+     private boolean innerAdd(int flag, OutImportBean bean, String[] obj, StringBuilder builder, int currentNumber)
+     {
+         boolean importError = false;
+         ProductBean productBean = null;
+
+         // 二级分行名称
+         String secondBranch = obj[0];
+         if ( !StringTools.isNullOrNone(secondBranch))
+         {
+             bean.setSecondBranch(secondBranch.trim());
+         }
+
+         // 联行网点号
+         String lhwd = obj[1];
+         if ( !StringTools.isNullOrNone(lhwd))
+         {
+             bean.setComunicationBranch(lhwd.trim());
+             bean.setLhwd(lhwd.trim());
+         }
+
+
+         // 网点名称 - 永银的客户,不做强制要求事先须存在，没有实时创建一条 -- 20131125 修改为客户须事先存在
+         // comunicatonBranchName
+         String cn = obj[2];
+         if ( !StringTools.isNullOrNone(cn))
+         {
+             String custName = cn.trim();
+             List<CustomerBean> cbeans = customerMainDAO.queryByName(custName);
+             if (ListTools.isEmptyOrNull(cbeans))
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("网点名称（客户）" + custName + "不存在")
+                         .append("<br>");
+
+                 importError = true;
+             }else{
+                 //#731
+                 CustomerBean customerBean = cbeans.get(0);
+                 if (customerBean.getOstatus() !=0){
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("客户已停用：" + custName )
+                             .append("<br>");
+
+                     importError = true;
+                 }
+
+                 if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
+                 {
+                     StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cbeans.get(0).getId());
+
+                     if (null == vsBean)
+                     {
+                         builder
+                                 .append("第[" + currentNumber + "]错误:")
+                                 .append("网点名称（客户）" + custName + "没有与业务员挂靠关系")
+                                 .append("<br>");
+
+                         importError = true;
+                     }else{
+                         StafferBean stafferBean = this.stafferDAO.find(vsBean.getStafferId());
+                         if (stafferBean!= null &&
+                                 ("停用".equals(stafferBean.getName()) || "重复".equals(stafferBean.getName()))){
+                             builder
+                                     .append("第[" + currentNumber + "]错误:")
+                                     .append("停用或重复名下的客户不能导入" + custName)
+                                     .append("<br>");
+
+                             importError = true;
+                         } else {
+                             bean.setComunicatonBranchName(custName);
+                             bean.setStafferId2(stafferBean.getId());
+
+                             String branchName = this.customerMainDAO.queryBranchName(custName);
+                             if(StringTools.isNullOrNone(branchName)){
+                                 builder
+                                         .append("第[" + currentNumber + "]错误:")
+                                         .append("t_center_customer表中reserver1字段(分行)不能为空：" + custName)
+                                         .append("<br>");
+
+                                 importError = true;
+                             } else{
+                                 bean.setBranchName(branchName);
+                             }
+                         }
+                     }
+                 }else{
+                     bean.setComunicatonBranchName("公共客户");
+                 }
+             }
+         }
+         else
+         {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("网点名称不能为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         // 商品编码
+         String code = obj[3];
+         if ( !StringTools.isNullOrNone(code))
+         {
+             bean.setProductCode(code.trim());
+         }
+         else
+         {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("商品编码不可为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         // 商品名称
+         String productName = obj[4];
+         if (flag == 1){
+             if ( !StringTools.isNullOrNone(productName))
+             {
+                 // 姓氏
+                 bean.setFirstName("N/A");
+             }
+         } else{
+             if ( !StringTools.isNullOrNone(productName))
+             {
+                 String name = productName.trim();
+
+                 // 姓氏
+                 bean.setFirstName("N/A");
+                 productBean = productDAO.findByName(name);
+                 if (null == productBean)
+                 {
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("产品["+name+"]的产品不存在,请创建")
+                             .append("<br>");
+
+                     importError = true;
+                 }else{
+                     bean.setProductId(productBean.getId());
+                     bean.setProductName(productBean.getName());
+                 }
+             }
+             else
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("产品不可为空")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+
+         // 数量
+         String amt = obj[5];
+         if ( !StringTools.isNullOrNone(amt))
+         {
+             int amount = MathTools.parseInt(amt.trim());
+
+             if (amount <= 0){
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("数量须大于0")
+                         .append("<br>");
+
+                 importError = true;
+             }else{
+                 bean.setAmount(amount);
+             }
+         }
+         else
+         {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("数量不可为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         // 单价
+         String p = obj[6];
+         if ( !StringTools.isNullOrNone(p))
+         {
+             double price = MathTools.parseDouble(p.trim());
+             bean.setPrice(price);
+
+             if (bean.getOutType() != OutConstant.OUTTYPE_OUT_PRESENT){
+                 if (price <= 0)
+                 {
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("非赠送类型时，单价须大于0")
+                             .append("<br>");
+
+                     importError = true;
+                 }
+             }
+         }
+         else
+         {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("单价不可为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         // 规格
+         String style = obj[7];
+         if ( !StringTools.isNullOrNone(style))
+         {
+             bean.setStyle(style.trim());
+         }
+
+         // 金额
+         String v = obj[8];
+         if ( !StringTools.isNullOrNone(v))
+         {
+             double value = MathTools.parseDouble(v.trim());
+             bean.setValue(value);
+
+             if (value != (bean.getAmount() * bean.getPrice()))
+             {
+                 bean.setValue(bean.getAmount() * bean.getPrice());
+             }
+         }
+         else
+         {
+             bean.setValue(bean.getAmount() * bean.getPrice());
+         }
+
+         //  中收金额
+         String mid = obj[9];
+         if ( !StringTools.isNullOrNone(mid))
+         {
+             String value = mid.trim();
+
+             if (value.equals("无")) {
+                 bean.setMidValue(0);
+             } else {
+                 double midValue = MathTools.parseDouble(value);
+
+                 if (midValue <= 0) {
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("中收为0请用'无'代替")
+                             .append("<br>");
+
+                     importError = true;
+                 } else {
+                     bean.setMidValue(midValue);
+                 }
+             }
+         }
+
+
+         // 计划交付日期
+         String arriveDate = obj[10];
+         if ( !StringTools.isNullOrNone(arriveDate))
+         {
+             bean.setArriveDate(arriveDate.trim());
+         }
+
+         // 库存类型
+         String st = obj[11];
+         if ( !StringTools.isNullOrNone(st))
+         {
+             int storageType = OutImportHelper.getStorageType(st.trim());
+             bean.setStorageType(storageType);
+         }
+
+         // 中信订单号
+         String citicNo = obj[12];
+         if ( !StringTools.isNullOrNone(citicNo))
+         {
+             bean.setCiticNo(citicNo.trim());
+         }
+         else
+         {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("银行订单号不能为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         // 开票性质
+         String in = obj[13];
+         if ( !StringTools.isNullOrNone(in))
+         {
+             int invoiceNature = OutImportHelper.getInvoiceNature(in.trim());
+             if (invoiceNature == -1){
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("开票性质只能为:"+OutImportHelper.getInvoiceNature())
+                         .append("<br>");
+
+                 importError = true;
+             } else{
+                 bean.setInvoiceNature(invoiceNature);
+             }
+         }
+
+         // 开票抬头
+         String ih = obj[14];
+         if ( !StringTools.isNullOrNone(ih))
+         {
+             bean.setInvoiceHead(ih.trim());
+         }
+
+         //#770 增值税--购方名称、增值税--购方税号、增值税--银行信息、增值税--购方地址电话
+         //增值税--购方名称
+         String gfmc = obj[15];
+         if (!StringTools.isNullOrNone(gfmc)){
+             bean.setGfmc(gfmc.trim());
+         }
+
+         String gfsh = obj[16];
+         if (!StringTools.isNullOrNone(gfsh)){
+             bean.setGfsh(gfsh.trim());
+         }
+
+         String gfyh = obj[17];
+         if (!StringTools.isNullOrNone(gfyh)){
+             bean.setGfyh(gfyh.trim());
+         }
+
+         String gfdz = obj[18];
+         if (!StringTools.isNullOrNone(gfdz)){
+             bean.setGfdz(gfdz.trim());
+         }
+
+         // 绑定单号
+         String bindNo = obj[19];
+         if ( !StringTools.isNullOrNone(bindNo))
+         {
+             bean.setBindNo(bindNo.trim());
+         }
+
+         // 开票类型
+         String invoiceType = obj[20];
+         if ( !StringTools.isNullOrNone(invoiceType))
+         {
+               bean.setInvoiceType(OutImportHelper.getInvoiceType(invoiceType.trim()));
+         }
+
+         // 开票品名
+         String invoiceName = obj[21];
+         if ( !StringTools.isNullOrNone(invoiceName))
+         {
+             bean.setInvoiceName(invoiceName.trim());
+         }
+
+         // 开票金额
+         String invoiceMoney = obj[22];
+         if ( !StringTools.isNullOrNone(invoiceMoney))
+         {
+             bean.setInvoiceMoney(MathTools.parseDouble(invoiceMoney.trim()));
+         }
+
+         // 省
+         String provinceName = obj[23];
+         if ( !StringTools.isNullOrNone(provinceName))
+         {
+             ProvinceBean province = provinceDAO.findByUnique(provinceName.trim());
+             if (null != province) {
+                 bean.setProvinceId(province.getId());
+             }
+         }
+
+         // 市
+         String cityName = obj[24];
+         if ( !StringTools.isNullOrNone(cityName))
+         {
+             CityBean city = cityDAO.findByUnique(cityName.trim());
+             if (null != city){
+                 bean.setCityId(city.getId());
+             }
+         }
+
+         // 详细地址
+         String address = obj[25];
+         if ( !StringTools.isNullOrNone(address))
+         {
+             bean.setAddress(address.trim());
+         }
+
+         // 收货人
+         String receiver = obj[26];
+         if ( !StringTools.isNullOrNone(receiver))
+         {
+             bean.setReceiver(receiver.trim());
+         }
+
+         // 收货人手机
+         String phone = obj[27];
+         if ( !StringTools.isNullOrNone(phone))
+         {
+             bean.setHandPhone(phone.trim());
+         }
+
+         // TODO 姓氏还有用吗？
+         String firstName = obj[28];
+         if ( !StringTools.isNullOrNone(firstName))
+         {
+             bean.setFirstName(firstName.trim());
+         }
+         else
+             bean.setFirstName("N/A");
+
+         // 中信订单日期
+         String citicDate = obj[29];
+         if ( !StringTools.isNullOrNone(citicDate))
+         {
+             String date = citicDate.trim();
+             String eL = "[0-9]{4}-[0-9]{2}-[0-9]{2}";
+             Pattern pattern = Pattern.compile(eL);
+             Matcher m = pattern.matcher(date);
+             boolean dateFlag = m.matches();
+             if (!dateFlag) {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("中信订单日期格式错误，如 2000-01-01")
+                         .append("<br>");
+
+                 importError = true;
+             }else{
+                 bean.setCiticOrderDate(date);
+             }
+         } else {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("中信订单日期不能为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         // 订单类型
+         String ot = obj[30];
+         if ( !StringTools.isNullOrNone(ot))
+         {
+             String outType = ot.trim();
+             String [] outTypes = OutImportConstant.outTypesArr;
+
+             for(int i = 0; i< outTypes.length; i++)
+             {
+                 if (outType.equals(outTypes[i]))
+                 {
+                     bean.setOutType(OutImportConstant.outTypeiArr[i]);
+
+                     break;
+                 }
+             }
+
+             if (bean.getOutType() == -1)
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("订单类型不存在")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }else
+         {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("订单类型不能为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         // 仓库
+         String depotName = obj[31];
+         if ( !StringTools.isNullOrNone(ot))
+         {
+             DepotBean depot = depotDAO.findByUnique(depotName.trim());
+
+             if (null == depot)
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("仓库" + depotName + "不存在")
+                         .append("<br>");
+
+                 importError = true;
+             }else{
+                 bean.setDepotId(depot.getId());
+             }
+         }else
+         {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("仓库不能为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         // 仓区
+         String depotpartName = obj[32];
+         if ( !StringTools.isNullOrNone(depotpartName))
+         {
+             DepotpartBean depotpart = depotpartDAO.findByUnique(depotpartName.trim());
+
+             if (null == depotpart)
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("仓区[" + depotpartName + "]不存在")
+                         .append("<br>");
+
+                 importError = true;
+             }else{
+                 if (!depotpart.getLocationId().equals(bean.getDepotId()))
+                 {
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("仓区[" +depotpartName + "]对应的仓库不是导入中的仓库")
+                             .append("<br>");
+
+                     importError = true;
+                 }else
+                 {
+                     bean.setDepotpartId(depotpart.getId());
+                     bean.setComunicationBranch(depotpart.getName());
+                 }
+             }
+         }else
+         {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("仓区不能为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         // 职员 - 领样类型时 必须
+         String stafferName = obj[33];
+         if ( !StringTools.isNullOrNone(stafferName))
+         {
+             StafferBean staffer = stafferDAO.findByUnique(stafferName.trim());
+
+             if (null == staffer)
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("职员["+stafferName.trim()+"]不存在")
+                         .append("<br>");
+
+                 importError = true;
+             }else{
+                 bean.setStafferId(staffer.getId());
+             }
+         }else
+         {
+             if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("领样类型库单时职员不能为空")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         // 备注
+         String description = obj[34];
+         if ( !StringTools.isNullOrNone(description))
+         {
+             bean.setDescription(description.trim());
+         }
+
+         // 发货方式
+         String ship = obj[35];
+         if ( !StringTools.isNullOrNone(ship))
+         {
+             boolean has = false;
+             String shipping = ship.trim();
+             for (int i = 0 ; i < OutImportConstant.shipping.length; i++)
+             {
+                 if (OutImportConstant.shipping[i].equals(shipping))
+                 {
+                     has = true;
+
+                     bean.setShipping(OutImportConstant.ishipping[i]);
+
+                     break;
+                 }
+             }
+
+             if (!has)
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("发货方式不对,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
+                         .append("<br>");
+
+                 importError = true;
+             }
+
+             //仓库为“可发库”时，发货方式控制不可选择“空发
+             if(DepotConstant.CENTER_DEPOT_ID.equals(bean.getDepotId())
+                     && bean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING){
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("仓库为“可发库”时，发货方式控制不可选择'空发'")
+                         .append("<br>");
+
+                 importError = true;
+             }
+             //仓库为“空退空开库（仅限商务部操作）”时，发货方式控制只能选择“空发”
+             else if(DepotConstant.KTKK_SW_DEPOT_ID.equals(bean.getDepotId())
+                     && bean.getShipping() != OutConstant.OUT_SHIPPING_NOTSHIPPING){
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("仓库为“空退空开库（仅限商务部操作）”时，发货方式控制只能选择“空发”'")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }else
+         {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("发货方式不能为空,须为[自提,公司第三方快递,第三方货运,第三方快递+货运,代收货款,空发]中之一")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         //校验省、市、地址、收货人信息
+         if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL || bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT ||
+                 bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
+            if( bean.getProvinceId() == null) {
+                builder
+                        .append("第[" + currentNumber + "]错误:")
+                        .append("快递、货运时省名为空或不存在")
+                        .append("<br>");
+
+                importError = true;
+            }
+
+            if (bean.getCityId() == null){
+                builder
+                        .append("第[" + currentNumber + "]错误:")
+                        .append("快递、货运时市名为空或不存在")
+                        .append("<br>");
+
+                importError = true;
+            }
+
+            if (StringTools.isNullOrNone(bean.getAddress()) || bean.getAddress().length()< 5){
+                builder
+                        .append("第[" + currentNumber + "]错误:")
+                        .append("快递、货运时详细地址不能少于5个字")
+                        .append("<br>");
+
+                importError = true;
+            }
+
+            if (StringTools.isNullOrNone(bean.getReceiver()) || bean.getReceiver().length() < 2){
+                builder
+                        .append("第[" + currentNumber + "]错误:")
+                        .append("快递、货运时收货人不能少于2个字")
+                        .append("<br>");
+
+                importError = true;
+            }
+
+             if (bean.getHandPhone()!= null && bean.getHandPhone().length() != 11) {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("收货人手机号码不是11位")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         //校验快递和快递支付方式
+         if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL || bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT
+                 || bean.getShipping() == OutConstant.OUT_SHIPPING_PROXY)
+         {
+             // 如果发货方式是快递或快递+货运 ,则快递须为必填
+             String t1 = obj[36];
+             if ( !StringTools.isNullOrNone(t1))
+             {
+                 String transport1 = t1.trim();
+                 ExpressBean express = expressDAO.findByUnique(transport1);
+
+                 if (null == express)
+                 {
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("快递方式"+ transport1 +"不存在")
+                             .append("<br>");
+
+                     importError = true;
+                 }else{
+                     bean.setTransport1(MathTools.parseInt(express.getId()));
+                 }
+             }else
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("快递方式不能为空")
+                         .append("<br>");
+
+                 importError = true;
+             }
+
+             // 快递支付方式也不能为空
+             String ep = obj[37];
+             if ( !StringTools.isNullOrNone(ep))
+             {
+                 String expressPay = ep.trim();
+
+                 boolean isexists = false;
+
+                 for (int i = 0; i < OutImportConstant.expressPay.length; i++)
+                 {
+                     if (expressPay.equals(OutImportConstant.expressPay[i]))
+                     {
+                         isexists = true;
+
+                         bean.setExpressPay(OutImportConstant.iexpressPay[i]);
+
+                         break;
+                     }
+                 }
+
+                 if (!isexists)
+                 {
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("快递支付方式不存在,只能为[业务员支付,公司支付,客户支付]之一")
+                             .append("<br>");
+
+                     importError = true;
+                 }
+             }else
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("快递支付方式不能为空,只能为[业务员支付,公司支付,客户支付]之一")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         // 校验货运和货运支付方式
+         if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT || bean.getShipping() ==  OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT)
+         {
+             // 如果发货方式是快递或快递+货运 ,则快递须为必填
+             String t2 = obj[38];
+             if ( !StringTools.isNullOrNone(t2))
+             {
+                 String transport2 = t2.trim();
+
+                 ExpressBean express = expressDAO.findByUnique(transport2);
+
+                 if (null == express)
+                 {
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("货运方式"+ transport2 +"不存在")
+                             .append("<br>");
+
+                     importError = true;
+                 }else{
+                     bean.setTransport2(MathTools.parseInt(express.getId()));
+                 }
+             }else
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("货运方式不能为空")
+                         .append("<br>");
+
+                 importError = true;
+             }
+
+             // 快递支付方式也不能为空
+             String tp = obj[39];
+             if ( !StringTools.isNullOrNone(tp))
+             {
+                 String expressPay = tp.trim();
+
+                 boolean isexists = false;
+
+                 for (int i = 0; i < OutImportConstant.expressPay.length; i++)
+                 {
+                     if (expressPay.equals(OutImportConstant.expressPay[i]))
+                     {
+                         isexists = true;
+
+                         bean.setTransportPay(OutImportConstant.iexpressPay[i]);
+
+                         break;
+                     }
+                 }
+
+                 if (!isexists)
+                 {
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("货运支付方式不存在,只能为[业务员支付,公司支付,客户支付]之一")
+                             .append("<br>");
+
+                     importError = true;
+                 }
+             }else
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("货运支付方式不能为空,只能为[业务员支付,公司支付,客户支付]之一")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         // 回款天数
+         String reday = obj[40];
+         if ( !StringTools.isNullOrNone(reday))
+         {
+             bean.setReday(MathTools.parseInt(reday.trim()));
+         }else{
+             bean.setReday(OutImportConstant.CITIC_REDAY);
+         }
+
+         //二级类型
+         String pf = obj[41];
+         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
+                 || bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH) {
+             if ( !StringTools.isNullOrNone(pf))
+             {
+                 String presentFlag = pf.trim();
+
+                 ConditionParse conditionParse = new ConditionParse();
+                 conditionParse.addWhereStr();
+                 conditionParse.addCondition("name","=",presentFlag);
+                 List<PresentFlagBean> presentFlagBeans = this.presentFlagDAO.queryEntityBeansByCondition(conditionParse);
+                 if (ListTools.isEmptyOrNull(presentFlagBeans)){
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("二级类型不存在")
+                             .append("<br>");
+
+                     importError = true;
+                 } else{
+                     bean.setPresentFlag(Integer.valueOf(presentFlagBeans.get(0).getType()));
+                 }
+             }else{
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("赠送或个人领样单据时二级类型不能为空")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         // 2015/09/29 客户姓名
+         String cname = obj[42];
+         if ( !StringTools.isNullOrNone(cname))
+         {
+             bean.setCustomerName(cname.trim());
+         }
+
+         // #426 2017/2/28 固定电话
+         String tel = obj[43];
+         if ( !StringTools.isNullOrNone(tel))
+         {
+             bean.setTelephone(tel.trim());
+         }
+
+         // #461 手机和电话不能都为空
+         if (StringTools.isNullOrNone(bean.getHandPhone()) && StringTools.isNullOrNone(bean.getTelephone())){
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("收货人手机或固定电话不能都为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         // #62 2017/6/13 是否直邮,状态默认为0 输入值为N时为0，Y时为1
+         String di = obj[44];
+         if ( !StringTools.isNullOrNone(di))
+         {
+             String direct = di.trim();
+             if ("Y".equalsIgnoreCase(direct)){
+                 bean.setDirect(1);
+             } else if ("N".equalsIgnoreCase(direct)){
+                 bean.setDirect(0);
+             } else {
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("是否直邮只能为Y或N")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         } else{
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("是否直邮不能为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+
+         String cnl = obj[45];
+         if ( !StringTools.isNullOrNone(cnl))
+         {
+             String channel = cnl.trim();
+
+             if (channel.length()>4){
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("渠道不超过4个字符")
+                         .append("<br>");
+
+                 importError = true;
+             } else {
+                 final String type = "311";
+                 EnumBean enumBean = new EnumBean();
+                 enumBean.setType(type);
+                 enumBean.setValue(channel);
+                 List<EnumBean> enumBeans = this.enumDAO.findByType(type);
+                 if (!ListTools.isEmptyOrNull(enumBeans) && enumBeans.contains(enumBean)){
+                     bean.setChannel(channel);
+                 } else{
+                     builder.append("第[" + currentNumber + "]错误:")
+                             .append("渠道只能是"+EnumBean.join(enumBeans))
+                             .append("<br>");
+
+                     importError = true;
+                 }
+             }
+         }
+
+         //中收激励金额
+         if (flag == 1){
+             try {
+                 ProductImportBean productImportBean = null;
+                 //#505 中信导入、银行领样导入都读取Product import表
+                 String customerName = bean.getComunicatonBranchName();
+                 int qbIndustry = this.belongToQbIndustry(bean.getStafferId2());
+                 if (qbIndustry == OutConstant.QB_INDUSTRY_MJ){
+                     //当登录人是孟君，读取在售表BANK= 钱币拍卖客户
+                     productImportBean = this.outManager.getProductImportBean(OutConstant.QB_PMKH, null,
+                             bean.getProductCode(), null, bean.getCiticOrderDate(), bean.getOutType(), true);
+                 } else if(qbIndustry == OutConstant.QB_INDUSTRY_NOT_MJ){
+                     //当登录人非孟君，读取在售表BANK= 钱币事业部
+                     productImportBean = this.outManager.getProductImportBean(OutConstant.QB_INDUSTRY, null,
+                             bean.getProductCode(), null, bean.getCiticOrderDate(), bean.getOutType(), true);
+                 } else{
+                     productImportBean = this.outManager.getProductImportBean(customerName, bean.getBranchName(),
+                             bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType(), true);
+                 }
+
+                 productBean = this.productDAO.findByUnique(productImportBean.getCode());
+                 if (productBean == null){
+                     builder.append("第[" + currentNumber + "]错误:")
+                             .append("产品编码不存在:"+productImportBean.getCode())
+                             .append("<br>");
+
+                     importError = true;
+                 } else{
+                     bean.setProductId(productBean.getId());
+                     bean.setProductName(productBean.getName());
+                     bean.setProductImportId(productImportBean.getId());
+                 }
+
+                 //中信导入的销售出库才设置中收激励金额
+                 if (bean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON
+                         && bean.getItype() == 0){
+                     bean.setIbMoney(productImportBean.getIbMoney());
+                     bean.setMotivationMoney(productImportBean.getMotivationMoney());
+                     bean.setIbMoney2(productImportBean.getIbMoney2());
+                     bean.setMotivationMoney2(productImportBean.getMotivationMoney2());
+                     bean.setYkibMoney(productImportBean.getYkibMoney());
+
+                     if (this.isOnlineCustomer(bean.getComunicatonBranchName())){
+                         bean.setPlatformFee(bean.getPrice()*0.01);
+                     } else{
+                         bean.setPlatformFee(productImportBean.getPlatformFee());
+                     }
+
+                     bean.setCash(productImportBean.getCash());
+                     bean.setCash2(productImportBean.getCash2());
+                     bean.setGrossProfit(productImportBean.getGrossProfit());
+
+                     //#625 OA出库单数量等于折算系数*开单数量
+                     double amount = Math.round(bean.getAmount()*productImportBean.getRated());
+                     bean.setAmount(new BigDecimal(amount).intValueExact());
+                     bean.setPrice(bean.getPrice()/productImportBean.getRated());
+                     bean.setValue(bean.getAmount() * bean.getPrice());
+                 }
+             }catch (MYException e){
+                 _logger.error(e);
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append(e.getMessage())
+                         .append("<br>");
+
+                 importError = true;
+             }
+         } else{
+             if (this.isOnlineCustomer(bean.getComunicatonBranchName())){
+                 bean.setPlatformFee(bean.getPrice()*0.01);
+             }
+         }
+
+
+         //交货方式
+         String dlv = obj[46];
+         if ( !StringTools.isNullOrNone(dlv))
+         {
+             String delivery = dlv.trim();
+             if ("现货".equalsIgnoreCase(delivery)){
+                 bean.setDelivery(delivery);
+             } else if ("预售".equalsIgnoreCase(delivery)){
+                 bean.setDelivery(delivery);
+             } else {
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("交货方式只能为现货/预售")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         //pos付款方
+         String posPayer = obj[47];
+         if ( !StringTools.isNullOrNone(posPayer))
+         {
+             bean.setPosPayer(posPayer.trim());
+         }
+
+         //推荐标示
+         String recommendation = obj[48];
+         if ( !StringTools.isNullOrNone(recommendation))
+         {
+             bean.setRecommendation(recommendation.trim());
+         }
+
+         //#629 虚拟订单
+         String vs = obj[49];
+         if ( !StringTools.isNullOrNone(vs))
+         {
+             String virtualStatus = vs.trim();
+             if ("是".equals(virtualStatus)){
+                 bean.setVirtualStatus(1);
+             } else if("否".equals(virtualStatus)){
+                 bean.setVirtualStatus(0);
+             } else{
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("虚拟订单只能为是/否")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
+         //#669 订单导入控制结算价不能为0
+         double iprice = this.outManager.getIprice(bean, productBean);
+         if (iprice == 0)
+         {
+             builder.append("第[" + currentNumber + "]错误:")
+                     .append("业务员结算价不能为0")
+                     .append("<br>");
+
+             importError = true;
+         }
+
+         return importError;
+     }
 
      /**
       * # 470 导入中收激励逻辑重写(中信导入-》中信银行0、银行领样2)
@@ -481,7 +1582,6 @@
          if ( !StringTools.isNullOrNone(obj[4]))
          {
              String code = obj[4].trim();
-
              bean.setProductCode(code);
 
              // 姓氏
@@ -1511,7 +2611,7 @@
 
              while (reader.hasNext())
              {
-                 String[] obj = fillObj((String[])reader.next());
+                 String[] obj = StringUtils.fillObj((String[])reader.next(), 50);
 
                  // 第一行忽略
                  if (reader.getCurrentLineNumber() == 1)
@@ -1519,11 +2619,10 @@
                      continue;
                  }
 
-
-                 // #761 分行、网点、产品名称都为空表示是空行过滤掉
-                 if (StringTools.isNullOrNone(obj[0])
+                 // #761 列2、3、4都为空表示是空行过滤掉
+                 if (StringTools.isNullOrNone(obj[2])
                          && StringTools.isNullOrNone(obj[3])
-                         && StringTools.isNullOrNone(obj[5]))
+                         && StringTools.isNullOrNone(obj[4]))
                  {
                      continue;
                  }
@@ -1534,7 +2633,7 @@
                  {
                      OutImportBean bean = new OutImportBean();
 
-                     boolean error = innerAddForPufa(bean, obj, builder, currentNumber);
+                     boolean error = innerAdd(2, bean, obj, builder, currentNumber);
 
                      if (!importError)
                      {

@@ -290,6 +290,27 @@ public class OutImportBean implements Serializable
 	 * #629 虚拟订单
 	 */
 	private int virtualStatus = 0;
+
+	/**
+	 * #767 #770 购方名称
+	 */
+	private String gfmc = "";
+
+	/**
+	 * 购方税号
+	 */
+	private String gfsh = "";
+
+
+	/**
+	 * 购方开户银行及银行账号
+	 */
+	private String gfyh = "";
+
+	/**
+	 * 购方企业地址及联系电话
+	 */
+	private String gfdz = "";
     
     @Ignore
     private int mayAmount = 0;
@@ -1073,6 +1094,38 @@ public class OutImportBean implements Serializable
 		this.virtualStatus = virtualStatus;
 	}
 
+	public String getGfmc() {
+		return gfmc;
+	}
+
+	public void setGfmc(String gfmc) {
+		this.gfmc = gfmc;
+	}
+
+	public String getGfsh() {
+		return gfsh;
+	}
+
+	public void setGfsh(String gfsh) {
+		this.gfsh = gfsh;
+	}
+
+	public String getGfyh() {
+		return gfyh;
+	}
+
+	public void setGfyh(String gfyh) {
+		this.gfyh = gfyh;
+	}
+
+	public String getGfdz() {
+		return gfdz;
+	}
+
+	public void setGfdz(String gfdz) {
+		this.gfdz = gfdz;
+	}
+
 	@Override
 	public String toString() {
 		return "OutImportBean{" +
@@ -1151,6 +1204,10 @@ public class OutImportBean implements Serializable
 				", recommendation='" + recommendation + '\'' +
 				", productImportId='" + productImportId + '\'' +
 				", virtualStatus=" + virtualStatus +
+				", gfmc='" + gfmc + '\'' +
+				", gfsh='" + gfsh + '\'' +
+				", gfyh='" + gfyh + '\'' +
+				", gfdz='" + gfdz + '\'' +
 				", mayAmount=" + mayAmount +
 				'}';
 	}
