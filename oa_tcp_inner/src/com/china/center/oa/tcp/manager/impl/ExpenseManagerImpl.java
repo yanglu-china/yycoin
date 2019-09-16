@@ -1108,6 +1108,11 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                         
                         //long itemMoney = item.getCmoneys() > 0 ?item.getCmoneys(): item.getMoneys();
                         long itemMoney = item.getCmoneys();
+                        
+                        if(item.getCmoneys()==0 && bean.getPayType() == TcpConstanst.PAYTYPE_PAY_OK){
+                        	itemMoney = item.getMoneys();
+                        }
+                        
                         double ratioPerBudgetItem = (double)itemMoney/realTotal;
                         long money = Math.round(share*ratioPerBudgetItem*100);
                         _logger.info("share is***"+share+"***ratioPerBudgetItem***"+ratioPerBudgetItem+"***money****"+money);
