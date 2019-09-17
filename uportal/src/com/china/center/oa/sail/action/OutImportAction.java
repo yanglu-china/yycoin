@@ -218,10 +218,10 @@
                      continue;
                  }
 
-                 // #761 列2、3、4都为空表示是空行过滤掉
-                 if (StringTools.isNullOrNone(obj[2])
-                         && StringTools.isNullOrNone(obj[3])
-                         && StringTools.isNullOrNone(obj[4])) {
+                 // #761 列3、4、5都为空表示是空行过滤掉
+                 if (StringTools.isNullOrNone(obj[3])
+                         && StringTools.isNullOrNone(obj[4])
+                         && StringTools.isNullOrNone(obj[5])) {
                      continue;
                  }
 
@@ -338,15 +338,51 @@
          boolean importError = false;
          ProductBean productBean = null;
 
+         // 订单类型
+         String ot = obj[0];
+         if ( !StringTools.isNullOrNone(ot))
+         {
+             String outType = ot.trim();
+             String [] outTypes = OutImportConstant.outTypesArr;
+
+             for(int i = 0; i< outTypes.length; i++)
+             {
+                 if (outType.equals(outTypes[i]))
+                 {
+                     bean.setOutType(OutImportConstant.outTypeiArr[i]);
+
+                     break;
+                 }
+             }
+
+             if (bean.getOutType() == -1)
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("订单类型不存在")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }else
+         {
+             builder
+                     .append("第[" + currentNumber + "]错误:")
+                     .append("订单类型不能为空")
+                     .append("<br>");
+
+             importError = true;
+         }
+
          // 二级分行名称
-         String secondBranch = obj[0];
+         String secondBranch = obj[1];
          if ( !StringTools.isNullOrNone(secondBranch))
          {
              bean.setSecondBranch(secondBranch.trim());
          }
 
          // 联行网点号
-         String lhwd = obj[1];
+         String lhwd = obj[2];
          if ( !StringTools.isNullOrNone(lhwd))
          {
              bean.setComunicationBranch(lhwd.trim());
@@ -356,7 +392,7 @@
 
          // 网点名称 - 永银的客户,不做强制要求事先须存在，没有实时创建一条 -- 20131125 修改为客户须事先存在
          // comunicatonBranchName
-         String cn = obj[2];
+         String cn = obj[3];
          if ( !StringTools.isNullOrNone(cn))
          {
              String custName = cn.trim();
@@ -383,7 +419,7 @@
 
                  if (bean.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH)
                  {
-                     StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(cbeans.get(0).getId());
+                     StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(customerBean.getId());
 
                      if (null == vsBean)
                      {
@@ -436,12 +472,11 @@
          }
 
          // 商品编码
-         String code = obj[3];
+         String code = obj[4];
          if ( !StringTools.isNullOrNone(code))
          {
              bean.setProductCode(code.trim());
-         }
-         else
+         } else if (flag == 1)
          {
              builder
                      .append("第[" + currentNumber + "]错误:")
@@ -452,7 +487,7 @@
          }
 
          // 商品名称
-         String productName = obj[4];
+         String productName = obj[5];
          if (flag == 1){
              if ( !StringTools.isNullOrNone(productName))
              {
@@ -493,7 +528,7 @@
 
 
          // 数量
-         String amt = obj[5];
+         String amt = obj[6];
          if ( !StringTools.isNullOrNone(amt))
          {
              int amount = MathTools.parseInt(amt.trim());
@@ -520,7 +555,7 @@
          }
 
          // 单价
-         String p = obj[6];
+         String p = obj[7];
          if ( !StringTools.isNullOrNone(p))
          {
              double price = MathTools.parseDouble(p.trim());
@@ -549,14 +584,14 @@
          }
 
          // 规格
-         String style = obj[7];
+         String style = obj[8];
          if ( !StringTools.isNullOrNone(style))
          {
              bean.setStyle(style.trim());
          }
 
          // 金额
-         String v = obj[8];
+         String v = obj[9];
          if ( !StringTools.isNullOrNone(v))
          {
              double value = MathTools.parseDouble(v.trim());
@@ -573,7 +608,7 @@
          }
 
          //  中收金额
-         String mid = obj[9];
+         String mid = obj[10];
          if ( !StringTools.isNullOrNone(mid))
          {
              String value = mid.trim();
@@ -598,14 +633,14 @@
 
 
          // 计划交付日期
-         String arriveDate = obj[10];
+         String arriveDate = obj[11];
          if ( !StringTools.isNullOrNone(arriveDate))
          {
              bean.setArriveDate(arriveDate.trim());
          }
 
          // 库存类型
-         String st = obj[11];
+         String st = obj[12];
          if ( !StringTools.isNullOrNone(st))
          {
              int storageType = OutImportHelper.getStorageType(st.trim());
@@ -613,7 +648,7 @@
          }
 
          // 中信订单号
-         String citicNo = obj[12];
+         String citicNo = obj[13];
          if ( !StringTools.isNullOrNone(citicNo))
          {
              bean.setCiticNo(citicNo.trim());
@@ -629,7 +664,7 @@
          }
 
          // 开票性质
-         String in = obj[13];
+         String in = obj[14];
          if ( !StringTools.isNullOrNone(in))
          {
              int invoiceNature = OutImportHelper.getInvoiceNature(in.trim());
@@ -646,7 +681,7 @@
          }
 
          // 开票抬头
-         String ih = obj[14];
+         String ih = obj[15];
          if ( !StringTools.isNullOrNone(ih))
          {
              bean.setInvoiceHead(ih.trim());
@@ -654,56 +689,56 @@
 
          //#770 增值税--购方名称、增值税--购方税号、增值税--银行信息、增值税--购方地址电话
          //增值税--购方名称
-         String gfmc = obj[15];
+         String gfmc = obj[16];
          if (!StringTools.isNullOrNone(gfmc)){
              bean.setGfmc(gfmc.trim());
          }
 
-         String gfsh = obj[16];
+         String gfsh = obj[17];
          if (!StringTools.isNullOrNone(gfsh)){
              bean.setGfsh(gfsh.trim());
          }
 
-         String gfyh = obj[17];
+         String gfyh = obj[18];
          if (!StringTools.isNullOrNone(gfyh)){
              bean.setGfyh(gfyh.trim());
          }
 
-         String gfdz = obj[18];
+         String gfdz = obj[19];
          if (!StringTools.isNullOrNone(gfdz)){
              bean.setGfdz(gfdz.trim());
          }
 
          // 绑定单号
-         String bindNo = obj[19];
+         String bindNo = obj[20];
          if ( !StringTools.isNullOrNone(bindNo))
          {
              bean.setBindNo(bindNo.trim());
          }
 
          // 开票类型
-         String invoiceType = obj[20];
+         String invoiceType = obj[21];
          if ( !StringTools.isNullOrNone(invoiceType))
          {
                bean.setInvoiceType(OutImportHelper.getInvoiceType(invoiceType.trim()));
          }
 
          // 开票品名
-         String invoiceName = obj[21];
+         String invoiceName = obj[22];
          if ( !StringTools.isNullOrNone(invoiceName))
          {
              bean.setInvoiceName(invoiceName.trim());
          }
 
          // 开票金额
-         String invoiceMoney = obj[22];
+         String invoiceMoney = obj[23];
          if ( !StringTools.isNullOrNone(invoiceMoney))
          {
              bean.setInvoiceMoney(MathTools.parseDouble(invoiceMoney.trim()));
          }
 
          // 省
-         String provinceName = obj[23];
+         String provinceName = obj[24];
          if ( !StringTools.isNullOrNone(provinceName))
          {
              ProvinceBean province = provinceDAO.findByUnique(provinceName.trim());
@@ -713,7 +748,7 @@
          }
 
          // 市
-         String cityName = obj[24];
+         String cityName = obj[25];
          if ( !StringTools.isNullOrNone(cityName))
          {
              CityBean city = cityDAO.findByUnique(cityName.trim());
@@ -723,28 +758,28 @@
          }
 
          // 详细地址
-         String address = obj[25];
+         String address = obj[26];
          if ( !StringTools.isNullOrNone(address))
          {
              bean.setAddress(address.trim());
          }
 
          // 收货人
-         String receiver = obj[26];
+         String receiver = obj[27];
          if ( !StringTools.isNullOrNone(receiver))
          {
              bean.setReceiver(receiver.trim());
          }
 
          // 收货人手机
-         String phone = obj[27];
+         String phone = obj[28];
          if ( !StringTools.isNullOrNone(phone))
          {
              bean.setHandPhone(phone.trim());
          }
 
-         // TODO 姓氏还有用吗？
-         String firstName = obj[28];
+         // 姓氏
+         String firstName = obj[29];
          if ( !StringTools.isNullOrNone(firstName))
          {
              bean.setFirstName(firstName.trim());
@@ -753,7 +788,7 @@
              bean.setFirstName("N/A");
 
          // 中信订单日期
-         String citicDate = obj[29];
+         String citicDate = obj[30];
          if ( !StringTools.isNullOrNone(citicDate))
          {
              String date = citicDate.trim();
@@ -775,42 +810,6 @@
              builder
                      .append("第[" + currentNumber + "]错误:")
                      .append("中信订单日期不能为空")
-                     .append("<br>");
-
-             importError = true;
-         }
-
-         // 订单类型
-         String ot = obj[30];
-         if ( !StringTools.isNullOrNone(ot))
-         {
-             String outType = ot.trim();
-             String [] outTypes = OutImportConstant.outTypesArr;
-
-             for(int i = 0; i< outTypes.length; i++)
-             {
-                 if (outType.equals(outTypes[i]))
-                 {
-                     bean.setOutType(OutImportConstant.outTypeiArr[i]);
-
-                     break;
-                 }
-             }
-
-             if (bean.getOutType() == -1)
-             {
-                 builder
-                         .append("第[" + currentNumber + "]错误:")
-                         .append("订单类型不存在")
-                         .append("<br>");
-
-                 importError = true;
-             }
-         }else
-         {
-             builder
-                     .append("第[" + currentNumber + "]错误:")
-                     .append("订单类型不能为空")
                      .append("<br>");
 
              importError = true;
@@ -1500,9 +1499,6 @@
          if ( !StringTools.isNullOrNone(obj[3]))
          {
              String custName = obj[3].trim();
-
-//             CustomerBean cBean = customerMainDAO.findByUnique(custName);
-
              List<CustomerBean> cbeans = customerMainDAO.queryByName(custName);
              if (ListTools.isEmptyOrNull(cbeans))
              {
@@ -2619,11 +2615,10 @@
                      continue;
                  }
 
-                 // #761 列2、3、4都为空表示是空行过滤掉
-                 if (StringTools.isNullOrNone(obj[2])
-                         && StringTools.isNullOrNone(obj[3])
-                         && StringTools.isNullOrNone(obj[4]))
-                 {
+                 // #761 列3、4、5都为空表示是空行过滤掉
+                 if (StringTools.isNullOrNone(obj[3])
+                         && StringTools.isNullOrNone(obj[4])
+                         && StringTools.isNullOrNone(obj[5])) {
                      continue;
                  }
 
