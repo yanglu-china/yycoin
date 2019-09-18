@@ -651,7 +651,7 @@
          String citicNo = obj[13];
          if ( !StringTools.isNullOrNone(citicNo))
          {
-             bean.setCiticNo(citicNo.trim());
+             bean.setCiticNo(citicNo);
          }
          else
          {
