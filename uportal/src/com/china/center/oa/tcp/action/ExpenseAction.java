@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +60,6 @@ import com.china.center.oa.finance.bean.OutBillBean;
 import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.finance.dao.OutBillDAO;
 import com.china.center.oa.finance.dao.PayOrderDAO;
-import com.china.center.oa.finance.vo.PayOrderListLogVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
@@ -585,19 +583,11 @@ public class ExpenseAction extends DispatchAction
         
         //add by zhangxian 2019-08-09
         //查询银行回单附件
-        Map<String,String> paramMap = new HashMap<String, String>();
-        paramMap.put("payOrderNo", id);
-        List<PayOrderListLogVO> payOrderList = payOrderDao.queryPayOrderLogList(paramMap);
-        List<AttachmentBean> payOrderAttachmentList =  new ArrayList<AttachmentBean>();
-        for(PayOrderListLogVO payOrder:payOrderList)
-        {
-        	String payLogId = payOrder.getId();
-        	ConditionParse cond = new ConditionParse();
-        	cond.addCondition("refid", "=", payLogId);
-        	List<AttachmentBean> subList =  attachmentDAO.queryEntityBeansByCondition(cond);
-        	payOrderAttachmentList.addAll(subList);
-        }
-        request.setAttribute("payOrderAttachmentList", payOrderAttachmentList);
+    	ConditionParse cond = new ConditionParse();
+    	cond.addCondition("refid", "=", id);
+    	cond.addCondition("flag","=",1);
+    	List<AttachmentBean> subList =  attachmentDAO.queryEntityBeansByCondition(cond);
+        request.setAttribute("payOrderAttachmentList", subList);
 
         // 2是稽核修改
         if ("1".equals(update) || "3".equals(update))

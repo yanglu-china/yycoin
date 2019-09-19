@@ -5791,21 +5791,26 @@ public class ShipAction extends DispatchAction
             Element invhead = doc.createElement("invhead");
             rootElement.appendChild(invhead);
 
-            InvoiceBean invoiceBean = this.invoiceDAO.find(bean.getInvoiceId());
-            //TODO
+            String invoiceId = bean.getInvoiceId();
+            InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceId);
             String fpzl;
             String gfmc;
             String gfsh;
             String gfyh;
             String gfdz;
-            if (invoiceBean.getName().contains("增值税")){
+            String fpsl;
+            //专票
+            if ("90000000000000000046".equals(invoiceId)){
                 fpzl = "2";
-                gfmc = bean.getGfmc();
+                fpsl = "13";
+                gfmc = bean.getHeadContent();
                 gfsh = bean.getGfsh();
                 gfyh = bean.getGfyh();
                 gfdz = bean.getGfdz();
             } else{
                 fpzl = "0";
+                //TODO
+                fpsl = "0";
                 gfmc = bean.getHeadContent();
                 gfsh = "";
                 gfyh = "";
@@ -5838,12 +5843,9 @@ public class ShipAction extends DispatchAction
             gfdzElm.appendChild(doc.createTextNode(gfdz));
             invhead.appendChild(gfdzElm);
 
-            // 取invoiceid到 invoice表中取对应的VAL值，如果值是2，则值设为3
-            Element fpsl = doc.createElement("fpsl");
-            int val = this.getFpsl(bean);
-            fpsl.appendChild(doc.createTextNode(String.valueOf(val)));
-
-            invhead.appendChild(fpsl);
+            Element fpslElm = doc.createElement("fpsl");
+            fpslElm.appendChild(doc.createTextNode(fpsl));
+            invhead.appendChild(fpslElm);
 
             Element fpbz = doc.createElement("fpbz");
             fpbz.appendChild(
@@ -5853,19 +5855,19 @@ public class ShipAction extends DispatchAction
             ////开票人
             Element kprm = doc.createElement("kprm");
             kprm.appendChild(
-                    doc.createTextNode("陈倩"));
+                    doc.createTextNode("李均玲"));
             invhead.appendChild(kprm);
 
             //复核人
             Element fhrm = doc.createElement("fhrm");
             fhrm.appendChild(
-                    doc.createTextNode("邢君君"));
+                    doc.createTextNode("李敏"));
             invhead.appendChild(fhrm);
 
             //收款人
             Element skrm = doc.createElement("skrm");
             skrm.appendChild(
-                    doc.createTextNode("黄文娟"));
+                    doc.createTextNode("黄云"));
             invhead.appendChild(skrm);
 
             //含税标识
@@ -5876,12 +5878,12 @@ public class ShipAction extends DispatchAction
 
             Element xfdz = doc.createElement("xfdz");
             xfdz.appendChild(
-                    doc.createTextNode("南京市秦淮区正学路1号025-51885901"));
+                    doc.createTextNode("南京市秦淮区正学路1号,025-51885901"));
             invhead.appendChild(xfdz);
 
             Element xfyh = doc.createElement("xfyh");
             xfyh.appendChild(
-                    doc.createTextNode("招商银行南京城北支行125902780610701"));
+                    doc.createTextNode("招商银行南京城北支行,125902780610701"));
             invhead.appendChild(xfyh);
 
             Element hysy = doc.createElement("hysy");

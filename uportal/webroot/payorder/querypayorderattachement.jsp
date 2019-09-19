@@ -81,7 +81,7 @@ function change(outid,outbillid,billtype)
 
 <table width="98%" border="0" cellpadding="0" cellspacing="0" align="center">
 	<tr class="content1">
-        <td style="width: 15%" align="center">单据类型:</td>
+        <%-- <td style="width: 15%" align="center">单据类型:</td>
         <td align="center" style="width: 35%">
         	<select name="payOrderType" id="payOrderType" class="select_class" values="${queryMap.payOrderType}">
 				<option value="">--</option>
@@ -91,7 +91,7 @@ function change(outid,outbillid,billtype)
 				<option value="4">报销申请付款</option>
 				<option value="5">预收退款</option>
 			</select>
-        </td>
+        </td> --%>
         <td align="center" style="width: 15%">单据号:</td>
         <td align="center"><input type="text" name="payOrderNo" value="${queryMap.payOrderNo }"/>
         </td>
@@ -144,54 +144,44 @@ function change(outid,outbillid,billtype)
 							<td align="center" onclick="tableSort(this)" class="td_class">收款帐号</td>
 							<td align="center" onclick="tableSort(this)" class="td_class">单据状态</td>
 							<td align="center" onclick="tableSort(this)" class="td_class">付款备注</td>
-							<td align="center" onclick="tableSort(this)" class="td_class">付款结果</td>
 							<td align="center" onclick="tableSort(this)" class="td_class">操作</td>
 						</tr>
 						<tbody id="tbdata">
 						<c:forEach items="${payOrderLogList}" var="item" varStatus="vs">
 							<tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
 								<td align="center">
-									<c:if test="${item.type == 1}">
-									<a onclick="" href="../finance/stock.do?method=findStockPayApply&id=${item.outid}">${item.outid}</a>
+									<c:if test="${item.billType == 1}">
+									<a onclick="" href="../finance/stock.do?method=findStockPayApply&id=${item.billNo}">${item.billNo}</a>
 									</c:if>
-									<c:if test="${item.type == 2}">
-									<a onclick="" href="../finance/stock.do?method=findStockPrePayApply&id=${item.outid}">${item.outid}</a>
+									<c:if test="${item.billType == 2}">
+									<a onclick="" href="../finance/stock.do?method=findStockPrePayApply&id=${item.billNo}">${item.billNo}</a>
 									</c:if>
-									<c:if test="${item.type == 3}">
-									<a onclick="" href="../tcp/apply.do?method=findTravelApply&id=${item.outid}">${item.outid}</a>
+									<c:if test="${item.billType == 3}">
+									<a onclick="" href="../tcp/apply.do?method=findTravelApply&id=${item.billNo}">${item.billNo}</a>
 									</c:if>
-									<c:if test="${item.type == 4}">
-									<a onclick="" href="../tcp/expense.do?method=findExpense&id=${item.outid}">${item.outid}</a>
+									<c:if test="${item.billType == 4}">
+									<a onclick="" href="../tcp/expense.do?method=findExpense&id=${item.billNo}">${item.billNo}</a>
 									</c:if>
-									<c:if test="${item.type == 5}">
-									<a onclick="" href="../tcp/backprepay.do?method=findBackPrePay&id=${item.outid}">${item.outid}</a>
+									<c:if test="${item.billType == 5}">
+									<a onclick="" href="../tcp/backprepay.do?method=findBackPrePay&id=${item.billNo}">${item.billNo}</a>
 									</c:if>
 								</td>
 								<td align="center">
-									<c:if test="${item.type == 1}">采购付款</c:if>
-									<c:if test="${item.type == 2}">采购预付款</c:if>
-									<c:if test="${item.type == 3}">借款申请付款</c:if>
-									<c:if test="${item.type == 4}">报销申请付款</c:if>
-									<c:if test="${item.type == 5}">预收退款</c:if>
+									<c:if test="${item.billType == 1}">采购付款</c:if>
+									<c:if test="${item.billType == 2}">采购预付款</c:if>
+									<c:if test="${item.billType == 3}">借款申请付款</c:if>
+									<c:if test="${item.billType == 4}">报销申请付款</c:if>
+									<c:if test="${item.billType == 5}">预收退款</c:if>
 								</td>
-								<td align="center">${item.outidtime}</td>
-								<td align="center">${my:formatNum(item.money)}</td>
-								<td align="center">${item.bankName}</td>
-								<td align="center">${item.userName}</td>
-								<td align="center">${item.bankNo}</td>
-								<c:if test="${item.status == 2}">
-								<td align="center">待确认</td>
-								</c:if>
-								<c:if test="${item.status == 3}">
-								<td align="center">已付款</td>
-								</c:if>
-								<c:if test="${item.status == 4}">
-								<td align="center">未成功待付款</td>
-								</c:if>
+								<td align="center">${item.logTime}</td>
+								<td align="center">${my:formatNum(item.payeeAmount)}</td>
+								<td align="center">${item.payeeBank}</td>
+								<td align="center">${item.payeeBankAccName}</td>
+								<td align="center">${item.payeeBankAcc}</td>
+								<td align="center">${item.billStatus}</td>
 								<td align="center">${item.description}</td>
-								<td align="center">${item.message}</td>
 								<c:if test="${hasAuth == 1}">
-									<td align="center"><input type="button" onclick="change('${item.outid}','${item.outbillid}')" class="button_class" value="&nbsp;&nbsp;附件&nbsp;&nbsp;"/></td>
+									<td align="center"><input type="button" onclick="change('${item.billNo}','${item.billNo}')" class="button_class" value="&nbsp;&nbsp;附件&nbsp;&nbsp;"/></td>
 								</c:if>
 							</tr>
 						</c:forEach>
