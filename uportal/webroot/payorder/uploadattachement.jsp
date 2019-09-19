@@ -68,73 +68,62 @@ function load()
 							<tr class='content1'>
 								<td align="center" class="td_class">单据号</td>
 								<td align="left">
-									<c:if test="${item.type == 1}">
-									<a onclick="show('../finance/stock.do?method=findStockPayApply&id=${item.outid}')" href="javascript:void(0);">${item.outid}</a>
+									<c:if test="${item.billType == 1}">
+									<a onclick="show('../finance/stock.do?method=findStockPayApply&id=${item.billNo}')" href="javascript:void(0);">${item.billNo}</a>
 									</c:if>
-									<c:if test="${item.type == 2}">
-									<a onclick="show('../finance/stock.do?method=findStockPrePayApply&id=${item.outid}')" href="javascript:void(0);">${item.outid}</a>
+									<c:if test="${item.billType == 2}">
+									<a onclick="show('../finance/stock.do?method=findStockPrePayApply&id=${item.billNo}')" href="javascript:void(0);">${item.billNo}</a>
 									</c:if>
-									<c:if test="${item.type == 3}">
-									<a onclick="show('../tcp/apply.do?method=findTravelApply&id=${item.outid}')" href="javascript:void(0);">${item.outid}</a>
+									<c:if test="${item.billType == 3}">
+									<a onclick="show('../tcp/apply.do?method=findTravelApply&id=${item.billNo}')" href="javascript:void(0);">${item.billNo}</a>
 									</c:if>
-									<c:if test="${item.type == 4}">
-									<a onclick="show('../tcp/expense.do?method=findExpense&id=${item.outid}')" href="javascript:void(0);">${item.outid}</a>
+									<c:if test="${item.billType == 4}">
+									<a onclick="show('../tcp/expense.do?method=findExpense&id=${item.billNo}')" href="javascript:void(0);">${item.billNo}</a>
 									</c:if>
-									<c:if test="${item.type == 5}">
-									<a onclick="show('../tcp/backprepay.do?method=findBackPrePay&id=${item.outid}')" href="javascript:void(0);">${item.outid}</a>
+									<c:if test="${item.billType == 5}">
+									<a onclick="show('../tcp/backprepay.do?method=findBackPrePay&id=${item.billNo}')" href="javascript:void(0);">${item.billNo}</a>
 									</c:if>
 								</td>
 							</tr>
 							<tr class='content1'>
 								<td align="center" class="td_class">单据类型</td>
 								<td align="left">
-									<c:if test="${item.type == 1}">
+									<c:if test="${item.billType == 1}">
 										采购预付款
 									</c:if>
-									<c:if test="${item.type == 2}">
+									<c:if test="${item.billType == 2}">
 										采购付款
 									</c:if>
-									<c:if test="${item.type == 3}">
+									<c:if test="${item.billType == 3}">
 										借款申请付款
 									</c:if>
-									<c:if test="${item.type == 4}">
+									<c:if test="${item.billType == 4}">
 										报销申请付款
 									</c:if>
-									<c:if test="${item.type == 5}">
+									<c:if test="${item.billType == 5}">
 										预收退款
 									</c:if>
 								</td>
 							</tr>
 							<tr class='content1'>
 								<td align="center" class="td_class">单据日期</td>
-								<td align="left">${item.outidtime}</td>
+								<td align="left">${item.logTime}</td>
 							</tr>
 							<tr class='content1'>
 								<td align="center" class="td_class">收款金额(元)</td>
-								<td align="left">${my:formatNum(item.money)}</td>
+								<td align="left">${my:formatNum(item.payeeAmount)}</td>
 							</tr>
 							<tr class='content1'>
 								<td align="center" class="td_class">收款银行</td>
-								<td align="left">${item.bankName}</td>
+								<td align="left">${item.payeeBank}</td>
 							</tr>
 							<tr class='content1'>
 								<td align="center" class="td_class">收款户名</td>
-								<td align="left">${item.userName}</td>
+								<td align="left">${item.payeeBankAccName}</td>
 							</tr>
 							<tr class='content1'>
 								<td align="center" class="td_class">收款帐号</td>
-								<td align="left">${item.bankNo}</td>
-							</tr>
-							<tr class='content1'>
-								<td align="center" class="td_class">开户省份</td>
-								<td align="left">${item.province}</td>
-						    </tr>
-						    <tr class='content1'>
-						    	 <td align="center" class="td_class">开户城市</td>   
-								 <td align="left">${item.city}
-								 	<input type="hidden" id="outId" name="outId" value="${item.outid}">
-									<input type="hidden" id="outBillId" name="outBillId" value="${item.outbillid}">
-								 </td>
+								<td align="left">${item.payeeBankAcc}</td>
 							</tr>
 							<tr class='content1'>
 								<td align="center">上传附件</td>
@@ -145,7 +134,7 @@ function load()
 							<tr class='content1'>
 								<td align="center" class="td_class">原附件</td>   
 								<td align="left">
-									<c:forEach items="${item.attachmentList}" var="attachitem" varStatus="vs">
+									<c:forEach items="${attachmentList}" var="attachitem" varStatus="vs">
 							            <span id="span_${attachitem.id}">
 							            	<img src="../images/oa/attachment.gif"/>
 							            	<a target="_blank" href="../payorder/queryPayOrder.do?method=downAttachmentFile&id=${attachitem.id}">${attachitem.name}</a>

@@ -24,7 +24,7 @@ public interface PayOrderDAO {
 	
 	public List<PayOrderListLogVO> queryPayOrderLogList(Map<String, String> paramMap);
 	
-	public List<PayOrderListLogVO> queryPayOrderListHasNoAttachment(Map<String, String> paramMap);
+	public List<PayOrderVO> queryPayOrderListHasNoAttachment(Map<String, String> paramMap);
 	
 	public List<PayOrderListLogVO> queryPayOrderLogStatusList();
 	

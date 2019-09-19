@@ -40,6 +40,11 @@ public class AttachmentBean implements Serializable
     private String path = "";
 
     private String logTime = "";
+    
+    /**
+     * 0:业务附件;1:银行回单附件
+     */
+    private int flag;
 
     /**
      * default constructor
@@ -133,7 +138,15 @@ public class AttachmentBean implements Serializable
         this.refId = refId;
     }
 
-    /**
+    public int getFlag() {
+		return flag;
+	}
+
+	public void setFlag(int flag) {
+		this.flag = flag;
+	}
+
+	/**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

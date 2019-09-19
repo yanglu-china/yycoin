@@ -15,6 +15,7 @@ import com.china.center.oa.finance.dao.StockPayApplyDAO;
 import com.china.center.oa.finance.dao.StockPrePayApplyDAO;
 import com.china.center.oa.finance.vo.PayOrderListLogVO;
 import com.china.center.oa.finance.vo.PayOrderModifyListLogVO;
+import com.china.center.oa.finance.vo.PayOrderVO;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.dao.AttachmentDAO;
 import com.china.center.oa.publics.dao.CommonDAO;
@@ -85,18 +86,17 @@ public class PayOrderManagerImpl implements PayOrderManager {
 	
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public void uploadPayOrderAttachement(PayOrderListLogVO payVo,List<String> deleteIdList) throws Exception {
+	public void uploadPayOrderAttachement(PayOrderVO payVo,List<String> deleteIdList,List<AttachmentBean> attachmentList) throws Exception {
 		if(deleteIdList.size() > 0)
 		{
 			//先删除关联的附件
 			attachmentDAO.deleteByIds(deleteIdList);
 		}
         
-        List<AttachmentBean> attachmentList = payVo.getAttachmentList();
-        
         for (AttachmentBean attachmentBean : attachmentList) {
             attachmentBean.setId(commonDAO.getSquenceString20());
-            attachmentBean.setRefId(payVo.getId());
+            attachmentBean.setRefId(payVo.getBillNo());
+            attachmentBean.setFlag(1);
         }
 
         attachmentDAO.saveAllEntityBeans(attachmentList);

@@ -7,6 +7,8 @@ import com.china.center.oa.finance.bean.StockPayApplyBean;
 import com.china.center.oa.finance.bean.StockPrePayApplyBean;
 import com.china.center.oa.finance.vo.PayOrderListLogVO;
 import com.china.center.oa.finance.vo.PayOrderModifyListLogVO;
+import com.china.center.oa.finance.vo.PayOrderVO;
+import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.tcp.bean.TravelApplyPayBean;
 
 public interface PayOrderManager {
@@ -52,6 +54,6 @@ public interface PayOrderManager {
 	 * @param logVo
 	 * @throws Exception
 	 */
-	void uploadPayOrderAttachement(PayOrderListLogVO logVo,List<String> deleteIdList) throws Exception;
+	void uploadPayOrderAttachement(PayOrderVO logVo,List<String> deleteIdList,List<AttachmentBean> attachmentList) throws Exception;
 
 }

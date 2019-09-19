@@ -70,7 +70,6 @@ import com.china.center.oa.tcp.dao.TcpApproveDAO;
 import com.china.center.oa.tcp.dao.TravelApplyDAO;
 import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
 import com.china.center.oa.tcp.manager.PayOrderManager;
-import com.china.center.tools.BeanUtil;
 import com.china.center.tools.FileTools;
 import com.china.center.tools.RequestDataStream;
 import com.china.center.tools.SequenceTools;
@@ -1139,7 +1138,7 @@ public class PayOrderAction extends DispatchAction {
 		}
 		queryMap.put("billTime", billTime);
 
-		List<PayOrderListLogVO> list = payOrderDao.queryPayOrderListHasNoAttachment(queryMap);
+		List<PayOrderVO> list = payOrderDao.queryPayOrderListHasNoAttachment(queryMap);
 		request.setAttribute("payOrderLogList", list);
 		request.setAttribute("queryMap", queryMap);
 		return mapping.findForward("queryAttachement");
@@ -1161,16 +1160,18 @@ public class PayOrderAction extends DispatchAction {
 		String outBillId = request.getParameter("outbillid");
 	 	Map<String,String> paramMap = new HashMap<String, String>();
 	 	paramMap.put("payOrderNo", outId);
-	 	paramMap.put("outBillId", outBillId);
-	 	paramMap.put("payOrderStatus", CONSTANTS_PAYORDERSTATUS_3);
-	 	List<PayOrderListLogVO> payOrderLogVoList = payOrderDao.queryPayOrderLogList(paramMap);
-	 	for(PayOrderListLogVO vo : payOrderLogVoList)
+	 	List<PayOrderVO> payOrderLogVoList = payOrderDao.queryPayOrderListHasNoAttachment(paramMap);
+	 	if(payOrderLogVoList.size() == 0)
 	 	{
-	 		String id = vo.getId();
+	 		request.setAttribute(KeyConstant.ERROR_MESSAGE, "单据号出错");
+	 		return mapping.findForward("queryAttachement");
+	 	}
+	 	for(PayOrderVO vo : payOrderLogVoList)
+	 	{
 	 		ConditionParse cond = new ConditionParse();
-	 		cond.addCondition("refid", "=", id);
+	 		cond.addCondition("refid", "=", vo.getBillNo());
 	 		List<AttachmentBean> attachmentList = attachmentDAO.queryEntityBeansByCondition(cond);
-	 		vo.setAttachmentList(attachmentList);
+	 		request.setAttribute("attachmentList", attachmentList);
 	 	}
 	 	request.setAttribute("outbillid", outBillId);
 	 	request.setAttribute("outid", outId);
@@ -1217,7 +1218,7 @@ public class PayOrderAction extends DispatchAction {
 	 	paramMap.put("payOrderNo", outId);
 	 	paramMap.put("outBillId", outBillId);
 	 	paramMap.put("payOrderStatus", CONSTANTS_PAYORDERSTATUS_3);
-	 	List<PayOrderListLogVO> payOrderLogVoList = payOrderDao.queryPayOrderLogList(paramMap);
+	 	List<PayOrderVO> payOrderLogVoList = payOrderDao.queryPayOrderListHasNoAttachment(paramMap);
 	 	if(payOrderLogVoList.size() == 0 || payOrderLogVoList.size() >1)
 	 	{
 	 		request.setAttribute(KeyConstant.ERROR_MESSAGE, "查询单据出错，单据号:" + outBillId);
@@ -1227,9 +1228,7 @@ public class PayOrderAction extends DispatchAction {
         
         
         
-        PayOrderListLogVO payVo = payOrderLogVoList.get(0);
-        
-        BeanUtil.getBean(payVo, rds.getParmterMap());
+	 	PayOrderVO payVo = payOrderLogVoList.get(0);
         
         if ( !rds.haveStream())
         {
@@ -1307,8 +1306,7 @@ public class PayOrderAction extends DispatchAction {
         		delArray = StringUtils.split(delAttaId,",");
         	}
         	List<String> deleteIdList = Arrays.asList(delArray);
-        	payVo.setAttachmentList(attachmentList);
-        	payOrderManager.uploadPayOrderAttachement(payVo,deleteIdList);
+        	payOrderManager.uploadPayOrderAttachement(payVo,deleteIdList,attachmentList);
         }
         catch(Exception e)
         {
