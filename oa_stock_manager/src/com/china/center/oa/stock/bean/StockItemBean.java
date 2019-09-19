@@ -14,9 +14,11 @@ import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Join;
 import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.enums.JoinType;
+import com.china.center.oa.product.bean.DepotpartBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProviderBean;
 import com.china.center.oa.publics.bean.DutyBean;
+import com.china.center.oa.publics.bean.InvoiceBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.stock.constant.StockConstant;
@@ -93,11 +95,13 @@ public class StockItemBean implements Serializable
     /**
      * 发票类型 @InvoiceBean.id
      */
+    @Join(tagClass = InvoiceBean.class, type = JoinType.LEFT)
     protected String invoiceType = "";
 
     /**
      * 最终的仓区
      */
+    @Join(tagClass = DepotpartBean.class, type = JoinType.LEFT)
     protected String depotpartId = "";
 
     protected double price = 0.0d;

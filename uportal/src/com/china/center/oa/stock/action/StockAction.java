@@ -17,6 +17,17 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.actionhelper.jsonimpl.JSONStringer;
+import com.china.center.oa.customer.constant.CustomerConstant;
+import com.china.center.oa.product.constant.StorageConstant;
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.manager.OutManager;
+import com.china.center.tools.*;
+import net.sf.json.JSON;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -111,14 +122,6 @@ import com.china.center.oa.stock.vo.StockVO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.RequestTools;
-import com.china.center.tools.SequenceTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 import jxl.Workbook;
 import jxl.write.Label;
@@ -196,6 +199,11 @@ public class StockAction extends DispatchAction
     private PurchaseXqqrDAO purchaseXqqrDAO = null;
 
     private static String RPTQUERYSTOCKITEM = "rptQueryStockItem";
+
+    protected OutManager outManager = null;
+
+    protected OutDAO outDAO = null;
+    protected BaseDAO baseDAO = null;
 
     /**
      *
@@ -2466,6 +2474,9 @@ public class StockAction extends DispatchAction
 
         request.setAttribute("logs", logsVO);
 
+        String beanItemVO = JSONTools.getJSONString(vo.getItemVO());
+        request.setAttribute("beanItemVOJson", beanItemVO);
+
         if ("1".equals(stockAskChange))
         {
             return mapping.findForward("stockAskChange");
@@ -2487,6 +2498,40 @@ public class StockAction extends DispatchAction
 
         String addStockArrival = request.getParameter("addStockArrival");
         String updateStockArrival = request.getParameter("updateStockArrival");
+        
+        //获取已提交的采购退货
+
+        List<Map> baseList = new ArrayList<Map>();
+        try{
+        	List<Map> tempList = baseDAO.queryBaseByStockId(id);
+
+        	_logger.debug("stockid:"+id+", tempList.size():"+tempList.size());
+            //获取相关信息
+            for (Map baseItem:tempList){
+                String productId = (String)baseItem.get("productId");
+
+                List<StockItemVO> stockItemVOs = vo.getItemVO();
+
+                _logger.debug("productId:"+productId+", stockItemVOs.size():"+stockItemVOs.size());
+                for(StockItemVO stockItemVO : stockItemVOs){
+                    if(stockItemVO.getProductId().equals(productId)){
+                        baseItem.put("provider", stockItemVO.getProviderName());
+                        baseItem.put("providerId",stockItemVO.getProviderId());
+                        baseItem.put("duty",stockItemVO.getDutyName());
+                        baseItem.put("dutyId",stockItemVO.getDutyId());
+                        baseItem.put("invoiceType",stockItemVO.getInvoiceTypeName());
+                        baseItem.put("invoiceId",stockItemVO.getInvoiceType());
+                        break;
+                    }
+                }
+            }
+            baseList.addAll(tempList);
+        }catch(Exception ex){
+            _logger.error(ex);
+        }
+        
+        request.setAttribute("baseList", baseList);
+        
         return mapping.findForward("addStockBack");
     }
 
@@ -3680,6 +3725,254 @@ public class StockAction extends DispatchAction
 
         return queryStock(mapping, form, request, reponse);
     }
+    
+	/**
+	 * 处理多个采购退货
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param reponse
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward addOuts(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse reponse)
+			throws ServletException
+	{
+		
+		String saves = request.getParameter("saves");
+
+		String step = request.getParameter("step");
+
+		String hasProm = request.getParameter("hasProm");
+
+		String oprType = request.getParameter("oprType");
+
+		if (StringTools.isNullOrNone(oprType)) oprType = "";
+		
+
+		// 客户信用级别
+		String customercreditlevel = request
+				.getParameter("customercreditlevel");
+
+		String fullId = request.getParameter("fullId");
+		
+		//String fullId = request.getParameter("stockId");
+
+		String update = request.getParameter("update");
+
+		if ("save".equals(saves))
+		{
+			saves = "保存";
+		}
+		else
+		{
+			saves = "提交";
+		}
+        _logger.info("addOut 22222222222222222222222");
+		
+		//处理参数
+		
+		
+		final String[] prices = request.getParameterValues("price");
+		final String[] depotpartIds = request.getParameterValues("depotpartId");
+		final String[] providerIds = request.getParameterValues("providerId");
+		final String[] dutyIds = request.getParameterValues("dutyId");
+		final String[] invoiceIds = request.getParameterValues("invoiceId");
+		//String[] locationIds = request.getParameterValues("locationId");
+		//String[] locations = request.getParameterValues("location");
+
+		final String[] nameList = request.getParameterValues("productName");
+
+        final String[] idsList = request.getParameterValues("productId");
+        final String[] amontList = request.getParameterValues("amount");
+        
+        final String[] desList = request.getParameterValues("description");
+        
+        final String[] backTypes = request.getParameterValues("backType");
+  
+        
+        //debug
+        
+        for(String name: nameList){
+        	_logger.debug("parent addOuts, name: "+name);
+        }
+        
+		
+		User user = (User) request.getSession().getAttribute("user");
+		
+		String locationId = Helper.getCurrentLocationId(request);
+
+		String location = request.getParameter("location");
+		
+		for(int i=0; i<nameList.length; i++){
+			
+			if(StringTools.isNullOrNone(nameList[i])){
+				continue;
+			}
+			
+			OutBean outBean = new OutBean();
+
+            BeanUtil.getBean(outBean, request);
+
+			outBean.setLocationId(locationId);
+			outBean.setLocation(locationId);
+
+			String stockId = request.getParameter("stockId");
+			outBean.setRefOutFullId(stockId);
+			
+			outBean.setDepotpartId(depotpartIds[i]);
+			
+			outBean.setDutyId(dutyIds[i]);
+			outBean.setInvoiceId(invoiceIds[i]);
+
+			outBean.setStafferId(user.getStafferId());
+			outBean.setStafferName(user.getStafferName());
+			
+			outBean.setOutType(OutConstant.OUTTYPE_IN_STOCK);
+			outBean.setType(OutConstant.OUT_TYPE_INBILL);
+
+			//outBean.setLocation(locations[i]);
+			
+			outBean.setBuyReturnFlag(1);
+
+			outBean.setLogTime(TimeTools.now());
+
+			outBean.setOutTime(TimeTools.now());
+			
+			outBean.setDescription(desList[i]);
+			
+			int backType = 1;
+			if(!StringTools.isNullOrNone(backTypes[i])){
+				backType = Integer.parseInt(backTypes[i]);
+			}
+			outBean.setBuyReturnType(backType);
+			
+			/*
+
+			if (StringTools.isNullOrNone(outBean.getLocation()))
+			{
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "没有库存属性,请重新操作");
+
+				return mapping.findForward("error");
+			}
+			*/
+
+			// 商务 - begin
+			ActionForward error = checkAuthForEcommerce(request, user, mapping);
+
+			if (null != error)
+			{
+				return error;
+			}
+
+			User g_srcUser = (User) request.getSession().getAttribute("g_srcUser");
+
+			String elogin = (String) request.getSession().getAttribute("g_elogin");
+
+			String g_loginType = (String) request.getSession().getAttribute(
+					"g_loginType");
+
+			if (!StringTools.isNullOrNone(elogin) && null == g_srcUser)
+			{
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "登陆异常,请重新登陆");
+
+				return mapping.findForward("error");
+			}
+	        _logger.info("addOut 44444444444444444444444");
+			// 当前切换用户登陆的且为商务登陆的，记录经办人
+			if (!StringTools.isNullOrNone(elogin) && null != g_srcUser
+					&& g_loginType.equals("1"))
+			{
+				outBean.setOperator(g_srcUser.getStafferId());
+				outBean.setOperatorName(g_srcUser.getStafferName());
+			}
+			else
+			{
+				outBean.setOperator(user.getStafferId());
+				outBean.setOperatorName(user.getStafferName());
+			}
+			// 商务 - end
+	        _logger.info("addOut 5555555555555555555");
+
+			// 默认很多属性
+			outBean.setStafferId(user.getStafferId());
+			outBean.setStafferName(user.getStafferName());
+
+			if (StringTools.isNullOrNone(outBean.getCustomerId()))
+			{
+				outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+				outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+			}
+
+			outBean.setDepartment("公共部门");
+			outBean.setArriveDate(TimeTools.now_short(10));
+            _logger.info("addOut 77777777777777777777");
+            
+            //构造参数
+            ParamterMap map = new ParamterMap(request);
+
+            map.getParameterMap().put("nameList", nameList[i]);
+            map.getParameterMap().put("idsList", idsList[i]);
+            map.getParameterMap().put("amontList", amontList[i]);
+            map.getParameterMap().put("priceList", prices[i]);
+            map.getParameterMap().put("desList", desList[i]);
+            
+            map.getParameterMap().put("virtualPriceList", "0");
+
+            //ele.productid + '-' + ele.price + '-' + ele.stafferid + '-' + ele.depotpartid
+            if(StringTools.isNullOrNone(depotpartIds[i])){
+            	depotpartIds[i] = "999";//特殊字符串，代表depotpartIds 空缺
+            }
+
+            outBean.setDepotpartId(depotpartIds[i]);
+
+            map.getParameterMap().put("otherList", idsList[i]+"-"+prices[i]+"-"+outBean.getStafferId()+"-"+depotpartIds[i]);
+            map.getParameterMap().put("depotList", depotpartIds[i]);
+            
+			// 入库单的处理
+			try
+			{
+				String id = outManager.addOut(outBean, map.getParameterMap(), user);
+                _logger.info("addOut 88888888888888888888*********"+id);
+				if ("提交".equals(saves))
+				{
+					int ttype = StorageConstant.OPR_STORAGE_INOTHER;
+					
+                    _logger.info("addOut aaaaaaaaaaaaaaaa*********");
+					outManager.submit(id, user, ttype);
+				}
+			}
+			catch (MYException e)
+			{
+                e.printStackTrace();
+				_logger.warn(e, e);
+
+				request.setAttribute(KeyConstant.ERROR_MESSAGE,
+						"处理错误:" + e.getErrorContent());
+
+				return mapping.findForward("error");
+			}
+			catch (Exception e)
+			{
+                e.printStackTrace();
+				_logger.error(e, e);
+
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getMessage());
+
+				return mapping.findForward("error");
+			}
+
+		}
+		
+        CommonTools.removeParamers(request);
+
+        request.setAttribute("ltype", "0");
+        request.setAttribute("load", "1");
+        request.setAttribute("menu", "1");
+		
+		return queryStock(mapping, form, request, reponse);
+	}    
 
 
     /**
@@ -4450,5 +4743,29 @@ public class StockAction extends DispatchAction
 
     public void setPurchaseXqqrDAO(PurchaseXqqrDAO purchaseXqqrDAO) {
         this.purchaseXqqrDAO = purchaseXqqrDAO;
+    }
+
+	public OutManager getOutManager() {
+		return outManager;
+	}
+
+	public void setOutManager(OutManager outManager) {
+		this.outManager = outManager;
+	}
+
+    public OutDAO getOutDAO() {
+        return outDAO;
+    }
+
+    public void setOutDAO(OutDAO outDAO) {
+        this.outDAO = outDAO;
+    }
+
+    public BaseDAO getBaseDAO() {
+        return baseDAO;
+    }
+
+    public void setBaseDAO(BaseDAO baseDAO) {
+        this.baseDAO = baseDAO;
     }
 }

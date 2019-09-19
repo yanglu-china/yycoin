@@ -12,11 +12,47 @@
     <script language="JavaScript" src="../stock_js/jquery-1.7.1.min.js"></script>
     <script language="JavaScript" src="../stock_js/picker.js"></script>
     <script language="JavaScript" src="../stock_js/picker.date.js"></script>
-    <script language="JavaScript" src="../stock_js/addStockArrival.js"></script>
+    
+    <script language="JavaScript" src="../stock_js/addStockBack.js"></script>
+    
     <link rel="stylesheet" href="../stock_js/classic.css" />
     <link rel="stylesheet" href="../stock_js/classic.date.css" />
 
-    <script language="javascript">
+<script language="javascript">
+
+<%@include file="../stock_js/addStockBackJs.jsp"%>
+
+		/**
+		 * 查询库存
+		 */
+		function opens(obj)
+		{
+			var ret = checkCurrentUser();
+		
+			if (!ret)
+			{
+				window.parent.location.reload();
+		
+				return false;
+			}
+		
+			var os = obj.parentNode.parentNode;
+			
+        	var trow = obj.parentNode.parentNode;
+        	
+        	var backType = getSelectInTr(trow, "backType").value;
+        	
+        	if(backType == ""){
+        		alert("请选择退货类型！");
+        		return;
+        	}  
+		    
+		    var mtype = "";
+		    oo = obj;
+		    // 配件
+		    window.common.modal('../depot/storage.do?method=rptQueryStorageRelation4StockBack&stockId=${bean.id}&backType='+backType);
+		}
+
         function load()
         {
             loadForm();
@@ -29,8 +65,26 @@
         </c:forEach>
 
         var productMap = {};
-        <c:forEach items="${bean.itemVO}" var="item">
+        
+        var productObj = {};
+        var productInfoMap = {};
+        
+        <c:forEach items="${bean.itemVO}" var="item" varStatus="status">
             productMap['${item.productId}'] = parseInt("${item.amount}");
+            	
+            productObj["cost"] = "${item.productCost}";
+            productObj["price"] = "${item.price}";
+            productObj["depotpartId"] = "${item.depotpartId}";
+            productObj["depot"] = "${item.depotpartName}";
+            productObj["providerId"] = "${item.providerId}";
+            productObj["provider"] = "${item.providerName}";
+            productObj["dutyId"] = "${item.dutyId}";
+            productObj["duty"] = "${item.dutyName}";
+            productObj["invoiceId"] = "${item.invoiceType}"; 
+            productObj["invoice"] = "${item.invoiceTypeName}";  
+            productObj["productName"] = "${item.productName}";  
+            
+            productInfoMap['${ status.index + 1}'] = productObj;
         </c:forEach>
 //        console.log(productMap);
 
@@ -39,14 +93,135 @@
             if (jmap[id] != null && jmap[id] != '')
                 tooltip.showTable(jmap[id]);
         }
+        
+      //选择产品后的回调函数
+        function getProductBom(oos)
+        {
+            var tb = document.getElementById("tables");
+            
+            var rnum=tb.rows.length;
+            if (rnum > 1)
+            {
+                for(var i=rnum -1; i>0; i--)
+                {
+                    tb.deleteRow(i);
+                }
+            }
+        	var oo = oos[0];
+
+            current.value = oo.pname;
+
+            $O("mtype").value = oo.pmtype;
+            $O("oldproduct").value = oo.poldproduct;
+            $O("dirProductId").value = oo.value;
+            $O("high").value = oo.high;
+            $O("low").value = oo.low;
+        	
+        	var bomjson = JSON.parse(oo.pbomjson);
+        	for (var j = 0; j < bomjson.length; j++)
+            {
+                var item = bomjson[j];
+        		var trow = addTrInner();
+                //console.log(item);
+        		setInputValueInTr(trow, 'srcProductId', item.subProductId);
+        		setInputValueInTr(trow, 'targerName', item.subProductName);
+        		setInputValueInTr(trow, 'srcProductCode', item.code);
+                setInputValueInTr(trow, 'srcPrice', item.price);
+                setInputValueInTr(trow, 'srcAmount', item.pamount);
+                setInputValueInTr(trow, 'srcRelation', item.srcRelation);
+                setInputValueInTr(trow, 'bomAmount', item.bomAmount);
+                setInputValueInTr(trow, 'attritionRate', item.attritionRate);
+                setInputValueInTr(trow, 'virtualPrice', item.virtualPrice);
+                var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
+                setSelect(srcDe1, "A1201606211663545389");
+            }
+        } 
+      
+      
+        //选中产品
+        function selectProduct(obj)
+        {
+        	
+        	var index = obj.selectedIndex;
+        	
+        	var trow = obj.parentNode.parentNode;
+        	
+        	var backType = getSelectInTr(trow, "backType").value;
+        	
+        	if(backType == "1"){
+        		setInputValueInTr(trow, 'price', productInfoMap[index].cost);
+        	}else{
+        		setInputValueInTr(trow, 'price', productInfoMap[index].price);
+        	}
+        	setInputValueInTr(trow, 'depotpartId', productInfoMap[index].depotpartId);
+        	setInputValueInTr(trow, 'depot', productInfoMap[index].depot);
+        	setInputValueInTr(trow, 'providerId', productInfoMap[index].providerId);
+        	setInputValueInTr(trow, 'provider', productInfoMap[index].provider);
+        	setInputValueInTr(trow, 'dutyId', productInfoMap[index].dutyId);
+        	setInputValueInTr(trow, 'duty', productInfoMap[index].duty);
+        	setInputValueInTr(trow, 'invoiceId', productInfoMap[index].invoiceId);
+        	setInputValueInTr(trow, 'invoiceType', productInfoMap[index].invoice);
+        	setInputValueInTr(trow, 'productName', productInfoMap[index].productName);
+
+        }  
+        
+        function checkBackType(obj){
+        	var trow = obj.parentNode.parentNode;
+        	
+        	var backType = getSelectInTr(trow, "backType").value;
+        	
+        	if(backType == ""){
+        		alert("请选择退货类型！");
+        		return;
+        	}        	
+        }
+
 
     </script>
 
 </head>
 <body class="body_class" onload="load()" onkeydown="tooltip.bingEsc(event)">
-<form action="../stock/stock.do" name="formEntry">
-    <input type="hidden" name="method" value="addStockArrival">
+<form action="../stock/stock.do" name="outForm">
+
+<input type=hidden name="method" value="addOuts" />
+
+	<input type=hidden name="nameList" />
+	<input type=hidden name="idsList" />
+	<input type=hidden name="unitList" />
+	<input type=hidden name="amontList" />
+	<input type=hidden name="priceList" />
+	<input type=hidden name="totalList" />
+	<input type=hidden name="totalss" />
+	<input type=hidden name="customerId" />
+<input type="hidden" name="reserve9" value=""/>	
+<input type=hidden name="type" value='1' /> 
+<input type=hidden name="saves" value="" />
+<input type=hidden name="desList" value="" />
+<input type=hidden name="virtualPriceList" value="" />
+<input type=hidden name="otherList" value="" />
+
+<input type=hidden name="depotList" value="" />
+<input type=hidden name="mtypeList" value="" />
+<input type=hidden name="oldGoodsList" value="" />
+<input type=hidden name="taxList" value="" />
+<input type=hidden name="taxrateList" value="" />
+<input type=hidden name="inputRateList" value="" />
+
+<input type=hidden name="showIdList" value="" />
+<input type=hidden name="showNameList" value="" />
+<input type=hidden name="customercreditlevel" value="" />
+<input type=hidden name="inputPriceList" value="" />
+<input type=hidden name="id" value="" />
+<input type=hidden name="showCostList" value="" />
+
+<input type=hidden name="oprType" value="1">
+
+<input type=hidden name="customercreditlevel" value="" />
+<input type=hidden name="id" value="" />
+<input type=hidden name="inputPriceList">
+
     <input type="hidden" name="stockId" value="${bean.id}">
+    <input type="hidden" name="buyReturnFlag" value="1">
     <p:navigation height="22">
         <td width="550" class="navigation">采购单明细</td>
         <td width="85"></td>
@@ -244,9 +419,9 @@
             <table width="100%" border="0" cellspacing='1' id="tables">
                 <tr align="center" class="content0">
                     <td width="10%" align="center">退货类型</td>
-                    <td width="20%" align="center">产品名</td>
+                    <td width="17%" align="center">产品名</td>
                     <td width="10%" align="center">退货数量</td>
-                    <td width="10%" align="center">成品价格</td>
+                    <td width="8%" align="center">成本价格</td>
                     <td width="10%" align="center">源仓库</td>
                     <td width="10%" align="center">供应商</td>
                     <td width="10%" align="center">纳税实体</td>
@@ -256,6 +431,71 @@
                         <input type="button" accesskey="A" value="增加" class="button_class" onclick="addRow()">
                     </td>
                 </tr>
+                
+                <c:forEach items="${baseList}" var="itemBase" varStatus="vs">
+                  <c:choose>
+                    <c:when test="${itemBase.outStatus eq '1' or itemBase.outStatus eq '3' }">
+                    <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>  
+	                    <td align="center">
+	                        <select name="backType">
+	                            <option value="" "${''==itemBase.buyReturnType?'selected':''}">-</option>
+	                            <option value="1" "${'1'==itemBase.buyReturnType?'selected':''}">已入库退货</option>
+	                            <option value="2" "${'2'==itemBase.buyReturnType?'selected':''}">未入库退货</option>
+	                        </select>
+	                    </td>
+	
+	                    <td align="center">
+	                        
+	                        <input type="text" name="productName"
+								onclick="opens(this)"
+								readonly="readonly"
+								value="${itemBase.productName }"
+								style="width: 200px; cursor: hand">
+							<input type="hidden" name="productId" value="${itemBase.productId }">	                        
+	                    </td>
+	
+	                    <td align="center"><input type="number" name="amount" value="${itemBase.amount }" required></td>
+	                    <td align="center"><input type="number" name="price" value="${itemBase.price }" required></td>
+	                    <td align="center"><input type="text" name="depot" value="${itemBase.depot }" required><input type="hidden" name="depotpartId" value="${itemBase.depotpartId }">
+	                    <input type="hidden" name="storageId" value="${itemBase.storageId }">
+	                    </td>
+	                    <td align="center"><input type="text" name="provider" value="${itemBase.provider }" required><input type="hidden" name="providerId" value="${itemBase.providerId }"></td>
+	                    <td align="center"><input type="text" name="duty" value="${itemBase.duty }" required><input type="hidden" name="dutyId" value="${itemBase.dutyId }"></td>
+	                    <td align="center"><input type="text" name="invoiceType" value="${itemBase.invoiceType }" required><input type="hidden" name="invoiceId" value="${itemBase.invoiceId }"></td>
+	                    <td align="center">
+	                    <input type="text" name="description" value="${itemBase.description }"  required>
+	                    <!--  <input type="hidden" name="locationId">-->
+	                    </td>
+	                    <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>                    
+                    </tr>                    
+                    </c:when>
+                    <c:otherwise>
+                    <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>  
+	                    <td align="center">
+	                        <c:choose>
+	                          <c:when test="${itemBase.buyReturnType eq '1' }">已入库退货</c:when>
+	                          <c:when test="${itemBase.buyReturnType eq '2' }">未入库退货</c:when>
+	                          <c:otherwise></c:otherwise>
+	                        </c:choose>
+	                    </td>
+	
+	                    <td align="center">
+	                        ${itemBase.productName }
+	                    </td>
+	
+	                    <td align="center">${itemBase.amount }</td>
+	                    <td align="center">${itemBase.price }</td>
+	                    <td align="center">${itemBase.depot }</td>
+	                    <td align="center">${itemBase.provider }</td>
+	                    <td align="center">${itemBase.duty }</td>
+	                    <td align="center">${itemBase.invoiceType }</td>
+	                    <td align="center">${itemBase.description }</td>
+	                    <td align="left"></td>                    
+                    </tr>                    
+                    </c:otherwise>
+                  </c:choose>
+
+                </c:forEach>                                  
 
                 <tr id="trCopy" style="display: none;">
                     <td align="center">
@@ -265,23 +505,26 @@
                             <option value="2">未入库退货</option>
                         </select>
                     </td>
-
                     <td align="center">
-                        <select name="productId">
-                            <option value="">-</option>
-                            <c:forEach items="${bean.itemVO}" var="item2" varStatus="vs">
-                                <option value="${item2.productId}">${item2.productName}</option>
-                            </c:forEach>
-                        </select>
+                        <input type="text" name="productName"
+							onclick="opens(this)"
+							readonly="readonly"
+							style="width: 200px; cursor: hand">
+						<input type="hidden" name="productId" value="">	
                     </td>
 
                     <td align="center"><input type="number" name="amount" required></td>
                     <td align="center"><input type="number" name="price" required></td>
-                    <td align="center"><input type="text" name="depot" required></td>
-                    <td align="center"><input type="text" name="provider" required></td>
-                    <td align="center"><input type="text" name="duty" required></td>
-                    <td align="center"><input type="text" name="invoiceType" required></td>
-                    <td align="center"><input type="text" name="description" required></td>
+                    <td align="center"><input type="text" name="depot" required><input type="hidden" name="depotpartId">
+                    <input type="hidden" name="storageId" value="${itemBase.storageId }">
+                    </td>
+                    <td align="center"><input type="text" name="provider" required><input type="hidden" name="providerId"></td>
+                    <td align="center"><input type="text" name="duty" required><input type="hidden" name="dutyId"></td>
+                    <td align="center"><input type="text" name="invoiceType" required><input type="hidden" name="invoiceId"></td>
+                    <td align="center">
+                    <input type="text" name="description" required>
+                    <!--  <input type="hidden" name="locationId">-->
+                    </td>
                     <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                 </tr>
             </table>
@@ -297,9 +540,11 @@
                 <input type="button" class="button_class"
                                       onclick="javascript:history.go(-1)"
                                       value="&nbsp;&nbsp;返 回&nbsp;&nbsp;">
-                <input type="button" class="button_class"
-                       name="b_submit" style="cursor: pointer"
-                       value="&nbsp;&nbsp;提 交&nbsp;&nbsp;" onclick="addBean(1)">&nbsp;&nbsp;
+                       
+			    <input type="button" class="button_class"
+						value="&nbsp;&nbsp;保 存&nbsp;&nbsp;" onClick="save()" />&nbsp;&nbsp;<input
+						type="button" class="button_class" id="sub_b"
+						value="&nbsp;&nbsp;提 交&nbsp;&nbsp;" onClick="sub()" />                       
             </div>
         </p:button>
 

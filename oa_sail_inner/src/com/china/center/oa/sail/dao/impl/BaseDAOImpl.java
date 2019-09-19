@@ -182,4 +182,20 @@ public class BaseDAOImpl extends com.china.center.jdbc.inter.impl.BaseDAO<BaseBe
     public List<Map> queryBaseBeans(String sql) {
         return this.jdbcOperation.queryForList(sql);
     }
+    
+    public List<Map> queryBaseByStockId(String stockId)
+    throws MYException
+    {
+    	StringBuffer buffer = new StringBuffer();
+    	buffer.append(" SELECT a.*,b.buyReturnType buyReturnType, b.status outStatus FROM t_center_base a");
+    	buffer.append(" LEFT JOIN t_center_out b on b.fullId=a.outId");
+    	buffer.append(" WHERE b.refOutFullId='"+stockId+"'");
+    	
+        List<Map> list = this.jdbcOperation.queryForList(buffer.toString());
+        if(null !=list && list.size() > 0 )
+        {
+        	return list;
+        }
+        return null;
+    }
 }

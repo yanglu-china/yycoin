@@ -6086,6 +6086,11 @@ public class ParentOutAction extends DispatchAction
 		String oprType = request.getParameter("oprType");
 
 		if (StringTools.isNullOrNone(oprType)) oprType = "";
+		
+		int buyReturnFlag = 0;
+		if("1".equals(request.getParameter("buyReturnFlag"))){
+			buyReturnFlag = 1;
+		}
 
 		// 客户信用级别
 		String customercreditlevel = request
@@ -6122,6 +6127,8 @@ public class ParentOutAction extends DispatchAction
 		BeanUtil.getBean(outBean, request);
 
 		outBean.setLocation(location);
+		
+		outBean.setBuyReturnFlag(buyReturnFlag);
 
 		if (StringTools.isNullOrNone(outBean.getLocation())
 				&& !oprType.equals("0"))
@@ -8271,6 +8278,8 @@ public class ParentOutAction extends DispatchAction
 
 				OldPageSeparateTools.initPageSeparate(condtion, page, request,
 						QUERYSELFBUY);
+				
+				_logger.debug(condtion.getCondition());
 
 				list = outDAO.queryEntityVOsByCondition(condtion, page);
 			}
@@ -8303,7 +8312,12 @@ public class ParentOutAction extends DispatchAction
 
 		getDivs(request, list);
 
-		return mapping.findForward("querySelfBuy");
+		String buyReturnFlag = this.getBuyReturnFlag(request);
+		if("1".equals(buyReturnFlag)){
+			return mapping.findForward("querySelfBuyReturn");
+		}else{
+			return mapping.findForward("querySelfBuy");
+		}
 	}
 
 	/**
@@ -8764,7 +8778,13 @@ public class ParentOutAction extends DispatchAction
 	{
 		User user = (User) request.getSession().getAttribute("user");
 
+		_logger.debug("status: "+ request.getParameter("status") );
+		
 		saveQueryType(request);
+
+		_logger.debug("status: "+ request.getParameter("status") );
+		
+		saveBuyReturnFlag(request);
 
 		try
 		{
@@ -8961,7 +8981,12 @@ public class ParentOutAction extends DispatchAction
 
 		request.setAttribute("now", TimeTools.now("yyyy-MM-dd"));
 
-		return mapping.findForward("queryBuy");
+		String buyReturnFlag = this.getBuyReturnFlag(request);
+		if("1".equals(buyReturnFlag)){
+			return mapping.findForward("queryBuyReturn");
+		}else{
+			return mapping.findForward("queryBuy");
+		}
 	}
 
 	/**
@@ -8986,6 +9011,49 @@ public class ParentOutAction extends DispatchAction
 		{
 			request.getSession().setAttribute("queryType", attribute);
 		}
+	}
+	
+
+	/**
+	 * saveBuyReturnFlag
+	 * 
+	 * @param request
+	 */
+	private void saveBuyReturnFlag(HttpServletRequest request)
+	{
+		String buyReturnFlag = request.getParameter("buyReturnFlag");
+
+		if (!StringTools.isNullOrNone(buyReturnFlag))
+		{
+			request.getSession().setAttribute("buyReturnFlag", buyReturnFlag);
+
+			return;
+		}
+
+		Object attribute = request.getAttribute("buyReturnFlag");
+
+		if (attribute != null)
+		{
+			request.getSession().setAttribute("buyReturnFlag", attribute);
+		}
+	}
+	
+	/**
+	 * getBuyReturnFlag
+	 * 
+	 * @param request
+	 */
+	private String getBuyReturnFlag(HttpServletRequest request)
+	{
+		String buyReturnFlag = request.getParameter("buyReturnFlag");
+
+		if (StringTools.isNullOrNone(buyReturnFlag))
+		{
+			buyReturnFlag = (String)request.getAttribute("buyReturnFlag");
+		}
+		
+		return buyReturnFlag;
+
 	}
 
 	/**
@@ -9386,6 +9454,17 @@ public class ParentOutAction extends DispatchAction
 		if (!StringTools.isNullOrNone(inway))
 		{
 			condtion.addIntCondition("inway", "=", inway);
+		}
+		
+
+		String buyReturnFlag = request.getParameter("buyReturnFlag");
+		if(!"1".equals(buyReturnFlag)){
+			buyReturnFlag = "0";
+		}
+
+		if (!StringTools.isNullOrNone(buyReturnFlag))
+		{
+			condtion.addIntCondition("OutBean.buyReturnFlag", "=", buyReturnFlag);
 		}
 
 		condtion.addCondition("order by OutBean.id desc");
@@ -10278,6 +10357,8 @@ public class ParentOutAction extends DispatchAction
 		}
 
 		String status = request.getParameter("status");
+		
+		_logger.debug("status: "+ status );
 
 		if (!StringTools.isNullOrNone(status))
 		{
@@ -10542,6 +10623,16 @@ public class ParentOutAction extends DispatchAction
 		{
 			condtion.addFlaseCondition();
 		}
+		
+		String buyReturnFlag = RequestTools.getValueFromRequest(request,
+				"buyReturnFlag");
+		if(!"1".equals(buyReturnFlag)){
+			buyReturnFlag = "0";
+		}
+		condtion.addIntCondition("OutBean.buyReturnFlag", "=", buyReturnFlag);
+		request.setAttribute("buyReturnFlag", buyReturnFlag);
+		queryOutCondtionMap.put("buyReturnFlag", buyReturnFlag);	
+		
 
 		if (!condtion.containOrder())
 		{

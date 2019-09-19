@@ -131,6 +131,8 @@ import com.china.center.tools.WriteFileBuffer;
 public class OutManagerImpl extends AbstractListenerManager<OutListener> implements OutManager
 {
     private final Log _logger = LogFactory.getLog(getClass());
+    
+    private final static String EmptyDepotpartId = "999";
 
     private final Log operationLog = LogFactory.getLog("opr");
 
@@ -318,6 +320,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         final String oprType = request.getParameter("oprType") == null ? "" : request.getParameter("oprType");
 
         dataMap.put("tmdutyId", dutyId);
+        
+        _logger.debug("fullId:"+fullId+", type:"+outBean.getType()+", outType:"+outBean.getOutType());
 
         if (StringTools.isNullOrNone(fullId))
         {
@@ -335,6 +339,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             //String flag = location.getCode();
             String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
+            
+            _logger.debug("type:"+outBean.getType()+", outType:"+outBean.getOutType()+", flag:"+flag);
             
             // 临时单号，待拆分为SO单
             if (oprType.equals("0"))
@@ -372,48 +378,57 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         outBean.setInway(OutConstant.IN_WAY_NO);
 
         // 获得baseList
-        final String[] nameList = request.getParameter("nameList").split("~");
-        final String[] idsList = request.getParameter("idsList").split("~");
+        final String[] nameList = this.getParam(request, "nameList");
+        
+        for(String name: nameList){
+        	_logger.debug("name: "+ name);
+        }
+        
+        final String[] idsList = this.getParam(request, "idsList");
 //        final String[] showIdList = request.getParameter("showIdList").split("~");
 //        final String[] showNameList = request.getParameter("showNameList").split("~");
 //        final String[] unitList = request.getParameter("unitList").split("~");
-        final String[] amontList = request.getParameter("amontList").split("~");
+        final String[] amontList = this.getParam(request, "amontList");
 
         // 含税价
-        final String[] priceList = request.getParameter("priceList").split("~");
+        final String[] priceList = this.getParam(request, "priceList");
 
         // 输入价格
-        final String[] inputPriceList = request.getParameter("inputPriceList").split("~");
+        final String[] inputPriceList = this.getParam(request, "inputPriceList");
 
         // 显示成本(只有V5有)
-        final String[] showCostList = request.getParameter("showCostList").split("~");
+        final String[] showCostList = this.getParam(request, "showCostList");
 
         // 成本
-        final String[] desList = request.getParameter("desList").split("~");
+        final String[] desList = this.getParam(request, "desList");
 
         //#545 采购入库的时候，非虚拟商品的虚料金额是0
         //虚拟商品的虚料金额，等于成本价
-        String vpl = request.getParameter("virtualPriceList");
+        //String vpl = request.getParameter("virtualPriceList");
+        //虚料金额
+        String[] virtualPriceList1 = this.getParam(request, "virtualPriceList");
         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
                 && outBean.getOutType() == OutConstant.OUTTYPE_IN_COMMON){
-            vpl = request.getParameter("desList");
+            //vpl = request.getParameter("desList");
+            virtualPriceList1 = this.getParam(request, "desList");
         }
-        //虚料金额
-        final String[] virtualPriceList = vpl.split("~");
+        
+        final String[] virtualPriceList = virtualPriceList1;
 
-        final String[] otherList = request.getParameter("otherList").split("~");
+
+        final String[] otherList = this.getParam(request, "otherList");
         
-        final String [] depotList = request.getParameter("depotList").split("~");
+        final String [] depotList = this.getParam(request, "depotList");
         
-        final String [] mtypeList = request.getParameter("mtypeList").split("~");
+        final String [] mtypeList = this.getParam(request, "mtypeList");
         
-        final String [] oldGoodsList = request.getParameter("oldGoodsList").split("~");
+        final String [] oldGoodsList = this.getParam(request, "oldGoodsList");
         
-        final String [] taxrateList = request.getParameter("taxrateList").split("~");
+        final String [] taxrateList = this.getParam(request, "taxrateList");
         
-        final String [] taxList = request.getParameter("taxList").split("~");
+        final String [] taxList = this.getParam(request, "taxList");
         
-        final String [] inputRateList = request.getParameter("inputRateList").split("~");
+        final String [] inputRateList = this.getParam(request, "inputRateList");
 
 //        final String ibMoneyListStr = request.getParameter("ibMoneyList");
 //        final String motivationMoneyListStr = request.getParameter("motivationMoneyList");
@@ -582,6 +597,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 //                    boolean isManagerPass = false;
                     StringBuffer messsb = new StringBuffer();
                     
+                    _logger.debug("nameList.length:"+ nameList.length);
+                    
                     // 处理每个base
                     for (int i = 0; i < nameList.length; i++ )
                     {
@@ -713,9 +730,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         else
                         {
                             // ele.productid + '-' + ele.price + '-' + ele.stafferid + '-' + ele.depotpartid
+                        	_logger.debug("otherList[i]:"+otherList[i]);
                             String[] coreList = otherList[i].split("-");
 
-                            if (coreList.length != 4)
+                            if (coreList.length < 3)
                             {
                                 throw new RuntimeException("数据不完备");
                             }
@@ -727,8 +745,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 .getCostPrice()));
 
                             base.setOwner(coreList[2]);
-
-                            base.setDepotpartId(coreList[3]);
+                            
+                            if(coreList.length>3){
+                            	base.setDepotpartId(coreList[3]);
+                            }
+                            
                         }
 
                         // 这里需要核对价格 调拨
@@ -763,21 +784,23 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             base.setOwnerName(sb.getName());
                         }
 
-                        DepotpartBean deport = depotpartDAO.find(base.getDepotpartId());
+                        if(!EmptyDepotpartId.equals(base.getDepotpartId())){
+                            DepotpartBean deport = depotpartDAO.find(base.getDepotpartId());
 
-                        if (deport == null)
-                        {
-                            throw new RuntimeException("仓区不存在,请确认操作");
-                        }
+                            if (deport == null)
+                            {
+                                throw new RuntimeException("仓区("+base.getDepotpartId()+")不存在,请确认操作");
+                            }
 
-                        base.setDepotpartName(deport.getName());
-
-                        // 销售单的时候仓库必须一致
-                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
-                            && !deport.getLocationId().equals(outBean.getLocation())
-                            && !oprType.equals("0"))
-                        {
-                            throw new RuntimeException("销售必须在一个仓库下面");
+                            base.setDepotpartName(deport.getName());                       	
+                        
+                            // 销售单的时候仓库必须一致
+                            if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                                && !deport.getLocationId().equals(outBean.getLocation())
+                                && !oprType.equals("0"))
+                            {
+                                throw new RuntimeException("销售必须在一个仓库下面");
+                            }
                         }
 
                         // 调拨的时候有bug啊
@@ -1173,6 +1196,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     try
                     {
                         saveOutInner(outBean);
+                        _logger.debug("save outBean.getFullId():"+outBean.getFullId());
                     }
                     catch (MYException e1)
                     {
@@ -3060,7 +3084,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 {
                     wrap.setChange( -element.getAmount());
 
-                    storageRelationManager.checkStorageRelation(wrap, includeSelf);
+                    if(!EmptyDepotpartId.equals(outBean.getDepotpartId())){
+                    	_logger.debug("outBean.getDepotpartId():"+outBean.getDepotpartId()+", check1");
+                    	storageRelationManager.checkStorageRelation(wrap, includeSelf);
+                    }
+                    
                 }
             }
             else
@@ -3068,7 +3096,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 // 入库单
                 wrap.setChange(element.getAmount());
 
-                storageRelationManager.checkStorageRelation(wrap, includeSelf);
+                if(!EmptyDepotpartId.equals(outBean.getDepotpartId())){
+                	_logger.debug("outBean.getDepotpartId():"+outBean.getDepotpartId()+", check2");
+                	storageRelationManager.checkStorageRelation(wrap, includeSelf);
+                }
+                
             }
         }
 
@@ -14593,5 +14625,15 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public void setFrDbDAO(FrDbDAO frDbDAO) {
         this.frDbDAO = frDbDAO;
+    }
+    
+    private String[] getParam(ParamterMap request, String param){
+    	String[] list = {};
+    	if(request.getParameter(param)!=null){
+    		list = request.getParameter(param).split("~");
+    		_logger.debug("request.getParameter(param):"+request.getParameter(param));
+    	}
+    	
+    	return list;
     }
 }

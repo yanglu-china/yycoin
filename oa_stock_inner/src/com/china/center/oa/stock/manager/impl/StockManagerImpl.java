@@ -464,6 +464,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
         List<StockItemVO> itemVO = stockItemDAO.queryEntityVOsByFK(id);
         List<StockItemArrivalVO> arrivalVOs = stockItemArrivalDAO.queryEntityVOsByFK(id);
+        
+        _logger.debug("id:"+id+", itemVO.size():"+itemVO.size()+", arrivalVOs.size():"+arrivalVOs.size());
 
         Map divMap = new HashMap();
         Map outTimeMap = new HashMap();

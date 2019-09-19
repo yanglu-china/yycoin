@@ -1578,6 +1578,8 @@ public class OutAction extends ParentOutAction
 
                 out = outDAO.find(fullId);
                 
+                _logger.debug("out.getBuyReturnFlag(): "+out.getBuyReturnFlag()+", type: "+out.getType()+", outType: "+out.getOutType());
+                
                 if (out == null)
                 {
                     request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不存在，请重新操作!");
@@ -1648,6 +1650,102 @@ public class OutAction extends ParentOutAction
                         request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
 
                         return mapping.findForward("error");
+                    }
+                }
+                // 进入 采购退货  发起人--生产采购经理审批--分管副总裁审批--财务总监审批
+                else if ( out.getBuyReturnFlag() == 1)
+                {
+                	
+                	_logger.debug("enter buyreturn ......statuss: "+statuss);
+
+                    // 生产采购经理审批
+                    if (statuss == OutConstant.BUY_STATUS_LOCATION_MANAGER_CHECK)
+                    {
+
+                        try
+                        {
+                            resultStatus = outManager.pass(fullId, user,
+                                    OutConstant.STATUS_LOCATION_MANAGER_CHECK, reason, null, depotpartId);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
+                    }
+
+                    // 进入分管副总裁审批
+                    if (statuss == OutConstant.BUY_STATUS_CEO_CHECK)
+                    {
+                        try
+                        {
+                            resultStatus = outManager.pass(fullId, user,
+                                    OutConstant.STATUS_CEO_CHECK, reason, null, depotpartId);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
+                    }
+
+                    // 进入财务总监审批
+                    if (statuss == OutConstant.BUY_STATUS_CHAIRMA_CHECK)
+                    {
+                        try
+                        {
+                            resultStatus = outManager.pass(fullId, user,
+                                    OutConstant.STATUS_CHAIRMA_CHECK, reason, null, depotpartId);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
+                    }
+                    
+                    // 进入待回款(结束了)
+                    if (statuss == OutConstant.BUY_STATUS_PASS)
+                    {
+                        try
+                        {
+                            resultStatus = outManager.pass(fullId, user, OutConstant.STATUS_PASS,
+                                reason, null, depotpartId);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
+                    }                    
+
+                    // 驳回
+                    if (statuss == OutConstant.BUY_STATUS_REJECT)
+                    {
+                        try
+                        {
+                            resultStatus = outManager.reject(fullId, user, reason);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
                     }
                 }
                 // 进入库单 库管--分经理--总裁--董事长
@@ -1757,7 +1855,8 @@ public class OutAction extends ParentOutAction
                             return mapping.findForward("error");
                         }
                     }
-                }
+                }                
+
                 // 销售单的审批流程
                 else
                 {

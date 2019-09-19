@@ -566,6 +566,10 @@ public class OutBean implements Serializable, OutInterface
     @Ignore
     protected List<AttachmentBean> attachmentList = null;
     
+    //#745
+    private int buyReturnFlag = 0;
+    private int buyReturnType = 0;
+    
     /**
      * Copy Constructor(不拷贝baseList)
      * 
@@ -2339,8 +2343,25 @@ public class OutBean implements Serializable, OutInterface
     public void setVirtualStatus(int virtualStatus) {
         this.virtualStatus = virtualStatus;
     }
+    
 
-    /**
+    public int getBuyReturnFlag() {
+		return buyReturnFlag;
+	}
+
+	public void setBuyReturnFlag(int buyReturnFlag) {
+		this.buyReturnFlag = buyReturnFlag;
+	}
+
+	public int getBuyReturnType() {
+		return buyReturnType;
+	}
+
+	public void setBuyReturnType(int buyReturnType) {
+		this.buyReturnType = buyReturnType;
+	}
+
+	/**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
      * @return a <code>String</code> representation of this object.
@@ -2469,6 +2490,7 @@ public class OutBean implements Serializable, OutInterface
                 ", distributeBean=" + distributeBean +
                 ", distList=" + distList +
                 ", attachmentList=" + attachmentList +
+                ", buyReturnFlag=" + buyReturnFlag +
                 '}';
     }
 }

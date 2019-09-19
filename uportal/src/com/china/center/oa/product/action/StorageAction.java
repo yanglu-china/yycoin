@@ -47,6 +47,11 @@ import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.sail.bean.SailConfBean;
 import com.china.center.oa.sail.bean.SailConfigBean;
+
+import com.china.center.oa.stock.manager.StockManager;
+import com.china.center.oa.stock.vo.StockItemVO;
+import com.china.center.oa.stock.vo.StockVO;
+
 import com.china.center.oa.sail.constanst.SailConstant;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.dao.SailConfigDAO;
@@ -127,6 +132,8 @@ public class StorageAction extends DispatchAction
     private PriceConfigManager priceConfigManager = null;
     
     private AuditRuleManager auditRuleManager = null;
+
+    private StockManager stockManager = null;
     
     private PriceConfigDAO priceConfigDAO = null;
     
@@ -1926,6 +1933,104 @@ public class StorageAction extends DispatchAction
         }
     }
     
+    
+    /**
+     * 采购退货选项页
+     * 
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward rptQueryStorageRelation4StockBack(ActionMapping mapping, ActionForm form,
+                                                        HttpServletRequest request,
+                                                        HttpServletResponse reponse)
+        throws ServletException {
+        String stockId = request.getParameter("stockId");
+        String backType = request.getParameter("backType");
+
+        //get stock
+        StockVO stockVO = stockManager.findStockVO(stockId);
+
+        List<StockItemVO> stockItemVOs = stockVO.getItemVO();
+
+        StringBuffer productIdBuffer = new StringBuffer();
+        productIdBuffer.append("(");
+        int count = 0;
+        for (StockItemVO item : stockItemVOs) {
+            count++;
+            productIdBuffer.append("'").append(item.getProductId()).append("'");
+            if (count < stockItemVOs.size()) {
+                productIdBuffer.append(",");
+            }
+        }
+        productIdBuffer.append(")");
+
+        //get storageRelationVO
+        ConditionParse condtion = new ConditionParse();
+        condtion.addWhereStr();
+        condtion.addCondition("StorageRelationBean.amount", ">", 0);
+
+        condtion.addCondition("AND StorageRelationBean.productId in "+productIdBuffer.toString());
+
+        List<StorageRelationVO> storageList = new ArrayList<StorageRelationVO>();
+        if("1".equals(backType)){
+        	storageList = this.storageRelationDAO.queryEntityVOsByCondition(condtion);
+            //已入库
+            for(StorageRelationVO vo : storageList){
+                StockItemVO stockItemVO = this.getStockItemVO(stockItemVOs, vo.getProductId());
+                vo.setDutyId(stockItemVO.getDutyId());
+                vo.setDutyName(stockItemVO.getDutyName());
+                vo.setProviderId(stockItemVO.getProviderId());
+                vo.setProviderName(stockItemVO.getProviderName());
+                vo.setInvoiceType(stockItemVO.getInvoiceType());
+                vo.setInvoiceTypeName(stockItemVO.getInvoiceTypeName());
+
+                vo.setStockAmount(stockItemVO.getAmount());
+            }
+
+        }else {
+            //未入库
+            storageList.clear();
+            for(StockItemVO stockItemVO : stockItemVOs){
+                StorageRelationVO vo = new StorageRelationVO();
+                vo.setProductCode(stockItemVO.getProductCode());
+                vo.setProductId(stockItemVO.getProductId());
+                vo.setProductName(stockItemVO.getProductName());
+
+                vo.setCostPrice(stockItemVO.getPrice());
+                vo.setPrice(stockItemVO.getPrice());
+                
+                vo.setInvoiceTypeName(stockItemVO.getInvoiceTypeName());
+                vo.setInvoiceType(stockItemVO.getInvoiceType());
+                vo.setProviderName(stockItemVO.getProviderName());
+                vo.setProviderId(stockItemVO.getProviderId());
+                vo.setDutyName(stockItemVO.getDutyName());
+                vo.setDutyId(stockItemVO.getDutyId());
+
+                vo.setStockAmount(stockItemVO.getAmount());
+
+                storageList.add(vo);
+            }
+        }
+        request.setAttribute("beanList", storageList);
+
+        return mapping.findForward("rptQueryStorageRelation4StockBack");
+
+    }
+    
+    private StockItemVO getStockItemVO(List<StockItemVO> stockItemVOs, String productId){
+    	StockItemVO rst = null;
+    	for(StockItemVO item : stockItemVOs){
+    		if(productId.equals(item.getProductId())){
+    			rst = item;
+    			break;
+    		}
+    	}
+    	return rst;
+    }
     
     /**
      * 调拨申请功能
@@ -4099,5 +4204,13 @@ public class StorageAction extends DispatchAction
 
     public void setOutDAO(OutDAO outDAO) {
         this.outDAO = outDAO;
+    }
+
+    public StockManager getStockManager() {
+        return stockManager;
+    }
+
+    public void setStockManager(StockManager stockManager) {
+        this.stockManager = stockManager;
     }
 }

@@ -1258,6 +1258,21 @@ function getInputInTr(tr, name)
     return null;
 }
 
+function getSelectInTr(tr, name)
+{
+    var eles = tr.getElementsByTagName('select');
+
+    for (var i = 0; i < eles.length; i++)
+    {
+        if (eles[i].name == name)
+        {
+            return eles[i];
+        }
+    }
+
+    return null;
+}
+
 function setInputValueInTr(tr, name, value)
 {
     var eles = tr.getElementsByTagName('input');

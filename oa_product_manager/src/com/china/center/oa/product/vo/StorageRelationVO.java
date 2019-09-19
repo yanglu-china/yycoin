@@ -74,6 +74,24 @@ public class StorageRelationVO extends StorageRelationBean
     @Ignore
     private int inwayAmount = 0;
 
+    //临时属性，采购数量
+    @Ignore
+    private int stockAmount = 0;
+    
+    //临时属性
+    @Ignore
+    private String dutyId = "";
+    @Ignore
+    private String dutyName = "";
+    @Ignore
+    private String providerId = "";
+    @Ignore
+    private String providerName = "";
+    @Ignore
+    private String invoiceType = "";
+    @Ignore
+    private String invoiceTypeName = "";
+
     /**
      * 合计量
      */
@@ -342,6 +360,14 @@ public class StorageRelationVO extends StorageRelationBean
         this.inwayAmount = inwayAmount;
     }
 
+    public int getStockAmount() {
+        return stockAmount;
+    }
+
+    public void setStockAmount(int stockAmount) {
+        this.stockAmount = stockAmount;
+    }
+
     /**
      * @return the total
      */
@@ -504,8 +530,6 @@ public class StorageRelationVO extends StorageRelationBean
 		this.inputPrice = inputPrice;
 	}
 	
-	
-
 	public double getProductSailPrice() {
 		return productSailPrice;
 	}
@@ -522,6 +546,54 @@ public class StorageRelationVO extends StorageRelationBean
 	public void setPconsumeInDay(int pconsumeInDay)
 	{
 		this.pconsumeInDay = pconsumeInDay;
+	}
+
+	public String getDutyId() {
+		return dutyId;
+	}
+
+	public void setDutyId(String dutyId) {
+		this.dutyId = dutyId;
+	}
+
+	public String getDutyName() {
+		return dutyName;
+	}
+
+	public void setDutyName(String dutyName) {
+		this.dutyName = dutyName;
+	}
+
+	public String getProviderId() {
+		return providerId;
+	}
+
+	public void setProviderId(String providerId) {
+		this.providerId = providerId;
+	}
+
+	public String getProviderName() {
+		return providerName;
+	}
+
+	public void setProviderName(String providerName) {
+		this.providerName = providerName;
+	}
+
+	public String getInvoiceType() {
+		return invoiceType;
+	}
+
+	public void setInvoiceType(String invoiceType) {
+		this.invoiceType = invoiceType;
+	}
+
+	public String getInvoiceTypeName() {
+		return invoiceTypeName;
+	}
+
+	public void setInvoiceTypeName(String invoiceTypeName) {
+		this.invoiceTypeName = invoiceTypeName;
 	}
 
 	/**
