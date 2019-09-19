@@ -404,6 +404,12 @@
                             </td>
                         </c:if>
 
+                        <c:if test="${item.hasRef == 2}">
+                            <td align="center">
+                                <font color=red>部分入库</font>
+                            </td>
+                        </c:if>
+
                         <td align="center">${my:formatNum(item.total)}</td>
 
                         <td align="center">${item.description}</td>

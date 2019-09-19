@@ -3970,7 +3970,8 @@ public class StockAction extends DispatchAction
         request.setAttribute("ltype", "0");
         request.setAttribute("load", "1");
         request.setAttribute("menu", "1");
-		
+
+        request.setAttribute(KeyConstant.MESSAGE, "成功提交采购退货单!");
 		return queryStock(mapping, form, request, reponse);
 	}    
 
