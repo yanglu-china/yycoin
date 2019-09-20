@@ -1170,6 +1170,7 @@ public class PayOrderAction extends DispatchAction {
 	 	{
 	 		ConditionParse cond = new ConditionParse();
 	 		cond.addCondition("refid", "=", vo.getBillNo());
+	 		cond.addCondition("flag", "=", 0);
 	 		List<AttachmentBean> attachmentList = attachmentDAO.queryEntityBeansByCondition(cond);
 	 		request.setAttribute("attachmentList", attachmentList);
 	 	}

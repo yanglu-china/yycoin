@@ -126,13 +126,7 @@ function load()
 								<td align="left">${item.payeeBankAcc}</td>
 							</tr>
 							<tr class='content1'>
-								<td align="center">上传附件</td>
-								<td>
-									<input type="file" name="myFile" id="myFile" size="200" class="button_class"><font color="blue"><b>建议压缩后上传,最大支持20M</b></font>
-								</td>
-							</tr>
-							<tr class='content1'>
-								<td align="center" class="td_class">原附件</td>   
+								<td align="center" class="td_class">原业务附件</td>   
 								<td align="left">
 									<c:forEach items="${attachmentList}" var="attachitem" varStatus="vs">
 							            <span id="span_${attachitem.id}">
@@ -145,6 +139,12 @@ function load()
 							            <br>
 							            </c:if>
 						            </c:forEach>
+								</td>
+							</tr>
+							<tr class='content1'>
+								<td align="center">上传银行回单附件</td>
+								<td>
+									<input type="file" name="myFile" id="myFile" size="200" class="button_class"><font color="blue"><b>建议压缩后上传,最大支持20M</b></font>
 								</td>
 							</tr>
 						</tbody>
