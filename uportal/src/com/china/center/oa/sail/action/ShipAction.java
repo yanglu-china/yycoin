@@ -5940,7 +5940,7 @@ public class ShipAction extends DispatchAction
 
             // 总金额*VAL/100
             // 含税税额：总金额*税率/(1+税率)
-            double sl = this.roundDouble(fpsl/100);
+            double sl = this.roundDouble((double)fpsl/100);
             _logger.info(sl);
             Element spse = doc.createElement("spse");
             double se = this.roundDouble(bean.getMoneys()*sl/(1+sl));
