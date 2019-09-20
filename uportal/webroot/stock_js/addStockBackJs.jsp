@@ -254,6 +254,9 @@ function checkTotal()
     var gh =  document.getElementsByName('productName');
     var ghk =  document.getElementsByName('amount');
     var description =  document.getElementsByName('description');
+    
+    var amountLimit =  document.getElementsByName('amountLimit');
+    
 
     messk += '\r\n';
     for(var i = 0 ; i < gh.length; i++)
@@ -265,18 +268,24 @@ function checkTotal()
             alert("退货备注为必填项!");
             return false;        
         }
-        messk += '\r\n' + '产品【' + gh[i].value + '】   数量:' + ghk[i].value;
-    }
-
-    var amountElements = document.getElementsByName('amount');
-    for (var i=0;i< amountElements.length;i++){
-        var amount = parseInt(amountElements[i].value);
-        if(isNaN(amount)){
+        
+        //check amount
+        var real = parseInt(ghk[i].value);
+        if(isNaN(real)){
             continue;
-        } else if(amount >= 0){
+        } else if(real >= 0){
             alert("退货数量必须为负数!");
             return false;
         }
+                
+        var realAbs = Math.abs(parseInt(ghk[i].value));
+        var limit = parseInt(amountLimit[i].value);
+        if(realAbs > limit){
+            alert("数量不能超出上限!");
+            return false;
+        }
+        
+        messk += '\r\n' + '产品【' + gh[i].value + '】   数量:' + ghk[i].value;
     }
     
     if ($O('saves').value == 'save')
@@ -330,11 +339,6 @@ var g_url_query = 0;
 
 function managerChange()
 {
-    g_url_query = 0;
-    
-    //调拨
-    if ($$('outType') == 2 || $$('outType') == 3 || $$('outType') == 6 )
-    {
         showTr('dir_tr', false);
         showTr('allocate', false);
         showTr('distribution1', false);
@@ -346,139 +350,7 @@ function managerChange()
         showTr('refOutFullId_tr', false);
         showTr('staffer_tr', false);
         showTr('customer_tr', false);
-    }
-    
-    if ($$('outType') == 1)
-    {
-        showTr('dir_tr', true);
-        showTr('allocate', true);
-        showTr('distribution1', false);
-        showTr('distribution2', false);
-        showTr('distribution3', false);
-        showTr('distribution4', false);
-        showTr('distribution5', false);
-        showTr('forceBuy_tr', false);
-        showTr('refOutFullId_tr', false);
-        showTr('staffer_tr', false);
-        showTr('customer_tr', false);
-    }
-    
-    //报废
-    if ($$('outType') == 2 || $$('outType') == 3)
-    {
-        showTr('duty_tr', true);
-        showTr('invoice_tr', false);
-    }
-    
-    //调拨处理
-    if ($$('outType') == 1)
-    {
-         showTr('duty_tr', true);
-         showTr('invoice_tr', false);
-    }
-    
-    if ($$('outType') == 6)
-    {
-        showTr('pro_tr', true);
-        showTr('duty_tr', true);
-        showTr('invoice_tr', true);
-        $O('customerName').oncheck = 'notNone';
-    }
-    else
-    {
-        showTr('pro_tr', false);
-        showTr('invoice_tr', false);
-        $O('customerName').oncheck = '';
-         	 
-    }
 
-    if ($$('outType') == 99)
-    {
-        var nameList = document.getElementsByName("price");
-        
-        for (var i = 0; i < nameList.length; i++)
-        {
-            nameList[i].readOnly = false;
-        }
-        
-        //desciprt
-        nameList = document.getElementsByName("desciprt");
-        
-        for (var i = 0; i < nameList.length; i++)
-        {
-            nameList[i].readOnly = false;
-        }
-        
-        g_url_query = 1;
-        
-	   	showTr('forceBuy_tr',true);
-	   	showTr('refOutFullId_tr',true);
-	   	showTr('dir_tr',false);
-        showTr('allocate', false);
-        showTr('distribution1', false);
-        showTr('distribution2', false);
-        showTr('distribution3', false);
-        showTr('distribution4', false);
-        showTr('distribution5', false);
-        showTr('invoice_tr', false);
-        showTr('staffer_tr',false);
-        showTr('customer_tr',false);
-	
-		titleChange2();
-	
-        if ($$('forceBuyType') != -1)
-        {
-        	forceBuyTypeChange();	
-        } 
-    }
-    else
-    {    
-	    // 作废
-	    if ($$('outType') == 2)
-	    {
-	    	titleChange2();
-	    	showTr('staffer_tr', true);
-	    	showTr('forceBuy_tr',true);
-	    	
-	    	showTr('table_tr', true);
-	        showTr('button_tr', true);	
-	    }else
-	    {
-		    var nameList = document.getElementsByName("price");
-	        
-	        for (var i = 0; i < nameList.length; i++)
-	        {
-	            nameList[i].readOnly = true;
-	            
-	            if (!modifyPage)
-	            {
-	                nameList[i].value = '0.0';
-	                cc(nameList[i]);
-	            }
-	        }
-	        
-	        nameList = document.getElementsByName("desciprt");
-	        
-	        for (var i = 0; i < nameList.length; i++)
-	        {
-	            nameList[i].readOnly = true;
-	            
-	            if (!modifyPage)
-	            {
-	                nameList[i].value = '0.0';
-	            }
-	        }
-	        
-	         showTr('forceBuy_tr',false);
-	    	 showTr('refOutFullId_tr',false);
-	         showTr('staffer_tr',false);
-	         showTr('customer_tr',false);   
-	         
-	       	 showTr('table_tr', true);
-	         showTr('button_tr', true);	
-	    }
-        
-    }
 }
 
 function showTr(id, show)

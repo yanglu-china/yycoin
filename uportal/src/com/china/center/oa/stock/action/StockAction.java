@@ -123,6 +123,8 @@ import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
 
+import com.china.center.oa.sail.bean.DistributionBean;
+
 import jxl.Workbook;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
@@ -3872,7 +3874,7 @@ public class StockAction extends DispatchAction
 
 			outBean.setLogTime(TimeTools.now());
 
-			outBean.setOutTime(TimeTools.now());
+			outBean.setOutTime(TimeTools.now_short());
 			
 			outBean.setDescription(desList[i]);
 			
@@ -3967,6 +3969,9 @@ public class StockAction extends DispatchAction
 			// 入库单的处理
 			try
 			{
+				//发货信息
+				this.fillDistributionForRemoteAllocate(request, outBean);
+				
 				String id = outManager.addOut(outBean, map.getParameterMap(), user);
                 _logger.info("addOut 88888888888888888888*********"+id);
 				if ("提交".equals(saves))
@@ -4008,7 +4013,20 @@ public class StockAction extends DispatchAction
 		request.setAttribute(KeyConstant.MESSAGE, "成功提交采购退货单!");
 		
 		return queryStock(mapping, form, request, reponse);
-	}    
+	}   
+	
+    private void fillDistributionForRemoteAllocate(HttpServletRequest rds, OutBean out)
+    {
+        DistributionBean distributionBean = new DistributionBean();
+
+        distributionBean.setOutId(out.getFullId());
+
+        out.setDistributeBean(distributionBean);
+
+        BeanUtil.getBean(distributionBean, rds);
+        _logger.info(out+" fillDistributionForRemoteAllocate*****"+distributionBean);
+
+    }
 
 
     /**

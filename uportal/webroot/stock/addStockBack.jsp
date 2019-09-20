@@ -175,6 +175,123 @@
         		return;
         	}        	
         }
+        
+        function toggleSendInfo(obj)
+        {
+            //console.log(obj.value);
+            if (obj.value == '1')
+            {
+                showTr('distribution1', true);
+                showTr('distribution2', true);
+                showTr('distribution3', true);
+                showTr('distribution4', true);
+                showTr('distribution5', true);
+            }
+            else if (obj.value == '0')
+            {
+                showTr('distribution1', false);
+                showTr('distribution2', false);
+                showTr('distribution3', false);
+                showTr('distribution4', false);
+                showTr('distribution5', false);
+            }
+        }  
+        
+        function radio_click(obj)
+        {
+        	if (obj.value == '2')
+        	{
+        		$O('transport1').disabled = false;
+        		removeAllItem($O('transport1'));
+        		setOption($O('transport1'), "", "--");
+        		<c:forEach items="${expressList}" var="item">
+        		if ("${item.type}" == 0 || "${item.type}" == 99)
+        		{
+        			setOption($O('transport1'), "${item.id}", "${item.name}");
+        		}
+        		</c:forEach>
+        		removeAllItem($O('transport2'));
+        		setOption($O('transport2'), "", "--");
+        		$O('transport2').disabled = true;
+        		var expressPay = $O('expressPay');
+        		var transportPay = $O('transportPay');
+        		removeAllItem(expressPay);
+        		setOption(expressPay, '1', '业务员支付');
+        		setOption(expressPay, '2', '公司支付');
+        		setOption(expressPay, '3', '客户支付');
+        		removeAllItem(transportPay);
+        		setOption(transportPay, '', '--');
+        	}
+        	else if (obj.value == '3')
+        	{
+        		$O('transport2').disabled = false;
+        		removeAllItem($O('transport2'));
+        		setOption($O('transport2'), "", "--");
+        		<c:forEach items="${expressList}" var="item">
+        		if ("${item.type}" == 1 || "${item.type}" == 99)
+        		{
+        			setOption($O('transport2'), "${item.id}", "${item.name}");
+        		}
+        		</c:forEach>
+        		removeAllItem($O('transport1'));
+        		setOption($O('transport1'), "", "--");
+        		$O('transport1').disabled = true;
+        		var expressPay = $O('expressPay');
+        		var transportPay = $O('transportPay');
+        		removeAllItem(expressPay);
+        		setOption(expressPay, '', '--');
+        		removeAllItem(transportPay);
+        		setOption(transportPay, '1', '业务员支付');
+        		setOption(transportPay, '2', '公司支付');
+        		setOption(transportPay, '3', '客户支付');
+        	}
+        	else if (obj.value == '4')
+        	{
+        		$O('transport1').disabled = false;
+        		$O('transport2').disabled = false;
+        		removeAllItem($O('transport1'));
+        		setOption($O('transport1'), "", "--");
+        		removeAllItem($O('transport2'));
+        		setOption($O('transport2'), "", "--");
+        		<c:forEach items="${expressList}" var="item">
+        		if ("${item.type}" == 0 || "${item.type}" == 99)
+        		{
+        			setOption($O('transport1'), "${item.id}", "${item.name}");
+        		}
+        		</c:forEach>
+        		<c:forEach items="${expressList}" var="item">
+        		if ("${item.type}" == 1 || "${item.type}" == 99)
+        		{
+        			setOption($O('transport2'), "${item.id}", "${item.name}");
+        		}
+        		</c:forEach>
+        		var expressPay = $O('expressPay');
+        		var transportPay = $O('transportPay');
+        		removeAllItem(expressPay);
+        		setOption(expressPay, '1', '业务员支付');
+        		setOption(expressPay, '2', '公司支付');
+        		setOption(expressPay, '3', '客户支付');
+        		removeAllItem(transportPay);
+        		setOption(transportPay, '1', '业务员支付');
+        		setOption(transportPay, '2', '公司支付');
+        		setOption(transportPay, '3', '客户支付');
+        	}
+        	else
+        	{
+        		$O('transport1').disabled = true;
+        		$O('transport2').disabled = true;
+        		removeAllItem($O('transport1'));
+        		setOption($O('transport1'), "", "--");
+        		removeAllItem($O('transport2'));
+        		setOption($O('transport2'), "", "--");
+        		var expressPay = $O('expressPay');
+        		var transportPay = $O('transportPay');
+        		removeAllItem(expressPay);
+        		setOption(expressPay, '', '--');
+        		removeAllItem(transportPay);
+        		setOption(transportPay, '', '--');
+        	}
+        }        
 
 
     </script>
@@ -344,11 +461,87 @@
                         <a href="../stock/work.do?method=findStockWork&id=${item.id}">${item.id}</a>
                         &nbsp;
                     </c:forEach>
-                </p:cells>
+                </p:cells>                   
 
             </p:table>
         </p:subBody>
 
+        <p:tr />
+        
+        <p:subBody width="100%;align:left">
+        <table style="width:100%">
+			<tr class="content1" id="allocate" style=" align:left">
+				<td align="right" width="150px">是否显示发货信息：</td>
+				<td colspan="3">
+				    <label><input type="radio" name="sendInfo" value="1" onClick="toggleSendInfo(this)">显示</label>
+					<label><input type="radio" name="sendInfo" value="0" checked="checked" onClick="toggleSendInfo(this)">隐藏</label>								
+				</td>
+			</tr>
+
+			<tr class="content1" id="distribution1" style="display: none;">
+				<td align="right">发货方式：</td>
+				<td colspan="3">
+					<label><input type="radio" name="shipping" value="0" onClick="radio_click(this)">自提</label>
+					<label><input type="radio" name="shipping" value="1" onClick="radio_click(this)">公司</label>
+					<label><input type="radio" name="shipping" value="2" onClick="radio_click(this)">第三方快递</label>
+					<label><input type="radio" name="shipping" value="3" onClick="radio_click(this)">第三方货运</label>
+					<label><input type="radio" name="shipping" value="4" onClick="radio_click(this)">第三方快递+货运</label>
+				</td>
+			</tr>
+			<tr class="content1" id="distribution2" style="display: none;">
+				<td align="right">运输方式：</td>
+				<td colspan="3">
+					<select name="transport1" id="transport1" quick=true class="select_class" style="width:20%" >
+					</select>&nbsp;&nbsp;
+					<select name="transport2" id="transport2" quick=true class="select_class" style="width:20%" >
+					</select>
+				</td>
+			</tr>
+			<tr class="content1" id="distribution3" style="display: none;">
+				<td align="right">运费支付方式：</td>
+				<td colspan="3">
+					<select name="expressPay" quick=true class="select_class" style="width:20%">
+						<p:option type="deliverPay"></p:option>
+					</select>&nbsp;&nbsp;
+					<select name="transportPay" quick=true class="select_class" style="width:20%">
+						<p:option type="deliverPay"></p:option>
+					</select>
+				</td>
+			</tr>
+			<tr class="content1" id="distribution4" style="display: none;">
+				<td width="15%" align="right">送货地址：</td>
+				<td width="35%">
+					<select name="provinceId" quick=true onchange="change_city(this)" class="select_class" >
+						<option>-</option>
+						<c:forEach items="${provinceList}" var="province">
+							<option value="${province.id}">${province.name}</option>
+						</c:forEach>
+						</select>&nbsp;&nbsp;
+					<select name="cityId" quick=true class="select_class" >
+						<option>-</option>
+					</select>&nbsp;&nbsp;
+				</td>
+                         <td width="15%" align="right">收货人：</td>
+                         <td width="35%">
+                             <input type="text" name='receiver' id ='receiver' maxlength="10" required="required" /><font color="#FF0000">*</font>
+                         </td>
+			</tr>
+			<tr class="content2" id="distribution5" style="display: none;">
+				<td width="15%" align="right">地址：</td>
+
+				<td width="35%">
+					<input type="text" name="address" id="address" maxlength="60" required="required" /><font color="#FF0000">*</font>
+				</td>
+
+				<td width="15%" align="right">电话：</td>
+				<td width="35%">
+                             <input type="text" name="mobile" id ="mobile" maxlength="13" required="required"/><font color="#FF0000">*</font>
+				</td>
+			</tr>
+     
+        </table>
+        </p:subBody>
+        
         <p:tr />
 
         <p:subBody width="100%">
@@ -454,7 +647,7 @@
 						<input type="hidden" name="productId" value="">	
                     </td>
 
-                    <td align="center"><input type="number" name="amount" required></td>
+                    <td align="center"><input type="number" name="amount" required><input type="hidden" name="amountLimit"></td>
                     <td align="center"><input type="number" name="price" required></td>
                     <td align="center"><input type="text" name="depot" required><input type="hidden" name="depotpartId">
                     <input type="hidden" name="storageId" value="${itemBase.storageId }">

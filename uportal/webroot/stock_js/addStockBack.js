@@ -202,13 +202,26 @@ function getProductRelation(oxes)
     //getInputInTr(tr, "invoiceType").value = ox.pinvoicetypename;
     //getInputInTr(tr, "invoiceId").value = ox.pinvoicetype;
     
+    var backType = getSelectInTr(tr, "backType").value;
+    
     var storageAmount = parseInt(ox.pamount);
     var stockAmount = parseInt(ox.pstockammount);
-    var amount = storageAmount;
-    if(stockAmount < storageAmount){
+    var amount = 0;
+    if(backType == '2'){
+    	//未入库
     	amount = stockAmount;
+    }else{
+    	//已入库
+    	amount = storageAmount;
+        if(stockAmount < storageAmount){
+        	amount = stockAmount;
+        }    	
     }
+
     getInputInTr(tr, "amount").value = (0-amount);
+    
+    //数量上限
+    getInputInTr(tr, "amountLimit").value = amount;
 
     getInputInTr(tr, "amount").title = "库存数量："+storageAmount+",采购数量："+stockAmount;
 }

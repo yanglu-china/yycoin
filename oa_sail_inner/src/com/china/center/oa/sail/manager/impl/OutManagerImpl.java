@@ -8816,10 +8816,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         
 //        outDAO.saveEntityBean(outBean);
         this.saveOutWithPodate(outBean);
+        
+        _logger.debug("*****outBean.getFullId()*****"+outBean.getFullId());
 
         this.saveDistributionForRemoteAllocate(outBean);
 
-        _logger.info("*****finish saveOutInner*****"+outBean);
+        _logger.info("*****finish saveOutInner*****"+outBean.getFullId());
     }
 
     private void saveDistributionForRemoteAllocate(OutBean outBean){
@@ -8827,7 +8829,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         //2015/10/22 入库换货单也需要生成CK单
         int outType = outBean.getOutType();
         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
-                && (outType == OutConstant.OUTTYPE_IN_MOVEOUT || outType == OutConstant.OUTTYPE_IN_EXCHANGE))
+                && (outType == OutConstant.OUTTYPE_IN_MOVEOUT 
+                || outType == OutConstant.OUTTYPE_IN_EXCHANGE
+                || outBean.getBuyReturnFlag() == 1))
         {
             DistributionBean distributionBean = outBean.getDistributeBean();
 
