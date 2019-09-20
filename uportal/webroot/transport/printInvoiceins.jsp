@@ -38,10 +38,11 @@
 			}
 
 			var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
-//	alert(result);
 			if (result === '1') {
 				var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
 				alert(msg);
+			} else{
+			    alert("成功开启!");
 			}
 		}
 
@@ -57,6 +58,7 @@
 //	console.log(data.obj);
 //	var result = JSON.parse(data.obj);
 //	console.log(result);
+			alert(data);
 			if (data.retMsg.toLowerCase() === "ok") {
 				for (var key in data.obj) {
 					var response =  a.JsaeroKP(data.obj[key]);
@@ -84,7 +86,7 @@
 						alert(fphm);
 						var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
 						alert(fpdm);
-						//update fphm
+						//更新发票号码
 						var packageId = $O('packageId').value;
 						$ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
 					}else{
