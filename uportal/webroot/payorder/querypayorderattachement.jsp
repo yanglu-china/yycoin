@@ -81,7 +81,7 @@ function change(outid,outbillid,billtype)
 
 <table width="98%" border="0" cellpadding="0" cellspacing="0" align="center">
 	<tr class="content1">
-        <%-- <td style="width: 15%" align="center">单据类型:</td>
+        <td style="width: 15%" align="center">单据类型:</td>
         <td align="center" style="width: 35%">
         	<select name="payOrderType" id="payOrderType" class="select_class" values="${queryMap.payOrderType}">
 				<option value="">--</option>
@@ -91,7 +91,7 @@ function change(outid,outbillid,billtype)
 				<option value="4">报销申请付款</option>
 				<option value="5">预收退款</option>
 			</select>
-        </td> --%>
+        </td>
         <td align="center" style="width: 15%">单据号:</td>
         <td align="center"><input type="text" name="payOrderNo" value="${queryMap.payOrderNo }"/>
         </td>
