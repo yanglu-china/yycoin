@@ -299,18 +299,18 @@
     	select * from (
 		SELECT a.id AS billNo,'3' AS billtype,'借款申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'已付款' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100 AS payeeAmount,'' AS cityid,b.bankcity as cityname
-		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId AND (b.payflag=0 or b.payflag is null)
+		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
 		AND a.status=99 AND a.type NOT IN (8,10,15,22)
 		UNION
 		SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'已付款' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,b.bankcity as cityname
 		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
-		AND a.status=99 AND a.type NOT IN (8,10,15,22) AND cmoneys>0 AND (b.payflag=0 or b.payflag is null)
+		AND a.status=99 AND a.type NOT IN (8,10,15,22) AND cmoneys>0
 		UNION 
-		SELECT a.APPLYID AS billNo,'5' AS billtype,'预收退款' AS billtypedesc,DATE_FORMAT(b.logtime,'%Y-%m-%d') AS billdate,'已付款' AS billstatus,b.logtime,a.description,
-		TRIM(b.receiveBank) AS  payeebank,TRIM(b.receiver) AS payeeBankAccName,TRIM(b.receiveAccount) AS payeeBankAcc,a.checktotal/100  AS payeeAmount,TRIM(b.bankcity) as cityname,'' as cityid
-		FROM T_CENTER_TCPAPPROVE a ,T_CENTER_BACKPREPAY_APPLY b
-		WHERE a.TYPE=23 AND a.STATUS=99 and a.checktotal>0 and b.id=a.applyid AND (b.payflag=0 or b.payflag is null)) aaa where aaa.payeeAmount>0
+		SELECT b.id AS billNo,'5' AS billtype,'预收退款' AS billtypedesc,DATE_FORMAT(b.logtime,'%Y-%m-%d') AS billdate,'已付款' AS billstatus,b.logtime,b.name AS description,
+		TRIM(b.receiveBank) AS  payeebank,TRIM(b.receiver) AS payeeBankAccName,TRIM(b.receiveAccount) AS payeeBankAcc,b.backmoney/100  AS payeeAmount,TRIM(b.bankcity) AS cityname,'' AS cityid
+		FROM T_CENTER_BACKPREPAY_APPLY b
+		WHERE b.TYPE=23 AND b.STATUS=99 AND b.backmoney>0) aaa where aaa.payeeAmount>0
 		AND aaa.billno NOT IN (SELECT refid FROM t_center_oaattachment b WHERE flag=1)
 		<dynamic prepend=""> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
@@ -334,6 +334,9 @@
             </isNotEmpty>
             <isNotEmpty prepend="and" property="billEndTime"> 
                     <![CDATA[aaa.billdate<=#billEndTime#]]>
+            </isNotEmpty>
+             <isNotEmpty prepend="and" property="payOrderType"> 
+                    aaa.billType=#payOrderType#
             </isNotEmpty>
        </dynamic>
        order by billdate desc
