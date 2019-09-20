@@ -251,12 +251,20 @@ function checkTotal()
 	}
 
     messk = '';
-    var gh =  document.getElementsByName('productName');;
-    var ghk =  document.getElementsByName('amount');;
+    var gh =  document.getElementsByName('productName');
+    var ghk =  document.getElementsByName('amount');
+    var description =  document.getElementsByName('description');
 
     messk += '\r\n';
-    for(var i = 0 ; i < gh.length - 1; i++)
+    for(var i = 0 ; i < gh.length; i++)
     {
+        if(gh[i].value == ''){
+          continue;
+        }
+        if(description[i].value == ''){
+            alert("退货备注为必填项!");
+            return false;        
+        }
         messk += '\r\n' + '产品【' + gh[i].value + '】   数量:' + ghk[i].value;
     }
 
@@ -265,15 +273,15 @@ function checkTotal()
         var amount = parseInt(amountElements[i].value);
         if(isNaN(amount)){
             continue;
-        } else if(amount > 0){
-            alert("调退货数量必须为负数!");
+        } else if(amount >= 0){
+            alert("退货数量必须为负数!");
             return false;
         }
     }
     
     if ($O('saves').value == 'save')
     {
-         if (window.confirm("入库单所有类型都是正数增加库存，负数减少库存，您确认填写的调出符合实际情形,确定保存入库单?" + messk))
+         if (window.confirm("退货数量为负数,确定提交库单?" + messk))
          {
             disableAllButton();
             outForm.submit();
@@ -291,7 +299,7 @@ function checkTotal()
     }
 
 
-    if (window.confirm("入库单所有类型都是正数增加库存，负数减少库存，您确认填写的调出符合实际情形,确定提交库单?" + messk))
+    if (window.confirm("退货数量为负数,确定提交库单?" + messk))
     {
         disableAllButton();
         outForm.submit();

@@ -2532,7 +2532,41 @@ public class StockAction extends DispatchAction
         
         request.setAttribute("baseList", baseList);
         
+        //准备供应商、纳税实体、发票类型列表
+        List<Map<String, String>> providerList = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> dutyList = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> invoiceList = new ArrayList<Map<String, String>>();
+
+        for (StockItemVO itemVO : vo.getItemVO())
+        {
+            Map<String, String> providerMap = this.getMap(itemVO.getProviderId(), itemVO.getProviderName());
+            if(!providerList.contains(providerMap)){
+                providerList.add(providerMap);
+            }
+
+            Map<String, String> dutyMap = this.getMap(itemVO.getDutyId(), itemVO.getDutyName());
+            if(!dutyList.contains(dutyMap)){
+                dutyList.add(dutyMap);
+            }
+
+            Map<String, String> invoiceMap = this.getMap(itemVO.getInvoiceType(), itemVO.getInvoiceTypeName());
+            if(!invoiceList.contains(invoiceMap)){
+                invoiceList.add(invoiceMap);
+            }
+
+        }
+        request.setAttribute("providerList", providerList);
+        request.setAttribute("dutyList", dutyList);
+        request.setAttribute("invoiceList", invoiceList);
+        
         return mapping.findForward("addStockBack");
+    }
+
+    private Map<String, String> getMap(String id, String name){
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("id", id);
+        map.put("name", name);
+        return map;
     }
 
     /**
@@ -3970,8 +4004,9 @@ public class StockAction extends DispatchAction
         request.setAttribute("ltype", "0");
         request.setAttribute("load", "1");
         request.setAttribute("menu", "1");
-
-        request.setAttribute(KeyConstant.MESSAGE, "成功提交采购退货单!");
+		
+		request.setAttribute(KeyConstant.MESSAGE, "成功提交采购退货单!");
+		
 		return queryStock(mapping, form, request, reponse);
 	}    
 

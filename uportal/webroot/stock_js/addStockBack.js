@@ -189,17 +189,18 @@ function getProductRelation(oxes)
     getInputInTr(tr, "productId").value = ox.ppid;
     
     
-    getInputInTr(tr, "price").value = ox.pprice;
+    getInputInTr(tr, "price").value = ox.prealprice;
     getInputInTr(tr, "depot").value = ox.pdepotpartname;
     getInputInTr(tr, "depotpartId").value = ox.pdepotpartid;
     //getInputInTr(tr, "storageName").value = ox.pstoragename;    
     getInputInTr(tr, "storageId").value = ox.pstorageid;    
-    getInputInTr(tr, "provider").value = ox.pprovidername;
-    getInputInTr(tr, "providerId").value = ox.pproviderid;
-    getInputInTr(tr, "duty").value = ox.pdutyname;
-    getInputInTr(tr, "dutyId").value = ox.pdutyid;
-    getInputInTr(tr, "invoiceType").value = ox.pinvoicetypename;
-    getInputInTr(tr, "invoiceId").value = ox.pinvoicetype;
+    
+    //getInputInTr(tr, "provider").value = ox.pprovidername;
+    //getInputInTr(tr, "providerId").value = ox.pproviderid;
+    //getInputInTr(tr, "duty").value = ox.pdutyname;
+    //etInputInTr(tr, "dutyId").value = ox.pdutyid;
+    //getInputInTr(tr, "invoiceType").value = ox.pinvoicetypename;
+    //getInputInTr(tr, "invoiceId").value = ox.pinvoicetype;
     
     var storageAmount = parseInt(ox.pamount);
     var stockAmount = parseInt(ox.pstockammount);

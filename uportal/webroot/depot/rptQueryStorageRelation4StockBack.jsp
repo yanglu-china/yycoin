@@ -90,18 +90,12 @@ function resets()
 			id="result">
 			<tr align=center class="content0">
 				<td align="center">选择</td>
-				<td align="center" onclick="tableSort(this)" class="td_class"><strong>仓区</strong></td>
-				<td align="center" onclick="tableSort(this)" class="td_class"><strong>储位</strong></td>
+				<td align="center" onclick="tableSort(this)" class="td_class"><strong>仓库</strong></td>
+				<td align="center" onclick="tableSort(this)" class="td_class"><strong>仓区</strong></td>		
 				<td align="center" onclick="tableSort(this)" class="td_class"><strong>产品</strong></td>
-				<td align="center" onclick="tableSort(this)" class="td_class"><strong>类型</strong></td>
-				<td align="center" onclick="tableSort(this)" class="td_class"><strong>分类</strong></td>
 				<td align="center" onclick="tableSort(this, true)" class="td_class"><strong>库存数量</strong></td>
 				<td align="center" onclick="tableSort(this, true)" class="td_class"><strong>价格</strong></td>
 				<td align="center" onclick="tableSort(this, true)" class="td_class"><strong>虚料金额</strong></td>
-				<td align="center" onclick="tableSort(this)" class="td_class"><strong>职员</strong></td>
-				<td align="center" onclick="tableSort(this)" class="td_class"><strong>供应商</strong></td>
-				<td align="center" onclick="tableSort(this)" class="td_class"><strong>纳税实体</strong></td>
-				<td align="center" onclick="tableSort(this)" class="td_class"><strong>发票类型</strong></td>
 			</tr>
 
 			<c:forEach items="${beanList}" var="item" varStatus="vs">
@@ -137,18 +131,12 @@ function resets()
 				    pinvoicetype="${item.invoiceType}"
 				    pinvoicetypename="${item.invoiceTypeName}"
 				    /></td>
+				    <td align="center" onclick="hrefAndSelect(this)">${item.locationName}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.depotpartName}</td>
-					<td align="center" onclick="hrefAndSelect(this)">${item.storageName}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.productName}(${item.productCode})</td>
-					<td align="center" onclick="hrefAndSelect(this)">${my:get('pubManagerType', item.productMtype)}</td>
-					<td align="center" onclick="hrefAndSelect(this)">${my:get('productType', item.productType)}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.amount}</td>
-					<td align="center" onclick="hrefAndSelect(this)">${my:formatNum(item.addPrice)}</td>
+					<td align="center" onclick="hrefAndSelect(this)">${my:formatNum(item.price)}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${my:formatNum(item.virtualPrice)}</td>
-					<td align="center" onclick="hrefAndSelect(this)">${item.stafferName}</td>
-					<td align="center" onclick="hrefAndSelect(this)">${item.providerName}</td>
-					<td align="center" onclick="hrefAndSelect(this)">${item.dutyName}</td>
-					<td align="center" onclick="hrefAndSelect(this)">${item.invoiceTypeName}</td>
 				</tr>
 			</c:forEach>
 		</table>

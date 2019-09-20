@@ -403,12 +403,12 @@
                                 <a href=../sail/out.do?method=findOut&fow=99&outId=${item.refOutId}>是</a>
                             </td>
                         </c:if>
-
+						
                         <c:if test="${item.hasRef == 2}">
                             <td align="center">
                                 <font color=red>部分入库</font>
                             </td>
-                        </c:if>
+                        </c:if>						
 
                         <td align="center">${my:formatNum(item.total)}</td>
 
@@ -436,7 +436,61 @@
                     <td width="5%" align="left">
                         <input type="button" accesskey="A" value="增加" class="button_class" onclick="addRow()">
                     </td>
+                </tr>                                 
+ 
+                <tr id="trCopy" style="display: none;">
+                    <td align="center">
+                        <select name="backType">
+                            <option value="">-</option>
+                            <option value="1">已入库退货</option>
+                            <option value="2">未入库退货</option>
+                        </select>
+                    </td>
+                    <td align="center">
+                        <input type="text" name="productName"
+							onclick="opens(this)"
+							readonly="readonly"
+							style="width: 200px; cursor: hand">
+						<input type="hidden" name="productId" value="">	
+                    </td>
+
+                    <td align="center"><input type="number" name="amount" required></td>
+                    <td align="center"><input type="number" name="price" required></td>
+                    <td align="center"><input type="text" name="depot" required><input type="hidden" name="depotpartId">
+                    <input type="hidden" name="storageId" value="${itemBase.storageId }">
+                    </td>
+                    <td align="center">
+                        <select name="providerId">
+                            <option value="">-</option>
+                            <c:forEach items="${providerList}" var="providerItem">
+                                <option value="${providerItem.id}">${providerItem.name}</option>
+                            </c:forEach>
+                        </select>                    
+                    
+                    </td>
+                    <td align="center">
+                        <select name="dutyId">
+                            <option value="">-</option>
+                            <c:forEach items="${dutyList}" var="dutyItem">
+                                <option value="${dutyItem.id}">${dutyItem.name}</option>
+                            </c:forEach>
+                        </select>                    
+                    </td>
+                    <td align="center">
+                        <select name="invoiceId">
+                            <option value="">-</option>
+                            <c:forEach items="${invoiceList}" var="invoiceItem">
+                                <option value="${invoiceItem.id}">${invoiceItem.name}</option>
+                            </c:forEach>
+                        </select>
+                    </td>
+                    <td align="center">
+                    <input type="text" name="description" required>
+                    <!--  <input type="hidden" name="locationId">-->
+                    </td>
+                    <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                 </tr>
+  
                 
                 <c:forEach items="${baseList}" var="itemBase" varStatus="vs">
                   <c:choose>
@@ -465,9 +519,31 @@
 	                    <td align="center"><input type="text" name="depot" value="${itemBase.depot }" required><input type="hidden" name="depotpartId" value="${itemBase.depotpartId }">
 	                    <input type="hidden" name="storageId" value="${itemBase.storageId }">
 	                    </td>
-	                    <td align="center"><input type="text" name="provider" value="${itemBase.provider }" required><input type="hidden" name="providerId" value="${itemBase.providerId }"></td>
-	                    <td align="center"><input type="text" name="duty" value="${itemBase.duty }" required><input type="hidden" name="dutyId" value="${itemBase.dutyId }"></td>
-	                    <td align="center"><input type="text" name="invoiceType" value="${itemBase.invoiceType }" required><input type="hidden" name="invoiceId" value="${itemBase.invoiceId }"></td>
+                        <td align="center">
+                        <select name="providerId">
+                            <option value="">-</option>
+                            <c:forEach items="${providerList}" var="providerItem">
+                                <option value="${providerItem.id}" "${providerItem.id==itemBase.providerId?'selected':''}">${providerItem.name}</option>
+                            </c:forEach>
+                        </select>
+
+                        </td>
+                        <td align="center">
+                        <select name="dutyId">
+                            <option value="">-</option>
+                            <c:forEach items="${dutyList}" var="dutyItem">
+                                <option value="${dutyItem.id}" "${dutyItem.id==itemBase.dutyId?'selected':''}">${dutyItem.name}</option>
+                            </c:forEach>
+                        </select>
+                        </td>
+                        <td align="center">
+                        <select name="invoiceId">
+                            <option value="">-</option>
+                            <c:forEach items="${invoiceList}" var="invoiceItem">
+                                <option value="${invoiceItem.id}" "${invoiceItem.id==itemBase.invoiceId?'selected':''}">${invoiceItem.name}</option>
+                            </c:forEach>
+                        </select>
+                        </td>
 	                    <td align="center">
 	                    <input type="text" name="description" value="${itemBase.description }"  required>
 	                    <!--  <input type="hidden" name="locationId">-->
@@ -501,38 +577,8 @@
                     </c:otherwise>
                   </c:choose>
 
-                </c:forEach>                                  
-
-                <tr id="trCopy" style="display: none;">
-                    <td align="center">
-                        <select name="backType">
-                            <option value="">-</option>
-                            <option value="1">已入库退货</option>
-                            <option value="2">未入库退货</option>
-                        </select>
-                    </td>
-                    <td align="center">
-                        <input type="text" name="productName"
-							onclick="opens(this)"
-							readonly="readonly"
-							style="width: 200px; cursor: hand">
-						<input type="hidden" name="productId" value="">	
-                    </td>
-
-                    <td align="center"><input type="number" name="amount" required></td>
-                    <td align="center"><input type="number" name="price" required></td>
-                    <td align="center"><input type="text" name="depot" required><input type="hidden" name="depotpartId">
-                    <input type="hidden" name="storageId" value="${itemBase.storageId }">
-                    </td>
-                    <td align="center"><input type="text" name="provider" required><input type="hidden" name="providerId"></td>
-                    <td align="center"><input type="text" name="duty" required><input type="hidden" name="dutyId"></td>
-                    <td align="center"><input type="text" name="invoiceType" required><input type="hidden" name="invoiceId"></td>
-                    <td align="center">
-                    <input type="text" name="description" required>
-                    <!--  <input type="hidden" name="locationId">-->
-                    </td>
-                    <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
-                </tr>
+                </c:forEach>                 
+                
             </table>
         </p:subBody>
 
