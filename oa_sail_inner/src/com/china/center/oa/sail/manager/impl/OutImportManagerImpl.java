@@ -4261,7 +4261,9 @@ public void offlineStorageInJob() {
                             }
 
                             outBean.setTotal(value);
-                            outBean.setStatus(OutConstant.STATUS_SUBMIT);
+//                            outBean.setStatus(OutConstant.STATUS_SUBMIT);
+                            //#777
+                            outBean.setStatus(OutConstant.BUY_STATUS_SUBMIT);
 							outBean.setLocation(baseBean.getLocationId());
                             outBean.setLocationId("999");
 
@@ -4293,7 +4295,8 @@ public void offlineStorageInJob() {
 
                 //#349 如果outtype字段有值，退货自动入到指定的空退空开库
 				// 再开出新的出库单空发，类型为outtype字段值，客户ID为outcustomerid,数量为空退的数量，收货人记为outreceiver，运输方式为空发
-				if (item.getOutType()!= null && !ListTools.isEmptyOrNull(generatedOutBeans)) {
+                //#777 先不管空开空退了
+/*				if (item.getOutType()!= null && !ListTools.isEmptyOrNull(generatedOutBeans)) {
 					_logger.info("空开空退:" + item.getId());
 					for (OutBean outBean : generatedOutBeans) {
 						try {
@@ -4306,7 +4309,7 @@ public void offlineStorageInJob() {
 							_logger.error(e);
 						}
 					}
-				}
+				}*/
             }
         }
     }
