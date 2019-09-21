@@ -4103,6 +4103,10 @@ public void offlineStorageInJob() {
                         List<BaseBean> refBaseBeans = this.findBaseBeanToBack(amount, outBaseBeans, inBaseBeans);
                         _logger.info("***refBaseBeans size***"+refBaseBeans.size());
                         for (BaseBean refBaseBean : refBaseBeans){
+                        	if (refBaseBean.getAmount() == 0){
+                        		_logger.warn("amount is 0:"+refBaseBean);
+                        		continue;
+							}
                             _logger.info("***find refBaseBean ***"+refBaseBean);
                             OutBean outBean = new OutBean();
                             outBean.setType(OutConstant.OUT_TYPE_INBILL);
@@ -4325,7 +4329,7 @@ public void offlineStorageInJob() {
 	 * @return
 	 */
 	private List<BaseBean> findBaseBeanToBack(int inAmount, List<BaseBean> outBaseBeans, List<BaseBean> inBaseBeans){
-		_logger.info("***outBaseBeans "+outBaseBeans.size()+" vs inBaseBeans "+inBaseBeans.size());
+		_logger.info("***outBaseBeans "+outBaseBeans+" vs inBaseBeans "+inBaseBeans);
 		List<BaseBean> result = new ArrayList<BaseBean>();
 
 		//同一商品按成本价从高到低取
@@ -4334,20 +4338,12 @@ public void offlineStorageInJob() {
 				return (int)(o2.getCostPrice() - o1.getCostPrice());
 			}
 		});
-
-		for (BaseBean out: outBaseBeans){
-			_logger.info("***out base***"+out);
-		}
-
 		Collections.sort(inBaseBeans, new Comparator<BaseBean>() {
 			public int compare(BaseBean o1, BaseBean o2) {
 				return (int)(o2.getCostPrice() - o1.getCostPrice());
 			}
 		});
 
-		for (BaseBean in: inBaseBeans){
-			_logger.info("***in base**"+in);
-		}
 
 //        if (ListTools.isEmptyOrNull(inBaseBeans) && !ListTools.isEmptyOrNull(outBaseBeans)){
 //            //尚未入库
