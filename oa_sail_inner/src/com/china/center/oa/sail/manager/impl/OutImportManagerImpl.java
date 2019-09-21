@@ -4191,7 +4191,12 @@ public void offlineStorageInJob() {
 
                             baseBean.setPrice(refBaseBean.getPrice());
                             baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
-                            baseBean.setCostPrice(refBaseBean.getCostPrice());
+							if (item.getCostPrice() >0 ){
+								baseBean.setCostPrice(item.getCostPrice());
+							} else{
+								baseBean.setCostPrice(refBaseBean.getCostPrice());
+							}
+
                             baseBean.setCostPriceKey(StorageRelationHelper
                                     .getPriceKey(baseBean.getCostPrice()));
 

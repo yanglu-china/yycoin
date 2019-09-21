@@ -55,6 +55,8 @@ public class OutBackItemBean implements Serializable
 
     private String outReceiver = "";
 
+    private double costPrice = 0.0;
+
     @Ignore
     private boolean duplicate = false;
 
@@ -202,6 +204,14 @@ public class OutBackItemBean implements Serializable
         this.duplicate = duplicate;
     }
 
+    public double getCostPrice() {
+        return costPrice;
+    }
+
+    public void setCostPrice(double costPrice) {
+        this.costPrice = costPrice;
+    }
+
     @Override
     public String toString() {
         return "OutBackItemBean{" +
@@ -222,6 +232,7 @@ public class OutBackItemBean implements Serializable
                 ", outType=" + outType +
                 ", outCustomerId='" + outCustomerId + '\'' +
                 ", outReceiver='" + outReceiver + '\'' +
+                ", costPrice=" + costPrice +
                 ", duplicate=" + duplicate +
                 '}';
     }
