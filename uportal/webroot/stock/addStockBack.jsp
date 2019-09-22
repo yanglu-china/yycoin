@@ -792,7 +792,7 @@
 	
 	                    <td align="center">${itemBase.amount }</td>
 	                    <td align="center">${itemBase.price }</td>
-	                    <td align="center">${itemBase.depot }</td>
+	                    <td align="center">${itemBase.depotpartName }</td>
 	                    <td align="center">${itemBase.provider }</td>
 	                    <td align="center">${itemBase.duty }</td>
 	                    <td align="center">${itemBase.invoiceType }</td>

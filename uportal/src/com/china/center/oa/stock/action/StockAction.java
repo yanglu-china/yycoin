@@ -2534,6 +2534,7 @@ public class StockAction extends DispatchAction
         {
             Map<String, String> providerMap = this.getMap(itemVO.getProviderId(), itemVO.getProviderName());
             if(!providerList.contains(providerMap)){
+            	_logger.debug("provider "+itemVO.getProviderId()+":"+itemVO.getProviderName());
                 providerList.add(providerMap);
             }
 
@@ -3877,7 +3878,7 @@ public class StockAction extends DispatchAction
 			outBean.setOutType(OutConstant.OUTTYPE_IN_STOCK);
 			outBean.setType(OutConstant.OUT_TYPE_INBILL);
 
-			
+			outBean.setCustomerId(providerIds[i]);
 			
 			outBean.setBuyReturnFlag(1);
 

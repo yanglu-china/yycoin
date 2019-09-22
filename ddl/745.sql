@@ -1,5 +1,5 @@
 ALTER TABLE T_CENTER_OUT ADD COLUMN (buyReturnFlag CHAR(1) COMMENT '是否新流程采购退货:0-不是;1:是' DEFAULT 0);
-ALTER TABLE T_CENTER_OUT ADD COLUMN (buyReturnType CHAR(1) COMMENT '采购退货类型，1：已入库退货， 2：未入库退货' DEFAULT '');
+ALTER TABLE T_CENTER_OUT ADD COLUMN (buyReturnType CHAR(1) COMMENT '采购退货类型，1：已入库退货， 2：未入库退货' DEFAULT 0);
 
 delete from `t_center_oamenuitem` where id in ('1341','1342','1343','1344');
 
