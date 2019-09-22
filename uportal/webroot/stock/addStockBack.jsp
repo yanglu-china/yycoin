@@ -197,6 +197,34 @@
             }
         }  
         
+        var provinceMap = {};
+        <c:forEach items="${cityList}" var="item">
+        var cities = provinceMap['${item.parentId}'];
+//                console.log(cities);
+        if (typeof cities === "undefined"){
+        	provinceMap['${item.parentId}'] = []
+        	provinceMap['${item.parentId}'].push({'id':'${item.id}','name':'${item.name}'})
+        } else{
+        	cities.push({'id':'${item.id}','name':'${item.name}'})
+        }
+        </c:forEach>
+
+        function change_city(obj)
+        {
+        	removeAllItem($O('cityId'));
+        	setOption($O('cityId'), "", "--");
+        	if ($$('provinceId') == "")
+        	{
+        		return;
+        	}
+        	var cityList = provinceMap[$$('provinceId')];
+//                console.log(cityList);
+        	for (var i = 0; i < cityList.length; i++)
+        	{
+        		setOption($O('cityId'), cityList[i].id, cityList[i].name);
+        	}
+        }        
+        
         function radio_click(obj)
         {
         	if (obj.value == '2')
