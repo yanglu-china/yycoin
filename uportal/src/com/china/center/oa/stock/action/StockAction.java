@@ -20,10 +20,14 @@ import javax.servlet.http.HttpServletResponse;
 import com.china.center.actionhelper.jsonimpl.JSONStringer;
 import com.china.center.oa.customer.constant.CustomerConstant;
 import com.china.center.oa.product.constant.StorageConstant;
+import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.ExpressBean;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.ExpressDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.tools.*;
@@ -64,28 +68,10 @@ import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.vo.DepotpartVO;
 import com.china.center.oa.product.vo.ProductBOMVO;
 import com.china.center.oa.publics.Helper;
-import com.china.center.oa.publics.bean.DepartmentBean;
-import com.china.center.oa.publics.bean.DutyBean;
-import com.china.center.oa.publics.bean.FlowLogBean;
-import com.china.center.oa.publics.bean.InvoiceBean;
-import com.china.center.oa.publics.bean.LocationBean;
-import com.china.center.oa.publics.bean.ShowBean;
-import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.InvoiceConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.PublicLock;
-import com.china.center.oa.publics.dao.CommonDAO;
-import com.china.center.oa.publics.dao.DepartmentDAO;
-import com.china.center.oa.publics.dao.DutyDAO;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.dao.InvoiceDAO;
-import com.china.center.oa.publics.dao.LocationDAO;
-import com.china.center.oa.publics.dao.RoleAuthDAO;
-import com.china.center.oa.publics.dao.RoleDAO;
-import com.china.center.oa.publics.dao.ShowDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
-import com.china.center.oa.publics.dao.UserDAO;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.publics.manager.UserManager;
@@ -206,6 +192,11 @@ public class StockAction extends DispatchAction
 
     protected OutDAO outDAO = null;
     protected BaseDAO baseDAO = null;
+
+    protected ExpressDAO expressDAO = null;
+    protected ProvinceDAO provinceDAO = null;
+
+    protected CityDAO cityDAO = null;
 
     /**
      *
@@ -4834,5 +4825,29 @@ public class StockAction extends DispatchAction
 
     public void setBaseDAO(BaseDAO baseDAO) {
         this.baseDAO = baseDAO;
+    }
+
+    public ExpressDAO getExpressDAO() {
+        return expressDAO;
+    }
+
+    public void setExpressDAO(ExpressDAO expressDAO) {
+        this.expressDAO = expressDAO;
+    }
+
+    public ProvinceDAO getProvinceDAO() {
+        return provinceDAO;
+    }
+
+    public void setProvinceDAO(ProvinceDAO provinceDAO) {
+        this.provinceDAO = provinceDAO;
+    }
+
+    public CityDAO getCityDAO() {
+        return cityDAO;
+    }
+
+    public void setCityDAO(CityDAO cityDAO) {
+        this.cityDAO = cityDAO;
     }
 }
