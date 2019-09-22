@@ -679,7 +679,8 @@
                     <td align="center"><input type="number" name="price" required></td>
                     <td align="center"><input type="text" name="depotpart" required><input type="hidden" name="depotpartId">
                     <input type="hidden" name="storageId">
-                    <input type="hidden" name="locationId">
+                    <input type="hidden" name="locationId" value="${bean.locationId}">
+                    <input type="hidden" name="location">
                     </td>
                     <td align="center">
                         <select name="providerId">
@@ -740,6 +741,8 @@
 	                    <td align="center"><input type="number" name="price" value="${itemBase.price }" required></td>
 	                    <td align="center"><input type="text" name="depot" value="${itemBase.depot }" required><input type="hidden" name="depotpartId" value="${itemBase.depotpartId }">
 	                    <input type="hidden" name="storageId" value="${itemBase.storageId }">
+                        <input type="hidden" name="locationId" value="${itemBase.locationId}">
+                        <input type="hidden" name="location" value="${itemBase.location}">	                    
 	                    </td>
                         <td align="center">
                         <select name="providerId">

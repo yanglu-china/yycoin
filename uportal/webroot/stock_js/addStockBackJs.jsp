@@ -299,13 +299,14 @@ function checkTotal()
          return;
     }
 
-    ccv = $$('location');
 
-    if (ccv == '')
-    {
-        alert('产品仓库为空，请核实');
-        return false;
-    }
+//    ccv = $$('location');
+
+//    if (ccv == '')
+//    {
+//        alert('产品仓库为空，请核实');
+//        return false;
+//    } 
 
 
     if (window.confirm("退货数量为负数,确定提交库单?" + messk))

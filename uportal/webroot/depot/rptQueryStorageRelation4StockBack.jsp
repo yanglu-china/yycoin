@@ -117,7 +117,6 @@ function resets()
 					pcostprice="${my:formatNum(item.costPrice)}"
 					pinputprice="${my:formatNum(item.inputPrice)}"
 					poldgoods="${item.pconsumeInDay}"
-					pdepotid="${depotId}"
 					pinputrate="${my:formatNum(item.inputRate)}"
 					pamount="${item.amount}" value="${item.productId}"
 					pstockammount="${item.stockAmount}"

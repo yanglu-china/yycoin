@@ -3813,11 +3813,16 @@ public class StockAction extends DispatchAction
 		
 		final String[] prices = request.getParameterValues("price");
 		final String[] depotpartIds = request.getParameterValues("depotpartId");
+		final String[] depotIds = request.getParameterValues("depotId");
 		final String[] providerIds = request.getParameterValues("providerId");
 		final String[] dutyIds = request.getParameterValues("dutyId");
 		final String[] invoiceIds = request.getParameterValues("invoiceId");
+		
+		//location, locationID 比较乱，要对照关联关系看
+		//对应location
 		final String[] locationIds = request.getParameterValues("locationId");
-		//String[] locations = request.getParameterValues("location");
+		//对应depot
+		String[] locations = request.getParameterValues("location");
 
 		final String[] nameList = request.getParameterValues("productName");
 
@@ -3852,8 +3857,11 @@ public class StockAction extends DispatchAction
 
             BeanUtil.getBean(outBean, request);
 
-			outBean.setLocationId(locationIds[i]);
-			outBean.setLocation(locationIds[i]);
+			//outBean.setLocationId(locationIds[i]);
+			
+			outBean.setLocationId("999");
+			
+			outBean.setLocation(locations[i]);
 
 			String stockId = request.getParameter("stockId");
 			outBean.setRefOutFullId(stockId);
@@ -3869,7 +3877,7 @@ public class StockAction extends DispatchAction
 			outBean.setOutType(OutConstant.OUTTYPE_IN_STOCK);
 			outBean.setType(OutConstant.OUT_TYPE_INBILL);
 
-			//outBean.setLocation(locations[i]);
+			
 			
 			outBean.setBuyReturnFlag(1);
 
