@@ -2561,6 +2561,16 @@ public class StockAction extends DispatchAction
         request.setAttribute("dutyList", dutyList);
         request.setAttribute("invoiceList", invoiceList);
         
+		//运输方式
+		List<ExpressBean> expressList = this.expressDAO.listEntityBeans();
+		request.setAttribute("expressList", expressList);
+
+		//省市
+		List<ProvinceBean> provinceList = this.provinceDAO.listEntityBeans();
+		request.setAttribute("provinceList", provinceList);
+		List<CityBean> cityList = this.cityDAO.listEntityBeans();
+		request.setAttribute("cityList", cityList);
+        
         return mapping.findForward("addStockBack");
     }
 
@@ -3815,7 +3825,7 @@ public class StockAction extends DispatchAction
 		final String[] providerIds = request.getParameterValues("providerId");
 		final String[] dutyIds = request.getParameterValues("dutyId");
 		final String[] invoiceIds = request.getParameterValues("invoiceId");
-		//String[] locationIds = request.getParameterValues("locationId");
+		final String[] locationIds = request.getParameterValues("locationId");
 		//String[] locations = request.getParameterValues("location");
 
 		final String[] nameList = request.getParameterValues("productName");
@@ -3837,9 +3847,9 @@ public class StockAction extends DispatchAction
 		
 		User user = (User) request.getSession().getAttribute("user");
 		
-		String locationId = Helper.getCurrentLocationId(request);
+		//String locationId = Helper.getCurrentLocationId(request);
 
-		String location = request.getParameter("location");
+		//String location = request.getParameter("location");
 		
 		for(int i=0; i<nameList.length; i++){
 			
@@ -3851,8 +3861,8 @@ public class StockAction extends DispatchAction
 
             BeanUtil.getBean(outBean, request);
 
-			outBean.setLocationId(locationId);
-			outBean.setLocation(locationId);
+			outBean.setLocationId(locationIds[i]);
+			outBean.setLocation(locationIds[i]);
 
 			String stockId = request.getParameter("stockId");
 			outBean.setRefOutFullId(stockId);

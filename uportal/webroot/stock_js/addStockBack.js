@@ -190,7 +190,9 @@ function getProductRelation(oxes)
     
     
     getInputInTr(tr, "price").value = ox.prealprice;
-    getInputInTr(tr, "depot").value = ox.pdepotpartname;
+    getInputInTr(tr, "locationId").value = ox.plocationid;
+    
+    getInputInTr(tr, "depotpart").value = ox.pdepotpartname;
     getInputInTr(tr, "depotpartId").value = ox.pdepotpartid;
     //getInputInTr(tr, "storageName").value = ox.pstoragename;    
     getInputInTr(tr, "storageId").value = ox.pstorageid;    

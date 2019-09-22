@@ -649,8 +649,9 @@
 
                     <td align="center"><input type="number" name="amount" required><input type="hidden" name="amountLimit"></td>
                     <td align="center"><input type="number" name="price" required></td>
-                    <td align="center"><input type="text" name="depot" required><input type="hidden" name="depotpartId">
-                    <input type="hidden" name="storageId" value="${itemBase.storageId }">
+                    <td align="center"><input type="text" name="depotpart" required><input type="hidden" name="depotpartId">
+                    <input type="hidden" name="storageId">
+                    <input type="hidden" name="locationId">
                     </td>
                     <td align="center">
                         <select name="providerId">

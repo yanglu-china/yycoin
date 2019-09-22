@@ -126,6 +126,7 @@ function resets()
 				    pstoragename="${item.storageName}"
 				    pdutyid="${item.dutyId}"
 				    pdutyname="${item.dutyName}"
+				    plocationid="${item.locationId}"
 				    pproviderid="${item.providerId}"
 				    pprovidername="${item.providerName}"
 				    pinvoicetype="${item.invoiceType}"
