@@ -766,6 +766,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         if (StringTools.isNullOrNone(base.getOwner()))
                         {
                             base.setOwner("0");
+                        } else if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                                && outBean.getOutType() == OutConstant.OUTTYPE_IN_STOCK){
+                            base.setOwner("0");
                         }
 
                         if ("0".equals(base.getOwner()))
