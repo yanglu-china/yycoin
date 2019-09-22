@@ -3980,7 +3980,10 @@ public class StockAction extends DispatchAction
 			try
 			{
 				//发货信息
-				this.fillDistributionForRemoteAllocate(request, outBean);
+				if(backType == 1){
+					this.fillDistributionForRemoteAllocate(request, outBean);
+				}
+				
 				
 				String id = outManager.addOut(outBean, map.getParameterMap(), user);
                 _logger.info("addOut 88888888888888888888*********"+id);
