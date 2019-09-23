@@ -131,8 +131,7 @@ function load()
 									<c:forEach items="${attachmentList}" var="attachitem" varStatus="vs">
 							            <span id="span_${attachitem.id}">
 							            	<img src="../images/oa/attachment.gif"/>
-							            	<a target="_blank" href="../payorder/queryPayOrder.do?method=downAttachmentFile&id=${attachitem.id}">${attachitem.name}</a>
-							            	<img src="../images/oa/del.gif" border="0" height="15" width="15" onclick="javascript:del('${attachitem.id}')">
+							            	<a target="_blank" href="../tcp/apply.do?method=downAttachmentFile&id=${attachitem.id}">${attachitem.name}</a>
 							            </span>
 							            &nbsp;&nbsp;&nbsp;&nbsp;
 							            <c:if test="${!vs.last}">
