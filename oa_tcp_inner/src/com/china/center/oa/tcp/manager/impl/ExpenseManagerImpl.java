@@ -9,19 +9,15 @@
 package com.china.center.oa.tcp.manager.impl;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
-import com.china.center.oa.budget.bean.*;
-import com.china.center.oa.budget.dao.*;
-import com.china.center.oa.tax.bean.FinanceBean;
-import com.china.center.oa.tax.dao.FinanceDAO;
-
-import com.china.center.oa.tax.dao.FinanceItemDAO;
-
-import com.china.center.oa.tcp.bean.*;
-import com.china.center.oa.tcp.constanst.TcpFlowConstant;
-import com.china.center.oa.tcp.dao.*;
-import com.china.center.oa.tcp.manager.TcpFlowManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -33,7 +29,17 @@ import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.budget.bean.BudgetBean;
+import com.china.center.oa.budget.bean.BudgetItemBean;
+import com.china.center.oa.budget.bean.BudgetLogBean;
+import com.china.center.oa.budget.bean.BudgetLogTmpBean;
+import com.china.center.oa.budget.bean.FeeItemBean;
 import com.china.center.oa.budget.constant.BudgetConstant;
+import com.china.center.oa.budget.dao.BudgetDAO;
+import com.china.center.oa.budget.dao.BudgetItemDAO;
+import com.china.center.oa.budget.dao.BudgetLogDAO;
+import com.china.center.oa.budget.dao.BudgetLogTmpDAO;
+import com.china.center.oa.budget.dao.FeeItemDAO;
 import com.china.center.oa.budget.manager.BudgetManager;
 import com.china.center.oa.finance.bean.InBillBean;
 import com.china.center.oa.finance.bean.OutBillBean;
@@ -58,10 +64,36 @@ import com.china.center.oa.publics.helper.UserHelper;
 import com.china.center.oa.publics.manager.NotifyManager;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.StafferVO;
+import com.china.center.oa.tax.bean.FinanceBean;
+import com.china.center.oa.tax.dao.FinanceDAO;
+import com.china.center.oa.tax.dao.FinanceItemDAO;
+import com.china.center.oa.tcp.bean.BankBuLevelBean;
+import com.china.center.oa.tcp.bean.ExpenseApplyBean;
+import com.china.center.oa.tcp.bean.TcpApplyBean;
+import com.china.center.oa.tcp.bean.TcpApproveBean;
+import com.china.center.oa.tcp.bean.TcpFlowBean;
+import com.china.center.oa.tcp.bean.TcpHandleHisBean;
+import com.china.center.oa.tcp.bean.TcpShareBean;
+import com.china.center.oa.tcp.bean.TravelApplyBean;
+import com.china.center.oa.tcp.bean.TravelApplyItemBean;
+import com.china.center.oa.tcp.bean.TravelApplyPayBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
+import com.china.center.oa.tcp.constanst.TcpFlowConstant;
+import com.china.center.oa.tcp.dao.BankBuLevelDAO;
+import com.china.center.oa.tcp.dao.ExpenseApplyDAO;
+import com.china.center.oa.tcp.dao.TcpApplyDAO;
+import com.china.center.oa.tcp.dao.TcpApproveDAO;
+import com.china.center.oa.tcp.dao.TcpFlowDAO;
+import com.china.center.oa.tcp.dao.TcpHandleHisDAO;
+import com.china.center.oa.tcp.dao.TcpPrepaymentDAO;
+import com.china.center.oa.tcp.dao.TcpShareDAO;
+import com.china.center.oa.tcp.dao.TravelApplyDAO;
+import com.china.center.oa.tcp.dao.TravelApplyItemDAO;
+import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
 import com.china.center.oa.tcp.helper.TCPHelper;
 import com.china.center.oa.tcp.listener.TcpPayListener;
 import com.china.center.oa.tcp.manager.ExpenseManager;
+import com.china.center.oa.tcp.manager.TcpFlowManager;
 import com.china.center.oa.tcp.vo.ExpenseApplyVO;
 import com.china.center.oa.tcp.vo.TcpApproveVO;
 import com.china.center.oa.tcp.vo.TcpShareVO;
@@ -2626,7 +2658,11 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                     .setShowMoneys(TCPHelper.formatNum2(travelApplyItemVO.getMoneys() / 100.0d));
         }
 
-        List<AttachmentBean> attachmentList = attachmentDAO.queryEntityVOsByFK(id);
+        
+        ConditionParse attachCond = new ConditionParse();
+        attachCond.addCondition("id", "=", id);
+        attachCond.addCondition("flag", "=", 0);
+        List<AttachmentBean> attachmentList = attachmentDAO.queryEntityBeansByCondition(attachCond);
 
         bean.setAttachmentList(attachmentList);
 
