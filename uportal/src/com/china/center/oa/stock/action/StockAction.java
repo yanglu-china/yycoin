@@ -3882,10 +3882,17 @@ public class StockAction extends DispatchAction
 			outBean.setCustomerId(providerIds[i]);
 			
 			String customerId = providerIds[i];
-
+			_logger.debug("customerId:"+customerId);
 			if(!StringTools.isNullOrNone(customerId)){
-                ProviderBean providerBean = providerDAO.findByUnique(customerId);
-                if(providerBean!=null) {
+				
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("id", "=", customerId);
+                List<ProviderBean> providerBeans = this.providerDAO.queryEntityBeansByCondition(conditionParse);		
+
+                _logger.debug("providerBeans.size():"+providerBeans.size());
+                if(providerBeans.size()>0) {
+                	ProviderBean providerBean = providerBeans.get(0);
                     outBean.setCustomerName(providerBean.getName());
                 }
             }
