@@ -884,8 +884,13 @@ public class BackPrePayAction extends DispatchAction
         request.setAttribute("bean", bean);
 
         request.setAttribute("update", update);
-
-        List<AttachmentBean> attachmentList = attachmentDAO.queryEntityVOsByFK(id);
+        
+        
+        ConditionParse attachCond = new ConditionParse();
+        attachCond.addCondition("id", "=", id);
+        attachCond.addCondition("flag", "=", 0);
+        
+        List<AttachmentBean> attachmentList = attachmentDAO.queryEntityBeansByCondition(attachCond);
         
         bean.setAttachmentList(attachmentList);
         
