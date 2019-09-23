@@ -688,8 +688,7 @@
                             <c:forEach items="${providerList}" var="providerItem">
                                 <option value="${providerItem.id}">${providerItem.name}</option>
                             </c:forEach>
-                        </select>                    
-                    
+                        </select>
                     </td>
                     <td align="center">
                         <select name="dutyId">
@@ -713,18 +712,18 @@
                     </td>
                     <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                 </tr>
-  
                 
                 <c:forEach items="${baseList}" var="itemBase" varStatus="vs">
                   <c:choose>
-                    <c:when test="${itemBase.outStatus eq '1' or itemBase.outStatus eq '3' }">
+                    <c:when test="${itemBase.outStatus eq '0' or itemBase.outStatus eq '2' }">
                     <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>  
 	                    <td align="center">
-	                        <select name="backType">
-	                            <option value="" "${''==itemBase.buyReturnType?'selected':''}">-</option>
-	                            <option value="1" "${'1'==itemBase.buyReturnType?'selected':''}">已入库退货</option>
-	                            <option value="2" "${'2'==itemBase.buyReturnType?'selected':''}">未入库退货</option>
-	                        </select>
+	                        
+	                        <select name="backType" values="${itemBase.buyReturnType }">
+	                            <option value="" >-</option>
+	                            <option value="1">已入库退货</option>
+	                            <option value="2">未入库退货</option>
+	                        </select>	                        
 	                    </td>
 	
 	                    <td align="center">
@@ -745,27 +744,27 @@
                         <input type="hidden" name="location" value="${itemBase.location}">	                    
 	                    </td>
                         <td align="center">
-                        <select name="providerId">
+                        <select name="providerId" values="${itemBase.providerId }">
                             <option value="">-</option>
                             <c:forEach items="${providerList}" var="providerItem">
-                                <option value="${providerItem.id}" "${providerItem.id==itemBase.providerId?'selected':''}">${providerItem.name}</option>
+                                <option value="${providerItem.id}">${providerItem.name}</option>
                             </c:forEach>
                         </select>
-
+                        <input type="hidden" name="providerName" value="${itemBase.provider}">	
                         </td>
                         <td align="center">
-                        <select name="dutyId">
+                        <select name="dutyId" values="${itemBase.dutyId }">
                             <option value="">-</option>
                             <c:forEach items="${dutyList}" var="dutyItem">
-                                <option value="${dutyItem.id}" "${dutyItem.id==itemBase.dutyId?'selected':''}">${dutyItem.name}</option>
+                                <option value="${dutyItem.id}">${dutyItem.name}</option>
                             </c:forEach>
                         </select>
                         </td>
                         <td align="center">
-                        <select name="invoiceId">
+                        <select name="invoiceId"  values="${itemBase.invoiceId }">
                             <option value="">-</option>
                             <c:forEach items="${invoiceList}" var="invoiceItem">
-                                <option value="${invoiceItem.id}" "${invoiceItem.id==itemBase.invoiceId?'selected':''}">${invoiceItem.name}</option>
+                                <option value="${invoiceItem.id}">${invoiceItem.name}</option>
                             </c:forEach>
                         </select>
                         </td>

@@ -3816,6 +3816,7 @@ public class StockAction extends DispatchAction
 		final String[] depotpartIds = request.getParameterValues("depotpartId");
 		final String[] depotIds = request.getParameterValues("depotId");
 		final String[] providerIds = request.getParameterValues("providerId");
+		//final String[] providerNames = request.getParameterValues("providerName");
 		final String[] dutyIds = request.getParameterValues("dutyId");
 		final String[] invoiceIds = request.getParameterValues("invoiceId");
 		
@@ -3879,6 +3880,15 @@ public class StockAction extends DispatchAction
 			outBean.setType(OutConstant.OUT_TYPE_INBILL);
 
 			outBean.setCustomerId(providerIds[i]);
+			
+			String customerId = providerIds[i];
+
+			if(!StringTools.isNullOrNone(customerId)){
+                ProviderBean providerBean = providerDAO.findByUnique(customerId);
+                if(providerBean!=null) {
+                    outBean.setCustomerName(providerBean.getName());
+                }
+            }
 			
 			outBean.setBuyReturnFlag(1);
 
@@ -4859,4 +4869,6 @@ public class StockAction extends DispatchAction
     public void setCityDAO(CityDAO cityDAO) {
         this.cityDAO = cityDAO;
     }
+    
+    
 }
