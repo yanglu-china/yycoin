@@ -887,7 +887,7 @@ public class BackPrePayAction extends DispatchAction
         
         
         ConditionParse attachCond = new ConditionParse();
-        attachCond.addCondition("id", "=", id);
+        attachCond.addCondition("refid", "=", id);
         attachCond.addCondition("flag", "=", 0);
         
         List<AttachmentBean> attachmentList = attachmentDAO.queryEntityBeansByCondition(attachCond);
