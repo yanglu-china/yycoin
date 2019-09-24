@@ -58,20 +58,26 @@
 //	console.log(data.obj);
 //	var result = JSON.parse(data.obj);
 //	console.log(result);
-			alert(data);
+// 			alert(data);
 			if (data.retMsg.toLowerCase() === "ok") {
 				for (var key in data.obj) {
-					var response =  a.JsaeroKP(data.obj[key]);
+				    var xml = data.obj[key];
+				    alert(xml);
+					var response =  a.JsaeroKP(xml);
 					alert(response);
 					var oDOM = null;
+					var xmlDoc = null;
 					if (typeof DOMParser != "undefined"){
 						var oParser = new DOMParser();
-						var oDOM = oParser.parseFromString(response, "text/xml");
+						oDOM = oParser.parseFromString(response, "text/xml");
+                        xmlDoc = oParser.parseFromString(xml,"text/xml");
 					}else if (typeof ActiveXObject != "undefined") {
 						//IE8
 						oDOM = new ActiveXObject("Microsoft.XMLDOM");
 						oDOM.async = false;
 						oDOM.loadXML(response);
+                        xmlDoc.async="false";
+                        xmlDoc.loadXML(xml);
 						if (oDOM.parseError != 0) {
 							throw new Error("XML parsing error: " + oDOM.parseError.reason);
 						}
@@ -86,7 +92,16 @@
 						alert(fphm);
 						var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
 						alert(fpdm);
-						//更新发票号码
+						//打印发票
+                        //发票种类
+                        var fpzl = xmlDoc.getElementsByTagName("fpzl")[0].childNodes[0].nodeValue;
+						//打印标志（DYBZ）：0-打印发票；1-打印销货清单
+						var dybz = "0";
+                        //打印模式（DYMS）：0-不弹框打印；1-弹框打印
+						var dyms = "1";
+                        var result = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
+                        alert(result);
+                        //更新发票号码
 						var packageId = $O('packageId').value;
 						$ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
 					}else{
