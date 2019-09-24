@@ -116,7 +116,16 @@ function check()
 
         $O('nameList').value = $O('nameList').value +  proNames[i].value + '~';
         
-        var ikey = toUnqueStr2(proNames[i]);
+        //ele.productid + '-' + ele.price + '-' + ele.stafferid + '-' + ele.depotpartid;
+        var product = {};
+        product.productid = productIds[i].value;
+        product.price = prices[i].value;
+        product.stafferid = 0;
+        product.depotpartid = depotpartIds[i].value;
+        
+        var ikey = toUnqueStr2(product);
+        
+        alert(ikey);
         
         if (tmpMap[ikey])
         {

@@ -1950,11 +1950,15 @@ public class StorageAction extends DispatchAction
         throws ServletException {
         String stockId = request.getParameter("stockId");
         String backType = request.getParameter("backType");
+        
+        String productId = request.getParameter("productId");
 
         //get stock
         StockVO stockVO = stockManager.findStockVO(stockId);
 
         List<StockItemVO> stockItemVOs = stockVO.getItemVO();
+        
+        List<ProductBean> productList = new ArrayList<ProductBean>();
 
         StringBuffer productIdBuffer = new StringBuffer();
         productIdBuffer.append("(");
@@ -1965,6 +1969,11 @@ public class StorageAction extends DispatchAction
             if (count < stockItemVOs.size()) {
                 productIdBuffer.append(",");
             }
+
+            ProductBean productBean = new ProductBean();
+            productBean.setId(item.getProductId());
+            productBean.setName(item.getProductName());
+            productList.add(productBean);
         }
         productIdBuffer.append(")");
 
@@ -1973,7 +1982,11 @@ public class StorageAction extends DispatchAction
         condtion.addWhereStr();
         condtion.addCondition("StorageRelationBean.amount", ">", 0);
 
-        condtion.addCondition("AND StorageRelationBean.productId in "+productIdBuffer.toString());
+        if (StringTools.isNullOrNone(productId)){
+        	condtion.addCondition("AND StorageRelationBean.productId in "+productIdBuffer.toString());
+        }else{
+        	condtion.addCondition("AND StorageRelationBean.productId ='"+productId+"'");
+        }
 
         List<StorageRelationVO> storageList = new ArrayList<StorageRelationVO>();
         if("1".equals(backType)){
@@ -2018,6 +2031,13 @@ public class StorageAction extends DispatchAction
                 storageList.add(vo);
             }
         }
+
+        request.setAttribute("productList", productList);
+        
+        request.setAttribute("stockId", stockId);
+        request.setAttribute("backType", backType);
+        request.setAttribute("productId", productId);
+        
         request.setAttribute("beanList", storageList);
 
         return mapping.findForward("rptQueryStorageRelation4StockBack");

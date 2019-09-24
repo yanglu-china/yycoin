@@ -9025,7 +9025,7 @@ public class ParentOutAction extends DispatchAction
 
 		if (!StringTools.isNullOrNone(buyReturnFlag))
 		{
-			request.getSession().setAttribute("buyReturnFlag", buyReturnFlag);
+			//request.getSession().setAttribute("buyReturnFlag", buyReturnFlag);
 
 			return;
 		}
@@ -9034,7 +9034,7 @@ public class ParentOutAction extends DispatchAction
 
 		if (attribute != null)
 		{
-			request.getSession().setAttribute("buyReturnFlag", attribute);
+			//request.getSession().setAttribute("buyReturnFlag", attribute);
 		}
 	}
 	

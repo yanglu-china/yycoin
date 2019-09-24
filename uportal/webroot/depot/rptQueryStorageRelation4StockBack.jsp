@@ -10,6 +10,11 @@
 <script language="JavaScript" src="../js/tableSort.js"></script>
 <script language="javascript">
 
+function querys()
+{
+	formEntry.submit();
+}
+
 function sures()
 {
 	add();
@@ -71,6 +76,9 @@ function resets()
 </head>
 <body class="body_class" onload="load()">
 
+<form name="formEntry" action="../depot/storage.do" method="post"><input
+	type="hidden" name="method" value="rptQueryStorageRelation4StockBack"><input
+
 <p:navigation
 	height="22">
 	<td width="550" class="navigation">产品库存管理</td>
@@ -78,6 +86,32 @@ function resets()
 </p:navigation> <br>
 
 <p:body width="100%">
+	<p:subBody width="90%">
+		<table width="100%" align="center" cellspacing='1' class="table0"
+			id="result">
+			<tr class="content1">
+				<td width="15%" align="center">产品名称</td>
+				<td align="center">
+                    <select name="productId"  values="${productId}">
+                        <option value="">-</option>
+                        <c:forEach items="${productList}" var="productItem">
+                            <option value="${productItem.id}">${productItem.name}</option>
+                        </c:forEach>
+                    </select>
+                    <input type="hidden" name="stockId" value="${stockId}">
+                    <input type="hidden" name="backType" value="${backType}">
+                </td>
+				<td width="15%" align="center"></td>
+				<td align="center"></td>
+			</tr>
+
+			<tr class="content1">
+				<td colspan="4" align="right"><input type="button"
+					onclick="querys()" class="button_class"
+					value="&nbsp;&nbsp;查 询&nbsp;&nbsp;"></td>
+		</table>
+
+	</p:subBody>
 
 	<p:title>
 		<td class="caption"><strong>库存列表：</strong></td>

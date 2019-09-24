@@ -593,9 +593,19 @@ function checkBean()
 
                             <td  align="center">${item.oprModeName}</td>
 
-                            <td  align="center">${my:get('buyStatus', item.preStatus)}</td>
+                        <c:choose>
+                          <c:when test="${bean.buyReturnFlag == 1}">
+                           <td  align="center">${my:get('buyReturnStatus', item.preStatus)}</td>
 
-                            <td  align="center">${my:get('buyStatus', item.afterStatus)}</td>
+                            <td  align="center">${my:get('buyReturnStatus', item.afterStatus)}</td>                             
+                          </c:when>
+                          <c:otherwise>
+                           <td  align="center">${my:get('buyStatus', item.preStatus)}</td>
+
+                            <td  align="center">${my:get('buyStatus', item.afterStatus)}</td>                              
+                          </c:otherwise>
+                        </c:choose>
+ 
 
                             <td  align="center">${item.description}</td>
 
