@@ -714,6 +714,9 @@
                     </td>
                     <td align="center">
                     <input type="text" name="description" required>
+                    
+                    <input type="hidden" name="virtualPrice">
+                    <input type="hidden" name="virtualPriceKey">
                     <!--  <input type="hidden" name="locationId">-->
                     </td>
                     <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>

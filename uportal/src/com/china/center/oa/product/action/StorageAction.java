@@ -2012,6 +2012,9 @@ public class StorageAction extends DispatchAction
 
                 vo.setStockAmount(stockItemVO.getAmount());
 
+                vo.setVirtualPrice(0);
+                vo.setVirtualPriceKey("0");
+
                 storageList.add(vo);
             }
         }

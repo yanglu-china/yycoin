@@ -3834,6 +3834,9 @@ public class StockAction extends DispatchAction
         final String[] desList = request.getParameterValues("description");
         
         final String[] backTypes = request.getParameterValues("backType");
+        
+        final String[] virtualPriceList = request.getParameterValues("virtualPrice");
+        final String[] virtualPriceKeyList = request.getParameterValues("virtualPriceKey");
   
         
         //debug
@@ -3981,7 +3984,7 @@ public class StockAction extends DispatchAction
             map.getParameterMap().put("priceList", prices[i]);
             map.getParameterMap().put("desList", desList[i]);
             
-            map.getParameterMap().put("virtualPriceList", "0");
+            map.getParameterMap().put("virtualPriceList", virtualPriceList[i]);
 
             //ele.productid + '-' + ele.price + '-' + ele.stafferid + '-' + ele.depotpartid
             if(StringTools.isNullOrNone(depotpartIds[i])){

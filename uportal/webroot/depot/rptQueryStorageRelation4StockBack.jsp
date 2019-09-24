@@ -121,6 +121,7 @@ function resets()
 					pamount="${item.amount}" value="${item.productId}"
 					pstockammount="${item.stockAmount}"
 				    pvirtualprice="${my:formatNum(item.virtualPrice)}" 
+				    pvirtualpricekey="${my:formatNum(item.virtualPriceKey)}" 
 				    pstorageid="${item.storageId}"
 				    pstoragename="${item.storageName}"
 				    pdutyid="${item.dutyId}"

@@ -204,6 +204,9 @@ function getProductRelation(oxes)
     //getInputInTr(tr, "invoiceType").value = ox.pinvoicetypename;
     //getInputInTr(tr, "invoiceId").value = ox.pinvoicetype;
     
+    getInputInTr(tr, "virtualPrice").value = ox.pvirtualprice;
+    getInputInTr(tr, "virtualPriceKey").value = ox.pvirtualpricekey;
+    
     var backType = getSelectInTr(tr, "backType").value;
     
     var storageAmount = parseInt(ox.pamount);
