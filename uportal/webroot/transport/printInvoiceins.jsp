@@ -55,13 +55,11 @@
 		//开票
 		function callbackGenerateInvoice(data)
 		{
-//	console.log(data);
-//	console.log(data.obj);
-//	var result = JSON.parse(data.obj);
-//	console.log(result);
-// 			alert(data);
+            // console.log(data);
+            // console.log(data.obj);
 			if (data.retMsg.toLowerCase() === "ok") {
 				for (var key in data.obj) {
+				    alert(key);
 				    var xml = data.obj[key];
 				    alert(xml);
 					var response =  a.JsaeroKP(xml);
@@ -77,6 +75,8 @@
 						oDOM = new ActiveXObject("Microsoft.XMLDOM");
 						oDOM.async = false;
 						oDOM.loadXML(response);
+
+                        xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
                         xmlDoc.async="false";
                         xmlDoc.loadXML(xml);
 						if (oDOM.parseError != 0) {
@@ -90,9 +90,7 @@
 //			alert(result);
 					if (result === '0'){
 						var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
-						alert(fphm);
 						var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
-						alert(fpdm);
 						//打印发票
                         //发票种类
                         var fpzl = xmlDoc.getElementsByTagName("fpzl")[0].childNodes[0].nodeValue;
@@ -138,11 +136,11 @@
 		//打印发票
 		function callbackUpdateInsNum(data){
 			var obj = data.obj;
-			alert(data.extraObj);
+			// alert(data.extraObj);
 //	console.log(obj);
-			alert("obj.insId:"+obj.insId);
-			alert(obj.id);
-			alert(obj.invoiceNum);
+// 			alert("obj.insId:"+obj.insId);
+// 			alert(obj.id);
+// 			alert(obj.invoiceNum);
 			//TODO print
 //			var xml =  a.JsaeroDY(obj.insId,obj.id,obj.invoiceNum,"0");
 //			alert(xml);
@@ -160,8 +158,8 @@
 		function load()
 		{
 			loadForm();
+			OpenCard();
 		}
-
 	</script>
 
 </head>
@@ -246,16 +244,12 @@
 
 		<p:button>
 			<div align="right">
-				<input type="button" class="button_class"
-					   value="&nbsp;&nbsp;开启金税盘&nbsp;&nbsp;" onclick="OpenCard()">&nbsp;&nbsp;
+				<%--<input type="button" class="button_class"--%>
+					   <%--value="&nbsp;&nbsp;开启金税盘&nbsp;&nbsp;" onclick="OpenCard()">&nbsp;&nbsp;--%>
 				<input type="button" class="button_class"
 					   value="&nbsp;&nbsp;打印发票&nbsp;&nbsp;" onclick="Invoice()">&nbsp;&nbsp;
-
-					<%--<button onclick="OpenCard()">开启金税盘</button>--%>
-					<%--<button onclick="Invoice()">打印发票</button>--%>
 			</div>
 		</p:button>
-
 		<p:message2 />
 
 	</p:body></form>

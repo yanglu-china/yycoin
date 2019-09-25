@@ -5807,7 +5807,7 @@ public class ShipAction extends DispatchAction
 
         //generate XML payload
         for (InvoiceinsBean  bean:invoiceinsList){
-            String payload = this.createXML(user, invoiceinsList.get(0));
+            String payload = this.createXML(user, bean);
             invoiceToXml.put(bean.getId(),payload);
         }
 
