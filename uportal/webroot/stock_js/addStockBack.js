@@ -211,10 +211,11 @@ function getProductRelation(oxes)
     
     var storageAmount = parseInt(ox.pamount);
     var stockAmount = parseInt(ox.pstockammount);
+    var totalWarehouseNum = parseInt(ox.ptotalwarehousenum);
     var amount = 0;
     if(backType == '2'){
     	//未入库
-    	amount = stockAmount;
+    	amount = stockAmount-totalWarehouseNum;
     }else{
     	//已入库
     	amount = storageAmount;
@@ -228,7 +229,7 @@ function getProductRelation(oxes)
     //数量上限
     getInputInTr(tr, "amountLimit").value = amount;
 
-    getInputInTr(tr, "amount").title = "库存数量："+storageAmount+",采购数量："+stockAmount;
+    getInputInTr(tr, "amount").title = "库存数量："+storageAmount+",采购数量："+stockAmount+",已入库数量："+totalWarehouseNum;
 }
 
 

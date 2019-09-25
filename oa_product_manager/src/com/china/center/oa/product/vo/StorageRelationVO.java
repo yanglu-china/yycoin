@@ -148,6 +148,12 @@ public class StorageRelationVO extends StorageRelationBean
      */
     @Ignore
     private double inputPrice = 0.0d;
+
+    /**
+     * 临时
+     */
+    @Ignore
+    private int totalWarehouseNum = 0;
     
     /**
      * default constructor
@@ -596,7 +602,15 @@ public class StorageRelationVO extends StorageRelationBean
 		this.invoiceTypeName = invoiceTypeName;
 	}
 
-	/**
+    public int getTotalWarehouseNum() {
+        return totalWarehouseNum;
+    }
+
+    public void setTotalWarehouseNum(int totalWarehouseNum) {
+        this.totalWarehouseNum = totalWarehouseNum;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

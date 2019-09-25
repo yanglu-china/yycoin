@@ -2002,6 +2002,8 @@ public class StorageAction extends DispatchAction
                 vo.setInvoiceTypeName(stockItemVO.getInvoiceTypeName());
 
                 vo.setStockAmount(stockItemVO.getAmount());
+
+                vo.setTotalWarehouseNum(stockItemVO.getTotalWarehouseNum());
             }
 
         }else {
@@ -2024,6 +2026,8 @@ public class StorageAction extends DispatchAction
                 vo.setDutyId(stockItemVO.getDutyId());
 
                 vo.setStockAmount(stockItemVO.getAmount());
+
+                vo.setTotalWarehouseNum(stockItemVO.getTotalWarehouseNum());
 
                 vo.setVirtualPrice(0);
                 vo.setVirtualPriceKey("0");
