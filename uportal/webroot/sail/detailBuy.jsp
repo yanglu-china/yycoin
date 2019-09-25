@@ -322,7 +322,19 @@ function checkBean()
                      <tr class="content1">
                         <td align="right">关联单据：</td>
                         <td colspan="3">
-                       <a href="../sail/out.do?method=findOut&fow=99&outId=${bean.refOutFullId}">${bean.refOutFullId}</a>
+                        
+                        <c:choose>
+                          <c:when test="${bean.buyReturnFlag == 1}">   
+                          <a href="../stock/stock.do?method=findStock&id=${bean.refOutFullId}">${bean.refOutFullId}</a>                        
+                          </c:when>
+                          <c:otherwise>          
+                          <a href="../sail/out.do?method=findOut&fow=99&outId=${bean.refOutFullId}">${bean.refOutFullId}</a>                   
+                          </c:otherwise>
+                        </c:choose>                        
+                       
+                       
+                       
+                       
                        </td>
 
                     </tr>
