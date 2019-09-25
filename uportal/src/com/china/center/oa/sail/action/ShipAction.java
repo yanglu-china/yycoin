@@ -5805,13 +5805,13 @@ public class ShipAction extends DispatchAction
 
             //专票
             if (ZP_INVOICE.equals(invoiceId)){
-                fpzl = "2";
+                fpzl = "0";
                 gfmc = bean.getHeadContent();
                 gfsh = bean.getGfsh();
                 gfyh = bean.getGfyh();
                 gfdz = bean.getGfdz();
             } else{
-                fpzl = "0";
+                fpzl = "2";
                 gfmc = bean.getHeadContent();
                 gfsh = "";
                 gfyh = "";
