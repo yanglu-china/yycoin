@@ -5686,19 +5686,51 @@ public class ShipAction extends DispatchAction
     {
         User user = (User) request.getSession().getAttribute("user");
         String packageId = request.getParameter("packageId");
+        String batchId = request.getParameter("batchId");
         _logger.info("***packageId***"+packageId);
-        List<InvoiceinsVO> invoiceinsList = this.findInvoiceinsWithXN(packageId);
+        List<InvoiceinsVO> invoiceinsList = new ArrayList<>();
+        if (!StringTools.isNullOrNone(packageId)){
+            invoiceinsList = this.findInvoiceinsWithXN(packageId);
+        } else if (!StringTools.isNullOrNone(batchId)){
+            invoiceinsList = this.findInvoiceinsWithXNAndBatch(batchId);
+        }
 
         _logger.info("***invoiceinsList***"+invoiceinsList);
-
         request.setAttribute("invoiceList", invoiceinsList);
         request.setAttribute("packageId", packageId);
+        request.setAttribute("batchId", batchId);
 
         return mapping.findForward("printInvoiceins");
     }
 
-    private List<InvoiceinsVO> findInvoiceinsWithXN(String packageId){
+    private List<InvoiceinsVO> findInvoiceinsWithXNAndBatch(String pickupId){
         List<InvoiceinsVO> invoiceinsList = new ArrayList<InvoiceinsVO>();
+        List<PackageBean> packageBeans = packageDAO.queryEntityBeansByFK(pickupId);
+        for (PackageBean packageBean: packageBeans){
+            List<PackageItemBean> itemList = this.packageItemDAO.queryEntityBeansByFK(packageBean.getId());
+            for (PackageItemBean item: itemList){
+                String productName = item.getProductName();
+                if (productName!= null && productName.startsWith("发票号：XN")){
+                    String insId = item.getOutId();
+                    InvoiceinsVO invoiceinsBean = this.invoiceinsDAO.findVO(insId);
+                    if (invoiceinsBean!= null){
+                        int amount = this.getProductAmount(invoiceinsBean);
+                        double price = invoiceinsBean.getMoneys()/amount;
+                        int fpsl = this.getFpsl(invoiceinsBean);
+                        invoiceinsBean.setItemAmount(amount);
+                        invoiceinsBean.setPrice(price);
+                        invoiceinsBean.setSl(fpsl);
+                        invoiceinsList.add(invoiceinsBean);
+                    }
+                }
+            }
+        }
+
+        return invoiceinsList;
+    }
+
+    private List<InvoiceinsVO> findInvoiceinsWithXN(String packageId){
+        List<InvoiceinsVO> invoiceinsList = new ArrayList<>();
         List<PackageItemBean> itemList = this.packageItemDAO.queryEntityBeansByFK(packageId);
         for (PackageItemBean item: itemList){
             String productName = item.getProductName();
@@ -5760,12 +5792,18 @@ public class ShipAction extends DispatchAction
     {
         User user = (User) request.getSession().getAttribute("user");
         String packageId = request.getParameter("packageId");
-        _logger.info("***packageId***"+packageId);
+        String batchId = request.getParameter("batchId");
+        _logger.info("***packageId***"+packageId+"***batchId***"+batchId);
         JsonMapper mapper = new JsonMapper();
         AppResult result = new AppResult();
 
-        Map<String,String> invoiceToXml = new HashMap<String, String>();
-        List<InvoiceinsVO> invoiceinsList = this.findInvoiceinsWithXN(packageId);
+        Map<String,String> invoiceToXml = new HashMap<>();
+        List<InvoiceinsVO> invoiceinsList = new ArrayList<>();
+        if (!StringTools.isNullOrNone(packageId)){
+            invoiceinsList = this.findInvoiceinsWithXN(packageId);
+        } else if (!StringTools.isNullOrNone(batchId)){
+            invoiceinsList = this.findInvoiceinsWithXNAndBatch(batchId);
+        }
 
         //generate XML payload
         for (InvoiceinsBean  bean:invoiceinsList){

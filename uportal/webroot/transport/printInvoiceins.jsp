@@ -48,7 +48,8 @@
 
 		function Invoice(){
 			var packageId = $O('packageId').value;
-			$ajax('../sail/ship.do?method=generateInvoiceinsXml&packageId='+packageId, callbackGenerateInvoice);
+            var batchId = $O('batchId').value;
+			$ajax('../sail/ship.do?method=generateInvoiceinsXml&packageId='+packageId+'&batchId='+batchId, callbackGenerateInvoice);
 		}
 
 		//开票
@@ -180,6 +181,12 @@
 		<p:subBody width="98%">
 			<table width="100%" align="center" cellspacing='1' class="table0">
 				<tr class="content1">
+					<td width="15%" align="center">批次号：</td>
+					<td align="left">
+						<input name="batchId" size="20" value="${batchId}"  />
+					</td>
+				</tr>
+				<tr class="content2">
 					<td width="15%" align="center">CK单号：</td>
 					<td align="left">
 						<input name="packageId" size="20" value="${packageId}"  />
