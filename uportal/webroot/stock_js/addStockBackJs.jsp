@@ -111,6 +111,27 @@ function check()
             
             return false;
         }
+        
+        if (providerIds[i].value== '')
+        {
+            alert('数据不完整,请选择供应商!');
+            
+            return false;
+        }
+        
+        if (dutyIds[i].value== '')
+        {
+            alert('数据不完整,请选择纳税实体!');
+            
+            return false;
+        }
+        
+        if (invoiceIds[i].value== '')
+        {
+            alert('数据不完整,请选择发票类型!');
+            
+            return false;
+        }                
 
         ids = ids + productIds[i].value + '~';
 
@@ -125,7 +146,7 @@ function check()
         
         var ikey = toUnqueStr2(product);
         
-        alert(ikey);
+        //alert(ikey);
         
         if (tmpMap[ikey])
         {
