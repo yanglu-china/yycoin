@@ -679,6 +679,12 @@ public class BaseBean implements Serializable, BaseInterface
             if (other.costPriceKey != null) return false;
         }
         else if ( !costPriceKey.equals(other.costPriceKey)) return false;
+
+        if (virtualPriceKey == null)
+        {
+            if (other.virtualPriceKey != null) return false;
+        }
+        else if ( !virtualPriceKey.equals(other.virtualPriceKey)) return false;
 //        if (depotpartId == null)
 //        {
 //            if (other.depotpartId != null) return false;
@@ -714,6 +720,12 @@ public class BaseBean implements Serializable, BaseInterface
             if (other.costPriceKey != null) return false;
         }
         else if ( !costPriceKey.equals(other.costPriceKey)) return false;
+
+        if (virtualPriceKey == null)
+        {
+            if (other.virtualPriceKey != null) return false;
+        }
+        else if ( !virtualPriceKey.equals(other.virtualPriceKey)) return false;
 
         if (owner == null)
         {
