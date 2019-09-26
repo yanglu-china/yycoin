@@ -97,7 +97,7 @@
 						//打印标志（DYBZ）：0-打印发票；1-打印销货清单
 						var dybz = "0";
                         //打印模式（DYMS）：0-不弹框打印；1-弹框打印
-						var dyms = "1";
+						var dyms = "0";
                         var result = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
                         alert(result);
                         //更新发票号码
