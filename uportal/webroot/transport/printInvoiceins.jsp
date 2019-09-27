@@ -67,6 +67,7 @@
             // console.log(data);
             // console.log(data.obj);
 			if (data.retMsg.toLowerCase() === "ok") {
+				OpenCard();
 				for (var key in data.obj) {
 				    alert(key);
 				    var xml = data.obj[key];
@@ -117,7 +118,7 @@
 						alert(msg);
 					}
 				}
-				CloseCard();
+				 CloseCard();
 			}
 		}
 
@@ -170,7 +171,7 @@
 
         function querys()
         {
-            OpenCard();
+            // OpenCard();
             formEntry.submit();
         }
 	</script>
