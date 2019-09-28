@@ -4634,6 +4634,12 @@ public class ParentOutAction extends DispatchAction
 		} else {
 			out.setPay(1);
 			out.setDescription("销售退库,销售单号:" + outId + ". " + adescription);
+
+			if (oldOut.getPay() == OutConstant.PAY_NOT){
+				out.setBackPay(OutConstant.PAY_NOT_BACK);
+			} else if (oldOut.getPay() == OutConstant.PAY_YES){
+				out.setBackPay(OutConstant.PAY_YES_BACK);
+			}
 		}
 
 		//#629

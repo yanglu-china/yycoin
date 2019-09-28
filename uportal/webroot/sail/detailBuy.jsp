@@ -389,6 +389,12 @@ function checkBean()
                         </td>
                     </tr>
 
+					<tr class="content1">
+						<td align="right">退货付款类型：</td>
+						<td colspan="3">${my:get('backPay', bean.backPay)}
+						</td>
+					</tr>
+
 				</table>
 				</td>
 			</tr>
