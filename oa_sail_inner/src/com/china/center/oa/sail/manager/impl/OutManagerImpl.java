@@ -5465,7 +5465,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         // 针对销售出库，由未付款到已付款时，记录销售单，为财务 销售单回款标记 做准备
         savePayTagBean(out);
-        
+
+        //#775
+        outDAO.updateBackPay(fullId, OutConstant.SJSKWC);
         // 修改付款标识
         return outDAO.updatePay(fullId, OutConstant.PAY_YES);
     }
@@ -5536,6 +5538,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         notifyOut(out, user, 2);
 
+        //#775
+        outDAO.updateBackPay(fullId, OutConstant.SJSKWC);
         // 修改付款标识
         return outDAO.updatePay(fullId, OutConstant.PAY_YES);
     }

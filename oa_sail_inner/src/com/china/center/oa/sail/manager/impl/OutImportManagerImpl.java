@@ -3053,10 +3053,20 @@ public class OutImportManagerImpl implements OutImportManager
 			List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(conditionParse);
 			if (!ListTools.isEmptyOrNull(baseBeans)){
 				for (BaseBean bean : baseBeans){
-					bean.setProductId(each.getDestProductId());
+					String destProductId = each.getDestProductId();
+					bean.setProductId(destProductId);
 					bean.setProductName(each.getDestProductName());
 					bean.setPrice(each.getPrice());
 					bean.setValue(each.getPrice()*bean.getAmount());
+
+					//#781更新税率
+					ProductBean productBean = this.productDAO.find(destProductId);
+					if (productBean!= null){
+						InvoiceBean invoiceBean = this.invoiceDAO.find(productBean.getSailInvoice().trim());
+						if (invoiceBean!= null){
+							bean.setTaxrate(invoiceBean.getVal()/100);
+						}
+					}
 					this.baseDAO.updateEntityBean(bean);
 					_logger.info("***update base bean***"+bean);
 				}

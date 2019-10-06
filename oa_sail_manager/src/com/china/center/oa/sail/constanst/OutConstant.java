@@ -162,6 +162,23 @@ public interface OutConstant
     @Defined(key = "inway", value = "非在途")
     int IN_WAY_NO = 0;
 
+
+    @Defined(key = "backPay", value = "已回款退货")
+    int YHKTH = 1;
+
+    @Defined(key = "backPay", value = "未回款退货")
+    int WHKTH = 2;
+
+    @Defined(key = "backPay", value = "实际收款完成")
+    int SJSKWC = 3;
+
+    @Defined(key = "backPay", value = "实际付款退货")
+    int SJFKTH = 4;
+
+    @Defined(key = "backPay", value = "未付款退货")
+    int WFKTH = 5;
+
+
     /**
      * 在途中
      */

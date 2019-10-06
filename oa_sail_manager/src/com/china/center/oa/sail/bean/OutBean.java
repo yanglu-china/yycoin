@@ -23,7 +23,6 @@ import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 
 /**
@@ -228,6 +227,12 @@ public class OutBean implements Serializable, OutInterface
      * 0:没有付款 1:付款
      */
     private int pay = OutConstant.PAY_NOT;
+
+
+    /**#775
+     * 退货付款类型
+     */
+    private int backPay = 0;
 
     /**
      * 0：非在途 1：在途（入库单使用 调出）
@@ -2361,7 +2366,15 @@ public class OutBean implements Serializable, OutInterface
 		this.buyReturnType = buyReturnType;
 	}
 
-	/**
+    public int getBackPay() {
+        return backPay;
+    }
+
+    public void setBackPay(int backPay) {
+        this.backPay = backPay;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
      * @return a <code>String</code> representation of this object.
@@ -2414,6 +2427,7 @@ public class OutBean implements Serializable, OutInterface
                 ", consign=" + consign +
                 ", frFlag=" + frFlag +
                 ", pay=" + pay +
+                ", backPay=" + backPay +
                 ", inway=" + inway +
                 ", tempType=" + tempType +
                 ", hadPay=" + hadPay +
@@ -2486,11 +2500,8 @@ public class OutBean implements Serializable, OutInterface
                 ", posPayer='" + posPayer + '\'' +
                 ", recommendation='" + recommendation + '\'' +
                 ", virtualStatus=" + virtualStatus +
-                ", baseList=" + baseList +
-                ", distributeBean=" + distributeBean +
-                ", distList=" + distList +
-                ", attachmentList=" + attachmentList +
                 ", buyReturnFlag=" + buyReturnFlag +
+                ", buyReturnType=" + buyReturnType +
                 '}';
     }
 }
