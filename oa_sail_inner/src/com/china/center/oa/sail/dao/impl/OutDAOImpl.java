@@ -1272,4 +1272,17 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
 
         return this.jdbcOperation.queryForListBySql(sql, claz);
     }
+    
+    /**
+     * 清除凭证
+     */
+    public void clearTicket(String fullId){
+    	
+        String sql = "";
+        sql = "delete from t_center_finance where refid='"+fullId+"'";
+        this.jdbcOperation.execute(sql);
+        sql = "delete from t_center_financeitem where refid='"+fullId+"'";
+        this.jdbcOperation.execute(sql);
+    	
+    }
 }

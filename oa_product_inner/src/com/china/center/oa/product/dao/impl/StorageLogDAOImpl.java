@@ -12,6 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
 import com.china.center.jdbc.inter.impl.BaseDAO;
@@ -19,6 +21,7 @@ import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.StorageLogBean;
 import com.china.center.oa.product.dao.StorageLogDAO;
 import com.china.center.oa.product.vo.StorageLogVO;
+import com.china.center.tools.StringTools;
 
 /**
  * StorageLogDAOImpl
@@ -30,6 +33,9 @@ import com.china.center.oa.product.vo.StorageLogVO;
  */
 public class StorageLogDAOImpl extends BaseDAO<StorageLogBean, StorageLogVO> implements
         StorageLogDAO {
+	
+	private final Log _logger = LogFactory.getLog(getClass());
+	
     /**
      * queryStorageLogByCondition
      * 
@@ -91,5 +97,23 @@ public class StorageLogDAOImpl extends BaseDAO<StorageLogBean, StorageLogVO> imp
             }
         }
 
+    }
+    
+    @Override
+    public void deleteStorageLog(StorageLogBean bean){
+        StringBuffer sql = new StringBuffer();
+        sql.append(" delete from T_CENTER_STORAGELOG"); 
+        sql.append(" where refid='"+bean.getRefId()+"'"); 
+        if(!StringTools.isNullOrNone(bean.getOwner())){
+        	sql.append(" and owner='"+bean.getOwner()+"'"); 
+        }
+        
+        sql.append(" and productId='"+bean.getProductId()+"'"); 
+        sql.append(" and priceKey='"+bean.getPriceKey()+"'"); 
+        sql.append(" and depotpartId='"+bean.getDepotpartId()+"'"); 
+        
+        _logger.debug("deleteStorageLog sqL: "+sql.toString());
+        
+        this.jdbcOperation.execute(sql.toString());    	
     }
 }

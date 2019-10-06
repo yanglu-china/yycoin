@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import com.china.center.jdbc.inter.DAO;
 import com.china.center.oa.client.bean.*;
 import com.china.center.oa.client.dao.*;
 import com.china.center.oa.client.vo.CustomerVO;
@@ -81,6 +83,7 @@ import com.china.center.oa.extsail.manager.ZJRCManager;
 import com.china.center.oa.note.bean.ShortMessageTaskBean;
 import com.china.center.oa.note.constant.ShortMessageConstant;
 import com.china.center.oa.note.dao.ShortMessageTaskDAO;
+
 import com.china.center.oa.note.manager.HandleMessage;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
@@ -184,8 +187,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     private SailConfigDAO sailConfigDAO = null;
 
-    private OutUniqueDAO outUniqueDAO = null;
-
     private NotifyManager notifyManager = null;
 
     private InvoiceDAO invoiceDAO = null;
@@ -201,6 +202,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private StorageRelationManager storageRelationManager = null;
 
     private StorageRelationDAO storageRelationDAO = null;
+    
+    private StorageLogDAO storageLogDAO = null;
+    
+    private OutUniqueDAO outUniqueDAO = null;
 
     private OutRepaireDAO outRepaireDAO = null;
     
@@ -279,7 +284,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private DhZjbDAO dhZjbDAO = null;
 
     private FrDbDAO frDbDAO = null;
-    
+
     /**
      * 短信最大停留时间
      */
@@ -2600,7 +2605,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 
     /**
-     * CORE 处理入库单的库存变动 采购入库/调拨(调出/回滚)/领样退货/销售退单
+     * CORE 处理入库单的库存变动 采购入库/调拨(调出/回滚)/领样退货/销售退单/采购退货
      * 
      * @param user
      * @param outBean
@@ -2622,7 +2627,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (outBean.getOutType() == OutConstant.OUTTYPE_IN_COMMON
             || outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
             || outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
-            || outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT)
+            || outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT
+            || outBean.getBuyReturnFlag() == 1)
         {
             String sequence = commonDAO.getSquenceString();
 
@@ -3308,6 +3314,73 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         
                         // 取消坏账
                         outDAO.modifyBadDebts(fullId, 0.0d);
+                    }
+                    
+                    //采购退货驳回
+                    if(outBean.getBuyReturnFlag() == 1){
+                    	
+                    	String sequence = commonDAO.getSquenceString();
+                    	
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("outId","=",outBean.getFullId());
+                        List<BaseBean> baseList = baseDAO.queryEntityBeansByCondition(conditionParse);
+                        
+                        BaseBean element = new BaseBean();
+                        if(baseList.size() > 0){
+                        	element = baseList.get(0);
+                        }
+                    	
+                    	//恢复库存
+                        ProductChangeWrap wrap = new ProductChangeWrap();
+
+                        //TODO
+                        wrap.setDepotpartId(element.getDepotpartId());
+                        wrap.setPrice(element.getCostPrice());
+                        wrap.setVirtualPrice(element.getVirtualPrice());
+                        wrap.setProductId(element.getProductId());
+                        if (StringTools.isNullOrNone(element.getOwner()))
+                        {
+                            wrap.setStafferId("0");
+                        }
+                        else
+                        {
+                            wrap.setStafferId(element.getOwner());
+                        }
+                        wrap.setChange(0-element.getAmount()); //恢复库存
+                        wrap.setDescription("库单[" + outBean.getFullId() + "]操作");
+                        wrap.setSerializeId(sequence);
+                        wrap.setType(StorageConstant.OPR_STORAGE_REDEPLOY_ROLLBACK);
+                        wrap.setRefId(outBean.getFullId());
+                        wrap.setInputRate(element.getInputRate());
+
+                        try {
+                            StorageLogBean storageLogBean = new StorageLogBean();
+                            storageLogBean.setProductId(wrap.getProductId());
+                            storageLogBean.setRefId(wrap.getRefId());
+                            storageLogBean.setDepotpartId(wrap.getDepotpartId());
+                            String priceKey = StorageRelationHelper.getPriceKey(wrap.getPrice());
+                            storageLogBean.setPriceKey(priceKey);
+                            
+                        	//clear T_CENTER_STORAGELOG
+                            storageLogDAO.deleteStorageLog(storageLogBean);
+                            
+							storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
+							//clear T_CENTER_STORAGELOG
+                            storageLogDAO.deleteStorageLog(storageLogBean);
+                            
+                            //clear OutUnique
+                            ConditionParse condition = new ConditionParse();
+                            condition.addWhereStr();
+                            condition.addCondition("id", "=", wrap.getRefId());
+                            outUniqueDAO.deleteEntityBeansByCondition(condition);
+						} catch (MYException e) {
+							// TODO Auto-generated catch block
+							_logger.error("change storage relation error", e);
+						}
+                    	
+                    	//删除凭证
+                        outDAO.clearTicket(outBean.getFullId());
                     }
 
                     // 如果是调出的驳回需要回滚
@@ -7586,7 +7659,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
             && (outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH 
             	|| outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
-            	|| outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT))
+            	|| outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT
+            	|| outBean.getBuyReturnFlag() == 1))
         {
             // 不处理
             return;
@@ -14633,8 +14707,19 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     public void setFrDbDAO(FrDbDAO frDbDAO) {
         this.frDbDAO = frDbDAO;
     }
-    
-    private String[] getParam(ParamterMap request, String param){
+
+
+	public StorageLogDAO getStorageLogDAO() {
+		return storageLogDAO;
+	}
+
+	public void setStorageLogDAO(StorageLogDAO storageLogDAO) {
+		this.storageLogDAO = storageLogDAO;
+	}
+	
+	
+
+	private String[] getParam(ParamterMap request, String param){
     	String[] list = {};
     	if(request.getParameter(param)!=null){
     		list = request.getParameter(param).split("~");

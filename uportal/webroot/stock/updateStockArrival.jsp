@@ -176,6 +176,13 @@
                     </c:forEach>
                 </p:cells>
 
+	           <p:cells celspan="2" title="关联采购退货">
+	           <c:forEach items="${stockBackOutList}" var="item">
+	            <a href="../sail/out.do?method=findOut&fow=99&outId=${item.fullId}">${item.fullId}</a>
+	            &nbsp;
+	           </c:forEach>
+	           </p:cells>
+
                 <p:cells celspan="2" title="关联跟单">
                     <c:forEach items="${stockWorkBeanList}" var="item">
                         <a href="../stock/work.do?method=findStockWork&id=${item.id}">${item.id}</a>

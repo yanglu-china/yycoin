@@ -2004,6 +2004,25 @@ public class StorageAction extends DispatchAction
                 vo.setStockAmount(stockItemVO.getAmount());
 
                 vo.setTotalWarehouseNum(stockItemVO.getTotalWarehouseNum());
+                
+                //处理预占
+                if (StringTools.isNullOrNone(vo.getStafferName()))
+                {
+                    vo.setStafferName("公共");
+                }
+
+                int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
+
+                // 可发数量
+                vo.setMayAmount(vo.getAmount() - preassign);
+
+                // 预支数量
+                vo.setPreassignAmount(preassign);                
+                
+                _logger.debug("getProductName:"+vo.getProductName()+", getProductId: "+vo.getProductId()
+                        +", getMayAmount: "+vo.getMayAmount()+", getPreassignAmount:"+vo.getPreassignAmount()
+                        +", getStockAmount: "+vo.getStockAmount()+", getTotalWarehouseNum:"+vo.getTotalWarehouseNum()
+                );
             }
 
         }else {

@@ -32,4 +32,6 @@ public interface StorageLogDAO extends DAO<StorageLogBean, StorageLogVO>
     List<String> queryDistinctProductByDepotIdAndLogTime(String depotId, String logTime);
 
     void statExceptionalStorageLog();
+    
+    void deleteStorageLog(StorageLogBean bean);
 }

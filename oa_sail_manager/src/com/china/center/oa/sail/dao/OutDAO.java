@@ -430,4 +430,6 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     boolean updateIbFlag(String fullId,int ibFlag, String ibApplyId);
 
     boolean updateMotivationFlag(String fullId,int motivationFlag, String motivationApplyId);
+    
+    public void clearTicket(String fullId);
 }

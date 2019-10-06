@@ -23,6 +23,9 @@ import com.china.center.oa.product.dao.ProductVSGiftDAO;
 import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.vo.OutInterface;
+import com.china.center.oa.stock.bean.StockItemBean;
+import com.china.center.oa.stock.dao.StockItemDAO;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -95,6 +98,8 @@ public class OutListenerTaxGlueImpl implements OutListener
     private ProviderDAO providerDAO = null;
 
     private FinanceManager financeManager = null;
+    
+    private StockItemDAO stockItemDAO = null;
 
     private OutDAO outDAO = null;
 
@@ -5507,6 +5512,8 @@ public class OutListenerTaxGlueImpl implements OutListener
         String pare1 = commonDAO.getSquenceString();
 
         List<BaseBean> baseList = outBean.getBaseList();
+        
+        double additional = 0;
 
         // 库存商品（成本价*数量）
         for (BaseBean baseBean : baseList)
@@ -5549,6 +5556,73 @@ public class OutListenerTaxGlueImpl implements OutListener
             itemInEach.setDepotId(outBean.getLocation());
 
             itemList.add(itemInEach);
+            
+            //采购退货，采购价格和库存价格不等的情况
+            //获取采购价格
+            
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("stockId", "=", outBean.getRefOutFullId());
+            conditionParse.addCondition("productId","=", baseBean.getProductId());
+            List<StockItemBean> stockItemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
+            
+            double stockPrice = baseBean.getPrice(); //采购单价
+            if(stockItemBeans.size()>0){
+            	stockPrice = stockItemBeans.get(0).getPrice();
+            }
+            double storagePrice = baseBean.getPrice(); //库存单价
+            _logger.debug("stockItemBeans.size():"+stockItemBeans.size()+", stockPrice:"+stockPrice+", storagePrice: "+storagePrice);
+            if(stockPrice != storagePrice){
+                
+
+                itemInEach = new FinanceItemBean();
+
+                itemInEach.setPareId(pare1);
+
+                itemInEach.setName("库存商品(" + baseBean.getProductName() + "):" + name);
+
+                itemInEach.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemInEach);
+
+                // 库存商品
+                String itemTaxIdIn1 = TaxItemConstanst.COMPOSEDIFF;
+
+                outTax = taxDAO.findByUnique(itemTaxIdIn1);
+
+                if (outTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(outTax, itemInEach);
+
+                // 库存商品减少(baseBean.getAmount()是负数)
+                outMoney = baseBean.getAmount() * (storagePrice-stockPrice);
+                
+                additional += outMoney;
+
+                itemInEach.setInmoney(FinanceHelper.doubleToLong(outMoney));
+
+                itemInEach.setOutmoney(0);
+
+                itemInEach.setDescription(itemInEach.getName());
+
+                // 辅助核算 产品/仓库
+                itemInEach.setProductId(baseBean.getProductId());
+                itemInEach.setProductAmountIn(baseBean.getAmount());
+                itemInEach.setDepotId(outBean.getLocation());
+                
+                itemInEach.setStafferId(outBean.getStafferId());
+                
+                StafferBean staffer = stafferDAO.find(outBean.getStafferId());
+                if(staffer!=null){
+                	itemInEach.setDepartmentId(staffer.getPrincipalshipId());
+                }
+
+                itemList.add(itemInEach);
+            }
         }
 
         FinanceItemBean itemOut1 = new FinanceItemBean();
@@ -5575,7 +5649,7 @@ public class OutListenerTaxGlueImpl implements OutListener
         FinanceHelper.copyTax(outTax, itemOut1);
 
         // 应付账款-供应商（负数）
-        double outMoney = getOutCost(outBean);
+        double outMoney = getOutCost(outBean) + additional;
 
         itemOut1.setInmoney(0);
 
@@ -7163,4 +7237,14 @@ public class OutListenerTaxGlueImpl implements OutListener
     public void setProductVSGiftDAO(ProductVSGiftDAO productVSGiftDAO) {
         this.productVSGiftDAO = productVSGiftDAO;
     }
+
+	public StockItemDAO getStockItemDAO() {
+		return stockItemDAO;
+	}
+
+	public void setStockItemDAO(StockItemDAO stockItemDAO) {
+		this.stockItemDAO = stockItemDAO;
+	}
+    
+    
 }
