@@ -190,6 +190,15 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         
     }
 
+    @Override
+    public boolean updateBackPay(String fullId, int backPay) {
+        String sql = "update t_center_out set backPay = ? where fullid = ?";
+
+        int i = jdbcOperation.update(sql, backPay, fullId);
+
+        return i != 0;
+    }
+
     public boolean updatePmtype(String fullId, int pmtype)
     {
         String sql = "update t_center_out set pmtype = ? where fullid = ?";

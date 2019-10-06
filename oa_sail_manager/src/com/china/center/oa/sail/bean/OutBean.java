@@ -23,7 +23,6 @@ import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 
 /**
@@ -233,7 +232,7 @@ public class OutBean implements Serializable, OutInterface
     /**#775
      * 退货付款类型
      */
-    private int backPay = OutConstant.PAY_NOT_BACK;
+    private int backPay = 0;
 
     /**
      * 0：非在途 1：在途（入库单使用 调出）

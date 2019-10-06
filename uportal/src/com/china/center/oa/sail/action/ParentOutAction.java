@@ -3049,6 +3049,8 @@ public class ParentOutAction extends DispatchAction
 			line.writeColumn("是否回款");
 			line.writeColumn("回款金额");
 			line.writeColumn("总金额");
+			//#775
+			line.writeColumn("退货付款类型");
 
 			line.writeColumn("申请人");
 			line.writeColumn("经办人");
@@ -3340,6 +3342,8 @@ public class ParentOutAction extends DispatchAction
 							element.getPay()));
 					line.writeColumn(MathTools.formatNum(element.getHadPay()));
 					line.writeColumn(MathTools.formatNum(element.getTotal()));
+					line.writeColumn(DefinedCommon.getValue("backPay",
+							element.getBackPay()));
 
 					line.writeColumn(element.getStafferName());
 					line.writeColumn(element.getOperatorName());
@@ -4635,10 +4639,11 @@ public class ParentOutAction extends DispatchAction
 			out.setPay(1);
 			out.setDescription("销售退库,销售单号:" + outId + ". " + adescription);
 
+			//#775
 			if (oldOut.getPay() == OutConstant.PAY_NOT){
-				out.setBackPay(OutConstant.PAY_NOT_BACK);
+				out.setBackPay(OutConstant.WHKTH);
 			} else if (oldOut.getPay() == OutConstant.PAY_YES){
-				out.setBackPay(OutConstant.PAY_YES_BACK);
+				out.setBackPay(OutConstant.YHKTH);
 			}
 		}
 
