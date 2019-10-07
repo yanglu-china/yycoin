@@ -1993,7 +1993,7 @@ public class StorageAction extends DispatchAction
         	storageList = this.storageRelationDAO.queryEntityVOsByCondition(condtion);
             //已入库
             for(StorageRelationVO vo : storageList){
-                StockItemVO stockItemVO = this.getStockItemVO(stockItemVOs, vo.getProductId());
+                StockItemVO stockItemVO = this.getStockItemVO(stockItemVOs, vo.getProductId(), vo.getPrice());
                 vo.setDutyId(stockItemVO.getDutyId());
                 vo.setDutyName(stockItemVO.getDutyName());
                 vo.setProviderId(stockItemVO.getProviderId());
@@ -2067,10 +2067,13 @@ public class StorageAction extends DispatchAction
 
     }
     
-    private StockItemVO getStockItemVO(List<StockItemVO> stockItemVOs, String productId){
+    private StockItemVO getStockItemVO(List<StockItemVO> stockItemVOs, String productId, double price){
     	StockItemVO rst = null;
     	for(StockItemVO item : stockItemVOs){
-    		if(productId.equals(item.getProductId())){
+            if(productId.equals(item.getProductId())){
+                rst = item;
+            }
+    		if(productId.equals(item.getProductId()) && price == item.getPrice()){
     			rst = item;
     			break;
     		}
