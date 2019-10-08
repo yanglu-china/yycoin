@@ -99,6 +99,25 @@ function check()
     var invoiceIds = document.getElementsByName('invoiceId');
     
     var backTypes = document.getElementsByName('backType');
+    
+    //检查发货信息
+    var backTypeFlag = 0; //是否存在已入库退货
+    for (var i = 1; i < backTypes.length; i++)
+    {
+      if(backTypes[i].value == '1'){
+        backTypeFlag = 1;
+      }
+    }    
+    
+    if(backTypeFlag == 1){
+      var receiver = document.getElementById("receiver").value;
+      var address = document.getElementById("address").value;
+      var mobile = document.getElementById("mobile").value;
+      if(receiver == '' || address == '' || mobile == ''){
+        alert("已入库退货，必须填写发货信息！");
+        return false;
+      }
+    }
 
     var tmpMap = {};
     //isNumbers
