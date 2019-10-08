@@ -180,6 +180,30 @@ function check()
         $O('otherList').value = $O('otherList').value + ikey + '~';
 
         $O('idsList').value = ids;
+        
+        //检查产品 供应商和价格是否匹配
+	    if(backTypes[i].value == '2'){
+	      var productProviderVSpriceMap = $O('productProviderVSpriceMap').value;
+	      var keyValueMap = new Map();
+	      var keyValueMapArr = productProviderVSpriceMap.split(";");
+	      for (var k = 0; k < keyValueMapArr.length; k++)
+	      {
+	        var keyvalue = keyValueMapArr[k];
+	        if(keyvalue!=""){
+	          var arr = keyvalue.split(":");
+	          keyValueMap.set(arr[0], arr[1]);
+	        }
+	        
+	      }
+	      
+	      var productProviderKey = productIds[i].value+"_"+providerIds[i].value;
+	      var f1 = parseFloat(keyValueMap.get(productProviderKey));
+	      var f2 = parseFloat(prices[i].value);
+	      if(f1 != f2){
+	        alert("产品、供应商和价格不匹配！"+f1+" vs "+f2);
+	        return false;
+	      }
+	    }
     }
 
     for (var i = 1; i < amounts.length; i++)

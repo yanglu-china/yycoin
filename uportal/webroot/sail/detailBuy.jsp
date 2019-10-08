@@ -291,9 +291,21 @@ function checkBean()
                      <tr class="content2">
                         <td align="right">状态：</td>
                         <td colspan="1">
-                        <select name="status" class="select_class"  values="${bean.status}">
-                           <p:option type="buyStatus"></p:option>
-                        </select>
+
+                        
+                        <c:choose>
+                          <c:when test="${bean.buyReturnFlag == 1}"> 
+	                        <select name="status" class="select_class"  values="${bean.status}">
+	                           <p:option type="buyReturnStatus"></p:option>
+	                        </select>                                                       
+                          </c:when>
+                          <c:otherwise>
+	                        <select name="status" class="select_class"  values="${bean.status}">
+	                           <p:option type="buyStatus"></p:option>
+	                        </select>                           
+                          </c:otherwise>
+                        </c:choose>
+                        
                         </td>
                         <td align="right">申请人：</td>
                         <td colspan="1">

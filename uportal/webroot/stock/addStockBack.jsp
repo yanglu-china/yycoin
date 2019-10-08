@@ -367,6 +367,9 @@
 
     <input type="hidden" name="stockId" value="${bean.id}">
     <input type="hidden" name="buyReturnFlag" value="1">
+    
+    <input type="hidden" name="productProviderVSpriceMap" value="${productProviderVSpriceMap}">
+    
     <p:navigation height="22">
         <td width="550" class="navigation">采购单明细</td>
         <td width="85"></td>
@@ -676,7 +679,7 @@
                     </td>
 
                     <td align="center"><input type="number" name="amount" required><input type="hidden" name="amountLimit"></td>
-                    <td align="center"><input type="number" name="price" required></td>
+                    <td align="center"><input type="number" name="price" required readonly="readonly"></td>
                     <td align="center"><input type="text" name="depotpart" required><input type="hidden" name="depotpartId">
                     <input type="hidden" name="storageId">
                     <input type="hidden" name="locationId" value="${bean.locationId}">
@@ -833,7 +836,7 @@
 	                    <td align="center">${itemBase.provider}</td>
 	                    <td align="center">${itemBase.duty}</td>
 	                    <td align="center">${itemBase.invoiceType}</td>
-	                    <td align="center">${itemBase.description}</td>
+	                    <td align="center">${itemBase.description} ;状态：${my:get('buyReturnStatus', itemBase.status)}</td>
 	                    <td align="left"></td>                    
                     </tr>
 

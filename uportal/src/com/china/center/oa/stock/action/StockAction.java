@@ -2259,6 +2259,15 @@ public class StockAction extends DispatchAction
 
         vo = stockManager.findStockVO(id);
 
+        //prepare productProviderVSpriceMap for page validation
+        StringBuffer bufferForMap = new StringBuffer();
+        for(StockItemVO itemVO : vo.getItemVO()){
+            String key = itemVO.getProductId()+"_"+itemVO.getProviderId();
+            double value = itemVO.getPrice();
+            bufferForMap.append(key).append(":").append(value).append(";");
+        }
+        request.setAttribute("productProviderVSpriceMap", bufferForMap.toString());
+
         request.setAttribute("bean", vo);
 //        request.setAttribute("divMap", vo.getDivMap());
 
