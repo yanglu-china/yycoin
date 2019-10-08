@@ -190,6 +190,15 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         
     }
 
+    @Override
+    public boolean updateBackPay(String fullId, int backPay) {
+        String sql = "update t_center_out set backPay = ? where fullid = ?";
+
+        int i = jdbcOperation.update(sql, backPay, fullId);
+
+        return i != 0;
+    }
+
     public boolean updatePmtype(String fullId, int pmtype)
     {
         String sql = "update t_center_out set pmtype = ? where fullid = ?";
@@ -1271,5 +1280,18 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
                 "where OutImportBean.direct=1 and OutBean.customerCreated=0 and OutBean.type=0";
 
         return this.jdbcOperation.queryForListBySql(sql, claz);
+    }
+    
+    /**
+     * 清除凭证
+     */
+    public void clearTicket(String fullId){
+    	
+        String sql = "";
+        sql = "delete from t_center_finance where refid='"+fullId+"'";
+        this.jdbcOperation.execute(sql);
+        sql = "delete from t_center_financeitem where refid='"+fullId+"'";
+        this.jdbcOperation.execute(sql);
+    	
     }
 }

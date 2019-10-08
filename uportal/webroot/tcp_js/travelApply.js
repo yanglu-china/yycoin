@@ -50,7 +50,9 @@ function compareNumber(a, b)
 
 function removeTr(obj)
 {
-    obj.parentNode.parentNode.removeNode(true);
+	//removeNode() does not work for Chrome
+    //obj.parentNode.parentNode.removeNode(true);
+    obj.parentNode.parentNode.parentNode.removeChild(obj.parentNode.parentNode);
 }
 
 function getEle(eles, name)

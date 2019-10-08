@@ -219,8 +219,8 @@ function getProductRelation(oxes)
     }else{
     	//已入库
     	amount = storageAmount;
-        if(stockAmount < storageAmount){
-        	amount = stockAmount;
+        if(totalWarehouseNum < storageAmount){
+        	amount = totalWarehouseNum;
         }    	
     }
 

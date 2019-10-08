@@ -1993,7 +1993,7 @@ public class StorageAction extends DispatchAction
         	storageList = this.storageRelationDAO.queryEntityVOsByCondition(condtion);
             //已入库
             for(StorageRelationVO vo : storageList){
-                StockItemVO stockItemVO = this.getStockItemVO(stockItemVOs, vo.getProductId());
+                StockItemVO stockItemVO = this.getStockItemVO(stockItemVOs, vo.getProductId(), vo.getPrice());
                 vo.setDutyId(stockItemVO.getDutyId());
                 vo.setDutyName(stockItemVO.getDutyName());
                 vo.setProviderId(stockItemVO.getProviderId());
@@ -2004,6 +2004,25 @@ public class StorageAction extends DispatchAction
                 vo.setStockAmount(stockItemVO.getAmount());
 
                 vo.setTotalWarehouseNum(stockItemVO.getTotalWarehouseNum());
+                
+                //处理预占
+                if (StringTools.isNullOrNone(vo.getStafferName()))
+                {
+                    vo.setStafferName("公共");
+                }
+
+                int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
+
+                // 可发数量
+                vo.setMayAmount(vo.getAmount() - preassign);
+
+                // 预支数量
+                vo.setPreassignAmount(preassign);                
+                
+                _logger.debug("getProductName:"+vo.getProductName()+", getProductId: "+vo.getProductId()
+                        +", getMayAmount: "+vo.getMayAmount()+", getPreassignAmount:"+vo.getPreassignAmount()
+                        +", getStockAmount: "+vo.getStockAmount()+", getTotalWarehouseNum:"+vo.getTotalWarehouseNum()
+                );
             }
 
         }else {
@@ -2048,10 +2067,13 @@ public class StorageAction extends DispatchAction
 
     }
     
-    private StockItemVO getStockItemVO(List<StockItemVO> stockItemVOs, String productId){
+    private StockItemVO getStockItemVO(List<StockItemVO> stockItemVOs, String productId, double price){
     	StockItemVO rst = null;
     	for(StockItemVO item : stockItemVOs){
-    		if(productId.equals(item.getProductId())){
+            if(productId.equals(item.getProductId())){
+                rst = item;
+            }
+    		if(productId.equals(item.getProductId()) && price == item.getPrice()){
     			rst = item;
     			break;
     		}

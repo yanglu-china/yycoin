@@ -38,6 +38,8 @@ function processBean(opr)
         msg = '确定通过中收申请?';
     }
     
+    alert("opr:"+opr+", ${bean.status}");
+    
     if ("1" == opr)
     {
         msg = '确定驳回到中收申请到初始?';
@@ -75,9 +77,10 @@ function removePay()
 {
     //remove tr
     var list = formEntry.elements;
-    
+    alert(list);
     if (list)
     {
+    	alert(list.length);
         for (var i = 0; i < list.length; i++)
         {
             if (list[i].name== 'pay_del_bu')

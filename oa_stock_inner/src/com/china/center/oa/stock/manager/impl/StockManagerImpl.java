@@ -1888,6 +1888,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     baseBean.setProductId(productId);
                     baseBean.setProductName(product.getName());
                     baseBean.setUnit("套");
+
+                    //#787 到货数量不能为0
+                    if (vo.getSdAmount() == 0){
+                        _logger.error("sdamount is 0:"+vo.getId());
+                        continue;
+                    }
                     //调拨数量取实到数量
                     baseBean.setAmount(-vo.getSdAmount());
 

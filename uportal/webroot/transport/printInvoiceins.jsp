@@ -46,6 +46,15 @@
 			}
 		}
 
+        /**
+         * 关闭金税盘
+         *
+         */
+        function CloseCard(){
+            var result = a.JsaeroClose();
+            alert(result);
+        }
+
 		function Invoice(){
 			var packageId = $O('packageId').value;
             var batchId = $O('batchId').value;
@@ -58,6 +67,7 @@
             // console.log(data);
             // console.log(data.obj);
 			if (data.retMsg.toLowerCase() === "ok") {
+				OpenCard();
 				for (var key in data.obj) {
 				    alert(key);
 				    var xml = data.obj[key];
@@ -97,7 +107,7 @@
 						//打印标志（DYBZ）：0-打印发票；1-打印销货清单
 						var dybz = "0";
                         //打印模式（DYMS）：0-不弹框打印；1-弹框打印
-						var dyms = "1";
+						var dyms = "0";
                         var result = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
                         alert(result);
                         //更新发票号码
@@ -108,10 +118,8 @@
 						alert(msg);
 					}
 				}
+				 CloseCard();
 			}
-//    var inv = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><invinterface><invhead><fpzl>2</fpzl><djhm>1002009ZKI</djhm><gfmc>南京某有限公司</gfmc><gfsh>320100000011111</gfsh><gfyh>购方开户行及账号 11112222</gfyh><gfdz>购方地址电话 025-11111111</gfdz><fpsl>17</fpsl><fpbz>备注</fpbz><kprm>开票人</kprm><fhrm>复核人</fhrm><skrm>收款人</skrm><hsbz>1</hsbz><xfdz>销方地址及电话 22222222</xfdz><xfyh>销方开户行及账号 222211</xfyh><hysy>0</hysy></invhead><invdetails><details><spmc>A商品</spmc><ggxh>规格</ggxh><jldw>吨</jldw><spsl>10</spsl><spdj>11.7</spdj><spje>117</spje><spse>17</spse><zkje></zkje><flbm>304020101</flbm><kcje></kcje></details></invdetails></invinterface>";
-//    var xml =  a.JsaeroKP(inv);
-//    alert(xml);
 		}
 
 		function parseXml(response){
@@ -158,8 +166,14 @@
 		function load()
 		{
 			loadForm();
-			OpenCard();
+//			OpenCard();
 		}
+
+        function querys()
+        {
+            // OpenCard();
+            formEntry.submit();
+        }
 	</script>
 
 </head>
@@ -192,8 +206,8 @@
 				</tr>
 
 				<tr class="content1">
-					<td colspan="4" align="right"><input type="submit"
-														 class="button_class" value="&nbsp;&nbsp;查 询&nbsp;&nbsp;">&nbsp;&nbsp;<input
+					<td colspan="4" align="right">
+                        <input type="button" class="button_class" onclick="querys()" value="&nbsp;&nbsp;查 询&nbsp;&nbsp;">&nbsp;&nbsp;<input
 							type="reset" class="button_class"
 							value="&nbsp;&nbsp;重 置&nbsp;&nbsp;"></td>
 				</tr>

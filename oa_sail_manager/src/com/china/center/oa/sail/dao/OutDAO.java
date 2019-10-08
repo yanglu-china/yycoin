@@ -123,10 +123,18 @@ public interface OutDAO extends DAO<OutBean, OutVO>
      * 修改付款状态
      * 
      * @param fullId
+     * @param backPay
+     * @return
+     */
+    boolean updatePay(String fullId, int backPay);
+
+    /**
+     * #775
+     * @param fullId
      * @param pay
      * @return
      */
-    boolean updatePay(String fullId, int pay);
+    boolean updateBackPay(String fullId, int pay);
 
     boolean updatePmtype(String fullId, int pmtype);
 
@@ -430,4 +438,6 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     boolean updateIbFlag(String fullId,int ibFlag, String ibApplyId);
 
     boolean updateMotivationFlag(String fullId,int motivationFlag, String motivationApplyId);
+    
+    public void clearTicket(String fullId);
 }

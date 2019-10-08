@@ -2197,6 +2197,14 @@ public class StockAction extends DispatchAction
         List<StockWorkBean> swList = stockWorkDAO.queryEntityBeansByFK(id);
 
         request.setAttribute("stockWorkBeanList", swList);
+        
+        //关联采购退货
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("refOutFullId","=",id);
+        List<OutBean> stockBackOutList = outDAO.queryEntityBeansByCondition(conditionParse);
+
+        request.setAttribute("stockBackOutList", stockBackOutList);
 
         String addStockArrival = request.getParameter("addStockArrival");
         String updateStockArrival = request.getParameter("updateStockArrival");
