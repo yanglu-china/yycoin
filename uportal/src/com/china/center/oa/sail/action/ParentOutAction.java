@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.china.center.oa.publics.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -92,6 +91,7 @@ import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.AreaBean;
 import com.china.center.oa.publics.bean.AttachmentBean;
@@ -9837,7 +9837,7 @@ public class ParentOutAction extends DispatchAction
 
 		if (!StringTools.isNullOrNone(id))
 		{
-			condtion.addCondition("OutBean.fullid", "like", id.trim());
+			condtion.addCondition("OutBean.fullid", "=", id.trim());
 		}
 
 		String status = request.getParameter("status");
