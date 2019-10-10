@@ -7729,7 +7729,7 @@ public class ParentOutAction extends DispatchAction
 				// 验证(销售单)是否可以全部回款
 				try
 				{
-					outManager.payOut(user, out.getRefOutFullId(), "自动核对付款");
+					outManager.payOut(user, out.getRefOutFullId(), "自动核对付款", 0);
 				}
 				catch (MYException e)
 				{
@@ -7937,7 +7937,15 @@ public class ParentOutAction extends DispatchAction
                 // 验证(销售单)是否可以全部回款
                 try
                 {
-                    outManager.payOut(user, out.getRefOutFullId(), "自动核对付款");
+                    int backPay = 0;
+                    //#775 当销售单退货触发销售单付款状态变更时，判断原销售单的付款状态PAY为1时，付款类型字段设为4，实际付款退货
+                    if (out.getPay() == OutConstant.PAY_YES){
+                        backPay = OutConstant.SJFKTH;
+                    } else if (out.getPay() == OutConstant.PAY_NOT){
+                        //当销售单退货触发销售单付款状态变更时，判断原销售单的付款状态PAY为0时，付款类型字段设为5，未付款退货
+                        backPay = OutConstant.WFKTH;
+                    }
+                    outManager.payOut(user, out.getRefOutFullId(), "自动核对付款", backPay);
                 }
                 catch (MYException e)
                 {

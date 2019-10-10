@@ -5368,10 +5368,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      */
     @Exceptional
     @Transactional(rollbackFor = {MYException.class})
-    public boolean payOut(final User user, String fullId, String reason)
+    public boolean payOut(final User user, String fullId, String reason, int backPay)
         throws MYException
     {
-        return payOutWithoutTransactional(user, fullId, reason);
+        return payOutWithoutTransactional(user, fullId, reason, backPay);
     }
 
     /**
@@ -5417,7 +5417,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         return outDAO.updatePay(fullId, OutConstant.PAY_YES);
     }
 
-    public boolean payOutWithoutTransactional(final User user, String fullId, String reason)
+    public boolean payOutWithoutTransactional(final User user, String fullId, String reason, int backPay)
         throws MYException
     {
         // 需要增加是否超期 flowId
@@ -5467,7 +5467,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         savePayTagBean(out);
 
         //#775
-        outDAO.updateBackPay(fullId, OutConstant.SJSKWC);
+        if (backPay!= 0){
+            _logger.info("***update back pay***"+backPay);
+            outDAO.updateBackPay(fullId,backPay);
+        }
+
         // 修改付款标识
         return outDAO.updatePay(fullId, OutConstant.PAY_YES);
     }
@@ -5538,8 +5542,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         notifyOut(out, user, 2);
 
-        //#775
-        outDAO.updateBackPay(fullId, OutConstant.SJSKWC);
         // 修改付款标识
         return outDAO.updatePay(fullId, OutConstant.PAY_YES);
     }
@@ -5929,7 +5931,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             if (result.getResult() == 0)
             {
             	// 尝试全部付款
-                this.payOutWithoutTransactional(user, out.getFullId(), "付款申请通过");        	
+                this.payOutWithoutTransactional(user, out.getFullId(), "付款申请通过", 0);
             }
         }
         
@@ -9138,7 +9140,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         // 验证(销售单)是否可以全部回款
         try
         {
-            this.payOut(user, out.getFullId(), "自动核对付款");
+            this.payOut(user, out.getFullId(), "自动核对付款", 0);
         }
         catch (MYException e)
         {
@@ -9616,7 +9618,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         processBlankBuyAndOut(null, out, user, reason);
 
         // 验证(销售单)是否可以全部回款
-        this.payOut(user, out.getFullId(), "自动核对付款");
+        this.payOut(user, out.getFullId(), "自动核对付款", 0);
         this.outDAO.modifyOutStatus(fullId, OutConstant.STATUS_SEC_PASS);
         this.outDAO.updateChangeTime(fullId, TimeTools.now());
         //把这单的发货方式改成 空发，物流怕以后对账时会有误解
@@ -12875,7 +12877,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         {
             try
             {
-                this.payOut(user, fullId, "结算中心确定已经回款");
+                this.payOut(user, fullId, "结算中心确定已经回款", 0);
             }
             catch (MYException e)
             {

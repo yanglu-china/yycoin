@@ -343,7 +343,7 @@ public interface OutManager extends ListenerManager<OutListener>
      * @param reason
      * @return
      */
-    boolean payOut(final User user, String fullId, String reason)
+    boolean payOut(final User user, String fullId, String reason, int backPay)
         throws MYException;
 
 
@@ -377,7 +377,7 @@ public interface OutManager extends ListenerManager<OutListener>
      * @return
      * @throws MYException
      */
-    boolean payOutWithoutTransactional(final User user, String fullId, String reason)
+    boolean payOutWithoutTransactional(final User user, String fullId, String reason, int backPay)
         throws MYException;
 
     /**

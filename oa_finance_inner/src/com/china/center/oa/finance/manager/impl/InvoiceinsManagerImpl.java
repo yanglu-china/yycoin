@@ -3899,7 +3899,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				{
 					try
 					{
-						outManager.payOut(null, outId, "结算中心确定已经回款");
+						outManager.payOut(null, outId, "结算中心确定已经回款", 0);
 					}
 					catch (MYException e)
 					{
@@ -3991,7 +3991,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 {
                     try
                     {
-                        outManager.payOut(null, outId, "结算中心确定已经回款");
+                        outManager.payOut(null, outId, "结算中心确定已经回款", 0);
                     }
                     catch (MYException e)
                     {
