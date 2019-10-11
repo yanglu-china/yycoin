@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.china.center.oa.publics.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -92,6 +91,7 @@ import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.AreaBean;
 import com.china.center.oa.publics.bean.AttachmentBean;
@@ -6312,6 +6312,14 @@ public class ParentOutAction extends DispatchAction
                 {
                     this.fillDistributionForRemoteAllocate(request, outBean);
                 }
+                
+                //mod by zhangxian 2019-10-11
+                //创建报废单和采购退货单时，目的库 置为空
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_DROP || outBean.getOutType() == OutConstant.OUTTYPE_IN_STOCK)
+                {
+                	outBean.setDestinationId(null);
+                }
+                //end mod 2019-10-11
                 
                 //mod by zhangxian 2019-06-18
                 //增加预占库存的扣减
