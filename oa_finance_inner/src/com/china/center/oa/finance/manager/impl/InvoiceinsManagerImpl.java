@@ -81,6 +81,7 @@ import com.china.center.oa.publics.dao.FlowLogDAO;
 import com.china.center.oa.publics.dao.InvoiceDAO;
 import com.china.center.oa.publics.dao.ParameterDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.vo.UserVO;
 import com.china.center.oa.sail.bean.BaseBalanceBean;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.DistributionBean;
@@ -2730,10 +2731,17 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			saveInner2(map, invoiceinsList);
 
             _logger.info("***invoiceinsList***"+invoiceinsList.size());
+            
+            List<InvoiceinsVO> invoiceinsVOList = new ArrayList<InvoiceinsVO>();
 			// 调用审批通过
 			for (InvoiceinsBean bean : invoiceinsList) {
 
 				InvoiceinsBean obean = invoiceinsDAO.find(bean.getId());
+				
+				InvoiceinsVO insVO = new InvoiceinsVO();
+				insVO.setId(bean.getId());
+				insVO.setOtype(0);
+				invoiceinsVOList.add(insVO);
 
 				if (obean == null) {
 					throw new MYException("数据错误,请确认操作");
@@ -2788,6 +2796,10 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 //				log.setOprMode(PublicConstant.OPRMODE_PASS);
 //
 //				flowLogDAO.saveEntityBean(log);
+				UserVO user = new UserVO();
+				user.setStafferName("邢君君");
+				user.setStafferId("239358493");
+				batchConfirmAndCreatePackage(user, invoiceinsVOList);
 			}
 		}catch(Exception e){
 			_logger.error(e);
