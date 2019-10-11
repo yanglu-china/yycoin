@@ -9,19 +9,13 @@
 package com.china.center.oa.finance.manager.impl;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import com.china.center.oa.client.vo.StafferVSCustomerVO;
-import com.china.center.oa.publics.NumberUtils;
-import com.china.center.oa.publics.bean.*;
-import com.china.center.oa.publics.constant.SysConfigConstant;
-import com.china.center.oa.publics.dao.*;
-import com.china.center.oa.sail.bean.*;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.constanst.ShipConstant;
-import com.china.center.oa.sail.dao.*;
-import com.china.center.oa.sail.manager.OutManager;
-import com.china.center.tools.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,11 +64,52 @@ import com.china.center.oa.finance.vs.InsVSOutBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.publics.NumberUtils;
+import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.bean.DutyBean;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.InvoiceBean;
+import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.InvoiceConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.StafferConstant;
+import com.china.center.oa.publics.constant.SysConfigConstant;
+import com.china.center.oa.publics.dao.AttachmentDAO;
+import com.china.center.oa.publics.dao.CommonDAO;
+import com.china.center.oa.publics.dao.DutyDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.InvoiceDAO;
+import com.china.center.oa.publics.dao.ParameterDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.sail.bean.BaseBalanceBean;
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.bean.OutBalanceBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.OutTransferBean;
+import com.china.center.oa.sail.bean.PackageBean;
+import com.china.center.oa.sail.bean.PackageItemBean;
+import com.china.center.oa.sail.bean.PreConsignBean;
+import com.china.center.oa.sail.bean.TempConsignBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
+import com.china.center.oa.sail.constanst.ShipConstant;
+import com.china.center.oa.sail.dao.BaseBalanceDAO;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.DistributionDAO;
+import com.china.center.oa.sail.dao.OutBalanceDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.dao.PackageDAO;
+import com.china.center.oa.sail.dao.PackageItemDAO;
+import com.china.center.oa.sail.dao.PreConsignDAO;
+import com.china.center.oa.sail.dao.TempConsignDAO;
+import com.china.center.oa.sail.manager.OutManager;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.JudgeTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
 
 
 /**
@@ -2741,18 +2776,18 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					}
 				}
 
-				FlowLogBean log = new FlowLogBean();
-
-				log.setActor("系统");
-				log.setActorId(StafferConstant.SUPER_STAFFER);
-				log.setFullId(obean.getId());
-				log.setDescription("批量生成,待审批");
-				log.setLogTime(TimeTools.now());
-				log.setPreStatus(FinanceConstant.INVOICEINS_STATUS_SAVE);
-				log.setAfterStatus(bean.getStatus());
-				log.setOprMode(PublicConstant.OPRMODE_PASS);
-
-				flowLogDAO.saveEntityBean(log);
+//				FlowLogBean log = new FlowLogBean();
+//
+//				log.setActor("系统");
+//				log.setActorId(StafferConstant.SUPER_STAFFER);
+//				log.setFullId(obean.getId());
+//				log.setDescription("批量生成,待审批");
+//				log.setLogTime(TimeTools.now());
+//				log.setPreStatus(FinanceConstant.INVOICEINS_STATUS_SAVE);
+//				log.setAfterStatus(bean.getStatus());
+//				log.setOprMode(PublicConstant.OPRMODE_PASS);
+//
+//				flowLogDAO.saveEntityBean(log);
 			}
 		}catch(Exception e){
 			_logger.error(e);
@@ -3230,8 +3265,9 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             } else{
                 bean.setProcesser(staffer.getId());
             }
-
-			bean.setStatus(FinanceConstant.INVOICEINS_STATUS_SUBMIT); // 待财务开票
+            //mod by zhangxian 导入后状态置为结束 2019-10-11
+			bean.setStatus(FinanceConstant.INVOICEINS_STATUS_END); // 待财务开票
+			//end mod
 			bean.setStafferId(first.getStafferId());
 			bean.setType(0);
 			bean.setOtype(0);
