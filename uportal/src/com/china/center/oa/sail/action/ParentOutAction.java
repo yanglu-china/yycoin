@@ -7847,6 +7847,7 @@ public class ParentOutAction extends DispatchAction
                 return mapping.findForward("error");
             }
 
+			int pay = 0;
             // 退库-事业部经理审批
             if (out.getType() == OutConstant.OUT_TYPE_INBILL
                     && (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
@@ -7859,6 +7860,13 @@ public class ParentOutAction extends DispatchAction
 
                     return mapping.findForward("error");
                 }
+
+                if(!StringTools.isNullOrNone(out.getRefOutFullId())){
+					OutBean refOut = this.outDAO.find(out.getRefOutFullId());
+					if (refOut!= null){
+						pay = refOut.getPay();
+					}
+				}
             }
             else
             {
@@ -7912,8 +7920,6 @@ public class ParentOutAction extends DispatchAction
                      }
                 }
 
-
-
                 //配件退货
                 List<DecomposeProductBean> beans = this.getDecomposeBeanFromRequest(accessoryList, user);
 
@@ -7947,12 +7953,14 @@ public class ParentOutAction extends DispatchAction
                 {
                     int backPay = 0;
                     //#775 当销售单退货触发销售单付款状态变更时，判断原销售单的付款状态PAY为1时，付款类型字段设为4，实际付款退货
-                    if (out.getPay() == OutConstant.PAY_YES){
+                    if (pay == OutConstant.PAY_YES){
                         backPay = OutConstant.SJFKTH;
-                    } else if (out.getPay() == OutConstant.PAY_NOT){
+                    } else if (pay == OutConstant.PAY_NOT){
                         //当销售单退货触发销售单付款状态变更时，判断原销售单的付款状态PAY为0时，付款类型字段设为5，未付款退货
                         backPay = OutConstant.WFKTH;
                     }
+
+					_logger.info(pay+"***out pay***"+out.getPay());
                     outManager.payOut(user, out.getRefOutFullId(), "自动核对付款", backPay);
                 }
                 catch (MYException e)
