@@ -72,7 +72,7 @@ public interface OutImportManager
 	boolean batchUpdateDepot(List<BaseBean> list)
 			throws MYException;
 
-	boolean batchUpdateProductName(List<BaseVO> list) throws MYException;
+	boolean batchUpdateProductName(User user,List<BaseVO> list) throws MYException;
 
 	/**
 	 * 2016/4/14 #222

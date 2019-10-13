@@ -7378,7 +7378,8 @@
 
          try
          {
-             outImportManager.batchUpdateProductName(importItemList);
+             User user = Helper.getUser(request);
+             outImportManager.batchUpdateProductName(user, importItemList);
 
              request.setAttribute(KeyConstant.MESSAGE, "批量修改商品名成功");
          }

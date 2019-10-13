@@ -10,7 +10,8 @@ import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.publics.bean.*;
-import com.china.center.oa.publics.constant.SysConfigConstant;
+import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.constant.*;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.bean.*;
@@ -48,8 +49,6 @@ import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.product.wrap.ProductChangeWrap;
-import com.china.center.oa.publics.constant.IDPrefixConstant;
-import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.constanst.SailConstant;
@@ -157,6 +156,8 @@ public class OutImportManagerImpl implements OutImportManager
 	private ParameterDAO parameterDAO = null;
 
 	private ProductImportDAO productImportDAO = null;
+
+	private LogDAO logDAO = null;
 
 	private final static String SPLIT = "_";
 	
@@ -3039,7 +3040,7 @@ public class OutImportManagerImpl implements OutImportManager
 
 	@Transactional(rollbackFor = MYException.class)
 	@Override
-	public boolean batchUpdateProductName(List<BaseVO> list) throws MYException {
+	public boolean batchUpdateProductName(User user,List<BaseVO> list) throws MYException {
 		Set<String> outIds = new HashSet<String>();
 		for(BaseVO each : list)
 		{
@@ -3069,6 +3070,10 @@ public class OutImportManagerImpl implements OutImportManager
 					}
 					this.baseDAO.updateEntityBean(bean);
 					_logger.info("***update base bean***"+bean);
+
+					StringBuilder sb = new StringBuilder();
+					sb.append("销售单品名从:"+bean.getProductName()+"修改为:"+each.getDestProductName());
+					this.log(user,outId, OperationConstant.OPERATION_UPDATE,sb.toString(), ModuleConstant.MODULE_PRODUCT_NAME_CHANGE);
 				}
 			}
 
@@ -4431,6 +4436,22 @@ public void offlineStorageInJob() {
 		this.transactionManager = transactionManager;
 	}
 
+
+	private void log(User user, String id, String operation, String reason, String module) {
+		// 记录审批日志
+		LogBean log = new LogBean();
+
+		log.setFkId(id);
+		log.setLocationId(user.getLocationId());
+		log.setStafferId(user.getStafferId());
+		log.setLogTime(TimeTools.now());
+		log.setModule(module);
+		log.setOperation(operation);
+		log.setLog(reason);
+
+		logDAO.saveEntityBean(log);
+	}
+
 	public CommonDAO getCommonDAO()
 	{
 		return commonDAO;
@@ -4907,5 +4928,9 @@ public void offlineStorageInJob() {
 
 	public void setProductImportDAO(ProductImportDAO productImportDAO) {
 		this.productImportDAO = productImportDAO;
+	}
+
+	public void setLogDAO(LogDAO logDAO) {
+		this.logDAO = logDAO;
 	}
 }
