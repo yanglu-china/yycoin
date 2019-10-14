@@ -2796,11 +2796,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 //				log.setOprMode(PublicConstant.OPRMODE_PASS);
 //
 //				flowLogDAO.saveEntityBean(log);
-				UserVO user = new UserVO();
-				user.setStafferName("邢君君");
-				user.setStafferId("239358493");
-				batchConfirmAndCreatePackage(user, invoiceinsVOList);
 			}
+			UserVO user = new UserVO();
+			user.setStafferName("邢君君");
+			user.setStafferId("239358493");
+			batchConfirmAndCreatePackage(user, invoiceinsVOList);
 		}catch(Exception e){
 			_logger.error(e);
 			throw new RuntimeException(e);
