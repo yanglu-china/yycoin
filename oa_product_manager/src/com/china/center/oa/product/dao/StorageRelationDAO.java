@@ -15,6 +15,7 @@ import com.china.center.jdbc.inter.DAO;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.vo.StorageRelationVO;
 import com.china.center.oa.product.vs.StorageRelationBean;
+import com.china.center.oa.publics.bean.DepotExportData;
 
 
 /**
@@ -110,4 +111,6 @@ public interface StorageRelationDAO extends DAO<StorageRelationBean, StorageRela
             String stafferId);
     
     int updateStorageRelationInputRate(String id, double inputRate);
+    
+    List<DepotExportData> queryExportDepotData();
 }
