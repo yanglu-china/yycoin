@@ -38,4 +38,6 @@ public interface ModuleConstant
     String MODULE_PRICE_CONFIG = "结算价";
 
     String MODULE_PRICE_CONFIG2 = "产品价格配置";
+
+    String MODULE_PRODUCT_NAME_CHANGE = "销售单品名修改";
 }
