@@ -221,6 +221,13 @@ function check()
             amounts[i].focus();
             return false;
         }
+        
+        if (parseInt(amounts[i].value) == 0)
+        {
+            alert('数据错误,产品数量 不能为0!');
+            amounts[i].focus();
+            return false;
+        }
 
         amous = amous + amounts[i].value + '~';
 

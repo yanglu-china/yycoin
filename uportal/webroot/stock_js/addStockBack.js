@@ -230,6 +230,45 @@ function getProductRelation(oxes)
     getInputInTr(tr, "amountLimit").value = amount;
 
     getInputInTr(tr, "amount").title = "库存数量："+storageAmount+",采购数量："+stockAmount+",已入库数量："+totalWarehouseNum;
+    
+    //initial select
+    var providerSelect = getSelectInTr(tr, "providerId");
+    providerSelect.options.length = 0;
+    
+    //console.log(productInfoMap['1']+", productInfoMapSize:"+productInfoMapSize);
+    
+    for(var k = 1; k <= productInfoMapSize; k++)
+    {
+    	var item = productInfoMap[k+''];
+    	//console.log("k:"+k+", "+item+", "+item['productId']+","+item['productName']+", "+ox.ppid);
+    	if(item['productId'] == ox.ppid){
+    		setOption(providerSelect, item['providerId'], item['provider']);
+    	}
+    	
+    }
+    
+    /*
+    var productArray = getValuesFromMap(productInfoMap);
+    
+    setOption(providerSelect, '', '-');
+    for(var k = 0; k < productArray.length; k++)
+    {
+    	if(productArray[k].productId == ox.ppid){
+    		setOption(providerSelect, productArray[k].productId, productArray[k].productName);
+    	}
+    	
+    }
+    */
+    
+}
+
+function getValuesFromMap(map){
+	  var arr = new Array();
+	  alert(map);
+	  for (i = 0; i < map.elements.length; i++) {  
+	  arr.push(map.elements[i].value);
+	  }
+	  return arr;
 }
 
 

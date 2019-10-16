@@ -86,10 +86,21 @@ public abstract class OutHelper
     {
         return getStatus(i, true);
     }
+    
 
     public static String getStatus2(int i)
     {
         return DefinedCommon.getValue("buyStatus", i);
+    }
+    
+    public static String getStatus2(int i, OutBean outBean)
+    {
+    	if(outBean.getBuyReturnFlag() == 1){
+    		return DefinedCommon.getValue("buyReturnStatus", i);
+    	}else{
+    		return getStatus2(i);
+    	}
+        
     }
 
     /**

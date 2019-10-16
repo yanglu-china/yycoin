@@ -66,12 +66,15 @@
 
         var productMap = {};
         
-        var productObj = {};
+        
         var productInfoMap = {};
+        
+        var productInfoMapSize = 0;
         
         <c:forEach items="${bean.itemVO}" var="item" varStatus="status">
             productMap['${item.productId}'] = parseInt("${item.amount}");
             	
+            var productObj = {};
             productObj["cost"] = "${item.productCost}";
             productObj["price"] = "${item.price}";
             productObj["depotpartId"] = "${item.depotpartId}";
@@ -84,9 +87,15 @@
             productObj["invoice"] = "${item.invoiceTypeName}";  
             productObj["productName"] = "${item.productName}";  
             
+            productObj["productId"] = "${item.productId}"; 
+            
             productInfoMap['${ status.index + 1}'] = productObj;
+            
+            productInfoMapSize = '${ status.index + 1}';
         </c:forEach>
-//        console.log(productMap);
+        //console.log(productMap);
+        
+        //console.log(productInfoMap);
 
         function showDiv(id)
         {
@@ -687,12 +696,6 @@
                     </td>
                     <td align="center">
                         <select name="providerId">
-                            <c:if test="${providerList!=null &&  fn:length(providerList) > 1}">
-                            <option value="">-</option>
-                            </c:if>                           
-                            <c:forEach items="${providerList}" var="providerItem">
-                                <option value="${providerItem.id}">${providerItem.name}</option>
-                            </c:forEach>
                         </select>
                     </td>
                     <td align="center">
@@ -726,96 +729,6 @@
                 </tr>
                 
                 <c:forEach items="${baseList}" var="itemBase" varStatus="vs">
-                <!--  
-                  <c:choose>
-                    <c:when test="${itemBase.outStatus eq '0' or itemBase.outStatus eq '2' }">
-                    <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>  
-	                    <td align="center">
-	                        
-	                        <select name="backType" values="${itemBase.buyReturnType }">
-	                            <option value="" >-</option>
-	                            <option value="1">已入库退货</option>
-	                            <option value="2">未入库退货</option>
-	                        </select>	                        
-	                    </td>
-	
-	                    <td align="center">
-	                        
-	                        <input type="text" name="productName"
-								onclick="opens(this)"
-								readonly="readonly"
-								value="${itemBase.productName }"
-								style="width: 200px; cursor: hand">
-							<input type="hidden" name="productId" value="${itemBase.productId }">	                        
-	                    </td>
-	
-	                    <td align="center"><input type="number" name="amount" value="${itemBase.amount }" required><input type="hidden" name="amountLimit"></td>
-	                    <td align="center"><input type="number" name="price" value="${itemBase.price }" required></td>
-	                    <td align="center"><input type="text" name="depotpart" value="${itemBase.depotpart }" required><input type="hidden" name="depotpartId" value="${itemBase.depotpartId }">
-	                    <input type="hidden" name="storageId" value="${itemBase.storageId }">
-                        <input type="hidden" name="locationId" value="${itemBase.locationId}">
-                        <input type="hidden" name="location" value="${itemBase.location}">	                    
-	                    </td>
-                        <td align="center">
-                        <select name="providerId" values="${itemBase.providerId }">
-                            <option value="">-</option>
-                            <c:forEach items="${providerList}" var="providerItem">
-                                <option value="${providerItem.id}">${providerItem.name}</option>
-                            </c:forEach>
-                        </select>
-                        </td>
-                        <td align="center">
-                        <select name="dutyId" values="${itemBase.dutyId }">
-                            <option value="">-</option>
-                            <c:forEach items="${dutyList}" var="dutyItem">
-                                <option value="${dutyItem.id}">${dutyItem.name}</option>
-                            </c:forEach>
-                        </select>
-                        </td>
-                        <td align="center">
-                        <select name="invoiceId"  values="${itemBase.invoiceId }">
-                            <option value="">-</option>
-                            <c:forEach items="${invoiceList}" var="invoiceItem">
-                                <option value="${invoiceItem.id}">${invoiceItem.name}</option>
-                            </c:forEach>
-                        </select>
-                        </td>
-	                    <td align="center">
-	                    <input type="text" name="description" value="${itemBase.description}"  required>
-	             -->
-	                    <!--  <input type="hidden" name="locationId">-->
-	             <!--
-	                    </td>
-	                    <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>                    
-                    </tr>                    
-                    </c:when>
-                    <c:otherwise>
-                    <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>  
-	                    <td align="center">
-	                        <c:choose>
-	                          <c:when test="${itemBase.buyReturnType eq '1'}">已入库退货</c:when>
-	                          <c:when test="${itemBase.buyReturnType eq '2'}">未入库退货</c:when>
-	                          <c:otherwise></c:otherwise>
-	                        </c:choose>
-	                    </td>
-	
-	                    <td align="center">
-	                        ${itemBase.productName}
-	                    </td>
-	
-	                    <td align="center">${itemBase.amount}</td>
-	                    <td align="center">${itemBase.price}</td>
-	                    <td align="center">${itemBase.depotpartName}</td>
-	                    <td align="center">${itemBase.provider}</td>
-	                    <td align="center">${itemBase.duty}</td>
-	                    <td align="center">${itemBase.invoiceType}</td>
-	                    <td align="center">${itemBase.description}</td>
-	                    <td align="left"></td>                    
-                    </tr>                    
-                    </c:otherwise>
-                    
-                  </c:choose>
-                  -->
                   
                   <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>  
 	                    <td align="center">
@@ -836,7 +749,7 @@
 	                    <td align="center">${itemBase.provider}</td>
 	                    <td align="center">${itemBase.duty}</td>
 	                    <td align="center">${itemBase.invoiceType}</td>
-	                    <td align="center">${itemBase.description} ;状态：${my:get('buyReturnStatus', itemBase.status)}</td>
+	                    <td align="center">${itemBase.description} ;状态：${my:get('buyReturnStatus', itemBase.outStatus)}</td>
 	                    <td align="left"></td>                    
                     </tr>
 

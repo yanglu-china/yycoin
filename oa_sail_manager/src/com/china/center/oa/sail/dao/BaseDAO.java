@@ -66,6 +66,7 @@ public interface BaseDAO extends DAO<BaseBean, BaseVO>
 
     List<Map> queryBaseBeans(String sql);
     
-    public List<Map> queryBaseByStockId(String stockId)
-    	    throws MYException;
+    public List<Map> queryBaseByStockId(String stockId);
+    
+    public List<BaseBean> queryBaseBeanByStockId(String stockId);
 }

@@ -541,13 +541,13 @@ public interface OutConstant
     /**
      * 待总裁审批
      */
-    @Defined(key = "buyReturnStatus", value = "分管副总裁审批")
+    @Defined(key = "buyReturnStatus", value = "运营总监审批")
     int BUY_RETURN_STATUS_CEO_CHECK = 9;
 
     /**
      * 待董事长审批(入库单专用)
      */
-    @Defined(key = "buyReturnStatus", value = "财务总监审批")
+    @Defined(key = "buyReturnStatus", value = "分管副总裁审批")
     int BUY_RETURN_STATUS_CHAIRMA_CHECK = 10;
 
     /**
