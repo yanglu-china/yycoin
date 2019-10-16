@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.china.center.oa.publics.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -92,6 +91,7 @@ import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.AreaBean;
 import com.china.center.oa.publics.bean.AttachmentBean;
@@ -6313,6 +6313,14 @@ public class ParentOutAction extends DispatchAction
                     this.fillDistributionForRemoteAllocate(request, outBean);
                 }
                 
+                //mod by zhangxian 2019-10-11
+                //创建报废单和采购退货单时，目的库 置为空
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_DROP || outBean.getOutType() == OutConstant.OUTTYPE_IN_STOCK)
+                {
+                	outBean.setDestinationId(null);
+                }
+                //end mod 2019-10-11
+                
                 //mod by zhangxian 2019-06-18
                 //增加预占库存的扣减
 				//#718 回滚
@@ -7729,7 +7737,7 @@ public class ParentOutAction extends DispatchAction
 				// 验证(销售单)是否可以全部回款
 				try
 				{
-					outManager.payOut(user, out.getRefOutFullId(), "自动核对付款");
+					outManager.payOut(user, out.getRefOutFullId(), "自动核对付款", 0);
 				}
 				catch (MYException e)
 				{
@@ -7839,6 +7847,7 @@ public class ParentOutAction extends DispatchAction
                 return mapping.findForward("error");
             }
 
+			int pay = 0;
             // 退库-事业部经理审批
             if (out.getType() == OutConstant.OUT_TYPE_INBILL
                     && (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
@@ -7851,6 +7860,13 @@ public class ParentOutAction extends DispatchAction
 
                     return mapping.findForward("error");
                 }
+
+                if(!StringTools.isNullOrNone(out.getRefOutFullId())){
+					OutBean refOut = this.outDAO.find(out.getRefOutFullId());
+					if (refOut!= null){
+						pay = refOut.getPay();
+					}
+				}
             }
             else
             {
@@ -7904,8 +7920,6 @@ public class ParentOutAction extends DispatchAction
                      }
                 }
 
-
-
                 //配件退货
                 List<DecomposeProductBean> beans = this.getDecomposeBeanFromRequest(accessoryList, user);
 
@@ -7937,7 +7951,17 @@ public class ParentOutAction extends DispatchAction
                 // 验证(销售单)是否可以全部回款
                 try
                 {
-                    outManager.payOut(user, out.getRefOutFullId(), "自动核对付款");
+                    int backPay = 0;
+                    //#775 当销售单退货触发销售单付款状态变更时，判断原销售单的付款状态PAY为1时，付款类型字段设为4，实际付款退货
+                    if (pay == OutConstant.PAY_YES){
+                        backPay = OutConstant.SJFKTH;
+                    } else if (pay == OutConstant.PAY_NOT){
+                        //当销售单退货触发销售单付款状态变更时，判断原销售单的付款状态PAY为0时，付款类型字段设为5，未付款退货
+                        backPay = OutConstant.WFKTH;
+                    }
+
+					_logger.info(pay+"***out pay***"+out.getPay());
+                    outManager.payOut(user, out.getRefOutFullId(), "自动核对付款", backPay);
                 }
                 catch (MYException e)
                 {

@@ -1084,7 +1084,7 @@ public class OutAction extends ParentOutAction
 
         try
         {
-            outManager.payOut(user, fullId, "结算中心确认收款");
+            outManager.payOut(user, fullId, "结算中心确认收款", 0);
         }
         catch (MYException e)
         {
@@ -1283,7 +1283,7 @@ public class OutAction extends ParentOutAction
 
         try
         {
-            outManager.payOut(user, fullId, "财务确认收款");
+            outManager.payOut(user, fullId, "财务确认收款", 0);
         }
         catch (MYException e)
         {
@@ -2083,7 +2083,7 @@ public class OutAction extends ParentOutAction
                         {
                             try
                             {
-                                outManager.payOut(user, fullId, "结算中心确定已经回款");
+                                outManager.payOut(user, fullId, "结算中心确定已经回款", 0);
                             }
                             catch (MYException e)
                             {

@@ -9,6 +9,7 @@
 package com.china.center.oa.tcp.action;
 
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -32,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -75,6 +77,7 @@ import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.bean.ExportIbReportItemData;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
@@ -5471,24 +5474,30 @@ public class TravelApplyAction extends DispatchAction
                                         HttpServletRequest request, HttpServletResponse response)
             throws ServletException
     {
-        OutputStream out = null;
+        BufferedOutputStream out = null;
 
         String filenName = "Export_" + TimeTools.now("MMddHHmmss") + ".csv";
 
         String customerName = request.getParameter("customerName");
         _logger.info("export ibReport detail with customer name:" + customerName);
 
-        ConditionParse con = new ConditionParse();
-        con.addWhereStr();
-
-        //#138 导出重复
-//        Set<String> orders = new HashSet<String>();
-        Map<String,TcpIbReportItemBean> orders = new HashMap<String, TcpIbReportItemBean>();
-        List<TcpIbReportItemBean> ibReportList = this.tcpIbReportItemDAO.queryEntityBeansByCondition(con);
-
-        if (ListTools.isEmptyOrNull(ibReportList))
+//        ConditionParse con = new ConditionParse();
+//        con.addWhereStr();
+//
+//        //#138 导出重复
+////        Set<String> orders = new HashSet<String>();
+////        Map<String,TcpIbReportItemBean> orders = new HashMap<String, TcpIbReportItemBean>();
+//        List<TcpIbReportItemBean> ibReportList = this.tcpIbReportItemDAO.queryEntityBeansByCondition(con);
+//
+//        if (ListTools.isEmptyOrNull(ibReportList))
+//        {
+//            return null;
+//        }
+        
+        List<ExportIbReportItemData> exportDataList = tcpIbReportItemDAO.queryExportReportItemData(customerName);
+        if(exportDataList == null || exportDataList.size() == 0)
         {
-            return null;
+        	return null;
         }
 
         response.setContentType("application/x-dbf");
@@ -5500,7 +5509,7 @@ public class TravelApplyAction extends DispatchAction
 
         try
         {
-            out = response.getOutputStream();
+            out = new BufferedOutputStream(response.getOutputStream());
 
             write = WriteFileFactory.getMyTXTWriter();
 
@@ -5527,9 +5536,8 @@ public class TravelApplyAction extends DispatchAction
 
             line.writeLine();
 
-            for (Iterator<TcpIbReportItemBean> iter = ibReportList.iterator(); iter.hasNext();)
+            for (ExportIbReportItemData ib:exportDataList)
             {
-                TcpIbReportItemBean ib = iter.next();
                 String fullId = ib.getFullId();
                 //#166同1SO单的只导出了一行
                 //2016/3/7 #166 同一SO单导出重复是正常情况，因为正好SO单两个商品行的商品和数量是一样的。
@@ -5543,52 +5551,62 @@ public class TravelApplyAction extends DispatchAction
 //                    }
 //                }
 
-                if (StringTools.isNullOrNone(customerName)|| ib.getCustomerName().contains(customerName))  {
-                    line.writeColumn(ib.getCustomerName());
-                    line.writeColumn(fullId);
-                    line.writeColumn(ib.getProductName());
+                line.writeColumn(ib.getCustomerName());
+                line.writeColumn(fullId);
+                line.writeColumn(ib.getProductName());
 
-                    line.writeColumn(this.getBankProductCode(ib));
-                    line.writeColumn(ib.getPrice());
-                    line.writeColumn(ib.getAmount());
-
-                    line.writeColumn(ib.getIbMoney());
-                    line.writeColumn(ib.getMotivationMoney());
-                    line.writeColumn(ib.getIbMoney2());
-                    line.writeColumn(ib.getMotivationMoney2());
-                    line.writeColumn(ib.getPlatformFee());
-
-                    //2015/7/11导出申请人和银行销售日期
-                    OutBean outBean = this.outDAO.find(ib.getFullId());
-                    if (outBean == null){
-                        line.writeColumn("");
-                        line.writeColumn("");
-                        line.writeColumn("");
-                        line.writeColumn("");
-                        line.writeColumn("");
-                        line.writeColumn("");
-                    } else{
-                        line.writeColumn(OutHelper.getOutStatus(outBean));
-                        line.writeColumn(outBean.getStafferName());
-                        line.writeColumn(outBean.getPodate());
-                        line.writeColumn(DefinedCommon.getValue("outPay",
-                                outBean.getPay()));
-                        line.writeColumn(outBean.getPayTime());
-                        line.writeColumn(outBean.getChannel());
-                    }
-
-                    line.writeLine();
-
-//                    orders.add(fullId);
-                } else{
-                    _logger.info("ib.getCustomerName() not match:"+ib.getCustomerName());
+                String bankProductCode = ib.getOimport_bankproduct_code();
+                String productCode = ib.getProductcode();
+                if(StringUtils.isEmpty(bankProductCode))
+                {
+                	if(StringUtils.isNotEmpty(customerName))
+                	{
+                		ConditionParse conditionParse = new ConditionParse();
+                		conditionParse.addCondition("code", "=", productCode);
+                		conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+                		
+                		List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
+                		if (!ListTools.isEmptyOrNull(beans)) {
+                			ProductImportBean productImportBean = beans.get(0);
+                			bankProductCode = productImportBean.getBankProductCode();
+                		}
+                	}
                 }
+                line.writeColumn(bankProductCode);
+                line.writeColumn(ib.getPrice());
+                line.writeColumn(ib.getAmount());
+
+                line.writeColumn(ib.getIbMoney());
+                line.writeColumn(ib.getMotivationMoney());
+                line.writeColumn(ib.getIbMoney2());
+                line.writeColumn(ib.getMotivationMoney2());
+                line.writeColumn(ib.getPlatformFee());
+
+                String outType = ib.getOuttype();
+                if("0".equals(outType))
+                {
+                	line.writeColumn(DefinedCommon.getValue("outStatus",outType));
+                }
+                else
+                {
+                	line.writeColumn(DefinedCommon.getValue("buyStatus", outType));
+                }
+                line.writeColumn(ib.getStaffername());
+                line.writeColumn(ib.getPodate());
+                line.writeColumn(DefinedCommon.getValue("outPay",
+                		ib.getPay()));
+                line.writeColumn(ib.getPaytime());
+                line.writeColumn(ib.getChannel());
+                
+
+                line.writeLine();
 
 
             }
         }
         catch (Exception e)
         {
+        	e.printStackTrace();
             _logger.error(e, e);
             return null;
         }

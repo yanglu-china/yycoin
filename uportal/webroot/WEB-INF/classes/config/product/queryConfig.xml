@@ -46,6 +46,10 @@
             <type>select</type>
             <option>$productStep</option>
         </condtion>
+		<condtion name="description" caption="描述">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
 	</item>
 	
 	<item name="queryApplyProduct" deaultpfix="ProductBean">
@@ -551,7 +555,10 @@
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
-		
+		<condtion name="description" caption="描述">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
 	</item>
 	
 	<item name="queryPriceConfig" deaultpfix="PriceConfigBean">
