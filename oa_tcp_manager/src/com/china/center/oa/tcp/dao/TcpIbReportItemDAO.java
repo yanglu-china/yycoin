@@ -9,11 +9,12 @@
 package com.china.center.oa.tcp.dao;
 
 
+import java.util.List;
+
 import com.china.center.jdbc.inter.DAO;
-import com.china.center.oa.tcp.bean.TcpIbBean;
+import com.china.center.oa.publics.bean.ExportIbReportItemData;
 import com.china.center.oa.tcp.bean.TcpIbReportItemBean;
 import com.china.center.oa.tcp.vo.TcpIbReportItemVO;
-import com.china.center.oa.tcp.vo.TcpIbVO;
 
 
 /**
@@ -26,5 +27,5 @@ import com.china.center.oa.tcp.vo.TcpIbVO;
  */
 public interface TcpIbReportItemDAO extends DAO<TcpIbReportItemBean, TcpIbReportItemVO>
 {
-
+	public List<ExportIbReportItemData> queryExportReportItemData(String customerName);
 }
