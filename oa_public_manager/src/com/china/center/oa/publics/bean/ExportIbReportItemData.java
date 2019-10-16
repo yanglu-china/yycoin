@@ -2,9 +2,7 @@ package com.china.center.oa.publics.bean;
 
 import java.io.Serializable;
 
-import com.china.center.oa.tcp.bean.TcpIbReportItemBean;
-
-public class ExportIbReportItemData extends TcpIbReportItemBean implements Serializable {
+public class ExportIbReportItemData  implements Serializable {
 
 	/**
 	 * 
@@ -28,6 +26,50 @@ public class ExportIbReportItemData extends TcpIbReportItemBean implements Seria
 	private String productcode;
 	
 	private String oimport_bankproduct_code;
+	
+    private String id = "";
+
+    /**
+     * 对应的TcpIbReportBean ID
+     */
+    private String refId = "";
+
+    private String customerName = "";
+
+    private String fullId = "";
+
+    private String productName = "";
+
+    private String productId = "";
+
+    private double price = 0.0d;
+
+    private int amount = 0;
+
+    /**
+     * 中收金额
+     */
+    private double ibMoney = 0.0d;
+
+    /**
+     * 激励金额
+     */
+    private double motivationMoney = 0.0d;
+
+    /**
+     * 中收2金额
+     */
+    private double ibMoney2 = 0.0d;
+
+    /**
+     * 激励2金额
+     */
+    private double motivationMoney2 = 0.0d;
+
+    /**
+     * 平台手续费
+     */
+    private double platformFee = 0.0d;
 
 	public String getOuttype() {
 		return outtype;
@@ -99,6 +141,110 @@ public class ExportIbReportItemData extends TcpIbReportItemBean implements Seria
 
 	public void setOimport_bankproduct_code(String oimport_bankproduct_code) {
 		this.oimport_bankproduct_code = oimport_bankproduct_code;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getRefId() {
+		return refId;
+	}
+
+	public void setRefId(String refId) {
+		this.refId = refId;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getFullId() {
+		return fullId;
+	}
+
+	public void setFullId(String fullId) {
+		this.fullId = fullId;
+	}
+
+	public String getProductName() {
+		return productName;
+	}
+
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+
+	public String getProductId() {
+		return productId;
+	}
+
+	public void setProductId(String productId) {
+		this.productId = productId;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
+	}
+
+	public int getAmount() {
+		return amount;
+	}
+
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+
+	public double getIbMoney() {
+		return ibMoney;
+	}
+
+	public void setIbMoney(double ibMoney) {
+		this.ibMoney = ibMoney;
+	}
+
+	public double getMotivationMoney() {
+		return motivationMoney;
+	}
+
+	public void setMotivationMoney(double motivationMoney) {
+		this.motivationMoney = motivationMoney;
+	}
+
+	public double getIbMoney2() {
+		return ibMoney2;
+	}
+
+	public void setIbMoney2(double ibMoney2) {
+		this.ibMoney2 = ibMoney2;
+	}
+
+	public double getMotivationMoney2() {
+		return motivationMoney2;
+	}
+
+	public void setMotivationMoney2(double motivationMoney2) {
+		this.motivationMoney2 = motivationMoney2;
+	}
+
+	public double getPlatformFee() {
+		return platformFee;
+	}
+
+	public void setPlatformFee(double platformFee) {
+		this.platformFee = platformFee;
 	}
 
 }
