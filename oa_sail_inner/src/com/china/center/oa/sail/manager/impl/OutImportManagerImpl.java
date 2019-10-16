@@ -3882,40 +3882,46 @@ public class OutImportManagerImpl implements OutImportManager
 						baseBean.setOwner("0");
 						baseBean.setOwnerName("公共");
 
-						// 业务员结算价，总部结算价
-						double sailPrice = product.getSailPrice();
+						//#779 settleprice字段有值，则写入BASE表中的pprice和iprice中，如果settleprice字段没有值，按原来的结算价取值逻辑取值
+						if (olBaseBean.getSettlePrice() >0){
+							baseBean.setPprice(olBaseBean.getSettlePrice());
+							baseBean.setIprice(olBaseBean.getSettlePrice());
+							baseBean.setInputPrice(olBaseBean.getSettlePrice());
+						} else{
+							// 业务员结算价，总部结算价
+							double sailPrice = product.getSailPrice();
 
-						// 根据配置获取结算价
-						List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+							// 根据配置获取结算价
+							List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
 
-						if (!ListTools.isEmptyOrNull(pcblist))
-						{
-							PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+							if (!ListTools.isEmptyOrNull(pcblist))
+							{
+								PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
 
-							sailPrice = cb.getSailPrice();
+								sailPrice = cb.getSailPrice();
+							}
+
+							// 获取销售配置
+							SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+									product);
+
+							// 总部结算价(产品结算价 * (1 + 总部结算率))
+							baseBean.setPprice(sailPrice
+									* (1 + sailConf.getPratio() / 1000.0d));
+
+							//#647
+							if(sailConf.getIprice() > 0){
+								baseBean.setIprice(sailConf.getIprice());
+							} else{
+								// 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+								baseBean.setIprice(sailPrice
+										* (1 + sailConf.getIratio() / 1000.0d + sailConf
+										.getPratio() / 1000.0d));
+							}
+
+							// 业务员结算价就是事业部结算价
+							baseBean.setInputPrice(baseBean.getIprice());
 						}
-
-						// 获取销售配置
-						SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
-								product);
-
-						// 总部结算价(产品结算价 * (1 + 总部结算率))
-						baseBean.setPprice(sailPrice
-								* (1 + sailConf.getPratio() / 1000.0d));
-
-						//#647
-						if(sailConf.getIprice() > 0){
-						    baseBean.setIprice(sailConf.getIprice());
-                        } else{
-                            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                            baseBean.setIprice(sailPrice
-                                    * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                                    .getPratio() / 1000.0d));
-                        }
-
-
-						// 业务员结算价就是事业部结算价
-						baseBean.setInputPrice(baseBean.getIprice());
 
 
 						//#551 去掉控制
