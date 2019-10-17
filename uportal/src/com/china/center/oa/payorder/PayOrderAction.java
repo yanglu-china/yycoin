@@ -853,7 +853,7 @@ public class PayOrderAction extends DispatchAction {
 			}
 
 			if (errmsg.length() == 0) {
-				errmsg.append("付款成功");
+				errmsg.append("付款单据已推送至财资平台");
 			}
 		} catch (Exception e) {
 			payLog.error("pay error", e);
