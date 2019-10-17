@@ -807,7 +807,7 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
             connection = this.jdbcOperation.getDataSource().getConnection();
 
             prepareStatement = connection
-                .prepareStatement("select fullid, status, reserve3, type , outType from t_center_out where fullid = '"
+                .prepareStatement("select fullid, status, dutyid, reserve3, type , outType,buyReturnFlag from t_center_out where fullid = '"
                                   + fullId + "'");
 
             rst = prepareStatement.executeQuery();
@@ -819,12 +819,16 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
             out.setFullId(rst.getString("fullid"));
 
             out.setStatus(rst.getInt("status"));
+            
+            out.setDutyId(rst.getString("dutyid"));
 
             out.setReserve3(rst.getInt("Reserve3"));
 
             out.setType(rst.getInt("type"));
 
             out.setOutType(rst.getInt("outType"));
+            
+            out.setBuyReturnFlag(rst.getInt("buyReturnFlag"));
 
             return out;
         }

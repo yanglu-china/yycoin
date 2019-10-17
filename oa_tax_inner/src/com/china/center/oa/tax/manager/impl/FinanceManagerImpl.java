@@ -163,6 +163,14 @@ public class FinanceManagerImpl implements FinanceManager {
             return addInner(user, bean, true, checkNull);
         }
     }
+    
+    @Transactional(rollbackFor = MYException.class)
+    public boolean addFinanceBeanWithTransactional(User user, FinanceBean bean, boolean checkNull)
+            throws MYException {
+        synchronized (FINANCE_ADD_LOCK) {
+            return addInner(user, bean, true, checkNull);
+        }
+    }
 
     @Override
     public boolean addFinanceBeanWithoutTransactional(User user, FinanceBean bean, int type)
@@ -329,6 +337,8 @@ public class FinanceManagerImpl implements FinanceManager {
 
         // CORE 核对借贷必相等的原则
         checkPare(pareMap);
+        
+        _logger.debug("after checkPare ...mainTable:"+mainTable);
         if (mainTable) {
             // 核心锁
 //            commonDAO.updatePublicLock();
@@ -349,6 +359,8 @@ public class FinanceManagerImpl implements FinanceManager {
             financeDAO.saveEntityBean(bean);
 
             financeItemDAO.saveAllEntityBeans(itemList);
+            
+            _logger.debug("financeDAO add...");
 
             //2015/4/28 add debug info for 5101
             if (!ListTools.isEmptyOrNull(itemList)){

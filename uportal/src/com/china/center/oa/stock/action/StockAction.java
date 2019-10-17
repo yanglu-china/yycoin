@@ -3832,7 +3832,7 @@ public class StockAction extends DispatchAction
 		final String[] prices = request.getParameterValues("price");
 		final String[] depotpartIds = request.getParameterValues("depotpartId");
 		final String[] depotIds = request.getParameterValues("depotId");
-		final String[] providerIds = request.getParameterValues("providerId");
+		final String[] providerIds1 = request.getParameterValues("providerId");
 		//final String[] providerNames = request.getParameterValues("providerName");
 		final String[] dutyIds = request.getParameterValues("dutyId");
 		final String[] invoiceIds = request.getParameterValues("invoiceId");
@@ -3855,15 +3855,38 @@ public class StockAction extends DispatchAction
         final String[] virtualPriceList = request.getParameterValues("virtualPrice");
         final String[] virtualPriceKeyList = request.getParameterValues("virtualPriceKey");
   
+        //providerIds 比其他的少一个，找不出原因，给它补齐
+
+        String[] providerIds = new String[nameList.length];
+        int arrIndex = 0;
+        if(providerIds1.length < nameList.length){
+            if(StringTools.isNullOrNone(nameList[0])){
+            	providerIds[0] = "";
+            }
+            arrIndex++;
+        }
+        for(String str : providerIds1){
+        	providerIds[arrIndex] = str;
+        	arrIndex++;
+        }
+        
         
         //debug
+        _logger.debug("parent addOuts, length,  name: " + nameList.length + ", providerIds: " + providerIds.length
+        		+",idsList:"+idsList.length+", backTypes:"+backTypes.length+", desList:"+desList.length
+        		+", dutyIds:"+dutyIds.length+", invoiceIds:"+invoiceIds.length);
+        for(int i=0;i< nameList.length; i++) {
+            _logger.debug("parent addOuts, name: " + nameList[i] + ", idsList: " + idsList[i]);
+        }
         
-        for(String name: nameList){
-        	_logger.debug("parent addOuts, name: "+name);
+        for(int i=0;i< providerIds.length; i++) {
+            _logger.debug("parent addOuts, providerIds: " + providerIds[i]);
         }
         
 		
 		User user = (User) request.getSession().getAttribute("user");
+		
+		String stockId = request.getParameter("stockId");
 		
 		//String locationId = Helper.getCurrentLocationId(request);
 
@@ -3885,7 +3908,6 @@ public class StockAction extends DispatchAction
 			
 			outBean.setLocation(locations[i]);
 
-			String stockId = request.getParameter("stockId");
 			outBean.setRefOutFullId(stockId);
 			
 			outBean.setDepotpartId(depotpartIds[i]);
@@ -4012,6 +4034,65 @@ public class StockAction extends DispatchAction
 
             map.getParameterMap().put("otherList", idsList[i]+"-"+prices[i]+"-"+outBean.getStafferId()+"-"+depotpartIds[i]);
             map.getParameterMap().put("depotList", depotpartIds[i]);
+
+            String productId = idsList[i];
+            int amount = Integer.parseInt((String)amontList[i]);
+
+            try{
+                /* check amount
+                 * 已入库退货 累计数量 小于等于 已拿货数量； 未入库退货 累计数量小于等于 未拿货数量
+                 */
+                //获取采购数量 拿货数量
+                int buyAmount = 0;
+                int gotAmount = 0;
+                ConditionParse conditionStockItem = new ConditionParse();
+                conditionStockItem.addWhereStr();
+                conditionStockItem.addCondition("stockId", "=", stockId);
+                conditionStockItem.addCondition("productId", "=", productId);
+                conditionStockItem.addCondition("providerId", "=", customerId);
+                List<StockItemVO> stockItemVOs = stockItemDAO.queryEntityVOsByCondition(conditionStockItem);
+                if(stockItemVOs.size()>0) {
+                    for (StockItemVO stockItemVO : stockItemVOs) {
+                        buyAmount = stockItemVO.getAmount();
+                        gotAmount = stockItemVO.getTotalWarehouseNum();
+                    }
+                }
+                //获取累计退货数量
+                List<Map> bases = baseDAO.queryBaseByStockId(stockId);
+
+                int totalReturn = 0;
+                for(Map base: bases){
+                    String productId1 = (String)base.get("productId");
+                    String providerId1 = (String)base.get("customerId");
+                    int amount1 = this.getIntFromObj(base.get("amount"));
+                    if(productId1.equals(productId) && providerId1.equals(customerId)){
+                        totalReturn += amount1;
+                    }
+                }
+
+                //比较
+                int total = Math.abs(totalReturn + amount);
+                _logger.debug("产品编号："+productId+", 供应商:"+customerId
+                        +",累计退货："+total+", 已拿货："+gotAmount+", 采购数量："+buyAmount+", backType:"+backType);
+                if(backType==1){
+                    //已入库退货 上限为已拿货数量
+
+                    if(total > gotAmount){
+                        request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                                "累计退货数量超出已拿货数量，请检查。产品编号："+productId+", 供应商:"+customerId);
+                        return mapping.findForward("error");
+                    }
+                }else {
+                    //未入库退货 上限为未拿货数量
+                    if (total > (buyAmount - gotAmount)) {
+                        request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                                "累计退货数量超出未拿货数量，请检查。产品编号：" + productId + ", 供应商:" + customerId);
+                        return mapping.findForward("error");
+                    }
+                }
+            }catch(Exception ex) {
+                _logger.error("check amount error", ex);
+            }
             
 			// 入库单的处理
 			try
@@ -4020,7 +4101,6 @@ public class StockAction extends DispatchAction
 				if(backType == 1){
 					this.fillDistributionForRemoteAllocate(request, outBean);
 				}
-				
 				
 				String id = outManager.addOut(outBean, map.getParameterMap(), user);
                 _logger.info("addOut 88888888888888888888*********"+id);
@@ -4063,7 +4143,18 @@ public class StockAction extends DispatchAction
 		request.setAttribute(KeyConstant.MESSAGE, "成功提交采购退货单!");
 		
 		return queryStock(mapping, form, request, reponse);
-	}   
+	}
+
+	public int getIntFromObj(Object obj){
+	    int rst = 0;
+	    if(obj!=null){
+	        try{
+	            rst = Integer.parseInt(String.valueOf(obj));
+            }catch(Exception ex){
+            }
+        }
+	    return rst;
+    }
 	
     private void fillDistributionForRemoteAllocate(HttpServletRequest rds, OutBean out)
     {

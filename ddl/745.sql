@@ -5,5 +5,5 @@ delete from `t_center_oamenuitem` where id in ('1341','1342','1343','1344');
 
 INSERT INTO `t_center_oamenuitem` VALUES ('1341', '我的采购退货', '../sail/out.do?method=querySelfBuy&load=1&menu=1&queryType=0&buyReturnFlag=1', '13', '1', '1501', '31', '');
 INSERT INTO `t_center_oamenuitem` VALUES ('1342', '采购退货-生产采购经理', '../sail/out.do?method=queryBuy&load=1&menu=1&queryType=1&buyReturnFlag=1', '13', '1', '1502', '32', '');
-INSERT INTO `t_center_oamenuitem` VALUES ('1343', '采购退货-分管副总裁', '../sail/out.do?method=queryBuy&load=1&menu=1&queryType=2&buyReturnFlag=1', '13', '1', '1503', '33', '');
-INSERT INTO `t_center_oamenuitem` VALUES ('1344', '采购退货-财务总监', '../sail/out.do?method=queryBuy&load=1&menu=1&queryType=3&buyReturnFlag=1', '13', '1', '1504', '34', '');
+INSERT INTO `t_center_oamenuitem` VALUES ('1343', '采购退货-运营总监', '../sail/out.do?method=queryBuy&load=1&menu=1&queryType=2&buyReturnFlag=1', '13', '1', '1503', '33', '');
+INSERT INTO `t_center_oamenuitem` VALUES ('1344', '采购退货-分管副总裁', '../sail/out.do?method=queryBuy&load=1&menu=1&queryType=3&buyReturnFlag=1', '13', '1', '1504', '34', '');

@@ -2618,7 +2618,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     {
         _logger.info(outBean+"******processBuyBaseList with out "+baseList);
         // 入库单提交后就直接移动库存了,销售需要在库管通过后生成发货单前才会变动库存
-        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+        //未入库退货不扣减库存
+        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+         || (outBean.getBuyReturnFlag() == 1 && outBean.getBuyReturnType() == 2))
         {
             return;
         }
@@ -2655,6 +2657,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 wrap.setType(type);
                 wrap.setRefId(outBean.getFullId());
                 wrap.setInputRate(element.getInputRate());
+                
+                
 
                 storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
             }
@@ -3711,6 +3715,105 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 && newNextStatus == OutConstant.STATUS_PASS){
                             outDAO.updateFlowTime(outBean.getFullId(), TimeTools.now());
                         }
+
+                        return Boolean.TRUE;
+                    }
+                });
+            }
+            catch (TransactionException e)
+            {
+                _logger.error(e, e);
+                throw new MYException("数据库内部错误");
+            }
+            catch (DataAccessException e)
+            {
+                _logger.error(e, e);
+                throw new MYException("数据库内部错误");
+            }
+            catch (Exception e)
+            {
+                _logger.error(e, e);
+                throw new MYException("处理异常:" + e.getMessage());
+            }
+        }
+
+        // 更新后的状态
+        return outBean.getStatus();
+
+    }
+    
+    /**
+     * CORE 采购退货审核通过
+     * 
+     * @param fullId
+     * @param user
+     * @param depotpartId
+     *            废弃
+     * @return
+     * @throws Exception
+     */
+    public int passBuyReturn(final String fullId, final User user, final int nextStatus,
+                    final String reason, final String customerDescription, final String depotpartId)
+        throws MYException
+    {
+        final OutBean outBean = outDAO.find(fullId);
+
+        _logger.info(outBean+"***passBuyReturn to nextStatus"+nextStatus);
+        checkPass(outBean);
+        final int oldStatus = outBean.getStatus();
+
+        synchronized (PublicLock.PRODUCT_CORE)
+        {
+            // 入库操作在数据库事务中完成
+            TransactionTemplate tran = new TransactionTemplate(transactionManager);
+            try
+            {
+                tran.execute(new TransactionCallback()
+                {
+                    public Object doInTransaction(TransactionStatus arg0)
+                    {
+                        int newNextStatus = nextStatus;
+
+                        String stafferName = "票随货发Job";
+                        if (user != null){
+                            stafferName = user.getStafferName();
+                        }
+
+                        _logger.debug("before "+outBean.getFullId() + ":" + stafferName + ":"
+                                + newNextStatus + ":redirectFrom:" + oldStatus);
+
+
+                        // 修改状态
+                        outDAO.modifyOutStatus(outBean.getFullId(), newNextStatus);
+
+                        handerPassBuy(fullId, user, outBean, newNextStatus);
+                        
+                        addOutLog(fullId, user, outBean, reason, SailConstant.OPR_OUT_PASS,
+                                newNextStatus);
+
+
+                        // 把状态放到最新的out里面
+                        outBean.setStatus(newNextStatus);
+                        
+                        _logger.debug("after "+outBean.getFullId() + ":" + stafferName + ", newNextStatus:"
+                                + newNextStatus + ", oldStatus:" + oldStatus);
+
+                        // OSGI 监听实现
+                        Collection<OutListener> listenerMapValues = listenerMapValues();
+
+                        for (OutListener listener : listenerMapValues)
+                        {
+                            try
+                            {
+                                listener.onPass(user, outBean);
+                            }
+                            catch (MYException e)
+                            {
+                                throw new RuntimeException(e.getErrorContent(), e);
+                            }
+                        }
+
+                        notifyOut(outBean, user, 0);
 
                         return Boolean.TRUE;
                     }

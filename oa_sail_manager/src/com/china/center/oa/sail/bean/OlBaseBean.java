@@ -78,7 +78,10 @@ public class OlBaseBean implements Serializable
 
     private String depotpart = "";
 
-
+    /**
+     * #779
+     */
+    private double settlePrice = 0.0d;
 
     /**
      * default constructor
@@ -237,6 +240,14 @@ public class OlBaseBean implements Serializable
 
     public void setDepotpart(String depotpart) {
         this.depotpart = depotpart;
+    }
+
+    public double getSettlePrice() {
+        return settlePrice;
+    }
+
+    public void setSettlePrice(double settlePrice) {
+        this.settlePrice = settlePrice;
     }
 
     @Override

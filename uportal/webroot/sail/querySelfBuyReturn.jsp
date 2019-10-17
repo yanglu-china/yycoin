@@ -300,7 +300,6 @@ function load()
 						<td width="15%" align="center">入库类型</td>
 						<td align="center">
 						采购退货
-						<input name="outType" type="hidden" value="1">
 
 						</td>
 						<td width="15%" align="center">入库单号</td>

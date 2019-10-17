@@ -233,6 +233,22 @@ public interface OutManager extends ListenerManager<OutListener>
              final String customerDescription,
              final String depotpartId)
         throws MYException;
+    
+    /**
+     * pass
+     * 
+     * @param fullId
+     * @param user
+     * @param nextStatus
+     * @param reason
+     * @param depotpartId
+     * @return 修改后的单据状态
+     * @throws MYException
+     */
+    int passBuyReturn(final String fullId, final User user, final int nextStatus, final String reason,
+             final String customerDescription,
+             final String depotpartId)
+        throws MYException;
 
     /**
      * #593 自动通过赠送单

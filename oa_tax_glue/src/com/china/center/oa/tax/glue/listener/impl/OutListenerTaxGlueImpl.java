@@ -253,6 +253,7 @@ public class OutListenerTaxGlueImpl implements OutListener
     public void onConfirmOutOrBuy(User user, OutBean outBean)
         throws MYException
     {
+    	_logger.debug("onConfirmOutOrBuy......");
         // 销售处理
         if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
         {
@@ -366,8 +367,20 @@ public class OutListenerTaxGlueImpl implements OutListener
             if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
                 && outBean.getOutType() == OutConstant.OUTTYPE_IN_STOCK)
             {
-                // 库存商品/应付账款-供应商（负数）
-                processBuyStockBack(user, outBean);
+
+            	_logger.debug("outBean.getBuyReturnFlag():"+outBean.getBuyReturnFlag()+", outBean.getStatus():"+outBean.getStatus());
+                //采购退货，提交时不生成凭证，审核最后通过生成
+                if(outBean.getBuyReturnFlag() == 1){
+                	if(outBean.getStatus() == OutConstant.BUY_RETURN_STATUS_PASS){
+                        // 库存商品/应付账款-供应商（负数）
+                        processBuyStockBack(user, outBean);
+                        _logger.debug("生成采购退货凭证");
+                	}
+                	
+                }else{
+                    // 库存商品/应付账款-供应商（负数）
+                    processBuyStockBack(user, outBean);
+                }
 
                 return;
             }
@@ -667,10 +680,13 @@ public class OutListenerTaxGlueImpl implements OutListener
     private void processBuyStockBack(User user, OutBean outBean)
         throws MYException
     {
+        
         // 库存商品/应付账款-供应商（负数）
         FinanceBean financeBean = new FinanceBean();
 
         String name = "入库单-采购退货:" + outBean.getFullId() + '.';
+        
+        _logger.debug("采购退货, 成凭证..."+name);
 
         financeBean.setName(name);
 
@@ -692,7 +708,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
 
-        // 库存商品/应付账款-供应商（负数）
+        // 库存商品/应付账款-供应商（负数） 凭证
         createBuyStockBack(user, outBean, financeBean, itemList);
 
         financeBean.setItemList(itemList);

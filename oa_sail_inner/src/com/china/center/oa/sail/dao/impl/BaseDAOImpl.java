@@ -184,10 +184,9 @@ public class BaseDAOImpl extends com.china.center.jdbc.inter.impl.BaseDAO<BaseBe
     }
     
     public List<Map> queryBaseByStockId(String stockId)
-    throws MYException
     {
     	StringBuffer buffer = new StringBuffer();
-    	buffer.append(" SELECT a.*,b.buyReturnType buyReturnType, b.status outStatus FROM t_center_base a");
+    	buffer.append(" SELECT a.*,b.buyReturnType buyReturnType, b.status outStatus, b.customerId customerId FROM t_center_base a");
     	buffer.append(" LEFT JOIN t_center_out b on b.fullId=a.outId");
     	buffer.append(" WHERE b.refOutFullId='"+stockId+"'");
     	
@@ -198,4 +197,14 @@ public class BaseDAOImpl extends com.china.center.jdbc.inter.impl.BaseDAO<BaseBe
         }
         return null;
     }
+    
+	public List<BaseBean> queryBaseBeanByStockId(String stockId)
+	{
+    	StringBuffer buffer = new StringBuffer();
+    	buffer.append(" SELECT a.*,b.buyReturnType buyReturnType, b.status outStatus FROM t_center_base a");
+    	buffer.append(" LEFT JOIN t_center_out b on b.fullId=a.outId");
+    	buffer.append(" WHERE b.refOutFullId=?");
+		
+		return this.jdbcOperation.queryForListBySql(buffer.toString(), claz, stockId);
+	}
 }
