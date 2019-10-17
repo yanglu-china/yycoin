@@ -46,7 +46,7 @@
             <type>select</type>
             <option>$productStep</option>
         </condtion>
-		<condtion name="description" caption="描述">
+		<condtion name="description" caption="备注">
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
@@ -555,7 +555,7 @@
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
-		<condtion name="description" caption="描述">
+		<condtion name="description" caption="备注">
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
