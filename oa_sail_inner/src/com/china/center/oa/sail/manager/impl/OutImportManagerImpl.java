@@ -3883,7 +3883,7 @@ public class OutImportManagerImpl implements OutImportManager
 						baseBean.setOwnerName("公共");
 
 						//#779 settleprice字段有值，则写入BASE表中的pprice和iprice中，如果settleprice字段没有值，按原来的结算价取值逻辑取值
-						if (olBaseBean.getSettlePrice() >0){
+						if (Math.abs(olBaseBean.getSettlePrice()) >0){
 							baseBean.setPprice(olBaseBean.getSettlePrice());
 							baseBean.setIprice(olBaseBean.getSettlePrice());
 							baseBean.setInputPrice(olBaseBean.getSettlePrice());
