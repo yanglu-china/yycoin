@@ -61,6 +61,7 @@ import com.china.center.oa.tax.constanst.TaxConstanst;
 import com.china.center.oa.tax.constanst.TaxItemConstanst;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.oa.tax.dao.TaxDAO;
+import com.china.center.oa.sail.dao.PreConsignDAO;
 import com.china.center.oa.tax.glue.listener.impl.OutListenerTaxGlueImpl;
 import com.china.center.oa.tax.helper.FinanceHelper;
 import com.china.center.oa.tax.manager.FinanceManager;
@@ -98,6 +99,8 @@ public class OutAction extends ParentOutAction
     private TaxDAO taxDAO = null;
     
     private StockItemDAO stockItemDAO = null;
+    
+    private PreConsignDAO preConsignDAO = null;
     
     private FinanceManager financeManager = null;
     
@@ -2245,12 +2248,25 @@ public class OutAction extends ParentOutAction
                     //采购退货审核通过，生成凭证
                     if(realOut.getBuyReturnFlag() == 1 && realOut.getStatus() == OutConstant.BUY_RETURN_STATUS_PASS){
                     	_logger.debug("生成凭证...");
+                    	final OutBean outBean = outDAO.find(realOut.getFullId());
+                    	
                         try{
-                        	final OutBean outBean = outDAO.find(realOut.getFullId());
+                        	
                             this.generateTicket(user, outBean);
                         }catch(Exception ex){
                             _logger.error("生成凭证错误", ex);
                         }
+                        
+                        //生成CK单
+                        if(outBean.getBuyReturnType() == 1){
+                            PreConsignBean preConsign = new PreConsignBean();
+
+                            preConsign.setOutId(outBean.getFullId());
+
+                            preConsignDAO.saveEntityBean(preConsign);
+                            this.logPreconsign(preConsign);
+                        }                                            
+
                     }
                     
                 }
@@ -2281,6 +2297,11 @@ public class OutAction extends ParentOutAction
                 _logger.info("modifyOutStatus cost:" + (end - begin));
             }
         }
+    }
+    
+    private void logPreconsign(PreConsignBean preConsignBean){
+        String message = String.format("生成preconsign表:%s", preConsignBean.getOutId());
+        _logger.info(message);
     }
 
     /**
@@ -7846,6 +7867,14 @@ public class OutAction extends ParentOutAction
 
 	public void setStockItemDAO(StockItemDAO stockItemDAO) {
 		this.stockItemDAO = stockItemDAO;
+	}
+
+	public PreConsignDAO getPreConsignDAO() {
+		return preConsignDAO;
+	}
+
+	public void setPreConsignDAO(PreConsignDAO preConsignDAO) {
+		this.preConsignDAO = preConsignDAO;
 	}
 
 	public FinanceManager getFinanceManager() {
