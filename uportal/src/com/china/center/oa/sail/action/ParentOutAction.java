@@ -4703,7 +4703,9 @@ public class ParentOutAction extends DispatchAction
 		// 计算出已经退货的数量(这里是根据产品的总量进行统计的哦)
 		for (BaseBean baseBean : baseList)
 		{
-			int hasBack = 0;
+//			int hasBack = 0;
+			//#797
+			int hasBack = this.outDAO.sumHasBack2(baseBean.getOutId(), baseBean.getProductName());
 
 			for (OutBean ref : refBuyList)
 			{

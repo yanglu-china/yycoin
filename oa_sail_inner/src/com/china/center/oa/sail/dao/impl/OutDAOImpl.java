@@ -661,6 +661,24 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         return (Integer)count;
     }
 
+    @Override
+    public Integer sumHasBack2(String fullId, String productName) {
+        Map<String, String> paramterMap = new HashMap();
+
+        paramterMap.put("fullId", fullId);
+        paramterMap.put("productName", productName);
+
+        Object count = getIbatisDaoSupport().queryForObject(
+                "OutDAO.sumHasBack2", paramterMap);
+
+        if (count == null)
+        {
+            return 0;
+        }
+
+        return (Integer)count;
+    }
+
     public List<BaseBean> queryInwayOut()
     {
         String sql = "select t1.* from t_center_base t1, t_center_out t2 "

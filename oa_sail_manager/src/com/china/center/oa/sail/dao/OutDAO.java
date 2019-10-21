@@ -224,6 +224,14 @@ public interface OutDAO extends DAO<OutBean, OutVO>
             String ower);
 
     Integer sumNotEndProductInCompose(String productId, String depotpartId, double price);
+
+    /**
+     * #797
+     * @param fullId
+     * @param productName
+     * @return
+     */
+    Integer sumHasBack2(String fullId, String productName);
     
     /**
      * 统计一个产品在系统的入库单在途的数量

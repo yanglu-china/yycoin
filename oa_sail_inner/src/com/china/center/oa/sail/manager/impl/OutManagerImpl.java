@@ -8147,8 +8147,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         // 计算出已经退货的数量
         for (BaseBean baseBean : baseList)
         {
-            int hasBack = 0;
-
+//            int hasBack = 0;
+            int hasBack = this.outDAO.sumHasBack2(baseBean.getOutId(), baseBean.getProductName());
             // 退库
             for (OutBean ref : refBuyList)
             {
