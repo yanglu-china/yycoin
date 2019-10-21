@@ -1,0 +1,1 @@
+update t_center_tcpflow set reject=1 where flowKey='travel-ib-apply' and currentStatus=22;
