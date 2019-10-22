@@ -9713,9 +9713,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             throw new MYException("单据不存在,请确认操作");
         } else if (out.getInvoiceStatus() != 0){
             throw new MYException("开票状态必须为未开票");
-        } else if (out.getStatus() == OutConstant.STATUS_SEC_PASS){
-            throw new MYException("销售单状态已发货,不能操作");
+        } else if (out.getStatus() != OutConstant.STATUS_SUBMIT){
+            throw new MYException("销售单状态必须为待商务审批");
         }
+/*        else if (out.getStatus() == OutConstant.STATUS_SEC_PASS){
+            throw new MYException("销售单状态已发货,不能操作");
+        }*/
 
         // Core 一退一销，脏数据利用，安全性
         processBlankBuyAndOut(null, out, user, reason);
