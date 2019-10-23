@@ -289,4 +289,15 @@
         ]]>
     </select>
 
+    <!--#797 退货校验-->
+    <select id="sumHasBack2" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+        <![CDATA[
+        select sum(b.outamount) from t_center_outback a left join
+        t_center_outback_product b on a.transportNo = b.transportno
+        where a.status in ('1','2','3','4','6') and (b.complete is null or LENGTH(b.complete) = 0)
+        and b.fullid =#fullId#
+        and b.productname = #productName#
+        ]]>
+    </select>
+
 </sqlMap>

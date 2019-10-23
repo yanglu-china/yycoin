@@ -1333,7 +1333,7 @@ function clears()
 			<input type="button" name="bu2"
 	                class="button_class" value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;"
 	                onclick="reject()" />&nbsp;&nbsp;
-			<c:if test="${queryType == '2' || queryType == '4'}">
+			<c:if test="${queryType == '2'}">
 				<input type="button" name="bu_pridist"
 					   class="button_class" value="&nbsp;&nbsp;空出空进&nbsp;&nbsp;"
 					   onclick="kckj()" />&nbsp;&nbsp;
