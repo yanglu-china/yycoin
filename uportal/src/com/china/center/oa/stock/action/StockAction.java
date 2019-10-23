@@ -4060,22 +4060,30 @@ public class StockAction extends DispatchAction
                 //获取累计退货数量
                 List<Map> bases = baseDAO.queryBaseByStockId(stockId);
 
-                int totalReturn = 0;
+                int totalReturn1 = 0; //已入库退货总数
+                int totalReturn2 = 0; //未入库退货总数
                 for(Map base: bases){
                     String productId1 = (String)base.get("productId");
                     String providerId1 = (String)base.get("customerId");
                     int amount1 = this.getIntFromObj(base.get("amount"));
                     if(productId1.equals(productId) && providerId1.equals(customerId)){
-                        totalReturn += amount1;
+                    	String returnType = (String)base.get("buyReturnType");
+                    	if("1".equals(returnType)){
+                    		totalReturn1 += amount1;
+                    	}else{
+                    		totalReturn2 += amount1;
+                    	}
+                        
                     }
                 }
 
                 //比较
-                int total = Math.abs(totalReturn + amount);
-                _logger.debug("产品编号："+productId+", 供应商:"+customerId
-                        +",累计退货："+total+", 已拿货："+gotAmount+", 采购数量："+buyAmount+", backType:"+backType);
+
                 if(backType==1){
                     //已入库退货 上限为已拿货数量
+                    int total = Math.abs(totalReturn1 + amount);
+                    _logger.debug("产品编号："+productId+", 供应商:"+customerId
+                            +",累计已入库退货："+total+", 已拿货："+gotAmount+", 采购数量："+buyAmount+", backType:"+backType);
 
                     if(total > gotAmount){
                         request.setAttribute(KeyConstant.ERROR_MESSAGE,
@@ -4083,6 +4091,9 @@ public class StockAction extends DispatchAction
                         return mapping.findForward("error");
                     }
                 }else {
+                    int total = Math.abs(totalReturn2 + amount);
+                    _logger.debug("产品编号："+productId+", 供应商:"+customerId
+                            +",累计未入库退货："+total+", 已拿货："+gotAmount+", 采购数量："+buyAmount+", backType:"+backType);
                     //未入库退货 上限为未拿货数量
                     if (total > (buyAmount - gotAmount)) {
                         request.setAttribute(KeyConstant.ERROR_MESSAGE,

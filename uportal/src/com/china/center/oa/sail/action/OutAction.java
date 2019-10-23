@@ -2510,7 +2510,10 @@ public class OutAction extends ParentOutAction
                 FinanceHelper.copyTax(outTax, itemInEach);
 
                 // 库存商品减少(baseBean.getAmount()是负数)
-                outMoney = baseBean.getAmount() * (storagePrice-stockPrice);
+                //outMoney = baseBean.getAmount() * (storagePrice-stockPrice);
+                outMoney = baseBean.getAmount() * (stockPrice - storagePrice);
+                
+                _logger.debug("stockPrice:"+stockPrice+", storagePrice:"+storagePrice+",amount:"+baseBean.getAmount()+",outMoney:"+outMoney);
                 
                 additional += outMoney;
 
@@ -2561,7 +2564,7 @@ public class OutAction extends ParentOutAction
         FinanceHelper.copyTax(outTax, itemOut1);
 
         // 应付账款-供应商（负数）
-        double outMoney = getOutCost(outBean) + additional;
+        double outMoney = getOutCost(outBean) - additional;
 
         itemOut1.setInmoney(0);
 
