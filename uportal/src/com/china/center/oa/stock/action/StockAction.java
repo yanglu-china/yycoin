@@ -2516,24 +2516,32 @@ public class StockAction extends DispatchAction
         	List<Map> tempList = baseDAO.queryBaseByStockId(id);
 
         	_logger.debug("stockid:"+id+", tempList.size():"+tempList.size());
+        	
+            List<StockItemVO> stockItemVOs = vo.getItemVO();
+            
+            Map<String, String> providerMap = new HashMap<String, String>();
+            Map<String, String> dutyMap = new HashMap<String, String>();
+            Map<String, String> invoiceMap = new HashMap<String, String>();
+
+            for(StockItemVO stockItemVO : stockItemVOs){
+            	providerMap.put(stockItemVO.getProviderId(), stockItemVO.getProviderName());
+            	dutyMap.put(stockItemVO.getDutyId(), stockItemVO.getDutyName());
+            	invoiceMap.put(stockItemVO.getInvoiceType(), stockItemVO.getInvoiceTypeName());
+
+            }
+        	
             //获取相关信息
             for (Map baseItem:tempList){
-                String productId = (String)baseItem.get("productId");
-
-                List<StockItemVO> stockItemVOs = vo.getItemVO();
-
-                _logger.debug("productId:"+productId+", stockItemVOs.size():"+stockItemVOs.size());
-                for(StockItemVO stockItemVO : stockItemVOs){
-                    if(stockItemVO.getProductId().equals(productId)){
-                        baseItem.put("provider", stockItemVO.getProviderName());
-                        baseItem.put("providerId",stockItemVO.getProviderId());
-                        baseItem.put("duty",stockItemVO.getDutyName());
-                        baseItem.put("dutyId",stockItemVO.getDutyId());
-                        baseItem.put("invoiceType",stockItemVO.getInvoiceTypeName());
-                        baseItem.put("invoiceId",stockItemVO.getInvoiceType());
-                        break;
-                    }
-                }
+            	String providerId = (String)baseItem.get("providerId");
+            	String dutyId = (String)baseItem.get("dutyId");
+            	String invoiceId = (String)baseItem.get("invoiceId");
+                
+                baseItem.put("provider", providerMap.get(providerId));
+                //baseItem.put("providerId",stockItemVO.getProviderId());
+                baseItem.put("duty",providerMap.get(dutyId));
+                //baseItem.put("dutyId",stockItemVO.getDutyId());
+                baseItem.put("invoiceType",providerMap.get(invoiceId));
+                //baseItem.put("invoiceId",stockItemVO.getInvoiceType());
             }
             baseList.addAll(tempList);
         }catch(Exception ex){

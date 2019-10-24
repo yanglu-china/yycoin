@@ -2564,7 +2564,7 @@ public class OutAction extends ParentOutAction
         FinanceHelper.copyTax(outTax, itemOut1);
 
         // 应付账款-供应商（负数）
-        double outMoney = getOutCost(outBean) + additional;
+        double outMoney = getOutCost(outBean) - additional;
 
         itemOut1.setInmoney(0);
 
