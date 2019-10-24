@@ -2529,18 +2529,24 @@ public class StockAction extends DispatchAction
             	invoiceMap.put(stockItemVO.getInvoiceType(), stockItemVO.getInvoiceTypeName());
 
             }
+            
+            _logger.debug(providerMap);
+            _logger.debug(dutyMap);
+            _logger.debug(invoiceMap);
         	
             //获取相关信息
             for (Map baseItem:tempList){
             	String providerId = (String)baseItem.get("providerId");
             	String dutyId = (String)baseItem.get("dutyId");
             	String invoiceId = (String)baseItem.get("invoiceId");
+
+                _logger.debug("providerId:"+providerId+", dutyId:"+dutyId+", invoiceId:"+invoiceId);
                 
                 baseItem.put("provider", providerMap.get(providerId));
                 //baseItem.put("providerId",stockItemVO.getProviderId());
-                baseItem.put("duty",providerMap.get(dutyId));
+                baseItem.put("duty",dutyMap.get(dutyId));
                 //baseItem.put("dutyId",stockItemVO.getDutyId());
-                baseItem.put("invoiceType",providerMap.get(invoiceId));
+                baseItem.put("invoiceType",invoiceMap.get(invoiceId));
                 //baseItem.put("invoiceId",stockItemVO.getInvoiceType());
             }
             baseList.addAll(tempList);
