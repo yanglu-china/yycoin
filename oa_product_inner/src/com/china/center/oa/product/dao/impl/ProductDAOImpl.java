@@ -15,8 +15,10 @@ import com.china.center.jdbc.annosql.tools.BeanTools;
 import com.china.center.jdbc.inter.impl.BaseDAO;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.TwthProductBean;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.vo.ProductVO;
+import com.china.center.tools.ListTools;
 
 
 /**
@@ -64,5 +66,17 @@ public class ProductDAOImpl extends BaseDAO<ProductBean, ProductVO> implements P
         String sql = "select product.* from t_center_product product left join t_center_productbom bom on product.id=bom.subProductId where productId="+s;
 
         return this.jdbcOperation.queryForListBySql(sql, claz);
+    }
+
+    @Override
+    public TwthProductBean queryTwProduct(String productId) {
+        String sql = "select * from t_center_twthproduct  where productId="+productId;
+
+        List<TwthProductBean> list = this.jdbcOperation.queryForListBySql(sql, TwthProductBean.class);
+        if (ListTools.isEmptyOrNull(list)){
+            return null;
+        } else{
+            return list.get(0);
+        }
     }
 }

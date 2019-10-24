@@ -16,10 +16,10 @@ public interface OutImportManager
 	String addPufaBean(List<OutImportBean> list)
 	throws MYException;
 	
-	boolean process(List<OutImportBean> list)
+	boolean process(List<? extends OutImportBean> list)
 		throws MYException;
 	
-	boolean processAsyn(List<OutImportBean> list);
+	boolean processAsyn(List<? extends OutImportBean> list);
 	
 	List<ReplenishmentBean> queryReplenishmentBean() throws MYException;
 	
@@ -90,4 +90,9 @@ public interface OutImportManager
      * #283 线下入库单
      */
     void offlineStorageInJob();
+
+	/**
+	 * #798 同步生成体外销售订单
+	 */
+	void twOrderJob();
 }

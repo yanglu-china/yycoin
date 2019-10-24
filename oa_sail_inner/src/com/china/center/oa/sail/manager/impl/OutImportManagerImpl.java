@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import com.china.center.oa.client.vo.CustomerVO;
-import com.china.center.oa.product.bean.ProductImportBean;
+import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.helper.StorageRelationHelper;
@@ -40,9 +40,6 @@ import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vo.AddressVO;
 import com.china.center.oa.client.vo.StafferVSCustomerVO;
-import com.china.center.oa.product.bean.DepotpartBean;
-import com.china.center.oa.product.bean.PriceConfigBean;
-import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
@@ -72,6 +69,8 @@ public class OutImportManagerImpl implements OutImportManager
 	private CommonDAO commonDAO = null;
 	
 	private OutImportDAO outImportDAO = null;
+
+	private TwOutImportDAO twOutImportDAO = null;
 	
 	private StorageRelationDAO storageRelationDAO = null;
 	
@@ -199,6 +198,10 @@ public class OutImportManagerImpl implements OutImportManager
             }
 
             outImportDAO.saveAllEntityBeans(list);
+
+            _logger.info("****list****"+list);
+			//#798 写入体外临时表
+			this.saveTwOutImportBeans(list);
         }catch(Exception e){
             e.printStackTrace();
             _logger.error("Fail to import out:",e);
@@ -208,6 +211,39 @@ public class OutImportManagerImpl implements OutImportManager
         //delHisData();
         
 		return id;
+	}
+
+	private void saveTwOutImportBeans(List<OutImportBean> list){
+		String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+		if (AppConstant.APP_NAME.equals(appName)){
+			List<TwOutImportBean> twOutImportBeans = new ArrayList<>();
+			String id = commonDAO.getSquenceString20();
+			for (OutImportBean outImportBean : list){
+				TwthProductBean twthProductBean  = this.productDAO.queryTwProduct(outImportBean.getProductId());
+				if (twthProductBean!= null){
+					_logger.info("***find twthProduct****"+twthProductBean);
+					TwOutImportBean twOutImportBean = new TwOutImportBean();
+					BeanUtil.copyProperties(twOutImportBean, outImportBean);
+
+					twOutImportBean.setBatchId(id);
+					twOutImportBean.setPrice(twthProductBean.getTwPrice());
+					String twProductId = twthProductBean.getTwProductId();
+					ProductBean productBean = this.productDAO.find(twProductId);
+					if (productBean == null){
+						_logger.error("product id not exist***"+twProductId);
+					} else{
+						twOutImportBean.setProductId(twProductId);
+						twOutImportBean.setProductName(productBean.getName());
+						_logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
+						twOutImportBeans.add(twOutImportBean);
+					}
+				}
+			}
+
+			if (!ListTools.isEmptyOrNull(twOutImportBeans)){
+				this.twOutImportDAO.saveAllEntityBeans(twOutImportBeans);
+			}
+		}
 	}
 	
 	@Transactional(rollbackFor = MYException.class)
@@ -246,7 +282,7 @@ public class OutImportManagerImpl implements OutImportManager
 	 * 
 	 * {@inheritDoc}
 	 */
-	public boolean process(final List<OutImportBean> list)
+	public boolean process(final List<? extends OutImportBean> list)
 			throws MYException
 	{
 		JudgeTools.judgeParameterIsNull(list);
@@ -390,7 +426,7 @@ public class OutImportManagerImpl implements OutImportManager
 	 * 方法体事务，unChecked 异常，有异常抛出RuntimeException
 	 * 
 	 */
-	private void processInner(List<OutImportBean> list)
+	private void processInner(List<? extends OutImportBean> list)
 	{
 		String batchId = list.get(0).getBatchId();
 		
@@ -398,8 +434,9 @@ public class OutImportManagerImpl implements OutImportManager
 		
 		if (!ListTools.isEmptyOrNull(list))
 		{
+			OutImportBean first = list.get(0);
 			// 去掉处理中与成功处理的数据
-			if (list.get(0).getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
+			if (first.getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
 			{
                 String msg = "已处理过的接口数据，不可再生成OA库单。";
                 _logger.error(msg);
@@ -500,8 +537,9 @@ public class OutImportManagerImpl implements OutImportManager
 					throw new RuntimeException("数据被重复处理，请确认");
 				}
 			}
-			
+
 			outImportDAO.updateAllEntityBeans(uList);
+			//TODO
 			
 			saveLogInnerWithoutTransaction(list.get(0), OutImportConstant.LOGSTATUS_SUCCESSFULL, "成功");
 		}
@@ -1739,7 +1777,7 @@ public class OutImportManagerImpl implements OutImportManager
 	 * 异步处理
 	 * {@inheritDoc}
 	 */
-	public boolean processAsyn(List<OutImportBean> list)
+	public boolean processAsyn(List<? extends OutImportBean> list)
 	{
 		ProcessBeanThread thread = new ProcessBeanThread(list);
 		
@@ -1757,14 +1795,14 @@ public class OutImportManagerImpl implements OutImportManager
 	
 	class ProcessBeanThread extends Thread
 	{
-		private List<OutImportBean> list;
+		private List<? extends OutImportBean> list;
 		
-		public ProcessBeanThread(List<OutImportBean> list)
+		public ProcessBeanThread(List<? extends OutImportBean> list)
 		{
 			this.list = list;
 		}
 
-		public List<OutImportBean> getList()
+		public List<? extends OutImportBean> getList()
 		{
 			return list;
 		}
@@ -3554,7 +3592,25 @@ public class OutImportManagerImpl implements OutImportManager
 		return result;
 	}
 
-    @Override
+	@Override
+	@Transactional(rollbackFor = MYException.class)
+	public void twOrderJob() {
+		_logger.info("*****twOrderJob 1111");
+		String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+		if (AppConstant.APP_NAME_TW.equals(appName)){
+			_logger.info("***twOrderJob running***");
+			ConditionParse conditionParse = new ConditionParse();
+			conditionParse.addCondition("status","=", 0);
+			List<TwOutImportBean> twOutImportBeans = this.twOutImportDAO.queryEntityBeansByCondition(conditionParse);
+			if (!ListTools.isEmptyOrNull(twOutImportBeans)){
+			    _logger.info("***TwOutImportBean size***"+twOutImportBeans.size());
+				this.processAsyn(twOutImportBeans);
+			}
+			_logger.info("***twOrderJob finished***");
+		}
+	}
+
+	@Override
     @Transactional(rollbackFor = MYException.class)
     public void offlineOrderJob() {
         //To change body of implemented methods use File | Settings | File Templates.
@@ -4938,5 +4994,9 @@ public void offlineStorageInJob() {
 
 	public void setLogDAO(LogDAO logDAO) {
 		this.logDAO = logDAO;
+	}
+
+	public void setTwOutImportDAO(TwOutImportDAO twOutImportDAO) {
+		this.twOutImportDAO = twOutImportDAO;
 	}
 }

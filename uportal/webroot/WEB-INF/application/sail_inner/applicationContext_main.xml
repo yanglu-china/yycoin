@@ -88,6 +88,8 @@
 
 	<bean id="outImportDAO" class="com.china.center.oa.sail.dao.impl.OutImportDAOImpl" />
 
+	<bean id="twOutImportDAO" class="com.china.center.oa.sail.dao.impl.TwOutImportDAOImpl" />
+
 	<bean id="citicOrderDAO" class="com.china.center.oa.sail.dao.impl.CiticOrderDAOImpl" />
 
     <bean id="zsOrderDAO" class="com.china.center.oa.sail.dao.impl.ZsOrderDAOImpl" />
