@@ -1729,17 +1729,19 @@ public class ProductAction extends DispatchAction
             conditionParse.addIntCondition("type","=", OutConstant.OUT_TYPE_INBILL);
             conditionParse.addIntCondition("outType","=", OutConstant.OUTTYPE_IN_MOVEOUT);
             conditionParse.addIntCondition("inway","=", OutConstant.IN_WAY);
-            List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
-            for(ComposeItemBean item: bean.getItemList()){
-                String dbOutId = this.isInway(item, outBeans);
-                if(dbOutId!= null){
-                    ProductBean productBean = this.productDAO.find(item.getProductId());
-                    _logger.error(dbOutId+"合成产品失败,调拨在途："+item);
-                    throw new MYException(String.format("调拨在途:%s 产品:%s",
-                            "<a href='../sail/out.do?method=findOut&radioIndex=0&fow=99&outId="+dbOutId+ "'>" + dbOutId + "</a>",
-                            productBean.getName()));
-                }
-            }
+//            List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
+            //#766 禁掉检查
+            //#367 检查在途调拨
+//            for(ComposeItemBean item: bean.getItemList()){
+//                String dbOutId = this.isInway(item, outBeans);
+//                if(dbOutId!= null){
+//                    ProductBean productBean = this.productDAO.find(item.getProductId());
+//                    _logger.error(dbOutId+"合成产品失败,调拨在途："+item);
+//                    throw new MYException(String.format("调拨在途:%s 产品:%s",
+//                            "<a href='../sail/out.do?method=findOut&radioIndex=0&fow=99&outId="+dbOutId+ "'>" + dbOutId + "</a>",
+//                            productBean.getName()));
+//                }
+//            }
             productFacade.addComposeProduct(user.getId(), bean);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功合成产品,合成后均价:"
