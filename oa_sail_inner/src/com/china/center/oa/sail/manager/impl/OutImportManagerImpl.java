@@ -526,21 +526,37 @@ public class OutImportManagerImpl implements OutImportManager
 					uList.add(eachOut);
 				}
 			}
-			
-			// 防止数据被重复处理，再次检查下状态
-			List<OutImportBean> reList = outImportDAO.queryEntityBeansByFK(batchId);
-			
-			for (OutImportBean each : reList)
-			{
-				if (each.getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
+
+			if (first instanceof TwOutImportBean){
+				// 防止数据被重复处理，再次检查下状态
+				List<TwOutImportBean> reList = twOutImportDAO.queryEntityBeansByFK(batchId);
+
+				for (TwOutImportBean each : reList)
 				{
-					throw new RuntimeException("数据被重复处理，请确认");
+					if (each.getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
+					{
+						throw new RuntimeException("数据被重复处理，请确认");
+					}
 				}
+
+				for(OutImportBean twOutImportBean: uList){
+					twOutImportDAO.updateEntityBean((TwOutImportBean)twOutImportBean);
+				}
+			} else{
+				// 防止数据被重复处理，再次检查下状态
+				List<OutImportBean> reList = outImportDAO.queryEntityBeansByFK(batchId);
+
+				for (OutImportBean each : reList)
+				{
+					if (each.getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
+					{
+						throw new RuntimeException("数据被重复处理，请确认");
+					}
+				}
+
+				outImportDAO.updateAllEntityBeans(uList);
 			}
 
-			outImportDAO.updateAllEntityBeans(uList);
-			//TODO
-			
 			saveLogInnerWithoutTransaction(list.get(0), OutImportConstant.LOGSTATUS_SUCCESSFULL, "成功");
 		}
 		
