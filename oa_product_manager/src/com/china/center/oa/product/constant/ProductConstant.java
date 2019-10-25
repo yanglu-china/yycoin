@@ -106,19 +106,19 @@ public interface ProductConstant
     /**
      * 虚拟产品
      */
-    @Defined(key = "productAbstractType", value = "虚拟产品")
+    @Defined(key = "productAbstractType", value = "XL产品")
     int ABSTRACT_TYPE_YES = 1;
 
     /**
      * 非虚料产品
      */
-    @Defined(key = "virtualFlag", value = "非虚料产品")
+    @Defined(key = "virtualFlag", value = "非XL产品")
     int VIRTUAL_NO = 0;
 
     /**
      * 虚料产品
      */
-    @Defined(key = "virtualFlag", value = "虚料产品")
+    @Defined(key = "virtualFlag", value = "XL产品")
     int VIRTUAL_YES = 1;
 
     /**
