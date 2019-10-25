@@ -115,10 +115,15 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
                     }
                 }
             } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                //manager
+                //manager -> sybmanager
+/*                result = jdbcOperation.queryObjectsBySql(
+                        "select id, managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);*/
+                
                 result = jdbcOperation.queryObjectsBySql(
-                        "select id,managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        "select id, sybmanagerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
                         .setMaxResults(600).list(BankBuLevelBean.class);
+                
                 if (result.size() == 1) {
                     return result.get(0).getManagerId();
                 } else {
@@ -177,10 +182,15 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
                     }
                 }
             } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                //manager
-                result = jdbcOperation.queryObjectsBySql(
+                //manager -> sybmanager
+/*                result = jdbcOperation.queryObjectsBySql(
                         "select id,managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);*/
+                
+                result = jdbcOperation.queryObjectsBySql(
+                        "select id,sybmanagerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
                         .setMaxResults(600).list(BankBuLevelBean.class);
+                
                 if (result.size() == 1) {
                     return result.get(0).getManagerId();
                 } else {
