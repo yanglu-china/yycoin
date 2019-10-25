@@ -623,7 +623,7 @@ function addTr1()
                         <td width="30%" align="center">产品</td>
                         <td width="5%" align="center">数量</td>
                         <td width="5%" align="center">成本</td>
-                        <td width="5%" align="center">虚料金额</td>
+                        <td width="5%" align="center">XL</td>
                         <td width="5%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr1()"></td>
                     </tr>

@@ -437,7 +437,7 @@ public class ProductBean implements Serializable, IdInterface
     /**
      * #440 虚料标识
      */
-    @Html(title = "是否为虚拟产品", type = Element.SELECT, must = true)
+    @Html(title = "XL", type = Element.SELECT, must = true)
     private int virtualFlag = ProductConstant.VIRTUAL_NO;
 
     @Ignore
