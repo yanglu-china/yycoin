@@ -134,6 +134,11 @@ public class TwOutImportBean extends OutImportBean
 	private String OANo = "";
 
 	/**
+	 * 关联体内的OA单号
+	 */
+	private String refTnFullId = "";
+
+	/**
 	 * 2015/12/21 宁波银行订单编号
 	 */
 	private String nbyhNo = "";
@@ -1117,6 +1122,14 @@ public class TwOutImportBean extends OutImportBean
 		this.gfdz = gfdz;
 	}
 
+	public String getRefTnFullId() {
+		return refTnFullId;
+	}
+
+	public void setRefTnFullId(String refTnFullId) {
+		this.refTnFullId = refTnFullId;
+	}
+
 	@Override
 	public String toString() {
 		return "TwOutImportBean{" +
@@ -1160,6 +1173,7 @@ public class TwOutImportBean extends OutImportBean
 				", result='" + result + '\'' +
 				", importFromMail=" + importFromMail +
 				", OANo='" + OANo + '\'' +
+				", refTnFullId='" + refTnFullId + '\'' +
 				", nbyhNo='" + nbyhNo + '\'' +
 				", reason='" + reason + '\'' +
 				", logTime='" + logTime + '\'' +

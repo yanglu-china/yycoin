@@ -200,8 +200,7 @@ public class OutImportManagerImpl implements OutImportManager
             outImportDAO.saveAllEntityBeans(list);
 
             _logger.info("****list****"+list);
-			//#798 写入体外临时表
-			this.saveTwOutImportBeans(list);
+
         }catch(Exception e){
             e.printStackTrace();
             _logger.error("Fail to import out:",e);
@@ -213,6 +212,7 @@ public class OutImportManagerImpl implements OutImportManager
 		return id;
 	}
 
+    //#798 写入体外临时表
 	private void saveTwOutImportBeans(List<OutImportBean> list){
 		String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
 		if (AppConstant.APP_NAME.equals(appName)){
@@ -226,6 +226,10 @@ public class OutImportManagerImpl implements OutImportManager
 					BeanUtil.copyProperties(twOutImportBean, outImportBean);
 
 					twOutImportBean.setBatchId(id);
+					twOutImportBean.setStatus(0);
+					//临时表中与体内OA单号相关联
+					twOutImportBean.setOANo("");
+					twOutImportBean.setRefTnFullId(outImportBean.getOANo());
 					twOutImportBean.setPrice(twthProductBean.getTwPrice());
 					String twProductId = twthProductBean.getTwProductId();
 					ProductBean productBean = this.productDAO.find(twProductId);
@@ -528,6 +532,7 @@ public class OutImportManagerImpl implements OutImportManager
 			}
 
 			if (first instanceof TwOutImportBean){
+			    //#798 体外系统执行
 				// 防止数据被重复处理，再次检查下状态
 				List<TwOutImportBean> reList = twOutImportDAO.queryEntityBeansByFK(batchId);
 
@@ -543,7 +548,7 @@ public class OutImportManagerImpl implements OutImportManager
 					twOutImportDAO.updateEntityBean((TwOutImportBean)twOutImportBean);
 				}
 			} else{
-				// 防止数据被重复处理，再次检查下状态
+				// 防止数据被重复处理，再次检查下状态(体内)
 				List<OutImportBean> reList = outImportDAO.queryEntityBeansByFK(batchId);
 
 				for (OutImportBean each : reList)
@@ -555,6 +560,9 @@ public class OutImportManagerImpl implements OutImportManager
 				}
 
 				outImportDAO.updateAllEntityBeans(uList);
+
+				//#798
+                this.saveTwOutImportBeans(uList);
 			}
 
 			saveLogInnerWithoutTransaction(list.get(0), OutImportConstant.LOGSTATUS_SUCCESSFULL, "成功");
@@ -648,6 +656,11 @@ public class OutImportManagerImpl implements OutImportManager
         newOutBean.setId(getOutId(id));
     	
     	newOutBean.setFullId(newOutId);
+
+    	//#798 关联体内订单
+    	if (bean instanceof TwOutImportBean){
+    	    newOutBean.setRefOutFullId(((TwOutImportBean)bean).getRefTnFullId());
+        }
     	
     	newOutBean.setOutTime(TimeTools.now_short());
     	
