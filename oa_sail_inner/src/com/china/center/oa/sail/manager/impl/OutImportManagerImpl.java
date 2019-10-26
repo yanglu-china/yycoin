@@ -219,29 +219,31 @@ public class OutImportManagerImpl implements OutImportManager
 			List<TwOutImportBean> twOutImportBeans = new ArrayList<>();
 			String id = commonDAO.getSquenceString20();
 			for (OutImportBean outImportBean : list){
-				TwthProductBean twthProductBean  = this.productDAO.queryTwProduct(outImportBean.getProductId());
-				if (twthProductBean!= null){
-					_logger.info("***find twthProduct****"+twthProductBean);
-					TwOutImportBean twOutImportBean = new TwOutImportBean();
-					BeanUtil.copyProperties(twOutImportBean, outImportBean);
+			    if (outImportBean.getComunicatonBranchName().contains("集邮")){
+                    TwthProductBean twthProductBean  = this.productDAO.queryTwProduct(outImportBean.getProductId());
+                    if (twthProductBean!= null){
+                        _logger.info("***find twthProduct****"+twthProductBean);
+                        TwOutImportBean twOutImportBean = new TwOutImportBean();
+                        BeanUtil.copyProperties(twOutImportBean, outImportBean);
 
-					twOutImportBean.setBatchId(id);
-					twOutImportBean.setStatus(0);
-					//临时表中与体内OA单号相关联
-					twOutImportBean.setOANo("");
-					twOutImportBean.setRefTnFullId(outImportBean.getOANo());
-					twOutImportBean.setPrice(twthProductBean.getTwPrice());
-					String twProductId = twthProductBean.getTwProductId();
-					ProductBean productBean = this.productDAO.find(twProductId);
-					if (productBean == null){
-						_logger.error("product id not exist***"+twProductId);
-					} else{
-						twOutImportBean.setProductId(twProductId);
-						twOutImportBean.setProductName(productBean.getName());
-						_logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
-						twOutImportBeans.add(twOutImportBean);
-					}
-				}
+                        twOutImportBean.setBatchId(id);
+                        twOutImportBean.setStatus(0);
+                        //临时表中与体内OA单号相关联
+                        twOutImportBean.setOANo("");
+                        twOutImportBean.setRefTnFullId(outImportBean.getOANo());
+                        twOutImportBean.setPrice(twthProductBean.getTwPrice());
+                        String twProductId = twthProductBean.getTwProductId();
+                        ProductBean productBean = this.productDAO.find(twProductId);
+                        if (productBean == null){
+                            _logger.error("product id not exist***"+twProductId);
+                        } else{
+                            twOutImportBean.setProductId(twProductId);
+                            twOutImportBean.setProductName(productBean.getName());
+                            _logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
+                            twOutImportBeans.add(twOutImportBean);
+                        }
+                    }
+                }
 			}
 
 			if (!ListTools.isEmptyOrNull(twOutImportBeans)){
