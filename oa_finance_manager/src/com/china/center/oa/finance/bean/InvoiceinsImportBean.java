@@ -197,6 +197,16 @@ public class InvoiceinsImportBean implements Serializable
 	private String gfdz = "";
 
 	/**
+	 * 规格型号
+	 */
+	private String fpgg = "";
+
+	/**
+	 * 计量单位
+	 */
+	private String fpdw = "";
+
+	/**
 	 * 
 	 */
 	public InvoiceinsImportBean()
@@ -671,6 +681,22 @@ public class InvoiceinsImportBean implements Serializable
 		this.gfdz = gfdz;
 	}
 
+	public String getFpgg() {
+		return fpgg;
+	}
+
+	public void setFpgg(String fpgg) {
+		this.fpgg = fpgg;
+	}
+
+	public String getFpdw() {
+		return fpdw;
+	}
+
+	public void setFpdw(String fpdw) {
+		this.fpdw = fpdw;
+	}
+
 	@Override
 	public String toString() {
 		return "InvoiceinsImportBean{" +
@@ -716,6 +742,8 @@ public class InvoiceinsImportBean implements Serializable
 				", gfsh='" + gfsh + '\'' +
 				", gfyh='" + gfyh + '\'' +
 				", gfdz='" + gfdz + '\'' +
+				", fpgg='" + fpgg + '\'' +
+				", fpdw='" + fpdw + '\'' +
 				'}';
 	}
 }

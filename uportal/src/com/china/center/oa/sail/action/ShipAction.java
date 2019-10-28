@@ -5948,13 +5948,22 @@ public class ShipAction extends DispatchAction
 
             //规格型号
             Element ggxh = doc.createElement("ggxh");
-            ggxh.appendChild(
-                    doc.createTextNode(""));
+            if (StringTools.isNullOrNone(bean.getFpgg())){
+                ggxh.appendChild(doc.createTextNode(""));
+            } else{
+                ggxh.appendChild(doc.createTextNode(bean.getFpgg()));
+            }
+
             details.appendChild(ggxh);
 
+            //计量单位
             Element jldw = doc.createElement("jldw");
-            jldw.appendChild(
-                    doc.createTextNode("套"));
+            if (StringTools.isNullOrNone(bean.getFpdw())){
+                jldw.appendChild(doc.createTextNode("套"));
+            } else{
+                jldw.appendChild(doc.createTextNode(bean.getFpdw()));
+            }
+
             details.appendChild(jldw);
 
             // 数量：invoiceins_item表中amount 字段合计

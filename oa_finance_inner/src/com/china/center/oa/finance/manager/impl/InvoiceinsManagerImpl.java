@@ -3259,6 +3259,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			bean.setGfsh(first.getGfsh());
 			bean.setGfyh(first.getGfyh());
 			bean.setGfdz(first.getGfdz());
+			bean.setFpgg(first.getFpgg());
+			bean.setFpdw(first.getFpdw());
 			bean.setZzsInfo(first.getZzsInfo());
 //            bean.setSpmc(first.getSpmc());
             //# 738
