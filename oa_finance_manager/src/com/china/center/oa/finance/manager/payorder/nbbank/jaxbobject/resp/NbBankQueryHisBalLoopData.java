@@ -1,8 +1,9 @@
 package com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.sun.xml.internal.txw2.annotation.XmlElement;
+//import com.sun.xml.internal.txw2.annotation.XmlElement;
 
 @XmlRootElement(name="row")
 public class NbBankQueryHisBalLoopData {
