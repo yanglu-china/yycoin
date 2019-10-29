@@ -5936,81 +5936,97 @@ public class ShipAction extends DispatchAction
             Element invdetails = doc.createElement("invdetails");
             rootElement.appendChild(invdetails);
 
-            // carname element
-            Element details = doc.createElement("details");
-            invdetails.appendChild(details);
-
-            //商品名称：Invoiceins 表的开票品名字段
-            Element spmc = doc.createElement("spmc");
-            spmc.appendChild(
-                    doc.createTextNode(bean.getSpmc()));
-            details.appendChild(spmc);
-
-            //规格型号
-            Element ggxh = doc.createElement("ggxh");
-            if (StringTools.isNullOrNone(bean.getFpgg())){
-                ggxh.appendChild(doc.createTextNode(""));
-            } else{
-                ggxh.appendChild(doc.createTextNode(bean.getFpgg()));
+            List<InvoiceinsItemBean> items = this.invoiceinsItemDAO.queryEntityBeansByFK(bean.getId());
+            Map<String, InvoiceinsItemBean> spmcToInvoice = new HashMap<>();
+            for (InvoiceinsItemBean item: items){
+                String spmc = item.getSpmc();
+                if(spmcToInvoice.containsKey(spmc)){
+                    InvoiceinsItemBean value = spmcToInvoice.get(spmc);
+                    value.setAmount(value.getAmount()+item.getAmount());
+                    value.setMoneys(value.getMoneys()+item.getMoneys());
+                } else{
+                    spmcToInvoice.put(spmc, item);
+                }
             }
 
-            details.appendChild(ggxh);
+            _logger.info("***spmcToInvoice***"+spmcToInvoice);
+            for (String key: spmcToInvoice.keySet()){
+                InvoiceinsItemBean value = spmcToInvoice.get(key);
+                // carname element
+                Element details = doc.createElement("details");
+                invdetails.appendChild(details);
 
-            //计量单位
-            Element jldw = doc.createElement("jldw");
-            if (StringTools.isNullOrNone(bean.getFpdw())){
-                jldw.appendChild(doc.createTextNode("套"));
-            } else{
-                jldw.appendChild(doc.createTextNode(bean.getFpdw()));
+                //商品名称：invoiceins_item 表的开票品名字段
+                Element spmc = doc.createElement("spmc");
+                spmc.appendChild(doc.createTextNode(value.getSpmc()));
+                details.appendChild(spmc);
+
+                //规格型号
+                Element ggxh = doc.createElement("ggxh");
+                if (StringTools.isNullOrNone(bean.getFpgg())){
+                    ggxh.appendChild(doc.createTextNode(""));
+                } else{
+                    ggxh.appendChild(doc.createTextNode(bean.getFpgg()));
+                }
+                details.appendChild(ggxh);
+
+                //计量单位
+                Element jldw = doc.createElement("jldw");
+                if (StringTools.isNullOrNone(bean.getFpdw())){
+                    jldw.appendChild(doc.createTextNode("套"));
+                } else{
+                    jldw.appendChild(doc.createTextNode(bean.getFpdw()));
+                }
+                details.appendChild(jldw);
+
+//                // 数量：invoiceins_item表中amount 字段合计
+//                int amount = this.getProductAmount(bean);
+                int amount = value.getAmount();
+                Element spsl = doc.createElement("spsl");
+                spsl.appendChild(
+                        doc.createTextNode(String.valueOf(amount)));
+                details.appendChild(spsl);
+
+                double moneys = value.getMoneys();
+                //单价： invoiceins_item表中price 字段值
+                //单价：取invoiceins_item相同spmc的总金额/数量
+                Element spdj = doc.createElement("spdj");
+                spdj.appendChild(doc.createTextNode(String.valueOf(this.roundDouble(moneys/amount))));
+                details.appendChild(spdj);
+
+                //金额
+                Element spje = doc.createElement("spje");
+                spje.appendChild(
+                        doc.createTextNode(String.valueOf(this.roundDouble(moneys))));
+                details.appendChild(spje);
+
+                // 总金额*VAL/100
+                // 含税税额：总金额*税率/(1+税率)
+                double sl = this.roundDouble((double)fpsl/100);
+                _logger.info(sl);
+                Element spse = doc.createElement("spse");
+                double se = this.roundDouble(moneys*sl/(1+sl));
+                _logger.info(se);
+                spse.appendChild(doc.createTextNode(String.valueOf(se)));
+                details.appendChild(spse);
+
+                //折扣金额
+                Element zkje = doc.createElement("zkje");
+                zkje.appendChild(
+                        doc.createTextNode(""));
+                details.appendChild(zkje);
+
+                //税收分类编码
+                Element flbm = doc.createElement("flbm");
+                flbm.appendChild(
+                        doc.createTextNode("106050299"));
+                details.appendChild(flbm);
+
+                //差额征税的扣除额
+                Element kcje = doc.createElement("kcje");
+                kcje.appendChild(doc.createTextNode(""));
+                details.appendChild(kcje);
             }
-
-            details.appendChild(jldw);
-
-            // 数量：invoiceins_item表中amount 字段合计
-            int amount = this.getProductAmount(bean);
-            Element spsl = doc.createElement("spsl");
-            spsl.appendChild(
-                    doc.createTextNode(String.valueOf(amount)));
-            details.appendChild(spsl);
-
-            //单价： invoiceins_item表中price 字段值
-            Element spdj = doc.createElement("spdj");
-            spdj.appendChild(
-                    doc.createTextNode(String.valueOf(this.roundDouble(bean.getMoneys()/amount))));
-            details.appendChild(spdj);
-
-            //金额
-            Element spje = doc.createElement("spje");
-            spje.appendChild(
-                    doc.createTextNode(String.valueOf(this.roundDouble(bean.getMoneys()))));
-            details.appendChild(spje);
-
-            // 总金额*VAL/100
-            // 含税税额：总金额*税率/(1+税率)
-            double sl = this.roundDouble((double)fpsl/100);
-            _logger.info(sl);
-            Element spse = doc.createElement("spse");
-            double se = this.roundDouble(bean.getMoneys()*sl/(1+sl));
-            _logger.info(se);
-            spse.appendChild(doc.createTextNode(String.valueOf(se)));
-            details.appendChild(spse);
-
-            //折扣金额
-            Element zkje = doc.createElement("zkje");
-            zkje.appendChild(
-                    doc.createTextNode(""));
-            details.appendChild(zkje);
-
-            //税收分类编码
-            Element flbm = doc.createElement("flbm");
-            flbm.appendChild(
-                    doc.createTextNode("106050299"));
-            details.appendChild(flbm);
-
-            //差额征税的扣除额
-            Element kcje = doc.createElement("kcje");
-            kcje.appendChild(doc.createTextNode(""));
-            details.appendChild(kcje);
 
             // write the content into xml file
             TransformerFactory transformerFactory =
