@@ -162,6 +162,7 @@ function resets()
 				    pdutyid="${item.dutyId}"
 				    pdutyname="${item.dutyName}"
 				    plocationid="${item.locationId}"
+				    plocationname="${item.locationName}"
 				    pproviderid="${item.providerId}"
 				    pprovidername="${item.providerName}"
 				    pinvoicetype="${item.invoiceType}"

@@ -93,6 +93,7 @@ function check()
     
     var productIds = document.getElementsByName('productId');
     
+    var depots = document.getElementsByName('depot');
     var depotparts = document.getElementsByName('depotpart');
     var depotpartIds = document.getElementsByName('depotpartId');
     
@@ -106,7 +107,7 @@ function check()
     var needSendFlag = 0; //是否存在已入库退货
     for (var i = 1; i < backTypes.length; i++)
     {
-      if(backTypes[i].value == '1' && depotparts[i].value !='生产作业库'){
+      if(backTypes[i].value == '1' && depots[i].value !='生产作业库'){
         needSendFlag = 1;
       }
     }    

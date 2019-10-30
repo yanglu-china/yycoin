@@ -690,6 +690,7 @@
                     <td align="center"><input type="number" name="amount" required><input type="hidden" name="amountLimit"></td>
                     <td align="center"><input type="number" name="price" required readonly="readonly"></td>
                     <td align="center"><input type="text" name="depotpart" required><input type="hidden" name="depotpartId">
+                    <input type="hidden" name="depot">
                     <input type="hidden" name="storageId">
                     <input type="hidden" name="locationId" value="${bean.locationId}">
                     <input type="hidden" name="location">
