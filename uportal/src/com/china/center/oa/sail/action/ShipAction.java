@@ -5836,24 +5836,24 @@ public class ShipAction extends DispatchAction
             String invoiceId = bean.getInvoiceId();
             InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceId);
             String fpzl;
-            String gfmc;
-            String gfsh;
-            String gfyh;
-            String gfdz;
+            String gfmc = bean.getHeadContent();
+            String gfsh = bean.getGfsh();
+            String gfyh = bean.getGfyh();
+            String gfdz = bean.getGfdz();
 
             //专票
             if (ZP_INVOICE.equals(invoiceId)){
                 fpzl = "0";
-                gfmc = bean.getHeadContent();
-                gfsh = bean.getGfsh();
-                gfyh = bean.getGfyh();
-                gfdz = bean.getGfdz();
+//                gfmc = bean.getHeadContent();
+//                gfsh = bean.getGfsh();
+//                gfyh = bean.getGfyh();
+//                gfdz = bean.getGfdz();
             } else{
                 fpzl = "2";
-                gfmc = bean.getHeadContent();
-                gfsh = "";
-                gfyh = "";
-                gfdz = "";
+//                gfmc = bean.getHeadContent();
+//                gfsh = "";
+//                gfyh = "";
+//                gfdz = "";
             }
             // carname element
             Element fpzlElm = doc.createElement("fpzl");
