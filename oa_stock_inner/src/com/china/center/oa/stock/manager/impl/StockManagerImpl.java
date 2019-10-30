@@ -1348,6 +1348,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             //2016/4/12 TODO 更新采购行已入库数量
             // 根据productId和providerId找到对应的采购行<productId,providerId>组合必须唯一
             ConditionParse conditionParse = new ConditionParse();
+            //20191030 add stockId condition
+            conditionParse.addCondition("stockId","=", item.getStockId());
             conditionParse.addCondition("productId","=", item.getProductId());
             conditionParse.addCondition("providerId", "=", item.getProviderId());
             List<StockItemBean> itemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);

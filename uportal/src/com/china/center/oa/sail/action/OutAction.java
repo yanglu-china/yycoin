@@ -2475,13 +2475,14 @@ public class OutAction extends ParentOutAction
             conditionParse.addWhereStr();
             conditionParse.addCondition("stockId", "=", outBean.getRefOutFullId());
             conditionParse.addCondition("productId","=", baseBean.getProductId());
+            conditionParse.addCondition("providerId","=", outBean.getCustomerId());
             List<StockItemBean> stockItemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
             
             double stockPrice = baseBean.getPrice(); //采购单价
             if(stockItemBeans.size()>0){
             	stockPrice = stockItemBeans.get(0).getPrice();
             }
-            double storagePrice = baseBean.getPrice(); //库存单价
+            double storagePrice = baseBean.getCostPrice(); //库存单价
             _logger.debug("stockItemBeans.size():"+stockItemBeans.size()+", stockPrice:"+stockPrice+", storagePrice: "+storagePrice);
             if(stockPrice != storagePrice){
                 
@@ -2564,7 +2565,7 @@ public class OutAction extends ParentOutAction
         FinanceHelper.copyTax(outTax, itemOut1);
 
         // 应付账款-供应商（负数）
-        double outMoney = getOutCost(outBean) - additional;
+        double outMoney = getOutCost(outBean) + additional;
 
         itemOut1.setInmoney(0);
 

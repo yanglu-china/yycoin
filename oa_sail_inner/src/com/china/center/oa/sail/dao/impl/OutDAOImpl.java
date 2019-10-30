@@ -1316,4 +1316,22 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         this.jdbcOperation.execute(sql);
     	
     }
+    
+    /**
+     * 更新t_center_stockitem中的totalWarehouseNum
+     * @param stockId
+     * @param productId
+     * @param providerId
+     * @param addCount
+     */
+    public void updateTotalWarehouseNum(String stockId, String productId, String providerId, int addCount){
+    	StringBuffer buffer = new StringBuffer();
+    	buffer.append(" update t_center_stockitem"); 
+    	buffer.append(" set totalWarehouseNum=totalWarehouseNum+"+addCount);
+    	buffer.append(" where stockId='"+stockId+"'");
+    	buffer.append(" and productId='"+productId+"'");
+    	buffer.append(" and providerId='"+providerId+"'");
+    	
+    	this.jdbcOperation.execute(buffer.toString());
+    }
 }

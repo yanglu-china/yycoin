@@ -120,7 +120,8 @@ function modfiy()
 	if (getRadio('fullId').statuss == '0' || getRadio('fullId').statuss == '2')
 //	if ((getRadio('fullId').statuss == '0' || getRadio('fullId').statuss == '2') && getRadio('fullId').outtype != 4 && getRadio('fullId').outtype != 5)
 	{
-		document.location.href = '../sail/out.do?method=findOut&outId=' + getRadioValue("fullId") + "&fow=1";
+		//document.location.href = '../sail/out.do?method=findOut&outId=' + getRadioValue("fullId") + "&fow=1";
+		document.location.href = '../stock/stock.do?method=backStock&id=' + getRadioValue("fullId")+'&modifyFlag=1';
 	}
 	else
 	{

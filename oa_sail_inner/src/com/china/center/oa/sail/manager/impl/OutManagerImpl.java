@@ -122,7 +122,6 @@ import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 import com.china.center.tools.WriteFileBuffer;
 
-
 /**
  * OutManagerImpl
  * 
@@ -2619,9 +2618,24 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info(outBean+"******processBuyBaseList with out "+baseList);
         // 入库单提交后就直接移动库存了,销售需要在库管通过后生成发货单前才会变动库存
         //未入库退货不扣减库存
-        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
-         || (outBean.getBuyReturnFlag() == 1 && outBean.getBuyReturnType() == 2))
+        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
         {
+            return;
+        }
+        
+        if (outBean.getBuyReturnFlag() == 1 && outBean.getBuyReturnType() == 2)
+        {
+        	//未入库退货，修改totalwarehousenum
+            
+            for (BaseBean element : baseList)
+            {
+            	String stockId = outBean.getRefOutFullId();
+                String productId = element.getProductId();
+                String providerId = outBean.getCustomerId();
+                
+                outDAO.updateTotalWarehouseNum(stockId, productId, providerId, element.getAmount());
+            }
+
             return;
         }
 
@@ -3334,57 +3348,69 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         if(baseList.size() > 0){
                         	element = baseList.get(0);
                         }
-                    	
-                    	//恢复库存
-                        ProductChangeWrap wrap = new ProductChangeWrap();
+                        //已入库退货
+                        if(outBean.getBuyReturnType() == 1){
+                        	//恢复库存
+                            ProductChangeWrap wrap = new ProductChangeWrap();
 
-                        //TODO
-                        wrap.setDepotpartId(element.getDepotpartId());
-                        wrap.setPrice(element.getCostPrice());
-                        wrap.setVirtualPrice(element.getVirtualPrice());
-                        wrap.setProductId(element.getProductId());
-                        if (StringTools.isNullOrNone(element.getOwner()))
-                        {
-                            wrap.setStafferId("0");
-                        }
-                        else
-                        {
-                            wrap.setStafferId(element.getOwner());
-                        }
-                        wrap.setChange(0-element.getAmount()); //恢复库存
-                        wrap.setDescription("库单[" + outBean.getFullId() + "]操作");
-                        wrap.setSerializeId(sequence);
-                        wrap.setType(StorageConstant.OPR_STORAGE_REDEPLOY_ROLLBACK);
-                        wrap.setRefId(outBean.getFullId());
-                        wrap.setInputRate(element.getInputRate());
+                            //TODO
+                            wrap.setDepotpartId(element.getDepotpartId());
+                            wrap.setPrice(element.getCostPrice());
+                            wrap.setVirtualPrice(element.getVirtualPrice());
+                            wrap.setProductId(element.getProductId());
+                            if (StringTools.isNullOrNone(element.getOwner()))
+                            {
+                                wrap.setStafferId("0");
+                            }
+                            else
+                            {
+                                wrap.setStafferId(element.getOwner());
+                            }
+                            wrap.setChange(0-element.getAmount()); //恢复库存
+                            wrap.setDescription("库单[" + outBean.getFullId() + "]操作");
+                            wrap.setSerializeId(sequence);
+                            wrap.setType(StorageConstant.OPR_STORAGE_REDEPLOY_ROLLBACK);
+                            wrap.setRefId(outBean.getFullId());
+                            wrap.setInputRate(element.getInputRate());
 
-                        try {
-                            StorageLogBean storageLogBean = new StorageLogBean();
-                            storageLogBean.setProductId(wrap.getProductId());
-                            storageLogBean.setRefId(wrap.getRefId());
-                            storageLogBean.setDepotpartId(wrap.getDepotpartId());
-                            String priceKey = StorageRelationHelper.getPriceKey(wrap.getPrice());
-                            storageLogBean.setPriceKey(priceKey);
+                            try {
+                                StorageLogBean storageLogBean = new StorageLogBean();
+                                storageLogBean.setProductId(wrap.getProductId());
+                                storageLogBean.setRefId(wrap.getRefId());
+                                storageLogBean.setDepotpartId(wrap.getDepotpartId());
+                                String priceKey = StorageRelationHelper.getPriceKey(wrap.getPrice());
+                                storageLogBean.setPriceKey(priceKey);
+                                
+                            	//clear T_CENTER_STORAGELOG
+                                storageLogDAO.deleteStorageLog(storageLogBean);
+                                
+    							storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
+    							//clear T_CENTER_STORAGELOG
+                                storageLogDAO.deleteStorageLog(storageLogBean);
+                                
+                                //clear OutUnique
+                                ConditionParse condition = new ConditionParse();
+                                condition.addWhereStr();
+                                condition.addCondition("id", "=", wrap.getRefId());
+                                outUniqueDAO.deleteEntityBeansByCondition(condition);
+    						} catch (MYException e) {
+    							// TODO Auto-generated catch block
+    							_logger.error("change storage relation error", e);
+    						}
+                        	
+                        	//删除凭证
+                            outDAO.clearTicket(outBean.getFullId());                       	
+                        }else 
+                        //未入库退货
+                        if(outBean.getBuyReturnType() == 2){ 
+                        	String stockId = outBean.getRefOutFullId();
+                            String productId = element.getProductId();
+                            String providerId = outBean.getCustomerId();
                             
-                        	//clear T_CENTER_STORAGELOG
-                            storageLogDAO.deleteStorageLog(storageLogBean);
-                            
-							storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
-							//clear T_CENTER_STORAGELOG
-                            storageLogDAO.deleteStorageLog(storageLogBean);
-                            
-                            //clear OutUnique
-                            ConditionParse condition = new ConditionParse();
-                            condition.addWhereStr();
-                            condition.addCondition("id", "=", wrap.getRefId());
-                            outUniqueDAO.deleteEntityBeansByCondition(condition);
-						} catch (MYException e) {
-							// TODO Auto-generated catch block
-							_logger.error("change storage relation error", e);
-						}
+                            outDAO.updateTotalWarehouseNum(stockId, productId, providerId, (0-element.getAmount()));
+                        }
                     	
-                    	//删除凭证
-                        outDAO.clearTicket(outBean.getFullId());
+                    	
                     }
 
                     // 如果是调出的驳回需要回滚

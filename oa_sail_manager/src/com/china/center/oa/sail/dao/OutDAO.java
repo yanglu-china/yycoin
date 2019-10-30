@@ -448,4 +448,6 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     boolean updateMotivationFlag(String fullId,int motivationFlag, String motivationApplyId);
     
     public void clearTicket(String fullId);
+    
+    public void updateTotalWarehouseNum(String stockId, String productId, String providerId, int addCount);
 }

@@ -92,6 +92,8 @@ function check()
     var outProductNames = document.getElementsByName('outProductName');
     
     var productIds = document.getElementsByName('productId');
+    
+    var depotparts = document.getElementsByName('depotpart');
     var depotpartIds = document.getElementsByName('depotpartId');
     
     var providerIds = document.getElementsByName('providerId');
@@ -101,15 +103,15 @@ function check()
     var backTypes = document.getElementsByName('backType');
     
     //检查发货信息
-    var backTypeFlag = 0; //是否存在已入库退货
+    var needSendFlag = 0; //是否存在已入库退货
     for (var i = 1; i < backTypes.length; i++)
     {
-      if(backTypes[i].value == '1'){
-        backTypeFlag = 1;
+      if(backTypes[i].value == '1' && depotparts[i].value !='生产作业库'){
+        needSendFlag = 1;
       }
     }    
     
-    if(backTypeFlag == 1){
+    if(needSendFlag == 1){
       var receiver = document.getElementById("receiver").value;
       var address = document.getElementById("address").value;
       var mobile = document.getElementById("mobile").value;
