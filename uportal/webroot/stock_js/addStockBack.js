@@ -194,6 +194,8 @@ function getProductRelation(oxes)
     
     getInputInTr(tr, "depot").value = ox.plocationname;
     
+    console.log("ox.plocationid:"+ox.plocationid+"; ox.plocationname:"+ox.plocationname);
+    
     getInputInTr(tr, "depotpart").value = ox.pdepotpartname;
     getInputInTr(tr, "depotpartId").value = ox.pdepotpartid;
     //getInputInTr(tr, "storageName").value = ox.pstoragename;    

@@ -107,6 +107,7 @@ function check()
     var needSendFlag = 0; //是否存在已入库退货
     for (var i = 1; i < backTypes.length; i++)
     {
+      console.log("depot: "+depots[i].value);
       if(backTypes[i].value == '1' && depots[i].value !='生产作业库'){
         needSendFlag = 1;
       }
@@ -202,7 +203,7 @@ function check()
 	      var productProviderKey = productIds[i].value+"_"+providerIds[i].value;
 	      var f1 = parseFloat(keyValueMap.get(productProviderKey));
 	      var f2 = parseFloat(prices[i].value);
-	      if(f1 != f2){
+	      if(Math.round(f1*100) != Math.round(f2*100)){
 	        alert("产品、供应商和价格不匹配！"+f1+" vs "+f2);
 	        return false;
 	      }

@@ -1327,7 +1327,7 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
     public void updateTotalWarehouseNum(String stockId, String productId, String providerId, int addCount){
     	StringBuffer buffer = new StringBuffer();
     	buffer.append(" update t_center_stockitem"); 
-    	buffer.append(" set totalWarehouseNum=totalWarehouseNum+"+addCount);
+    	buffer.append(" set totalWarehouseNum=totalWarehouseNum+("+addCount+")");
     	buffer.append(" where stockId='"+stockId+"'");
     	buffer.append(" and productId='"+productId+"'");
     	buffer.append(" and providerId='"+providerId+"'");

@@ -2633,7 +2633,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 String productId = element.getProductId();
                 String providerId = outBean.getCustomerId();
                 
-                outDAO.updateTotalWarehouseNum(stockId, productId, providerId, element.getAmount());
+                outDAO.updateTotalWarehouseNum(stockId, productId, providerId, Math.abs(element.getAmount()));
             }
 
             return;
@@ -3335,6 +3335,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     }
                     
                     //采购退货驳回
+                    _logger.debug("outBean.getBuyReturnFlag():"+outBean.getBuyReturnFlag()+", outBean.getBuyReturnType():"+outBean.getBuyReturnType());
                     if(outBean.getBuyReturnFlag() == 1){
                     	
                     	String sequence = commonDAO.getSquenceString();
@@ -3348,8 +3349,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         if(baseList.size() > 0){
                         	element = baseList.get(0);
                         }
+                        
                         //已入库退货
                         if(outBean.getBuyReturnType() == 1){
+                        	
+                        	_logger.debug("恢复库存。。。。");
+                        	
                         	//恢复库存
                             ProductChangeWrap wrap = new ProductChangeWrap();
 
@@ -3403,11 +3408,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         }else 
                         //未入库退货
                         if(outBean.getBuyReturnType() == 2){ 
+                        	_logger.debug("恢复累计入库数量。。。。");
                         	String stockId = outBean.getRefOutFullId();
                             String productId = element.getProductId();
                             String providerId = outBean.getCustomerId();
                             
-                            outDAO.updateTotalWarehouseNum(stockId, productId, providerId, (0-element.getAmount()));
+                            outDAO.updateTotalWarehouseNum(stockId, productId, providerId, (0-Math.abs(element.getAmount())));
                         }
                     	
                     	

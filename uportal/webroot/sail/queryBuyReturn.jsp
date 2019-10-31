@@ -402,6 +402,7 @@ function reject()
                     $Dbuttons(true);
                     getObj('method').value = 'modifyOutStatus';
                     getObj('statuss').value = '2';
+                    console.log("after setting status:"+getObj('statuss').value);
                     getObj('oldStatus').value = getRadio('fullId').statuss;
                     getObj('outId').value = getRadioValue("fullId");
         

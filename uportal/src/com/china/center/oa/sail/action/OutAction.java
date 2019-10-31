@@ -2315,6 +2315,9 @@ public class OutAction extends ParentOutAction
      */
     private int getNextStatus(OutBean out, int statuss){
         int rst = statuss;
+        if(statuss == OutConstant.BUY_STATUS_REJECT){
+        	return rst;
+        }
         double totalMoney = Double.MAX_VALUE;
         List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
         if(baseList.size()>0){
