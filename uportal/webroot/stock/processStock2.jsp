@@ -35,6 +35,11 @@ function fech(id,productId, amount,totalWarehouseNum)
 {
     g_id = id;
     to_be_warehouse = parseInt(amount)-parseInt(totalWarehouseNum);
+    
+    if(to_be_warehouse <= 0){
+    	alert("可拿货数量不足！");
+    	return;
+    }
    console.log("id:"+id);
 //    console.log("amount:"+amount);
 //    console.log("totalWarehouseNum:"+totalWarehouseNum);

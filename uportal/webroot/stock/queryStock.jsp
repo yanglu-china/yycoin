@@ -62,8 +62,13 @@ function del(id)
 	}
 }
 
-function back(id)
+function back(id, status)
 {
+	//status=4 待采购经理审核 不能退货
+	if(status == '4'){
+		alert("当前状态不能退货！");
+		return;
+	}
     $O('method').value = 'backStock';
     $O('id').value = id;
     formEntry.submit();
@@ -606,7 +611,7 @@ function exports()
                                 <a title="修改到货信息" href="javascript:updateStockArrival('${item.id}')">
                                     <img src="../images/opr/change.gif" border="0" height="15" width="15">
                                 </a>
-								<a title="采购退货" href="javascript:back('${item.id}')"> <img
+								<a title="采购退货" href="javascript:back('${item.id}', '${item.status}')"> <img
 										src="../images/opr/reject.gif" border="0" height="15" width="15"></a>
                             </c:if>
                         </c:if>
