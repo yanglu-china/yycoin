@@ -4090,6 +4090,13 @@ public class StockAction extends DispatchAction
                         
                     }
                 }
+                
+                //累计退货数量不能超过采购量
+                if(totalReturn1 + totalReturn2 + amount > buyAmount){
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                            "累计退货数量超出采购数量，请检查。产品编号：" + productId + ", 供应商:" + customerId);
+                    return mapping.findForward("error");                	
+                }
 
                 //比较
 
@@ -4101,7 +4108,7 @@ public class StockAction extends DispatchAction
 
                     if(total > gotAmount){
                         request.setAttribute(KeyConstant.ERROR_MESSAGE,
-                                "累计退货数量超出已拿货数量，请检查。产品编号："+productId+", 供应商:"+customerId);
+                                "累计已入库退货数量超出已拿货数量，请检查。产品编号："+productId+", 供应商:"+customerId);
                         return mapping.findForward("error");
                     }
                 }else {
@@ -4111,7 +4118,7 @@ public class StockAction extends DispatchAction
                     //未入库退货 上限为未拿货数量
                     if (total > (buyAmount - gotAmount)) {
                         request.setAttribute(KeyConstant.ERROR_MESSAGE,
-                                "累计退货数量超出未拿货数量，请检查。产品编号：" + productId + ", 供应商:" + customerId);
+                                "累计未入库退货数量超出未拿货数量，请检查。产品编号：" + productId + ", 供应商:" + customerId);
                         return mapping.findForward("error");
                     }
                 }
