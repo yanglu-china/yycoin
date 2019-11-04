@@ -190,12 +190,12 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
                         .setMaxResults(600).list(BankBuLevelBean.class);
                 
                 if (result.size() == 1) {
-                    return result.get(0).getManagerId();
+                    return result.get(0).getSybmanagerId();
                 } else {
                     //#341 考虑到一人多岗情况,优先根据发起人选择
                     for (BankBuLevelBean bean : result) {
                         if (bean.getId().equals(originator)) {
-                            return bean.getManagerId();
+                            return bean.getSybmanagerId();
                         }
                     }
                 }
