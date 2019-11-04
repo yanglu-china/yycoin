@@ -65,4 +65,8 @@ public interface BaseDAO extends DAO<BaseBean, BaseVO>
     boolean updateProductIdAndPrice(String destProductId, double price, String outId, String productId);
 
     List<Map> queryBaseBeans(String sql);
+    
+    public List<Map> queryBaseByStockId(String stockId);
+    
+    public List<BaseBean> queryBaseBeanByStockId(String stockId);
 }

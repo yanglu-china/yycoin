@@ -25,6 +25,8 @@ import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBank
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryAccListBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryCrudTlBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryCurdTl;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryHisBal;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryHisBalBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryHisDtl;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryHisDtlBody;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.req.NbBankQueryTransfer;
@@ -41,6 +43,9 @@ import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBan
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryCrudTlLoopData;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryCrudTlLoopResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryCrudTlTotalResp;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisBalBodyResp;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisBalLoopData;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisBalLoopResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisDtlBodyResp;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisDtlLoopData;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisDtlLoopResp;
@@ -70,7 +75,7 @@ public class NbBankPayImpl {
 	 * 客户编号 
 	 */
 	 //test
-	private static final String custNo = "0000212667";
+	private static final String custNo = "0000070401";
 	//prod
 //	private static final String custNo = "0000243857";
 	
@@ -445,6 +450,64 @@ public class NbBankPayImpl {
 	
 	}
 	
+	
+	/**
+	 * 	查询账户余额
+	 */
+	public List<NbBankQueryHisBalLoopData> queryHisBalance(Map<String,String> paramMap)
+	{
+		List<NbBankQueryHisBalLoopData> respList = new ArrayList<NbBankQueryHisBalLoopData>();
+		try {
+			URL url = new URL(NbBankPayUrl);
+			ErpPlatformLocator locator = new ErpPlatformLocator();
+			ErpPlatformSoap11BindingStub stub = (ErpPlatformSoap11BindingStub) locator.geterpPlatformHttpSoap11Endpoint(url);
+			
+			NbBankQueryHisBalBody reqData = new NbBankQueryHisBalBody();
+			
+			//请求头
+			NbBankHead head = new NbBankHead();
+			head.setCustNo(custNo);
+			head.setErpSysCode(erpSysCode);
+			head.setTradeName("ERP_QUERYHISBAL"); 
+			
+			//请求体
+			NbBankQueryHisBal queryHisBalBody = new NbBankQueryHisBal();
+			queryHisBalBody.setQueryDate(paramMap.get("queryDate"));
+			queryHisBalBody.setQueryCustNo(custNo);
+			queryHisBalBody.setTotalNum("");
+			
+			reqData.setHead(head);
+			reqData.setQueryHisBal(queryHisBalBody);
+			
+			String reqXml = marshallerRequest(reqData);
+			_logger.info(reqXml);
+            String encryptStr = AesCode.encrypt(reqXml);
+			String result = stub.serverErpXml(encryptStr);
+			String decryptUTF8Str = AesCode.decrypt2GBK(result);
+			_logger.info(decryptUTF8Str);
+			NbBankQueryHisBalBodyResp queryBodyResp =  (NbBankQueryHisBalBodyResp) unMarShallerResp(decryptUTF8Str, new NbBankQueryHisBalBodyResp());
+			
+		    NbBankHeadResp headResp = queryBodyResp.getHeadResp();
+		    String retCode = headResp.getRetCode();
+		    if("0".equals(retCode))
+			{
+		    	NbBankQueryHisBalLoopResp totalResp = queryBodyResp.getLoopResp();
+		    	
+		    	respList = totalResp.getLoopData();
+		    	
+			}
+			else
+			{
+				_logger.error("报文出错，错误码:" + headResp.getRetCode() + ";错误描述:" + headResp.getRetMsg());
+			}
+		} catch (Exception e) {
+			_logger.error("NbBankPayImpl queryHisBalance error",e);
+			e.printStackTrace();
+		}
+		return respList;
+	
+	}
+	
 	/**
 	 *  	联行号文件下载地址查询
 	 */
@@ -538,5 +601,12 @@ public class NbBankPayImpl {
 			e.printStackTrace();
 		}
 		return _clazz;
+	}
+	
+	public static void main(String[] args) {
+		NbBankPayImpl impl = new NbBankPayImpl();
+		Map<String,String> paramMap = new HashMap<String, String>();
+		paramMap.put("queryDate", "2019-10-30");
+		impl.queryHisBalance(paramMap);
 	}
 }

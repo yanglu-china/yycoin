@@ -502,7 +502,7 @@ function load()
                         <td width="8%" align="center">价格</td>
                         <td width="8%" align="center">组成用量</td>
                         <td width="8%" align="center">损耗率(‰)</td>
-                        <td width="5%" align="center">虚料金额</td>
+                        <td width="5%" align="center">XL</td>
                         <td width="5%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr()"></td>
                     </tr>

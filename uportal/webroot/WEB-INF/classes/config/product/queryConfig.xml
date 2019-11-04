@@ -22,7 +22,7 @@
 			<type>select</type>
 			<option>$productType</option>
 		</condtion>
-		<condtion name="abstractType" caption="虚拟产品">
+		<condtion name="abstractType" caption="XL">
 			<opr>=</opr>
 			<datatype>1</datatype>
 			<type>select</type>
@@ -46,6 +46,10 @@
             <type>select</type>
             <option>$productStep</option>
         </condtion>
+		<condtion name="description" caption="备注">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
 	</item>
 	
 	<item name="queryApplyProduct" deaultpfix="ProductBean">
@@ -551,7 +555,10 @@
 			<opr>like</opr>
 			<type>text</type>
 		</condtion>
-		
+		<condtion name="description" caption="备注">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
 	</item>
 	
 	<item name="queryPriceConfig" deaultpfix="PriceConfigBean">

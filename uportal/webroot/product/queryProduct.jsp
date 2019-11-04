@@ -119,16 +119,17 @@ function load()
          url: gurl + 'query' + ukey + '&src=0',
          colModel : [
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lbatchPrice={batchPrice} lsailPrice={sailPrice} lcost={cost}>', width : 40, align: 'center'},
-             {display: '名称', name : 'name', width : '25%'},
-             {display: '编码', name : 'code', width : '10%'},
+             {display: '名称', name : 'name', width : '20%'},
+             {display: '编码', name : 'code', width : '8%'},
              {display: '状态', name : 'status', cc : 'productStatus', width : '8%'},
              {display: '类型', name : 'type', cc : 'productType', width : '8%'},
-             {display: '虚拟', name : 'abstractType', cc : 'productAbstractType', width : '8%'},
+             {display: 'XL', name : 'abstractType', cc : 'productAbstractType', width : '8%'},
              {display: '合成', name : 'ctype', cc : 'productCtype', width : '8%'},
              {display: '管理', name : 'reserve4', cc : 'pubManagerType', width : '8%'},
              {display: '阶段', name : 'reserve5', cc : 'productStep', width : '8%'},
              //{display: '库存模型', name : 'stockType', cc : 'productStockType', width : '10%'},
-             {display: '结算价', name : 'iprice', toFixed: 2, width : 'auto'}
+             {display: '结算价', name : 'iprice', toFixed: 2, width : '8%'},
+             {display: '备注', name : 'description', width : 'auto'}
              ],
          extAtt: {
              name : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}>', end : '</a>'}

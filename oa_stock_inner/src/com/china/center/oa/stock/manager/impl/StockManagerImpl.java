@@ -464,6 +464,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
         List<StockItemVO> itemVO = stockItemDAO.queryEntityVOsByFK(id);
         List<StockItemArrivalVO> arrivalVOs = stockItemArrivalDAO.queryEntityVOsByFK(id);
+        
+        _logger.debug("id:"+id+", itemVO.size():"+itemVO.size()+", arrivalVOs.size():"+arrivalVOs.size());
 
         Map divMap = new HashMap();
         Map outTimeMap = new HashMap();
@@ -1346,6 +1348,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             //2016/4/12 TODO 更新采购行已入库数量
             // 根据productId和providerId找到对应的采购行<productId,providerId>组合必须唯一
             ConditionParse conditionParse = new ConditionParse();
+            //20191030 add stockId condition
+            conditionParse.addCondition("stockId","=", item.getStockId());
             conditionParse.addCondition("productId","=", item.getProductId());
             conditionParse.addCondition("providerId", "=", item.getProviderId());
             List<StockItemBean> itemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
@@ -1886,6 +1890,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     baseBean.setProductId(productId);
                     baseBean.setProductName(product.getName());
                     baseBean.setUnit("套");
+
+                    //#787 到货数量不能为0
+                    if (vo.getSdAmount() == 0){
+                        _logger.error("sdamount is 0:"+vo.getId());
+                        continue;
+                    }
                     //调拨数量取实到数量
                     baseBean.setAmount(-vo.getSdAmount());
 

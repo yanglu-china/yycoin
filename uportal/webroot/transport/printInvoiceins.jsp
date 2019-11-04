@@ -38,38 +38,57 @@
 			}
 
 			var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
-//	alert(result);
 			if (result === '1') {
 				var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
 				alert(msg);
+			} else{
+			    alert("成功开启!");
 			}
 		}
 
+        /**
+         * 关闭金税盘
+         *
+         */
+        function CloseCard(){
+            var result = a.JsaeroClose();
+            alert(result);
+        }
+
 		function Invoice(){
 			var packageId = $O('packageId').value;
-			$ajax('../sail/ship.do?method=generateInvoiceinsXml&packageId='+packageId, callbackGenerateInvoice);
+            var batchId = $O('batchId').value;
+			$ajax('../sail/ship.do?method=generateInvoiceinsXml&packageId='+packageId+'&batchId='+batchId, callbackGenerateInvoice);
 		}
 
 		//开票
 		function callbackGenerateInvoice(data)
 		{
-//	console.log(data);
-//	console.log(data.obj);
-//	var result = JSON.parse(data.obj);
-//	console.log(result);
+            // console.log(data);
+            // console.log(data.obj);
 			if (data.retMsg.toLowerCase() === "ok") {
+				OpenCard();
 				for (var key in data.obj) {
-					var response =  a.JsaeroKP(data.obj[key]);
+				    alert(key);
+				    var xml = data.obj[key];
+				    alert(xml);
+					var response =  a.JsaeroKP(xml);
 					alert(response);
 					var oDOM = null;
+					var xmlDoc = null;
 					if (typeof DOMParser != "undefined"){
 						var oParser = new DOMParser();
-						var oDOM = oParser.parseFromString(response, "text/xml");
+						oDOM = oParser.parseFromString(response, "text/xml");
+                        xmlDoc = oParser.parseFromString(xml,"text/xml");
 					}else if (typeof ActiveXObject != "undefined") {
 						//IE8
 						oDOM = new ActiveXObject("Microsoft.XMLDOM");
 						oDOM.async = false;
 						oDOM.loadXML(response);
+
+                        xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                        xmlDoc.async="false";
+                        xmlDoc.loadXML(xml);
 						if (oDOM.parseError != 0) {
 							throw new Error("XML parsing error: " + oDOM.parseError.reason);
 						}
@@ -81,10 +100,17 @@
 //			alert(result);
 					if (result === '0'){
 						var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
-						alert(fphm);
 						var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
-						alert(fpdm);
-						//update fphm
+						//打印发票
+                        //发票种类
+                        var fpzl = xmlDoc.getElementsByTagName("fpzl")[0].childNodes[0].nodeValue;
+						//打印标志（DYBZ）：0-打印发票；1-打印销货清单
+						var dybz = "0";
+                        //打印模式（DYMS）：0-不弹框打印；1-弹框打印
+						var dyms = "0";
+                        var result = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
+                        alert(result);
+                        //更新发票号码
 						var packageId = $O('packageId').value;
 						$ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
 					}else{
@@ -92,10 +118,8 @@
 						alert(msg);
 					}
 				}
+				 CloseCard();
 			}
-//    var inv = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><invinterface><invhead><fpzl>2</fpzl><djhm>1002009ZKI</djhm><gfmc>南京某有限公司</gfmc><gfsh>320100000011111</gfsh><gfyh>购方开户行及账号 11112222</gfyh><gfdz>购方地址电话 025-11111111</gfdz><fpsl>17</fpsl><fpbz>备注</fpbz><kprm>开票人</kprm><fhrm>复核人</fhrm><skrm>收款人</skrm><hsbz>1</hsbz><xfdz>销方地址及电话 22222222</xfdz><xfyh>销方开户行及账号 222211</xfyh><hysy>0</hysy></invhead><invdetails><details><spmc>A商品</spmc><ggxh>规格</ggxh><jldw>吨</jldw><spsl>10</spsl><spdj>11.7</spdj><spje>117</spje><spse>17</spse><zkje></zkje><flbm>304020101</flbm><kcje></kcje></details></invdetails></invinterface>";
-//    var xml =  a.JsaeroKP(inv);
-//    alert(xml);
 		}
 
 		function parseXml(response){
@@ -120,11 +144,11 @@
 		//打印发票
 		function callbackUpdateInsNum(data){
 			var obj = data.obj;
-			alert(data.extraObj);
+			// alert(data.extraObj);
 //	console.log(obj);
-			alert("obj.insId:"+obj.insId);
-			alert(obj.id);
-			alert(obj.invoiceNum);
+// 			alert("obj.insId:"+obj.insId);
+// 			alert(obj.id);
+// 			alert(obj.invoiceNum);
 			//TODO print
 //			var xml =  a.JsaeroDY(obj.insId,obj.id,obj.invoiceNum,"0");
 //			alert(xml);
@@ -142,8 +166,14 @@
 		function load()
 		{
 			loadForm();
+//			OpenCard();
 		}
 
+        function querys()
+        {
+            // OpenCard();
+            formEntry.submit();
+        }
 	</script>
 
 </head>
@@ -163,6 +193,12 @@
 		<p:subBody width="98%">
 			<table width="100%" align="center" cellspacing='1' class="table0">
 				<tr class="content1">
+					<td width="15%" align="center">批次号：</td>
+					<td align="left">
+						<input name="batchId" size="20" value="${batchId}"  />
+					</td>
+				</tr>
+				<tr class="content2">
 					<td width="15%" align="center">CK单号：</td>
 					<td align="left">
 						<input name="packageId" size="20" value="${packageId}"  />
@@ -170,8 +206,8 @@
 				</tr>
 
 				<tr class="content1">
-					<td colspan="4" align="right"><input type="submit"
-														 class="button_class" value="&nbsp;&nbsp;查 询&nbsp;&nbsp;">&nbsp;&nbsp;<input
+					<td colspan="4" align="right">
+                        <input type="button" class="button_class" onclick="querys()" value="&nbsp;&nbsp;查 询&nbsp;&nbsp;">&nbsp;&nbsp;<input
 							type="reset" class="button_class"
 							value="&nbsp;&nbsp;重 置&nbsp;&nbsp;"></td>
 				</tr>
@@ -222,16 +258,12 @@
 
 		<p:button>
 			<div align="right">
-				<input type="button" class="button_class"
-					   value="&nbsp;&nbsp;开启金税盘&nbsp;&nbsp;" onclick="OpenCard()">&nbsp;&nbsp;
+				<%--<input type="button" class="button_class"--%>
+					   <%--value="&nbsp;&nbsp;开启金税盘&nbsp;&nbsp;" onclick="OpenCard()">&nbsp;&nbsp;--%>
 				<input type="button" class="button_class"
 					   value="&nbsp;&nbsp;打印发票&nbsp;&nbsp;" onclick="Invoice()">&nbsp;&nbsp;
-
-					<%--<button onclick="OpenCard()">开启金税盘</button>--%>
-					<%--<button onclick="Invoice()">打印发票</button>--%>
 			</div>
 		</p:button>
-
 		<p:message2 />
 
 	</p:body></form>

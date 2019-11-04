@@ -5,12 +5,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import com.china.center.oa.client.vo.CustomerVO;
-import com.china.center.oa.product.bean.ProductImportBean;
+import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.publics.bean.*;
-import com.china.center.oa.publics.constant.SysConfigConstant;
+import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.constant.*;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.bean.*;
@@ -39,17 +40,12 @@ import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vo.AddressVO;
 import com.china.center.oa.client.vo.StafferVSCustomerVO;
-import com.china.center.oa.product.bean.DepotpartBean;
-import com.china.center.oa.product.bean.PriceConfigBean;
-import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.product.wrap.ProductChangeWrap;
-import com.china.center.oa.publics.constant.IDPrefixConstant;
-import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.constanst.SailConstant;
@@ -73,6 +69,8 @@ public class OutImportManagerImpl implements OutImportManager
 	private CommonDAO commonDAO = null;
 	
 	private OutImportDAO outImportDAO = null;
+
+	private TwOutImportDAO twOutImportDAO = null;
 	
 	private StorageRelationDAO storageRelationDAO = null;
 	
@@ -158,6 +156,8 @@ public class OutImportManagerImpl implements OutImportManager
 
 	private ProductImportDAO productImportDAO = null;
 
+	private LogDAO logDAO = null;
+
 	private final static String SPLIT = "_";
 	
 	public OutImportManagerImpl()
@@ -198,6 +198,9 @@ public class OutImportManagerImpl implements OutImportManager
             }
 
             outImportDAO.saveAllEntityBeans(list);
+
+            _logger.info("****list****"+list);
+
         }catch(Exception e){
             e.printStackTrace();
             _logger.error("Fail to import out:",e);
@@ -207,6 +210,51 @@ public class OutImportManagerImpl implements OutImportManager
         //delHisData();
         
 		return id;
+	}
+
+    //#798 写入体外临时表
+	private void saveTwOutImportBeans(List<OutImportBean> list){
+		String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+		if (AppConstant.APP_NAME.equals(appName)){
+			List<TwOutImportBean> twOutImportBeans = new ArrayList<>();
+			String id = commonDAO.getSquenceString20();
+			for (OutImportBean outImportBean : list){
+			    if (outImportBean.getComunicatonBranchName().contains("集邮")){
+                    TwthProductBean twthProductBean  = this.productDAO.queryTwProduct(outImportBean.getProductId());
+                    if (twthProductBean!= null){
+                        _logger.info("***find twthProduct****"+twthProductBean);
+                        TwOutImportBean twOutImportBean = new TwOutImportBean();
+                        BeanUtil.copyProperties(twOutImportBean, outImportBean);
+
+                        twOutImportBean.setBatchId(id);
+                        twOutImportBean.setStatus(0);
+                        //临时表中与体内OA单号相关联
+                        twOutImportBean.setOANo("");
+                        twOutImportBean.setRefTnFullId(outImportBean.getOANo());
+                        twOutImportBean.setPrice(twthProductBean.getTwPrice());
+                        String twProductId = twthProductBean.getTwProductId();
+						twOutImportBean.setProductId(twProductId);
+						twOutImportBean.setProductName(twthProductBean.getTwProductName());
+						_logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
+						twOutImportBeans.add(twOutImportBean);
+
+//                        ProductBean productBean = this.productDAO.find(twProductId);
+//                        if (productBean == null){
+//                            _logger.error("product id not exist***"+twProductId);
+//                        } else{
+//                            twOutImportBean.setProductId(twProductId);
+//                            twOutImportBean.setProductName(productBean.getName());
+//                            _logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
+//                            twOutImportBeans.add(twOutImportBean);
+//                        }
+                    }
+                }
+			}
+
+			if (!ListTools.isEmptyOrNull(twOutImportBeans)){
+				this.twOutImportDAO.saveAllEntityBeans(twOutImportBeans);
+			}
+		}
 	}
 	
 	@Transactional(rollbackFor = MYException.class)
@@ -245,7 +293,7 @@ public class OutImportManagerImpl implements OutImportManager
 	 * 
 	 * {@inheritDoc}
 	 */
-	public boolean process(final List<OutImportBean> list)
+	public boolean process(final List<? extends OutImportBean> list)
 			throws MYException
 	{
 		JudgeTools.judgeParameterIsNull(list);
@@ -389,7 +437,7 @@ public class OutImportManagerImpl implements OutImportManager
 	 * 方法体事务，unChecked 异常，有异常抛出RuntimeException
 	 * 
 	 */
-	private void processInner(List<OutImportBean> list)
+	private void processInner(List<? extends OutImportBean> list)
 	{
 		String batchId = list.get(0).getBatchId();
 		
@@ -397,8 +445,9 @@ public class OutImportManagerImpl implements OutImportManager
 		
 		if (!ListTools.isEmptyOrNull(list))
 		{
+			OutImportBean first = list.get(0);
 			// 去掉处理中与成功处理的数据
-			if (list.get(0).getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
+			if (first.getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
 			{
                 String msg = "已处理过的接口数据，不可再生成OA库单。";
                 _logger.error(msg);
@@ -488,20 +537,41 @@ public class OutImportManagerImpl implements OutImportManager
 					uList.add(eachOut);
 				}
 			}
-			
-			// 防止数据被重复处理，再次检查下状态
-			List<OutImportBean> reList = outImportDAO.queryEntityBeansByFK(batchId);
-			
-			for (OutImportBean each : reList)
-			{
-				if (each.getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
+
+			if (first instanceof TwOutImportBean){
+			    //#798 体外系统执行
+				// 防止数据被重复处理，再次检查下状态
+				List<TwOutImportBean> reList = twOutImportDAO.queryEntityBeansByFK(batchId);
+
+				for (TwOutImportBean each : reList)
 				{
-					throw new RuntimeException("数据被重复处理，请确认");
+					if (each.getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
+					{
+						throw new RuntimeException("数据被重复处理，请确认");
+					}
 				}
+
+				for(OutImportBean twOutImportBean: uList){
+					twOutImportDAO.updateEntityBean((TwOutImportBean)twOutImportBean);
+				}
+			} else{
+				// 防止数据被重复处理，再次检查下状态(体内)
+				List<OutImportBean> reList = outImportDAO.queryEntityBeansByFK(batchId);
+
+				for (OutImportBean each : reList)
+				{
+					if (each.getStatus() == OutImportConstant.STATUS_SUCCESSFULL)
+					{
+						throw new RuntimeException("数据被重复处理，请确认");
+					}
+				}
+
+				outImportDAO.updateAllEntityBeans(uList);
+
+				//#798
+                this.saveTwOutImportBeans(uList);
 			}
-			
-			outImportDAO.updateAllEntityBeans(uList);
-			
+
 			saveLogInnerWithoutTransaction(list.get(0), OutImportConstant.LOGSTATUS_SUCCESSFULL, "成功");
 		}
 		
@@ -593,6 +663,11 @@ public class OutImportManagerImpl implements OutImportManager
         newOutBean.setId(getOutId(id));
     	
     	newOutBean.setFullId(newOutId);
+
+    	//#798 关联体内订单
+    	if (bean instanceof TwOutImportBean){
+    	    newOutBean.setRefOutFullId(((TwOutImportBean)bean).getRefTnFullId());
+        }
     	
     	newOutBean.setOutTime(TimeTools.now_short());
     	
@@ -1738,7 +1813,7 @@ public class OutImportManagerImpl implements OutImportManager
 	 * 异步处理
 	 * {@inheritDoc}
 	 */
-	public boolean processAsyn(List<OutImportBean> list)
+	public boolean processAsyn(List<? extends OutImportBean> list)
 	{
 		ProcessBeanThread thread = new ProcessBeanThread(list);
 		
@@ -1756,14 +1831,14 @@ public class OutImportManagerImpl implements OutImportManager
 	
 	class ProcessBeanThread extends Thread
 	{
-		private List<OutImportBean> list;
+		private List<? extends OutImportBean> list;
 		
-		public ProcessBeanThread(List<OutImportBean> list)
+		public ProcessBeanThread(List<? extends OutImportBean> list)
 		{
 			this.list = list;
 		}
 
-		public List<OutImportBean> getList()
+		public List<? extends OutImportBean> getList()
 		{
 			return list;
 		}
@@ -2133,7 +2208,7 @@ public class OutImportManagerImpl implements OutImportManager
 				{
 					try
 					{
-						outManager.payOut(null, outId, "结算中心确定已经回款");
+						outManager.payOut(null, outId, "结算中心确定已经回款", 0);
 					}
 					catch (MYException e)
 					{
@@ -3039,7 +3114,7 @@ public class OutImportManagerImpl implements OutImportManager
 
 	@Transactional(rollbackFor = MYException.class)
 	@Override
-	public boolean batchUpdateProductName(List<BaseVO> list) throws MYException {
+	public boolean batchUpdateProductName(User user,List<BaseVO> list) throws MYException {
 		Set<String> outIds = new HashSet<String>();
 		for(BaseVO each : list)
 		{
@@ -3053,12 +3128,26 @@ public class OutImportManagerImpl implements OutImportManager
 			List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(conditionParse);
 			if (!ListTools.isEmptyOrNull(baseBeans)){
 				for (BaseBean bean : baseBeans){
-					bean.setProductId(each.getDestProductId());
+					String destProductId = each.getDestProductId();
+					bean.setProductId(destProductId);
 					bean.setProductName(each.getDestProductName());
 					bean.setPrice(each.getPrice());
 					bean.setValue(each.getPrice()*bean.getAmount());
+
+					//#781更新税率
+					ProductBean productBean = this.productDAO.find(destProductId);
+					if (productBean!= null){
+						InvoiceBean invoiceBean = this.invoiceDAO.find(productBean.getSailInvoice().trim());
+						if (invoiceBean!= null){
+							bean.setTaxrate(invoiceBean.getVal()/100);
+						}
+					}
 					this.baseDAO.updateEntityBean(bean);
 					_logger.info("***update base bean***"+bean);
+
+					StringBuilder sb = new StringBuilder();
+					sb.append("销售单品名从:"+bean.getProductName()+"修改为:"+each.getDestProductName());
+					this.log(user,outId, OperationConstant.OPERATION_UPDATE,sb.toString(), ModuleConstant.MODULE_PRODUCT_NAME_CHANGE);
 				}
 			}
 
@@ -3539,7 +3628,25 @@ public class OutImportManagerImpl implements OutImportManager
 		return result;
 	}
 
-    @Override
+	@Override
+	@Transactional(rollbackFor = MYException.class)
+	public void twOrderJob() {
+		_logger.info("*****twOrderJob 1111");
+		String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+		if (AppConstant.APP_NAME_TW.equals(appName)){
+			_logger.info("***twOrderJob running***");
+			ConditionParse conditionParse = new ConditionParse();
+			conditionParse.addCondition("status","=", 0);
+			List<TwOutImportBean> twOutImportBeans = this.twOutImportDAO.queryEntityBeansByCondition(conditionParse);
+			if (!ListTools.isEmptyOrNull(twOutImportBeans)){
+			    _logger.info("***TwOutImportBean size***"+twOutImportBeans.size());
+				this.processAsyn(twOutImportBeans);
+			}
+			_logger.info("***twOrderJob finished***");
+		}
+	}
+
+	@Override
     @Transactional(rollbackFor = MYException.class)
     public void offlineOrderJob() {
         //To change body of implemented methods use File | Settings | File Templates.
@@ -3867,40 +3974,46 @@ public class OutImportManagerImpl implements OutImportManager
 						baseBean.setOwner("0");
 						baseBean.setOwnerName("公共");
 
-						// 业务员结算价，总部结算价
-						double sailPrice = product.getSailPrice();
+						//#779 settleprice字段有值，则写入BASE表中的pprice和iprice中，如果settleprice字段没有值，按原来的结算价取值逻辑取值
+						if (Math.abs(olBaseBean.getSettlePrice()) >0){
+							baseBean.setPprice(olBaseBean.getSettlePrice());
+							baseBean.setIprice(olBaseBean.getSettlePrice());
+							baseBean.setInputPrice(olBaseBean.getSettlePrice());
+						} else{
+							// 业务员结算价，总部结算价
+							double sailPrice = product.getSailPrice();
 
-						// 根据配置获取结算价
-						List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+							// 根据配置获取结算价
+							List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
 
-						if (!ListTools.isEmptyOrNull(pcblist))
-						{
-							PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+							if (!ListTools.isEmptyOrNull(pcblist))
+							{
+								PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
 
-							sailPrice = cb.getSailPrice();
+								sailPrice = cb.getSailPrice();
+							}
+
+							// 获取销售配置
+							SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+									product);
+
+							// 总部结算价(产品结算价 * (1 + 总部结算率))
+							baseBean.setPprice(sailPrice
+									* (1 + sailConf.getPratio() / 1000.0d));
+
+							//#647
+							if(sailConf.getIprice() > 0){
+								baseBean.setIprice(sailConf.getIprice());
+							} else{
+								// 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+								baseBean.setIprice(sailPrice
+										* (1 + sailConf.getIratio() / 1000.0d + sailConf
+										.getPratio() / 1000.0d));
+							}
+
+							// 业务员结算价就是事业部结算价
+							baseBean.setInputPrice(baseBean.getIprice());
 						}
-
-						// 获取销售配置
-						SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
-								product);
-
-						// 总部结算价(产品结算价 * (1 + 总部结算率))
-						baseBean.setPprice(sailPrice
-								* (1 + sailConf.getPratio() / 1000.0d));
-
-						//#647
-						if(sailConf.getIprice() > 0){
-						    baseBean.setIprice(sailConf.getIprice());
-                        } else{
-                            // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                            baseBean.setIprice(sailPrice
-                                    * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                                    .getPratio() / 1000.0d));
-                        }
-
-
-						// 业务员结算价就是事业部结算价
-						baseBean.setInputPrice(baseBean.getIprice());
 
 
 						//#551 去掉控制
@@ -4103,6 +4216,10 @@ public void offlineStorageInJob() {
                         List<BaseBean> refBaseBeans = this.findBaseBeanToBack(amount, outBaseBeans, inBaseBeans);
                         _logger.info("***refBaseBeans size***"+refBaseBeans.size());
                         for (BaseBean refBaseBean : refBaseBeans){
+                        	if (refBaseBean.getAmount() == 0){
+                        		_logger.warn("amount is 0:"+refBaseBean);
+                        		continue;
+							}
                             _logger.info("***find refBaseBean ***"+refBaseBean);
                             OutBean outBean = new OutBean();
                             outBean.setType(OutConstant.OUT_TYPE_INBILL);
@@ -4187,7 +4304,12 @@ public void offlineStorageInJob() {
 
                             baseBean.setPrice(refBaseBean.getPrice());
                             baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
-                            baseBean.setCostPrice(refBaseBean.getCostPrice());
+							if (item.getCostPrice() >0 ){
+								baseBean.setCostPrice(item.getCostPrice());
+							} else{
+								baseBean.setCostPrice(refBaseBean.getCostPrice());
+							}
+
                             baseBean.setCostPriceKey(StorageRelationHelper
                                     .getPriceKey(baseBean.getCostPrice()));
 
@@ -4257,7 +4379,9 @@ public void offlineStorageInJob() {
                             }
 
                             outBean.setTotal(value);
-                            outBean.setStatus(OutConstant.STATUS_SUBMIT);
+//                            outBean.setStatus(OutConstant.STATUS_SUBMIT);
+                            //#777
+                            outBean.setStatus(OutConstant.BUY_STATUS_SUBMIT);
 							outBean.setLocation(baseBean.getLocationId());
                             outBean.setLocationId("999");
 
@@ -4289,7 +4413,8 @@ public void offlineStorageInJob() {
 
                 //#349 如果outtype字段有值，退货自动入到指定的空退空开库
 				// 再开出新的出库单空发，类型为outtype字段值，客户ID为outcustomerid,数量为空退的数量，收货人记为outreceiver，运输方式为空发
-				if (item.getOutType()!= null && !ListTools.isEmptyOrNull(generatedOutBeans)) {
+                //#777 先不管空开空退了
+/*				if (item.getOutType()!= null && !ListTools.isEmptyOrNull(generatedOutBeans)) {
 					_logger.info("空开空退:" + item.getId());
 					for (OutBean outBean : generatedOutBeans) {
 						try {
@@ -4302,7 +4427,7 @@ public void offlineStorageInJob() {
 							_logger.error(e);
 						}
 					}
-				}
+				}*/
             }
         }
     }
@@ -4325,7 +4450,7 @@ public void offlineStorageInJob() {
 	 * @return
 	 */
 	private List<BaseBean> findBaseBeanToBack(int inAmount, List<BaseBean> outBaseBeans, List<BaseBean> inBaseBeans){
-		_logger.info("***outBaseBeans "+outBaseBeans.size()+" vs inBaseBeans "+inBaseBeans.size());
+		_logger.info("***outBaseBeans "+outBaseBeans+" vs inBaseBeans "+inBaseBeans);
 		List<BaseBean> result = new ArrayList<BaseBean>();
 
 		//同一商品按成本价从高到低取
@@ -4334,20 +4459,12 @@ public void offlineStorageInJob() {
 				return (int)(o2.getCostPrice() - o1.getCostPrice());
 			}
 		});
-
-		for (BaseBean out: outBaseBeans){
-			_logger.info("***out base***"+out);
-		}
-
 		Collections.sort(inBaseBeans, new Comparator<BaseBean>() {
 			public int compare(BaseBean o1, BaseBean o2) {
 				return (int)(o2.getCostPrice() - o1.getCostPrice());
 			}
 		});
 
-		for (BaseBean in: inBaseBeans){
-			_logger.info("***in base**"+in);
-		}
 
 //        if (ListTools.isEmptyOrNull(inBaseBeans) && !ListTools.isEmptyOrNull(outBaseBeans)){
 //            //尚未入库
@@ -4415,6 +4532,22 @@ public void offlineStorageInJob() {
 	public void setTransactionManager(PlatformTransactionManager transactionManager)
 	{
 		this.transactionManager = transactionManager;
+	}
+
+
+	private void log(User user, String id, String operation, String reason, String module) {
+		// 记录审批日志
+		LogBean log = new LogBean();
+
+		log.setFkId(id);
+		log.setLocationId(user.getLocationId());
+		log.setStafferId(user.getStafferId());
+		log.setLogTime(TimeTools.now());
+		log.setModule(module);
+		log.setOperation(operation);
+		log.setLog(reason);
+
+		logDAO.saveEntityBean(log);
 	}
 
 	public CommonDAO getCommonDAO()
@@ -4893,5 +5026,13 @@ public void offlineStorageInJob() {
 
 	public void setProductImportDAO(ProductImportDAO productImportDAO) {
 		this.productImportDAO = productImportDAO;
+	}
+
+	public void setLogDAO(LogDAO logDAO) {
+		this.logDAO = logDAO;
+	}
+
+	public void setTwOutImportDAO(TwOutImportDAO twOutImportDAO) {
+		this.twOutImportDAO = twOutImportDAO;
 	}
 }

@@ -1522,7 +1522,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         if (result.getResult() == 0)
         {
         	// 尝试全部付款
-            outManager.payOutWithoutTransactional(user, out.getFullId(), "付款申请通过");        	
+            outManager.payOutWithoutTransactional(user, out.getFullId(), "付款申请通过", OutConstant.SJSKWC);
         }
 
         // 回款超出了限制(非法)
@@ -1554,7 +1554,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         if (result.getResult() == 0)
         {
             // 尝试全部付款
-            outManager.payOutWithoutTransactional(null, out.getFullId(), "付款申请通过");
+            outManager.payOutWithoutTransactional(null, out.getFullId(), "付款申请通过", OutConstant.SJSKWC);
         }
 
         // 回款超出了限制(非法)

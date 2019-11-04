@@ -17,6 +17,21 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.actionhelper.jsonimpl.JSONStringer;
+import com.china.center.oa.customer.constant.CustomerConstant;
+import com.china.center.oa.product.constant.StorageConstant;
+import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.ExpressBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.ExpressDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.manager.OutManager;
+import com.china.center.tools.*;
+import net.sf.json.JSON;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -53,28 +68,10 @@ import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.vo.DepotpartVO;
 import com.china.center.oa.product.vo.ProductBOMVO;
 import com.china.center.oa.publics.Helper;
-import com.china.center.oa.publics.bean.DepartmentBean;
-import com.china.center.oa.publics.bean.DutyBean;
-import com.china.center.oa.publics.bean.FlowLogBean;
-import com.china.center.oa.publics.bean.InvoiceBean;
-import com.china.center.oa.publics.bean.LocationBean;
-import com.china.center.oa.publics.bean.ShowBean;
-import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.InvoiceConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.PublicLock;
-import com.china.center.oa.publics.dao.CommonDAO;
-import com.china.center.oa.publics.dao.DepartmentDAO;
-import com.china.center.oa.publics.dao.DutyDAO;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.dao.InvoiceDAO;
-import com.china.center.oa.publics.dao.LocationDAO;
-import com.china.center.oa.publics.dao.RoleAuthDAO;
-import com.china.center.oa.publics.dao.RoleDAO;
-import com.china.center.oa.publics.dao.ShowDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
-import com.china.center.oa.publics.dao.UserDAO;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.publics.manager.UserManager;
@@ -111,14 +108,8 @@ import com.china.center.oa.stock.vo.StockVO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.RequestTools;
-import com.china.center.tools.SequenceTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
+
+import com.china.center.oa.sail.bean.DistributionBean;
 
 import jxl.Workbook;
 import jxl.write.Label;
@@ -196,6 +187,16 @@ public class StockAction extends DispatchAction
     private PurchaseXqqrDAO purchaseXqqrDAO = null;
 
     private static String RPTQUERYSTOCKITEM = "rptQueryStockItem";
+
+    protected OutManager outManager = null;
+
+    protected OutDAO outDAO = null;
+    protected BaseDAO baseDAO = null;
+
+    protected ExpressDAO expressDAO = null;
+    protected ProvinceDAO provinceDAO = null;
+
+    protected CityDAO cityDAO = null;
 
     /**
      *
@@ -2196,6 +2197,14 @@ public class StockAction extends DispatchAction
         List<StockWorkBean> swList = stockWorkDAO.queryEntityBeansByFK(id);
 
         request.setAttribute("stockWorkBeanList", swList);
+        
+        //关联采购退货
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addCondition("refOutFullId","=",id);
+        List<OutBean> stockBackOutList = outDAO.queryEntityBeansByCondition(conditionParse);
+
+        request.setAttribute("stockBackOutList", stockBackOutList);
 
         String addStockArrival = request.getParameter("addStockArrival");
         String updateStockArrival = request.getParameter("updateStockArrival");
@@ -2249,6 +2258,15 @@ public class StockAction extends DispatchAction
         StockVO vo = null;
 
         vo = stockManager.findStockVO(id);
+
+        //prepare productProviderVSpriceMap for page validation
+        StringBuffer bufferForMap = new StringBuffer();
+        for(StockItemVO itemVO : vo.getItemVO()){
+            String key = itemVO.getProductId()+"_"+itemVO.getProviderId();
+            double value = itemVO.getPrice();
+            bufferForMap.append(key).append(":").append(value).append(";");
+        }
+        request.setAttribute("productProviderVSpriceMap", bufferForMap.toString());
 
         request.setAttribute("bean", vo);
 //        request.setAttribute("divMap", vo.getDivMap());
@@ -2466,6 +2484,9 @@ public class StockAction extends DispatchAction
 
         request.setAttribute("logs", logsVO);
 
+        String beanItemVO = JSONTools.getJSONString(vo.getItemVO());
+        request.setAttribute("beanItemVOJson", beanItemVO);
+
         if ("1".equals(stockAskChange))
         {
             return mapping.findForward("stockAskChange");
@@ -2487,7 +2508,100 @@ public class StockAction extends DispatchAction
 
         String addStockArrival = request.getParameter("addStockArrival");
         String updateStockArrival = request.getParameter("updateStockArrival");
+        
+        //获取已提交的采购退货
+
+        List<Map> baseList = new ArrayList<Map>();
+        try{
+        	List<Map> tempList = baseDAO.queryBaseByStockId(id);
+
+        	_logger.debug("stockid:"+id+", tempList.size():"+tempList.size());
+        	
+            List<StockItemVO> stockItemVOs = vo.getItemVO();
+            
+            Map<String, String> providerMap = new HashMap<String, String>();
+            Map<String, String> dutyMap = new HashMap<String, String>();
+            Map<String, String> invoiceMap = new HashMap<String, String>();
+
+            for(StockItemVO stockItemVO : stockItemVOs){
+            	providerMap.put(stockItemVO.getProviderId(), stockItemVO.getProviderName());
+            	dutyMap.put(stockItemVO.getDutyId(), stockItemVO.getDutyName());
+            	invoiceMap.put(stockItemVO.getInvoiceType(), stockItemVO.getInvoiceTypeName());
+
+            }
+            
+            _logger.debug(providerMap);
+            _logger.debug(dutyMap);
+            _logger.debug(invoiceMap);
+        	
+            //获取相关信息
+            for (Map baseItem:tempList){
+            	String providerId = (String)baseItem.get("providerId");
+            	String dutyId = (String)baseItem.get("dutyId");
+            	String invoiceId = (String)baseItem.get("invoiceId");
+
+                _logger.debug("providerId:"+providerId+", dutyId:"+dutyId+", invoiceId:"+invoiceId);
+                
+                baseItem.put("provider", providerMap.get(providerId));
+                //baseItem.put("providerId",stockItemVO.getProviderId());
+                baseItem.put("duty",dutyMap.get(dutyId));
+                //baseItem.put("dutyId",stockItemVO.getDutyId());
+                baseItem.put("invoiceType",invoiceMap.get(invoiceId));
+                //baseItem.put("invoiceId",stockItemVO.getInvoiceType());
+            }
+            baseList.addAll(tempList);
+        }catch(Exception ex){
+            _logger.error(ex);
+        }
+        
+        request.setAttribute("baseList", baseList);
+        
+        //准备供应商、纳税实体、发票类型列表
+        List<Map<String, String>> providerList = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> dutyList = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> invoiceList = new ArrayList<Map<String, String>>();
+
+        for (StockItemVO itemVO : vo.getItemVO())
+        {
+            Map<String, String> providerMap = this.getMap(itemVO.getProviderId(), itemVO.getProviderName());
+            if(!providerList.contains(providerMap)){
+            	_logger.debug("provider "+itemVO.getProviderId()+":"+itemVO.getProviderName());
+                providerList.add(providerMap);
+            }
+
+            Map<String, String> dutyMap = this.getMap(itemVO.getDutyId(), itemVO.getDutyName());
+            if(!dutyList.contains(dutyMap)){
+                dutyList.add(dutyMap);
+            }
+
+            Map<String, String> invoiceMap = this.getMap(itemVO.getInvoiceType(), itemVO.getInvoiceTypeName());
+            if(!invoiceList.contains(invoiceMap)){
+                invoiceList.add(invoiceMap);
+            }
+
+        }
+        request.setAttribute("providerList", providerList);
+        request.setAttribute("dutyList", dutyList);
+        request.setAttribute("invoiceList", invoiceList);
+        
+		//运输方式
+		List<ExpressBean> expressList = this.expressDAO.listEntityBeans();
+		request.setAttribute("expressList", expressList);
+
+		//省市
+		List<ProvinceBean> provinceList = this.provinceDAO.listEntityBeans();
+		request.setAttribute("provinceList", provinceList);
+		List<CityBean> cityList = this.cityDAO.listEntityBeans();
+		request.setAttribute("cityList", cityList);
+        
         return mapping.findForward("addStockBack");
+    }
+
+    private Map<String, String> getMap(String id, String name){
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("id", id);
+        map.put("name", name);
+        return map;
     }
 
     /**
@@ -3680,6 +3794,412 @@ public class StockAction extends DispatchAction
 
         return queryStock(mapping, form, request, reponse);
     }
+    
+	/**
+	 * 处理多个采购退货
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param reponse
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward addOuts(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse reponse)
+			throws ServletException
+	{
+		
+		String saves = request.getParameter("saves");
+
+		String step = request.getParameter("step");
+
+		String hasProm = request.getParameter("hasProm");
+
+		String oprType = request.getParameter("oprType");
+
+		if (StringTools.isNullOrNone(oprType)) oprType = "";
+		
+
+		// 客户信用级别
+		String customercreditlevel = request
+				.getParameter("customercreditlevel");
+
+		String fullId = request.getParameter("fullId");
+		
+		//String fullId = request.getParameter("stockId");
+
+		String update = request.getParameter("update");
+
+		if ("save".equals(saves))
+		{
+			saves = "保存";
+		}
+		else
+		{
+			saves = "提交";
+		}
+        _logger.info("addOut 22222222222222222222222");
+		
+		//处理参数
+		
+		
+		final String[] prices = request.getParameterValues("price");
+		final String[] depotpartIds = request.getParameterValues("depotpartId");
+		final String[] depotIds = request.getParameterValues("depotId");
+		final String[] providerIds1 = request.getParameterValues("providerId");
+		//final String[] providerNames = request.getParameterValues("providerName");
+		final String[] dutyIds = request.getParameterValues("dutyId");
+		final String[] invoiceIds = request.getParameterValues("invoiceId");
+		
+		//location, locationID 比较乱，要对照关联关系看
+		//对应location
+		final String[] locationIds = request.getParameterValues("locationId");
+		//对应depot
+		String[] locations = request.getParameterValues("location");
+
+		final String[] nameList = request.getParameterValues("productName");
+
+        final String[] idsList = request.getParameterValues("productId");
+        final String[] amontList = request.getParameterValues("amount");
+        
+        final String[] desList = request.getParameterValues("description");
+        
+        final String[] backTypes = request.getParameterValues("backType");
+        
+        final String[] virtualPriceList = request.getParameterValues("virtualPrice");
+        final String[] virtualPriceKeyList = request.getParameterValues("virtualPriceKey");
+  
+        //providerIds 比其他的少一个，找不出原因，给它补齐
+
+        String[] providerIds = new String[nameList.length];
+        int arrIndex = 0;
+        if(providerIds1.length < nameList.length){
+            if(StringTools.isNullOrNone(nameList[0])){
+            	providerIds[0] = "";
+            }
+            arrIndex++;
+        }
+        for(String str : providerIds1){
+        	providerIds[arrIndex] = str;
+        	arrIndex++;
+        }
+        
+        
+        //debug
+        _logger.debug("parent addOuts, length,  name: " + nameList.length + ", providerIds: " + providerIds.length
+        		+",idsList:"+idsList.length+", backTypes:"+backTypes.length+", desList:"+desList.length
+        		+", dutyIds:"+dutyIds.length+", invoiceIds:"+invoiceIds.length);
+        for(int i=0;i< nameList.length; i++) {
+            _logger.debug("parent addOuts, name: " + nameList[i] + ", idsList: " + idsList[i]);
+        }
+        
+        for(int i=0;i< providerIds.length; i++) {
+            _logger.debug("parent addOuts, providerIds: " + providerIds[i]);
+        }
+        
+		
+		User user = (User) request.getSession().getAttribute("user");
+		
+		String stockId = request.getParameter("stockId");
+		
+		//String locationId = Helper.getCurrentLocationId(request);
+
+		//String location = request.getParameter("location");
+		
+		for(int i=0; i<nameList.length; i++){
+			
+			if(StringTools.isNullOrNone(nameList[i])){
+				continue;
+			}
+			
+			OutBean outBean = new OutBean();
+
+            BeanUtil.getBean(outBean, request);
+
+			//outBean.setLocationId(locationIds[i]);
+			
+			outBean.setLocationId("999");
+			
+			outBean.setLocation(locations[i]);
+
+			outBean.setRefOutFullId(stockId);
+			
+			outBean.setDepotpartId(depotpartIds[i]);
+			
+			outBean.setDutyId(dutyIds[i]);
+			outBean.setInvoiceId(invoiceIds[i]);
+
+			outBean.setStafferId(user.getStafferId());
+			outBean.setStafferName(user.getStafferName());
+			
+			outBean.setOutType(OutConstant.OUTTYPE_IN_STOCK);
+			outBean.setType(OutConstant.OUT_TYPE_INBILL);
+
+			outBean.setCustomerId(providerIds[i]);
+			
+			String customerId = providerIds[i];
+			_logger.debug("customerId:"+customerId);
+			if(!StringTools.isNullOrNone(customerId)){
+				
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addWhereStr();
+                conditionParse.addCondition("id", "=", customerId);
+                List<ProviderBean> providerBeans = this.providerDAO.queryEntityBeansByCondition(conditionParse);		
+
+                _logger.debug("providerBeans.size():"+providerBeans.size());
+                if(providerBeans.size()>0) {
+                	ProviderBean providerBean = providerBeans.get(0);
+                    outBean.setCustomerName(providerBean.getName());
+                }
+            }
+			
+			outBean.setBuyReturnFlag(1);
+
+			outBean.setLogTime(TimeTools.now());
+
+			outBean.setOutTime(TimeTools.now_short());
+			
+			outBean.setDescription(desList[i]);
+			
+			int backType = 1;
+			if(!StringTools.isNullOrNone(backTypes[i])){
+				backType = Integer.parseInt(backTypes[i]);
+			}
+			outBean.setBuyReturnType(backType);
+			
+			/*
+
+			if (StringTools.isNullOrNone(outBean.getLocation()))
+			{
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "没有库存属性,请重新操作");
+
+				return mapping.findForward("error");
+			}
+			*/
+
+			// 商务 - begin
+			ActionForward error = checkAuthForEcommerce(request, user, mapping);
+
+			if (null != error)
+			{
+				return error;
+			}
+
+			User g_srcUser = (User) request.getSession().getAttribute("g_srcUser");
+
+			String elogin = (String) request.getSession().getAttribute("g_elogin");
+
+			String g_loginType = (String) request.getSession().getAttribute(
+					"g_loginType");
+
+			if (!StringTools.isNullOrNone(elogin) && null == g_srcUser)
+			{
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "登陆异常,请重新登陆");
+
+				return mapping.findForward("error");
+			}
+	        _logger.info("addOut 44444444444444444444444");
+			// 当前切换用户登陆的且为商务登陆的，记录经办人
+			if (!StringTools.isNullOrNone(elogin) && null != g_srcUser
+					&& g_loginType.equals("1"))
+			{
+				outBean.setOperator(g_srcUser.getStafferId());
+				outBean.setOperatorName(g_srcUser.getStafferName());
+			}
+			else
+			{
+				outBean.setOperator(user.getStafferId());
+				outBean.setOperatorName(user.getStafferName());
+			}
+			// 商务 - end
+	        _logger.info("addOut 5555555555555555555");
+
+			// 默认很多属性
+			outBean.setStafferId(user.getStafferId());
+			outBean.setStafferName(user.getStafferName());
+
+			if (StringTools.isNullOrNone(outBean.getCustomerId()))
+			{
+				outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+				outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+			}
+
+			outBean.setDepartment("公共部门");
+			outBean.setArriveDate(TimeTools.now_short(10));
+            _logger.info("addOut 77777777777777777777");
+            
+            //构造参数
+            ParamterMap map = new ParamterMap(request);
+
+            map.getParameterMap().put("nameList", nameList[i]);
+            map.getParameterMap().put("idsList", idsList[i]);
+            map.getParameterMap().put("amontList", amontList[i]);
+            map.getParameterMap().put("priceList", prices[i]);
+            map.getParameterMap().put("desList", desList[i]);
+            
+            map.getParameterMap().put("virtualPriceList", virtualPriceList[i]);
+
+            //ele.productid + '-' + ele.price + '-' + ele.stafferid + '-' + ele.depotpartid
+            if(StringTools.isNullOrNone(depotpartIds[i])){
+            	depotpartIds[i] = "999";//特殊字符串，代表depotpartIds 空缺
+            }
+
+            outBean.setDepotpartId(depotpartIds[i]);
+
+            map.getParameterMap().put("otherList", idsList[i]+"-"+prices[i]+"-"+outBean.getStafferId()+"-"+depotpartIds[i]);
+            map.getParameterMap().put("depotList", depotpartIds[i]);
+
+            String productId = idsList[i];
+            int amount = Integer.parseInt((String)amontList[i]);
+
+            try{
+                /* check amount
+                 * 已入库退货 累计数量 小于等于 已拿货数量； 未入库退货 累计数量小于等于 未拿货数量
+                 */
+                //获取采购数量 拿货数量
+                int buyAmount = 0;
+                int gotAmount = 0;
+                ConditionParse conditionStockItem = new ConditionParse();
+                conditionStockItem.addWhereStr();
+                conditionStockItem.addCondition("stockId", "=", stockId);
+                conditionStockItem.addCondition("productId", "=", productId);
+                conditionStockItem.addCondition("providerId", "=", customerId);
+                List<StockItemVO> stockItemVOs = stockItemDAO.queryEntityVOsByCondition(conditionStockItem);
+                if(stockItemVOs.size()>0) {
+                    for (StockItemVO stockItemVO : stockItemVOs) {
+                        buyAmount = stockItemVO.getAmount();
+                        gotAmount = stockItemVO.getTotalWarehouseNum();
+                    }
+                }
+                //获取累计退货数量
+                List<Map> bases = baseDAO.queryBaseByStockId(stockId);
+
+                int totalReturn1 = 0; //已入库退货总数
+                int totalReturn2 = 0; //未入库退货总数
+                for(Map base: bases){
+                    String productId1 = (String)base.get("productId");
+                    String providerId1 = (String)base.get("customerId");
+                    int amount1 = this.getIntFromObj(base.get("amount"));
+                    if(productId1.equals(productId) && providerId1.equals(customerId)){
+                    	String returnType = (String)base.get("buyReturnType");
+                    	if("1".equals(returnType)){
+                    		totalReturn1 += amount1;
+                    	}else{
+                    		totalReturn2 += amount1;
+                    	}
+                        
+                    }
+                }
+                
+                //累计退货数量不能超过采购量
+                if(totalReturn1 + totalReturn2 + amount > buyAmount){
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                            "累计退货数量超出采购数量，请检查。产品编号：" + productId + ", 供应商:" + customerId);
+                    return mapping.findForward("error");                	
+                }
+
+                //比较
+
+                if(backType==1){
+                    //已入库退货 上限为已拿货数量
+                    int total = Math.abs(totalReturn1 + amount);
+                    _logger.debug("产品编号："+productId+", 供应商:"+customerId
+                            +",累计已入库退货："+total+", 已拿货："+gotAmount+", 采购数量："+buyAmount+", backType:"+backType);
+
+                    if(total > gotAmount){
+                        request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                                "累计已入库退货数量超出已拿货数量，请检查。产品编号："+productId+", 供应商:"+customerId);
+                        return mapping.findForward("error");
+                    }
+                }else {
+                    int total = Math.abs(totalReturn2 + amount);
+                    _logger.debug("产品编号："+productId+", 供应商:"+customerId
+                            +",累计未入库退货："+total+", 已拿货："+gotAmount+", 采购数量："+buyAmount+", backType:"+backType);
+                    //未入库退货 上限为未拿货数量
+                    if (total > (buyAmount - gotAmount)) {
+                        request.setAttribute(KeyConstant.ERROR_MESSAGE,
+                                "累计未入库退货数量超出未拿货数量，请检查。产品编号：" + productId + ", 供应商:" + customerId);
+                        return mapping.findForward("error");
+                    }
+                }
+            }catch(Exception ex) {
+                _logger.error("check amount error", ex);
+            }
+            
+			// 入库单的处理
+			try
+			{
+				//发货信息
+				if(backType == 1){
+					this.fillDistributionForRemoteAllocate(request, outBean);
+				}
+				
+				String id = outManager.addOut(outBean, map.getParameterMap(), user);
+                _logger.info("addOut 88888888888888888888*********"+id);
+				if ("提交".equals(saves))
+				{
+					int ttype = StorageConstant.OPR_STORAGE_INOTHER;
+					
+                    _logger.info("addOut aaaaaaaaaaaaaaaa*********");
+					outManager.submit(id, user, ttype);
+				}
+			}
+			catch (MYException e)
+			{
+                e.printStackTrace();
+				_logger.warn(e, e);
+
+				request.setAttribute(KeyConstant.ERROR_MESSAGE,
+						"处理错误:" + e.getErrorContent());
+
+				return mapping.findForward("error");
+			}
+			catch (Exception e)
+			{
+                e.printStackTrace();
+				_logger.error(e, e);
+
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getMessage());
+
+				return mapping.findForward("error");
+			}
+
+		}
+		
+        CommonTools.removeParamers(request);
+
+        request.setAttribute("ltype", "0");
+        request.setAttribute("load", "1");
+        request.setAttribute("menu", "1");
+		
+		request.setAttribute(KeyConstant.MESSAGE, "成功提交采购退货单!");
+		
+		return queryStock(mapping, form, request, reponse);
+	}
+
+	public int getIntFromObj(Object obj){
+	    int rst = 0;
+	    if(obj!=null){
+	        try{
+	            rst = Integer.parseInt(String.valueOf(obj));
+            }catch(Exception ex){
+            }
+        }
+	    return rst;
+    }
+	
+    private void fillDistributionForRemoteAllocate(HttpServletRequest rds, OutBean out)
+    {
+        DistributionBean distributionBean = new DistributionBean();
+
+        distributionBean.setOutId(out.getFullId());
+
+        out.setDistributeBean(distributionBean);
+
+        BeanUtil.getBean(distributionBean, rds);
+        _logger.info(out+" fillDistributionForRemoteAllocate*****"+distributionBean);
+
+    }
 
 
     /**
@@ -4451,4 +4971,54 @@ public class StockAction extends DispatchAction
     public void setPurchaseXqqrDAO(PurchaseXqqrDAO purchaseXqqrDAO) {
         this.purchaseXqqrDAO = purchaseXqqrDAO;
     }
+
+	public OutManager getOutManager() {
+		return outManager;
+	}
+
+	public void setOutManager(OutManager outManager) {
+		this.outManager = outManager;
+	}
+
+    public OutDAO getOutDAO() {
+        return outDAO;
+    }
+
+    public void setOutDAO(OutDAO outDAO) {
+        this.outDAO = outDAO;
+    }
+
+    public BaseDAO getBaseDAO() {
+        return baseDAO;
+    }
+
+    public void setBaseDAO(BaseDAO baseDAO) {
+        this.baseDAO = baseDAO;
+    }
+
+    public ExpressDAO getExpressDAO() {
+        return expressDAO;
+    }
+
+    public void setExpressDAO(ExpressDAO expressDAO) {
+        this.expressDAO = expressDAO;
+    }
+
+    public ProvinceDAO getProvinceDAO() {
+        return provinceDAO;
+    }
+
+    public void setProvinceDAO(ProvinceDAO provinceDAO) {
+        this.provinceDAO = provinceDAO;
+    }
+
+    public CityDAO getCityDAO() {
+        return cityDAO;
+    }
+
+    public void setCityDAO(CityDAO cityDAO) {
+        this.cityDAO = cityDAO;
+    }
+    
+    
 }

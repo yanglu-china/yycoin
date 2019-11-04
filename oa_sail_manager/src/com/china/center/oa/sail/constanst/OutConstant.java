@@ -162,6 +162,23 @@ public interface OutConstant
     @Defined(key = "inway", value = "非在途")
     int IN_WAY_NO = 0;
 
+
+    @Defined(key = "backPay", value = "已回款退货")
+    int YHKTH = 1;
+
+    @Defined(key = "backPay", value = "未回款退货")
+    int WHKTH = 2;
+
+    @Defined(key = "backPay", value = "实际收款完成")
+    int SJSKWC = 3;
+
+    @Defined(key = "backPay", value = "实际付款退货")
+    int SJFKTH = 4;
+
+    @Defined(key = "backPay", value = "未付款退货")
+    int WFKTH = 5;
+
+
     /**
      * 在途中
      */
@@ -472,6 +489,66 @@ public interface OutConstant
      */
     @Defined(key = "buyStatus", value = "待董事长审批")
     int BUY_STATUS_CHAIRMA_CHECK = 10;
+    
+    /**
+     * 保存
+     */
+    @Defined(key = "buyReturnStatus", value = "保存")
+    int BUY_RETURN_STATUS_SAVE = 0;
+
+    /**
+     * 驳回
+     */
+    @Defined(key = "buyReturnStatus", value = "驳回")
+    int BUY_RETURN_STATUS_REJECT = 2;
+
+    /**
+     * 待回款(这里的销售单库存就变动了)(一般此通过即是销售单已经OK status in (3, 4))
+     */
+    @Defined(key = "buyReturnStatus", value = "待核对")
+    int BUY_RETURN_STATUS_PASS = 3;
+
+    /**
+     * 财务核对(单据结束)
+     */
+    @Defined(key = "buyReturnStatus", value = "结束")
+    int BUY_RETURN_STATUS_SEC_PASS = 4;
+
+    /**
+     * 待财务审批(仅仅是其他入库的时候)
+     */
+    @Defined(key = "buyReturnStatus", value = "待财务审批")
+    int BUY_RETURN_STATUS_SECOND_PASS = 5;
+
+    /**
+     * 待物流审批
+     */
+    @Defined(key = "buyReturnStatus", value = "待物流审批")
+    int BUY_RETURN_STATUS_MANAGER_PASS = 6;
+
+    /**
+     * 物流管理员通过
+     */
+    @Defined(key = "buyReturnStatus", value = "待库管审批")
+    int BUY_RETURN_STATUS_FLOW_PASS = 7;
+
+    /**
+     * 待事业部经理审批
+     */
+    @Defined(key = "buyReturnStatus", value = "生产采购经理审批")
+    int BUY_RETURN_STATUS_LOCATION_MANAGER_CHECK = 8;
+
+    /**
+     * 待总裁审批
+     */
+    @Defined(key = "buyReturnStatus", value = "运营总监审批")
+    int BUY_RETURN_STATUS_CEO_CHECK = 9;
+
+    /**
+     * 待董事长审批(入库单专用)
+     */
+    @Defined(key = "buyReturnStatus", value = "分管副总裁审批")
+    int BUY_RETURN_STATUS_CHAIRMA_CHECK = 10;
 
     /**
      * 坏账状态-NO

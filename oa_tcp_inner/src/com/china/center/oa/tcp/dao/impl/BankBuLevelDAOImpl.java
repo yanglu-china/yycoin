@@ -9,16 +9,14 @@
 package com.china.center.oa.tcp.dao.impl;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.china.center.jdbc.inter.impl.BaseDAO;
 import com.china.center.oa.tcp.bean.BankBuLevelBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
 import com.china.center.oa.tcp.dao.BankBuLevelDAO;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.StringTools;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean> implements BankBuLevelDAO
 {
@@ -115,17 +113,22 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
                     }
                 }
             } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                //manager
+                //manager -> sybmanager
+/*                result = jdbcOperation.queryObjectsBySql(
+                        "select id, managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);*/
+                
                 result = jdbcOperation.queryObjectsBySql(
-                        "select id,managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        "select id, sybmanagerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
                         .setMaxResults(600).list(BankBuLevelBean.class);
+                
                 if (result.size() == 1) {
-                    return result.get(0).getManagerId();
+                    return result.get(0).getSybmanagerId();
                 } else {
                     //#341 考虑到一人多岗情况,优先根据发起人选择
                     for (BankBuLevelBean bean : result) {
                         if (bean.getId().equals(originator)) {
-                            return bean.getManagerId();
+                            return bean.getSybmanagerId();
                         }
                     }
                 }
@@ -177,17 +180,22 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
                     }
                 }
             } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
-                //manager
-                result = jdbcOperation.queryObjectsBySql(
+                //manager -> sybmanager
+/*                result = jdbcOperation.queryObjectsBySql(
                         "select id,managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);*/
+                
+                result = jdbcOperation.queryObjectsBySql(
+                        "select id,sybmanagerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
                         .setMaxResults(600).list(BankBuLevelBean.class);
+                
                 if (result.size() == 1) {
-                    return result.get(0).getManagerId();
+                    return result.get(0).getSybmanagerId();
                 } else {
                     //#341 考虑到一人多岗情况,优先根据发起人选择
                     for (BankBuLevelBean bean : result) {
                         if (bean.getId().equals(originator)) {
-                            return bean.getManagerId();
+                            return bean.getSybmanagerId();
                         }
                     }
                 }

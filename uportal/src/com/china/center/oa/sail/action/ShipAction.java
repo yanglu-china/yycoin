@@ -19,25 +19,22 @@ import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.bean.InsVSInvoiceNumBean;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
-import com.china.center.oa.finance.bean.InvoiceinsImportBean;
 import com.china.center.oa.finance.bean.InvoiceinsItemBean;
 import com.china.center.oa.finance.dao.InsVSInvoiceNumDAO;
-import com.china.center.oa.finance.dao.InsVSOutDAO;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.dao.InvoiceinsItemDAO;
 import com.china.center.oa.finance.vo.InvoiceinsVO;
-import com.china.center.oa.finance.vs.InsVSOutBean;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.vo.ComposeItemVO;
-import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.AuthConstant;
+import com.china.center.oa.publics.constant.InvoiceConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
@@ -149,11 +146,15 @@ public class ShipAction extends DispatchAction
 
     private ProductVSGiftDAO productVSGiftDAO = null;
 
+    private ParameterDAO parameterDAO = null;
+
     private final static String QUERYPACKAGE = "queryPackage";
 
     private final static String QUERYPICKUP = "queryPickup";
 
     private final static String DGNS = "东莞农商";
+
+    private final String ZP_INVOICE = "90000000000000000046";
 
     /**
      * default construct
@@ -5685,19 +5686,51 @@ public class ShipAction extends DispatchAction
     {
         User user = (User) request.getSession().getAttribute("user");
         String packageId = request.getParameter("packageId");
+        String batchId = request.getParameter("batchId");
         _logger.info("***packageId***"+packageId);
-        List<InvoiceinsVO> invoiceinsList = this.findInvoiceinsWithXN(packageId);
+        List<InvoiceinsVO> invoiceinsList = new ArrayList<>();
+        if (!StringTools.isNullOrNone(packageId)){
+            invoiceinsList = this.findInvoiceinsWithXN(packageId);
+        } else if (!StringTools.isNullOrNone(batchId)){
+            invoiceinsList = this.findInvoiceinsWithXNAndBatch(batchId);
+        }
 
         _logger.info("***invoiceinsList***"+invoiceinsList);
-
         request.setAttribute("invoiceList", invoiceinsList);
         request.setAttribute("packageId", packageId);
+        request.setAttribute("batchId", batchId);
 
         return mapping.findForward("printInvoiceins");
     }
 
-    private List<InvoiceinsVO> findInvoiceinsWithXN(String packageId){
+    private List<InvoiceinsVO> findInvoiceinsWithXNAndBatch(String pickupId){
         List<InvoiceinsVO> invoiceinsList = new ArrayList<InvoiceinsVO>();
+        List<PackageBean> packageBeans = packageDAO.queryEntityBeansByFK(pickupId);
+        for (PackageBean packageBean: packageBeans){
+            List<PackageItemBean> itemList = this.packageItemDAO.queryEntityBeansByFK(packageBean.getId());
+            for (PackageItemBean item: itemList){
+                String productName = item.getProductName();
+                if (productName!= null && productName.startsWith("发票号：XN")){
+                    String insId = item.getOutId();
+                    InvoiceinsVO invoiceinsBean = this.invoiceinsDAO.findVO(insId);
+                    if (invoiceinsBean!= null){
+                        int amount = this.getProductAmount(invoiceinsBean);
+                        double price = invoiceinsBean.getMoneys()/amount;
+                        int fpsl = this.getFpsl(invoiceinsBean);
+                        invoiceinsBean.setItemAmount(amount);
+                        invoiceinsBean.setPrice(price);
+                        invoiceinsBean.setSl(fpsl);
+                        invoiceinsList.add(invoiceinsBean);
+                    }
+                }
+            }
+        }
+
+        return invoiceinsList;
+    }
+
+    private List<InvoiceinsVO> findInvoiceinsWithXN(String packageId){
+        List<InvoiceinsVO> invoiceinsList = new ArrayList<>();
         List<PackageItemBean> itemList = this.packageItemDAO.queryEntityBeansByFK(packageId);
         for (PackageItemBean item: itemList){
             String productName = item.getProductName();
@@ -5728,10 +5761,13 @@ public class ShipAction extends DispatchAction
     }
 
     private int getFpsl(InvoiceinsBean bean){
-        InvoiceBean invoiceBean = this.invoiceDAO.find(bean.getInvoiceId());
+        String invoiceId = bean.getInvoiceId();
+        InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceId);
         int val = 0;
         if (invoiceBean!= null){
-            if (this.equals(invoiceBean.getVal(), 2, 0.001)){
+            if (ZP_INVOICE.equals(invoiceId)){
+                val = 13;
+            }else if (this.equals(invoiceBean.getVal(), 2, 0.001)){
                 val = 3;
             }else{
                 val = (int)invoiceBean.getVal();
@@ -5756,16 +5792,22 @@ public class ShipAction extends DispatchAction
     {
         User user = (User) request.getSession().getAttribute("user");
         String packageId = request.getParameter("packageId");
-        _logger.info("***packageId***"+packageId);
+        String batchId = request.getParameter("batchId");
+        _logger.info("***packageId***"+packageId+"***batchId***"+batchId);
         JsonMapper mapper = new JsonMapper();
         AppResult result = new AppResult();
 
-        Map<String,String> invoiceToXml = new HashMap<String, String>();
-        List<InvoiceinsVO> invoiceinsList = this.findInvoiceinsWithXN(packageId);
+        Map<String,String> invoiceToXml = new HashMap<>();
+        List<InvoiceinsVO> invoiceinsList = new ArrayList<>();
+        if (!StringTools.isNullOrNone(packageId)){
+            invoiceinsList = this.findInvoiceinsWithXN(packageId);
+        } else if (!StringTools.isNullOrNone(batchId)){
+            invoiceinsList = this.findInvoiceinsWithXNAndBatch(batchId);
+        }
 
         //generate XML payload
         for (InvoiceinsBean  bean:invoiceinsList){
-            String payload = this.createXML(user, invoiceinsList.get(0));
+            String payload = this.createXML(user, bean);
             invoiceToXml.put(bean.getId(),payload);
         }
 
@@ -5794,27 +5836,24 @@ public class ShipAction extends DispatchAction
             String invoiceId = bean.getInvoiceId();
             InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceId);
             String fpzl;
-            String gfmc;
-            String gfsh;
-            String gfyh;
-            String gfdz;
-            String fpsl;
+            String gfmc = bean.getHeadContent();
+            String gfsh = bean.getGfsh();
+            String gfyh = bean.getGfyh();
+            String gfdz = bean.getGfdz();
+
             //专票
-            if ("90000000000000000046".equals(invoiceId)){
-                fpzl = "2";
-                fpsl = "13";
-                gfmc = bean.getHeadContent();
-                gfsh = bean.getGfsh();
-                gfyh = bean.getGfyh();
-                gfdz = bean.getGfdz();
-            } else{
+            if (ZP_INVOICE.equals(invoiceId)){
                 fpzl = "0";
-                //TODO
-                fpsl = "0";
-                gfmc = bean.getHeadContent();
-                gfsh = "";
-                gfyh = "";
-                gfdz = "";
+//                gfmc = bean.getHeadContent();
+//                gfsh = bean.getGfsh();
+//                gfyh = bean.getGfyh();
+//                gfdz = bean.getGfdz();
+            } else{
+                fpzl = "2";
+//                gfmc = bean.getHeadContent();
+//                gfsh = "";
+//                gfyh = "";
+//                gfdz = "";
             }
             // carname element
             Element fpzlElm = doc.createElement("fpzl");
@@ -5844,7 +5883,8 @@ public class ShipAction extends DispatchAction
             invhead.appendChild(gfdzElm);
 
             Element fpslElm = doc.createElement("fpsl");
-            fpslElm.appendChild(doc.createTextNode(fpsl));
+            int fpsl = this.getFpsl(bean);
+            fpslElm.appendChild(doc.createTextNode(String.valueOf(fpsl)));
             invhead.appendChild(fpslElm);
 
             Element fpbz = doc.createElement("fpbz");
@@ -5852,23 +5892,23 @@ public class ShipAction extends DispatchAction
                     doc.createTextNode(""));
             invhead.appendChild(fpbz);
 
-            ////开票人
-            Element kprm = doc.createElement("kprm");
-            kprm.appendChild(
-                    doc.createTextNode("李均玲"));
-            invhead.appendChild(kprm);
+            //开票人
+            Element kprmElm = doc.createElement("kprm");
+            String kprm = parameterDAO.getString("kprm");
+            kprmElm.appendChild(doc.createTextNode(kprm));
+            invhead.appendChild(kprmElm);
 
             //复核人
-            Element fhrm = doc.createElement("fhrm");
-            fhrm.appendChild(
-                    doc.createTextNode("李敏"));
-            invhead.appendChild(fhrm);
+            Element fhrmElm = doc.createElement("fhrm");
+            String fhrm = parameterDAO.getString("fhrm");
+            fhrmElm.appendChild(doc.createTextNode(fhrm));
+            invhead.appendChild(fhrmElm);
 
             //收款人
-            Element skrm = doc.createElement("skrm");
-            skrm.appendChild(
-                    doc.createTextNode("黄云"));
-            invhead.appendChild(skrm);
+            Element skrmElm = doc.createElement("skrm");
+            String skrm = parameterDAO.getString("skrm");
+            skrmElm.appendChild(doc.createTextNode(skrm));
+            invhead.appendChild(skrmElm);
 
             //含税标识
             Element hsbz = doc.createElement("hsbz");
@@ -5892,71 +5932,101 @@ public class ShipAction extends DispatchAction
             invhead.appendChild(hysy);
 
 
-            //  invdetails
+            // 开票明细
             Element invdetails = doc.createElement("invdetails");
             rootElement.appendChild(invdetails);
 
-            // carname element
-            Element details = doc.createElement("details");
-            invdetails.appendChild(details);
+            List<InvoiceinsItemBean> items = this.invoiceinsItemDAO.queryEntityBeansByFK(bean.getId());
+            Map<String, InvoiceinsItemBean> spmcToInvoice = new HashMap<>();
+            for (InvoiceinsItemBean item: items){
+                String spmc = item.getSpmc();
+                if(spmcToInvoice.containsKey(spmc)){
+                    InvoiceinsItemBean value = spmcToInvoice.get(spmc);
+                    value.setAmount(value.getAmount()+item.getAmount());
+                    value.setMoneys(value.getMoneys()+item.getMoneys());
+                } else{
+                    spmcToInvoice.put(spmc, item);
+                }
+            }
 
-            //Invoiceins 表的开票品名字段
-            Element spmc = doc.createElement("spmc");
-            spmc.appendChild(
-                    doc.createTextNode(bean.getSpmc()));
-            details.appendChild(spmc);
+            _logger.info("***spmcToInvoice***"+spmcToInvoice);
+            for (String key: spmcToInvoice.keySet()){
+                InvoiceinsItemBean value = spmcToInvoice.get(key);
+                // carname element
+                Element details = doc.createElement("details");
+                invdetails.appendChild(details);
 
-            Element ggxh = doc.createElement("ggxh");
-            ggxh.appendChild(
-                    doc.createTextNode(""));
-            details.appendChild(ggxh);
+                //商品名称：invoiceins_item 表的开票品名字段
+                Element spmc = doc.createElement("spmc");
+                spmc.appendChild(doc.createTextNode(value.getSpmc()));
+                details.appendChild(spmc);
 
-            Element jldw = doc.createElement("jldw");
-            jldw.appendChild(
-                    doc.createTextNode("套"));
-            details.appendChild(jldw);
+                //规格型号
+                Element ggxh = doc.createElement("ggxh");
+                if (StringTools.isNullOrNone(bean.getFpgg())){
+                    ggxh.appendChild(doc.createTextNode(""));
+                } else{
+                    ggxh.appendChild(doc.createTextNode(bean.getFpgg()));
+                }
+                details.appendChild(ggxh);
 
-            // invoiceins_item表中amount 字段合计
-            int amount = this.getProductAmount(bean);
-            Element spsl = doc.createElement("spsl");
-            spsl.appendChild(
-                    doc.createTextNode(String.valueOf(amount)));
-            details.appendChild(spsl);
+                //计量单位
+                Element jldw = doc.createElement("jldw");
+                if (StringTools.isNullOrNone(bean.getFpdw())){
+                    jldw.appendChild(doc.createTextNode("套"));
+                } else{
+                    jldw.appendChild(doc.createTextNode(bean.getFpdw()));
+                }
+                details.appendChild(jldw);
 
-            //TODO invoiceins_item表中price 字段值
-            Element spdj = doc.createElement("spdj");
-            spdj.appendChild(
-                    doc.createTextNode(String.valueOf(this.roundDouble(bean.getMoneys()/amount))));
-            details.appendChild(spdj);
+//                // 数量：invoiceins_item表中amount 字段合计
+//                int amount = this.getProductAmount(bean);
+                int amount = value.getAmount();
+                Element spsl = doc.createElement("spsl");
+                spsl.appendChild(
+                        doc.createTextNode(String.valueOf(amount)));
+                details.appendChild(spsl);
 
-            Element spje = doc.createElement("spje");
-            spje.appendChild(
-                    doc.createTextNode(String.valueOf(this.roundDouble(bean.getMoneys()))));
-            details.appendChild(spje);
+                double moneys = value.getMoneys();
+                //单价： invoiceins_item表中price 字段值
+                //单价：取invoiceins_item相同spmc的总金额/数量
+                Element spdj = doc.createElement("spdj");
+                spdj.appendChild(doc.createTextNode(String.valueOf(this.roundDouble(moneys/amount))));
+                details.appendChild(spdj);
 
-            // 总金额*VAL/100
-            // 含税税额 总金额*税率/(1+税率)
-            double sl = this.roundDouble(val/100);
-            Element spse = doc.createElement("spse");
-            double se = this.roundDouble(bean.getMoneys()*sl/(1+sl));
-            spse.appendChild(
-                    doc.createTextNode(String.valueOf(se)));
-            details.appendChild(spse);
+                //金额
+                Element spje = doc.createElement("spje");
+                spje.appendChild(
+                        doc.createTextNode(String.valueOf(this.roundDouble(moneys))));
+                details.appendChild(spje);
 
-            Element zkje = doc.createElement("zkje");
-            zkje.appendChild(
-                    doc.createTextNode(""));
-            details.appendChild(zkje);
+                // 总金额*VAL/100
+                // 含税税额：总金额*税率/(1+税率)
+                double sl = this.roundDouble((double)fpsl/100);
+                _logger.info(sl);
+                Element spse = doc.createElement("spse");
+                double se = this.roundDouble(moneys*sl/(1+sl));
+                _logger.info(se);
+                spse.appendChild(doc.createTextNode(String.valueOf(se)));
+                details.appendChild(spse);
 
-            Element flbm = doc.createElement("flbm");
-            flbm.appendChild(
-                    doc.createTextNode("106050299"));
-            details.appendChild(flbm);
+                //折扣金额
+                Element zkje = doc.createElement("zkje");
+                zkje.appendChild(
+                        doc.createTextNode(""));
+                details.appendChild(zkje);
 
-            Element kcje = doc.createElement("kcje");
-            kcje.appendChild(
-                    doc.createTextNode(""));
-            details.appendChild(kcje);
+                //税收分类编码
+                Element flbm = doc.createElement("flbm");
+                flbm.appendChild(
+                        doc.createTextNode("106050299"));
+                details.appendChild(flbm);
+
+                //差额征税的扣除额
+                Element kcje = doc.createElement("kcje");
+                kcje.appendChild(doc.createTextNode(""));
+                details.appendChild(kcje);
+            }
 
             // write the content into xml file
             TransformerFactory transformerFactory =
@@ -6300,5 +6370,9 @@ public class ShipAction extends DispatchAction
 
     public void setProductVSGiftDAO(ProductVSGiftDAO productVSGiftDAO) {
         this.productVSGiftDAO = productVSGiftDAO;
+    }
+
+    public void setParameterDAO(ParameterDAO parameterDAO) {
+        this.parameterDAO = parameterDAO;
     }
 }

@@ -754,6 +754,15 @@
              CityBean city = cityDAO.findByUnique(cityName.trim());
              if (null != city){
                  bean.setCityId(city.getId());
+
+                 if (!city.getParentId().equals(bean.getProvinceId())){
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("省市信息不一致")
+                             .append("<br>");
+
+                     importError = true;
+                 }
              }
          }
 
@@ -979,7 +988,7 @@
          //校验省、市、地址、收货人信息
          if (bean.getShipping() == OutConstant.OUT_SHIPPING_3PL || bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT ||
                  bean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
-            if( bean.getProvinceId() == null) {
+            if( StringTools.isNullOrNone(bean.getProvinceId())) {
                 builder
                         .append("第[" + currentNumber + "]错误:")
                         .append("快递、货运时省名为空或不存在")
@@ -988,7 +997,7 @@
                 importError = true;
             }
 
-            if (bean.getCityId() == null){
+            if (StringTools.isNullOrNone(bean.getCityId())){
                 builder
                         .append("第[" + currentNumber + "]错误:")
                         .append("快递、货运时市名为空或不存在")
@@ -7369,7 +7378,8 @@
 
          try
          {
-             outImportManager.batchUpdateProductName(importItemList);
+             User user = Helper.getUser(request);
+             outImportManager.batchUpdateProductName(user, importItemList);
 
              request.setAttribute(KeyConstant.MESSAGE, "批量修改商品名成功");
          }

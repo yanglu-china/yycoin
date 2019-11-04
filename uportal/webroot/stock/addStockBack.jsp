@@ -12,11 +12,47 @@
     <script language="JavaScript" src="../stock_js/jquery-1.7.1.min.js"></script>
     <script language="JavaScript" src="../stock_js/picker.js"></script>
     <script language="JavaScript" src="../stock_js/picker.date.js"></script>
-    <script language="JavaScript" src="../stock_js/addStockArrival.js"></script>
+    
+    <script language="JavaScript" src="../stock_js/addStockBack.js"></script>
+    
     <link rel="stylesheet" href="../stock_js/classic.css" />
     <link rel="stylesheet" href="../stock_js/classic.date.css" />
 
-    <script language="javascript">
+<script language="javascript">
+
+<%@include file="../stock_js/addStockBackJs.jsp"%>
+
+		/**
+		 * 查询库存
+		 */
+		function opens(obj)
+		{
+			var ret = checkCurrentUser();
+		
+			if (!ret)
+			{
+				window.parent.location.reload();
+		
+				return false;
+			}
+		
+			var os = obj.parentNode.parentNode;
+			
+        	var trow = obj.parentNode.parentNode;
+        	
+        	var backType = getSelectInTr(trow, "backType").value;
+        	
+        	if(backType == ""){
+        		alert("请选择退货类型！");
+        		return;
+        	}  
+		    
+		    var mtype = "";
+		    oo = obj;
+		    // 配件
+		    window.common.modal('../depot/storage.do?method=rptQueryStorageRelation4StockBack&stockId=${bean.id}&backType='+backType);
+		}
+
         function load()
         {
             loadForm();
@@ -29,24 +65,320 @@
         </c:forEach>
 
         var productMap = {};
-        <c:forEach items="${bean.itemVO}" var="item">
+        
+        
+        var productInfoMap = {};
+        
+        var productInfoMapSize = 0;
+        
+        <c:forEach items="${bean.itemVO}" var="item" varStatus="status">
             productMap['${item.productId}'] = parseInt("${item.amount}");
+            	
+            var productObj = {};
+            productObj["cost"] = "${item.productCost}";
+            productObj["price"] = "${item.price}";
+            productObj["depotpartId"] = "${item.depotpartId}";
+            productObj["depot"] = "${item.depotpartName}";
+            productObj["providerId"] = "${item.providerId}";
+            productObj["provider"] = "${item.providerName}";
+            productObj["dutyId"] = "${item.dutyId}";
+            productObj["duty"] = "${item.dutyName}";
+            productObj["invoiceId"] = "${item.invoiceType}"; 
+            productObj["invoice"] = "${item.invoiceTypeName}";  
+            productObj["productName"] = "${item.productName}";  
+            
+            productObj["productId"] = "${item.productId}"; 
+            
+            productInfoMap['${ status.index + 1}'] = productObj;
+            
+            productInfoMapSize = '${ status.index + 1}';
         </c:forEach>
-//        console.log(productMap);
+        //console.log(productMap);
+        
+        //console.log(productInfoMap);
 
         function showDiv(id)
         {
             if (jmap[id] != null && jmap[id] != '')
                 tooltip.showTable(jmap[id]);
         }
+        
+      //选择产品后的回调函数
+        function getProductBom(oos)
+        {
+            var tb = document.getElementById("tables");
+            
+            var rnum=tb.rows.length;
+            if (rnum > 1)
+            {
+                for(var i=rnum -1; i>0; i--)
+                {
+                    tb.deleteRow(i);
+                }
+            }
+        	var oo = oos[0];
+
+            current.value = oo.pname;
+
+            $O("mtype").value = oo.pmtype;
+            $O("oldproduct").value = oo.poldproduct;
+            $O("dirProductId").value = oo.value;
+            $O("high").value = oo.high;
+            $O("low").value = oo.low;
+        	
+        	var bomjson = JSON.parse(oo.pbomjson);
+        	for (var j = 0; j < bomjson.length; j++)
+            {
+                var item = bomjson[j];
+        		var trow = addTrInner();
+                //console.log(item);
+        		setInputValueInTr(trow, 'srcProductId', item.subProductId);
+        		setInputValueInTr(trow, 'targerName', item.subProductName);
+        		setInputValueInTr(trow, 'srcProductCode', item.code);
+                setInputValueInTr(trow, 'srcPrice', item.price);
+                setInputValueInTr(trow, 'srcAmount', item.pamount);
+                setInputValueInTr(trow, 'srcRelation', item.srcRelation);
+                setInputValueInTr(trow, 'bomAmount', item.bomAmount);
+                setInputValueInTr(trow, 'attritionRate', item.attritionRate);
+                setInputValueInTr(trow, 'virtualPrice', item.virtualPrice);
+                var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
+                setSelect(srcDe1, "A1201606211663545389");
+            }
+        } 
+      
+      
+        //选中产品
+        function selectProduct(obj)
+        {
+        	
+        	var index = obj.selectedIndex;
+        	
+        	var trow = obj.parentNode.parentNode;
+        	
+        	var backType = getSelectInTr(trow, "backType").value;
+        	
+        	if(backType == "1"){
+        		setInputValueInTr(trow, 'price', productInfoMap[index].cost);
+        	}else{
+        		setInputValueInTr(trow, 'price', productInfoMap[index].price);
+        	}
+        	setInputValueInTr(trow, 'depotpartId', productInfoMap[index].depotpartId);
+        	setInputValueInTr(trow, 'depot', productInfoMap[index].depot);
+        	setInputValueInTr(trow, 'providerId', productInfoMap[index].providerId);
+        	setInputValueInTr(trow, 'provider', productInfoMap[index].provider);
+        	setInputValueInTr(trow, 'dutyId', productInfoMap[index].dutyId);
+        	setInputValueInTr(trow, 'duty', productInfoMap[index].duty);
+        	setInputValueInTr(trow, 'invoiceId', productInfoMap[index].invoiceId);
+        	setInputValueInTr(trow, 'invoiceType', productInfoMap[index].invoice);
+        	setInputValueInTr(trow, 'productName', productInfoMap[index].productName);
+
+        }  
+        
+        function checkBackType(obj){
+        	var trow = obj.parentNode.parentNode;
+        	
+        	var backType = getSelectInTr(trow, "backType").value;
+        	
+        	if(backType == ""){
+        		alert("请选择退货类型！");
+        		return;
+        	}        	
+        }
+        
+        function toggleSendInfo(obj)
+        {
+            //console.log(obj.value);
+            if (obj.value == '1')
+            {
+                showTr('distribution1', true);
+                showTr('distribution2', true);
+                showTr('distribution3', true);
+                showTr('distribution4', true);
+                showTr('distribution5', true);
+            }
+            else if (obj.value == '0')
+            {
+                showTr('distribution1', false);
+                showTr('distribution2', false);
+                showTr('distribution3', false);
+                showTr('distribution4', false);
+                showTr('distribution5', false);
+            }
+        }  
+        
+        var provinceMap = {};
+        <c:forEach items="${cityList}" var="item">
+        var cities = provinceMap['${item.parentId}'];
+//                console.log(cities);
+        if (typeof cities === "undefined"){
+        	provinceMap['${item.parentId}'] = []
+        	provinceMap['${item.parentId}'].push({'id':'${item.id}','name':'${item.name}'})
+        } else{
+        	cities.push({'id':'${item.id}','name':'${item.name}'})
+        }
+        </c:forEach>
+
+        function change_city(obj)
+        {
+        	removeAllItem($O('cityId'));
+        	setOption($O('cityId'), "", "--");
+        	if ($$('provinceId') == "")
+        	{
+        		return;
+        	}
+        	var cityList = provinceMap[$$('provinceId')];
+//                console.log(cityList);
+        	for (var i = 0; i < cityList.length; i++)
+        	{
+        		setOption($O('cityId'), cityList[i].id, cityList[i].name);
+        	}
+        }        
+        
+        function radio_click(obj)
+        {
+        	if (obj.value == '2')
+        	{
+        		$O('transport1').disabled = false;
+        		removeAllItem($O('transport1'));
+        		setOption($O('transport1'), "", "--");
+        		<c:forEach items="${expressList}" var="item">
+        		if ("${item.type}" == 0 || "${item.type}" == 99)
+        		{
+        			setOption($O('transport1'), "${item.id}", "${item.name}");
+        		}
+        		</c:forEach>
+        		removeAllItem($O('transport2'));
+        		setOption($O('transport2'), "", "--");
+        		$O('transport2').disabled = true;
+        		var expressPay = $O('expressPay');
+        		var transportPay = $O('transportPay');
+        		removeAllItem(expressPay);
+        		setOption(expressPay, '1', '业务员支付');
+        		setOption(expressPay, '2', '公司支付');
+        		setOption(expressPay, '3', '客户支付');
+        		removeAllItem(transportPay);
+        		setOption(transportPay, '', '--');
+        	}
+        	else if (obj.value == '3')
+        	{
+        		$O('transport2').disabled = false;
+        		removeAllItem($O('transport2'));
+        		setOption($O('transport2'), "", "--");
+        		<c:forEach items="${expressList}" var="item">
+        		if ("${item.type}" == 1 || "${item.type}" == 99)
+        		{
+        			setOption($O('transport2'), "${item.id}", "${item.name}");
+        		}
+        		</c:forEach>
+        		removeAllItem($O('transport1'));
+        		setOption($O('transport1'), "", "--");
+        		$O('transport1').disabled = true;
+        		var expressPay = $O('expressPay');
+        		var transportPay = $O('transportPay');
+        		removeAllItem(expressPay);
+        		setOption(expressPay, '', '--');
+        		removeAllItem(transportPay);
+        		setOption(transportPay, '1', '业务员支付');
+        		setOption(transportPay, '2', '公司支付');
+        		setOption(transportPay, '3', '客户支付');
+        	}
+        	else if (obj.value == '4')
+        	{
+        		$O('transport1').disabled = false;
+        		$O('transport2').disabled = false;
+        		removeAllItem($O('transport1'));
+        		setOption($O('transport1'), "", "--");
+        		removeAllItem($O('transport2'));
+        		setOption($O('transport2'), "", "--");
+        		<c:forEach items="${expressList}" var="item">
+        		if ("${item.type}" == 0 || "${item.type}" == 99)
+        		{
+        			setOption($O('transport1'), "${item.id}", "${item.name}");
+        		}
+        		</c:forEach>
+        		<c:forEach items="${expressList}" var="item">
+        		if ("${item.type}" == 1 || "${item.type}" == 99)
+        		{
+        			setOption($O('transport2'), "${item.id}", "${item.name}");
+        		}
+        		</c:forEach>
+        		var expressPay = $O('expressPay');
+        		var transportPay = $O('transportPay');
+        		removeAllItem(expressPay);
+        		setOption(expressPay, '1', '业务员支付');
+        		setOption(expressPay, '2', '公司支付');
+        		setOption(expressPay, '3', '客户支付');
+        		removeAllItem(transportPay);
+        		setOption(transportPay, '1', '业务员支付');
+        		setOption(transportPay, '2', '公司支付');
+        		setOption(transportPay, '3', '客户支付');
+        	}
+        	else
+        	{
+        		$O('transport1').disabled = true;
+        		$O('transport2').disabled = true;
+        		removeAllItem($O('transport1'));
+        		setOption($O('transport1'), "", "--");
+        		removeAllItem($O('transport2'));
+        		setOption($O('transport2'), "", "--");
+        		var expressPay = $O('expressPay');
+        		var transportPay = $O('transportPay');
+        		removeAllItem(expressPay);
+        		setOption(expressPay, '', '--');
+        		removeAllItem(transportPay);
+        		setOption(transportPay, '', '--');
+        	}
+        }        
+
 
     </script>
 
 </head>
 <body class="body_class" onload="load()" onkeydown="tooltip.bingEsc(event)">
-<form action="../stock/stock.do" name="formEntry">
-    <input type="hidden" name="method" value="addStockArrival">
+<form action="../stock/stock.do" name="outForm">
+
+<input type=hidden name="method" value="addOuts" />
+
+	<input type=hidden name="nameList" />
+	<input type=hidden name="idsList" />
+	<input type=hidden name="unitList" />
+	<input type=hidden name="amontList" />
+	<input type=hidden name="priceList" />
+	<input type=hidden name="totalList" />
+	<input type=hidden name="totalss" />
+	<input type=hidden name="customerId" />
+<input type="hidden" name="reserve9" value=""/>	
+<input type=hidden name="type" value='1' /> 
+<input type=hidden name="saves" value="" />
+<input type=hidden name="desList" value="" />
+<input type=hidden name="virtualPriceList" value="" />
+<input type=hidden name="otherList" value="" />
+
+<input type=hidden name="depotList" value="" />
+<input type=hidden name="mtypeList" value="" />
+<input type=hidden name="oldGoodsList" value="" />
+<input type=hidden name="taxList" value="" />
+<input type=hidden name="taxrateList" value="" />
+<input type=hidden name="inputRateList" value="" />
+
+<input type=hidden name="showIdList" value="" />
+<input type=hidden name="showNameList" value="" />
+<input type=hidden name="customercreditlevel" value="" />
+<input type=hidden name="inputPriceList" value="" />
+<input type=hidden name="id" value="" />
+<input type=hidden name="showCostList" value="" />
+
+<input type=hidden name="oprType" value="1">
+
+<input type=hidden name="customercreditlevel" value="" />
+<input type=hidden name="id" value="" />
+<input type=hidden name="inputPriceList">
+
     <input type="hidden" name="stockId" value="${bean.id}">
+    <input type="hidden" name="buyReturnFlag" value="1">
+    
+    <input type="hidden" name="productProviderVSpriceMap" value="${productProviderVSpriceMap}">
+    
     <p:navigation height="22">
         <td width="550" class="navigation">采购单明细</td>
         <td width="85"></td>
@@ -169,11 +501,87 @@
                         <a href="../stock/work.do?method=findStockWork&id=${item.id}">${item.id}</a>
                         &nbsp;
                     </c:forEach>
-                </p:cells>
+                </p:cells>                   
 
             </p:table>
         </p:subBody>
 
+        <p:tr />
+        
+        <p:subBody width="100%;align:left">
+        <table style="width:100%">
+			<tr class="content1" id="allocate" style=" align:left">
+				<td align="right" width="150px">是否显示发货信息：</td>
+				<td colspan="3">
+				    <label><input type="radio" name="sendInfo" value="1" onClick="toggleSendInfo(this)">显示</label>
+					<label><input type="radio" name="sendInfo" value="0" checked="checked" onClick="toggleSendInfo(this)">隐藏</label>								
+				</td>
+			</tr>
+
+			<tr class="content1" id="distribution1" style="display: none;">
+				<td align="right">发货方式：</td>
+				<td colspan="3">
+					<label><input type="radio" name="shipping" value="0" onClick="radio_click(this)">自提</label>
+					<label><input type="radio" name="shipping" value="1" onClick="radio_click(this)">公司</label>
+					<label><input type="radio" name="shipping" value="2" onClick="radio_click(this)">第三方快递</label>
+					<label><input type="radio" name="shipping" value="3" onClick="radio_click(this)">第三方货运</label>
+					<label><input type="radio" name="shipping" value="4" onClick="radio_click(this)">第三方快递+货运</label>
+				</td>
+			</tr>
+			<tr class="content1" id="distribution2" style="display: none;">
+				<td align="right">运输方式：</td>
+				<td colspan="3">
+					<select name="transport1" id="transport1" quick=true class="select_class" style="width:20%" >
+					</select>&nbsp;&nbsp;
+					<select name="transport2" id="transport2" quick=true class="select_class" style="width:20%" >
+					</select>
+				</td>
+			</tr>
+			<tr class="content1" id="distribution3" style="display: none;">
+				<td align="right">运费支付方式：</td>
+				<td colspan="3">
+					<select name="expressPay" quick=true class="select_class" style="width:20%">
+						<p:option type="deliverPay"></p:option>
+					</select>&nbsp;&nbsp;
+					<select name="transportPay" quick=true class="select_class" style="width:20%">
+						<p:option type="deliverPay"></p:option>
+					</select>
+				</td>
+			</tr>
+			<tr class="content1" id="distribution4" style="display: none;">
+				<td width="15%" align="right">送货地址：</td>
+				<td width="35%">
+					<select name="provinceId" quick=true onchange="change_city(this)" class="select_class" >
+						<option>-</option>
+						<c:forEach items="${provinceList}" var="province">
+							<option value="${province.id}">${province.name}</option>
+						</c:forEach>
+						</select>&nbsp;&nbsp;
+					<select name="cityId" quick=true class="select_class" >
+						<option>-</option>
+					</select>&nbsp;&nbsp;
+				</td>
+                         <td width="15%" align="right">收货人：</td>
+                         <td width="35%">
+                             <input type="text" name='receiver' id ='receiver' maxlength="10" required="required" /><font color="#FF0000">*</font>
+                         </td>
+			</tr>
+			<tr class="content2" id="distribution5" style="display: none;">
+				<td width="15%" align="right">地址：</td>
+
+				<td width="35%">
+					<input type="text" name="address" id="address" maxlength="60" required="required" /><font color="#FF0000">*</font>
+				</td>
+
+				<td width="15%" align="right">电话：</td>
+				<td width="35%">
+                             <input type="text" name="mobile" id ="mobile" maxlength="13" required="required"/><font color="#FF0000">*</font>
+				</td>
+			</tr>
+     
+        </table>
+        </p:subBody>
+        
         <p:tr />
 
         <p:subBody width="100%">
@@ -228,6 +636,12 @@
                                 <a href=../sail/out.do?method=findOut&fow=99&outId=${item.refOutId}>是</a>
                             </td>
                         </c:if>
+						
+                        <c:if test="${item.hasRef == 2}">
+                            <td align="center">
+                                <font color=red>部分入库</font>
+                            </td>
+                        </c:if>						
 
                         <td align="center">${my:formatNum(item.total)}</td>
 
@@ -244,9 +658,9 @@
             <table width="100%" border="0" cellspacing='1' id="tables">
                 <tr align="center" class="content0">
                     <td width="10%" align="center">退货类型</td>
-                    <td width="20%" align="center">产品名</td>
+                    <td width="17%" align="center">产品名</td>
                     <td width="10%" align="center">退货数量</td>
-                    <td width="10%" align="center">成品价格</td>
+                    <td width="8%" align="center">成本价格</td>
                     <td width="10%" align="center">源仓库</td>
                     <td width="10%" align="center">供应商</td>
                     <td width="10%" align="center">纳税实体</td>
@@ -255,8 +669,8 @@
                     <td width="5%" align="left">
                         <input type="button" accesskey="A" value="增加" class="button_class" onclick="addRow()">
                     </td>
-                </tr>
-
+                </tr>                                 
+ 
                 <tr id="trCopy" style="display: none;">
                     <td align="center">
                         <select name="backType">
@@ -265,25 +679,83 @@
                             <option value="2">未入库退货</option>
                         </select>
                     </td>
-
                     <td align="center">
-                        <select name="productId">
+                        <input type="text" name="productName"
+							onclick="opens(this)"
+							readonly="readonly"
+							style="width: 200px; cursor: hand">
+						<input type="hidden" name="productId" value="">	
+                    </td>
+
+                    <td align="center"><input type="number" name="amount" required><input type="hidden" name="amountLimit"></td>
+                    <td align="center"><input type="number" name="price" required readonly="readonly"></td>
+                    <td align="center"><input type="text" name="depotpart" required><input type="hidden" name="depotpartId">
+                    <input type="hidden" name="depot">
+                    <input type="hidden" name="storageId">
+                    <input type="hidden" name="locationId" value="${bean.locationId}">
+                    <input type="hidden" name="location">
+                    </td>
+                    <td align="center">
+                        <select name="providerId">
+                        </select>
+                    </td>
+                    <td align="center">
+                        <select name="dutyId">
+                            <c:if test="${dutyList!=null &&  fn:length(dutyList) > 1}">
                             <option value="">-</option>
-                            <c:forEach items="${bean.itemVO}" var="item2" varStatus="vs">
-                                <option value="${item2.productId}">${item2.productName}</option>
+                            </c:if>                             
+                            <c:forEach items="${dutyList}" var="dutyItem">
+                                <option value="${dutyItem.id}">${dutyItem.name}</option>
+                            </c:forEach>
+                        </select>                    
+                    </td>
+                    <td align="center">
+                        <select name="invoiceId">
+                            <c:if test="${invoiceList!=null &&  fn:length(invoiceList) > 1}">
+                            <option value="">-</option>
+                            </c:if>                            
+                            <c:forEach items="${invoiceList}" var="invoiceItem">
+                                <option value="${invoiceItem.id}">${invoiceItem.name}</option>
                             </c:forEach>
                         </select>
                     </td>
-
-                    <td align="center"><input type="number" name="amount" required></td>
-                    <td align="center"><input type="number" name="price" required></td>
-                    <td align="center"><input type="text" name="depot" required></td>
-                    <td align="center"><input type="text" name="provider" required></td>
-                    <td align="center"><input type="text" name="duty" required></td>
-                    <td align="center"><input type="text" name="invoiceType" required></td>
-                    <td align="center"><input type="text" name="description" required></td>
+                    <td align="center">
+                    <input type="text" name="description" required>
+                    
+                    <input type="hidden" name="virtualPrice">
+                    <input type="hidden" name="virtualPriceKey">
+                    <!--  <input type="hidden" name="locationId">-->
+                    </td>
                     <td align="left"><input type="button" value="删除"  class="button_class" onclick="removeTr(this)"></td>
                 </tr>
+                
+                <c:forEach items="${baseList}" var="itemBase" varStatus="vs">
+                  
+                  <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>  
+	                    <td align="center">
+	                        <c:choose>
+	                          <c:when test="${itemBase.buyReturnType eq '1'}">已入库退货</c:when>
+	                          <c:when test="${itemBase.buyReturnType eq '2'}">未入库退货</c:when>
+	                          <c:otherwise></c:otherwise>
+	                        </c:choose>
+	                    </td>
+	
+	                    <td align="center">
+	                        ${itemBase.productName}
+	                    </td>
+	
+	                    <td align="center">${itemBase.amount}</td>
+	                    <td align="center">${itemBase.price}</td>
+	                    <td align="center">${itemBase.depotpartName}</td>
+	                    <td align="center">${itemBase.provider}</td>
+	                    <td align="center">${itemBase.duty}</td>
+	                    <td align="center">${itemBase.invoiceType}</td>
+	                    <td align="center">${itemBase.description} ;状态：${my:get('buyReturnStatus', itemBase.outStatus)}</td>
+	                    <td align="left"></td>                    
+                    </tr>
+
+                </c:forEach>                 
+                
             </table>
         </p:subBody>
 
@@ -297,9 +769,11 @@
                 <input type="button" class="button_class"
                                       onclick="javascript:history.go(-1)"
                                       value="&nbsp;&nbsp;返 回&nbsp;&nbsp;">
-                <input type="button" class="button_class"
-                       name="b_submit" style="cursor: pointer"
-                       value="&nbsp;&nbsp;提 交&nbsp;&nbsp;" onclick="addBean(1)">&nbsp;&nbsp;
+                       
+			    <input type="button" class="button_class"
+						value="&nbsp;&nbsp;保 存&nbsp;&nbsp;" onClick="save()" />&nbsp;&nbsp;<input
+						type="button" class="button_class" id="sub_b"
+						value="&nbsp;&nbsp;提 交&nbsp;&nbsp;" onClick="sub()" />                       
             </div>
         </p:button>
 

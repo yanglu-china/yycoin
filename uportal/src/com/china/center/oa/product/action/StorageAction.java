@@ -9,10 +9,38 @@
 package com.china.center.oa.product.action;
 
 
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
-import com.china.center.actionhelper.common.*;
+import com.china.center.actionhelper.common.ActionTools;
+import com.china.center.actionhelper.common.JSONTools;
+import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.actionhelper.common.OldPageSeparateTools;
+import com.china.center.actionhelper.common.PageSeparateTools;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.jsonimpl.JSONArray;
 import com.china.center.actionhelper.query.HandleHint;
@@ -21,19 +49,48 @@ import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.product.bean.*;
+import com.china.center.oa.product.bean.DepotBean;
+import com.china.center.oa.product.bean.DepotpartBean;
+import com.china.center.oa.product.bean.GSOutBean;
+import com.china.center.oa.product.bean.GSOutItemBean;
+import com.china.center.oa.product.bean.GoldSilverPriceBean;
+import com.china.center.oa.product.bean.PriceConfigBean;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.StorageApplyBean;
+import com.china.center.oa.product.bean.StorageBean;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
-import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.dao.DepotDAO;
+import com.china.center.oa.product.dao.DepotpartDAO;
+import com.china.center.oa.product.dao.GSOutDAO;
+import com.china.center.oa.product.dao.GSOutItemDAO;
+import com.china.center.oa.product.dao.GoldSilverPriceDAO;
+import com.china.center.oa.product.dao.PriceConfigDAO;
+import com.china.center.oa.product.dao.ProductChangeRecordDAO;
+import com.china.center.oa.product.dao.ProductCombinationDAO;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProductVSLocationDAO;
+import com.china.center.oa.product.dao.StorageApplyDAO;
+import com.china.center.oa.product.dao.StorageDAO;
+import com.china.center.oa.product.dao.StorageLogDAO;
+import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
-import com.china.center.oa.product.vo.*;
+import com.china.center.oa.product.vo.DepotVO;
+import com.china.center.oa.product.vo.DepotpartVO;
+import com.china.center.oa.product.vo.GSOutItemVO;
+import com.china.center.oa.product.vo.GSOutVO;
+import com.china.center.oa.product.vo.ProductChangeRecordVO;
+import com.china.center.oa.product.vo.ProductVO;
+import com.china.center.oa.product.vo.StorageLogVO;
+import com.china.center.oa.product.vo.StorageRelationVO;
 import com.china.center.oa.product.vs.ProductVSLocationBean;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.LocationHelper;
+import com.china.center.oa.publics.bean.DepotExportData;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.InvoiceBean;
@@ -53,23 +110,22 @@ import com.china.center.oa.sail.dao.SailConfigDAO;
 import com.china.center.oa.sail.manager.AuditRuleManager;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailConfigManager;
+import com.china.center.oa.stock.manager.StockManager;
+import com.china.center.oa.stock.vo.StockItemVO;
+import com.china.center.oa.stock.vo.StockVO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.*;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.IntegerWrap;
+import com.china.center.tools.JudgeTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.WriteFileBuffer;
 
 
 /**
@@ -127,6 +183,8 @@ public class StorageAction extends DispatchAction
     private PriceConfigManager priceConfigManager = null;
     
     private AuditRuleManager auditRuleManager = null;
+
+    private StockManager stockManager = null;
     
     private PriceConfigDAO priceConfigDAO = null;
     
@@ -139,6 +197,8 @@ public class StorageAction extends DispatchAction
     private FinanceDAO financeDAO = null;
 
     private OutDAO outDAO = null;
+    
+    private GoldSilverPriceDAO goldSilverPriceDAO=null;
     
     private static final String QUERYSTORAGE = "queryStorage";
 
@@ -1928,6 +1988,153 @@ public class StorageAction extends DispatchAction
     
     
     /**
+     * 采购退货选项页
+     * 
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward rptQueryStorageRelation4StockBack(ActionMapping mapping, ActionForm form,
+                                                        HttpServletRequest request,
+                                                        HttpServletResponse reponse)
+        throws ServletException {
+        String stockId = request.getParameter("stockId");
+        String backType = request.getParameter("backType");
+        
+        String productId = request.getParameter("productId");
+
+        //get stock
+        StockVO stockVO = stockManager.findStockVO(stockId);
+
+        List<StockItemVO> stockItemVOs = stockVO.getItemVO();
+        
+        List<ProductBean> productList = new ArrayList<ProductBean>();
+
+        StringBuffer productIdBuffer = new StringBuffer();
+        productIdBuffer.append("(");
+        int count = 0;
+        for (StockItemVO item : stockItemVOs) {
+            count++;
+            productIdBuffer.append("'").append(item.getProductId()).append("'");
+            if (count < stockItemVOs.size()) {
+                productIdBuffer.append(",");
+            }
+
+            ProductBean productBean = new ProductBean();
+            productBean.setId(item.getProductId());
+            productBean.setName(item.getProductName());
+            productList.add(productBean);
+        }
+        productIdBuffer.append(")");
+
+        //get storageRelationVO
+        ConditionParse condtion = new ConditionParse();
+        condtion.addWhereStr();
+        condtion.addCondition("StorageRelationBean.amount", ">", 0);
+
+        if (StringTools.isNullOrNone(productId)){
+        	condtion.addCondition("AND StorageRelationBean.productId in "+productIdBuffer.toString());
+        }else{
+        	condtion.addCondition("AND StorageRelationBean.productId ='"+productId+"'");
+        }
+
+        List<StorageRelationVO> storageList = new ArrayList<StorageRelationVO>();
+        if("1".equals(backType)){
+        	storageList = this.storageRelationDAO.queryEntityVOsByCondition(condtion);
+            //已入库
+            for(StorageRelationVO vo : storageList){
+                StockItemVO stockItemVO = this.getStockItemVO(stockItemVOs, vo.getProductId(), vo.getPrice());
+                vo.setDutyId(stockItemVO.getDutyId());
+                vo.setDutyName(stockItemVO.getDutyName());
+                vo.setProviderId(stockItemVO.getProviderId());
+                vo.setProviderName(stockItemVO.getProviderName());
+                vo.setInvoiceType(stockItemVO.getInvoiceType());
+                vo.setInvoiceTypeName(stockItemVO.getInvoiceTypeName());
+
+                vo.setStockAmount(stockItemVO.getAmount());
+
+                vo.setTotalWarehouseNum(stockItemVO.getTotalWarehouseNum());
+                
+                //处理预占
+                if (StringTools.isNullOrNone(vo.getStafferName()))
+                {
+                    vo.setStafferName("公共");
+                }
+
+                int preassign = storageRelationManager.sumPreassignByStorageRelation(vo);
+
+                // 可发数量
+                vo.setMayAmount(vo.getAmount() - preassign);
+
+                // 预支数量
+                vo.setPreassignAmount(preassign);                
+                
+                _logger.debug("getProductName:"+vo.getProductName()+", getProductId: "+vo.getProductId()
+                        +", getMayAmount: "+vo.getMayAmount()+", getPreassignAmount:"+vo.getPreassignAmount()
+                        +", getStockAmount: "+vo.getStockAmount()+", getTotalWarehouseNum:"+vo.getTotalWarehouseNum()
+                );
+            }
+
+        }else {
+            //未入库
+            storageList.clear();
+            for(StockItemVO stockItemVO : stockItemVOs){
+                StorageRelationVO vo = new StorageRelationVO();
+                vo.setProductCode(stockItemVO.getProductCode());
+                vo.setProductId(stockItemVO.getProductId());
+                vo.setProductName(stockItemVO.getProductName());
+
+                vo.setCostPrice(stockItemVO.getPrice());
+                vo.setPrice(stockItemVO.getPrice());
+                
+                vo.setInvoiceTypeName(stockItemVO.getInvoiceTypeName());
+                vo.setInvoiceType(stockItemVO.getInvoiceType());
+                vo.setProviderName(stockItemVO.getProviderName());
+                vo.setProviderId(stockItemVO.getProviderId());
+                vo.setDutyName(stockItemVO.getDutyName());
+                vo.setDutyId(stockItemVO.getDutyId());
+
+                vo.setStockAmount(stockItemVO.getAmount());
+
+                vo.setTotalWarehouseNum(stockItemVO.getTotalWarehouseNum());
+
+                vo.setVirtualPrice(0);
+                vo.setVirtualPriceKey("0");
+
+                storageList.add(vo);
+            }
+        }
+
+        request.setAttribute("productList", productList);
+        
+        request.setAttribute("stockId", stockId);
+        request.setAttribute("backType", backType);
+        request.setAttribute("productId", productId);
+        
+        request.setAttribute("beanList", storageList);
+
+        return mapping.findForward("rptQueryStorageRelation4StockBack");
+
+    }
+    
+    private StockItemVO getStockItemVO(List<StockItemVO> stockItemVOs, String productId, double price){
+    	StockItemVO rst = null;
+    	for(StockItemVO item : stockItemVOs){
+            if(productId.equals(item.getProductId())){
+                rst = item;
+            }
+    		if(productId.equals(item.getProductId()) && price == item.getPrice()){
+    			rst = item;
+    			break;
+    		}
+    	}
+    	return rst;
+    }
+    
+    /**
      * 调拨申请功能
      * 
      * @param mapping
@@ -2112,103 +2319,124 @@ public class StorageAction extends DispatchAction
         try
         {
             out = reponse.getOutputStream();
+            
+            BufferedOutputStream bufferedout = new BufferedOutputStream(out);
 
-            ConditionParse condtion = new ConditionParse();
-
-            List<DepotVO> lList = depotDAO.listEntityVOs();
+//            ConditionParse condtion = new ConditionParse();
+//
+//            condtion.addCondition("status", "=", "0");
+//            List<DepotVO> lList = depotDAO.listEntityVOs();
 
             write = WriteFileFactory.getMyTXTWriter();
 
-            write.openFile(out);
+            write.openFile(bufferedout);
 
             write.writeLine("日期,事业部,仓库,仓区,仓区属性,储位,产品名称,产品编码,产品数量,产品价格,归属,销售类型");
 
             String now = TimeTools.now("yyyy-MM-dd");
+            
+            //mod by zhangxian 2019-10-14
+            //优化导出
+            
+            double gold = 0.0d;
+    		double silver = 0.0d;
+    		
+    		List<GoldSilverPriceBean> gspList = goldSilverPriceDAO.listEntityBeans();
+    		
+    		if (!ListTools.isEmptyOrNull(gspList))
+    		{
+    			GoldSilverPriceBean gspBean = gspList.get(0);
+    			
+    			gold = gspBean.getGold();
+    			
+    			silver = gspBean.getSilver();
+    		}
+    		
+            List<DepotExportData> exportDataList = storageRelationDAO.queryExportDepotData();
 
-            for (DepotVO locationBean : lList)
+            for (int i=0;i<exportDataList.size();i++)
             {
-                condtion.clear();
+            	
+            	DepotExportData exportData = exportDataList.get(i);
+                String typeName = DefinedCommon.getValue("depotpartType", exportData.getDepotPartType());
 
-                condtion.addCondition("StorageRelationBean.locationId", "=", locationBean.getId());
+                String code = exportData.getProductCode();
 
-                condtion.addIntCondition("StorageRelationBean.amount", ">", 0);
-
-                List<StorageRelationVO> list = storageRelationDAO
-                    .queryEntityVOsByCondition(condtion);
-                User user = Helper.getUser(request);
-                for (StorageRelationVO each : list)
+                if (code.length() > 10)
                 {
-                    if (each.getAmount() > 0)
-                    {
-                        String typeName = DefinedCommon.getValue("depotpartType", each
-                            .getDepotpartType());
-
-                        String code = each.getProductCode();
-
-                        if (code.length() > 10)
-                        {
-                            code = "A" + code;
-                        }
-
-                        String sname = each.getStafferName();
-
-                        if (StringTools.isNullOrNone(sname))
-                        {
-                            sname = "公共";
-                        }
-                        
-                        String proSailtype = "";
-                        if(each.getProductSailType() == 0)
-                        {
-                        	proSailtype = "自有";
-                        }
-                        else if(each.getProductSailType() == 1)
-                        {
-                        	proSailtype = "经销";
-                        }
-                        else if(each.getProductSailType() == 2)
-                        {
-                        	proSailtype = "定制";
-                        }
-                        else
-                        {
-                        	proSailtype = "其他";
-                        }
-
-                        double price = each.getPrice();
-                        try{
-                            ProductBean productBean = this.productDAO.find(each.getProductId());
-                            price = outManager.getSailConfigPrice(productBean);
-                        }catch(Exception e){_logger.error(e);}
-
-                        write.writeLine(now
-                                        + ','
-                                        + StringTools.getLineString(locationBean.getIndustryName())
-                                        + ','
-                                        + locationBean.getName()
-                                        + ','
-                                        + each.getDepotpartName()
-                                        + ','
-                                        + typeName
-                                        + ','
-                                        + each.getStorageName()
-                                        + ','
-                                        + each.getProductName().replaceAll(",", " ").replaceAll(
-                                            "\r\n", "") + ',' + code + ','
-                                        + String.valueOf(each.getAmount()) + ','
-                                        + MathTools.formatNum(price) + ',' + sname
-                                        +','+proSailtype
-                        );
-                    }
+                    code = "A" + code;
                 }
 
+                String sname = "公共";
+
+                String proSailtype = "";
+                if("0".equalsIgnoreCase(exportData.getSailType()))
+                {
+                	proSailtype = "自有";
+                }
+                else if("1".equalsIgnoreCase(exportData.getSailType()))
+                {
+                	proSailtype = "经销";
+                }
+                else if("2".equalsIgnoreCase(exportData.getSailType()))
+                {
+                	proSailtype = "定制";
+                }
+                else
+                {
+                	proSailtype = "其他";
+                }
+                BigDecimal costDel = new BigDecimal(exportData.getCost());
+                BigDecimal goldDel = new BigDecimal(gold);
+                BigDecimal goldfactorDel = new BigDecimal(exportData.getGoldPriceFactor()==null?"1":exportData.getGoldPriceFactor());
+                BigDecimal planCostDel = new BigDecimal(exportData.getPlanCost());
+                BigDecimal silverDel = new BigDecimal(silver);
+                BigDecimal silverfactorDel = new BigDecimal(exportData.getSilverPriceFactor()==null?"1":exportData.getSilverPriceFactor());
+                BigDecimal configPriceDel = new BigDecimal(exportData.getConfigprice()==null?"0":exportData.getConfigprice());
+                BigDecimal gpupDel = new BigDecimal(exportData.getGsPriceUp());
+                
+                //2015/1/21 金价*金价系数*金克数+银价*银价系数*银克数+邮票费用+辅料费用
+                BigDecimal sailPriceDel = costDel.multiply(goldDel).multiply(goldfactorDel)
+                		.add(planCostDel.multiply(silverDel).multiply(silverfactorDel)).add(configPriceDel).add(gpupDel);
+                		
+        		
+        		// 不受金银价波动影响
+        		if ("1".equalsIgnoreCase(exportData.getFtype()))
+        		{
+//        			sailPrice = bean.getPrice() + bean.getGsPriceUp();
+        			// #440 现改为不受波动，就是辅料
+        			sailPriceDel =  gpupDel;
+        		}
+        		
+        		sailPriceDel = sailPriceDel.setScale(2, BigDecimal.ROUND_HALF_UP);
+
+                write.writeLine(now
+                                + ','
+                                + StringTools.getLineString(exportData.getIndustryName())
+                                + ','
+                                + exportData.getDepotName()
+                                + ','
+                                + exportData.getDepotPartName()
+                                + ','
+                                + typeName
+                                + ','
+                                + exportData.getStorageName()
+                                + ','
+                                + exportData.getProductName().replaceAll(",", " ").replaceAll(
+                                    "\r\n", "") + ',' + code + ','
+                                + String.valueOf(exportData.getAmount()) + ','
+                                + MathTools.formatNum(sailPriceDel.doubleValue()) + ',' + sname
+                                +','+proSailtype
+                );
+                
             }
 
             write.close();
 
         }
-        catch (Throwable e)
+        catch (Exception e)
         {
+        	e.printStackTrace();
             _logger.error(e, e);
 
             return null;
@@ -4100,4 +4328,21 @@ public class StorageAction extends DispatchAction
     public void setOutDAO(OutDAO outDAO) {
         this.outDAO = outDAO;
     }
+
+    public StockManager getStockManager() {
+        return stockManager;
+    }
+
+    public void setStockManager(StockManager stockManager) {
+        this.stockManager = stockManager;
+    }
+
+	public GoldSilverPriceDAO getGoldSilverPriceDAO() {
+		return goldSilverPriceDAO;
+	}
+
+	public void setGoldSilverPriceDAO(GoldSilverPriceDAO goldSilverPriceDAO) {
+		this.goldSilverPriceDAO = goldSilverPriceDAO;
+	}
+    
 }

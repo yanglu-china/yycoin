@@ -265,6 +265,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         	List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
             for (OutBillBean outBillBean : outBillList)
             {
+            	_logger.debug("onPayExpenseApply 公司支付 。。。");
                 // 兼容性
                 if ( !TaxGlueHelper.bankGoon(outBillBean.getBankId(), this.taxDAO))
                 {
@@ -317,6 +318,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         {
             for (InBillBean inBillBean : inBillList)
             {
+            	_logger.debug("onPayExpenseApply 员工还款 。。。");
                 // 兼容性
                 if ( !TaxGlueHelper.bankGoon(inBillBean.getBankId(), this.taxDAO))
                 {

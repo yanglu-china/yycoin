@@ -96,6 +96,9 @@ public interface FinanceManager
      */
     boolean addFinanceBeanWithoutTransactional(User user, FinanceBean bean, boolean checkNull)
         throws MYException;
+    
+    public boolean addFinanceBeanWithTransactional(User user, FinanceBean bean, boolean checkNull)
+        throws MYException;
 
     boolean addFinanceBeanWithoutTransactional(User user, FinanceBean bean, int type)
     throws MYException;

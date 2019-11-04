@@ -853,7 +853,7 @@ public class PayOrderAction extends DispatchAction {
 			}
 
 			if (errmsg.length() == 0) {
-				errmsg.append("付款成功");
+				errmsg.append("付款单据已推送至财资平台");
 			}
 		} catch (Exception e) {
 			payLog.error("pay error", e);
@@ -1170,6 +1170,7 @@ public class PayOrderAction extends DispatchAction {
 	 	{
 	 		ConditionParse cond = new ConditionParse();
 	 		cond.addCondition("refid", "=", vo.getBillNo());
+	 		cond.addCondition("flag", "=", 0);
 	 		List<AttachmentBean> attachmentList = attachmentDAO.queryEntityBeansByCondition(cond);
 	 		request.setAttribute("attachmentList", attachmentList);
 	 	}

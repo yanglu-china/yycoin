@@ -190,6 +190,15 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         
     }
 
+    @Override
+    public boolean updateBackPay(String fullId, int backPay) {
+        String sql = "update t_center_out set backPay = ? where fullid = ?";
+
+        int i = jdbcOperation.update(sql, backPay, fullId);
+
+        return i != 0;
+    }
+
     public boolean updatePmtype(String fullId, int pmtype)
     {
         String sql = "update t_center_out set pmtype = ? where fullid = ?";
@@ -652,6 +661,24 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         return (Integer)count;
     }
 
+    @Override
+    public Integer sumHasBack2(String fullId, String productName) {
+        Map<String, String> paramterMap = new HashMap();
+
+        paramterMap.put("fullId", fullId);
+        paramterMap.put("productName", productName);
+
+        Object count = getIbatisDaoSupport().queryForObject(
+                "OutDAO.sumHasBack2", paramterMap);
+
+        if (count == null)
+        {
+            return 0;
+        }
+
+        return (Integer)count;
+    }
+
     public List<BaseBean> queryInwayOut()
     {
         String sql = "select t1.* from t_center_base t1, t_center_out t2 "
@@ -798,7 +825,7 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
             connection = this.jdbcOperation.getDataSource().getConnection();
 
             prepareStatement = connection
-                .prepareStatement("select fullid, status, reserve3, type , outType from t_center_out where fullid = '"
+                .prepareStatement("select fullid, status, dutyid, reserve3, type , outType,buyReturnFlag from t_center_out where fullid = '"
                                   + fullId + "'");
 
             rst = prepareStatement.executeQuery();
@@ -810,12 +837,16 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
             out.setFullId(rst.getString("fullid"));
 
             out.setStatus(rst.getInt("status"));
+            
+            out.setDutyId(rst.getString("dutyid"));
 
             out.setReserve3(rst.getInt("Reserve3"));
 
             out.setType(rst.getInt("type"));
 
             out.setOutType(rst.getInt("outType"));
+            
+            out.setBuyReturnFlag(rst.getInt("buyReturnFlag"));
 
             return out;
         }
@@ -1271,5 +1302,46 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
                 "where OutImportBean.direct=1 and OutBean.customerCreated=0 and OutBean.type=0";
 
         return this.jdbcOperation.queryForListBySql(sql, claz);
+    }
+    
+    /**
+     * 清除凭证
+     */
+    public void clearTicket(String fullId){
+    	
+        String sql = "";
+        sql = "delete from t_center_finance where refid='"+fullId+"'";
+        this.jdbcOperation.execute(sql);
+        sql = "delete from t_center_financeitem where refid='"+fullId+"'";
+        this.jdbcOperation.execute(sql);
+    	
+    }
+    
+    /**
+     * 更新t_center_stockitem中的totalWarehouseNum
+     * @param stockId
+     * @param productId
+     * @param providerId
+     * @param addCount
+     */
+    public void updateTotalWarehouseNum(String stockId, String productId, String providerId, int addCount){
+    	String sql = this.getUpdateTotalWarehouseNumClause(stockId, productId, providerId, addCount, "t_center_stockitem");
+    	
+    	this.jdbcOperation.execute(sql);
+    	
+        sql = this.getUpdateTotalWarehouseNumClause(stockId, productId, providerId, addCount, "t_center_stockitemarrial");
+    	
+    	this.jdbcOperation.execute(sql);
+    }
+    
+    private String getUpdateTotalWarehouseNumClause(String stockId, String productId, String providerId, int addCount, String table){
+    	StringBuffer buffer = new StringBuffer();
+    	buffer.append(" update "+table); 
+    	buffer.append(" set totalWarehouseNum=totalWarehouseNum+("+addCount+")");
+    	buffer.append(" where stockId='"+stockId+"'");
+    	buffer.append(" and productId='"+productId+"'");
+    	buffer.append(" and providerId='"+providerId+"'");
+    	
+    	return buffer.toString();
     }
 }

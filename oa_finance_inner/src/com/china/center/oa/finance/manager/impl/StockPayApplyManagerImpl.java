@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.stock.bean.StockItemBean;
 import com.china.center.oa.stock.constant.StockConstant;
 import com.china.center.tools.*;
@@ -782,6 +783,18 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 
         saveFlowLog(user, preStatus, apply, reason, PublicConstant.OPRMODE_REJECT);
 
+        //#786
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("refId","=", apply.getId());
+        conditionParse.addCondition("isFinal","=", 0);
+        conditionParse.addCondition("description","like", "%未结束付款的分拆");
+        List<StockPayApplyBean> refBeans = this.stockPayApplyDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(refBeans)){
+            _logger.info("****delete StockPayApplyBean***"+refBeans);
+            for (StockPayApplyBean applyBean: refBeans){
+                this.stockPayApplyDAO.deleteEntityBean(applyBean.getId());
+            }
+        }
         return true;
     }
 

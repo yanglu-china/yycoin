@@ -291,9 +291,21 @@ function checkBean()
                      <tr class="content2">
                         <td align="right">状态：</td>
                         <td colspan="1">
-                        <select name="status" class="select_class"  values="${bean.status}">
-                           <p:option type="buyStatus"></p:option>
-                        </select>
+
+                        
+                        <c:choose>
+                          <c:when test="${bean.buyReturnFlag == 1}"> 
+	                        <select name="status" class="select_class"  values="${bean.status}">
+	                           <p:option type="buyReturnStatus"></p:option>
+	                        </select>                                                       
+                          </c:when>
+                          <c:otherwise>
+	                        <select name="status" class="select_class"  values="${bean.status}">
+	                           <p:option type="buyStatus"></p:option>
+	                        </select>                           
+                          </c:otherwise>
+                        </c:choose>
+                        
                         </td>
                         <td align="right">申请人：</td>
                         <td colspan="1">
@@ -322,7 +334,19 @@ function checkBean()
                      <tr class="content1">
                         <td align="right">关联单据：</td>
                         <td colspan="3">
-                       <a href="../sail/out.do?method=findOut&fow=99&outId=${bean.refOutFullId}">${bean.refOutFullId}</a>
+                        
+                        <c:choose>
+                          <c:when test="${bean.buyReturnFlag == 1}">   
+                          <a href="../stock/stock.do?method=findStock&id=${bean.refOutFullId}">${bean.refOutFullId}</a>                        
+                          </c:when>
+                          <c:otherwise>          
+                          <a href="../sail/out.do?method=findOut&fow=99&outId=${bean.refOutFullId}">${bean.refOutFullId}</a>                   
+                          </c:otherwise>
+                        </c:choose>                        
+                       
+                       
+                       
+                       
                        </td>
 
                     </tr>
@@ -376,6 +400,12 @@ function checkBean()
                         <td colspan="3">${bean.transportNo}
                         </td>
                     </tr>
+
+					<tr class="content1">
+						<td align="right">退货付款类型：</td>
+						<td colspan="3">${my:get('backPay', bean.backPay)}
+						</td>
+					</tr>
 
 				</table>
 				</td>
@@ -593,9 +623,19 @@ function checkBean()
 
                             <td  align="center">${item.oprModeName}</td>
 
-                            <td  align="center">${my:get('buyStatus', item.preStatus)}</td>
+                        <c:choose>
+                          <c:when test="${bean.buyReturnFlag == 1}">
+                           <td  align="center">${my:get('buyReturnStatus', item.preStatus)}</td>
 
-                            <td  align="center">${my:get('buyStatus', item.afterStatus)}</td>
+                            <td  align="center">${my:get('buyReturnStatus', item.afterStatus)}</td>                             
+                          </c:when>
+                          <c:otherwise>
+                           <td  align="center">${my:get('buyStatus', item.preStatus)}</td>
+
+                            <td  align="center">${my:get('buyStatus', item.afterStatus)}</td>                              
+                          </c:otherwise>
+                        </c:choose>
+ 
 
                             <td  align="center">${item.description}</td>
 

@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.china.center.oa.publics.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -92,6 +91,7 @@ import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.AreaBean;
 import com.china.center.oa.publics.bean.AttachmentBean;
@@ -3049,6 +3049,8 @@ public class ParentOutAction extends DispatchAction
 			line.writeColumn("是否回款");
 			line.writeColumn("回款金额");
 			line.writeColumn("总金额");
+			//#775
+			line.writeColumn("退货付款类型");
 
 			line.writeColumn("申请人");
 			line.writeColumn("经办人");
@@ -3340,6 +3342,8 @@ public class ParentOutAction extends DispatchAction
 							element.getPay()));
 					line.writeColumn(MathTools.formatNum(element.getHadPay()));
 					line.writeColumn(MathTools.formatNum(element.getTotal()));
+					line.writeColumn(DefinedCommon.getValue("backPay",
+							element.getBackPay()));
 
 					line.writeColumn(element.getStafferName());
 					line.writeColumn(element.getOperatorName());
@@ -4634,6 +4638,13 @@ public class ParentOutAction extends DispatchAction
 		} else {
 			out.setPay(1);
 			out.setDescription("销售退库,销售单号:" + outId + ". " + adescription);
+
+			//#775
+			if (oldOut.getPay() == OutConstant.PAY_NOT){
+				out.setBackPay(OutConstant.WHKTH);
+			} else if (oldOut.getPay() == OutConstant.PAY_YES){
+				out.setBackPay(OutConstant.YHKTH);
+			}
 		}
 
 		//#629
@@ -4692,7 +4703,9 @@ public class ParentOutAction extends DispatchAction
 		// 计算出已经退货的数量(这里是根据产品的总量进行统计的哦)
 		for (BaseBean baseBean : baseList)
 		{
-			int hasBack = 0;
+//			int hasBack = 0;
+			//#797
+			int hasBack = this.outDAO.sumHasBack2(baseBean.getOutId(), baseBean.getProductName());
 
 			for (OutBean ref : refBuyList)
 			{
@@ -6086,6 +6099,11 @@ public class ParentOutAction extends DispatchAction
 		String oprType = request.getParameter("oprType");
 
 		if (StringTools.isNullOrNone(oprType)) oprType = "";
+		
+		int buyReturnFlag = 0;
+		if("1".equals(request.getParameter("buyReturnFlag"))){
+			buyReturnFlag = 1;
+		}
 
 		// 客户信用级别
 		String customercreditlevel = request
@@ -6122,6 +6140,8 @@ public class ParentOutAction extends DispatchAction
 		BeanUtil.getBean(outBean, request);
 
 		outBean.setLocation(location);
+		
+		outBean.setBuyReturnFlag(buyReturnFlag);
 
 		if (StringTools.isNullOrNone(outBean.getLocation())
 				&& !oprType.equals("0"))
@@ -6294,6 +6314,14 @@ public class ParentOutAction extends DispatchAction
                 {
                     this.fillDistributionForRemoteAllocate(request, outBean);
                 }
+                
+                //mod by zhangxian 2019-10-11
+                //创建报废单和采购退货单时，目的库 置为空
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_DROP || outBean.getOutType() == OutConstant.OUTTYPE_IN_STOCK)
+                {
+                	outBean.setDestinationId(null);
+                }
+                //end mod 2019-10-11
                 
                 //mod by zhangxian 2019-06-18
                 //增加预占库存的扣减
@@ -7711,7 +7739,7 @@ public class ParentOutAction extends DispatchAction
 				// 验证(销售单)是否可以全部回款
 				try
 				{
-					outManager.payOut(user, out.getRefOutFullId(), "自动核对付款");
+					outManager.payOut(user, out.getRefOutFullId(), "自动核对付款", 0);
 				}
 				catch (MYException e)
 				{
@@ -7821,6 +7849,7 @@ public class ParentOutAction extends DispatchAction
                 return mapping.findForward("error");
             }
 
+			int pay = 0;
             // 退库-事业部经理审批
             if (out.getType() == OutConstant.OUT_TYPE_INBILL
                     && (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
@@ -7833,6 +7862,13 @@ public class ParentOutAction extends DispatchAction
 
                     return mapping.findForward("error");
                 }
+
+                if(!StringTools.isNullOrNone(out.getRefOutFullId())){
+					OutBean refOut = this.outDAO.find(out.getRefOutFullId());
+					if (refOut!= null){
+						pay = refOut.getPay();
+					}
+				}
             }
             else
             {
@@ -7886,8 +7922,6 @@ public class ParentOutAction extends DispatchAction
                      }
                 }
 
-
-
                 //配件退货
                 List<DecomposeProductBean> beans = this.getDecomposeBeanFromRequest(accessoryList, user);
 
@@ -7919,7 +7953,17 @@ public class ParentOutAction extends DispatchAction
                 // 验证(销售单)是否可以全部回款
                 try
                 {
-                    outManager.payOut(user, out.getRefOutFullId(), "自动核对付款");
+                    int backPay = 0;
+                    //#775 当销售单退货触发销售单付款状态变更时，判断原销售单的付款状态PAY为1时，付款类型字段设为4，实际付款退货
+                    if (pay == OutConstant.PAY_YES){
+                        backPay = OutConstant.SJFKTH;
+                    } else if (pay == OutConstant.PAY_NOT){
+                        //当销售单退货触发销售单付款状态变更时，判断原销售单的付款状态PAY为0时，付款类型字段设为5，未付款退货
+                        backPay = OutConstant.WFKTH;
+                    }
+
+					_logger.info(pay+"***out pay***"+out.getPay());
+                    outManager.payOut(user, out.getRefOutFullId(), "自动核对付款", backPay);
                 }
                 catch (MYException e)
                 {
@@ -8271,6 +8315,8 @@ public class ParentOutAction extends DispatchAction
 
 				OldPageSeparateTools.initPageSeparate(condtion, page, request,
 						QUERYSELFBUY);
+				
+				_logger.debug(condtion.getCondition());
 
 				list = outDAO.queryEntityVOsByCondition(condtion, page);
 			}
@@ -8303,7 +8349,12 @@ public class ParentOutAction extends DispatchAction
 
 		getDivs(request, list);
 
-		return mapping.findForward("querySelfBuy");
+		String buyReturnFlag = this.getBuyReturnFlag(request);
+		if("1".equals(buyReturnFlag)){
+			return mapping.findForward("querySelfBuyReturn");
+		}else{
+			return mapping.findForward("querySelfBuy");
+		}
 	}
 
 	/**
@@ -8764,7 +8815,13 @@ public class ParentOutAction extends DispatchAction
 	{
 		User user = (User) request.getSession().getAttribute("user");
 
+		_logger.debug("status: "+ request.getParameter("status") );
+		
 		saveQueryType(request);
+
+		_logger.debug("status: "+ request.getParameter("status") );
+		
+		saveBuyReturnFlag(request);
 
 		try
 		{
@@ -8961,7 +9018,12 @@ public class ParentOutAction extends DispatchAction
 
 		request.setAttribute("now", TimeTools.now("yyyy-MM-dd"));
 
-		return mapping.findForward("queryBuy");
+		String buyReturnFlag = this.getBuyReturnFlag(request);
+		if("1".equals(buyReturnFlag)){
+			return mapping.findForward("queryBuyReturn");
+		}else{
+			return mapping.findForward("queryBuy");
+		}
 	}
 
 	/**
@@ -8986,6 +9048,49 @@ public class ParentOutAction extends DispatchAction
 		{
 			request.getSession().setAttribute("queryType", attribute);
 		}
+	}
+	
+
+	/**
+	 * saveBuyReturnFlag
+	 * 
+	 * @param request
+	 */
+	private void saveBuyReturnFlag(HttpServletRequest request)
+	{
+		String buyReturnFlag = request.getParameter("buyReturnFlag");
+
+		if (!StringTools.isNullOrNone(buyReturnFlag))
+		{
+			//request.getSession().setAttribute("buyReturnFlag", buyReturnFlag);
+
+			return;
+		}
+
+		Object attribute = request.getAttribute("buyReturnFlag");
+
+		if (attribute != null)
+		{
+			//request.getSession().setAttribute("buyReturnFlag", attribute);
+		}
+	}
+	
+	/**
+	 * getBuyReturnFlag
+	 * 
+	 * @param request
+	 */
+	private String getBuyReturnFlag(HttpServletRequest request)
+	{
+		String buyReturnFlag = request.getParameter("buyReturnFlag");
+
+		if (StringTools.isNullOrNone(buyReturnFlag))
+		{
+			buyReturnFlag = (String)request.getAttribute("buyReturnFlag");
+		}
+		
+		return buyReturnFlag;
+
 	}
 
 	/**
@@ -9386,6 +9491,17 @@ public class ParentOutAction extends DispatchAction
 		if (!StringTools.isNullOrNone(inway))
 		{
 			condtion.addIntCondition("inway", "=", inway);
+		}
+		
+
+		String buyReturnFlag = request.getParameter("buyReturnFlag");
+		if(!"1".equals(buyReturnFlag)){
+			buyReturnFlag = "0";
+		}
+
+		if (!StringTools.isNullOrNone(buyReturnFlag))
+		{
+			condtion.addIntCondition("OutBean.buyReturnFlag", "=", buyReturnFlag);
 		}
 
 		condtion.addCondition("order by OutBean.id desc");
@@ -10278,6 +10394,8 @@ public class ParentOutAction extends DispatchAction
 		}
 
 		String status = request.getParameter("status");
+		
+		_logger.debug("status: "+ status );
 
 		if (!StringTools.isNullOrNone(status))
 		{
@@ -10542,6 +10660,16 @@ public class ParentOutAction extends DispatchAction
 		{
 			condtion.addFlaseCondition();
 		}
+		
+		String buyReturnFlag = RequestTools.getValueFromRequest(request,
+				"buyReturnFlag");
+		if(!"1".equals(buyReturnFlag)){
+			buyReturnFlag = "0";
+		}
+		condtion.addIntCondition("OutBean.buyReturnFlag", "=", buyReturnFlag);
+		request.setAttribute("buyReturnFlag", buyReturnFlag);
+		queryOutCondtionMap.put("buyReturnFlag", buyReturnFlag);	
+		
 
 		if (!condtion.containOrder())
 		{

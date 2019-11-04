@@ -233,6 +233,22 @@ public interface OutManager extends ListenerManager<OutListener>
              final String customerDescription,
              final String depotpartId)
         throws MYException;
+    
+    /**
+     * pass
+     * 
+     * @param fullId
+     * @param user
+     * @param nextStatus
+     * @param reason
+     * @param depotpartId
+     * @return 修改后的单据状态
+     * @throws MYException
+     */
+    int passBuyReturn(final String fullId, final User user, final int nextStatus, final String reason,
+             final String customerDescription,
+             final String depotpartId)
+        throws MYException;
 
     /**
      * #593 自动通过赠送单
@@ -343,7 +359,7 @@ public interface OutManager extends ListenerManager<OutListener>
      * @param reason
      * @return
      */
-    boolean payOut(final User user, String fullId, String reason)
+    boolean payOut(final User user, String fullId, String reason, int backPay)
         throws MYException;
 
 
@@ -377,7 +393,7 @@ public interface OutManager extends ListenerManager<OutListener>
      * @return
      * @throws MYException
      */
-    boolean payOutWithoutTransactional(final User user, String fullId, String reason)
+    boolean payOutWithoutTransactional(final User user, String fullId, String reason, int backPay)
         throws MYException;
 
     /**

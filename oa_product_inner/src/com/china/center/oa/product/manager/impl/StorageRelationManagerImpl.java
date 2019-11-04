@@ -799,6 +799,8 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
             relation = storageRelationDAO.findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(bean
                 .getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getStafferId());
         }
+        
+        _logger.debug("relation == null:"+(relation == null)+", bean.getChange(): "+bean.getChange());
 
         if (relation == null && bean.getChange() < 0)
         {

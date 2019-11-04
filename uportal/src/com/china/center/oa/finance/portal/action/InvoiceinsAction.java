@@ -4768,13 +4768,13 @@ public class InvoiceinsAction extends DispatchAction
                     }*/
 
                     // 增值税开票信息
-                    StringBuilder sb = new StringBuilder();
+                    StringBuilder kpxx = new StringBuilder();
                     //购方名称
                     if ( !StringTools.isNullOrNone(obj[20]))
                     {
                         String gfmc = obj[20].trim();
                         bean.setGfmc(gfmc);
-                        sb.append(gfmc).append(",");
+                        kpxx.append(gfmc).append(",");
                     }
 
                     //购方税号
@@ -4782,7 +4782,7 @@ public class InvoiceinsAction extends DispatchAction
                     {
                         String gfsh = obj[21].trim();
                         bean.setGfsh(gfsh);
-                        sb.append(gfsh).append(",");
+                        kpxx.append(gfsh).append(",");
                     }
 
                     //购方开户银行及银行账号
@@ -4790,7 +4790,7 @@ public class InvoiceinsAction extends DispatchAction
                     {
                         String gfyh = obj[22].trim();
                         bean.setGfyh(gfyh);
-                        sb.append(gfyh).append(",");
+                        kpxx.append(gfyh).append(",");
                     }
 
                     //购方企业地址及联系电话
@@ -4798,7 +4798,21 @@ public class InvoiceinsAction extends DispatchAction
                     {
                         String gfdz = obj[23].trim();
                         bean.setGfdz(gfdz);
-                        sb.append(gfdz);
+                        kpxx.append(gfdz);
+                    }
+
+                    //规格型号
+                    if ( !StringTools.isNullOrNone(obj[24]))
+                    {
+                        String ggxh = obj[24].trim();
+                        bean.setFpgg(ggxh);
+                    }
+
+                    //计量单位
+                    if ( !StringTools.isNullOrNone(obj[25]))
+                    {
+                        String jldw = obj[25].trim();
+                        bean.setFpdw(jldw);
                     }
 
                     if ("增值税专用发票17%".equals(obj[3].trim())){
@@ -4815,14 +4829,13 @@ public class InvoiceinsAction extends DispatchAction
                         }
                     }
 
-                    _logger.info(sb.toString()+"***fuck***");
-                    if (!StringTools.isNullOrNone(sb.toString())){
-                        bean.setZzsInfo(sb.toString());
+                    if (!StringTools.isNullOrNone(kpxx.toString())){
+                        bean.setZzsInfo(kpxx.toString());
                     }
 
                     // #404 开票品名
-                    if ( !StringTools.isNullOrNone(obj[24])) {
-                        String spmc = obj[24].trim();
+                    if ( !StringTools.isNullOrNone(obj[26])) {
+                        String spmc = obj[26].trim();
                         bean.setSpmc(spmc);
                     }else {
                         builder

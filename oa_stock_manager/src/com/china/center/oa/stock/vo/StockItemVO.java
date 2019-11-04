@@ -24,6 +24,15 @@ public class StockItemVO extends StockItemBean
 
     @Relationship(relationField = "productId", tagField = "code")
     private String productCode = "";
+    
+    @Relationship(relationField = "productId", tagField = "cost")
+    private String productCost = "";
+    
+    @Relationship(relationField = "depotpartId", tagField = "name")
+    private String depotpartName = "";
+    
+    @Relationship(relationField = "invoiceType", tagField = "name")
+    private String invoiceTypeName = "";
 
     @Relationship(relationField = "providerId", tagField = "name")
     private String providerName = "";
@@ -104,7 +113,31 @@ public class StockItemVO extends StockItemBean
         this.productCode = productCode;
     }
 
-    /**
+	public String getProductCost() {
+		return productCost;
+	}
+
+	public void setProductCost(String productCost) {
+		this.productCost = productCost;
+	}
+
+	public String getDepotpartName() {
+		return depotpartName;
+	}
+
+	public void setDepotpartName(String depotpartName) {
+		this.depotpartName = depotpartName;
+	}
+
+	public String getInvoiceTypeName() {
+		return invoiceTypeName;
+	}
+
+	public void setInvoiceTypeName(String invoiceTypeName) {
+		this.invoiceTypeName = invoiceTypeName;
+	}
+
+	/**
      * @return the providerName
      */
     public String getProviderName()

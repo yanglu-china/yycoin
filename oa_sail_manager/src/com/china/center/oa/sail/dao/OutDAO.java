@@ -123,10 +123,18 @@ public interface OutDAO extends DAO<OutBean, OutVO>
      * 修改付款状态
      * 
      * @param fullId
+     * @param backPay
+     * @return
+     */
+    boolean updatePay(String fullId, int backPay);
+
+    /**
+     * #775
+     * @param fullId
      * @param pay
      * @return
      */
-    boolean updatePay(String fullId, int pay);
+    boolean updateBackPay(String fullId, int pay);
 
     boolean updatePmtype(String fullId, int pmtype);
 
@@ -216,6 +224,14 @@ public interface OutDAO extends DAO<OutBean, OutVO>
             String ower);
 
     Integer sumNotEndProductInCompose(String productId, String depotpartId, double price);
+
+    /**
+     * #797
+     * @param fullId
+     * @param productName
+     * @return
+     */
+    Integer sumHasBack2(String fullId, String productName);
     
     /**
      * 统计一个产品在系统的入库单在途的数量
@@ -430,4 +446,8 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     boolean updateIbFlag(String fullId,int ibFlag, String ibApplyId);
 
     boolean updateMotivationFlag(String fullId,int motivationFlag, String motivationApplyId);
+    
+    public void clearTicket(String fullId);
+    
+    public void updateTotalWarehouseNum(String stockId, String productId, String providerId, int addCount);
 }

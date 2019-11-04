@@ -41,6 +41,11 @@ function processBean(opr)
     if ("1" == opr)
     {
         msg = '确定驳回到中收申请到初始?';
+        if ($O('dutyId')){
+        	$O('dutyId').oncheck = '';
+        }
+        $O('oprType').value = '1';
+        	
     }
     
     if ("2" == opr)
@@ -69,13 +74,13 @@ function processBean(opr)
     </c:if>
     
     submit(msg, null, checkFun);
+    
 }
 
 function removePay()
 {
     //remove tr
     var list = formEntry.elements;
-    
     if (list)
     {
         for (var i = 0; i < list.length; i++)

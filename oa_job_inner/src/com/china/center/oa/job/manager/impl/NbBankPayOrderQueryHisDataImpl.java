@@ -17,10 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.finance.bean.BankBean;
+import com.china.center.oa.finance.bean.NbBankHisBalanceBean;
 import com.china.center.oa.finance.bean.NbBankHisDataBean;
 import com.china.center.oa.finance.dao.BankDAO;
+import com.china.center.oa.finance.dao.NbBankHisBalanceDAO;
 import com.china.center.oa.finance.dao.NbBankHisDataDAO;
 import com.china.center.oa.finance.manager.payorder.NbBankPayImpl;
+import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisBalLoopData;
 import com.china.center.oa.finance.manager.payorder.nbbank.jaxbobject.resp.NbBankQueryHisDtlLoopData;
 import com.china.center.oa.job.manager.JobManager;
 
@@ -31,6 +34,8 @@ public class NbBankPayOrderQueryHisDataImpl implements JobManager {
 	private BankDAO bankDAO;
 	
 	private NbBankHisDataDAO nbBankHisDataDao;
+	
+	private NbBankHisBalanceDAO nbBankHisBalanceDao;
 
 	/**
 	 * 定时任务查询银行账户流水明细
@@ -109,6 +114,33 @@ public class NbBankPayOrderQueryHisDataImpl implements JobManager {
 				}
 				
 			}
+			//查询昨日余额
+			_logger.info("start query offline account balance, date:" + yesterday);
+			paramMap.clear();
+			paramMap.put("queryDate", yesterday);
+			List<NbBankQueryHisBalLoopData> balList = nbPay.queryHisBalance(paramMap);
+			if(balList != null)
+			{
+				List<NbBankHisBalanceBean> balanceList = new ArrayList<NbBankHisBalanceBean>();
+				for(NbBankQueryHisBalLoopData loopData:balList)
+				{
+					NbBankHisBalanceBean balBean = new NbBankHisBalanceBean();
+					balBean.setAccAttribute(loopData.getAccAttribute());
+					balBean.setAccName(loopData.getAccName());
+					balBean.setAccNameRemark(loopData.getAccNameRemark());
+					balBean.setAccTypeRemark(loopData.getAccTypeRemark());
+					balBean.setBalance(new BigDecimal(loopData.getBalance()));
+					balBean.setBankAcc(loopData.getBankAcc());
+					balBean.setBankName(loopData.getBankName());
+					balBean.setBusiness_date(yesterday);
+					balBean.setCorpCode(loopData.getCorpCode());
+					balBean.setCorpName(loopData.getCorpName());
+					balBean.setCurName(loopData.getCurName());
+					balanceList.add(balBean);
+				}
+				nbBankHisBalanceDao.saveAllEntityBeans(balanceList);
+				
+			}
 		}
 		catch(Exception e)
 		{
@@ -131,6 +163,14 @@ public class NbBankPayOrderQueryHisDataImpl implements JobManager {
 
 	public void setNbBankHisDataDao(NbBankHisDataDAO nbBankHisDataDao) {
 		this.nbBankHisDataDao = nbBankHisDataDao;
+	}
+
+	public NbBankHisBalanceDAO getNbBankHisBalanceDao() {
+		return nbBankHisBalanceDao;
+	}
+
+	public void setNbBankHisBalanceDao(NbBankHisBalanceDAO nbBankHisBalanceDao) {
+		this.nbBankHisBalanceDao = nbBankHisBalanceDao;
 	}
 
 }

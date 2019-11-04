@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import com.china.center.jdbc.inter.DAO;
 import com.china.center.oa.client.bean.*;
 import com.china.center.oa.client.dao.*;
 import com.china.center.oa.client.vo.CustomerVO;
@@ -81,6 +83,7 @@ import com.china.center.oa.extsail.manager.ZJRCManager;
 import com.china.center.oa.note.bean.ShortMessageTaskBean;
 import com.china.center.oa.note.constant.ShortMessageConstant;
 import com.china.center.oa.note.dao.ShortMessageTaskDAO;
+
 import com.china.center.oa.note.manager.HandleMessage;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
@@ -119,7 +122,6 @@ import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 import com.china.center.tools.WriteFileBuffer;
 
-
 /**
  * OutManagerImpl
  * 
@@ -131,6 +133,8 @@ import com.china.center.tools.WriteFileBuffer;
 public class OutManagerImpl extends AbstractListenerManager<OutListener> implements OutManager
 {
     private final Log _logger = LogFactory.getLog(getClass());
+    
+    private final static String EmptyDepotpartId = "999";
 
     private final Log operationLog = LogFactory.getLog("opr");
 
@@ -182,8 +186,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     private SailConfigDAO sailConfigDAO = null;
 
-    private OutUniqueDAO outUniqueDAO = null;
-
     private NotifyManager notifyManager = null;
 
     private InvoiceDAO invoiceDAO = null;
@@ -199,6 +201,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private StorageRelationManager storageRelationManager = null;
 
     private StorageRelationDAO storageRelationDAO = null;
+    
+    private StorageLogDAO storageLogDAO = null;
+    
+    private OutUniqueDAO outUniqueDAO = null;
 
     private OutRepaireDAO outRepaireDAO = null;
     
@@ -277,7 +283,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private DhZjbDAO dhZjbDAO = null;
 
     private FrDbDAO frDbDAO = null;
-    
+
     /**
      * 短信最大停留时间
      */
@@ -318,6 +324,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         final String oprType = request.getParameter("oprType") == null ? "" : request.getParameter("oprType");
 
         dataMap.put("tmdutyId", dutyId);
+        
+        _logger.debug("fullId:"+fullId+", type:"+outBean.getType()+", outType:"+outBean.getOutType());
 
         if (StringTools.isNullOrNone(fullId))
         {
@@ -335,6 +343,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             //String flag = location.getCode();
             String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
+            
+            _logger.debug("type:"+outBean.getType()+", outType:"+outBean.getOutType()+", flag:"+flag);
             
             // 临时单号，待拆分为SO单
             if (oprType.equals("0"))
@@ -372,48 +382,57 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         outBean.setInway(OutConstant.IN_WAY_NO);
 
         // 获得baseList
-        final String[] nameList = request.getParameter("nameList").split("~");
-        final String[] idsList = request.getParameter("idsList").split("~");
+        final String[] nameList = this.getParam(request, "nameList");
+        
+        for(String name: nameList){
+        	_logger.debug("name: "+ name);
+        }
+        
+        final String[] idsList = this.getParam(request, "idsList");
 //        final String[] showIdList = request.getParameter("showIdList").split("~");
 //        final String[] showNameList = request.getParameter("showNameList").split("~");
 //        final String[] unitList = request.getParameter("unitList").split("~");
-        final String[] amontList = request.getParameter("amontList").split("~");
+        final String[] amontList = this.getParam(request, "amontList");
 
         // 含税价
-        final String[] priceList = request.getParameter("priceList").split("~");
+        final String[] priceList = this.getParam(request, "priceList");
 
         // 输入价格
-        final String[] inputPriceList = request.getParameter("inputPriceList").split("~");
+        final String[] inputPriceList = this.getParam(request, "inputPriceList");
 
         // 显示成本(只有V5有)
-        final String[] showCostList = request.getParameter("showCostList").split("~");
+        final String[] showCostList = this.getParam(request, "showCostList");
 
         // 成本
-        final String[] desList = request.getParameter("desList").split("~");
+        final String[] desList = this.getParam(request, "desList");
 
         //#545 采购入库的时候，非虚拟商品的虚料金额是0
         //虚拟商品的虚料金额，等于成本价
-        String vpl = request.getParameter("virtualPriceList");
+        //String vpl = request.getParameter("virtualPriceList");
+        //虚料金额
+        String[] virtualPriceList1 = this.getParam(request, "virtualPriceList");
         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
                 && outBean.getOutType() == OutConstant.OUTTYPE_IN_COMMON){
-            vpl = request.getParameter("desList");
+            //vpl = request.getParameter("desList");
+            virtualPriceList1 = this.getParam(request, "desList");
         }
-        //虚料金额
-        final String[] virtualPriceList = vpl.split("~");
+        
+        final String[] virtualPriceList = virtualPriceList1;
 
-        final String[] otherList = request.getParameter("otherList").split("~");
+
+        final String[] otherList = this.getParam(request, "otherList");
         
-        final String [] depotList = request.getParameter("depotList").split("~");
+        final String [] depotList = this.getParam(request, "depotList");
         
-        final String [] mtypeList = request.getParameter("mtypeList").split("~");
+        final String [] mtypeList = this.getParam(request, "mtypeList");
         
-        final String [] oldGoodsList = request.getParameter("oldGoodsList").split("~");
+        final String [] oldGoodsList = this.getParam(request, "oldGoodsList");
         
-        final String [] taxrateList = request.getParameter("taxrateList").split("~");
+        final String [] taxrateList = this.getParam(request, "taxrateList");
         
-        final String [] taxList = request.getParameter("taxList").split("~");
+        final String [] taxList = this.getParam(request, "taxList");
         
-        final String [] inputRateList = request.getParameter("inputRateList").split("~");
+        final String [] inputRateList = this.getParam(request, "inputRateList");
 
 //        final String ibMoneyListStr = request.getParameter("ibMoneyList");
 //        final String motivationMoneyListStr = request.getParameter("motivationMoneyList");
@@ -582,6 +601,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 //                    boolean isManagerPass = false;
                     StringBuffer messsb = new StringBuffer();
                     
+                    _logger.debug("nameList.length:"+ nameList.length);
+                    
                     // 处理每个base
                     for (int i = 0; i < nameList.length; i++ )
                     {
@@ -713,9 +734,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         else
                         {
                             // ele.productid + '-' + ele.price + '-' + ele.stafferid + '-' + ele.depotpartid
+                        	_logger.debug("otherList[i]:"+otherList[i]);
                             String[] coreList = otherList[i].split("-");
 
-                            if (coreList.length != 4)
+                            if (coreList.length < 3)
                             {
                                 throw new RuntimeException("数据不完备");
                             }
@@ -727,8 +749,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 .getCostPrice()));
 
                             base.setOwner(coreList[2]);
-
-                            base.setDepotpartId(coreList[3]);
+                            
+                            if(coreList.length>3){
+                            	base.setDepotpartId(coreList[3]);
+                            }
+                            
                         }
 
                         // 这里需要核对价格 调拨
@@ -744,6 +769,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                         if (StringTools.isNullOrNone(base.getOwner()))
                         {
+                            base.setOwner("0");
+                        } else if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                                && outBean.getOutType() == OutConstant.OUTTYPE_IN_STOCK){
                             base.setOwner("0");
                         }
 
@@ -763,21 +791,23 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             base.setOwnerName(sb.getName());
                         }
 
-                        DepotpartBean deport = depotpartDAO.find(base.getDepotpartId());
+                        if(!EmptyDepotpartId.equals(base.getDepotpartId())){
+                            DepotpartBean deport = depotpartDAO.find(base.getDepotpartId());
 
-                        if (deport == null)
-                        {
-                            throw new RuntimeException("仓区不存在,请确认操作");
-                        }
+                            if (deport == null)
+                            {
+                                throw new RuntimeException("仓区("+base.getDepotpartId()+")不存在,请确认操作");
+                            }
 
-                        base.setDepotpartName(deport.getName());
-
-                        // 销售单的时候仓库必须一致
-                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
-                            && !deport.getLocationId().equals(outBean.getLocation())
-                            && !oprType.equals("0"))
-                        {
-                            throw new RuntimeException("销售必须在一个仓库下面");
+                            base.setDepotpartName(deport.getName());                       	
+                        
+                            // 销售单的时候仓库必须一致
+                            if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                                && !deport.getLocationId().equals(outBean.getLocation())
+                                && !oprType.equals("0"))
+                            {
+                                throw new RuntimeException("销售必须在一个仓库下面");
+                            }
                         }
 
                         // 调拨的时候有bug啊
@@ -1173,6 +1203,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                     try
                     {
                         saveOutInner(outBean);
+                        _logger.debug("save outBean.getFullId():"+outBean.getFullId());
                     }
                     catch (MYException e1)
                     {
@@ -2573,7 +2604,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 
     /**
-     * CORE 处理入库单的库存变动 采购入库/调拨(调出/回滚)/领样退货/销售退单
+     * CORE 处理入库单的库存变动 采购入库/调拨(调出/回滚)/领样退货/销售退单/采购退货
      * 
      * @param user
      * @param outBean
@@ -2586,8 +2617,25 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     {
         _logger.info(outBean+"******processBuyBaseList with out "+baseList);
         // 入库单提交后就直接移动库存了,销售需要在库管通过后生成发货单前才会变动库存
+        //未入库退货不扣减库存
         if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
         {
+            return;
+        }
+        
+        if (outBean.getBuyReturnFlag() == 1 && outBean.getBuyReturnType() == 2)
+        {
+        	//未入库退货，修改totalwarehousenum
+            
+            for (BaseBean element : baseList)
+            {
+            	String stockId = outBean.getRefOutFullId();
+                String productId = element.getProductId();
+                String providerId = outBean.getCustomerId();
+                
+                outDAO.updateTotalWarehouseNum(stockId, productId, providerId, Math.abs(element.getAmount()));
+            }
+
             return;
         }
 
@@ -2595,7 +2643,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (outBean.getOutType() == OutConstant.OUTTYPE_IN_COMMON
             || outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
             || outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
-            || outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT)
+            || outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT
+            || outBean.getBuyReturnFlag() == 1)
         {
             String sequence = commonDAO.getSquenceString();
 
@@ -2622,6 +2671,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 wrap.setType(type);
                 wrap.setRefId(outBean.getFullId());
                 wrap.setInputRate(element.getInputRate());
+                
+                
 
                 storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
             }
@@ -3060,7 +3111,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 {
                     wrap.setChange( -element.getAmount());
 
-                    storageRelationManager.checkStorageRelation(wrap, includeSelf);
+                    if(!EmptyDepotpartId.equals(outBean.getDepotpartId())){
+                    	_logger.debug("outBean.getDepotpartId():"+outBean.getDepotpartId()+", check1");
+                    	storageRelationManager.checkStorageRelation(wrap, includeSelf);
+                    }
+                    
                 }
             }
             else
@@ -3068,7 +3123,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 // 入库单
                 wrap.setChange(element.getAmount());
 
-                storageRelationManager.checkStorageRelation(wrap, includeSelf);
+                if(!EmptyDepotpartId.equals(outBean.getDepotpartId())){
+                	_logger.debug("outBean.getDepotpartId():"+outBean.getDepotpartId()+", check2");
+                	storageRelationManager.checkStorageRelation(wrap, includeSelf);
+                }
+                
             }
         }
 
@@ -3273,6 +3332,91 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         
                         // 取消坏账
                         outDAO.modifyBadDebts(fullId, 0.0d);
+                    }
+                    
+                    //采购退货驳回
+                    _logger.debug("outBean.getBuyReturnFlag():"+outBean.getBuyReturnFlag()+", outBean.getBuyReturnType():"+outBean.getBuyReturnType());
+                    if(outBean.getBuyReturnFlag() == 1){
+                    	
+                    	String sequence = commonDAO.getSquenceString();
+                    	
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addWhereStr();
+                        conditionParse.addCondition("outId","=",outBean.getFullId());
+                        List<BaseBean> baseList = baseDAO.queryEntityBeansByCondition(conditionParse);
+                        
+                        BaseBean element = new BaseBean();
+                        if(baseList.size() > 0){
+                        	element = baseList.get(0);
+                        }
+                        
+                        //已入库退货
+                        if(outBean.getBuyReturnType() == 1){
+                        	
+                        	_logger.debug("恢复库存。。。。");
+                        	
+                        	//恢复库存
+                            ProductChangeWrap wrap = new ProductChangeWrap();
+
+                            //TODO
+                            wrap.setDepotpartId(element.getDepotpartId());
+                            wrap.setPrice(element.getCostPrice());
+                            wrap.setVirtualPrice(element.getVirtualPrice());
+                            wrap.setProductId(element.getProductId());
+                            if (StringTools.isNullOrNone(element.getOwner()))
+                            {
+                                wrap.setStafferId("0");
+                            }
+                            else
+                            {
+                                wrap.setStafferId(element.getOwner());
+                            }
+                            wrap.setChange(0-element.getAmount()); //恢复库存
+                            wrap.setDescription("库单[" + outBean.getFullId() + "]操作");
+                            wrap.setSerializeId(sequence);
+                            wrap.setType(StorageConstant.OPR_STORAGE_REDEPLOY_ROLLBACK);
+                            wrap.setRefId(outBean.getFullId());
+                            wrap.setInputRate(element.getInputRate());
+
+                            try {
+                                StorageLogBean storageLogBean = new StorageLogBean();
+                                storageLogBean.setProductId(wrap.getProductId());
+                                storageLogBean.setRefId(wrap.getRefId());
+                                storageLogBean.setDepotpartId(wrap.getDepotpartId());
+                                String priceKey = StorageRelationHelper.getPriceKey(wrap.getPrice());
+                                storageLogBean.setPriceKey(priceKey);
+                                
+                            	//clear T_CENTER_STORAGELOG
+                                storageLogDAO.deleteStorageLog(storageLogBean);
+                                
+    							storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
+    							//clear T_CENTER_STORAGELOG
+                                storageLogDAO.deleteStorageLog(storageLogBean);
+                                
+                                //clear OutUnique
+                                ConditionParse condition = new ConditionParse();
+                                condition.addWhereStr();
+                                condition.addCondition("id", "=", wrap.getRefId());
+                                outUniqueDAO.deleteEntityBeansByCondition(condition);
+    						} catch (MYException e) {
+    							// TODO Auto-generated catch block
+    							_logger.error("change storage relation error", e);
+    						}
+                        	
+                        	//删除凭证
+                            outDAO.clearTicket(outBean.getFullId());                       	
+                        }else 
+                        //未入库退货
+                        if(outBean.getBuyReturnType() == 2){ 
+                        	_logger.debug("恢复累计入库数量。。。。");
+                        	String stockId = outBean.getRefOutFullId();
+                            String productId = element.getProductId();
+                            String providerId = outBean.getCustomerId();
+                            
+                            outDAO.updateTotalWarehouseNum(stockId, productId, providerId, (0-Math.abs(element.getAmount())));
+                        }
+                    	
+                    	
                     }
 
                     // 如果是调出的驳回需要回滚
@@ -3603,6 +3747,105 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                 && newNextStatus == OutConstant.STATUS_PASS){
                             outDAO.updateFlowTime(outBean.getFullId(), TimeTools.now());
                         }
+
+                        return Boolean.TRUE;
+                    }
+                });
+            }
+            catch (TransactionException e)
+            {
+                _logger.error(e, e);
+                throw new MYException("数据库内部错误");
+            }
+            catch (DataAccessException e)
+            {
+                _logger.error(e, e);
+                throw new MYException("数据库内部错误");
+            }
+            catch (Exception e)
+            {
+                _logger.error(e, e);
+                throw new MYException("处理异常:" + e.getMessage());
+            }
+        }
+
+        // 更新后的状态
+        return outBean.getStatus();
+
+    }
+    
+    /**
+     * CORE 采购退货审核通过
+     * 
+     * @param fullId
+     * @param user
+     * @param depotpartId
+     *            废弃
+     * @return
+     * @throws Exception
+     */
+    public int passBuyReturn(final String fullId, final User user, final int nextStatus,
+                    final String reason, final String customerDescription, final String depotpartId)
+        throws MYException
+    {
+        final OutBean outBean = outDAO.find(fullId);
+
+        _logger.info(outBean+"***passBuyReturn to nextStatus"+nextStatus);
+        checkPass(outBean);
+        final int oldStatus = outBean.getStatus();
+
+        synchronized (PublicLock.PRODUCT_CORE)
+        {
+            // 入库操作在数据库事务中完成
+            TransactionTemplate tran = new TransactionTemplate(transactionManager);
+            try
+            {
+                tran.execute(new TransactionCallback()
+                {
+                    public Object doInTransaction(TransactionStatus arg0)
+                    {
+                        int newNextStatus = nextStatus;
+
+                        String stafferName = "票随货发Job";
+                        if (user != null){
+                            stafferName = user.getStafferName();
+                        }
+
+                        _logger.debug("before "+outBean.getFullId() + ":" + stafferName + ":"
+                                + newNextStatus + ":redirectFrom:" + oldStatus);
+
+
+                        // 修改状态
+                        outDAO.modifyOutStatus(outBean.getFullId(), newNextStatus);
+
+                        handerPassBuy(fullId, user, outBean, newNextStatus);
+                        
+                        addOutLog(fullId, user, outBean, reason, SailConstant.OPR_OUT_PASS,
+                                newNextStatus);
+
+
+                        // 把状态放到最新的out里面
+                        outBean.setStatus(newNextStatus);
+                        
+                        _logger.debug("after "+outBean.getFullId() + ":" + stafferName + ", newNextStatus:"
+                                + newNextStatus + ", oldStatus:" + oldStatus);
+
+                        // OSGI 监听实现
+                        Collection<OutListener> listenerMapValues = listenerMapValues();
+
+                        for (OutListener listener : listenerMapValues)
+                        {
+                            try
+                            {
+                                listener.onPass(user, outBean);
+                            }
+                            catch (MYException e)
+                            {
+                                throw new RuntimeException(e.getErrorContent(), e);
+                            }
+                        }
+
+                        notifyOut(outBean, user, 0);
 
                         return Boolean.TRUE;
                     }
@@ -5260,10 +5503,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      */
     @Exceptional
     @Transactional(rollbackFor = {MYException.class})
-    public boolean payOut(final User user, String fullId, String reason)
+    public boolean payOut(final User user, String fullId, String reason, int backPay)
         throws MYException
     {
-        return payOutWithoutTransactional(user, fullId, reason);
+        return payOutWithoutTransactional(user, fullId, reason, backPay);
     }
 
     /**
@@ -5309,7 +5552,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         return outDAO.updatePay(fullId, OutConstant.PAY_YES);
     }
 
-    public boolean payOutWithoutTransactional(final User user, String fullId, String reason)
+    public boolean payOutWithoutTransactional(final User user, String fullId, String reason, int backPay)
         throws MYException
     {
         // 需要增加是否超期 flowId
@@ -5357,7 +5600,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         // 针对销售出库，由未付款到已付款时，记录销售单，为财务 销售单回款标记 做准备
         savePayTagBean(out);
-        
+
+        //#775
+        if (backPay!= 0){
+            _logger.info("***update back pay***"+backPay);
+            outDAO.updateBackPay(fullId,backPay);
+        }
+
         // 修改付款标识
         return outDAO.updatePay(fullId, OutConstant.PAY_YES);
     }
@@ -5817,7 +6066,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             if (result.getResult() == 0)
             {
             	// 尝试全部付款
-                this.payOutWithoutTransactional(user, out.getFullId(), "付款申请通过");        	
+                this.payOutWithoutTransactional(user, out.getFullId(), "付款申请通过", 0);
             }
         }
         
@@ -7551,7 +7800,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
             && (outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH 
             	|| outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
-            	|| outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT))
+            	|| outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT
+            	|| outBean.getBuyReturnFlag() == 1))
         {
             // 不处理
             return;
@@ -7929,8 +8179,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         // 计算出已经退货的数量
         for (BaseBean baseBean : baseList)
         {
-            int hasBack = 0;
-
+//            int hasBack = 0;
+            int hasBack = this.outDAO.sumHasBack2(baseBean.getOutId(), baseBean.getProductName());
             // 退库
             for (OutBean ref : refBuyList)
             {
@@ -8784,10 +9034,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         
 //        outDAO.saveEntityBean(outBean);
         this.saveOutWithPodate(outBean);
+        
+        _logger.debug("*****outBean.getFullId()*****"+outBean.getFullId());
 
         this.saveDistributionForRemoteAllocate(outBean);
 
-        _logger.info("*****finish saveOutInner*****"+outBean);
+        _logger.info("*****finish saveOutInner*****"+outBean.getFullId());
     }
 
     private void saveDistributionForRemoteAllocate(OutBean outBean){
@@ -8795,7 +9047,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         //2015/10/22 入库换货单也需要生成CK单
         int outType = outBean.getOutType();
         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
-                && (outType == OutConstant.OUTTYPE_IN_MOVEOUT || outType == OutConstant.OUTTYPE_IN_EXCHANGE))
+                && (outType == OutConstant.OUTTYPE_IN_MOVEOUT 
+                || outType == OutConstant.OUTTYPE_IN_EXCHANGE
+                || outBean.getBuyReturnFlag() == 1))
         {
             DistributionBean distributionBean = outBean.getDistributeBean();
 
@@ -9021,7 +9275,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         // 验证(销售单)是否可以全部回款
         try
         {
-            this.payOut(user, out.getFullId(), "自动核对付款");
+            this.payOut(user, out.getFullId(), "自动核对付款", 0);
         }
         catch (MYException e)
         {
@@ -9491,15 +9745,18 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             throw new MYException("单据不存在,请确认操作");
         } else if (out.getInvoiceStatus() != 0){
             throw new MYException("开票状态必须为未开票");
-        } else if (out.getStatus() == OutConstant.STATUS_SEC_PASS){
-            throw new MYException("销售单状态已发货,不能操作");
+        } else if (out.getStatus() != OutConstant.STATUS_SUBMIT){
+            throw new MYException("销售单状态必须为待商务审批");
         }
+/*        else if (out.getStatus() == OutConstant.STATUS_SEC_PASS){
+            throw new MYException("销售单状态已发货,不能操作");
+        }*/
 
         // Core 一退一销，脏数据利用，安全性
         processBlankBuyAndOut(null, out, user, reason);
 
         // 验证(销售单)是否可以全部回款
-        this.payOut(user, out.getFullId(), "自动核对付款");
+        this.payOut(user, out.getFullId(), "自动核对付款", 0);
         this.outDAO.modifyOutStatus(fullId, OutConstant.STATUS_SEC_PASS);
         this.outDAO.updateChangeTime(fullId, TimeTools.now());
         //把这单的发货方式改成 空发，物流怕以后对账时会有误解
@@ -12758,7 +13015,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         {
             try
             {
-                this.payOut(user, fullId, "结算中心确定已经回款");
+                this.payOut(user, fullId, "结算中心确定已经回款", 0);
             }
             catch (MYException e)
             {
@@ -14593,5 +14850,26 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public void setFrDbDAO(FrDbDAO frDbDAO) {
         this.frDbDAO = frDbDAO;
+    }
+
+
+	public StorageLogDAO getStorageLogDAO() {
+		return storageLogDAO;
+	}
+
+	public void setStorageLogDAO(StorageLogDAO storageLogDAO) {
+		this.storageLogDAO = storageLogDAO;
+	}
+	
+	
+
+	private String[] getParam(ParamterMap request, String param){
+    	String[] list = {};
+    	if(request.getParameter(param)!=null){
+    		list = request.getParameter(param).split("~");
+    		_logger.debug("request.getParameter(param):"+request.getParameter(param));
+    	}
+    	
+    	return list;
     }
 }

@@ -27,16 +27,17 @@ function load()
          url: gurl + 'query' + ukey + '&forward=${param.forward}' ,
          colModel : [
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status}>', width : 40, align: 'center'},
-             {display: '名称', name : 'name', width : '15%'},
-             {display: '完整名称', name : 'fullName', width : '15%'},
-             {display: '产品类型', name : 'type', width : '10%',cc:'productType'},
-             {display: '材质类型', name : 'materiaType', width : '10%',cc:201},
+             {display: '名称', name : 'name', width : '20%'},
+             {display: '完整名称', name : 'fullName', width : '8%'},
+             {display: '产品类型', name : 'type', width : '8%',cc:'productType'},
+             {display: '材质类型', name : 'materiaType', width : '8%',cc:201},
              {display: '管理类型', name : 'managerType',  width : '8%', cc: 'pubManagerType'},
              {display: '销售周期', name : 'salePeriod',  width : '8%', cc: 207},
              {display: '产品性质', name : 'nature',  width : '8%', cc: 'natureType'},
-             {display: '申请状态', name : 'status',  width : '8%', cc: 'productApplyStatus'},
+             {display: '申请状态', name : 'status',  width : '5%', cc: 'productApplyStatus'},
              {display: '申请人', name : 'oprName',  width : '5%'},
-             {display: '申请时间', name : 'logTime',width : 'auto' }
+             {display: '申请时间', name : 'logTime',width : '8%' },
+             {display: '备注', name : 'description',width : 'auto' }
              ],
          extAtt: {
              name : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}>', end : '</a>'}

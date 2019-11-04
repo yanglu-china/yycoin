@@ -46,18 +46,31 @@ import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.helper.FlowLogHelper;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.helper.YYTools;
+import com.china.center.oa.sail.listener.OutListener;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailManager;
 import com.china.center.oa.sail.vo.*;
 import com.china.center.oa.sail.wrap.ConfirmInsWrap;
 import com.china.center.oa.sail.wrap.CreditWrap;
+import com.china.center.oa.stock.bean.StockItemBean;
+import com.china.center.oa.stock.dao.StockItemDAO;
 import com.china.center.oa.tax.bean.FinanceBean;
+import com.china.center.oa.tax.bean.FinanceItemBean;
+import com.china.center.oa.tax.bean.TaxBean;
+import com.china.center.oa.tax.constanst.TaxConstanst;
+import com.china.center.oa.tax.constanst.TaxItemConstanst;
 import com.china.center.oa.tax.dao.FinanceDAO;
+import com.china.center.oa.tax.dao.TaxDAO;
+import com.china.center.oa.sail.dao.PreConsignDAO;
+import com.china.center.oa.tax.glue.listener.impl.OutListenerTaxGlueImpl;
+import com.china.center.oa.tax.helper.FinanceHelper;
+import com.china.center.oa.tax.manager.FinanceManager;
 import com.china.center.tools.*;
 // import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -79,6 +92,18 @@ import java.util.Map.Entry;
  */
 public class OutAction extends ParentOutAction
 {
+
+    private final static double TotalNode1 = 100000;
+    private final static double TotalNode2 = 500000;
+    
+    private TaxDAO taxDAO = null;
+    
+    private StockItemDAO stockItemDAO = null;
+    
+    private PreConsignDAO preConsignDAO = null;
+    
+    private FinanceManager financeManager = null;
+    
 	/**
      * rejectBack
      * 
@@ -1062,7 +1087,7 @@ public class OutAction extends ParentOutAction
 
         try
         {
-            outManager.payOut(user, fullId, "结算中心确认收款");
+            outManager.payOut(user, fullId, "结算中心确认收款", 0);
         }
         catch (MYException e)
         {
@@ -1261,7 +1286,7 @@ public class OutAction extends ParentOutAction
 
         try
         {
-            outManager.payOut(user, fullId, "财务确认收款");
+            outManager.payOut(user, fullId, "财务确认收款", 0);
         }
         catch (MYException e)
         {
@@ -1578,6 +1603,8 @@ public class OutAction extends ParentOutAction
 
                 out = outDAO.find(fullId);
                 
+                _logger.debug("out.getBuyReturnFlag(): "+out.getBuyReturnFlag()+", type: "+out.getType()+", outType: "+out.getOutType());
+                
                 if (out == null)
                 {
                     request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不存在，请重新操作!");
@@ -1648,6 +1675,108 @@ public class OutAction extends ParentOutAction
                         request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
 
                         return mapping.findForward("error");
+                    }
+                }
+                // 进入 采购退货  发起人--生产采购经理审批--分管副总裁审批--财务总监审批
+                else if ( out.getBuyReturnFlag() == 1)
+                {
+                	
+                	_logger.debug("enter buyreturn ......statuss: "+statuss);
+                	
+                	statuss = getNextStatus(out, statuss);
+
+                    // 生产采购经理审批
+                    if (statuss == OutConstant.BUY_STATUS_LOCATION_MANAGER_CHECK)
+                    {
+                    	_logger.debug("enter buyreturn 生产采购经理审批 ......statuss: "+statuss);
+
+                        try
+                        {
+                            resultStatus = outManager.passBuyReturn(fullId, user,
+                                    OutConstant.STATUS_LOCATION_MANAGER_CHECK, reason, null, depotpartId);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
+                    }
+
+                    // 进入分管副总裁审批(运营总监)
+                    if (statuss == OutConstant.BUY_STATUS_CEO_CHECK)
+                    {
+                    	_logger.debug("enter buyreturn 运营总监 ......statuss: "+statuss);
+                        try
+                        {
+                            resultStatus = outManager.passBuyReturn(fullId, user,
+                                    OutConstant.STATUS_CEO_CHECK, reason, null, depotpartId);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
+                    }
+
+                    // 进入财务总监审批(分管副总裁)
+                    if (statuss == OutConstant.BUY_STATUS_CHAIRMA_CHECK)
+                    {
+                    	_logger.debug("enter buyreturn 分管副总裁 ......statuss: "+statuss);
+                        try
+                        {
+                            resultStatus = outManager.passBuyReturn(fullId, user,
+                                    OutConstant.STATUS_CHAIRMA_CHECK, reason, null, depotpartId);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
+                    }
+                    
+                    // 进入待回款(结束了)
+                    if (statuss == OutConstant.BUY_STATUS_PASS)
+                    {
+                    	_logger.debug("enter buyreturn 待回款......statuss: "+statuss);
+                        try
+                        {
+                            resultStatus = outManager.passBuyReturn(fullId, user, OutConstant.STATUS_PASS,
+                                reason, null, depotpartId);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
+                    }                    
+
+                    // 驳回
+                    if (statuss == OutConstant.BUY_STATUS_REJECT)
+                    {
+                        try
+                        {
+                            resultStatus = outManager.reject(fullId, user, reason);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
                     }
                 }
                 // 进入库单 库管--分经理--总裁--董事长
@@ -1757,7 +1886,8 @@ public class OutAction extends ParentOutAction
                             return mapping.findForward("error");
                         }
                     }
-                }
+                }                
+
                 // 销售单的审批流程
                 else
                 {
@@ -1956,7 +2086,7 @@ public class OutAction extends ParentOutAction
                         {
                             try
                             {
-                                outManager.payOut(user, fullId, "结算中心确定已经回款");
+                                outManager.payOut(user, fullId, "结算中心确定已经回款", 0);
                             }
                             catch (MYException e)
                             {
@@ -2097,6 +2227,8 @@ public class OutAction extends ParentOutAction
 
                     return mapping.findForward("error");
                 }
+                _logger.debug("fullId: "+fullId+", realOut.getStatus():"+realOut.getStatus()+", getBuyReturnFlag:"+realOut.getBuyReturnFlag());
+                
                 if (realOut.getType() == OutConstant.OUT_TYPE_OUTBILL)
                 {
                     request.setAttribute(KeyConstant.MESSAGE, "单据["
@@ -2111,7 +2243,32 @@ public class OutAction extends ParentOutAction
                                                               + fullId
                                                               + "]操作成功,下一步是:"
                                                               + OutHelper.getStatus2(realOut
-                                                                  .getStatus()));
+                                                                  .getStatus(), realOut));
+                    
+                    //采购退货审核通过，生成凭证
+                    if(realOut.getBuyReturnFlag() == 1 && realOut.getStatus() == OutConstant.BUY_RETURN_STATUS_PASS){
+                    	_logger.debug("生成凭证...");
+                    	final OutBean outBean = outDAO.find(realOut.getFullId());
+                    	
+                        try{
+                        	
+                            this.generateTicket(user, outBean);
+                        }catch(Exception ex){
+                            _logger.error("生成凭证错误", ex);
+                        }
+                        
+                        //生成CK单
+                        if(outBean.getBuyReturnType() == 1){
+                            PreConsignBean preConsign = new PreConsignBean();
+
+                            preConsign.setOutId(outBean.getFullId());
+
+                            preConsignDAO.saveEntityBean(preConsign);
+                            this.logPreconsign(preConsign);
+                        }                                            
+
+                    }
+                    
                 }
 
                 if (realOut.getType() == OutConstant.OUT_TYPE_OUTBILL)
@@ -2140,6 +2297,313 @@ public class OutAction extends ParentOutAction
                 _logger.info("modifyOutStatus cost:" + (end - begin));
             }
         }
+    }
+    
+    private void logPreconsign(PreConsignBean preConsignBean){
+        String message = String.format("生成preconsign表:%s", preConsignBean.getOutId());
+        _logger.info(message);
+    }
+
+    /**
+     * 根据金额判断跳转
+     * 退单总金额小于等于10万元，申请人--生产采购部经理审批--结束；
+     * 退单总金额大于10万元，小于等于50万元，申请人--生产采购部经理审批--运营总监审批--结束；
+     * 退单总金额大于50万元，申请人--生产采购部经理审批--运营总监审批--分管副总裁审批--结束；
+     * @param out
+     * @param statuss
+     * @return
+     */
+    private int getNextStatus(OutBean out, int statuss){
+        int rst = statuss;
+        if(statuss == OutConstant.BUY_STATUS_REJECT){
+        	return rst;
+        }
+        double totalMoney = Double.MAX_VALUE;
+        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(out.getFullId());
+        if(baseList.size()>0){
+            BaseBean baseBean = baseList.get(0);
+            totalMoney = Math.abs(baseBean.getValue());
+        }
+
+        if(totalMoney<=TotalNode1){
+            if(out.getStatus() == OutConstant.BUY_STATUS_LOCATION_MANAGER_CHECK){
+                rst = OutConstant.BUY_STATUS_PASS;
+            }
+        }else if(totalMoney>TotalNode1 && totalMoney<=TotalNode2){
+            if(out.getStatus() == OutConstant.BUY_STATUS_CEO_CHECK){
+                rst = OutConstant.BUY_STATUS_PASS;
+            }
+        }else{
+            rst = statuss;
+        }
+
+        _logger.debug("out.getId():"+out.getId()+", totalMoney:"+totalMoney+", baseList.size():"+baseList.size()
+                +", out.getStatus():"+out.getStatus()+", statuss: "+statuss+", rst:"+rst);
+        return rst;
+    }
+    
+    /**
+     * 生成凭证
+     * @param user
+     * @param outBean
+     * @throws MYException
+     */
+    
+    private void generateTicket(User user, OutBean outBean)
+            throws MYException
+    {
+        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
+        outBean.setBaseList(baseList);
+    	this.processBuyStockBack(user, outBean);
+    	
+    }
+    
+    /**
+     * 库存商品/应付账款-供应商（负数）
+     * 
+     * @param user
+     * @param outBean
+     * @throws MYException
+     */
+    
+    private void processBuyStockBack(User user, OutBean outBean)
+        throws MYException
+    {
+        
+        // 库存商品/应付账款-供应商（负数）
+        FinanceBean financeBean = new FinanceBean();
+
+        String name = "入库单-采购退货:" + outBean.getFullId() + '.';
+        
+        _logger.debug("采购退货, 成凭证..."+name);
+
+        financeBean.setName(name);
+
+        financeBean.setType(TaxConstanst.FINANCE_TYPE_MANAGER);
+
+        financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_BUY_STOCKBACK);
+
+        financeBean.setRefId(outBean.getFullId());
+
+        financeBean.setRefOut(outBean.getFullId());
+
+        financeBean.setDutyId(outBean.getDutyId());
+
+        financeBean.setDescription(financeBean.getName());
+
+        financeBean.setFinanceDate(TimeTools.now_short());
+
+        financeBean.setLogTime(TimeTools.now());
+
+        List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
+
+        // 库存商品/应付账款-供应商（负数） 凭证
+        createBuyStockBack(user, outBean, financeBean, itemList);
+
+        financeBean.setItemList(itemList);
+
+        financeManager.addFinanceBeanWithTransactional(user, financeBean, true);
+    }
+    
+    /**
+     * 库存商品/应付账款-供应商（负数）
+     * 
+     * @param user
+     * @param outBean
+     * @param financeBean
+     * @param itemList
+     * @throws MYException
+     */
+    private void createBuyStockBack(User user, OutBean outBean, FinanceBean financeBean,
+                                    List<FinanceItemBean> itemList)
+        throws MYException
+    {
+
+        String name = "入库单-采购退货:" + outBean.getFullId() + '.';
+
+        String pare1 = commonDAO.getSquenceString();
+
+        List<BaseBean> baseList = outBean.getBaseList();
+        
+        double additional = 0;
+
+        // 库存商品（成本价*数量）
+        for (BaseBean baseBean : baseList)
+        {
+            FinanceItemBean itemInEach = new FinanceItemBean();
+
+            itemInEach.setPareId(pare1);
+
+            itemInEach.setName("库存商品(" + baseBean.getProductName() + "):" + name);
+
+            itemInEach.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+            FinanceHelper.copyFinanceItem(financeBean, itemInEach);
+
+            // 库存商品
+            String itemTaxIdIn = TaxItemConstanst.DEPOR_PRODUCT;
+
+            TaxBean outTax = taxDAO.findByUnique(itemTaxIdIn);
+
+            if (outTax == null)
+            {
+                throw new MYException("数据错误,请确认操作");
+            }
+
+            // 科目拷贝
+            FinanceHelper.copyTax(outTax, itemInEach);
+
+            // 库存商品减少(baseBean.getAmount()是负数)
+            double outMoney = baseBean.getAmount() * baseBean.getCostPrice();
+
+            itemInEach.setInmoney(FinanceHelper.doubleToLong(outMoney));
+
+            itemInEach.setOutmoney(0);
+
+            itemInEach.setDescription(itemInEach.getName());
+
+            // 辅助核算 产品/仓库
+            itemInEach.setProductId(baseBean.getProductId());
+            itemInEach.setProductAmountIn(baseBean.getAmount());
+            itemInEach.setDepotId(outBean.getLocation());
+
+            itemList.add(itemInEach);
+            
+            _logger.debug("baseBean.getProductId(): "+baseBean.getProductId()+", itemInEach.getDepotId(): "+itemInEach.getDepotId());
+            
+            //采购退货，采购价格和库存价格不等的情况
+            //获取采购价格
+            
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addWhereStr();
+            conditionParse.addCondition("stockId", "=", outBean.getRefOutFullId());
+            conditionParse.addCondition("productId","=", baseBean.getProductId());
+            conditionParse.addCondition("providerId","=", outBean.getCustomerId());
+            List<StockItemBean> stockItemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
+            
+            double stockPrice = baseBean.getPrice(); //采购单价
+            if(stockItemBeans.size()>0){
+            	stockPrice = stockItemBeans.get(0).getPrice();
+            }
+            double storagePrice = baseBean.getCostPrice(); //库存单价
+            _logger.debug("stockItemBeans.size():"+stockItemBeans.size()+", stockPrice:"+stockPrice+", storagePrice: "+storagePrice);
+            if(stockPrice != storagePrice){
+                
+
+                itemInEach = new FinanceItemBean();
+
+                itemInEach.setPareId(pare1);
+
+                itemInEach.setName("库存商品(" + baseBean.getProductName() + "):" + name);
+
+                itemInEach.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemInEach);
+
+                // 库存商品
+                String itemTaxIdIn1 = TaxItemConstanst.COMPOSEDIFF;
+
+                outTax = taxDAO.findByUnique(itemTaxIdIn1);
+
+                if (outTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(outTax, itemInEach);
+
+                // 库存商品减少(baseBean.getAmount()是负数)
+                //outMoney = baseBean.getAmount() * (storagePrice-stockPrice);
+                outMoney = baseBean.getAmount() * (stockPrice - storagePrice);
+                
+                _logger.debug("stockPrice:"+stockPrice+", storagePrice:"+storagePrice+",amount:"+baseBean.getAmount()+",outMoney:"+outMoney);
+                
+                additional += outMoney;
+
+                itemInEach.setInmoney(FinanceHelper.doubleToLong(outMoney));
+
+                itemInEach.setOutmoney(0);
+
+                itemInEach.setDescription(itemInEach.getName());
+
+                // 辅助核算 产品/仓库
+                itemInEach.setProductId(baseBean.getProductId());
+                itemInEach.setProductAmountIn(baseBean.getAmount());
+                itemInEach.setDepotId(outBean.getLocation());
+                
+                itemInEach.setStafferId(outBean.getStafferId());
+                
+                StafferBean staffer = stafferDAO.find(outBean.getStafferId());
+                if(staffer!=null){
+                	itemInEach.setDepartmentId(staffer.getPrincipalshipId());
+                }
+
+                itemList.add(itemInEach);
+                _logger.debug("baseBean.getProductId(): "+baseBean.getProductId()+", itemInEach.getDepotId(): "+itemInEach.getDepotId());
+            }
+        }
+
+        FinanceItemBean itemOut1 = new FinanceItemBean();
+
+        itemOut1.setPareId(pare1);
+
+        itemOut1.setName("应付账款:" + name);
+
+        itemOut1.setForward(TaxConstanst.TAX_FORWARD_OUT);
+
+        FinanceHelper.copyFinanceItem(financeBean, itemOut1);
+
+        // 应付账款
+        String itemTaxIdOut1 = TaxItemConstanst.PAY_PRODUCT;
+
+        TaxBean outTax = taxDAO.findByUnique(itemTaxIdOut1);
+
+        if (outTax == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 科目拷贝
+        FinanceHelper.copyTax(outTax, itemOut1);
+
+        // 应付账款-供应商（负数）
+        double outMoney = getOutCost(outBean) + additional;
+
+        itemOut1.setInmoney(0);
+
+        itemOut1.setOutmoney(FinanceHelper.doubleToLong(outMoney));
+
+        itemOut1.setDescription(itemOut1.getName());
+
+        // 辅助核算 单位
+        itemOut1.setUnitId(outBean.getCustomerId());
+        itemOut1.setUnitType(TaxConstanst.UNIT_TYPE_PROVIDE);
+
+        itemOut1.setDepotId(outBean.getLocation());
+
+        itemList.add(itemOut1);
+        _logger.debug(" itemInEach.getDepotId(): "+itemOut1.getDepotId());
+    }
+    
+    /**
+     * 获取成本
+     * 
+     * @param outBean
+     * @return
+     */
+    private double getOutCost(OutBean outBean)
+    {
+        double total = 0.0d;
+
+        List<BaseBean> baseList = outBean.getBaseList();
+
+        for (BaseBean baseBean : baseList)
+        {
+            total += baseBean.getAmount() * baseBean.getCostPrice();
+        }
+
+        return total;
     }
 
     /**
@@ -7395,4 +7859,38 @@ public class OutAction extends ParentOutAction
 	{
 		this.preInvoiceVSOutDAO = preInvoiceVSOutDAO;
 	}
+
+	public TaxDAO getTaxDAO() {
+		return taxDAO;
+	}
+
+	public void setTaxDAO(TaxDAO taxDAO) {
+		this.taxDAO = taxDAO;
+	}
+
+	public StockItemDAO getStockItemDAO() {
+		return stockItemDAO;
+	}
+
+	public void setStockItemDAO(StockItemDAO stockItemDAO) {
+		this.stockItemDAO = stockItemDAO;
+	}
+
+	public PreConsignDAO getPreConsignDAO() {
+		return preConsignDAO;
+	}
+
+	public void setPreConsignDAO(PreConsignDAO preConsignDAO) {
+		this.preConsignDAO = preConsignDAO;
+	}
+
+	public FinanceManager getFinanceManager() {
+		return financeManager;
+	}
+
+	public void setFinanceManager(FinanceManager financeManager) {
+		this.financeManager = financeManager;
+	}
+	
+	
 }

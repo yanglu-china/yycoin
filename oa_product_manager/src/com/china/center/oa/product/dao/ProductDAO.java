@@ -11,6 +11,7 @@ package com.china.center.oa.product.dao;
 
 import com.china.center.jdbc.inter.DAO;
 import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.TwthProductBean;
 import com.china.center.oa.product.vo.ProductVO;
 
 import java.util.List;
@@ -32,5 +33,7 @@ public interface ProductDAO extends DAO<ProductBean, ProductVO>
     
     int getmaxMidName(String refProductId);
 
-    public List<ProductBean> queryBomByProductId(String productId);
+    List<ProductBean> queryBomByProductId(String productId);
+
+    TwthProductBean queryTwProduct(String productId);
 }
