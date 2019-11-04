@@ -280,8 +280,9 @@ public interface OutConstant
 
     /**
      * 采购退货
+     * 改了key之后，不会出现在增加入库单页面的下拉列表中
      */
-    @Defined(key = "outType_in", value = "采购退货")
+    @Defined(key = "outType_in2", value = "采购退货")
     int OUTTYPE_IN_STOCK = 6;
 
     /**
