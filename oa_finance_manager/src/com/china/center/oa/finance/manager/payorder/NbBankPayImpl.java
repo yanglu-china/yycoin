@@ -67,9 +67,9 @@ public class NbBankPayImpl {
 	 * erp系统代码
 	 */
 	//test
-//	 private static final String erpSysCode="erpnjg002";
+	 private static final String erpSysCode="erpnjg002";
 	 //prod
-	 	private static final String erpSysCode="ERP001";
+//	 	private static final String erpSysCode="ERP001";
 	
 	/**
 	 * 客户编号 
@@ -495,11 +495,6 @@ public class NbBankPayImpl {
 		    	
 		    	respList = totalResp.getLoopData();
 		    	
-		    	for(NbBankQueryHisBalLoopData data :respList)
-		    	{
-		    		System.out.println(data);
-		    	}
-		    	
 			}
 			else
 			{
@@ -611,7 +606,7 @@ public class NbBankPayImpl {
 	public static void main(String[] args) {
 		NbBankPayImpl impl = new NbBankPayImpl();
 		Map<String,String> paramMap = new HashMap<String, String>();
-		paramMap.put("queryDate", "2019-09-10");
+		paramMap.put("queryDate", "2019-10-30");
 		impl.queryHisBalance(paramMap);
 	}
 }

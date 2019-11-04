@@ -50,4 +50,23 @@
 			<type>text</type>
 		</condtion> -->
 	</item>
+	<item name="queryNbBankHisBalance" deaultpfix="NbBankHisBalanceBean">
+		<condtion name="bankAcc" caption="账号">
+			<opr>like</opr>
+			<type>text</type>
+		</condtion>
+		<condtion name="bankName" caption="银行">
+			<opr>like</opr>
+			<type>text</type>
+        </condtion>
+        <condtion name="corpName" caption="公司">
+			<opr>like</opr>
+			<type>text</type> 
+        </condtion>
+		<condtion name="business_date" caption="交易日期">
+            <opr>=</opr>
+            <type>date</type>
+            <inner></inner>
+        </condtion>
+	</item>
 </query>
