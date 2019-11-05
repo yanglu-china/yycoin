@@ -7,4 +7,9 @@ mysql -uroot -plazio_2000 --default-character-set=utf8 db20140701 < db20140701.s
 4. D:\Workspace\yycoin\osgi\bin\start.bat  
 \osgi是运行目录  
 5. http://localhost:8888/uportal/admin/index.jsp  
-周苏东/123456,二次密码：旺季  
+周苏东/123456,二次密码：旺季
+
+
+航天信息开票接口常见问题：
+1、尚未开启金税盘
+2、写盘失败
