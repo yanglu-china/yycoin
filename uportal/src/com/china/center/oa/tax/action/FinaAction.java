@@ -795,44 +795,20 @@ public class FinaAction extends ParentQueryFinaAction
 						}
 					}else {
 						if (!StringTools.isNullOrNone(financeItemVO.getStafferId())) {
-							
-							StafferVO sv = CollectionUtils.find(stafferVOS, financeItemVO.getStafferId());
+							// 事业部，大区，部门
+							StafferVO sv = this.stafferDAO.findVO(financeItemVO.getStafferId());
 							if (null != sv)
 							{
-								if (sv.getIndustryName().length()>=5)
-								{
-									line.writeColumn(sv.getIndustryName().substring(5));
-									line.writeColumn(" "
-											+ sv.getIndustryName().substring(0, 5) + " ");
-								}
-								else
-								{
-									line.writeColumn("");
-									line.writeColumn("");
-								}
-								if (sv.getIndustryName2().length() >= 8)
-								{
-									line.writeColumn(sv.getIndustryName2().substring(8));
-									line.writeColumn(" "
-											+ sv.getIndustryName2().substring(0, 8) + " ");
-								}
-								else
-								{
-									line.writeColumn("");
-									line.writeColumn("");
-								}
-
-								if (sv.getIndustryName3().length() >= 11)
-								{
-									line.writeColumn(sv.getIndustryName3().substring(11));
-									line.writeColumn(" "
-											+ sv.getIndustryName3().substring(0, 11) + " ");
-								}
-								else
-								{
-									line.writeColumn("");
-									line.writeColumn("");
-								}
+								line.writeColumn(sv.getIndustryName());
+								line.writeColumn(sv.getIndustryName2());
+								line.writeColumn(sv.getIndustryName3());
+								// 事业部，大区，部门编码
+								line.writeColumn(" "
+										+ sv.getIndustryName());
+								line.writeColumn(" "
+										+ sv.getIndustryName2());
+								line.writeColumn(" "
+										+ sv.getIndustryName3());
 							}
 							else
 							{
@@ -844,6 +820,15 @@ public class FinaAction extends ParentQueryFinaAction
 								line.writeColumn("");
 								line.writeColumn("");
 							}
+						}
+						else {
+							line.writeColumn("");
+							line.writeColumn("");
+							line.writeColumn("");
+							// 事业部，大区，部门编码
+							line.writeColumn("");
+							line.writeColumn("");
+							line.writeColumn("");
 						}
 					}
 
