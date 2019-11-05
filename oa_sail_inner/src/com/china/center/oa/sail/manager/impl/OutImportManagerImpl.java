@@ -233,15 +233,20 @@ public class OutImportManagerImpl implements OutImportManager
                         twOutImportBean.setRefTnFullId(outImportBean.getOANo());
                         twOutImportBean.setPrice(twthProductBean.getTwPrice());
                         String twProductId = twthProductBean.getTwProductId();
-                        ProductBean productBean = this.productDAO.find(twProductId);
-                        if (productBean == null){
-                            _logger.error("product id not exist***"+twProductId);
-                        } else{
-                            twOutImportBean.setProductId(twProductId);
-                            twOutImportBean.setProductName(productBean.getName());
-                            _logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
-                            twOutImportBeans.add(twOutImportBean);
-                        }
+						twOutImportBean.setProductId(twProductId);
+						twOutImportBean.setProductName(twthProductBean.getTwProductName());
+						_logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
+						twOutImportBeans.add(twOutImportBean);
+
+//                        ProductBean productBean = this.productDAO.find(twProductId);
+//                        if (productBean == null){
+//                            _logger.error("product id not exist***"+twProductId);
+//                        } else{
+//                            twOutImportBean.setProductId(twProductId);
+//                            twOutImportBean.setProductName(productBean.getName());
+//                            _logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
+//                            twOutImportBeans.add(twOutImportBean);
+//                        }
                     }
                 }
 			}

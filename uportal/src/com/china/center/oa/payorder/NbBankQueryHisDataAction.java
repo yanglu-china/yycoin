@@ -25,6 +25,7 @@ import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.finance.bean.NbBankHisDataBean;
+import com.china.center.oa.finance.dao.NbBankHisBalanceDAO;
 import com.china.center.oa.finance.dao.NbBankHisDataDAO;
 import com.china.center.tools.TimeTools;
 import com.china.center.tools.WriteFileBuffer;
@@ -34,8 +35,12 @@ public class NbBankQueryHisDataAction extends DispatchAction {
 	 private final Log _logger = LogFactory.getLog(getClass());
 
 	private final String QUERYNBBANKHISDATA = "queryNbBankHisData";
+	
+	private final String QUERYNBBANKHISBALANCE = "queryNbBankHisBalance";
 
 	private NbBankHisDataDAO nbBankHisDataDao;
+	
+	private NbBankHisBalanceDAO nbBankHisBalanceDao;
 
 	public ActionForward queryHisData(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException {
@@ -48,6 +53,22 @@ public class NbBankQueryHisDataAction extends DispatchAction {
 
 		String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYNBBANKHISDATA, request, condtion,
 				this.nbBankHisDataDao);
+
+		return JSONTools.writeResponse(response, jsonstr);
+
+	}
+	
+	public ActionForward queryHisBalance(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException {
+
+		ConditionParse condtion = new ConditionParse();
+
+		condtion.addWhereStr();
+
+		ActionTools.processJSONQueryCondition(QUERYNBBANKHISBALANCE, request, condtion);
+
+		String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYNBBANKHISBALANCE, request, condtion,
+				this.nbBankHisBalanceDao);
 
 		return JSONTools.writeResponse(response, jsonstr);
 
@@ -172,6 +193,14 @@ public class NbBankQueryHisDataAction extends DispatchAction {
 
 	public void setNbBankHisDataDao(NbBankHisDataDAO nbBankHisDataDao) {
 		this.nbBankHisDataDao = nbBankHisDataDao;
+	}
+
+	public NbBankHisBalanceDAO getNbBankHisBalanceDao() {
+		return nbBankHisBalanceDao;
+	}
+
+	public void setNbBankHisBalanceDao(NbBankHisBalanceDAO nbBankHisBalanceDao) {
+		this.nbBankHisBalanceDao = nbBankHisBalanceDao;
 	}
 
 }

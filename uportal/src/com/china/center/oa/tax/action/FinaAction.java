@@ -8,15 +8,26 @@
  */
 package com.china.center.oa.tax.action;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.china.center.oa.publics.CollectionUtils;
-import com.china.center.tools.*;
+
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -42,6 +53,7 @@ import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.dao.DepotDAO;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.publics.AttachmentUtils;
+import com.china.center.oa.publics.CollectionUtils;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.DutyBean;
@@ -89,6 +101,17 @@ import com.china.center.oa.tax.vo.FinanceTempVO;
 import com.china.center.oa.tax.vo.FinanceTurnVO;
 import com.china.center.oa.tax.vo.FinanceVO;
 import com.china.center.osgi.jsp.ElTools;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.FileTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.RequestTools;
+import com.china.center.tools.SequenceTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.UtilStream;
+import com.china.center.tools.WriteFileBuffer;
 
 /**
  * FinaAction
@@ -712,54 +735,101 @@ public class FinaAction extends ParentQueryFinaAction
 					line.writeColumn(financeItemVO.getForwardName());
 					line.writeColumn(changeString(financeItemVO
 							.getShowLastmoney()));
-
-					StafferVO sv = CollectionUtils.find(stafferVOS, financeItemVO.getStafferId());
-					if (null != sv)
-					{
-						if (sv.getIndustryName().length()>=5)
-						{
-							line.writeColumn(sv.getIndustryName().substring(5));
-							line.writeColumn(" "
-									+ sv.getIndustryName().substring(0, 5) + " ");
-						}
-						else
-						{
+					
+					if (!StringTools.isNullOrNone(financeItemVO.getDepartmentId())) {
+						// 由部门找上级 事业部， 再往上级 大区
+						PrincipalshipBean prin = principalshipDAO.find(financeItemVO.getDepartmentId());
+						
+						if (null == prin) {
 							line.writeColumn("");
 							line.writeColumn("");
-						}
-						if (sv.getIndustryName2().length() >= 8)
-						{
-							line.writeColumn(sv.getIndustryName2().substring(8));
-							line.writeColumn(" "
-									+ sv.getIndustryName2().substring(0, 8) + " ");
-						}
-						else
-						{
+							line.writeColumn("");
+							// 事业部，大区，部门编码
 							line.writeColumn("");
 							line.writeColumn("");
+							line.writeColumn("");
+						} else {
+							PrincipalshipBean syb0 = principalshipDAO.find(prin.getParentId());
+							
+							if (null == syb0) {
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn(prin.getName());
+								// 事业部，大区，部门编码
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+							} else {
+								PrincipalshipBean syb = principalshipDAO.find(syb0.getParentId());
+								
+								if (null == syb) {
+									line.writeColumn("");
+									line.writeColumn("");
+									line.writeColumn(prin.getName());
+									// 事业部，大区，部门编码
+									line.writeColumn("");
+									line.writeColumn("");
+									line.writeColumn("");
+								} else {
+									PrincipalshipBean area = principalshipDAO.find(syb.getParentId());
+									
+									if (null == area) {
+										line.writeColumn(syb.getName());
+										line.writeColumn("");
+										line.writeColumn(prin.getName());
+										// 事业部，大区，部门编码
+										line.writeColumn("");
+										line.writeColumn("");
+										line.writeColumn("");
+									} else {
+										line.writeColumn(syb.getName());
+										line.writeColumn(area.getName());
+										line.writeColumn(prin.getName());
+										// 事业部，大区，部门编码
+										line.writeColumn("");
+										line.writeColumn("");
+										line.writeColumn("");
+									}
+								}
+							}
 						}
-
-						if (sv.getIndustryName3().length() >= 11)
-						{
-							line.writeColumn(sv.getIndustryName3().substring(11));
-							line.writeColumn(" "
-									+ sv.getIndustryName3().substring(0, 11) + " ");
+					}else {
+						if (!StringTools.isNullOrNone(financeItemVO.getStafferId())) {
+							// 事业部，大区，部门
+							StafferVO sv = this.stafferDAO.findVO(financeItemVO.getStafferId());
+							if (null != sv)
+							{
+								line.writeColumn(sv.getIndustryName());
+								line.writeColumn(sv.getIndustryName2());
+								line.writeColumn(sv.getIndustryName3());
+								// 事业部，大区，部门编码
+								line.writeColumn(" "
+										+ sv.getIndustryName());
+								line.writeColumn(" "
+										+ sv.getIndustryName2());
+								line.writeColumn(" "
+										+ sv.getIndustryName3());
+							}
+							else
+							{
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+								// 事业部，大区，部门编码
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+							}
 						}
-						else
-						{
+						else {
 							line.writeColumn("");
 							line.writeColumn("");
+							line.writeColumn("");
+							// 事业部，大区，部门编码
+							line.writeColumn("");
+							line.writeColumn("");
+							line.writeColumn("");
 						}
-					}
-					else
-					{
-						line.writeColumn("");
-						line.writeColumn("");
-						line.writeColumn("");
-						// 事业部，大区，部门编码
-						line.writeColumn("");
-						line.writeColumn("");
-						line.writeColumn("");
 					}
 
 					line.writeColumn(finance.getRefId());
