@@ -297,6 +297,7 @@
         where a.status in ('1','2','3','4','6') and (b.complete is null or LENGTH(b.complete) = 0)
         and b.fullid =#fullId#
         and b.productname = #productName#
+        and b.outtype = '退货'
         ]]>
     </select>
 
