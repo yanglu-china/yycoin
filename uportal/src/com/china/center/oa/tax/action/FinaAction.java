@@ -488,54 +488,117 @@ public class FinaAction extends ParentQueryFinaAction
 					// 事业部，大区，部门
 //					StafferVO sv = this.stafferDAO.findVO(financeItemVO
 //							.getStafferId());
-                    StafferVO sv = CollectionUtils.find(stafferVOS, financeItemVO.getStafferId());
-					if (null != sv)
-					{
-						if (sv.getIndustryName().length()>=5)
-						{
-							line.writeColumn(sv.getIndustryName().substring(5));
-							line.writeColumn(" "
-									+ sv.getIndustryName().substring(0, 5) + " ");
-						}
-						else
-						{
-							line.writeColumn("");
-							line.writeColumn("");
-						}
-						if (sv.getIndustryName2().length() >= 8)
-						{
-							line.writeColumn(sv.getIndustryName2().substring(8));
-							line.writeColumn(" "
-									+ sv.getIndustryName2().substring(0, 8) + " ");
-						}
-						else
-						{
-							line.writeColumn("");
-							line.writeColumn("");
-						}
+					
+					if (!StringTools.isNullOrNone(financeItemVO.getDepartmentId())) {
+						// 由部门找上级 事业部， 再往上级 大区
+						PrincipalshipBean prin = principalshipDAO.find(financeItemVO.getDepartmentId());
 						
-						if (sv.getIndustryName3().length() >= 11)
-						{
-							line.writeColumn(sv.getIndustryName3().substring(11));
-							line.writeColumn(" "
-									+ sv.getIndustryName3().substring(0, 11) + " ");
-						}
-						else
-						{
+						if (null == prin) {
 							line.writeColumn("");
 							line.writeColumn("");
+							line.writeColumn("");
+							// 事业部，大区，部门编码
+							line.writeColumn("");
+							line.writeColumn("");
+							line.writeColumn("");
+						} else {
+							PrincipalshipBean syb0 = principalshipDAO.find(prin.getParentId());
+							
+							if (null == syb0) {
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+								// 事业部，大区，部门编码
+								line.writeColumn("");
+								line.writeColumn(prin.getName());
+								line.writeColumn(prin.getId());
+							} else {
+								PrincipalshipBean syb = principalshipDAO.find(syb0.getParentId());
+								
+								if (null == syb) {
+									line.writeColumn("");
+									line.writeColumn("");
+									line.writeColumn("");
+									// 事业部，大区，部门编码
+									line.writeColumn("");
+									line.writeColumn(prin.getName());
+									line.writeColumn(prin.getId());
+								} else {
+									PrincipalshipBean area = principalshipDAO.find(syb.getParentId());
+									
+									if (null == area) {
+										line.writeColumn(syb.getName());
+										line.writeColumn(syb.getId());
+										line.writeColumn("");
+										// 事业部，大区，部门编码
+										line.writeColumn("");
+										line.writeColumn(prin.getName());
+										line.writeColumn(prin.getId());
+									} else {
+										line.writeColumn(area.getName());
+										// 事业部，大区，部门编码
+										line.writeColumn(area.getId());
+										line.writeColumn(syb.getName());
+										line.writeColumn(syb.getId());
+										line.writeColumn(prin.getName());
+										line.writeColumn(prin.getId());
+									}
+								}
+							}
+						}
+					}else {
+						if (!StringTools.isNullOrNone(financeItemVO.getStafferId())) {
+							StafferVO sv = CollectionUtils.find(stafferVOS, financeItemVO.getStafferId());
+							if (null != sv)
+							{
+								if (sv.getIndustryName().length()>=5)
+								{
+									line.writeColumn(sv.getIndustryName().substring(5));
+									line.writeColumn(" "
+											+ sv.getIndustryName().substring(0, 5) + " ");
+								}
+								else
+								{
+									line.writeColumn("");
+									line.writeColumn("");
+								}
+								if (sv.getIndustryName2().length() >= 8)
+								{
+									line.writeColumn(sv.getIndustryName2().substring(8));
+									line.writeColumn(" "
+											+ sv.getIndustryName2().substring(0, 8) + " ");
+								}
+								else
+								{
+									line.writeColumn("");
+									line.writeColumn("");
+								}
+								
+								if (sv.getIndustryName3().length() >= 11)
+								{
+									line.writeColumn(sv.getIndustryName3().substring(11));
+									line.writeColumn(" "
+											+ sv.getIndustryName3().substring(0, 11) + " ");
+								}
+								else
+								{
+									line.writeColumn("");
+									line.writeColumn("");
+								}
+							}
+							else
+							{
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+								// 事业部，大区，部门编码
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+							}
 						}
 					}
-					else
-					{
-						line.writeColumn("");
-						line.writeColumn("");
-						line.writeColumn("");
-						// 事业部，大区，部门编码
-						line.writeColumn("");
-						line.writeColumn("");
-						line.writeColumn("");
-					}
+                    
 
 					line.writeColumn(finance.getRefId());
 					line.writeColumn(finance.getRefOut());
@@ -754,41 +817,41 @@ public class FinaAction extends ParentQueryFinaAction
 							if (null == syb0) {
 								line.writeColumn("");
 								line.writeColumn("");
-								line.writeColumn(prin.getName());
+								line.writeColumn("");
 								// 事业部，大区，部门编码
 								line.writeColumn("");
-								line.writeColumn("");
-								line.writeColumn("");
+								line.writeColumn(prin.getName());
+								line.writeColumn(prin.getId());
 							} else {
 								PrincipalshipBean syb = principalshipDAO.find(syb0.getParentId());
 								
 								if (null == syb) {
 									line.writeColumn("");
 									line.writeColumn("");
-									line.writeColumn(prin.getName());
+									line.writeColumn("");
 									// 事业部，大区，部门编码
 									line.writeColumn("");
-									line.writeColumn("");
-									line.writeColumn("");
+									line.writeColumn(prin.getName());
+									line.writeColumn(prin.getId());
 								} else {
 									PrincipalshipBean area = principalshipDAO.find(syb.getParentId());
 									
 									if (null == area) {
 										line.writeColumn(syb.getName());
+										line.writeColumn(syb.getId());
 										line.writeColumn("");
-										line.writeColumn(prin.getName());
 										// 事业部，大区，部门编码
 										line.writeColumn("");
-										line.writeColumn("");
-										line.writeColumn("");
+										line.writeColumn(prin.getName());
+										line.writeColumn(prin.getId());
 									} else {
-										line.writeColumn(syb.getName());
 										line.writeColumn(area.getName());
-										line.writeColumn(prin.getName());
 										// 事业部，大区，部门编码
-										line.writeColumn("");
-										line.writeColumn("");
-										line.writeColumn("");
+										line.writeColumn(area.getId());
+										line.writeColumn(syb.getName());
+										line.writeColumn(syb.getId());
+										line.writeColumn(prin.getName());
+										line.writeColumn(prin.getId());
 									}
 								}
 							}
