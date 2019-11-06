@@ -241,13 +241,13 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         List<ComposeItemBean> itemList = bean.getItemList();
         
         // 全部管理 或 普通 ， 合成产品的管理属性须与源产品的管理属性一致
-        if (counter == 0 || counter == itemList.size())
-        {
-        	if (bean.getMtype() != itemList.get(0).getMtype())
-        	{
-        		throw new MYException("合成的源产品的管理属性全为普通或管理时，合成产品管理属性须与源产品一致");
-        	}
-        }
+//        if (counter == 0 || counter == itemList.size())
+//        {
+//        	if (bean.getMtype() != itemList.get(0).getMtype())
+//        	{
+//        		throw new MYException("合成的源产品的管理属性全为普通或管理时，合成产品管理属性须与源产品一致");
+//        	}
+//        }
 
 //        //#742 <税率,该税率对应的配件累计金额>,t_center_invoice表中可能多个记录的税率是一样的
 //        Map<String, Double> taxRateToValue = new HashMap<>();
