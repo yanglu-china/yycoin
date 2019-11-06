@@ -5585,7 +5585,7 @@ public class TravelApplyAction extends DispatchAction
                 String outType = ib.getOuttype();
                 if("0".equals(outType))
                 {
-                	line.writeColumn(DefinedCommon.getValue("outStatus",outType));
+                	line.writeColumn(DefinedCommon.getValue("outStatus",ib.getStatus()));
                 }
                 else
                 {
