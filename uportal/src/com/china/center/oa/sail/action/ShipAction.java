@@ -6018,8 +6018,15 @@ public class ShipAction extends DispatchAction
 
                 //税收分类编码
                 Element flbm = doc.createElement("flbm");
-                flbm.appendChild(
-                        doc.createTextNode("106050299"));
+                String ssflbm = "106050299";
+                String productId = value.getProductId();
+                if (!StringTools.isNullOrNone(productId)){
+                    ProductBean productBean = this.productDAO.find(productId);
+                    if (productBean!= null){
+                        ssflbm = productBean.getKpslid();
+                    }
+                }
+                flbm.appendChild(doc.createTextNode(ssflbm));
                 details.appendChild(flbm);
 
                 //差额征税的扣除额
