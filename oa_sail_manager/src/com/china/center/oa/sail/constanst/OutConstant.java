@@ -280,9 +280,8 @@ public interface OutConstant
 
     /**
      * 采购退货
-     * 改了key之后，不会出现在增加入库单页面的下拉列表中
      */
-    @Defined(key = "outType_in2", value = "采购退货")
+    @Defined(key = "outType_in", value = "采购退货")
     int OUTTYPE_IN_STOCK = 6;
 
     /**
@@ -302,7 +301,7 @@ public interface OutConstant
      */
     @Defined(key = "outType_in", value = "其他入库")
     int OUTTYPE_IN_OTHER = 99;
-    
+
     /**
      * 调拨申请
      */
@@ -314,7 +313,78 @@ public interface OutConstant
      */
     @Defined(key = "outType_in", value = "委托退货")
     int OUTTYPE_IN_SETTLE = 98;
-    
+
+
+
+    /** 以下仅供 #815
+     * 采购入库
+     */
+    @Defined(key = "outType_in2", value = "采购入库")
+    int OUTTYPE_IN_COMMON2 = OUTTYPE_IN_COMMON;
+
+    /**
+     * 调拨
+     */
+    @Defined(key = "outType_in2", value = "调拨")
+    int OUTTYPE_IN_MOVEOUT2 = OUTTYPE_IN_MOVEOUT;
+
+    /**
+     * 报废出库
+     */
+    @Defined(key = "outType_in2", value = "报废")
+    int OUTTYPE_IN_DROP2 = OUTTYPE_IN_DROP;
+
+    /**
+     * 系统纠正
+     */
+    @Defined(key = "outType_in2", value = "系统纠正")
+    int OUTTYPE_IN_ERRORP2 = OUTTYPE_IN_ERRORP;
+
+    /**
+     * 领样退货
+     */
+    @Defined(key = "outType_in2", value = "领样退库")
+    int OUTTYPE_IN_SWATCH2 = OUTTYPE_IN_SWATCH;
+
+    /**
+     * 销售退库
+     */
+    @Defined(key = "outType_in2", value = "销售退库")
+    int OUTTYPE_IN_OUTBACK2 = OUTTYPE_IN_OUTBACK;
+
+
+    /**
+     * 赠品退货
+     */
+    @Defined(key = "outType_in2", value = "赠品退货")
+    int OUTTYPE_IN_PRESENT2 = OUTTYPE_IN_PRESENT;
+
+    /** 2015/10/17 换货
+     * 商品调换
+     */
+    @Defined(key = "outType_in2", value = "商品调换")
+    int OUTTYPE_IN_EXCHANGE2 = OUTTYPE_IN_EXCHANGE;
+
+    /**
+     * 其他入库
+     */
+    @Defined(key = "outType_in2", value = "其他入库")
+    int OUTTYPE_IN_OTHER2 = 99;
+
+    /**
+     * 调拨申请
+     */
+    @Defined(key = "outType_in2", value = "调拨申请")
+    int OUTTYPE_OUT_APPLY2 = OUTTYPE_OUT_APPLY;
+
+    /**
+     * 查询无实际用处
+     */
+    @Defined(key = "outType_in2", value = "委托退货")
+    int OUTTYPE_IN_SETTLE2 = OUTTYPE_IN_SETTLE;
+    /** 以上仅供 #815
+     * 采购入库
+     */
 
     /**
      * 不需要发票

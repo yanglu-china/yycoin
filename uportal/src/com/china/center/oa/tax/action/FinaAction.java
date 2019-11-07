@@ -510,7 +510,18 @@ public class FinaAction extends ParentQueryFinaAction
 								line.writeColumn("");
 								// 事业部，大区，部门编码
 								line.writeColumn("");
-								line.writeColumn(prin.getName());
+								String name=prin.getName();
+								char[] nameChar = name.toCharArray();
+								char[] newNameChar = new char[name.length()] ;
+								for(int i=0;i<nameChar.length;i++)
+								{
+									if(!Character.isDigit(nameChar[i]))
+									{
+										newNameChar[i] = nameChar[i];
+									}
+								}
+							
+								line.writeColumn(new String(newNameChar).replaceAll("-", ""));
 								line.writeColumn(prin.getId());
 							} else {
 								PrincipalshipBean syb = principalshipDAO.find(syb0.getParentId());
@@ -521,26 +532,93 @@ public class FinaAction extends ParentQueryFinaAction
 									line.writeColumn("");
 									// 事业部，大区，部门编码
 									line.writeColumn("");
-									line.writeColumn(prin.getName());
+									
+									String name=prin.getName();
+									char[] nameChar = name.toCharArray();
+									char[] newNameChar = new char[name.length()] ;
+									for(int i=0;i<nameChar.length;i++)
+									{
+										if(!Character.isDigit(nameChar[i]))
+										{
+											newNameChar[i] = nameChar[i];
+										}
+									}
+									line.writeColumn(new String(newNameChar).replaceAll("-", ""));
 									line.writeColumn(prin.getId());
 								} else {
 									PrincipalshipBean area = principalshipDAO.find(syb.getParentId());
 									
 									if (null == area) {
-										line.writeColumn(syb.getName());
+										
+										String name=syb.getName();
+										char[] nameChar = name.toCharArray();
+										char[] newNameChar = new char[name.length()] ;
+										for(int i=0;i<nameChar.length;i++)
+										{
+											if(!Character.isDigit(nameChar[i]))
+											{
+												newNameChar[i] = nameChar[i];
+											}
+										}
+										line.writeColumn(new String(newNameChar).replaceAll("-", ""));
+										
 										line.writeColumn(syb.getId());
 										line.writeColumn("");
 										// 事业部，大区，部门编码
 										line.writeColumn("");
-										line.writeColumn(prin.getName());
+										
+										String name1=syb.getName();
+										char[] nameChar1 = name1.toCharArray();
+										char[] newNameChar1 = new char[name1.length()] ;
+										for(int i=0;i<nameChar1.length;i++)
+										{
+											if(!Character.isDigit(nameChar1[i]) || nameChar1[i]!='-')
+											{
+												newNameChar1[i] = nameChar1[i];
+											}
+										}
+										
+										line.writeColumn(new String(newNameChar1).replaceAll("-", ""));
 										line.writeColumn(prin.getId());
 									} else {
-										line.writeColumn(area.getName());
+										String name=area.getName();
+										char[] nameChar = name.toCharArray();
+										char[] newNameChar = new char[name.length()] ;
+										for(int i=0;i<nameChar.length;i++)
+										{
+											if(!Character.isDigit(nameChar[i]))
+											{
+												newNameChar[i] = nameChar[i];
+											}
+										}
+										line.writeColumn(new String(newNameChar).replaceAll("-", ""));
 										// 事业部，大区，部门编码
 										line.writeColumn(area.getId());
-										line.writeColumn(syb.getName());
+										
+										String name1=syb.getName();
+										char[] nameChar1 = name1.toCharArray();
+										char[] newNameChar1 = new char[name1.length()] ;
+										for(int i=0;i<nameChar1.length;i++)
+										{
+											if(!Character.isDigit(nameChar1[i]))
+											{
+												newNameChar1[i] = nameChar1[i];
+											}
+										}
+										line.writeColumn(new String(newNameChar1).replaceAll("-", ""));
 										line.writeColumn(syb.getId());
-										line.writeColumn(prin.getName());
+										
+										String name3=prin.getName();
+										char[] nameChar3 = name3.toCharArray();
+										char[] newNameChar3 = new char[name3.length()] ;
+										for(int i=0;i<nameChar3.length;i++)
+										{
+											if(!Character.isDigit(nameChar3[i]))
+											{
+												newNameChar3[i] = nameChar3[i];
+											}
+										}
+										line.writeColumn(new String(newNameChar3).replaceAll("-", ""));
 										line.writeColumn(prin.getId());
 									}
 								}
@@ -820,7 +898,18 @@ public class FinaAction extends ParentQueryFinaAction
 								line.writeColumn("");
 								// 事业部，大区，部门编码
 								line.writeColumn("");
-								line.writeColumn(prin.getName());
+								String name=prin.getName();
+								char[] nameChar = name.toCharArray();
+								char[] newNameChar = new char[name.length()] ;
+								for(int i=0;i<nameChar.length;i++)
+								{
+									if(!Character.isDigit(nameChar[i]))
+									{
+										newNameChar[i] = nameChar[i];
+									}
+								}
+								
+								line.writeColumn(new String(newNameChar).replaceAll("-", ""));
 								line.writeColumn(prin.getId());
 							} else {
 								PrincipalshipBean syb = principalshipDAO.find(syb0.getParentId());
@@ -831,26 +920,92 @@ public class FinaAction extends ParentQueryFinaAction
 									line.writeColumn("");
 									// 事业部，大区，部门编码
 									line.writeColumn("");
-									line.writeColumn(prin.getName());
+									String name=prin.getName();
+									char[] nameChar = name.toCharArray();
+									char[] newNameChar = new char[name.length()] ;
+									for(int i=0;i<nameChar.length;i++)
+									{
+										if(!Character.isDigit(nameChar[i]))
+										{
+											newNameChar[i] = nameChar[i];
+										}
+									}
+									
+									line.writeColumn(new String(newNameChar).replaceAll("-", ""));
 									line.writeColumn(prin.getId());
 								} else {
 									PrincipalshipBean area = principalshipDAO.find(syb.getParentId());
 									
 									if (null == area) {
-										line.writeColumn(syb.getName());
+										String name=syb.getName();
+										char[] nameChar = name.toCharArray();
+										char[] newNameChar = new char[name.length()] ;
+										for(int i=0;i<nameChar.length;i++)
+										{
+											if(!Character.isDigit(nameChar[i]))
+											{
+												newNameChar[i] = nameChar[i];
+											}
+										}
+										line.writeColumn(new String(newNameChar).replaceAll("-", ""));
 										line.writeColumn(syb.getId());
 										line.writeColumn("");
 										// 事业部，大区，部门编码
 										line.writeColumn("");
-										line.writeColumn(prin.getName());
+										
+										String name1=syb.getName();
+										char[] nameChar1 = name1.toCharArray();
+										char[] newNameChar1 = new char[name1.length()] ;
+										for(int i=0;i<nameChar1.length;i++)
+										{
+											if(!Character.isDigit(nameChar1[i]))
+											{
+												newNameChar1[i] = nameChar1[i];
+											}
+										}
+										line.writeColumn(new String(newNameChar1).replaceAll("-", ""));
 										line.writeColumn(prin.getId());
 									} else {
-										line.writeColumn(area.getName());
+										String name=area.getName();
+										char[] nameChar = name.toCharArray();
+										char[] newNameChar = new char[name.length()] ;
+										for(int i=0;i<nameChar.length;i++)
+										{
+											if(!Character.isDigit(nameChar[i]))
+											{
+												newNameChar[i] = nameChar[i];
+											}
+										}
+										
+										line.writeColumn(new String(newNameChar).replaceAll("-", ""));
 										// 事业部，大区，部门编码
 										line.writeColumn(area.getId());
-										line.writeColumn(syb.getName());
+										
+										String name1=syb.getName();
+										char[] nameChar1 = name1.toCharArray();
+										char[] newNameChar1 = new char[name1.length()] ;
+										for(int i=0;i<nameChar1.length;i++)
+										{
+											if(!Character.isDigit(nameChar1[i]))
+											{
+												newNameChar1[i] = nameChar1[i];
+											}
+										}
+										
+										line.writeColumn(new String(newNameChar1).replaceAll("-", ""));
 										line.writeColumn(syb.getId());
-										line.writeColumn(prin.getName());
+										
+										String name2=prin.getName();
+										char[] nameChar2 = name2.toCharArray();
+										char[] newNameChar2 = new char[name2.length()] ;
+										for(int i=0;i<nameChar2.length;i++)
+										{
+											if(!Character.isDigit(nameChar2[i]))
+											{
+												newNameChar2[i] = nameChar2[i];
+											}
+										}
+										line.writeColumn(new String(newNameChar2).replaceAll("-", ""));
 										line.writeColumn(prin.getId());
 									}
 								}
