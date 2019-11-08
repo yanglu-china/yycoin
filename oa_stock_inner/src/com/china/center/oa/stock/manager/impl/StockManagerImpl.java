@@ -196,7 +196,11 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 {
                     throw new MYException("产品的管理类型和采购的管理类型不一致");
                 }*/
-                stockItemBean.setMtype(MathTools.parseInt(product.getReserve4()));
+                if (product == null){
+                    throw new MYException("产品表(t_center_product)ID不存在:"+stockItemBean.getProductId());
+                } else{
+                    stockItemBean.setMtype(MathTools.parseInt(product.getReserve4()));
+                }
                 
             }
 

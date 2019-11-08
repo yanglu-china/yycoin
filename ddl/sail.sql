@@ -34,3 +34,6 @@ NEW.ibMoney,NEW.motivationMoney,NEW.customerName,NEW.nbyhNo,NEW.result,NEW.impor
 NEW.grossProfit,NEW.ibMoney2,NEW.motivationMoney2,NEW.delivery,NEW.posPayer,NEW.recommendation,NEW.platformFee,NEW.productImportId,NEW.ykibMoney,
 NEW.cash2,NEW.virtualStatus,NEW.gfmc,NEW.gfsh,NEW.gfyh,NEW.gfdz,NEW.refTnFullId);
 END;
+
+-- #818
+alter table t_center_product add column kpslid varchar(19) default '';
