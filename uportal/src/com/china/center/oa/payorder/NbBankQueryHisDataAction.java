@@ -24,6 +24,7 @@ import com.china.center.actionhelper.common.JSONTools;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
+import com.china.center.oa.finance.bean.NbBankHisBalanceBean;
 import com.china.center.oa.finance.bean.NbBankHisDataBean;
 import com.china.center.oa.finance.dao.NbBankHisBalanceDAO;
 import com.china.center.oa.finance.dao.NbBankHisDataDAO;
@@ -157,6 +158,85 @@ public class NbBankQueryHisDataAction extends DispatchAction {
 						line.writeColumn(each.getTransDate().substring(0,10));
 						line.writeColumn(each.getUses());
 
+						line.writeLine();
+
+				}
+			}
+
+			write.close();
+		} catch (Throwable e) {
+			_logger.error(e, e);
+
+			return null;
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e1) {
+				}
+			}
+
+			if (write != null) {
+
+				try {
+					write.close();
+				} catch (IOException e1) {
+				}
+			}
+		}
+
+		return null;
+	}
+	
+	
+	public ActionForward exportHisBalanceData(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException {
+		OutputStream out = null;
+
+		String filenName = "exportHisBalanceData_" + TimeTools.now("MMddHHmmss") + ".csv";
+
+		response.setContentType("application/x-dbf");
+
+		response.setHeader("Content-Disposition", "attachment; filename=" + filenName);
+
+		WriteFile write = null;
+		
+		ConditionParse condtion = JSONPageSeparateTools.getCondition(request, QUERYNBBANKHISBALANCE);
+		
+		condtion.addWhereStr();
+		
+		int count = nbBankHisBalanceDao.countVOByCondition(condtion.toString());
+
+		if (count > 150000) {
+			return ActionTools.toError("导出数量大于150000,请重新选择查询条件", mapping, request);
+		}
+
+		try {
+			out = response.getOutputStream();
+
+			write = WriteFileFactory.getMyTXTWriter();
+
+			write.openFile(out);
+
+			write.writeLine("日期,账号,银行,公司,户名,账户属性,余额");
+
+			PageSeparate page = new PageSeparate();
+
+			page.reset2(count, 2000);
+
+			WriteFileBuffer line = new WriteFileBuffer(write);
+
+			while (page.nextPage()) {
+				List<NbBankHisBalanceBean> dataList = nbBankHisBalanceDao.queryEntityVOsByCondition(condtion, page);
+
+				for (NbBankHisBalanceBean each : dataList) {
+						line.writeColumn(each.getBusiness_date());
+						line.writeColumn("[" +each.getBankAcc() + "]");
+						line.writeColumn(each.getBankName());
+						line.writeColumn(each.getCorpName());
+						line.writeColumn(each.getAccName());
+						line.writeColumn(each.getAccAttribute());
+						line.writeColumn(each.getBalance().toString());
 						line.writeLine();
 
 				}
