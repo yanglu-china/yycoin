@@ -33,6 +33,7 @@ function load()
 		     ],
 		 buttons : [
 		     {id: 'search', bclass: 'search', onpress : doSearch},
+		     {id: 'export', bclass: 'replied',  caption: '导出', onpress : exports}
 		     ],
 		 <p:conf/>
 	 };
@@ -52,6 +53,32 @@ function $callBack()
 function doSearch()
 {
     $modalQuery('../admin/query.do?method=popCommonQuery2&key=queryNbBankHisBalance');
+}
+
+function exports()
+{
+	var business_date = "";
+	var bankAcc = "";
+	var bankName = "";
+	var accName = "";
+	if(typeof($("#business_date").val()) != 'undefined')
+	{
+		business_date = $O("business_date").value;
+	}
+	if(typeof($("#bankAcc").val()) != 'undefined')
+	{
+		bankAcc = $O("bankAcc").value;
+	}
+	if(typeof($("#bankName").val()) != 'undefined')
+	{
+		bankName = $O("bankName").value;
+	}
+	if(typeof($("#accName").val()) != 'undefined')
+	{
+		accName = $O("accName").value;
+	}
+	
+    document.location.href = '../payorder/queryHisData.do?method=exportHisBalanceData';
 }
 </script>
 </head>

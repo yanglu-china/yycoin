@@ -46,6 +46,9 @@ public class BackPrePayApplyBean implements Serializable
     @Html(title = "备注", maxLength = 200, must = true, type = Element.TEXTAREA)
     private String description = "";
 
+	@Html(title = "收款单备注", maxLength = 200, type = Element.TEXTAREA)
+	private String sfDescription = "";
+
     @Html(title = "状态", must = true, type = Element.SELECT)
     private int status = 0;
 
@@ -484,5 +487,12 @@ public class BackPrePayApplyBean implements Serializable
 	public void setPayFlag(String payFlag) {
 		this.payFlag = payFlag;
 	}
-	
+
+	public String getSfDescription() {
+		return sfDescription;
+	}
+
+	public void setSfDescription(String sfDescription) {
+		this.sfDescription = sfDescription;
+	}
 }

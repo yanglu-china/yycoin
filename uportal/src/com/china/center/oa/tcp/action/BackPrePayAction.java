@@ -253,7 +253,7 @@ public class BackPrePayAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("日期,标识,目的,申请人,客户,状态,收款单,回款单,退款金额,收款人,收款银行,收款账号");
+            write.writeLine("日期,标识,目的,申请人,客户,状态,收款单,收款单备注,回款单,退款金额,收款人,收款银行,收款账号");
 
             PageSeparate page = new PageSeparate();
 
@@ -278,6 +278,7 @@ public class BackPrePayAction extends DispatchAction
 
                     line.writeColumn(ElTools.get("tcpStatus", vo.getStatus()));
                     line.writeColumn(vo.getBillId());
+                    line.writeColumn(vo.getSfDescription());
                     line.writeColumn(vo.getPaymentId());
                     line.writeColumn(changeString(TCPHelper.formatNum2(vo.getTotal() / 100.0d)));
                     line.writeColumn(vo.getReceiver());

@@ -203,6 +203,10 @@ public interface TcpConstanst
 
     @Defined(key = "tcpStatus", value = "承担人中心负责人审批")
     int TCP_STATUS_CENTER_MANAGER_SHARE = 41;
+    
+    
+    @Defined(key = "tcpStatus", value = "待业务部总经理审批")
+    int TCP_STATUS_REGIONAL_BUSINESS = 42;
 
     /**
      * 结束

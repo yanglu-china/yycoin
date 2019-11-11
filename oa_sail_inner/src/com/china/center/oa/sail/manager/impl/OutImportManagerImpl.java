@@ -4148,8 +4148,6 @@ public void offlineStorageInJob() {
                     this.updateDescriptionByOutId(item,item.getDescription()+"_ERROR_"+"no t_center_out found");
                     continue;
                 } else{
-                    double value = 0;
-
                     //industryid,2,3几个字段根据stafferid到表oastaffer表取对应值
                     StafferBean stafferBean = stafferDAO.find(originalOut.getStafferId());
                     if (stafferBean == null){
@@ -4368,8 +4366,6 @@ public void offlineStorageInJob() {
                                 continue;
                             }
 
-                            value += baseBean.getValue();
-
                             //生成退货单号时，也同时写入t_center_outback表的description字段中，增加在现有字段后，根据outbackid 到outback表找对应的id
                             OutBackBean outBackBean = this.outBackDAO.find(item.getOutBackId());
                             if (outBackBean!= null){
@@ -4378,7 +4374,7 @@ public void offlineStorageInJob() {
                                 outBean.setTransportNo(outBackBean.getTransportNo());
                             }
 
-                            outBean.setTotal(value);
+                            outBean.setTotal(baseBean.getValue());
 //                            outBean.setStatus(OutConstant.STATUS_SUBMIT);
                             //#777
                             outBean.setStatus(OutConstant.BUY_STATUS_SUBMIT);

@@ -22,6 +22,7 @@ import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.helper.UserHelper;
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
+import com.china.center.oa.tcp.vo.ExpenseApplyVO;
 import com.china.center.oa.tcp.vo.TravelApplyVO;
 import com.china.center.tools.StringTools;
 import org.apache.commons.logging.Log;
@@ -391,7 +392,11 @@ public class TcpFlowManagerImpl implements TcpFlowManager
 
                 mail.setReveiveIds2(bean.getStafferId());
 
-                if(bean.getType()== TcpConstanst.VOCATION_WORK)
+                //#820 提交的报销在邮件中链接打开报错
+                if (bean instanceof ExpenseApplyVO){
+                    mail.setHref(TcpConstanst.TCP_EXPENSE_PROCESS_URL + bean.getId());
+                }
+                else if(bean.getType()== TcpConstanst.VOCATION_WORK)
                 {
                     mail.setHref(TcpConstanst.TCP_COMMIS_PROCESS_URL + bean.getId());
                 }
@@ -432,6 +437,7 @@ public class TcpFlowManagerImpl implements TcpFlowManager
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_BUSINESS
                     ) {
                 nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
                 //CEO这个环节如果和发起人一致不能跳过,财务审批前必须有有个人处理下

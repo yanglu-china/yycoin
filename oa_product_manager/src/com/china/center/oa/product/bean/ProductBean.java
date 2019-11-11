@@ -440,6 +440,13 @@ public class ProductBean implements Serializable, IdInterface
     @Html(title = "XL", type = Element.SELECT, must = true)
     private int virtualFlag = ProductConstant.VIRTUAL_NO;
 
+
+    /**
+     * #818
+     */
+    @Html(title = "税收分类编码", type = Element.SELECT, must = true)
+    private String kpslid;
+
     @Ignore
     private List<ProductCombinationBean> vsList = null;
 
@@ -1621,6 +1628,14 @@ public class ProductBean implements Serializable, IdInterface
 
     public void setVirtualFlag(int virtualFlag) {
         this.virtualFlag = virtualFlag;
+    }
+
+    public String getKpslid() {
+        return kpslid;
+    }
+
+    public void setKpslid(String kpslid) {
+        this.kpslid = kpslid;
     }
 
     /**

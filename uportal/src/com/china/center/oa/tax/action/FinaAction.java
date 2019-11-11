@@ -488,54 +488,148 @@ public class FinaAction extends ParentQueryFinaAction
 					// 事业部，大区，部门
 //					StafferVO sv = this.stafferDAO.findVO(financeItemVO
 //							.getStafferId());
-                    StafferVO sv = CollectionUtils.find(stafferVOS, financeItemVO.getStafferId());
-					if (null != sv)
-					{
-						if (sv.getIndustryName().length()>=5)
-						{
-							line.writeColumn(sv.getIndustryName().substring(5));
-							line.writeColumn(" "
-									+ sv.getIndustryName().substring(0, 5) + " ");
-						}
-						else
-						{
-							line.writeColumn("");
-							line.writeColumn("");
-						}
-						if (sv.getIndustryName2().length() >= 8)
-						{
-							line.writeColumn(sv.getIndustryName2().substring(8));
-							line.writeColumn(" "
-									+ sv.getIndustryName2().substring(0, 8) + " ");
-						}
-						else
-						{
-							line.writeColumn("");
-							line.writeColumn("");
-						}
+					
+					if (!StringTools.isNullOrNone(financeItemVO.getDepartmentId())) {
+						// 由部门找上级 事业部， 再往上级 大区
+						PrincipalshipBean prin = principalshipDAO.find(financeItemVO.getDepartmentId());
 						
-						if (sv.getIndustryName3().length() >= 11)
-						{
-							line.writeColumn(sv.getIndustryName3().substring(11));
-							line.writeColumn(" "
-									+ sv.getIndustryName3().substring(0, 11) + " ");
-						}
-						else
-						{
+						if (null == prin) {
 							line.writeColumn("");
 							line.writeColumn("");
+							line.writeColumn("");
+							// 事业部，大区，部门编码
+							line.writeColumn("");
+							line.writeColumn("");
+							line.writeColumn("");
+						} else {
+							PrincipalshipBean syb0 = principalshipDAO.find(prin.getParentId());
+							
+							String name=prin.getName();
+							char[] nameChar = name.toCharArray();
+							char[] newNameChar = new char[name.length()] ;
+							for(int i=0;i<nameChar.length;i++)
+							{
+								if(!Character.isDigit(nameChar[i]))
+								{
+									newNameChar[i] = nameChar[i];
+								}
+							}
+							
+							String deparmentName=new String(newNameChar).replaceAll("-", "");
+							String deparmentId=prin.getId();
+							
+							if (null == syb0) {
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+								// 事业部，大区，部门编码
+								line.writeColumn("");
+								line.writeColumn(deparmentName);
+								line.writeColumn(deparmentId);
+							} else {
+								PrincipalshipBean syb = principalshipDAO.find(syb0.getParentId());
+								
+								String name1=syb0.getName();
+								char[] nameChar1 = name1.toCharArray();
+								char[] newNameChar1 = new char[name1.length()] ;
+								for(int i=0;i<nameChar1.length;i++)
+								{
+									if(!Character.isDigit(nameChar1[i]))
+									{
+										newNameChar1[i] = nameChar1[i];
+									}
+								}
+								
+								String syb0DepartmentName = new String(newNameChar1).replaceAll("-", "");
+								String syb0DepartmentId = syb0.getId();
+								
+								if (null == syb) {
+									line.writeColumn("");
+									line.writeColumn("");
+									line.writeColumn(syb0DepartmentName);
+									// 事业部，大区，部门编码
+									line.writeColumn(syb0DepartmentId);
+									line.writeColumn(deparmentName);
+									line.writeColumn(deparmentId);
+								} else {
+									
+									String name2=syb.getName();
+									char[] nameChar2 = name2.toCharArray();
+									char[] newNameChar2 = new char[name2.length()] ;
+									for(int i=0;i<nameChar2.length;i++)
+									{
+										if(!Character.isDigit(nameChar2[i]))
+										{
+											newNameChar2[i] = nameChar2[i];
+										}
+									}
+									
+									String syb1DepartmentName = new String(newNameChar2).replaceAll("-", "");
+									String syb1DepartmentId = syb.getId();
+									
+									line.writeColumn(syb1DepartmentName);
+									line.writeColumn(syb1DepartmentId);
+									line.writeColumn(syb0DepartmentName);
+									// 事业部，大区，部门编码
+									line.writeColumn(syb0DepartmentId);
+									line.writeColumn(deparmentName);
+									line.writeColumn(deparmentId);
+								}
+							}
+						}
+					}else {
+						if (!StringTools.isNullOrNone(financeItemVO.getStafferId())) {
+							StafferVO sv = CollectionUtils.find(stafferVOS, financeItemVO.getStafferId());
+							if (null != sv)
+							{
+								if (sv.getIndustryName().length()>=5)
+								{
+									line.writeColumn(sv.getIndustryName().substring(5));
+									line.writeColumn(" "
+											+ sv.getIndustryName().substring(0, 5) + " ");
+								}
+								else
+								{
+									line.writeColumn("");
+									line.writeColumn("");
+								}
+								if (sv.getIndustryName2().length() >= 8)
+								{
+									line.writeColumn(sv.getIndustryName2().substring(8));
+									line.writeColumn(" "
+											+ sv.getIndustryName2().substring(0, 8) + " ");
+								}
+								else
+								{
+									line.writeColumn("");
+									line.writeColumn("");
+								}
+								
+								if (sv.getIndustryName3().length() >= 11)
+								{
+									line.writeColumn(sv.getIndustryName3().substring(11));
+									line.writeColumn(" "
+											+ sv.getIndustryName3().substring(0, 11) + " ");
+								}
+								else
+								{
+									line.writeColumn("");
+									line.writeColumn("");
+								}
+							}
+							else
+							{
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+								// 事业部，大区，部门编码
+								line.writeColumn("");
+								line.writeColumn("");
+								line.writeColumn("");
+							}
 						}
 					}
-					else
-					{
-						line.writeColumn("");
-						line.writeColumn("");
-						line.writeColumn("");
-						// 事业部，大区，部门编码
-						line.writeColumn("");
-						line.writeColumn("");
-						line.writeColumn("");
-					}
+                    
 
 					line.writeColumn(finance.getRefId());
 					line.writeColumn(finance.getRefOut());
@@ -751,45 +845,76 @@ public class FinaAction extends ParentQueryFinaAction
 						} else {
 							PrincipalshipBean syb0 = principalshipDAO.find(prin.getParentId());
 							
+							String name=prin.getName();
+							char[] nameChar = name.toCharArray();
+							char[] newNameChar = new char[name.length()] ;
+							for(int i=0;i<nameChar.length;i++)
+							{
+								if(!Character.isDigit(nameChar[i]))
+								{
+									newNameChar[i] = nameChar[i];
+								}
+							}
+							
+							String deparmentName=new String(newNameChar).replaceAll("-", "");
+							String deparmentId=prin.getId();
+							
 							if (null == syb0) {
 								line.writeColumn("");
 								line.writeColumn("");
-								line.writeColumn(prin.getName());
+								line.writeColumn("");
 								// 事业部，大区，部门编码
 								line.writeColumn("");
-								line.writeColumn("");
-								line.writeColumn("");
+								line.writeColumn(deparmentName);
+								line.writeColumn(deparmentId);
 							} else {
 								PrincipalshipBean syb = principalshipDAO.find(syb0.getParentId());
+								
+								String name1=syb0.getName();
+								char[] nameChar1 = name1.toCharArray();
+								char[] newNameChar1 = new char[name1.length()] ;
+								for(int i=0;i<nameChar1.length;i++)
+								{
+									if(!Character.isDigit(nameChar1[i]))
+									{
+										newNameChar1[i] = nameChar1[i];
+									}
+								}
+								
+								String syb0DepartmentName = new String(newNameChar1).replaceAll("-", "");
+								String syb0DepartmentId = syb0.getId();
 								
 								if (null == syb) {
 									line.writeColumn("");
 									line.writeColumn("");
-									line.writeColumn(prin.getName());
+									line.writeColumn(syb0DepartmentName);
 									// 事业部，大区，部门编码
-									line.writeColumn("");
-									line.writeColumn("");
-									line.writeColumn("");
+									line.writeColumn(syb0DepartmentId);
+									line.writeColumn(deparmentName);
+									line.writeColumn(deparmentId);
 								} else {
-									PrincipalshipBean area = principalshipDAO.find(syb.getParentId());
 									
-									if (null == area) {
-										line.writeColumn(syb.getName());
-										line.writeColumn("");
-										line.writeColumn(prin.getName());
-										// 事业部，大区，部门编码
-										line.writeColumn("");
-										line.writeColumn("");
-										line.writeColumn("");
-									} else {
-										line.writeColumn(syb.getName());
-										line.writeColumn(area.getName());
-										line.writeColumn(prin.getName());
-										// 事业部，大区，部门编码
-										line.writeColumn("");
-										line.writeColumn("");
-										line.writeColumn("");
+									String name2=syb.getName();
+									char[] nameChar2 = name2.toCharArray();
+									char[] newNameChar2 = new char[name2.length()] ;
+									for(int i=0;i<nameChar2.length;i++)
+									{
+										if(!Character.isDigit(nameChar2[i]))
+										{
+											newNameChar2[i] = nameChar2[i];
+										}
 									}
+									
+									String syb1DepartmentName = new String(newNameChar2).replaceAll("-", "");
+									String syb1DepartmentId = syb.getId();
+									
+									line.writeColumn(syb1DepartmentName);
+									line.writeColumn(syb1DepartmentId);
+									line.writeColumn(syb0DepartmentName);
+									// 事业部，大区，部门编码
+									line.writeColumn(syb0DepartmentId);
+									line.writeColumn(deparmentName);
+									line.writeColumn(deparmentId);
 								}
 							}
 						}

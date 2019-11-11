@@ -336,7 +336,7 @@ function forward()
 
 							<td width="15%" align="right">入库类型：</td>
 							<td width="35%"><select name="outType" class="select_class" onchange="managerChange()">
-								<p:option type="outType_in"></p:option>
+								<p:option type="outType_in2"></p:option>
 							</select><font color="#FF0000">*</font></td>
 						
 					</tr>

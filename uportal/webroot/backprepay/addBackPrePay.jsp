@@ -63,6 +63,7 @@ function getInBill(oos)
     $O('customerAccount').value = item.pcustomeraccount;
     $O('bankId').value = item.pbankid;
     $O('bankName').value = item.pbankName;
+    $O('sfDescription').value = item.pdescription;
     $O('total').value = formatNum(item.pmoney, 2);
 }
 
@@ -173,7 +174,9 @@ function getOpeningBank(oos)
             <p:pro field="customerAccount" innerString="readonly='readonly' size=60" cell="0"/>
             
             <p:pro field="bankName" innerString="readonly='readonly' size=60" cell="0"/>
-            
+
+            <p:pro field="sfDescription" cell="0" innerString="readonly='readonly' rows=4 cols=55" />
+
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
             
             <p:cell title="附件" width="8" end="true"><input type="file" name="atts" size="70" >  

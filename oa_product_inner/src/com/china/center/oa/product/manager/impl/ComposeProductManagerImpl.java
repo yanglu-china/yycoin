@@ -9,52 +9,71 @@
 package com.china.center.oa.product.manager.impl;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.center.china.osgi.config.ConfigLoader;
-import com.china.center.jdbc.util.ConditionParse;
-import com.china.center.oa.product.bean.*;
-import com.china.center.oa.product.dao.*;
-import com.china.center.oa.product.helper.StorageRelationHelper;
-import com.china.center.oa.product.manager.PriceConfigManager;
-import com.china.center.oa.product.vs.StorageRelationBean;
-import com.china.center.oa.publics.NumberUtils;
-import com.china.center.oa.publics.StringUtils;
-import com.china.center.oa.publics.bean.InvoiceBean;
-import com.china.center.oa.publics.bean.LogBean;
-import com.china.center.oa.publics.constant.AppConstant;
-import com.china.center.oa.publics.constant.ModuleConstant;
-import com.china.center.oa.publics.constant.OperationConstant;
-import com.china.center.oa.publics.dao.InvoiceDAO;
-import com.china.center.oa.publics.dao.LogDAO;
-import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.AbstractListenerManager;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.expression.Expression;
+import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.bean.ComposeFeeBean;
+import com.china.center.oa.product.bean.ComposeFeeDefinedBean;
+import com.china.center.oa.product.bean.ComposeInterface;
+import com.china.center.oa.product.bean.ComposeItemBean;
+import com.china.center.oa.product.bean.ComposeProductBean;
+import com.china.center.oa.product.bean.DecomposeProductBean;
+import com.china.center.oa.product.bean.PriceConfigBean;
+import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.constant.ComposeConstant;
 import com.china.center.oa.product.constant.ProductApplyConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
+import com.china.center.oa.product.dao.ComposeFeeDAO;
+import com.china.center.oa.product.dao.ComposeFeeDefinedDAO;
+import com.china.center.oa.product.dao.ComposeItemDAO;
+import com.china.center.oa.product.dao.ComposeProductDAO;
+import com.china.center.oa.product.dao.DecomposeProductDAO;
+import com.china.center.oa.product.dao.PriceConfigDAO;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.listener.ComposeProductListener;
 import com.china.center.oa.product.manager.ComposeProductManager;
+import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vo.ComposeFeeDefinedVO;
 import com.china.center.oa.product.vo.ComposeProductVO;
+import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.product.wrap.ProductChangeWrap;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.constant.AppConstant;
+import com.china.center.oa.publics.constant.ModuleConstant;
+import com.china.center.oa.publics.constant.OperationConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.helper.OATools;
+import com.china.center.oa.publics.dao.InvoiceDAO;
+import com.china.center.oa.publics.dao.LogDAO;
 import com.china.center.oa.publics.message.MessageConstant;
 import com.china.center.oa.publics.message.PublishMessage;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.JudgeTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
 
 
 /**
@@ -220,84 +239,93 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         int counter = 0;
         
         List<ComposeItemBean> itemList = bean.getItemList();
+        
+        // 全部管理 或 普通 ， 合成产品的管理属性须与源产品的管理属性一致
+//        if (counter == 0 || counter == itemList.size())
+//        {
+//        	if (bean.getMtype() != itemList.get(0).getMtype())
+//        	{
+//        		throw new MYException("合成的源产品的管理属性全为普通或管理时，合成产品管理属性须与源产品一致");
+//        	}
+//        }
 
-        //#742 <税率,该税率对应的配件累计金额>,t_center_invoice表中可能多个记录的税率是一样的
-        Map<String, Double> taxRateToValue = new HashMap<>();
-        Map<String, Set<String>> taxRateToProducts = new HashMap<>();
-        for (ComposeItemBean composeItemBean : itemList)
-        {
-            ProductBean each = productDAO.find(composeItemBean.getProductId());
-
-            if (each == null)
-            {
-                throw new MYException("产品不存在:"+composeItemBean.getProductId());
-            }
-            
-            composeItemBean.setMtype(MathTools.parseInt(each.getReserve4()));
-            
-            counter += composeItemBean.getMtype();
-
-            String sailInvoice = each.getSailInvoice();
-            double value = composeItemBean.getAmount()*composeItemBean.getPrice();
-            InvoiceBean invoice = invoiceDAO.find(sailInvoice);
-            if (invoice!= null){
-                //以产品的税率转换为字符串作为Key
-                String key = StorageRelationHelper.getPriceKey(invoice.getVal());
-                if (taxRateToValue.containsKey(key)){
-                    taxRateToValue.put(key, value+taxRateToValue.get(key));
-                } else{
-                    taxRateToValue.put(key, value);
-                }
-
-                if (taxRateToProducts.containsKey(key)){
-                    Set<String> productNames = taxRateToProducts.get(key);
-                    productNames.add(each.getName());
-                } else{
-                    Set<String> productNames = new HashSet<>();
-                    productNames.add(each.getName());
-                    taxRateToProducts.put(key, productNames);
-                }
-            }
-        }
-
-        //主产品的销项税率
-        String sailInvoice = productBean.getSailInvoice();
-        InvoiceBean invoice = invoiceDAO.find(sailInvoice);
-        double val = invoice.getVal();
-        _logger.info(taxRateToValue);
-        _logger.info(taxRateToProducts);
-        //找到金额占比最大的税率
-        Map.Entry<String, Double> max = NumberUtils.findMax(taxRateToValue);
-        _logger.info(max);
-        if (max == null){
-            throw new MYException("存在相同的配件金额占比，请重新确认合成配件");
-        } else if(!max.getKey().equals(StorageRelationHelper.getPriceKey(val))){
-            Set<String> productNames = taxRateToProducts.get(max.getKey());
-            String product = StringUtils.toString(productNames, ",");
-            _logger.info(product);
-            double  v = Long.valueOf(max.getKey())/100;
-            _logger.info(v);
-            //金额占比最大的产品税率与合成产品税率不一致
-            throw new MYException("配件[%s]金额占比最大的税率[%f]与成品税率[%f]不一致，请重新确认合成配件",
-                    product ,v, val);
-        }
-
-        if (bean instanceof ComposeProductBean){
-            // 全部管理 或 普通 ， 合成产品的管理属性须与源产品的管理属性一致
-            if (counter == 0 || counter == itemList.size())
-            {
-                if (bean.getMtype() != itemList.get(0).getMtype())
-                {
-                    throw new MYException("合成的源产品的管理属性全为普通或管理时，合成产品管理属性须与源产品一致");
-                }
-            }
-        } else{
-            if (OATools.isCommon(productBean.getReserve4())){
-                bean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
-            } else{
-                bean.setMtype(PublicConstant.MANAGER_TYPE_MANAGER);
-            }
-        }
+//        //#742 <税率,该税率对应的配件累计金额>,t_center_invoice表中可能多个记录的税率是一样的
+//        Map<String, Double> taxRateToValue = new HashMap<>();
+//        Map<String, Set<String>> taxRateToProducts = new HashMap<>();
+//        for (ComposeItemBean composeItemBean : itemList)
+//        {
+//            ProductBean each = productDAO.find(composeItemBean.getProductId());
+//
+//            if (each == null)
+//            {
+//                throw new MYException("产品不存在:"+composeItemBean.getProductId());
+//            }
+//            
+//            composeItemBean.setMtype(MathTools.parseInt(each.getReserve4()));
+//            
+//            counter += composeItemBean.getMtype();
+//
+//            String sailInvoice = each.getSailInvoice();
+//            double value = composeItemBean.getAmount()*composeItemBean.getPrice();
+//            InvoiceBean invoice = invoiceDAO.find(sailInvoice);
+//            if (invoice!= null){
+//                //以产品的税率转换为字符串作为Key
+//                String key = StorageRelationHelper.getPriceKey(invoice.getVal());
+//                if (taxRateToValue.containsKey(key)){
+//                    taxRateToValue.put(key, value+taxRateToValue.get(key));
+//                } else{
+//                    taxRateToValue.put(key, value);
+//                }
+//
+//                if (taxRateToProducts.containsKey(key)){
+//                    Set<String> productNames = taxRateToProducts.get(key);
+//                    productNames.add(each.getName());
+//                } else{
+//                    Set<String> productNames = new HashSet<>();
+//                    productNames.add(each.getName());
+//                    taxRateToProducts.put(key, productNames);
+//                }
+//            }
+//        }
+//
+//        //主产品的销项税率
+//        String sailInvoice = productBean.getSailInvoice();
+//        InvoiceBean invoice = invoiceDAO.find(sailInvoice);
+//        double val = invoice.getVal();
+//        _logger.info(taxRateToValue);
+//        _logger.info(taxRateToProducts);
+//        //找到金额占比最大的税率
+//        Map.Entry<String, Double> max = NumberUtils.findMax(taxRateToValue);
+//        _logger.info(max);
+//        if (max == null){
+//            throw new MYException("存在相同的配件金额占比，请重新确认合成配件");
+//        } else if(!max.getKey().equals(StorageRelationHelper.getPriceKey(val))){
+//            Set<String> productNames = taxRateToProducts.get(max.getKey());
+//            String product = StringUtils.toString(productNames, ",");
+//            _logger.info(product);
+//            double  v = Long.valueOf(max.getKey())/100;
+//            _logger.info(v);
+//            //金额占比最大的产品税率与合成产品税率不一致
+//            throw new MYException("配件[%s]金额占比最大的税率[%f]与成品税率[%f]不一致，请重新确认合成配件",
+//                    product ,v, val);
+//        }
+//
+//        if (bean instanceof ComposeProductBean){
+//            // 全部管理 或 普通 ， 合成产品的管理属性须与源产品的管理属性一致
+//            if (counter == 0 || counter == itemList.size())
+//            {
+//                if (bean.getMtype() != itemList.get(0).getMtype())
+//                {
+//                    throw new MYException("合成的源产品的管理属性全为普通或管理时，合成产品管理属性须与源产品一致");
+//                }
+//            }
+//        } else{
+//            if (OATools.isCommon(productBean.getReserve4())){
+//                bean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
+//            } else{
+//                bean.setMtype(PublicConstant.MANAGER_TYPE_MANAGER);
+//            }
+//        }
     }
 
 

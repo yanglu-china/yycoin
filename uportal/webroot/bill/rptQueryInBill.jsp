@@ -97,6 +97,7 @@ function pop(obj)
 				<td align="center" class="td_class"><strong>回款帐户</strong></td>
 				<td align="center" class="td_class"><strong>回款单号</strong></td>
 				<td align="center" class="td_class"><strong>金额</strong></td>
+				<td align="center" class="td_class"><strong>备注</strong></td>
 			</tr>
 
 			<c:forEach items="${beanList}" var="item" varStatus="vs">
@@ -104,12 +105,13 @@ function pop(obj)
 					<td align="center"><input type='${selectMode == 1 ? "radio" : "checkbox"}' name="beans"
 					ppaymentid="${item.paymentId}" 
 					pcustomeraccount="${item.customerAccount}" pbankName="${item.bankName}" pbankid="${item.bankId}"
-					pmoney="${item.moneys}" value="${item.id}"/>
+					pmoney="${item.moneys}" pdescription="${item.description}" value="${item.id}"/>
 					</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.id}</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.bankName}</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.paymentId}</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${my:formatNum(item.moneys)}</td>
+					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.description}</td>
 				</tr>
 			</c:forEach>
 		</table>
