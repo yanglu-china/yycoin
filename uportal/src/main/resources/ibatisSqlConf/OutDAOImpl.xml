@@ -185,6 +185,7 @@
         <![CDATA[
             select sum(t2.amount) from t_center_out t1, t_center_base t2 
             where t1.fullid = t2.outid 
+            and t1.buyReturnFlag != '1'
             and t1.type = 0 
             and t2.productId = #productId# 
             and t2.depotpartId = #depotpartId# 
@@ -216,6 +217,7 @@
         <![CDATA[
             select sum(t2.amount) from t_center_out t1, t_center_base t2 
             where t1.fullid = t2.outid 
+            and t1.buyReturnFlag != '1'
             and t1.type = 1 
             and t1.outtype <> 25
             and t2.amount < 0
@@ -234,6 +236,7 @@
         <![CDATA[
             select sum(t2.amount) from t_center_out t1, t_center_base t2 
             where t1.fullid = t2.outid 
+            and t1.buyReturnFlag != '1'
             and t1.type = 1 
             and t1.outtype <> 25
             and t2.amount < 0
