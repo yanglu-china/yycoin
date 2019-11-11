@@ -822,7 +822,7 @@ public class TravelApplyAction extends DispatchAction
         
         if (bean == null)
         {
-            return ActionTools.toError("数据异常,请重新操作", mapping, request);
+            return ActionTools.toError("单据不存在："+id, mapping, request);
         } else{
             //2015/4/12 中收激励导入功能
             if ((bean.isMidOrMotivation())
