@@ -175,6 +175,8 @@ function getOpeningBank(oos)
             <p:pro field="customerAccount" innerString="readonly='readonly' size=60" cell="0"/>
             
             <p:pro field="bankName" innerString="readonly='readonly' size=60" cell="0"/>
+
+            <p:pro field="sfDescription" innerString="readonly='readonly' size=200" cell="0"/>
             
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
             
