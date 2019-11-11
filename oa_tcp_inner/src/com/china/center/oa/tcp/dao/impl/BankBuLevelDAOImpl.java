@@ -133,7 +133,9 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
                     }
                 }
             }
-        } else {
+        } 
+        else if (TcpFlowConstant.TRAVELAPPLY_MOTIVATION_QT.equals(flowKey)) {
+        	
             if (bearType == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER) {
                 //provinceManager
                 result = jdbcOperation.queryObjectsBySql(
@@ -186,7 +188,7 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
                         .setMaxResults(600).list(BankBuLevelBean.class);*/
                 
                 result = jdbcOperation.queryObjectsBySql(
-                        "select id,sybmanagerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        "select * from T_CENTER_BANKBU_LEVEL where managerid='" + stafferId + "'")
                         .setMaxResults(600).list(BankBuLevelBean.class);
                 
                 if (result.size() == 1) {
@@ -196,6 +198,97 @@ public class BankBuLevelDAOImpl extends BaseDAO<BankBuLevelBean, BankBuLevelBean
                     for (BankBuLevelBean bean : result) {
                         if (bean.getId().equals(originator)) {
                             return bean.getSybmanagerId();
+                        }
+                    }
+                }
+            }
+            else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_BUSINESS) {
+                //manager -> sybmanager
+/*                result = jdbcOperation.queryObjectsBySql(
+                        "select id,managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);*/
+                
+                result = jdbcOperation.queryObjectsBySql(
+                        "select * from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);
+                
+                if (result.size() == 1) {
+                    return result.get(0).getManagerId();
+                } else {
+                    //#341 考虑到一人多岗情况,优先根据发起人选择
+                    for (BankBuLevelBean bean : result) {
+                        if (bean.getId().equals(originator)) {
+                            return bean.getManagerId();
+                        }
+                    }
+                }
+            }
+        
+        	
+        }
+        else {
+            if (bearType == TcpConstanst.TCP_STATUS_PROVINCE_MANAGER) {
+                //provinceManager
+                result = jdbcOperation.queryObjectsBySql(
+                        "select id,provinceManagerId from T_CENTER_BANKBU_LEVEL where id='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);
+                if (result.size() == 1) {
+                    return result.get(0).getProvinceManagerId();
+                } else {
+                    //#341 考虑到一人多岗情况,优先根据发起人选择
+                    for (BankBuLevelBean bean : result) {
+                        if (bean.getId().equals(originator)) {
+                            return bean.getProvinceManagerId();
+                        }
+                    }
+                }
+            } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER) {
+                //regionalManager
+                result = jdbcOperation.queryObjectsBySql(
+                        "select id,regionalManagerId from T_CENTER_BANKBU_LEVEL where provinceManagerId='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);
+                if (result.size() == 1) {
+                    return result.get(0).getRegionalManagerId();
+                } else {
+                    //#341 考虑到一人多岗情况,优先根据发起人选择
+                    for (BankBuLevelBean bean : result) {
+                        if (bean.getId().equals(originator)) {
+                            return bean.getRegionalManagerId();
+                        }
+                    }
+                }
+            } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR) {
+                //regionalDirector
+                result = jdbcOperation.queryObjectsBySql(
+                        "select id,regionalDirectorId from T_CENTER_BANKBU_LEVEL where regionalManagerId='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);
+                if (result.size() == 1) {
+                    return result.get(0).getRegionalDirectorId();
+                } else {
+                    //#341 考虑到一人多岗情况,优先根据发起人选择
+                    for (BankBuLevelBean bean : result) {
+                        if (bean.getId().equals(originator)) {
+                            return bean.getRegionalDirectorId();
+                        }
+                    }
+                }
+            } else if (bearType == TcpConstanst.TCP_STATUS_REGIONAL_CEO) {
+                //manager -> sybmanager
+/*                result = jdbcOperation.queryObjectsBySql(
+                        "select id,managerId from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);*/
+                
+                result = jdbcOperation.queryObjectsBySql(
+                        "select * from T_CENTER_BANKBU_LEVEL where regionalDirectorId='" + stafferId + "'")
+                        .setMaxResults(600).list(BankBuLevelBean.class);
+                
+                if (result.size() == 1) {
+                    return result.get(0).getManagerId();
+                } else {
+                    //#341 考虑到一人多岗情况,优先根据发起人选择
+                    for (BankBuLevelBean bean : result) {
+                        if (bean.getId().equals(originator)) {
+                            return bean.getManagerId();
                         }
                     }
                 }

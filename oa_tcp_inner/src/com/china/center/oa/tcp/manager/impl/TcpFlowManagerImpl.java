@@ -437,6 +437,7 @@ public class TcpFlowManagerImpl implements TcpFlowManager
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_MANAGER
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_DIRECTOR
                     || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_CEO
+                    || nextStatus == TcpConstanst.TCP_STATUS_REGIONAL_BUSINESS
                     ) {
                 nextProcessor = this.bankBuLevelDAO.queryHighLevelManagerId(flowKey, nextStatus, stafferId, originator);
                 //CEO这个环节如果和发起人一致不能跳过,财务审批前必须有有个人处理下

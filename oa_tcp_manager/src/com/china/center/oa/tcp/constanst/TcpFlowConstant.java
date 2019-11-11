@@ -47,6 +47,11 @@ public interface TcpFlowConstant
      * 2015/7/18 激励报销
      */
     String TRAVELAPPLY_MOTIVATION = "travel-motivation";
+    
+    /**
+     * 其他费用
+     */
+    String TRAVELAPPLY_MOTIVATION_QT = "travel-motivation-qt";
 
     /**
      * 2016/6/1 #250 中收申请

@@ -753,7 +753,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             }            
             else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
                     || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector")
-                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalCEO"))
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalCEO")
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalBusiness"))
             {
                 List<String> processList = new ArrayList();
 //                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
