@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="TcpIbReportDAO">
+
+    <!-- 查询指定时间内发生凭证的单位-->
+    <select id="queryEntityBeansByCustomerStaffer" parameterClass="java.util.Map" resultClass="com.china.center.oa.tcp.bean.TcpIbReportBean">
+        <![CDATA[
+			SELECT a.*,b.STAFFERID
+			FROM t_center_tcpibreport a
+			LEFT JOIN t_center_vs_stacus b on b.CUSTOMERID=a.customerId
+			WHERE b.STAFFERID = #stafferId#
+			AND a.customerName like concat('%',#customerName#,'%')
+        ]]>
+    </select>
+
+</sqlMap>

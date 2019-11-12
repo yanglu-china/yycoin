@@ -9,6 +9,8 @@
 package com.china.center.oa.tcp.dao;
 
 
+import java.util.List;
+
 import com.china.center.jdbc.inter.DAO;
 import com.china.center.oa.tcp.bean.TcpIbBean;
 import com.china.center.oa.tcp.bean.TcpIbReportBean;
@@ -26,5 +28,7 @@ import com.china.center.oa.tcp.vo.TcpIbVO;
  */
 public interface TcpIbReportDAO extends DAO<TcpIbReportBean, TcpIbReportVO>
 {
+	
+	public List<TcpIbReportBean> queryEntityBeansByCustomerStaffer(String customerName, String stafferId);
 
 }

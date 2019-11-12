@@ -32,6 +32,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.publics.Util;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -5293,7 +5294,7 @@ public class TravelApplyAction extends DispatchAction
 
 
     /**
-     * 2015/4/13 中收激励统计
+     * 2015/4/13 中收激励统计(登录人名下客户)
      * @param mapping
      * @param form
      * @param request
@@ -5306,22 +5307,30 @@ public class TravelApplyAction extends DispatchAction
                                   HttpServletResponse response)
             throws ServletException
     {
+        String queryType = request.getParameter("queryType");
+    	User user = (User) request.getSession().getAttribute("user");
         try{
-            String customerName = request.getParameter("customerName");
-            ConditionParse con = new ConditionParse();
-            if (!StringTools.isNullOrNone(customerName)){
-                con.addWhereStr();
-                con.addCondition("customerName","like","%"+customerName+"%");
+            List<TcpIbReportBean> ibReportList = new ArrayList<TcpIbReportBean>();
+            String customerName = Util.getString(request.getParameter("customerName"));
+            if("1".equals(queryType)){
+                String stafferId = user.getStafferId();
+                ibReportList = this.tcpIbReportDAO.queryEntityBeansByCustomerStaffer(customerName, stafferId);
+            }else{
+                ConditionParse con = new ConditionParse();
+                if (!StringTools.isNullOrNone(customerName)){
+                    con.addWhereStr();
+                    con.addCondition("customerName","like","%"+customerName+"%");
+                }
+                ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
             }
-            List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
             _logger.info("ibReportList size********"+ibReportList.size());
             request.setAttribute("ibReportList", ibReportList);
             request.setAttribute("customerName", customerName);
+            request.setAttribute("queryType", queryType);
         }catch (Exception e){
             e.printStackTrace();
             _logger.error("Exception:",e);
         }
-
         return mapping.findForward("ibReport");
     }
 

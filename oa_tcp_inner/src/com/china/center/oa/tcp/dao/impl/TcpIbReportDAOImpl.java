@@ -9,6 +9,12 @@
 package com.china.center.oa.tcp.dao.impl;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.china.center.jdbc.inter.IbatisDaoSupport;
 import com.china.center.jdbc.inter.impl.BaseDAO;
 import com.china.center.oa.tcp.bean.TcpIbReportBean;
 import com.china.center.oa.tcp.dao.TcpIbReportDAO;
@@ -25,4 +31,24 @@ import com.china.center.oa.tcp.vo.TcpIbReportVO;
  */
 public class TcpIbReportDAOImpl extends BaseDAO<TcpIbReportBean, TcpIbReportVO> implements TcpIbReportDAO
 {
+	private IbatisDaoSupport ibatisDaoSupport = null;
+	
+	public List<TcpIbReportBean> queryEntityBeansByCustomerStaffer(String customerName, String stafferId){
+        Map<String, Object> paramterMap = new HashMap<String, Object>();
+
+        paramterMap.put("customerName", customerName);
+        paramterMap.put("stafferId", stafferId);
+
+        return (List<TcpIbReportBean>)this.ibatisDaoSupport.queryForList(
+            "TcpIbReportDAO.queryEntityBeansByCustomerStaffer", paramterMap);
+	}
+
+	public IbatisDaoSupport getIbatisDaoSupport() {
+		return ibatisDaoSupport;
+	}
+
+	public void setIbatisDaoSupport(IbatisDaoSupport ibatisDaoSupport) {
+		this.ibatisDaoSupport = ibatisDaoSupport;
+	}
+	
 }

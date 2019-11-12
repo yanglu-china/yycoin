@@ -36,6 +36,8 @@
 <table width="98%" border="0" cellpadding="0" cellspacing="0"
        align="center">
 
+<input type="hidden" value="${queryType}" name="queryType">
+
 <tr id="queryCondition">
     <td align='center' colspan='2'>
         <table width="100%" border="0" cellpadding="0" cellspacing="0"
