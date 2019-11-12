@@ -30,4 +30,6 @@ public interface FlowLogDAO extends DAO<FlowLogBean, FlowLogBean>
      * @return
      */
     FlowLogBean findLastLog(String refId);
+
+    public String getApproveTime(String fullId, String afterStatus);
 }

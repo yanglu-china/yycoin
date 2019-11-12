@@ -467,6 +467,24 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         StockVO vo = stockDAO.findVO(id);
 
         List<StockItemVO> itemVO = stockItemDAO.queryEntityVOsByFK(id);
+        
+        //#819 统计已勾稽金额
+        for(StockItemVO entity : itemVO){
+            //已支付金额
+            String itemId = entity.getId();
+          
+            double buyReturnMoneys = outDAO.sumBuyReturnMoneys(id, entity.getProductId(), entity.getProviderId());
+
+            //已退货金额
+            
+            double gjMoneys = outDAO.sumStockGjMoneys(id, itemId);
+            
+            double preGjMoneys = outDAO.sumStockPreGjMoneys(id, itemId);
+            
+            entity.setTotalGj(buyReturnMoneys + gjMoneys + preGjMoneys);
+
+        }
+        
         List<StockItemArrivalVO> arrivalVOs = stockItemArrivalDAO.queryEntityVOsByFK(id);
         
         _logger.debug("id:"+id+", itemVO.size():"+itemVO.size()+", arrivalVOs.size():"+arrivalVOs.size());

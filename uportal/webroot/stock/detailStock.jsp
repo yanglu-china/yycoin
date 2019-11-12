@@ -184,9 +184,10 @@ function showDiv(id)
 				<td width="10%" align="center">付款时间</td>
 				<td width="15%" align="center">供应商</td>
 				<td width="5%" align="center">付款</td>
-				<td width="5%" align="center">是否入库</td>
-				<td width="10%" align="center">合计金额</td>
-				<td width="10%" align="center">描述</td>
+				<td width="4%" align="center">是否入库</td>
+				<td width="9%" align="center">合计金额</td>
+				<td width="9%" align="center">已勾稽金额</td>
+				<td width="8%" align="center">描述</td>
 				
 			</tr>
 
@@ -232,6 +233,8 @@ function showDiv(id)
 					</c:if>
 
 					<td align="center">${my:formatNum(item.total)}</td>
+					
+					<td align="center">${my:formatNum(item.totalGj)}</td>
 					
 					<td align="center">${item.description}</td>
 					
@@ -301,6 +304,36 @@ function showDiv(id)
 	</p:subBody>
 
 	<p:tr />
+	
+        <p:subBody width="100%">
+            <table width="100%" border="0" cellspacing='1' id="tables">
+                <tr align="center" class="content0">
+                    <td width="20%" align="center">采购产品</td>
+                    <td width="20%" align="center">采购数量</td>
+                    <td width="20%" align="center">已退货数量</td>
+                    <td width="20%" align="center">供应商</td>
+                    <td width="20%" align="center">退货时间</td>
+                </tr>
+                
+                <c:forEach items="${baseList}" var="itemBase" varStatus="vs">
+                  
+                  <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>  
+	
+	                    <td align="center">
+	                        ${itemBase.productName}
+	                    </td>
+	                    <td align="center">${itemBase.amount}</td>
+	                    <td align="center">${itemBase.backAmount}</td>
+	                    <td align="center">${itemBase.provider}</td>
+	                    <td align="center">${itemBase.approveTime}</td>               
+                    </tr>
+
+                </c:forEach>                 
+                
+            </table>
+        </p:subBody>
+
+	<p:tr />	
 
 	<p:subBody width="100%">
 		<table width="100%" border="0" cellspacing='1' id="tables">

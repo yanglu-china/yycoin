@@ -434,6 +434,61 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
         return result;
 
     }
+    
+    public double sumBuyReturnMoneys(String stockId, String productId, String providerId)
+    {
+    	Map<String, String> parMap = new HashMap<String, String>();
+    	parMap.put("stockId", stockId);
+    	parMap.put("productId", productId);
+    	parMap.put("providerId", providerId);
+    	
+        Double result = (Double)ibatisDaoSupport.queryForObject("OutDAO.sumBuyReturnMoneys",
+            parMap);
+
+        if (result == null)
+        {
+            return 0;
+        }
+
+        return result;
+
+    }
+    
+    public double sumStockGjMoneys(String stockId, String stockItemId)
+    {
+    	Map<String, String> parMap = new HashMap<String, String>();
+    	parMap.put("stockId", stockId);
+    	parMap.put("stockItemId", stockItemId);
+    	
+    	Double result = (Double)ibatisDaoSupport.queryForObject("OutDAO.sumStockGjMoneys",
+            parMap);
+
+        if (result == null)
+        {
+            return 0;
+        }
+
+        return result;
+
+    }
+    
+    public double sumStockPreGjMoneys(String stockId, String stockItemId)
+    {
+    	Map<String, String> parMap = new HashMap<String, String>();
+    	parMap.put("stockId", stockId);
+    	parMap.put("stockItemId", stockItemId);
+    	
+    	Double result = (Double)ibatisDaoSupport.queryForObject("OutDAO.sumStockPreGjMoneys",
+            parMap);
+
+        if (result == null)
+        {
+            return 0;
+        }
+
+        return result;
+
+    }
 
     public Integer countNotEndProductInIn(String productId, String beginDate, String endDate)
     {

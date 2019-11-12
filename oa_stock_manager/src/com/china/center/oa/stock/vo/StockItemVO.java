@@ -48,6 +48,12 @@ public class StockItemVO extends StockItemBean
 
     @Ignore
     private List<PriceAskProviderBeanVO> asksVo = null;
+    
+    /**
+     * 已勾稽金额
+     */
+    @Ignore
+    protected double totalGj = 0.0d;
 
     /**
      * 2014/12/15 拿货功能增强显示拿货历史记录
@@ -213,7 +219,15 @@ public class StockItemVO extends StockItemBean
 //        this.baseBeans = baseBeans;
 //    }
 
-    /**
+    public double getTotalGj() {
+		return totalGj;
+	}
+
+	public void setTotalGj(double totalGj) {
+		this.totalGj = totalGj;
+	}
+
+	/**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

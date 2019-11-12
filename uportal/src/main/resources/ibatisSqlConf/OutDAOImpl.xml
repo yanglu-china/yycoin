@@ -28,6 +28,41 @@
         ]]>
 	</select>
 	
+	<!-- 已退货金额 -->
+	<select id="sumBuyReturnMoneys" parameterClass="java.util.Map" resultClass="java.lang.Double">
+		<![CDATA[
+			SELECT sum(c.price * abs(a.amount)) 
+			FROM t_center_base a
+			LEFT JOIN t_center_out b ON b.fullId=a.outId
+			LEFT JOIN t_center_stockitem c ON (c.stockId=b.refOutFullId AND c.providerId=b.customerId AND c.productId=a.productId)
+			WHERE b.buyReturnFlag='1'
+			AND c.stockId= #stockId#
+			AND a.productId= #productId#
+			AND b.customerId= #providerId#
+			AND b.`status` in ('3','4')
+        ]]>
+	</select>	
+	
+	<!-- 采购付款勾稽金额 -->
+	<select id="sumStockGjMoneys" parameterClass="java.util.Map" resultClass="java.lang.Double">
+		<![CDATA[
+			select sum(a.moneys) from t_center_pay_stockgjlog a
+			where a.stockid= #stockId#
+			and a.stockitemid= #stockItemId#
+			and a.status='0'
+        ]]>
+	</select>
+	
+	<!-- 采购预付款勾稽金额 -->
+	<select id="sumStockPreGjMoneys" parameterClass="java.util.Map" resultClass="java.lang.Double">
+		<![CDATA[
+			select sum(a.moneys) from t_center_pay_stockpregjlog a
+			where a.stockid= #stockId#
+			and a.stockitemid= #stockItemId#
+			and a.status='0'
+        ]]>
+	</select>			
+	
 	<!-- 客户信用预占金额 -->
 	<select id="sumNoPayBusiness" parameterClass="java.util.Map" resultClass="java.lang.Double">
         <![CDATA[
