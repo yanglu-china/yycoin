@@ -931,7 +931,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             //#248
             else if (token.getNextPlugin().equalsIgnoreCase("plugin:regionalManager")
                     || token.getNextPlugin().equalsIgnoreCase("plugin:regionalDirector")
-                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalCEO"))
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalCEO")
+                    || token.getNextPlugin().equalsIgnoreCase("plugin:regionalBusiness"))
             {
                 List<String> processList = new ArrayList();
 //                String nextProcessor = this.getNextProcessor(user.getStafferId(), token.getFlowKey(), token.getNextStatus());
@@ -3766,7 +3767,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
         conditionParse.addCondition(" and type in(7,8)");
-        conditionParse.addCondition(" and flowKey in('travel-ib-apply','travel-motivation')");
+        conditionParse.addCondition(" and flowKey in('travel-ib-apply','travel-motivation','travel-motivation-qt')");
         //去掉初始和駁回狀態
         conditionParse.addCondition(" and status not in(0,1)");
         //TODO

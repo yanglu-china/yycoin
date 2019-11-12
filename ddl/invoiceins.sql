@@ -8,3 +8,6 @@ ALTER TABLE T_CENTER_INVOICEINS_IMPORT ADD COLUMN (gfmc VARCHAR(64),gfsh VARCHAR
 -- #776
 alter table T_CENTER_INVOICEINS add column fpgg varchar(40) default '', add column fpdw varchar(8) default '';
 alter table t_center_invoiceins_import add column fpgg varchar(40) default '', add column fpdw varchar(8) default '';
+
+-- #812
+alter table t_center_backprepay_apply add column sfDescription varchar(200) default '';

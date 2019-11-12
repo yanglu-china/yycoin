@@ -101,6 +101,8 @@ public class OutAction extends ParentOutAction
     private StockItemDAO stockItemDAO = null;
     
     private PreConsignDAO preConsignDAO = null;
+
+    private BackPrePayApplyDAO backPrePayApplyDAO = null;
     
     private FinanceManager financeManager = null;
     
@@ -3774,6 +3776,14 @@ public class OutAction extends ParentOutAction
             if (!ListTools.isEmptyOrNull(presentFlagBeans)){
                 bean.setPresentFlagName(presentFlagBeans.get(0).getName());
             }
+
+            // #812 查询当前已经有预收退款
+            ConditionParse con = new ConditionParse();
+            con.addWhereStr();
+            con.addCondition("sfDescription", "like", "%"+outId+"%");
+            List<BackPrePayApplyBean> ytList = this.backPrePayApplyDAO.queryEntityBeansByCondition(con);
+            request.setAttribute("ytList", ytList);
+
             return mapping.findForward("detailOut");
         }
         
@@ -7891,6 +7901,8 @@ public class OutAction extends ParentOutAction
 	public void setFinanceManager(FinanceManager financeManager) {
 		this.financeManager = financeManager;
 	}
-	
-	
+
+    public void setBackPrePayApplyDAO(BackPrePayApplyDAO backPrePayApplyDAO) {
+        this.backPrePayApplyDAO = backPrePayApplyDAO;
+    }
 }

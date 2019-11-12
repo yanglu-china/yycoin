@@ -96,7 +96,9 @@ function load()
             <p:pro field="customerAccount" innerString="readonly='readonly' size=40" cell="0"/>
             
             <p:pro field="bankName" innerString="readonly='readonly' size=40" cell="0"/>
-            
+
+            <p:pro field="sfDescription" innerString="readonly='readonly' size=200" cell="0"/>
+
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
             
             <p:cell title="处理人" width="8" end="true">
