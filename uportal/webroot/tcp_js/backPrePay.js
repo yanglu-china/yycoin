@@ -77,6 +77,20 @@ function checks(){
         return false;
     }
 	
+	var bankNoArray = $('[name=receiveAccount]');
+	for(var i=0;i<bankNoArray.length;i++){
+		var bankNoVal = $(bankNoArray[i]).val();
+		//字符串是否包含空格
+	    var reg =/\s/;
+	    var result = reg.test(bankNoVal);
+	    if(result)
+		{
+		    alert("收款账号不能有空格!");
+		    $(bankNoArray[i]).focus();
+	    	return false;
+		}
+	}
+	
 	return true;
 }
 
