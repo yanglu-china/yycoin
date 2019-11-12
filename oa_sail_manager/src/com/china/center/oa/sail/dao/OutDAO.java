@@ -102,6 +102,12 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     boolean updateManagercredit(String fullId, String managerId, double managercredit);
 
     Integer sumPreassignAmount(Map parMap);
+    
+    public double sumBuyReturnMoneys(String stockId, String productId, String providerId);
+    
+    public double sumStockGjMoneys(String stockId, String stockItemId);
+    
+    public double sumStockPreGjMoneys(String stockId, String stockItemId);
 
     boolean modifyChecks(String fullId, String checks);
 

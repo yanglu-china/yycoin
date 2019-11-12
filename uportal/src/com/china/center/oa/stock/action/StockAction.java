@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.china.center.actionhelper.jsonimpl.JSONStringer;
 import com.china.center.oa.customer.constant.CustomerConstant;
 import com.china.center.oa.product.constant.StorageConstant;
+import com.china.center.oa.publics.Util;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.BaseBean;
@@ -2216,6 +2217,12 @@ public class StockAction extends DispatchAction
             return mapping.findForward("updateStockArrival");
         }
         else {
+            //获取已提交的采购退货
+
+            List<Map> baseList = this.getApprovedStockBackSummary(vo);
+
+            request.setAttribute("baseList", baseList);
+
             return mapping.findForward("detailStock");
         }
     }
@@ -2511,48 +2518,7 @@ public class StockAction extends DispatchAction
         
         //获取已提交的采购退货
 
-        List<Map> baseList = new ArrayList<Map>();
-        try{
-        	List<Map> tempList = baseDAO.queryBaseByStockId(id);
-
-        	_logger.debug("stockid:"+id+", tempList.size():"+tempList.size());
-        	
-            List<StockItemVO> stockItemVOs = vo.getItemVO();
-            
-            Map<String, String> providerMap = new HashMap<String, String>();
-            Map<String, String> dutyMap = new HashMap<String, String>();
-            Map<String, String> invoiceMap = new HashMap<String, String>();
-
-            for(StockItemVO stockItemVO : stockItemVOs){
-            	providerMap.put(stockItemVO.getProviderId(), stockItemVO.getProviderName());
-            	dutyMap.put(stockItemVO.getDutyId(), stockItemVO.getDutyName());
-            	invoiceMap.put(stockItemVO.getInvoiceType(), stockItemVO.getInvoiceTypeName());
-
-            }
-            
-            _logger.debug(providerMap);
-            _logger.debug(dutyMap);
-            _logger.debug(invoiceMap);
-        	
-            //获取相关信息
-            for (Map baseItem:tempList){
-            	String providerId = (String)baseItem.get("providerId");
-            	String dutyId = (String)baseItem.get("dutyId");
-            	String invoiceId = (String)baseItem.get("invoiceId");
-
-                _logger.debug("providerId:"+providerId+", dutyId:"+dutyId+", invoiceId:"+invoiceId);
-                
-                baseItem.put("provider", providerMap.get(providerId));
-                //baseItem.put("providerId",stockItemVO.getProviderId());
-                baseItem.put("duty",dutyMap.get(dutyId));
-                //baseItem.put("dutyId",stockItemVO.getDutyId());
-                baseItem.put("invoiceType",invoiceMap.get(invoiceId));
-                //baseItem.put("invoiceId",stockItemVO.getInvoiceType());
-            }
-            baseList.addAll(tempList);
-        }catch(Exception ex){
-            _logger.error(ex);
-        }
+        List<Map> baseList = this.getStockBacks(vo);
         
         request.setAttribute("baseList", baseList);
         
@@ -2595,6 +2561,104 @@ public class StockAction extends DispatchAction
 		request.setAttribute("cityList", cityList);
         
         return mapping.findForward("addStockBack");
+    }
+    
+    private List<Map> getStockBacks(StockVO vo){
+        List<Map> baseList = new ArrayList<Map>();
+        try{
+        	List<Map> tempList = baseDAO.queryBaseByStockId(vo.getId());
+
+        	_logger.debug("stockid:"+vo.getId()+", tempList.size():"+tempList.size());
+        	
+            List<StockItemVO> stockItemVOs = vo.getItemVO();
+            
+            Map<String, String> providerMap = new HashMap<String, String>();
+            Map<String, String> dutyMap = new HashMap<String, String>();
+            Map<String, String> invoiceMap = new HashMap<String, String>();
+
+            for(StockItemVO stockItemVO : stockItemVOs){
+            	providerMap.put(stockItemVO.getProviderId(), stockItemVO.getProviderName());
+            	dutyMap.put(stockItemVO.getDutyId(), stockItemVO.getDutyName());
+            	invoiceMap.put(stockItemVO.getInvoiceType(), stockItemVO.getInvoiceTypeName());
+
+            }
+            
+            _logger.debug(providerMap);
+            _logger.debug(dutyMap);
+            _logger.debug(invoiceMap);
+        	
+            //获取相关信息
+            for (Map baseItem:tempList){
+            	String providerId = (String)baseItem.get("providerId");
+            	String dutyId = (String)baseItem.get("dutyId");
+            	String invoiceId = (String)baseItem.get("invoiceId");
+
+                _logger.debug("providerId:"+providerId+", dutyId:"+dutyId+", invoiceId:"+invoiceId);
+                
+                baseItem.put("provider", providerMap.get(providerId));
+                //baseItem.put("providerId",stockItemVO.getProviderId());
+                baseItem.put("duty",dutyMap.get(dutyId));
+                //baseItem.put("dutyId",stockItemVO.getDutyId());
+                baseItem.put("invoiceType",invoiceMap.get(invoiceId));
+                //baseItem.put("invoiceId",stockItemVO.getInvoiceType());
+            }
+            baseList.addAll(tempList);
+        }catch(Exception ex){
+            _logger.error(ex);
+        }
+        return baseList;
+    }
+    
+    private List<Map> getApprovedStockBackSummary(StockVO vo){
+        List<Map> summaryList = new ArrayList<Map>();
+        try{
+        	List<Map> tempList = baseDAO.queryBaseByStockId(vo.getId());
+        	
+            List<StockItemVO> stockItemVOs = vo.getItemVO();
+
+            _logger.debug("stockid:"+vo.getId()+", tempList.size():"+tempList.size()+", stockItemVOs.size():"+stockItemVOs.size());
+
+            for(StockItemVO stockItemVO : stockItemVOs) {
+                int backAmount = 0;
+                String approveTime = "";
+                //统计对应的退货信息
+                for (Map baseItem : tempList) {
+                    String productId = Util.getString(baseItem.get("productId"));
+                    String providerId = Util.getString(baseItem.get("providerId"));
+                    int status = Util.getInteger(baseItem.get("outStatus"));
+                    if (productId.equals(stockItemVO.getProductId()) && providerId.equals(stockItemVO.getProviderId())) {
+                        //获取退货数量
+                        if (OutConstant.BUY_RETURN_STATUS_PASS == status || OutConstant.BUY_RETURN_STATUS_SEC_PASS == status) {
+                            int amount = Util.getInteger(baseItem.get("amount"));
+                            backAmount += Math.abs(amount);
+                        }
+                        //获取审批时间
+                        if ((OutConstant.BUY_RETURN_STATUS_PASS == status)) {
+                            String outId = Util.getString(baseItem.get("outId"));
+                            String temp = flowLogDAO.getApproveTime(outId, status + "");
+                            if(temp.compareTo(approveTime)>0){
+                                approveTime = temp;
+                            }
+                            _logger.debug("outId:"+outId+", status:"+status+", approveTime:"+approveTime);
+                        }
+                    }
+
+                }
+
+                Map<String, String> summaryMap = new HashMap<String, String>();
+                summaryMap.put("productName", stockItemVO.getProductName());
+                summaryMap.put("amount", stockItemVO.getAmount()+"");
+                summaryMap.put("backAmount", backAmount+"");
+                summaryMap.put("provider", stockItemVO.getProviderName());
+                summaryMap.put("approveTime", approveTime);
+
+                summaryList.add(summaryMap);
+
+            }
+        }catch(Exception ex){
+            _logger.error(ex);
+        }
+        return summaryList;
     }
 
     private Map<String, String> getMap(String id, String name){
