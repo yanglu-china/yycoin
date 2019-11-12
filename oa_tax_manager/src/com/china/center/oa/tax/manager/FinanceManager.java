@@ -84,6 +84,12 @@ public interface FinanceManager
      */
     void addFinanceTurnJob() throws MYException;
 
+
+    /**
+     * #823 预收拆分JOB
+     * @throws MYException
+     */
+    void yscfJob() throws MYException;
     /** 2014/12/30 add checkNull parameter for 自动审批job
      * addFinanceBeanWithoutTransactional(无事务的)
      * 

@@ -14,6 +14,7 @@ import java.util.List;
 import com.china.center.jdbc.inter.DAO;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
+import com.china.center.oa.finance.bean.AdvanceReceiptBean;
 import com.china.center.oa.finance.bean.InBillBean;
 import com.china.center.oa.finance.vo.InBillVO;
 import com.china.center.oa.finance.vo.PrePaymentWrap;
@@ -42,7 +43,7 @@ public interface InBillDAO extends DAO<InBillBean, InBillVO>
     /**
      * sumByOutId(这里包括申请关联的)
      * 
-     * @param outId
+     * @param outBalanceId
      * @return
      */
     double sumByOutBalanceId(String outBalanceId);
@@ -68,5 +69,9 @@ public interface InBillDAO extends DAO<InBillBean, InBillVO>
             PageSeparate page);
     
     List<PrePaymentWrap> querySelfCustomerInbill(String stafferId, String customerId);
+
+    List<AdvanceReceiptBean> queryYscf();
+
+    boolean updateYscfStatus(String id);
     
 }
