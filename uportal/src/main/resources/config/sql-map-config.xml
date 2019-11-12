@@ -11,6 +11,7 @@
 	<sqlMap resource="ibatisSqlConf/FinanceDAOImpl.xml" />
 	<sqlMap resource="ibatisSqlConf/FinanceItemDAOImpl.xml" />
 	<sqlMap resource="ibatisSqlConf/OutDAOImpl.xml" />
+	<sqlMap resource="ibatisSqlConf/FlowLogDAOImpl.xml" />
 	<sqlMap resource="ibatisSqlConf/OutQueryDAOImpl.xml" />
 	<sqlMap resource="ibatisSqlConf/OutStatDAOImpl.xml" />
 	<sqlMap resource="ibatisSqlConf/PriceAskProviderDAOImpl.xml" />
