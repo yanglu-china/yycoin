@@ -12,13 +12,14 @@ import java.util.*;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.finance.bean.AdvanceReceiptBean;
+import com.china.center.oa.finance.bean.BankBean;
 import com.china.center.oa.finance.bean.InBillBean;
+import com.china.center.oa.finance.dao.BankDAO;
 import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.constant.*;
 import com.china.center.oa.publics.dao.*;
-import com.sun.corba.se.pept.transport.InboundConnectionCache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -146,6 +147,8 @@ public class FinanceManagerImpl implements FinanceManager {
     private AttachmentDAO attachmentDAO = null;
 
     private InBillDAO inBillDAO = null;
+
+    private BankDAO bankDAO        = null;
     
     private PlatformTransactionManager transactionManager = null;
     
@@ -1465,6 +1468,7 @@ public class FinanceManagerImpl implements FinanceManager {
         List<AdvanceReceiptBean> advanceReceiptBeans = this.inBillDAO.queryYscf();
         if(!ListTools.isEmptyOrNull(advanceReceiptBeans)){
             for(AdvanceReceiptBean advanceReceiptBean: advanceReceiptBeans){
+                _logger.info("***AdvanceReceiptBean size***"+advanceReceiptBeans.size());
                 String billId = advanceReceiptBean.getSf();
                 InBillBean inBillBean = this.inBillDAO.find(billId);
                 if (inBillBean == null){
@@ -1476,15 +1480,143 @@ public class FinanceManagerImpl implements FinanceManager {
                     newInbillBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_BILL_PREFIX));
                     newInbillBean.setStatus(INBILL_STATUS_NOREF);
                     newInbillBean.setMoneys(advanceReceiptBean.getSyMoney());
+                    newInbillBean.setSrcMoneys(advanceReceiptBean.getSyMoney());
+                    newInbillBean.setDescription("从收款单:"+billId + " 收到预收(金额):"+ advanceReceiptBean.getSyMoney());
                     newInbillBean.setOutId("");
+                    //TODO check
+                    String providerId = advanceReceiptBean.getProvider();
+                    newInbillBean.setCustomerId(providerId);
+                    newInbillBean.setLogTime(TimeTools.now());
+                    this.inBillDAO.saveEntityBean(newInbillBean);
 
-                    //TODO finance item
+                    //原SF单生成凭证，借预收，贷应付，金额取advancereceipt表中行记录的gjmoney字段值，金额均为正值，客户ID为供应商ID
+                    FinanceBean financeBean = new FinanceBean();
 
+                    String name = "预收拆分JOB生成";
+                    financeBean.setName(name);
+                    financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_BILL_SPLIT);
+                    financeBean.setRefId("");
+                    financeBean.setRefBill(billId);
+
+                    BankBean bank = bankDAO.find(inBillBean.getBankId());
+                    if (bank == null)
+                    {
+                        _logger.error("银行不存在:"+inBillBean.getBankId());
+                        continue;
+                    }
+                    financeBean.setDutyId(bank.getDutyId());
+
+                    financeBean.setCreaterId("系统");
+                    financeBean.setDescription(financeBean.getName());
+                    financeBean.setFinanceDate(TimeTools.now_short());
+                    financeBean.setLogTime(TimeTools.now());
+
+                    List<FinanceItemBean> itemList = new ArrayList<>();
+
+                    String stafferId = inBillBean.getOwnerId();
+                    if(StringTools.isNullOrNone(stafferId)){
+                       _logger.error("ownerId is empty:"+billId);
+                       continue;
+                    }
+                    StafferBean stafferBean = stafferDAO.find(stafferId);
+                    if (stafferBean == null){
+                        _logger.error("staffer not found***"+stafferId);
+                        continue;
+                    }
+                    // 借：预收 贷：应付
+                    createAddItem2(null, stafferBean, stafferBean, financeBean, itemList,
+                            billId, advanceReceiptBean.getGjMoney(), inBillBean.getCustomerId(), providerId);
+
+                    financeBean.setItemList(itemList);
+
+                    this.addFinanceBeanWithoutTransactional(null, financeBean, true);
                     this.inBillDAO.updateYscfStatus(advanceReceiptBean.getId());
+                    _logger.info("***create finance bean***"+financeBean);
                 }
             }
         }
         _logger.info("****yscfJob finished****");
+    }
+
+    private void createAddItem2(User user, StafferBean target,
+                                StafferBean srcStaffer,
+                                FinanceBean financeBean, List<FinanceItemBean> itemList,
+                                String billId, double moneys, String srcCustomerId, String destCustomerId)
+            throws MYException
+    {
+        String name = financeBean.getName() + billId + '.';
+
+        // 预收账款
+        FinanceItemBean itemIn = new FinanceItemBean();
+
+        String pareId = commonDAO.getSquenceString();
+
+        itemIn.setPareId(pareId);
+
+        itemIn.setName(name);
+
+        itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+        FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.PREREVEIVE_PRODUCT);
+
+        if (inTax == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 科目拷贝
+        FinanceHelper.copyTax(inTax, itemIn);
+
+        // 当前发生额
+        itemIn.setInmoney(FinanceHelper.doubleToLong(moneys));
+
+        itemIn.setOutmoney(0);
+
+        itemIn.setDescription(itemIn.getName());
+
+        // 辅助核算 客户/职员/部门
+        itemIn.setDepartmentId(srcStaffer.getPrincipalshipId());
+        itemIn.setStafferId(srcStaffer.getId());
+        itemIn.setUnitId(srcCustomerId);
+        itemIn.setUnitType(TaxConstanst.UNIT_TYPE_CUSTOMER);
+
+        itemList.add(itemIn);
+
+        // 贷方
+        FinanceItemBean itemOut = new FinanceItemBean();
+
+        itemOut.setPareId(pareId);
+
+        itemOut.setName(name);
+
+        itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
+
+        FinanceHelper.copyFinanceItem(financeBean, itemOut);
+
+        // 应付账款
+        TaxBean outTax = taxDAO.findByUnique(TaxItemConstanst.PAY_PRODUCT);
+
+        if (outTax == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 科目拷贝
+        FinanceHelper.copyTax(outTax, itemOut);
+        itemOut.setInmoney(0);
+        itemOut.setOutmoney(FinanceHelper.doubleToLong(moneys));
+
+        itemOut.setDescription(itemOut.getName());
+
+        // 辅助核算 客户/职员/部门
+        itemOut.setDepartmentId(target.getPrincipalshipId());
+        itemOut.setStafferId(target.getId());
+        itemOut.setUnitId(destCustomerId);
+        itemOut.setUnitType(TaxConstanst.UNIT_TYPE_CUSTOMER);
+
+        itemList.add(itemOut);
     }
 
     @Transactional(rollbackFor = MYException.class)
@@ -2720,6 +2852,14 @@ public class FinanceManagerImpl implements FinanceManager {
 
     public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
         this.attachmentDAO = attachmentDAO;
+    }
+
+    public void setInBillDAO(InBillDAO inBillDAO) {
+        this.inBillDAO = inBillDAO;
+    }
+
+    public void setBankDAO(BankDAO bankDAO) {
+        this.bankDAO = bankDAO;
     }
 
     /**

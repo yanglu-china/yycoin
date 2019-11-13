@@ -165,10 +165,8 @@ public class InBillDAOImpl extends BaseDAO<InBillBean, InBillVO> implements InBi
     }
 
     @Override
-    public boolean updateYscfStatus(String id) {
-        this.jdbcOperation.update(
-                "set status = 1 where id = ", AdvanceReceiptBean.class, id);
-
-        return true;
+    public int updateYscfStatus(String id) {
+        String sql = BeanTools.getUpdateHead(AdvanceReceiptBean.class) + "set status = 1 where id = ?";
+        return this.jdbcOperation.update(sql, id);
     }
 }
