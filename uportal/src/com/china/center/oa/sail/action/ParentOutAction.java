@@ -3327,7 +3327,7 @@ public class ParentOutAction extends DispatchAction
 						}
 					}
 
-					String changeTime = element.getChangeTime();
+					String changeTime = element.getFlowTime();
 
 					if (changeTime.length() > 10)
 					{
