@@ -15,6 +15,7 @@ import com.china.center.jdbc.annosql.tools.BeanTools;
 import com.china.center.jdbc.inter.impl.BaseDAO;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
+import com.china.center.oa.finance.bean.AdvanceReceiptBean;
 import com.china.center.oa.finance.bean.InBillBean;
 import com.china.center.oa.finance.constant.FinanceConstant;
 import com.china.center.oa.finance.dao.InBillDAO;
@@ -126,7 +127,7 @@ public class InBillDAOImpl extends BaseDAO<InBillBean, InBillVO> implements InBi
     	
     	return this.jdbcOperation.queryObjectsBySql(sql, customerId).list(PrePaymentWrap.class);
 	}
-    
+
     private String getLastQuerySelfSql(String stafferId, ConditionParse condition)
     {
         ConditionParse newConditionParse = new ConditionParse();
@@ -154,5 +155,20 @@ public class InBillDAOImpl extends BaseDAO<InBillBean, InBillVO> implements InBi
 		    	+ " left outer join t_center_oastaffer t3 on (InbillBean.ownerId = t3.id)"
 		    	+ " where InbillBean.ownerId = '" + stafferId + "'"
 		    	+ " AND InbillBean.status = 2 AND InbillBean.moneys >= 0.01";
+    }
+
+    @Override
+    public List<AdvanceReceiptBean> queryYscf() {
+        String sql =  " select * from t_center_advancereceipt  AdvanceReceiptBean where AdvanceReceiptBean.status=0";
+
+        return this.jdbcOperation.queryObjectsBySql(sql).list(AdvanceReceiptBean.class);
+    }
+
+    @Override
+    public boolean updateYscfStatus(String id) {
+        this.jdbcOperation.update(
+                "set status = 1 where id = ", AdvanceReceiptBean.class, id);
+
+        return true;
     }
 }

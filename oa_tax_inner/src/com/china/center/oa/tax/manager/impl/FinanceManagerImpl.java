@@ -11,11 +11,14 @@ package com.china.center.oa.tax.manager.impl;
 import java.util.*;
 
 import com.center.china.osgi.config.ConfigLoader;
+import com.china.center.oa.finance.bean.AdvanceReceiptBean;
+import com.china.center.oa.finance.bean.InBillBean;
+import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.constant.*;
 import com.china.center.oa.publics.dao.*;
-import com.china.center.oa.sail.constanst.OutConstant;
+import com.sun.corba.se.pept.transport.InboundConnectionCache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -78,6 +81,8 @@ import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 
+import static com.china.center.oa.finance.constant.FinanceConstant.INBILL_STATUS_NOREF;
+
 /**
  * FinanceManagerImpl
  * 
@@ -139,6 +144,8 @@ public class FinanceManagerImpl implements FinanceManager {
     private FinanceShowDAO financeShowDAO = null;
 
     private AttachmentDAO attachmentDAO = null;
+
+    private InBillDAO inBillDAO = null;
     
     private PlatformTransactionManager transactionManager = null;
     
@@ -1449,6 +1456,35 @@ public class FinanceManagerImpl implements FinanceManager {
                 }
             }
         }
+    }
+
+    @Transactional(rollbackFor = MYException.class)
+    @Override
+    public void yscfJob() throws MYException {
+        _logger.info("****yscfJob running****");
+        List<AdvanceReceiptBean> advanceReceiptBeans = this.inBillDAO.queryYscf();
+        if(!ListTools.isEmptyOrNull(advanceReceiptBeans)){
+            for(AdvanceReceiptBean advanceReceiptBean: advanceReceiptBeans){
+                String billId = advanceReceiptBean.getSf();
+                InBillBean inBillBean = this.inBillDAO.find(billId);
+                if (inBillBean == null){
+                    _logger.error("inbill not found***"+billId);
+                } else if (advanceReceiptBean.getSyMoney()>0){
+                    InBillBean newInbillBean = new InBillBean();
+                    BeanUtil.copyProperties(newInbillBean, inBillBean);
+
+                    newInbillBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_BILL_PREFIX));
+                    newInbillBean.setStatus(INBILL_STATUS_NOREF);
+                    newInbillBean.setMoneys(advanceReceiptBean.getSyMoney());
+                    newInbillBean.setOutId("");
+
+                    //TODO finance item
+
+                    this.inBillDAO.updateYscfStatus(advanceReceiptBean.getId());
+                }
+            }
+        }
+        _logger.info("****yscfJob finished****");
     }
 
     @Transactional(rollbackFor = MYException.class)
