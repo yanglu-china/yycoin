@@ -14,6 +14,7 @@ import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.finance.bean.AdvanceReceiptBean;
 import com.china.center.oa.finance.bean.BankBean;
 import com.china.center.oa.finance.bean.InBillBean;
+import com.china.center.oa.finance.constant.FinanceConstant;
 import com.china.center.oa.finance.dao.BankDAO;
 import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.publics.StringUtils;
@@ -1531,6 +1532,10 @@ public class FinanceManagerImpl implements FinanceManager {
 
                     this.addFinanceBeanWithoutTransactional(null, financeBean, true);
                     this.inBillDAO.updateYscfStatus(advanceReceiptBean.getId());
+
+                    inBillBean.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
+                    inBillBean.setMoneys(advanceReceiptBean.getGjMoney());
+                    this.inBillDAO.updateEntityBean(inBillBean);
                     _logger.info("***create finance bean***"+financeBean);
                 }
             }
