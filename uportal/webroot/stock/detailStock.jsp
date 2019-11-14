@@ -234,7 +234,7 @@ function showDiv(id)
 
 					<td align="center">${my:formatNum(item.total)}</td>
 					
-					<td align="center">${my:formatNum(item.totalGj)}</td>
+					<td align="center">${my:formatNum(item.totalGjDisplay)}</td>
 					
 					<td align="center">${item.description}</td>
 					

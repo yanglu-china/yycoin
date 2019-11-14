@@ -222,6 +222,10 @@ public class StockItemVO extends StockItemBean
     public double getTotalGj() {
 		return totalGj;
 	}
+    
+    public double getTotalGjDisplay() {
+		return (totalGj > total) ? total : totalGj;
+	}    
 
 	public void setTotalGj(double totalGj) {
 		this.totalGj = totalGj;
