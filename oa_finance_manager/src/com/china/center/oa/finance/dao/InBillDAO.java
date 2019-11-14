@@ -72,6 +72,6 @@ public interface InBillDAO extends DAO<InBillBean, InBillVO>
 
     List<AdvanceReceiptBean> queryYscf();
 
-    boolean updateYscfStatus(String id);
+    int updateYscfStatus(String id);
     
 }
