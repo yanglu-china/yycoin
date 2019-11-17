@@ -326,18 +326,18 @@ function getNextInput(el)
             <input type="button" class="button_class"
                 id="ok_p" style="cursor: pointer" value="&nbsp;&nbsp;通 过&nbsp;&nbsp;"
                 onclick="passBean()">&nbsp;&nbsp;
-            <input type="button" class="button_class"
-            id="re_b" style="cursor: pointer" value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;"
-            onclick="rejectBean()">&nbsp;&nbsp;
+            <%--<input type="button" class="button_class"--%>
+            <%--id="re_b" style="cursor: pointer" value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;"--%>
+            <%--onclick="rejectBean()">&nbsp;&nbsp;--%>
             </c:if>
             
             <c:if test="${bean.status == 3}">
             <input type="button" class="button_class"
                 id="ok_p2" style="cursor: pointer" value="&nbsp;&nbsp;付 款&nbsp;&nbsp;"
                 onclick="endBean()">&nbsp;&nbsp;
-            <input type="button" class="button_class"
-            id="re_b" style="cursor: pointer" value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;"
-            onclick="rejectBean()">&nbsp;&nbsp;
+            <%--<input type="button" class="button_class"--%>
+            <%--id="re_b" style="cursor: pointer" value="&nbsp;&nbsp;驳 回&nbsp;&nbsp;"--%>
+            <%--onclick="rejectBean()">&nbsp;&nbsp;--%>
             </c:if>
             
             <input

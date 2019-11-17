@@ -3423,7 +3423,12 @@ public class OutAction extends ParentOutAction
 //                        }
                     }
 
-                    baseBean.setInway(hasBack);
+                    //#831 已退数量不能超过实际数量
+                    if(hasBack>= baseBean.getAmount()){
+                        baseBean.setInway(baseBean.getAmount());
+                    } else{
+                        baseBean.setInway(hasBack);
+                    }
                 }
 
                 return mapping.findForward("handerOutBack");

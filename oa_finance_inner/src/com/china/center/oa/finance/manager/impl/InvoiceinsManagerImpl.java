@@ -2591,12 +2591,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	{
 		try {
 			// 同一个发票号(虚拟发票) + 客户 组合生成一张开票申请，此规则优先于拆单
+            // #829改为仅以虚拟发票号分组
 			// 实际待开票的map
-			Map<String, List<InvoiceinsImportBean>> map = new HashMap<String, List<InvoiceinsImportBean>>();
+			Map<String, List<InvoiceinsImportBean>> map = new HashMap<>();
 
 			// 临时Map, 同一个SO单可拆分多个发票<out,List<InvoiceinsImportBean>>
 			// 待检查开票商品数量
-			Map<String, List<InvoiceinsImportBean>> outToInsMap = new HashMap<String, List<InvoiceinsImportBean>>();
+			Map<String, List<InvoiceinsImportBean>> outToInsMap = new HashMap<>();
 
 
 			for (InvoiceinsImportBean each : list) {
@@ -2647,32 +2648,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			}
 
 			_logger.info("***outToInsMap size***"+outToInsMap.keySet().size());
-//			Iterator<Map.Entry<String,List<InvoiceinsImportBean>>> iter = outToInsMap.entrySet().iterator();
-//			while (iter.hasNext()) {
-//				Map.Entry<String,List<InvoiceinsImportBean>> entry = iter.next();
-//				List<InvoiceinsImportBean> beans = entry.getValue();
-//				if (beans.size()>1){
-//					int count =0;
-//					for (InvoiceinsImportBean each: beans){
-//						if (StringTools.isNullOrNone(each.getInvoiceNum())){
-//							List<InvoiceinsImportBean> temp = new ArrayList<InvoiceinsImportBean>();
-//							temp.add(each);
-//							//拆单开票的直接进入map,SO_index为key
-//							map.put(entry.getKey() + "_" + count, temp);
-//						} else{
-//							//如果有虚拟发票号则忽略
-//							continue;
-//						}
-//						count++;
-//					}
-//				}else{
-//					iter.remove();
-//				}
-//			}
-
-//			_logger.info("***outToInsMap size2***"+outToInsMap.keySet().size()+"***map size2***"+map.keySet().size());
-
-
 
 			for (InvoiceinsImportBean each : list) {
 				//TODO 同一个SO单已拆单的并且不带虚拟发票号的要去掉
@@ -2711,8 +2686,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 					}
 				}
 
-				//客户ID_虚拟发票号作为key
-				String key = each.getCustomerId() + "-" + each.getInvoiceNum();
+				//#829虚拟发票号作为key
+				String key = each.getInvoiceNum();
 				_logger.info("***invoiceins key2***"+key);
 				if (!map.containsKey(key)) {
 					List<InvoiceinsImportBean> mlist = new ArrayList<InvoiceinsImportBean>();

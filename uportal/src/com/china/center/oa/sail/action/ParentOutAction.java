@@ -3332,6 +3332,10 @@ public class ParentOutAction extends DispatchAction
 					if (changeTime.length() > 10)
 					{
 						changeTime = changeTime.substring(0, 10);
+					} else if( StringTools.isNullOrNone(changeTime) &&
+							element.getType() == OutConstant.OUT_TYPE_OUTBILL && element.getStatus() == OutConstant.STATUS_SEC_PASS){
+						//#830 部分已发货销售单flowTime为空
+						changeTime = element.getChangeTime();
 					}
 
 					line.writeColumn(changeTime);
@@ -4839,8 +4843,9 @@ public class ParentOutAction extends DispatchAction
 			double backTotal = outDAO.sumOutBackValue(oldOut.getFullId());
 			
 			// 检查退货金额是否小于可开票金额
-			if (MathTools.compare(out.getTotal(), oldOut.getTotal() - backTotal - oldOut.getInvoiceMoney()) > 0) {
-				throw new MYException("退货金额[%.2f]须小于可开票金额[%.2f]，请先退票。 ", out.getTotal(), oldOut.getTotal() - oldOut.getInvoiceMoney());
+			double kkpje = oldOut.getTotal() - backTotal - oldOut.getInvoiceMoney();
+			if (MathTools.compare(out.getTotal(), kkpje) > 0) {
+				throw new MYException("退货金额[%.2f]须小于可开票金额[%.2f]，请先退票。 ", out.getTotal(), kkpje);
 			}
 		}
 		catch (MYException e)

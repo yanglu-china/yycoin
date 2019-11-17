@@ -41,7 +41,7 @@ function load()
              stafferName : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}&mode= ' + mode + '>', end : '</a>'}
          },
          buttons : [
-             {id: 'add', bclass: 'add', onpress : addBean},
+             // {id: 'add', bclass: 'add', onpress : addBean},
              {id: 'update', bclass: 'update', onpress : updateBean},
              {id: 'del', bclass: 'del',  onpress : delBean},
              //{id: 'pass', caption: '处理',bclass: 'update', onpress : doProcess},

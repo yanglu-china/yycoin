@@ -6022,7 +6022,7 @@ public class ShipAction extends DispatchAction
                 String productId = value.getProductId();
                 if (!StringTools.isNullOrNone(productId)){
                     ProductBean productBean = this.productDAO.find(productId);
-                    if (productBean!= null){
+                    if (productBean!= null && !StringTools.isNullOrNone(productBean.getKpslid())){
                         ssflbm = productBean.getKpslid();
                     }
                 }
@@ -6041,9 +6041,6 @@ public class ShipAction extends DispatchAction
             Transformer transformer =
                     transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
-//            StreamResult result =
-//                    new StreamResult(new File("C:\\cars.xml"));
-//            transformer.transform(source, result);
             // Output to console for testing
             StreamResult consoleResult =
                     new StreamResult(System.out);
@@ -6055,7 +6052,7 @@ public class ShipAction extends DispatchAction
             _logger.info("***output***"+output);
             return output;
         } catch (Exception e) {
-            e.printStackTrace();
+            _logger.error(e,e);
             return "";
         }
     }

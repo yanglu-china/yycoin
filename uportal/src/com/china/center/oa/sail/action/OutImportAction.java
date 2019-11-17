@@ -796,7 +796,7 @@
          else
              bean.setFirstName("N/A");
 
-         // 中信订单日期
+         // 银行订单日期
          String citicDate = obj[30];
          if ( !StringTools.isNullOrNone(citicDate))
          {
@@ -808,11 +808,31 @@
              if (!dateFlag) {
                  builder
                          .append("第[" + currentNumber + "]错误:")
-                         .append("中信订单日期格式错误，如 2000-01-01")
+                         .append("银行订单日期格式错误，如 2000-01-01")
                          .append("<br>");
 
                  importError = true;
              }else{
+                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                 try {
+                     Date now = new Date();
+                     Date date1 = sdf.parse(date);
+                     if (date1.after(now)) {
+                         builder
+                                 .append("第[" + currentNumber + "]错误:")
+                                 .append("银行订单日期必须小于等于当天日期")
+                                 .append("<br>");
+
+                         importError = true;
+                     }
+                 } catch (ParseException e) {
+                     builder
+                             .append("第[" + currentNumber + "]错误:")
+                             .append("银行订单日期格式错误，如 2000-01-01")
+                             .append("<br>");
+
+                     importError = true;
+                 }
                  bean.setCiticOrderDate(date);
              }
          } else {

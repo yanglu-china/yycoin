@@ -11,3 +11,4 @@ alter table t_center_invoiceins_import add column fpgg varchar(40) default '', a
 
 -- #812
 alter table t_center_backprepay_apply add column sfDescription varchar(200) default '';
+INSERT INTO t_center_schedule_job VALUES (562,SYSDATE(),NULL,'yscfJob','Default','0','0 0/1 * * * ?','预收拆分','com.china.center.oa.finance.manager.impl.FinanceManagerImpl',0,'financeManager','yscfJob',0);
