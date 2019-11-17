@@ -29,10 +29,8 @@ import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.InvoiceBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.AuthConstant;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.dao.InvoiceDAO;
-import com.china.center.oa.publics.dao.RoleAuthDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.constant.SysConfigConstant;
+import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.manager.CommonMailManager;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vs.RoleAuthBean;
@@ -48,10 +46,9 @@ import org.apache.struts.actions.DispatchAction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 /**
@@ -89,6 +86,8 @@ public class StockPayAction extends DispatchAction
     private InvoiceDAO invoiceDAO = null;
     
     private InvoiceStorageDAO invoiceStorageDAO = null;
+
+    private ParameterDAO parameterDAO = null;
 
     private static final String QUERYSTOCKPAYAPPLY = "queryStockPayApply";
 
@@ -411,16 +410,31 @@ public class StockPayAction extends DispatchAction
                 
                 if (bean.getStatus() == StockPayApplyConstant.APPLY_STATUS_SEC && StringTools.isNullOrNone(ifRef))
                 {
-                	// 检查是否有预付款(供应商\发票类型\结束状态)
+                    //#833 2019-11-18号前的采购付款单据处理时弹出采购预付款页面
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    try {
+                        Date payDate = sdf.parse(bean.getPayDate());
+
+                        String stockPay = parameterDAO.getString("stockPay");
+                        if (StringTools.isNullOrNone(stockPay)){
+                            stockPay = "2019-11-18";
+                        }
+                        Date date = sdf.parse(stockPay);
+                        if (payDate.before(date)){
+                            // 检查是否有预付款(供应商\发票类型\结束状态)
 //                	List<StockPrePayApplyVO> preList = stockPrePayApplyDAO.queryVOsByProviderAndInvoiceId(bean.getProvideId(), bean.getInvoiceId());
-                    //#547 不检查税率一致
-                    List<StockPrePayApplyVO> preList = stockPrePayApplyDAO.queryEntityVOsByFK(bean.getProvideId());
-                	if (!ListTools.isEmptyOrNull(preList))
-                	{
-                		request.setAttribute("stockPreList", preList);
-                		
-                		return mapping.findForward("refStockPrePay");
-                	}
+                            //#547 不检查税率一致
+                            List<StockPrePayApplyVO> preList = stockPrePayApplyDAO.queryEntityVOsByFK(bean.getProvideId());
+                            if (!ListTools.isEmptyOrNull(preList))
+                            {
+                                request.setAttribute("stockPreList", preList);
+
+                                return mapping.findForward("refStockPrePay");
+                            }
+                        }
+                    } catch (ParseException e) {
+                        _logger.error(" Exception parse Date:", e);
+                    }
                 }
 
                 return mapping.findForward("handleStockPayApply");
@@ -1602,4 +1616,8 @@ public class StockPayAction extends DispatchAction
 	{
 		this.invoiceStorageDAO = invoiceStorageDAO;
 	}
+
+    public void setParameterDAO(ParameterDAO parameterDAO) {
+        this.parameterDAO = parameterDAO;
+    }
 }
