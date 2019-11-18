@@ -4211,7 +4211,7 @@ public void offlineStorageInJob() {
 
                     if (total - stockInAmount>= amount){
                         //同一产品因成本不一样可能会有多个商品行，但退库时可能一起退单，需要根据不同成本拆单
-                        List<BaseBean> refBaseBeans = this.findBaseBeanToBack(amount, outBaseBeans, inBaseBeans);
+                        List<BaseBean> refBaseBeans = this.findBaseBeanToBack(item, outBaseBeans, inBaseBeans);
                         _logger.info("***refBaseBeans size***"+refBaseBeans.size());
                         for (BaseBean refBaseBean : refBaseBeans){
                         	if (refBaseBean.getAmount() == 0){
@@ -4439,13 +4439,13 @@ public void offlineStorageInJob() {
 	}
 
 	/**
-	 *
-	 * @param inAmount 待入库数量
-	 * @param outBaseBeans 出库记录
-	 * @param inBaseBeans 已入库记录
+	 * 退单时找到对应原单的商品行
+	 * @param item 待入库单
+	 * @param outBaseBeans 销售单商品行
+	 * @param inBaseBeans 已入库单的商品行记录
 	 * @return
 	 */
-	private List<BaseBean> findBaseBeanToBack(int inAmount, List<BaseBean> outBaseBeans, List<BaseBean> inBaseBeans){
+	private List<BaseBean> findBaseBeanToBack(OutBackItemBean item, List<BaseBean> outBaseBeans, List<BaseBean> inBaseBeans){
 		_logger.info("***outBaseBeans "+outBaseBeans+" vs inBaseBeans "+inBaseBeans);
 		List<BaseBean> result = new ArrayList<BaseBean>();
 
@@ -4461,25 +4461,25 @@ public void offlineStorageInJob() {
 			}
 		});
 
-
-//        if (ListTools.isEmptyOrNull(inBaseBeans) && !ListTools.isEmptyOrNull(outBaseBeans)){
-//            //尚未入库
-//            result.add(outBaseBeans.get(0));
-//        }
 		if (outBaseBeans.size() == 1){
 			//原base表仅有一行
 			result.add(outBaseBeans.get(0));
 		} else {
-			//TODO 减掉已入库的数量,productId+costPriceKey一致
-//            outBaseBeans.removeAll(inBaseBeans);
+			// 减掉已入库的数量(productId+costPriceKey一致)
 			this.subtract(outBaseBeans, inBaseBeans);
-//            _logger.info("***after remove***"+outBaseBeans);
-			for (BaseBean in: outBaseBeans){
-				_logger.info("***after in base**"+in);
+			int amount = Integer.valueOf(item.getAmount());
+			String costPriceKey = StorageRelationHelper.getPriceKey(item.getCostPrice());
+			for (BaseBean baseBean: outBaseBeans){
+				_logger.info("***after in base**"+baseBean);
+				//如果入库单带成本，直接匹配原商品行返回
+				if (amount <= baseBean.getAmount() && baseBean.getCostPriceKey().equals(costPriceKey)){
+					result.add(baseBean);
+					return result;
+				}
 			}
-			//检查是否拆单
+			//如果入库单不带成本，则需要检查是否要拆单
 			_logger.info(outBaseBeans+"***outBaseBeans size2 ***"+outBaseBeans.size());
-			int amount = inAmount;
+
 			for (BaseBean baseBean: outBaseBeans){
 				if (amount <= baseBean.getAmount()){
 					//不需要拆单
