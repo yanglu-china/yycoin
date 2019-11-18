@@ -1658,10 +1658,10 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             throw new MYException("数据错误,请重新操作");
         }
 
-        if (item.getPay() == StockConstant.STOCK_PAY_YES)
-        {
-            throw new MYException("已经付款,请重新操作");
-        }
+//        if (item.getPay() == StockConstant.STOCK_PAY_YES)
+//        {
+//            throw new MYException("已经付款,请重新操作");
+//        }
 
         stockItemDAO.updatePay(stockItemId, StockConstant.STOCK_PAY_YES);
 
