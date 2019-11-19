@@ -3327,7 +3327,7 @@ public class ParentOutAction extends DispatchAction
 						}
 					}
 
-					String changeTime = element.getFlowTime();
+					String changeTime = element.getChangeTime();
 
 					if (changeTime.length() > 10)
 					{
@@ -3337,8 +3337,15 @@ public class ParentOutAction extends DispatchAction
 						//#830 部分已发货销售单flowTime为空
 						changeTime = element.getChangeTime();
 					}
-
-					line.writeColumn(changeTime);
+					if(element.getStatus() == 3 || element.getStatus() == 4 || element.getStatus() == 99)
+					{
+						line.writeColumn(changeTime);
+					}
+					else
+					{
+						line.writeColumn("");
+					}
+					
 					line.writeColumn(OutHelper.getOutStatus(element));
 					line.writeColumn(DefinedCommon.getValue("invoiceStatus",
 							element.getInvoiceStatus()));
