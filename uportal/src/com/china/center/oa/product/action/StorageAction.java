@@ -2389,11 +2389,11 @@ public class StorageAction extends DispatchAction
                 BigDecimal costDel = new BigDecimal(exportData.getCost());
                 BigDecimal goldDel = new BigDecimal(gold);
                 BigDecimal goldfactorDel = new BigDecimal(exportData.getGoldPriceFactor()==null?"1":exportData.getGoldPriceFactor());
-                BigDecimal planCostDel = new BigDecimal(exportData.getPlanCost());
+                BigDecimal planCostDel = new BigDecimal(exportData.getPlanCost()==null?"0":exportData.getPlanCost());
                 BigDecimal silverDel = new BigDecimal(silver);
                 BigDecimal silverfactorDel = new BigDecimal(exportData.getSilverPriceFactor()==null?"1":exportData.getSilverPriceFactor());
                 BigDecimal configPriceDel = new BigDecimal(exportData.getConfigprice()==null?"0":exportData.getConfigprice());
-                BigDecimal gpupDel = new BigDecimal(exportData.getGsPriceUp());
+                BigDecimal gpupDel = new BigDecimal(exportData.getGsPriceUp()==null?"0":exportData.getGsPriceUp());
                 
                 //2015/1/21 金价*金价系数*金克数+银价*银价系数*银克数+邮票费用+辅料费用
                 BigDecimal sailPriceDel = costDel.multiply(goldDel).multiply(goldfactorDel)
