@@ -2387,7 +2387,7 @@ public class StorageAction extends DispatchAction
                 	proSailtype = "其他";
                 }
                 BigDecimal costDel = new BigDecimal(exportData.getCost()==null?"0":exportData.getCost());
-                BigDecimal goldDel = new BigDecimal(gold);
+                BigDecimal goldDel = new BigDecimal(gold); 
                 BigDecimal goldfactorDel = new BigDecimal(exportData.getGoldPriceFactor()==null?"1":exportData.getGoldPriceFactor());
                 BigDecimal planCostDel = new BigDecimal(exportData.getPlanCost()==null?"0":exportData.getPlanCost());
                 BigDecimal silverDel = new BigDecimal(silver);
