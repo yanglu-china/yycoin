@@ -2386,7 +2386,7 @@ public class StorageAction extends DispatchAction
                 {
                 	proSailtype = "其他";
                 }
-                BigDecimal costDel = new BigDecimal(exportData.getCost());
+                BigDecimal costDel = new BigDecimal(exportData.getCost()==null?"0":exportData.getCost());
                 BigDecimal goldDel = new BigDecimal(gold);
                 BigDecimal goldfactorDel = new BigDecimal(exportData.getGoldPriceFactor()==null?"1":exportData.getGoldPriceFactor());
                 BigDecimal planCostDel = new BigDecimal(exportData.getPlanCost()==null?"0":exportData.getPlanCost());
@@ -2422,8 +2422,7 @@ public class StorageAction extends DispatchAction
                                 + ','
                                 + exportData.getStorageName()
                                 + ','
-                                + exportData.getProductName().replaceAll(",", " ").replaceAll(
-                                    "\r\n", "") + ',' + code + ','
+                                + exportData.getProductName() + ',' + code + ','
                                 + String.valueOf(exportData.getAmount()) + ','
                                 + MathTools.formatNum(sailPriceDel.doubleValue()) + ',' + sname
                                 +','+proSailtype
