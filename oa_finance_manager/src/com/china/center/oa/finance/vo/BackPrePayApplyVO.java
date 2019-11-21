@@ -27,6 +27,12 @@ public class BackPrePayApplyVO extends BackPrePayApplyBean
     @Ignore
     private String flowDescription = "";
 
+	/**
+	 * 流程结束时间
+	 */
+	@Ignore
+	private String finishTime = "";
+
     @Ignore
     private String showTotal = "";
     
@@ -35,6 +41,15 @@ public class BackPrePayApplyVO extends BackPrePayApplyBean
     
     @Ignore
     private String showOwnMoney = "";
+
+    @Ignore
+	private String citicNo = "";
+
+    @Ignore
+	private String oaNo = "";
+
+    @Ignore
+	private String attachmentUrl = "";
     
 	/**
 	 * 
@@ -147,5 +162,37 @@ public class BackPrePayApplyVO extends BackPrePayApplyBean
 	 */
 	public void setShowOwnMoney(String showOwnMoney) {
 		this.showOwnMoney = showOwnMoney;
+	}
+
+	public String getFinishTime() {
+		return finishTime;
+	}
+
+	public void setFinishTime(String finishTime) {
+		this.finishTime = finishTime;
+	}
+
+	public String getCiticNo() {
+		return citicNo;
+	}
+
+	public void setCiticNo(String citicNo) {
+		this.citicNo = citicNo;
+	}
+
+	public String getOaNo() {
+		return oaNo;
+	}
+
+	public void setOaNo(String oaNo) {
+		this.oaNo = oaNo;
+	}
+
+	public String getAttachmentUrl() {
+		return attachmentUrl;
+	}
+
+	public void setAttachmentUrl(String attachmentUrl) {
+		this.attachmentUrl = attachmentUrl;
 	}
 }

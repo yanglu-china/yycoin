@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.tools.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,15 +64,6 @@ import com.china.center.oa.tcp.manager.BackPrePayManager;
 import com.china.center.oa.tcp.vo.TcpApproveVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.FileTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.RequestDataStream;
-import com.china.center.tools.SequenceTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
-import com.china.center.tools.UtilStream;
-import com.china.center.tools.WriteFileBuffer;
 
 /**
  * 
@@ -104,6 +96,8 @@ public class BackPrePayAction extends DispatchAction
 	private final static String QUERYSELFBACKPREPAY = "tcp.querySelfBackPrePay";
 	
 	private final static String QUERYALLBACKPREPAY = "tcp.queryAllBackPrePay";
+
+    private final static String QUERYCITICBACKPREPAY = "tcp.queryCiticBackPrePay";
 	
 	/**
 	 * 
@@ -213,6 +207,64 @@ public class BackPrePayAction extends DispatchAction
                     }
                 }
             });
+
+        return JSONTools.writeResponse(response, jsonstr);
+    }
+
+    /**
+     * #837 中信银行退款信息表
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward queryCiticBackPrePay(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        ConditionParse condtion = new ConditionParse();
+
+        condtion.addWhereStr();
+
+        ActionTools.processJSONQueryCondition(QUERYCITICBACKPREPAY, request, condtion);
+
+        String type = request.getParameter("type");
+
+        condtion.addIntCondition("BackPrePayApplyBean.type", "=", type);
+        condtion.addIntCondition("BackPrePayApplyBean.status", "=", 99);
+        condtion.addCondition("BackPrePayApplyBean.receiveAccount", "<>", "111");
+        condtion.addCondition("  and left(BackPrePayApplyBean.customerName,4)='中信银行'");
+        condtion.addCondition("order by BackPrePayApplyBean.logTime desc");
+
+        String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCITICBACKPREPAY, request, condtion,
+                this.backPrePayApplyDAO, new HandleResult<BackPrePayApplyVO>()
+                {
+                    public void handle(BackPrePayApplyVO vo)
+                    {
+                        vo.setShowBackMoney(TCPHelper.formatNum2(vo.getBackMoney() / 100.0d));
+
+                        // 结束时间
+                        ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addCondition("fullId","=",vo.getId());
+                        conditionParse.addIntCondition("afterStatus","=",99);
+                        List<FlowLogBean> logs = flowLogDAO.queryEntityBeansByCondition(conditionParse);
+                        if (!ListTools.isEmptyOrNull(logs)){
+                            vo.setFinishTime(logs.get(0).getLogTime());
+                        }
+
+                        //下载地址
+                        List<AttachmentBean> attachmentList = attachmentDAO.queryEntityVOsByFK(vo.getId());
+                        StringBuilder sb = new StringBuilder();
+                        for (AttachmentBean attachmentBean : attachmentList) {
+                            String url = "<a href='../tcp/backprepay.do?method=downAttachmentFile&id="
+                                    +attachmentBean.getId()+"'>"+attachmentBean.getName()+" </a>";
+                            sb.append(url).append("<br>");
+                        }
+                        vo.setAttachmentUrl(sb.toString());
+                    }
+                });
 
         return JSONTools.writeResponse(response, jsonstr);
     }
