@@ -206,8 +206,12 @@ function getNextInput(el)
                <a href="../stock/stock.do?method=findStock&id=${bean.stockId}">${bean.stockId}</a>/${bean.stockItemId}
             </p:cell>
 
-			<p:cell title="供应商银行帐号">
+			<p:cell title="供应商开户行">
                ${bean.provideBank}
+            </p:cell>
+
+            <p:cell title="供应商银行帐号">
+                ${bean.provideAccount}
             </p:cell>
             
             <p:cell title="时间" end="true">
