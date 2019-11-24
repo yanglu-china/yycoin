@@ -99,6 +99,36 @@ public interface TaxItemConstanst
     String RECEIVE_COMMON1 = "5504-48";
 
     /**
+     * 营业费用-客情买赠
+     */
+    String YYFY_KQMZ = "5504-89";
+
+    /**
+     * 营业费用-买赠费用
+     */
+    String YYFY_XSMZ = "5504-88";
+
+    /**
+     * 管理费用-客情买赠
+     */
+    String GLFY_KQMZ = "5504-93";
+
+    /**
+     * 福利费
+     */
+    String FLY = "5505-003";
+
+    /**
+     * 福利费2
+     */
+    String FLY2 = "5504-003";
+
+    /**
+     * 集资利息
+     */
+    String JZLX = "5506-21";
+
+    /**
      * 银行手续费-部门(部门/职员)
      */
     String HAND_BANK_DEPARTMENT = "5504-017";
