@@ -21,6 +21,7 @@ import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.product.bean.ProductVSGiftBean;
 import com.china.center.oa.product.dao.ProductVSGiftDAO;
 import com.china.center.oa.publics.constant.AppConstant;
+import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.oa.stock.bean.StockItemBean;
@@ -122,6 +123,8 @@ public class OutListenerTaxGlueImpl implements OutListener
     private FinanceTagManager financeTagManager = null;
 
     private ProductVSGiftDAO productVSGiftDAO = null;
+
+    private OrgManager orgManager = null;
     
     /**
      * default constructor
@@ -4487,8 +4490,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
                 FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
-                // 营业费用-买赠费用(单位/部门/职员/纳税实体)
-                String itemInTaxId = TaxItemConstanst.RECEIVE_COMMON1;
+                String itemInTaxId = this.getPresentTaxId(outBean);
 
                 TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
 
@@ -4530,8 +4532,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
                 FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
-                // 营业费用-买赠费用(单位/部门/职员/纳税实体)
-                String itemInTaxId = TaxItemConstanst.RECEIVE_COMMON1;
+                String itemInTaxId = this.getPresentTaxId(outBean);
 
                 TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
 
@@ -4571,14 +4572,13 @@ public class OutListenerTaxGlueImpl implements OutListener
 
             FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
-            // 营业费用-买赠费用(单位/部门/职员/纳税实体)
-            String itemInTaxId = TaxItemConstanst.RECEIVE_COMMON1;
+            String itemInTaxId = this.getPresentTaxId(outBean);
 
             TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
 
             if (itemInTax == null)
             {
-                throw new MYException("数据错误,请确认操作");
+                throw new MYException("科目不存在："+itemInTaxId);
             }
 
             // 科目拷贝
@@ -4645,6 +4645,36 @@ public class OutListenerTaxGlueImpl implements OutListener
 
             itemList.add(itemOut1);
         }
+    }
+
+    /**
+     * #841
+     * @param outBean
+     * @return
+     */
+    private String getPresentTaxId(OutBean outBean){
+        String itemInTaxId = TaxItemConstanst.YYFY_XSMZ;
+
+        if(outBean.getPresentFlag() == OutConstant.OUT_PRESENT_KQ){
+            //营销中心
+            if (orgManager.isStafferBelongOrg(outBean.getStafferId(), "3")){
+                itemInTaxId = TaxItemConstanst.YYFY_KQMZ;
+            } else{
+                itemInTaxId = TaxItemConstanst.GLFY_KQMZ;
+            }
+        } else if (outBean.getPresentFlag() == OutConstant.OUT_PRESENT_XS){
+            itemInTaxId = TaxItemConstanst.YYFY_XSMZ;
+        } else if (outBean.getPresentFlag() == OutConstant.OUT_PRESENT_FLF){
+            //营销中心
+            if (orgManager.isStafferBelongOrg(outBean.getStafferId(), "3")){
+                itemInTaxId = TaxItemConstanst.FLY2;
+            } else{
+                itemInTaxId = TaxItemConstanst.FLY;
+            }
+        } else if( outBean.getPresentFlag() == OutConstant.OUT_PRESENT_JLLX){
+            itemInTaxId = TaxItemConstanst.JZLX;
+        }
+        return itemInTaxId;
     }
 
     private void setBearStaffer(OutBean outBean, FinanceItemBean itemIn) throws MYException{
@@ -7261,6 +7291,8 @@ public class OutListenerTaxGlueImpl implements OutListener
 	public void setStockItemDAO(StockItemDAO stockItemDAO) {
 		this.stockItemDAO = stockItemDAO;
 	}
-    
-    
+
+    public void setOrgManager(OrgManager orgManager) {
+        this.orgManager = orgManager;
+    }
 }
