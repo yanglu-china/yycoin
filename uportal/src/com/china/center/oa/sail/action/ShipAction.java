@@ -18,6 +18,7 @@ import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.bean.InsVSInvoiceNumBean;
+import com.china.center.oa.finance.bean.InvoiceWrapper;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
 import com.china.center.oa.finance.bean.InvoiceinsItemBean;
 import com.china.center.oa.finance.dao.InsVSInvoiceNumDAO;
@@ -5797,7 +5798,6 @@ public class ShipAction extends DispatchAction
         JsonMapper mapper = new JsonMapper();
         AppResult result = new AppResult();
 
-        Map<String,String> invoiceToXml = new HashMap<>();
         List<InvoiceinsVO> invoiceinsList = new ArrayList<>();
         if (!StringTools.isNullOrNone(packageId)){
             invoiceinsList = this.findInvoiceinsWithXN(packageId);
@@ -5806,12 +5806,14 @@ public class ShipAction extends DispatchAction
         }
 
         //generate XML payload
+        List<InvoiceWrapper> payloads = new ArrayList<>();
         for (InvoiceinsBean  bean:invoiceinsList){
             String payload = this.createXML(user, bean);
-            invoiceToXml.put(bean.getId(),payload);
+            InvoiceWrapper wrapper = new InvoiceWrapper(bean.getId(), payload);
+            payloads.add(wrapper);
         }
 
-        result.setSuccessAndObj("OK", invoiceToXml);
+        result.setSuccessAndObj("OK", payloads);
         String jsonstr = mapper.toJson(result);
         _logger.info(jsonstr);
         return JSONTools.writeResponse(response, jsonstr);
