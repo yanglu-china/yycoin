@@ -1025,27 +1025,27 @@ public interface OutConstant
     @Defined(key = "outEmergency", value = "不紧急")
     int OUT_EMERGENCY_NO = 0;
     
-    /**
+/*    *//**
      * 1、捆绑销售 
-     */
+     *//*
     @Defined(key = "presentFlag", value = "捆绑销售")
     int OUT_PRESENT_COMBINE_SALE = 1;
     
-    /**
+    *//**
      * 2、员工福利
-     */
+     *//*
     @Defined(key = "presentFlag", value = "员工福利")
     int OUT_PRESENT_STAFF_WELFARE = 2;
     
-    /**
+    *//**
      * 3、业务赠送 
-     */
+     *//*
     @Defined(key = "presentFlag", value = "业务赠送 ")
     int OUT_PRESENT_FOR_BUSINESS = 3;
     
-    /**
+    *//**
      * 4、物料类赠送
-     */
+     *//*
     @Defined(key = "presentFlag", value = "物料类赠送")
     int OUT_PRESENT_MATERIAL = 4;
 
@@ -1059,7 +1059,19 @@ public interface OutConstant
     int OUT_PRESENT_ENTITY = 7;
 
     @Defined(key = "presentFlag", value = "其他")
-    int OUT_PRESENT_OTHER = 10;
+    int OUT_PRESENT_OTHER = 10;*/
+
+    @Defined(key = "presentFlag", value = "客情买赠")
+    int OUT_PRESENT_KQ = 11;
+
+    @Defined(key = "presentFlag", value = "销售买赠")
+    int OUT_PRESENT_XS = 12;
+
+    @Defined(key = "presentFlag", value = "福利费")
+    int OUT_PRESENT_FLF = 13;
+
+    @Defined(key = "presentFlag", value = "集资利息")
+    int OUT_PRESENT_JLLX= 14;
 
     @Defined(key = "ibMotivationFlag", value = "未申请")
     int IB_FLAG_NO = 0;

@@ -38,6 +38,9 @@ public class StockPayApplyVO extends StockPayApplyBean
     @Relationship(relationField = "provideId", tagField = "bank")
     private String provideBank = "";
 
+    @Relationship(relationField = "provideId", tagField = "accounts")
+    private String provideAccount = "";
+
     @Relationship(relationField = "stafferId")
     private String stafferName = "";
 
@@ -145,6 +148,14 @@ public class StockPayApplyVO extends StockPayApplyBean
 
     public void setTotalMoneys(double totalMoneys) {
         this.totalMoneys = totalMoneys;
+    }
+
+    public String getProvideAccount() {
+        return provideAccount;
+    }
+
+    public void setProvideAccount(String provideAccount) {
+        this.provideAccount = provideAccount;
     }
 
     /**

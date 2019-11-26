@@ -1506,11 +1506,11 @@ public class ProductApplyAction extends DispatchAction {
                                 .append("<br>");
                     }
 
+
+                    // 关联成品的code或者名称
+                    String product = obj[10].trim();
                     // 配件产品需关联成品
                     if (bean.getNature() == ProductApplyConstant.NATURE_SINGLE) {
-                        // 关联成品的code或者名称
-                        String product = obj[10];
-
                         if ( !StringTools.isNullOrNone(product))
                         {
                             ConditionParse conditionParse = new ConditionParse();
@@ -1525,7 +1525,7 @@ public class ProductApplyAction extends DispatchAction {
 
                                 builder
                                         .append("第[" + currentNumber + "]错误:")
-                                        .append("关联的成品不存在:"+product)
+                                        .append("关联成品不存在:"+product)
                                         .append("<br>");
                             } else{
                                 bean.setRefProductId(productBeans.get(0).getId());
@@ -1536,9 +1536,16 @@ public class ProductApplyAction extends DispatchAction {
 
                             builder
                                     .append("第[" + currentNumber + "]错误:")
-                                    .append("配件产品时要有成品产品关联")
+                                    .append("产品性质为“配件产品”时，关联成品必填")
                                     .append("<br>");
                         }
+                    } else if (bean.getNature() == ProductApplyConstant.NATURE_COMPOSE && !StringTools.isNullOrNone(product)){
+                        importError = true;
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("产品性质为“成品”时，关联成品必须为空")
+                                .append("<br>");
                     }
 
                     // 进项发票
