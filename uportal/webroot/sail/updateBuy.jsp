@@ -14,7 +14,7 @@
 <script language="JavaScript" src="../js/json.js"></script>
 <script language="JavaScript" src="../sail_js/addBuy.js"></script>
 <script language="javascript">
-<%@include file="../sail_js/buy.jsp"%>
+<%@include file="../sail_js/buy_stock_in.jsp"%>
 
 var duesMap = {};
 var duesTypeMap = {};
@@ -78,6 +78,7 @@ function opens(obj)
 <input type=hidden name="type" value='1' /> 
 <input type=hidden name="saves" value="" />
 <input type=hidden name="desList" value="" />
+<input type=hidden name="virtualPriceList" value="" />
 <input type=hidden name="otherList" value="" />
 
 <input type=hidden name="depotList" value="" />
@@ -303,7 +304,8 @@ function opens(obj)
 						<td width="10%" align="center">单价</td>
 						<td width="10%" align="left">金额<span id="total"></span></td>
 						<td width="10%" align="center">成本</td>
-						<td width="25%" align="center">类型</td>
+						<td width="15%" align="center">类型</td>
+						<td width="10%" align="center">虚料金额</td>
 						<td width="5%" align="left"><input type="button" accesskey="A"
 							value="增加" class="button_class" onclick="addTr()"></td>
 					</tr>
@@ -315,6 +317,7 @@ function opens(obj)
 							productid="" 
 							productcode="" 
 							price=""
+							virtualprice=""
 							stafferid=""
 							depotpartid=""
 							readonly="readonly"
@@ -345,7 +348,9 @@ function opens(obj)
 							
 						<td align="center"><input type="text" readonly="readonly"
 							style="width: 100%" name="rstafferName"></td>
-							
+
+						<td align="center"><input type="text"
+												  value="0.00" readonly="readonly" style="width: 100%" name="virtualPrice"></td>
 						<td align="center"></td>
 					</tr>
 
@@ -383,7 +388,9 @@ function opens(obj)
                             
                         <td align="center"><input type="text" id="unRstafferName" readonly="readonly" value="${fristBase.depotpartName}-->${fristBase.ownerName}"
                             style="width: 100%" name="rstafferName"></td>
-                            
+
+						<td align="center"><input type="text" readonly="readonly" value="${my:formatNum(fristBase.virtualPrice)}"
+												  style="width: 100%" name="virtualPrice"></td>
                         <td align="center"><input type=button value="清空"  class="button_class" onclick="clears()"></td>
                     </tr>
                     
