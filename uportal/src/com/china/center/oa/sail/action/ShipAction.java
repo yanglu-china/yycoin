@@ -5920,12 +5920,12 @@ public class ShipAction extends DispatchAction
 
             Element xfdz = doc.createElement("xfdz");
             xfdz.appendChild(
-                    doc.createTextNode("南京市秦淮区正学路1号,025-51885901"));
+                    doc.createTextNode("南京市秦淮区正学路1号 025-51885901"));
             invhead.appendChild(xfdz);
 
             Element xfyh = doc.createElement("xfyh");
             xfyh.appendChild(
-                    doc.createTextNode("招商银行南京城北支行,125902780610701"));
+                    doc.createTextNode("招商银行南京城北支行 125902780610701"));
             invhead.appendChild(xfyh);
 
             Element hysy = doc.createElement("hysy");
