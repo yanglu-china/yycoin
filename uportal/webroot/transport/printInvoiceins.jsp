@@ -65,12 +65,14 @@
 		function callbackGenerateInvoice(data)
 		{
             // console.log(data);
-            // console.log(data.obj);
 			if (data.retMsg.toLowerCase() === "ok") {
 				OpenCard();
-				for (var key in data.obj) {
-				    alert(key);
-				    var xml = data.obj[key];
+                var dataList = data.obj;
+                // console.log(dataList);
+				for (var j = 0; j < dataList.length; j++) {
+				    var key = dataList[j].invoiceId;
+				    // alert(key);
+				    var xml = dataList[j].payload;
 				    alert(xml);
 					var response =  a.JsaeroKP(xml);
 					alert(response);

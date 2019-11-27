@@ -512,8 +512,9 @@ public class BlackManagerImpl implements BlackManager
         	blackDAO.deleteEntityBean(eachd.getId());
         	
         	blackOutDAO.deleteEntityBeansByFK(eachd.getId());
-        	
-        	stafferDAO.updateBlack(eachd.getStafferId(), StafferConstant.BLACK_NO);
+
+        	//#846
+        	//stafferDAO.updateBlack(eachd.getStafferId(), StafferConstant.BLACK_NO);
         }
     }
 
