@@ -37,7 +37,7 @@ function load()
          title: '回款列表(回款认领被驳回后想重新认领请先退领再认领)',
          url: gurl + 'querySelfPayment',
          colModel : [
-             {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status} lstafferId={stafferId} luseall={useall} lctype={ctype}>', width : 40, align: 'center'},
+             {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status} lstafferid={stafferId} luseall={useall} lctype={ctype}>', width : 40, align: 'center'},
              {display: '资金性质', name : 'ctype', cc: 'paymentCtype', width : '5%'},
              {display: '帐户', name : 'bankName', width : '18%'},
              {display: '类型', name : 'type', cc: 'paymentType', width : '5%'},
@@ -103,7 +103,7 @@ function drawBean2(opr, grid)
 
 function odrawBean(opr, grid)
 {
-    if (getRadio('checkb') && getRadioValue('checkb') && getRadio('checkb').lstatus == 1 && getRadio('checkb').lstafferId == currId && getRadio('checkb').lctype == 0)
+    if (getRadio('checkb') && getRadioValue('checkb') && getRadio('checkb').lstatus == 1 && getRadio('checkb').lstafferid == currId && getRadio('checkb').lctype == 0)
     {    
         if(window.confirm('确定退领此回款?'))
         	$ajax(gurl + 'drop' + ukey + '&id=' + getRadioValue('checkb'), callBackFun);
