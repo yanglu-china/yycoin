@@ -8231,7 +8231,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	{
         List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
         
-        List<OutBean> refBuyList = queryRefOut1(outId, false);
+        List<OutBean> refBuyList = queryRefOut1(outId, true);
 
         int amount = 0;
         int hasBack = 0;
@@ -8257,7 +8257,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         
         if (amount - hasBack < 0)
         {
-        	throw new MYException("[%s]退库数量溢出,请重新操作");
+        	throw new MYException("[%s]退库数量溢出,请重新操作", outId);
         }
 
         return true;
