@@ -210,7 +210,7 @@ public class StorageRelationDAOImpl extends BaseDAO<StorageRelationBean, Storage
     public List<DepotExportData> queryExportDepotData()
     {
     	String sql = "SELECT a.name AS depotname,g.name AS industryname,b.*,e.name AS depotpartname,e.type AS depotpartType,f.name AS storageName,c.name AS productname,c.cost,c.plancost,c.code AS productcode,c.sailType," + 
-    			"c.sailprice,d.ftype,d.goldPriceFactor,d.silverPriceFactor,d.price AS configprice,d.gsPriceUp FROM T_CENTER_DEPOT a,T_CENTER_STORAGERALATION b," + 
+    			"b.price AS sailprice,d.ftype,d.goldPriceFactor,d.silverPriceFactor,d.price AS configprice,d.gsPriceUp FROM T_CENTER_DEPOT a,T_CENTER_STORAGERALATION b," + 
     			"t_center_product c,t_center_price_config d,T_CENTER_DEPOTPART e,T_CENTER_STORAGE f ,T_CENTER_PRINCIPALSHIP g " + 
     			"WHERE a.STATUS=0  AND b.amount>0 " + 
     			"AND b.productId=c.id AND c.id=d.productId AND b.productId=d.productId AND a.id=b.locationId AND b.depotpartId=e.id " + 

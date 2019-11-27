@@ -2331,7 +2331,7 @@ public class StorageAction extends DispatchAction
 
             write.openFile(bufferedout);
 
-            write.writeLine("日期,事业部,仓库,仓区,仓区属性,储位,产品名称,产品编码,产品数量,产品价格,归属,销售类型");
+            write.writeLine("日期,事业部,仓库,仓区,仓区属性,储位,产品名称,产品编码,产品数量,基础结算价,成本价,归属,销售类型");
 
             String now = TimeTools.now("yyyy-MM-dd");
             
@@ -2409,6 +2409,9 @@ public class StorageAction extends DispatchAction
         		}
         		
         		sailPriceDel = sailPriceDel.setScale(2, BigDecimal.ROUND_HALF_UP);
+        		
+        		BigDecimal productCostDel = new BigDecimal(exportData.getSailprice());
+        		productCostDel = productCostDel.setScale(2, BigDecimal.ROUND_HALF_UP);
 
                 write.writeLine(now
                                 + ','
@@ -2424,7 +2427,8 @@ public class StorageAction extends DispatchAction
                                 + ','
                                 + exportData.getProductName() + ',' + code + ','
                                 + String.valueOf(exportData.getAmount()) + ','
-                                + MathTools.formatNum(sailPriceDel.doubleValue()) + ',' + sname
+                                + MathTools.formatNum(sailPriceDel.doubleValue()) + ',' + MathTools.formatNum(productCostDel.doubleValue())
+                                + "," + sname
                                 +','+proSailtype
                 );
                 
@@ -2517,7 +2521,7 @@ public class StorageAction extends DispatchAction
 
                 for (StorageRelationVO each : list)
                 {
-                    if (each.getAmount() > 0)
+                    if (each.getTotal() > 0)
                     {
                         String typeName = DefinedCommon.getValue("depotpartType", each
                             .getDepotpartType());
