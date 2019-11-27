@@ -2413,6 +2413,11 @@ public class StorageAction extends DispatchAction
         		BigDecimal productCostDel = new BigDecimal(exportData.getSailprice());
         		productCostDel = productCostDel.setScale(2, BigDecimal.ROUND_HALF_UP);
 
+        		//有结算价取结算价，没有取成本价
+        		if(sailPriceDel.intValue() == 0)
+        		{
+        			sailPriceDel = productCostDel;
+        		}
                 write.writeLine(now
                                 + ','
                                 + StringTools.getLineString(exportData.getIndustryName())
