@@ -9,13 +9,45 @@
 package com.china.center.oa.product.action;
 
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
-import com.china.center.actionhelper.common.*;
+import com.china.center.actionhelper.common.ActionTools;
+import com.china.center.actionhelper.common.JSONPageSeparateTools;
+import com.china.center.actionhelper.common.JSONTools;
+import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.actionhelper.common.PageSeparateTools;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.jsonimpl.JSONArray;
 import com.china.center.actionhelper.query.HandleResult;
@@ -23,28 +55,79 @@ import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.product.bean.*;
+import com.china.center.oa.product.bean.CiticVSOAProductBean;
+import com.china.center.oa.product.bean.ComposeFeeBean;
+import com.china.center.oa.product.bean.ComposeFeeDefinedBean;
+import com.china.center.oa.product.bean.ComposeItemBean;
+import com.china.center.oa.product.bean.ComposeProductBean;
+import com.china.center.oa.product.bean.DecomposeProductBean;
+import com.china.center.oa.product.bean.DepotBean;
+import com.china.center.oa.product.bean.DepotpartBean;
+import com.china.center.oa.product.bean.GoldSilverPriceBean;
+import com.china.center.oa.product.bean.PriceChangeBean;
+import com.china.center.oa.product.bean.PriceChangeNewItemBean;
+import com.china.center.oa.product.bean.PriceChangeSrcItemBean;
+import com.china.center.oa.product.bean.PriceConfigBean;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProductVSBankBean;
+import com.china.center.oa.product.bean.ProviderBean;
 import com.china.center.oa.product.constant.ComposeConstant;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
-import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.dao.CiticVSOAProductDAO;
+import com.china.center.oa.product.dao.ComposeFeeDAO;
+import com.china.center.oa.product.dao.ComposeFeeDefinedDAO;
+import com.china.center.oa.product.dao.ComposeItemDAO;
+import com.china.center.oa.product.dao.ComposeProductDAO;
+import com.china.center.oa.product.dao.DecomposeProductDAO;
+import com.china.center.oa.product.dao.DepotDAO;
+import com.china.center.oa.product.dao.DepotpartDAO;
+import com.china.center.oa.product.dao.GoldSilverPriceDAO;
+import com.china.center.oa.product.dao.PriceChangeDAO;
+import com.china.center.oa.product.dao.PriceConfigDAO;
+import com.china.center.oa.product.dao.ProductBOMDAO;
+import com.china.center.oa.product.dao.ProductCombinationDAO;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProductVSLocationDAO;
+import com.china.center.oa.product.dao.ProviderDAO;
+import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.manager.ComposeProductManager;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.ProductManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
-import com.china.center.oa.product.vo.*;
+import com.china.center.oa.product.vo.ComposeFeeDefinedVO;
+import com.china.center.oa.product.vo.ComposeFeeVO;
+import com.china.center.oa.product.vo.ComposeItemVO;
+import com.china.center.oa.product.vo.ComposeProductVO;
+import com.china.center.oa.product.vo.DecomposeProductVO;
+import com.china.center.oa.product.vo.PriceChangeNewItemVO;
+import com.china.center.oa.product.vo.PriceChangeSrcItemVO;
+import com.china.center.oa.product.vo.PriceChangeVO;
+import com.china.center.oa.product.vo.ProductBOMVO;
+import com.china.center.oa.product.vo.ProductCombinationVO;
+import com.china.center.oa.product.vo.ProductVO;
+import com.china.center.oa.product.vo.ProductVSLocationVO;
+import com.china.center.oa.product.vo.StorageRelationVO;
 import com.china.center.oa.product.vs.ProductCombinationBean;
 import com.china.center.oa.product.vs.ProductVSLocationBean;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.NumberUtils;
-import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.bean.EnumBean;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.InvoiceBean;
+import com.china.center.oa.publics.bean.PrincipalshipBean;
+import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
-import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.publics.dao.CommonDAO;
+import com.china.center.oa.publics.dao.EnumDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.InvoiceDAO;
+import com.china.center.oa.publics.dao.LocationDAO;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
@@ -58,23 +141,17 @@ import com.china.center.oa.sail.manager.SailConfigManager;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.*;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.*;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.FileTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.RequestTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.UtilStream;
+import com.china.center.tools.WriteFileBuffer;
 
 
 /**
@@ -150,6 +227,8 @@ public class ProductAction extends DispatchAction
     private OutDAO outDAO = null;
 
     private BaseDAO baseDAO = null;
+    
+    private ComposeFeeDAO composeFeeDAO;
 
     private static String QUERYPRODUCT = "queryProduct";
 
@@ -594,7 +673,7 @@ public class ProductAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("日期,标识,关联凭证,产品名称,产品编码,数量,单价,备注,合成人,类型,核对,管理类型,源仓区,源产品编码,源产品名称,源产品数量,源产品价格");
+            write.writeLine("日期,标识,关联凭证,产品名称,产品编码,数量,单价,备注,合成人,类型,核对,管理类型,源仓区,源产品编码,源产品名称,源产品数量,源产品价格,国华利润,水印纸费,后勤费用,运费,设计费,申购费用,产品合成损益,模具费");
 
             PageSeparate page = new PageSeparate();
 
@@ -646,6 +725,62 @@ public class ProductAction extends DispatchAction
                         line.writeColumn(itemVO.getProductName());
                         line.writeColumn(itemVO.getAmount());
                         line.writeColumn(itemVO.getPrice());
+                        
+                        //add by zhangxian 2019-11-27
+                        
+                        List<ComposeFeeBean> feeBeanList = composeFeeDAO.queryEntityBeansByCondition(" where parentid=? order by feeitemid",vo.getId());
+                        String[] feeArray = new String[] {"0","0","0","0","0","0","0","0"};
+                        if(feeBeanList != null && feeBeanList.size() > 0)
+                        {
+                        	for(ComposeFeeBean feeBean : feeBeanList)
+                        	{
+                        		ComposeFeeDefinedBean feeDefine = composeFeeDefinedDAO.findVO(feeBean.getFeeItemId());
+                        		if(feeDefine != null)
+                        		{
+                        			if("国华利润".equals(feeDefine.getName().trim()))
+                        			{
+                        				feeArray[0] = String.valueOf(feeBean.getPrice());
+                        			}
+                        			if("水印纸费".equals(feeDefine.getName().trim()))
+                        			{
+                        				feeArray[1] = String.valueOf(feeBean.getPrice());
+                        			}
+                        			if("后勤费用".equals(feeDefine.getName().trim()))
+                        			{
+                        				feeArray[2] = String.valueOf(feeBean.getPrice());
+                        			}
+                        			if("运费".equals(feeDefine.getName().trim()))
+                        			{
+                        				feeArray[3] = String.valueOf(feeBean.getPrice());
+                        			}
+                        			if("设计费".equals(feeDefine.getName().trim()))
+                        			{
+                        				feeArray[4] = String.valueOf(feeBean.getPrice());
+                        			}
+                        			if("申购费用".equals(feeDefine.getName().trim()))
+                        			{
+                        				feeArray[5] = String.valueOf(feeBean.getPrice());
+                        			}
+                        			if("产品合成损益".equals(feeDefine.getName().trim()))
+                        			{
+                        				feeArray[6] = String.valueOf(feeBean.getPrice());
+                        			}
+                        			if("模具费".equals(feeDefine.getName().trim()))
+                        			{
+                        				feeArray[7] = String.valueOf(feeBean.getPrice());
+                        			}
+                        			
+                        		}
+                        		
+                        	}
+                        	
+                        }
+                        for(String fee : feeArray)
+                        {
+                        	line.writeColumn(fee);
+                        }
+                        
+                        //end add
 
                         line.writeLine();
                     }
@@ -5168,4 +5303,13 @@ public class ProductAction extends DispatchAction
     public void setBaseDAO(BaseDAO baseDAO) {
         this.baseDAO = baseDAO;
     }
+
+	public ComposeFeeDAO getComposeFeeDAO() {
+		return composeFeeDAO;
+	}
+
+	public void setComposeFeeDAO(ComposeFeeDAO composeFeeDAO) {
+		this.composeFeeDAO = composeFeeDAO;
+	}
+    
 }
