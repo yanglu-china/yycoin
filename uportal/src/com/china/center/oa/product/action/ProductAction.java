@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -673,7 +674,7 @@ public class ProductAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("日期,标识,关联凭证,产品名称,产品编码,数量,单价,备注,合成人,类型,核对,管理类型,源仓区,源产品编码,源产品名称,源产品数量,源产品价格,国华利润,水印纸费,后勤费用,运费,设计费,申购费用,产品合成损益,模具费");
+            write.writeLine("日期,标识,关联凭证,产品名称,产品编码,数量,单价,备注,合成人,类型,核对,状态,管理类型,源仓区,源产品编码,源产品名称,源产品数量,源产品价格");
 
             PageSeparate page = new PageSeparate();
 
@@ -691,98 +692,160 @@ public class ProductAction extends DispatchAction
 
                     List<ComposeItemVO> itemVoList =  composeItemDAO.queryEntityVOsByFK(vo.getId());
 
-                    for (ComposeItemVO itemVO : itemVoList)
+                    if(itemVoList.size() > 0)
                     {
-                        line.reset();
-
-                        line.writeColumn("[" + vo.getLogTime() + "]");
-                        line.writeColumn(vo.getId());
-
-                        List<FinanceBean> financeBeanList = financeDAO.queryRefFinanceItemByRefId(vo
-                                .getId());
-
-                        if (financeBeanList.size() > 0)
-                        {
-                            line.writeColumn(financeBeanList.get(0).getId());
-                        }
-                        else
-                        {
-                            line.writeColumn("");
-                        }
-
-                        line.writeColumn(vo.getProductName());
-                        line.writeColumn(vo.getProductCode());
-                        line.writeColumn(vo.getAmount());
-                        line.writeColumn(vo.getPrice());
-                        line.writeColumn(vo.getDescription());
-                        line.writeColumn(vo.getStafferName());
-                        line.writeColumn(ElTools.get("composeType", vo.getType()));
-                        line.writeColumn(ElTools.get("pubCheckStatus", vo.getCheckStatus()));
-                        line.writeColumn(ElTools.get("pubManagerType", vo.getMtype()));
-
-                        line.writeColumn(itemVO.getDepotpartName());
-                        line.writeColumn(itemVO.getProductCode());
-                        line.writeColumn(itemVO.getProductName());
-                        line.writeColumn(itemVO.getAmount());
-                        line.writeColumn(itemVO.getPrice());
-                        
-                        //add by zhangxian 2019-11-27
-                        
-                        List<ComposeFeeBean> feeBeanList = composeFeeDAO.queryEntityBeansByCondition(" where parentid=? order by feeitemid",vo.getId());
-                        String[] feeArray = new String[] {"0","0","0","0","0","0","0","0"};
-                        if(feeBeanList != null && feeBeanList.size() > 0)
-                        {
-                        	for(ComposeFeeBean feeBean : feeBeanList)
-                        	{
-                        		ComposeFeeDefinedBean feeDefine = composeFeeDefinedDAO.findVO(feeBean.getFeeItemId());
-                        		if(feeDefine != null)
+                    	List<Map<String,String>> toWriteList = new ArrayList<Map<String,String>>();
+                    	List<FinanceBean> financeBeanList = financeDAO.queryRefFinanceItemByRefId(vo
+                				.getId());
+                    	for (ComposeItemVO itemVO : itemVoList)
+                    	{
+                    		line.reset();
+                    		
+                    		line.writeColumn("[" + vo.getLogTime() + "]");
+                    		line.writeColumn(vo.getId());
+                    		if (financeBeanList.size() > 0)
+                    		{
+                    			line.writeColumn(financeBeanList.get(0).getId());
+                    		}
+                    		else
+                    		{
+                    			line.writeColumn("");
+                    		}
+                    		
+                    		line.writeColumn(vo.getProductName());
+                    		line.writeColumn(vo.getProductCode());
+                    		line.writeColumn(vo.getAmount());
+                    		line.writeColumn(vo.getPrice());
+                    		line.writeColumn(vo.getDescription());
+                    		line.writeColumn(vo.getStafferName());
+                    		line.writeColumn(ElTools.get("composeType", vo.getType()));
+                    		line.writeColumn(ElTools.get("pubCheckStatus", vo.getCheckStatus()));
+                    		if(vo.getStatus() == ComposeConstant.STATUS_SUBMIT)
+                    		{
+                    			line.writeColumn("提交");
+                    		}
+                    		if(vo.getStatus() == ComposeConstant.STATUS_REJECT)
+                    		{
+                    			line.writeColumn("驳回");
+                    		}
+                    		if(vo.getStatus() == ComposeConstant.STATUS_MANAGER_PASS)
+                    		{
+                    			line.writeColumn("生产部经理通过");
+                    		}
+                    		if(vo.getStatus() == ComposeConstant.STATUS_CRO_PASS)
+                    		{
+                    			line.writeColumn("运营总监通过(已合成)");
+                    		}
+                    		if(vo.getStatus() == ComposeConstant.STATUS_INDUSTRY_PASS)
+                    		{
+                    			line.writeColumn("待事业部经理审批");
+                    		}
+                    		if(vo.getStatus() == ComposeConstant.STATUS_PRE_COMPOSE)
+                    		{
+                    			line.writeColumn("预合成");
+                    		}
+                    		if(vo.getStatus() == ComposeConstant.STATUS_SAVE)
+                    		{
+                    			line.writeColumn("保存");
+                    		}
+                    		if(vo.getStatus() == ComposeConstant.STATUS_OK)
+                    		{
+                    			line.writeColumn("结束");
+                    		}
+                    		line.writeColumn(ElTools.get("pubManagerType", vo.getMtype()));
+                    		
+                    		line.writeColumn(itemVO.getDepotpartName());
+                    		line.writeColumn(itemVO.getProductCode());
+                    		line.writeColumn(itemVO.getProductName());
+                    		line.writeColumn(itemVO.getAmount());
+                    		line.writeColumn(itemVO.getPrice());
+                    		line.writeLine();
+                    	}
+                    	//add by zhangxian 2019-11-27
+                		List<ComposeFeeBean> feeBeanList = composeFeeDAO.queryEntityBeansByCondition(" where parentid=? order by feeitemid",vo.getId());
+                		if(feeBeanList != null && feeBeanList.size() > 0)
+                		{
+                			for(ComposeFeeBean feeBean : feeBeanList)
+                			{
+                				Map<String,String> feeMap = new LinkedHashMap<String, String>();
+                    			feeMap.put("logTime", "[" + vo.getLogTime() + "]");
+                    			feeMap.put("id", vo.getId());
+                    			if (financeBeanList.size() > 0)
                         		{
-                        			if("国华利润".equals(feeDefine.getName().trim()))
-                        			{
-                        				feeArray[0] = String.valueOf(feeBean.getPrice());
-                        			}
-                        			if("水印纸费".equals(feeDefine.getName().trim()))
-                        			{
-                        				feeArray[1] = String.valueOf(feeBean.getPrice());
-                        			}
-                        			if("后勤费用".equals(feeDefine.getName().trim()))
-                        			{
-                        				feeArray[2] = String.valueOf(feeBean.getPrice());
-                        			}
-                        			if("运费".equals(feeDefine.getName().trim()))
-                        			{
-                        				feeArray[3] = String.valueOf(feeBean.getPrice());
-                        			}
-                        			if("设计费".equals(feeDefine.getName().trim()))
-                        			{
-                        				feeArray[4] = String.valueOf(feeBean.getPrice());
-                        			}
-                        			if("申购费用".equals(feeDefine.getName().trim()))
-                        			{
-                        				feeArray[5] = String.valueOf(feeBean.getPrice());
-                        			}
-                        			if("产品合成损益".equals(feeDefine.getName().trim()))
-                        			{
-                        				feeArray[6] = String.valueOf(feeBean.getPrice());
-                        			}
-                        			if("模具费".equals(feeDefine.getName().trim()))
-                        			{
-                        				feeArray[7] = String.valueOf(feeBean.getPrice());
-                        			}
-                        			
+                    				feeMap.put("financeId", financeBeanList.get(0).getId());
                         		}
-                        		
-                        	}
-                        	
-                        }
-                        for(String fee : feeArray)
-                        {
-                        	line.writeColumn(fee);
-                        }
-                        
-                        //end add
-
-                        line.writeLine();
+                        		else
+                        		{
+                        			feeMap.put("financeId", "");
+                        		}
+                    			feeMap.put("productName", vo.getProductName());
+                    			feeMap.put("produceCode", vo.getProductCode());
+                    			feeMap.put("amount", String.valueOf(vo.getAmount()));
+                    			feeMap.put("price", String.valueOf(vo.getPrice()));
+                    			feeMap.put("remark",vo.getDescription());
+                    			feeMap.put("man", vo.getStafferName());
+                    			feeMap.put("type", ElTools.get("composeType", vo.getType()));
+                    			feeMap.put("check",ElTools.get("pubCheckStatus", vo.getCheckStatus()));
+                    			if(vo.getStatus() == ComposeConstant.STATUS_SUBMIT)
+                        		{
+                    				feeMap.put("status","提交");
+                        		}
+                        		if(vo.getStatus() == ComposeConstant.STATUS_REJECT)
+                        		{
+                        			feeMap.put("status","驳回");
+                        		}
+                        		if(vo.getStatus() == ComposeConstant.STATUS_MANAGER_PASS)
+                        		{
+                        			feeMap.put("status","生产部经理通过");
+                        		}
+                        		if(vo.getStatus() == ComposeConstant.STATUS_CRO_PASS)
+                        		{
+                        			feeMap.put("status","运营总监通过(已合成)");
+                        		}
+                        		if(vo.getStatus() == ComposeConstant.STATUS_INDUSTRY_PASS)
+                        		{
+                        			feeMap.put("status","待事业部经理审批");
+                        		}
+                        		if(vo.getStatus() == ComposeConstant.STATUS_PRE_COMPOSE)
+                        		{
+                        			feeMap.put("status","预合成");
+                        		}
+                        		if(vo.getStatus() == ComposeConstant.STATUS_SAVE)
+                        		{
+                        			feeMap.put("status","保存");
+                        		}
+                        		if(vo.getStatus() == ComposeConstant.STATUS_OK)
+                        		{
+                        			feeMap.put("status","结束");
+                        		}
+                    			
+                    			feeMap.put("mtype",ElTools.get("pubManagerType", vo.getMtype()));
+                    			feeMap.put("depot","");
+                				ComposeFeeDefinedBean feeDefine = composeFeeDefinedDAO.findVO(feeBean.getFeeItemId());
+                				if(feeDefine != null)
+                				{
+                					feeMap.put("feeId", feeBean.getFeeItemId());
+                					feeMap.put("feeName", feeDefine.getName());
+                					feeMap.put("feeAmount", "1");
+                					feeMap.put("feePrice", String.valueOf(feeBean.getPrice()));
+                				}
+                				toWriteList.add(feeMap);
+                			}
+                		}
+                		//end add
+                    	if(toWriteList.size() > 0)
+                    	{
+                    		for(Map<String,String> fMap :toWriteList)
+                    		{
+                    			line.reset();
+                    			Iterator<Map.Entry<String, String>> it = fMap.entrySet().iterator();
+                    			while(it.hasNext())
+                    			{
+                    				line.writeColumn(it.next().getValue());
+                    			}
+                    			line.writeLine();
+                    		}
+                    	}
                     }
                 }
             }
