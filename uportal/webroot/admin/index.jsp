@@ -292,7 +292,7 @@
 		}
 	</script>
 </head>
-<body onload="load()" style="background-image: url('../images/background.jpg');">
+<body onload="load()" style="background-image: url('../images/background.jpg') ;background-size: 100%">
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
