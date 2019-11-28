@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"
 	errorPage="../common/error.jsp"%>
 <%@include file="../common/common.jsp"%>
+<%@ taglib prefix="attach" tagdir="/WEB-INF/tags/attach" %>
+
 <html>
 <head>
 <p:link title="中收申请" guid="true"/>
@@ -549,6 +551,9 @@ function checkMoney()
                         <font color="red">*</font>
                         </td>
                     </tr>
+                    <c:if test="${bean.status == '22'}">
+                        <attach:attachmentsTag/>
+                    </c:if>
                     <c:if test="${requestScope.pluginType == 'group'}">
                     <tr align="center" class="content1">
                         <td width="15%" align="center">提交到</td>

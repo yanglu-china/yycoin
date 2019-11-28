@@ -1,6 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"
 	errorPage="../common/error.jsp"%>
 <%@include file="../common/common.jsp"%>
+
+<%@ taglib prefix="attach" tagdir="/WEB-INF/tags/attach" %>
+
 <html>
 <head>
 <p:link title="日常费用报销" guid="true"/>
@@ -253,8 +256,8 @@ function checkMoney2()
 </head>
 
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../tcp/expense.do"  method="post">
-<input type="hidden" name="method" value="processExpenseBean"> 
+<form name="formEntry" action="../tcp/expense.do?method=processExpenseBean"  enctype="multipart/form-data" method="post">
+
 <input type="hidden" name="oprType" value="0"> 
 <input type="hidden" name="processId" value=""> 
 <input type="hidden" name="id" value="${bean.id}"> 
@@ -614,6 +617,9 @@ function checkMoney2()
                         <font color="red">*</font>
                         </td>
                     </tr>
+                    <c:if test="${bean.status == '22'}">
+                        <attach:attachmentsTag/>
+                    </c:if>
                     <c:if test="${requestScope.pluginType == 'group'}">
                     <tr align="center" class="content1">
                         <td width="15%" align="center">提交到</td>

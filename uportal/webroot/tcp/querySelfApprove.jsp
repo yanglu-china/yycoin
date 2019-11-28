@@ -1,5 +1,6 @@
 <%@page contentType="text/html; charset=UTF-8"%>
 <%@include file="../common/common.jsp"%>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -29,18 +30,21 @@ function load()
          url: gurl + 'querySelfApprove&mode=' + mode,
          colModel : [
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status} lurl={url} ltype={type}>', width : 40, align: 'center'},
-             {display: '标识', name : 'applyId', width : '15%'},
-             {display: '目的', name : 'name', width : '12%'},
+             {display: '标识', name : 'applyId', width : '12%'},
+             {display: '目的', name : 'name', width : '11%'},
              {display: '申请人', name : 'applyerName', width : '10%'},
              {display: '系列', name : 'stype', cc: 'tcpStype', width : '5%'},
-             {display: '类型', name : 'type', cc: 'tcpType', width : '12%'},
+             {display: '类型', name : 'type', cc: 'tcpType', width : '10%'},
              {display: '部门', name : 'departmentName', width : '10%'},
-             {display: '状态', name : 'status', cc: 'tcpStatus', width : '10%'},
+             {display: '状态', name : 'status', cc: 'tcpStatus', width : '8%'},
              {display: '费用/借款', name : 'showTotal', sortable: true, cname: 'total', content:'{showTotal}/{showCheckTotal}', width : '10%'},
-             {display: '时间', name : 'logTime', sortable: true, width : 'auto'}
+             {display: '时间', name : 'logTime', sortable: true, width : 'auto'},
+             {display: '付款附件', name : 'attachmentsHint', width : '8%'}
+
              ],
          extAtt: {
-             applyId : {begin : '<a href={url}>', end : '</a>'}
+             applyId : {begin : '<a href={url}>', end : '</a>'},
+             attachmentsHint : {begin : '<a href={attachmentUrl}>', end : '</a>'}
          },
          buttons : [
 			 <c:if test="${mode == 98}">

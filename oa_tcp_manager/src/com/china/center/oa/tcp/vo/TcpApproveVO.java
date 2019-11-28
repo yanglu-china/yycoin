@@ -8,10 +8,11 @@
  */
 package com.china.center.oa.tcp.vo;
 
-
+import java.util.List;
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
+import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.tcp.bean.TcpApproveBean;
 
 
@@ -43,6 +44,11 @@ public class TcpApproveVO extends TcpApproveBean
 
     @Ignore
     private String url = "";
+
+    @Ignore
+    private String attachmentsHint = "";
+    @Ignore
+    private String attachmentUrl = "";
 
     /**
      * default constructor
@@ -151,6 +157,22 @@ public class TcpApproveVO extends TcpApproveBean
     public void setShowCheckTotal(String showCheckTotal)
     {
         this.showCheckTotal = showCheckTotal;
+    }
+
+    public String getAttachmentsHint() {
+        return attachmentsHint;
+    }
+
+    public void setAttachmentsHint(String attachmentsHint) {
+        this.attachmentsHint = attachmentsHint;
+    }
+
+    public String getAttachmentUrl() {
+        return attachmentUrl;
+    }
+
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = attachmentUrl;
     }
 
     /**

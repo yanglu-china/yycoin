@@ -9,7 +9,10 @@
 package com.china.center.oa.tcp.wrap;
 
 
+import com.china.center.oa.publics.bean.AttachmentBean;
+
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -49,6 +52,8 @@ public class TcpParamWrap implements Serializable
     private Object other2 = null;
 
     private Object other3 = null;
+
+    private List<AttachmentBean> attachmentList;
 
     /**
      * default constructor
@@ -215,6 +220,14 @@ public class TcpParamWrap implements Serializable
 
     public void setOther1(Object other1) {
         this.other1 = other1;
+    }
+
+    public List<AttachmentBean> getAttachmentList() {
+        return attachmentList;
+    }
+
+    public void setAttachmentList(List<AttachmentBean> attachmentList) {
+        this.attachmentList = attachmentList;
     }
 
     /**

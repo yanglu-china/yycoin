@@ -29,6 +29,9 @@ import com.china.center.jdbc.annotation.Table;
 @Table(name = "T_CENTER_OAATTACHMENT")
 public class AttachmentBean implements Serializable
 {
+	
+	public final static String AttachmentType_FK = "fk"; //付款附件
+	
     @Id
     private String id = "";
 
@@ -45,6 +48,8 @@ public class AttachmentBean implements Serializable
      * 0:业务附件;1:银行回单附件
      */
     private int flag;
+    
+    private String attachmentType;
 
     /**
      * default constructor
@@ -144,6 +149,15 @@ public class AttachmentBean implements Serializable
 
 	public void setFlag(int flag) {
 		this.flag = flag;
+	}
+	
+
+	public String getAttachmentType() {
+		return attachmentType;
+	}
+
+	public void setAttachmentType(String attachmentType) {
+		this.attachmentType = attachmentType;
 	}
 
 	/**

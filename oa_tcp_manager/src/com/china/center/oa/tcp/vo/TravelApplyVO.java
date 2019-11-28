@@ -112,6 +112,11 @@ public class TravelApplyVO extends TravelApplyBean implements TcpInterface
     @Html(title = "其他费用二", must = true, type = Element.DOUBLE)
     private String showOther2Charges = "";
 
+    @Ignore
+    private String attachmentsHint = "";
+    @Ignore
+    private String attachmentUrl = "";
+
     /**
      * default constructor
      */
@@ -428,6 +433,22 @@ public class TravelApplyVO extends TravelApplyBean implements TcpInterface
     @Override
     public int getPayType() {
         return TcpConstanst.PAYTYPE_GPAY_BO;
+    }
+
+    public String getAttachmentsHint() {
+        return attachmentsHint;
+    }
+
+    public void setAttachmentsHint(String attachmentsHint) {
+        this.attachmentsHint = attachmentsHint;
+    }
+
+    public String getAttachmentUrl() {
+        return attachmentUrl;
+    }
+
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = attachmentUrl;
     }
 
     /**
