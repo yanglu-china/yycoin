@@ -1050,7 +1050,9 @@ public class ShipManagerImpl implements ShipManager
         {
             PackageBean packageBean = packageList.get(0);
 
-            if (packageBean.getStatus() != ShipConstant.SHIP_STATUS_CONSIGN)
+//            if (packageBean.getStatus() != ShipConstant.SHIP_STATUS_CONSIGN)
+            //#853 只有CK单状态为已拣配,打印后才变更为 已打印，否则无论什么状态下打印单据，状态都不能变
+            if (packageBean.getStatus() == ShipConstant.SHIP_STATUS_PICKUP)
             {
                 packageBean.setStatus(ShipConstant.SHIP_STATUS_PRINT);
                 packageBean.setPrintTime(TimeTools.now());
