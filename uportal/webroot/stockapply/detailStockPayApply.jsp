@@ -68,6 +68,14 @@ function pagePrint()
 			<p:cell title="供应商">
                ${bean.provideName}
             </p:cell>
+
+			<p:cell title="供应商开户行">
+				${bean.provideBank}
+			</p:cell>
+
+			<p:cell title="供应商银行帐号">
+				${bean.provideAccount}
+			</p:cell>
             
             <p:cell title="最早付款">
                ${bean.payDate}

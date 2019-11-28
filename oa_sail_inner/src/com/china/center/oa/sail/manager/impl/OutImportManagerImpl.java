@@ -232,6 +232,7 @@ public class OutImportManagerImpl implements OutImportManager
                         twOutImportBean.setOANo("");
                         twOutImportBean.setRefTnFullId(outImportBean.getOANo());
                         twOutImportBean.setPrice(twthProductBean.getTwPrice());
+                        twOutImportBean.setValue(twOutImportBean.getAmount()*twOutImportBean.getPrice());
                         String twProductId = twthProductBean.getTwProductId();
 						twOutImportBean.setProductId(twProductId);
 						twOutImportBean.setProductName(twthProductBean.getTwProductName());

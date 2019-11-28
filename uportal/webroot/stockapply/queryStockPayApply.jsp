@@ -28,7 +28,7 @@ function load()
          title: '申请列表',
          url: gurl + 'query' + ukey + '&mode=' + mode,
          colModel : [
-             {display: '<input type=checkbox id=flexi_Check onclick=checkAll(this)> 选择', name : 'check', content : '<input type=checkbox name=checkb value={id} lstatus={status} lstafferId={stafferId} lprovideId={provideId} >', width : 40, align: 'center'},
+             {display: '<input type=checkbox id=flexi_Check onclick=checkAll(this)> 选择', name : 'check', content : '<input type=checkbox name=checkb value={id} lstatus={status} lstafferId={stafferId} lprovideId={provideId} ldate={payDate}>', width : 40, align: 'center'},
              {display: '采购人', name : 'stafferName', width : '8%'},
              {display: '状态', name : 'status', cc: 'stockPayApplyStatus', width : '10%'},
              {display: '采购', name : 'stockId', content: '{stockId}/{stockItemId}', width : '20%'},
@@ -75,8 +75,15 @@ function delBean(opr, grid)
 function doProcess()
 {
     if (getRadio('checkb') && getRadioValue('checkb'))
-    {   
-        $l(gurl + 'find' + ukey + '&update=1&id=' + getRadioValue('checkb') + '&mode=' + mode);
+    {
+        var payDate = getRadio('checkb').ldate;
+        var date1 = new Date(payDate);
+        var date2 = new Date("2019-11-18");
+        if (date1 >= date2){
+            $error('11.18号以后的采购单不允许处理!');
+        } else{
+            $l(gurl + 'find' + ukey + '&update=1&id=' + getRadioValue('checkb') + '&mode=' + mode);
+        }
     }
     else
     $error('不能操作');

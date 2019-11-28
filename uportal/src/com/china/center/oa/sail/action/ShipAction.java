@@ -5890,8 +5890,7 @@ public class ShipAction extends DispatchAction
             invhead.appendChild(fpslElm);
 
             Element fpbz = doc.createElement("fpbz");
-            fpbz.appendChild(
-                    doc.createTextNode(""));
+            fpbz.appendChild(doc.createTextNode(bean.getDescription()));
             invhead.appendChild(fpbz);
 
             //开票人
