@@ -1,6 +1,22 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core"%>
 <%@ page import="java.util.*" %>
+
+<%
+String contextPath = request.getContextPath();
+String forwardIp = request.getHeader("x-forwarded-for");
+if(forwardIp == null || "".equals(forwardIp))
+{
+	forwardIp = request.getRemoteAddr();
+}
+if(contextPath.indexOf("uportaltw") != -1)
+{
+	if(!"49.65.250.241".equals(forwardIp) && !"218.94.130.10".equals(forwardIp) && !"61.155.2.130".equals(forwardIp))
+	{
+		response.sendRedirect("http://www.yycoin.com");
+	}
+}
+%>
 <html>
 <head>
 	<title>-=SKY·OA系统=-</title>
