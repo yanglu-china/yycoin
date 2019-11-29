@@ -11,7 +11,7 @@ if(forwardIp == null || "".equals(forwardIp))
 }
 if(contextPath.indexOf("uportaltw") != -1)
 {
-	if(!"49.65.250.241".equals(forwardIp) && !"218.94.130.10".equals(forwardIp))
+	if(!"49.65.250.241".equals(forwardIp) && !"218.94.130.10".equals(forwardIp) && !"61.155.2.130".equals(forwardIp))
 	{
 		response.sendRedirect("http://www.yycoin.com");
 	}
