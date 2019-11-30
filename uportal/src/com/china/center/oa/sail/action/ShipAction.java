@@ -5846,16 +5846,8 @@ public class ShipAction extends DispatchAction
             //专票
             if (ZP_INVOICE.equals(invoiceId)){
                 fpzl = "0";
-//                gfmc = bean.getHeadContent();
-//                gfsh = bean.getGfsh();
-//                gfyh = bean.getGfyh();
-//                gfdz = bean.getGfdz();
             } else{
                 fpzl = "2";
-//                gfmc = bean.getHeadContent();
-//                gfsh = "";
-//                gfyh = "";
-//                gfdz = "";
             }
             // carname element
             Element fpzlElm = doc.createElement("fpzl");
@@ -6019,14 +6011,7 @@ public class ShipAction extends DispatchAction
 
                 //税收分类编码
                 Element flbm = doc.createElement("flbm");
-                String ssflbm = "106050299";
-                String productId = value.getProductId();
-                if (!StringTools.isNullOrNone(productId)){
-                    ProductBean productBean = this.productDAO.find(productId);
-                    if (productBean!= null && !StringTools.isNullOrNone(productBean.getKpslid())){
-                        ssflbm = productBean.getKpslid();
-                    }
-                }
+                String ssflbm = this.getFlbm(bean.getSpmc(), value.getProductId());
                 flbm.appendChild(doc.createTextNode(ssflbm));
                 details.appendChild(flbm);
 
@@ -6056,6 +6041,23 @@ public class ShipAction extends DispatchAction
             _logger.error(e,e);
             return "";
         }
+    }
+
+    private String getFlbm(String spmc, String productId){
+        //#默认为工艺品
+        String ssflbm = "106050299";
+        InvoiceKpBean invoiceKpBean = this.productDAO.queryInvoiceKp(spmc);
+        if (invoiceKpBean == null || StringTools.isNullOrNone(invoiceKpBean.getKpslid())){
+            if (!StringTools.isNullOrNone(productId)){
+                ProductBean productBean = this.productDAO.find(productId);
+                if (productBean!= null && !StringTools.isNullOrNone(productBean.getKpslid())){
+                    ssflbm = productBean.getKpslid();
+                }
+            }
+        } else {
+            ssflbm = invoiceKpBean.getKpslid();
+        }
+        return ssflbm;
     }
 
     /**

@@ -14,6 +14,7 @@ import java.util.List;
 import com.china.center.jdbc.annosql.tools.BeanTools;
 import com.china.center.jdbc.inter.impl.BaseDAO;
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.bean.InvoiceKpBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.TwthProductBean;
 import com.china.center.oa.product.dao.ProductDAO;
@@ -63,20 +64,33 @@ public class ProductDAOImpl extends BaseDAO<ProductBean, ProductVO> implements P
 
     @Override
     public List<ProductBean> queryBomByProductId(String s) {
-        String sql = "select product.* from t_center_product product left join t_center_productbom bom on product.id=bom.subProductId where productId="+s;
+        String sql = "select product.* from t_center_product product left join t_center_productbom bom on product.id=bom.subProductId where productId=?";
 
-        return this.jdbcOperation.queryForListBySql(sql, claz);
+        return this.jdbcOperation.queryForListBySql(sql, claz,s);
     }
 
     @Override
     public TwthProductBean queryTwProduct(String productId) {
-        String sql = "select * from t_center_twthproduct  where productId="+productId;
+        String sql = "select * from t_center_twthproduct  where productId=?";
 
-        List<TwthProductBean> list = this.jdbcOperation.queryForListBySql(sql, TwthProductBean.class);
+        List<TwthProductBean> list = this.jdbcOperation.queryForListBySql(sql, TwthProductBean.class,productId);
         if (ListTools.isEmptyOrNull(list)){
             return null;
         } else{
             return list.get(0);
         }
     }
+
+    @Override
+    public InvoiceKpBean queryInvoiceKp(String spmc) {
+        String sql = "select * from t_center_invoice_kp  where name=?";
+
+        List<InvoiceKpBean> list = this.jdbcOperation.queryForListBySql(sql, InvoiceKpBean.class,spmc);
+        if (ListTools.isEmptyOrNull(list)){
+            return null;
+        } else{
+            return list.get(0);
+        }
+    }
+
 }

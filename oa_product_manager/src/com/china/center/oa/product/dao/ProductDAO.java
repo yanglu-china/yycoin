@@ -10,6 +10,7 @@ package com.china.center.oa.product.dao;
 
 
 import com.china.center.jdbc.inter.DAO;
+import com.china.center.oa.product.bean.InvoiceKpBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.TwthProductBean;
 import com.china.center.oa.product.vo.ProductVO;
@@ -36,4 +37,6 @@ public interface ProductDAO extends DAO<ProductBean, ProductVO>
     List<ProductBean> queryBomByProductId(String productId);
 
     TwthProductBean queryTwProduct(String productId);
+
+    InvoiceKpBean queryInvoiceKp(String spmc);
 }
