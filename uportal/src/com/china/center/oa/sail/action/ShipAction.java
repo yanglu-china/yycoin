@@ -5950,9 +5950,10 @@ public class ShipAction extends DispatchAction
                 invdetails.appendChild(details);
 
                 //商品名称：invoiceins_item 表的开票品名字段
-                Element spmc = doc.createElement("spmc");
-                spmc.appendChild(doc.createTextNode(value.getSpmc()));
-                details.appendChild(spmc);
+                String spmc = value.getSpmc();
+                Element spmcElm = doc.createElement("spmc");
+                spmcElm.appendChild(doc.createTextNode(spmc));
+                details.appendChild(spmcElm);
 
                 //规格型号
                 Element ggxh = doc.createElement("ggxh");
@@ -6011,7 +6012,7 @@ public class ShipAction extends DispatchAction
 
                 //税收分类编码
                 Element flbm = doc.createElement("flbm");
-                String ssflbm = this.getFlbm(bean.getSpmc(), value.getProductId());
+                String ssflbm = this.getFlbm(spmc, value.getProductId());
                 flbm.appendChild(doc.createTextNode(ssflbm));
                 details.appendChild(flbm);
 
