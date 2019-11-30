@@ -49,7 +49,7 @@ public class BackPrePayApplyVO extends BackPrePayApplyBean
 	private String oaNo = "";
 
     @Ignore
-	private String attachmentUrl = "";
+	private String attachmentUrl = "附件";
     
 	/**
 	 * 

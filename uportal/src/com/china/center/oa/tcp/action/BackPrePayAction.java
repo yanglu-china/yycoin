@@ -254,15 +254,6 @@ public class BackPrePayAction extends DispatchAction
                             vo.setFinishTime(logs.get(0).getLogTime());
                         }
 
-                        //下载地址
-                        List<AttachmentBean> attachmentList = attachmentDAO.queryEntityVOsByFK(vo.getId());
-                        StringBuilder sb = new StringBuilder();
-                        for (AttachmentBean attachmentBean : attachmentList) {
-                            String url = "<a href='../tcp/backprepay.do?method=downAttachmentFile&id="
-                                    +attachmentBean.getId()+"'>"+attachmentBean.getName()+" </a>";
-                            sb.append(url).append("<br>");
-                        }
-                        vo.setAttachmentUrl(sb.toString());
                     }
                 });
 

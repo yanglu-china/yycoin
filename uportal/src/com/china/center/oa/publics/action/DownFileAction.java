@@ -192,6 +192,7 @@ public class DownFileAction extends DispatchAction
                                                 HttpServletResponse response)
             throws ServletException, IOException
     {
+        _logger.info("****downPayAttachmentsById****");
         String id = request.getParameter("id");
         String type = request.getParameter("type");
 
@@ -204,16 +205,25 @@ public class DownFileAction extends DispatchAction
             return null;
         }
 
-        final List<AttachmentBean> attachmentsList = attachmentDAO.queryEntityBeansByCondition("where refid=? and attachmentType = ? ", id, AttachmentBean.AttachmentType_FK);
+        final String backPrePay = "backPrePay";
+
+        List<AttachmentBean> attachmentsList;
+        if (backPrePay.equals(type)){
+            attachmentsList = attachmentDAO.queryEntityBeansByCondition("where refid=?", id);
+        } else{
+            attachmentsList = attachmentDAO.queryEntityBeansByCondition("where refid=? and attachmentType = ? ", id, AttachmentBean.AttachmentType_FK);
+        }
 
         String path = ConfigLoader.getProperty("tcpAttachmentPath");
         if("finance".equals(type)){
             path = ConfigLoader.getProperty("financeAttachmentPath");
+        } else if(backPrePay.equals(type)){
+            path = ConfigLoader.getProperty("backPrePayAttachmentPath");
         }
 
         String filename = "";
 
-        _logger.debug("attachmentsList.size(): "+attachmentsList.size());
+        _logger.info("attachmentsList.size(): "+attachmentsList.size());
 
         if(attachmentsList.size()==0){
             return null;
@@ -238,7 +248,7 @@ public class DownFileAction extends DispatchAction
 
         }else if(attachmentsList.size()>1) {
             //压缩后下载
-            filename = "付款附件.zip";
+            filename = "附件.zip";
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "attachment; filename="
                     + StringTools.getStringBySet(filename,

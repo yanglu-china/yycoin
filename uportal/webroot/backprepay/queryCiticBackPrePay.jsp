@@ -11,7 +11,7 @@
 <script type="text/javascript">
 
 var gurl = '../tcp/backprepay.do?method=';
-var addUrl = '../backPrepay/addBackPrePay.jsp';
+var downloadUrl = '../admin/down.do?method=downPayAttachmentsById';
 var ukey = 'BackPrePay';
 
 var allDef = getAllDef();
@@ -36,10 +36,11 @@ function load()
              {display: '附件', name : 'attachmentUrl',width : 'auto'}
              ],
          extAtt: {
-             id : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}>', end : '</a>'}
+             id : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}>', end : '</a>'},
+             attachmentUrl : {begin : '<a href=' + downloadUrl + '&type=backPrePay&id={id}>', end : '</a>'}
          },
          buttons : [
-			 {id: 'export', bclass: 'replied',  caption: '导出明细', onpress : exports},
+			 // {id: 'export', bclass: 'replied',  caption: '导出明细', onpress : exports},
              {id: 'search', bclass: 'search', onpress : doSearch}
              ],
         <p:conf/>
