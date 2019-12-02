@@ -138,16 +138,37 @@ public class StringUtils {
         return org.apache.commons.lang.StringUtils.removeEnd(builder.toString(), deliminator1);
     }
 
+    /**
+     * 对字符串进行分割，并返回第二部分
+     * @param str
+     * @param deliminator
+     * @return
+     */
     public static String getSecondPart(String str, String deliminator){
         String[] arrs = str.split(deliminator);
-//        for (String s: arrs){
-//            System.out.println(s);
-//        }
-//        System.out.println(arrs);
         if(arrs.length >=2){
             return arrs[1];
         } else{
             return str;
+        }
+    }
+
+    /**
+     * 对字符串进行分割并返回第二部分,如果不包含分隔符则返回空
+     * @param str
+     * @param deliminator
+     * @return
+     */
+    public static String getSecondPartMayNull(String str, String deliminator){
+        if (str.contains(deliminator)){
+            String[] arrs = str.split(deliminator);
+            if(arrs.length >=2){
+                return arrs[1];
+            } else{
+                return str;
+            }
+        } else{
+            return null;
         }
     }
 
@@ -185,6 +206,8 @@ public class StringUtils {
         String str = extract("数据接口批量导入，银行单号E20180115154115081900008.","银行单号", Pattern.quote("."));
         System.out.println(str);
         System.out.println(getSecondPart("YZ0096700 貔貅手串黑曜石升级版（普17）", " "));
+        System.out.println(getSecondPartMayNull("中信银行呼和浩特新华东街支行退款申请订单号421920354759780730","订单号"));
+        System.out.println(getSecondPartMayNull("中信银行呼和浩特新华东街支行退款申请订单421920354759780730","订单号"));
         SortedSet<String> set = getMonthKeys("201810", "201902");
         System.out.println(set.size());
         System.out.println(set);
