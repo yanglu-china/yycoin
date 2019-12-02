@@ -1,6 +1,7 @@
 package com.china.center.oa.finance.portal.action;
 
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
@@ -23,14 +24,12 @@ import com.china.center.oa.finance.manager.BillManager;
 import com.china.center.oa.finance.vo.InBillVO;
 import com.china.center.oa.finance.vo.OutBillVO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.InvoiceBean;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.dao.InvoiceDAO;
-import com.china.center.oa.publics.dao.ParameterDAO;
-import com.china.center.oa.publics.dao.StafferTransferDAO;
+import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.manager.AuthManager;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.sail.bean.OutBean;
@@ -39,6 +38,7 @@ import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.tools.*;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -49,13 +49,8 @@ import org.apache.struts.actions.DispatchAction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 
 /**
@@ -99,6 +94,10 @@ public class BillAction extends DispatchAction
     private FinanceDAO financeDAO = null;
 
     private StafferTransferDAO stafferTransferDAO = null;
+
+    private AttachmentDAO attachmentDAO = null;
+
+    private CommonDAO commonDAO = null;
 
     private static final String QUERYINBILL = "queryInBill";
 
@@ -240,10 +239,39 @@ public class BillAction extends DispatchAction
 
         condtion.addCondition("order by OutBillBean.logTime desc");
 
-        String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYOUTBILL, request, condtion,
-            this.outBillDAO);
+        List list = ActionTools.commonQueryBeanInnerByJSON(QUERYOUTBILL, request, condtion,this.outBillDAO, false);
+        
+        final List<AttachmentBean> attachmentsList = attachmentDAO.queryEntityBeansByCondition("where attachmentType = ? ", AttachmentBean.AttachmentType_FK);
+        
+        for(Object bean: list){
+            if (bean instanceof OutBillVO){
+                OutBillVO outBillBean = (OutBillVO)bean;
+                
+                int attachmentCount = attachmentCount(attachmentsList, outBillBean.getId());
+                if(attachmentCount>0){
+                    String attachmentUrl = "../admin/down.do?method=downPayAttachmentsById&type=finance&id="+outBillBean.getId();
+                    outBillBean.setAttachmentUrl(attachmentUrl);
+                    outBillBean.setAttachmentsHint("附件（"+attachmentCount+"）");
+                }
+            }
+        }
+
+        String jsonstr = JSONTools.getJSONString(list, PageSeparateTools.getPageSeparate(request, QUERYOUTBILL));
+
+        //String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYOUTBILL, request, condtion,
+        //    this.outBillDAO);
 
         return JSONTools.writeResponse(response, jsonstr);
+    }
+    
+    private static int attachmentCount(List<AttachmentBean> attachmentsList, String id){
+        int count = 0;
+        for(AttachmentBean bean : attachmentsList){
+            if(bean.getRefId().equals(id)){
+                count ++;
+            }
+        }
+        return count;
     }
 
     /**
@@ -430,11 +458,110 @@ public class BillAction extends DispatchAction
                                     HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
+    	
+    	//处理附件 #836
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
+        try
+        {
+            rds.parser();
+        }
+        catch (FileUploadBase.SizeLimitExceededException e)
+        {
+            _logger.error(e, e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
+            return mapping.findForward("error");
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败");
+            return mapping.findForward("error");
+        }
+
+        Map<String, InputStream> streamMap = rds.getStreamMap();
+        List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
+
+        _logger.info("***streamMap.isEmpty()****"+streamMap.isEmpty());
+
+        if(!streamMap.isEmpty())
+        {
+
+            for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
+            {
+                AttachmentBean attachmentBean = new AttachmentBean();
+
+                FileOutputStream out = null;
+
+                UtilStream ustream = null;
+
+                try
+                {
+                    String savePath = mkdir(this.getAttachmentPath());
+
+                    String fileAlais = SequenceTools.getSequence();
+
+                    String fileName = FileTools.getFileName(rds.getFileName(entry.getKey()));
+
+                    String rabsPath = '/' + savePath + '/' + fileAlais + "."
+                            + FileTools.getFilePostfix(fileName).toLowerCase();
+
+                    String filePath = this.getAttachmentPath() + '/' + rabsPath;
+
+                    attachmentBean.setName(fileName);
+
+                    attachmentBean.setPath(rabsPath);
+
+                    attachmentBean.setLogTime(TimeTools.now());
+
+                    out = new FileOutputStream(filePath);
+
+                    ustream = new UtilStream(entry.getValue(), out);
+
+                    ustream.copyStream();
+
+                    attachmentList.add(attachmentBean);
+                }
+                catch (IOException e)
+                {
+                    _logger.error(e, e);
+
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存失败");
+
+                }
+                finally
+                {
+                    if (ustream != null)
+                    {
+                        try
+                        {
+                            ustream.close();
+                        }
+                        catch (IOException e)
+                        {
+                            _logger.error(e, e);
+                        }
+                    }
+                }
+            }
+        }
+    	
         OutBillBean bean = new OutBillBean();
 
         try
         {
-            BeanUtil.getBean(bean, request);
+            //BeanUtil.getBean(bean, request);
+            /*
+            <input type="hidden" name="provideId" value="">
+<input type="hidden" name="ownerId" value="">
+<input type="hidden" name="stockId" value="">
+<input type="hidden" name="bankId" value="">
+<input type="hidden" name="destBankId" value="">
+             */
+            bean.setBankId(rds.getParameter("bankId"));
+            bean.setProvideId(rds.getParameter("provideId"));
+            bean.setOwnerId(rds.getParameter("ownerId"));
+            bean.setStockId(rds.getParameter("stockId"));
+            bean.setDestBankId(rds.getParameter("destBankId"));
 
             User user = Helper.getUser(request);
 
@@ -451,7 +578,9 @@ public class BillAction extends DispatchAction
             
             bean.setCheckStatus(PublicConstant.CHECK_STATUS_INIT);
 
-            financeFacade.addOutBillBean(user.getId(), bean);
+            financeFacade.addOutBillBean(user.getId(), bean, attachmentList);
+
+            _logger.debug("bean.getId():"+ bean.getId()+", attachmentList.size():"+attachmentList.size());
 
             request.setAttribute(KeyConstant.MESSAGE, "成功操作");
         }
@@ -465,6 +594,21 @@ public class BillAction extends DispatchAction
         CommonTools.removeParamers(request);
 
         return mapping.findForward("queryOutBill");
+    }
+
+    public String getAttachmentPath()
+    {
+        return ConfigLoader.getProperty("financeAttachmentPath");
+    }
+
+    private String mkdir(String root)
+    {
+        String path = TimeTools.now("yyyy/MM/dd/HH") + "/"
+                + SequenceTools.getSequence(String.valueOf(new Random().nextInt(1000)));
+
+        FileTools.mkdirs(root + '/' + path);
+
+        return path;
     }
 
     /**
@@ -1738,5 +1882,21 @@ public class BillAction extends DispatchAction
     public void setFlowLogDAO(FlowLogDAO flowLogDAO)
     {
         this.flowLogDAO = flowLogDAO;
+    }
+
+    public AttachmentDAO getAttachmentDAO() {
+        return attachmentDAO;
+    }
+
+    public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
+        this.attachmentDAO = attachmentDAO;
+    }
+
+    public CommonDAO getCommonDAO() {
+        return commonDAO;
+    }
+
+    public void setCommonDAO(CommonDAO commonDAO) {
+        this.commonDAO = commonDAO;
     }
 }

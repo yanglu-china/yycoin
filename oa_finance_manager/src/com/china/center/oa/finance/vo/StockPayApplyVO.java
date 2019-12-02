@@ -49,6 +49,11 @@ public class StockPayApplyVO extends StockPayApplyBean
      * #478 查询结果实付金额总数
      */
     private double totalMoneys;
+    
+    @Ignore
+    private String attachmentsHint = "";
+    @Ignore
+    private String attachmentUrl = "";
 
     /**
      * default constructor
@@ -158,7 +163,23 @@ public class StockPayApplyVO extends StockPayApplyBean
         this.provideAccount = provideAccount;
     }
 
-    /**
+    public String getAttachmentsHint() {
+		return attachmentsHint;
+	}
+
+	public void setAttachmentsHint(String attachmentsHint) {
+		this.attachmentsHint = attachmentsHint;
+	}
+
+	public String getAttachmentUrl() {
+		return attachmentUrl;
+	}
+
+	public void setAttachmentUrl(String attachmentUrl) {
+		this.attachmentUrl = attachmentUrl;
+	}
+
+	/**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

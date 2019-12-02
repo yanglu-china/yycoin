@@ -190,6 +190,12 @@ public class AttachmentBean implements Serializable
             .append("logTime = ")
             .append(this.logTime)
             .append(TAB)
+            .append("flag = ")
+            .append(this.flag)
+            .append(TAB)
+            .append("attachmentType = ")
+            .append(this.attachmentType)
+            .append(TAB)
             .append(" )");
 
         return retValue.toString();

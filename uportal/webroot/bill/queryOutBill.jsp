@@ -33,9 +33,9 @@ function load()
          url: gurl + 'query' + ukey,
          colModel : [
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status} lcheck={checkStatus} llock={lock} lctype={createType}>', width : 40, align: 'center'},
-             {display: '标识', name : 'id', width : '15%'},
-             {display: '帐号', name : 'bankName', sortable : true, cname: 'bankId', width : '18%'},
-             {display: '类型', name : 'type', cc: 'outbillType', sortable : true , width : '8%'},
+             {display: '标识', name : 'id', width : '12%'},
+             {display: '帐号', name : 'bankName', sortable : true, cname: 'bankId', width : '15%'},
+             {display: '类型', name : 'type', cc: 'outbillType', sortable : true , width : '6%'},
              {display: '核对', name : 'checkStatus', cc: 'pubCheckStatus', sortable : true, width : '5%'},
              {display: '金额', name : 'moneys',  toFixed: 2, sortable : true, width : '5%'},
              {display: '单位', name : 'provideName', sortable : true, cname: 'provideId', width : '10%'},
@@ -43,10 +43,12 @@ function load()
              {display: '职员', name : 'ownerName', sortable : true, cname: 'ownerId', width : '5%'},
              {display: '状态', name : 'status', cc: 'outbillStatus', width : '8%'},
              {display: '时间', name : 'logTime', sortable : true, width : '10%'},
-             {display: '备注', name : 'description', sortable : true, width : 'auto'}
+             {display: '备注', name : 'description', sortable : true, width : 'auto'},
+             {display: '付款附件', name : 'attachmentsHint', width : '8%'}
              ],
          extAtt: {
-             id : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}' + checkStr + '>', end : '</a>'}
+             id : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}' + checkStr + '>', end : '</a>'},
+             attachmentsHint : {begin : '<a href={attachmentUrl}>', end : '</a>'}
          },
          buttons : [
              {id: 'add', bclass: 'add', onpress : addBean, auth: '1607'},

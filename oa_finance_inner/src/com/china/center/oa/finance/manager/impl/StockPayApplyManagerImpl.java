@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.List;
 
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.dao.AttachmentDAO;
 import com.china.center.oa.stock.bean.StockItemBean;
 import com.china.center.oa.stock.constant.StockConstant;
 import com.china.center.tools.*;
@@ -86,6 +88,8 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
     private StockPayVSPreDAO stockPayVSPreDAO = null;
     
     private StockPayVSComposeDAO stockPayVSComposeDAO = null;
+
+    private AttachmentDAO attachmentDAO = null;
 
     /**
      * default constructor
@@ -868,6 +872,29 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
         return true;
     }
 
+    @Transactional(rollbackFor = MYException.class)
+    public boolean endStockPayBySEC(User user, String id, String reason,
+                                    List<OutBillBean> outBillList, List<AttachmentBean> attachmentList)
+            throws MYException
+    {
+        boolean flag = this.endStockPayBySEC(user, id, reason, outBillList);
+
+        //保存付款附件
+        if(attachmentList.size()>0){
+            for (AttachmentBean attachmentBean : attachmentList)
+            {
+                attachmentBean.setId(commonDAO.getSquenceString20());
+                attachmentBean.setRefId(id);
+                attachmentBean.setAttachmentType(AttachmentBean.AttachmentType_FK);
+                //attachmentBean.setFlag(0);
+                _logger.debug(attachmentBean.toString());
+            }
+            attachmentDAO.saveAllEntityBeans(attachmentList);
+        }
+
+        return flag;
+    }
+
     /**
      * createOutBill
      * 
@@ -1070,6 +1097,28 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
             PublicConstant.OPRMODE_PASS);
 
         return true;
+    }
+
+    @Transactional(rollbackFor = MYException.class)
+    public boolean endStockPrePayBySEC(User user, String id, String reason,
+                                       List<OutBillBean> outBillList, List<AttachmentBean> attachmentList) throws MYException
+    {
+        boolean flag = this.endStockPrePayBySEC(user, id, reason, outBillList);
+
+        //保存付款附件
+        if(attachmentList.size()>0){
+            for (AttachmentBean attachmentBean : attachmentList)
+            {
+                attachmentBean.setId(commonDAO.getSquenceString20());
+                attachmentBean.setRefId(id);
+                attachmentBean.setAttachmentType(AttachmentBean.AttachmentType_FK);
+                //attachmentBean.setFlag(0);
+                _logger.debug(attachmentBean.toString());
+            }
+            attachmentDAO.saveAllEntityBeans(attachmentList);
+        }
+
+        return flag;
     }
 
 	@Override
@@ -1448,4 +1497,12 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 	{
 		this.stockPayVSComposeDAO = stockPayVSComposeDAO;
 	}
+
+    public AttachmentDAO getAttachmentDAO() {
+        return attachmentDAO;
+    }
+
+    public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
+        this.attachmentDAO = attachmentDAO;
+    }
 }

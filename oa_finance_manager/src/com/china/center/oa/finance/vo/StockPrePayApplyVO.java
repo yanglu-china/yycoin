@@ -1,6 +1,7 @@
 package com.china.center.oa.finance.vo;
 
 import com.china.center.jdbc.annotation.Entity;
+import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.finance.bean.StockPrePayApplyBean;
 
@@ -19,6 +20,11 @@ public class StockPrePayApplyVO extends StockPrePayApplyBean
 
     @Relationship(relationField = "stafferId")
     private String stafferName = "";
+    
+    @Ignore
+    private String attachmentsHint = "";
+    @Ignore
+    private String attachmentUrl = "";
 
 	public StockPrePayApplyVO()
 	{
@@ -87,4 +93,21 @@ public class StockPrePayApplyVO extends StockPrePayApplyBean
 	{
 		this.stafferName = stafferName;
 	}
+
+	public String getAttachmentsHint() {
+		return attachmentsHint;
+	}
+
+	public void setAttachmentsHint(String attachmentsHint) {
+		this.attachmentsHint = attachmentsHint;
+	}
+
+	public String getAttachmentUrl() {
+		return attachmentUrl;
+	}
+
+	public void setAttachmentUrl(String attachmentUrl) {
+		this.attachmentUrl = attachmentUrl;
+	}
+	
 }

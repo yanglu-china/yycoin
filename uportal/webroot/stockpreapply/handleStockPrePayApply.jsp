@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"
 	errorPage="../common/error.jsp"%>
 <%@include file="../common/common.jsp"%>
+<%@ taglib prefix="attach" tagdir="/WEB-INF/tags/attach" %>
+
 <html>
 <head>
 <p:link title="付款申请" />
@@ -18,6 +20,7 @@ function passBean()
     
 	// submit('确定通过付款申请?', null, null);
     if (window.confirm('确定通过付款申请?')) {
+
         formEntry.submit();
     }
 }
@@ -49,6 +52,9 @@ function ajaxPararmter(str)
 function endBean()
 {
     $O('method').value = 'endStockPrePayBySEC';
+    
+	formEntry.action = "../finance/stock.do?method=endStockPrePayBySEC";
+	formEntry.enctype = "multipart/form-data";
     
     submit('确定付款给供应商?付款金额:${my:formatNum(bean.moneys)}', null, null);
 }
@@ -164,6 +170,10 @@ function getNextInput(el)
 				<textarea rows=3 cols=55 oncheck="notNone;maxLength(200);" name="reason"></textarea>
 				<font color="red">*</font>
 			</p:cell>
+			
+            <c:if test="${bean.status == 3}">
+                <attach:attachmentsTag/>
+            </c:if>			
 
 		</p:table>
 

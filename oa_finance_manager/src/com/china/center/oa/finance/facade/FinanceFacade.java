@@ -24,6 +24,7 @@ import com.china.center.oa.finance.bean.StockPayApplyBean;
 import com.china.center.oa.finance.bean.StockPrePayApplyBean;
 import com.china.center.oa.finance.vo.BatchSplitInBillWrap;
 import com.china.center.oa.finance.vs.StockPayVSPreBean;
+import com.china.center.oa.publics.bean.AttachmentBean;
 
 
 /**
@@ -226,6 +227,9 @@ public interface FinanceFacade
     boolean addOutBillBean(String userId, OutBillBean bean)
         throws MYException;
 
+    boolean addOutBillBean(String userId, OutBillBean bean, List<AttachmentBean> attachmentList)
+            throws MYException;
+
     /**
      * deleteOutBillBean
      * 
@@ -279,6 +283,9 @@ public interface FinanceFacade
 
     boolean endStockPayBySEC(String userId, String id, String reason, List<OutBillBean> outBillList)
         throws MYException;
+
+    boolean endStockPayBySEC(String userId, String id, String reason, List<OutBillBean> outBillList, List<AttachmentBean> attachmentList)
+            throws MYException;
 
     boolean addBackPayApplyBean(String userId, BackPayApplyBean bean)
         throws MYException;
@@ -395,6 +402,9 @@ public interface FinanceFacade
 
     boolean endStockPrePayBySEC(String userId, String id, String reason, List<OutBillBean> outBillList)
         throws MYException;
+
+    boolean endStockPrePayBySEC(String userId, String id, String reason, List<OutBillBean> outBillList, List<AttachmentBean> attachmentList)
+            throws MYException;
      
     boolean addStockPrePayApply(String userId, StockPrePayApplyBean bean)
     throws MYException;

@@ -18,6 +18,7 @@ import com.china.center.oa.finance.bean.InBillBean;
 import com.china.center.oa.finance.bean.OutBillBean;
 import com.china.center.oa.finance.listener.BillListener;
 import com.china.center.oa.finance.vo.BatchSplitInBillWrap;
+import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.StafferBean;
 
 
@@ -138,6 +139,9 @@ public interface BillManager extends ListenerManager<BillListener>
      */
     boolean addOutBillBean(User user, OutBillBean bean)
         throws MYException;
+
+    boolean addOutBillBean(User user, OutBillBean bean, List<AttachmentBean> attachmentList)
+            throws MYException;
 
     boolean addOutBillBeanWithoutTransaction(User user, OutBillBean bean)
         throws MYException;

@@ -9,6 +9,7 @@
 package com.china.center.oa.finance.portal.action;
 
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.china.center.actionhelper.common.ActionTools;
 import com.china.center.actionhelper.common.JSONTools;
@@ -25,6 +26,7 @@ import com.china.center.oa.finance.vo.StockPayApplyVO;
 import com.china.center.oa.finance.vo.StockPrePayApplyVO;
 import com.china.center.oa.finance.vs.StockPayVSPreBean;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.InvoiceBean;
 import com.china.center.oa.publics.bean.StafferBean;
@@ -36,6 +38,7 @@ import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vs.RoleAuthBean;
 import com.china.center.oa.sail.wrap.ConfirmInsWrap;
 import com.china.center.tools.*;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -46,6 +49,9 @@ import org.apache.struts.actions.DispatchAction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -88,6 +94,10 @@ public class StockPayAction extends DispatchAction
     private InvoiceStorageDAO invoiceStorageDAO = null;
 
     private ParameterDAO parameterDAO = null;
+    
+    private AttachmentDAO attachmentDAO = null;
+
+    private CommonDAO commonDAO = null;
 
     private static final String QUERYSTOCKPAYAPPLY = "queryStockPayApply";
 
@@ -270,10 +280,19 @@ public class StockPayAction extends DispatchAction
             }
         }
         _logger.info("total****"+total);
+        final List<AttachmentBean> attachmentsList = attachmentDAO.queryEntityBeansByCondition("where attachmentType = ? ", AttachmentBean.AttachmentType_FK);
+        
         for(Object bean: list){
             if (bean instanceof StockPayApplyVO){
                 StockPayApplyVO stockPayApplyBean = (StockPayApplyVO)bean;
                 stockPayApplyBean.setTotalMoneys(total);
+                
+                int attachmentCount = attachmentCount(attachmentsList, stockPayApplyBean.getId());
+                if(attachmentCount>0){
+                    String attachmentUrl = "../admin/down.do?method=downPayAttachmentsById&type=finance&id="+stockPayApplyBean.getId();
+                    stockPayApplyBean.setAttachmentUrl(attachmentUrl);
+                    stockPayApplyBean.setAttachmentsHint("附件（"+attachmentCount+"）");
+                }
             }
         }
 //        String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCEOSTOCKPAYAPPLY, request,
@@ -281,6 +300,16 @@ public class StockPayAction extends DispatchAction
         String jsonstr = JSONTools.getJSONString(list, PageSeparateTools.getPageSeparate(request, QUERYCEOSTOCKPAYAPPLY));
 
         return JSONTools.writeResponse(response, jsonstr);
+    }
+
+    private static int attachmentCount(List<AttachmentBean> attachmentsList, String id){
+        int count = 0;
+        for(AttachmentBean bean : attachmentsList){
+            if(bean.getRefId().equals(id)){
+                count ++;
+            }
+        }
+        return count;
     }
 
     /**
@@ -625,6 +654,9 @@ public class StockPayAction extends DispatchAction
                                            HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
+
+
+
         String id = request.getParameter("id");
 
         String reason = request.getParameter("reason");
@@ -652,6 +684,24 @@ public class StockPayAction extends DispatchAction
     }
 
     /**
+     * @return the flowAtt
+     */
+    public String getAttachmentPath()
+    {
+        return ConfigLoader.getProperty("financeAttachmentPath");
+    }
+    private String mkdir(String root)
+    {
+        String path = TimeTools.now("yyyy/MM/dd/HH") + "/"
+                + SequenceTools.getSequence(String.valueOf(new Random().nextInt(1000)));
+
+        FileTools.mkdirs(root + '/' + path);
+
+        return path;
+    }
+
+
+    /**
      * endStockPayBySEC(结束)
      * 
      * @param mapping
@@ -665,13 +715,111 @@ public class StockPayAction extends DispatchAction
                                           HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
-        String id = request.getParameter("id");
+    	
+        //处理附件 #836
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
+        try
+        {
+            rds.parser();
+        }
+        catch (FileUploadBase.SizeLimitExceededException e)
+        {
+            _logger.error(e, e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
+            return mapping.findForward("error");
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败");
+            return mapping.findForward("error");
+        }
 
-        String reason = request.getParameter("reason");
+        String id = rds.getParameter("id");
+        String reason = rds.getParameter("reason");
 
-        String[] bankIds = request.getParameterValues("bankId");
-        String[] payTypes = request.getParameterValues("payType");
-        String[] moneys = request.getParameterValues("money");
+        List<String> bankIdList = rds.getParameters("bankId");
+        List<String>  payTypeList = rds.getParameters("payType");
+        List<String>  moneyList = rds.getParameters("money");
+
+        String[] bankIds = this.list2Array(bankIdList);
+        String[] payTypes = this.list2Array(payTypeList);
+        String[] moneys = this.list2Array(moneyList);
+
+        Map<String, InputStream> streamMap = rds.getStreamMap();
+        List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
+
+        _logger.info("***streamMap.isEmpty()****"+streamMap.isEmpty());
+
+        if(!streamMap.isEmpty())
+        {
+
+            for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
+            {
+                AttachmentBean attachmentBean = new AttachmentBean();
+
+                FileOutputStream out = null;
+
+                UtilStream ustream = null;
+
+                try
+                {
+                    String savePath = mkdir(this.getAttachmentPath());
+
+                    String fileAlais = SequenceTools.getSequence();
+
+                    String fileName = FileTools.getFileName(rds.getFileName(entry.getKey()));
+
+                    String rabsPath = '/' + savePath + '/' + fileAlais + "."
+                            + FileTools.getFilePostfix(fileName).toLowerCase();
+
+                    String filePath = this.getAttachmentPath() + '/' + rabsPath;
+
+                    attachmentBean.setName(fileName);
+
+                    attachmentBean.setPath(rabsPath);
+
+                    attachmentBean.setLogTime(TimeTools.now());
+
+                    out = new FileOutputStream(filePath);
+
+                    ustream = new UtilStream(entry.getValue(), out);
+
+                    ustream.copyStream();
+
+                    attachmentList.add(attachmentBean);
+                }
+                catch (IOException e)
+                {
+                    _logger.error(e, e);
+
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存失败");
+
+                }
+                finally
+                {
+                    if (ustream != null)
+                    {
+                        try
+                        {
+                            ustream.close();
+                        }
+                        catch (IOException e)
+                        {
+                            _logger.error(e, e);
+                        }
+                    }
+                }
+            }
+        }
+    	
+        //String id = request.getParameter("id");
+
+        //String reason = request.getParameter("reason");
+
+        //String[] bankIds = request.getParameterValues("bankId");
+        //String[] payTypes = request.getParameterValues("payType");
+        //String[] moneys = request.getParameterValues("money");
 
         List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
 
@@ -698,7 +846,7 @@ public class StockPayAction extends DispatchAction
             User user = Helper.getUser(request);
 
             // 结束采购付款
-            financeFacade.endStockPayBySEC(user.getId(), id, reason, outBillList);
+            financeFacade.endStockPayBySEC(user.getId(), id, reason, outBillList, attachmentList);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功操作");
         }
@@ -843,8 +991,26 @@ public class StockPayAction extends DispatchAction
 
         condtion.addCondition("order by StockPrePayApplyBean.payDate");
 
-        String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCEOSTOCKPREPAYAPPLY, request,
-            condtion, this.stockPrePayApplyDAO);
+        List list = ActionTools.commonQueryBeanInnerByJSON(QUERYCEOSTOCKPREPAYAPPLY, request, condtion,this.stockPrePayApplyDAO, false);
+
+        final List<AttachmentBean> attachmentsList = attachmentDAO.queryEntityBeansByCondition("where attachmentType = ? ", AttachmentBean.AttachmentType_FK);
+
+        for(Object bean: list){
+            if (bean instanceof StockPrePayApplyVO){
+                StockPrePayApplyVO stockPrePayApplyBean = (StockPrePayApplyVO)bean;
+                int attachmentCount = attachmentCount(attachmentsList, stockPrePayApplyBean.getId());
+                if(attachmentCount>0){
+                    String attachmentUrl = "../admin/down.do?method=downPayAttachmentsById&type=finance&id="+stockPrePayApplyBean.getId();
+                    stockPrePayApplyBean.setAttachmentUrl(attachmentUrl);
+                    stockPrePayApplyBean.setAttachmentsHint("附件（"+attachmentCount+"）");
+                }
+            }
+        }
+
+        String jsonstr = JSONTools.getJSONString(list, PageSeparateTools.getPageSeparate(request, QUERYCEOSTOCKPREPAYAPPLY));
+
+        //String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYCEOSTOCKPREPAYAPPLY, request,
+        //    condtion, this.stockPrePayApplyDAO);
 
         return JSONTools.writeResponse(response, jsonstr);
     }
@@ -946,13 +1112,114 @@ public class StockPayAction extends DispatchAction
             HttpServletResponse response)
 	throws ServletException
 	{
-        String id = request.getParameter("id");
 
-        String reason = request.getParameter("reason");
+        //处理附件 #836
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
+        try
+        {
+            rds.parser();
+        }
+        catch (FileUploadBase.SizeLimitExceededException e)
+        {
+            _logger.error(e, e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
+            return mapping.findForward("error");
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败");
+            return mapping.findForward("error");
+        }
+
+        String id = rds.getParameter("id");
+        String reason = rds.getParameter("reason");
+
+        Map<String, InputStream> streamMap = rds.getStreamMap();
+        List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
+
+        _logger.info("***streamMap.isEmpty()****"+streamMap.isEmpty());
+
+        if(!streamMap.isEmpty())
+        {
+
+            for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
+            {
+                AttachmentBean attachmentBean = new AttachmentBean();
+
+                FileOutputStream out = null;
+
+                UtilStream ustream = null;
+
+                try
+                {
+                    String savePath = mkdir(this.getAttachmentPath());
+
+                    String fileAlais = SequenceTools.getSequence();
+
+                    String fileName = FileTools.getFileName(rds.getFileName(entry.getKey()));
+
+                    String rabsPath = '/' + savePath + '/' + fileAlais + "."
+                            + FileTools.getFilePostfix(fileName).toLowerCase();
+
+                    String filePath = this.getAttachmentPath() + '/' + rabsPath;
+
+                    attachmentBean.setName(fileName);
+
+                    attachmentBean.setPath(rabsPath);
+
+                    attachmentBean.setLogTime(TimeTools.now());
+
+                    out = new FileOutputStream(filePath);
+
+                    ustream = new UtilStream(entry.getValue(), out);
+
+                    ustream.copyStream();
+
+                    attachmentList.add(attachmentBean);
+                }
+                catch (IOException e)
+                {
+                    _logger.error(e, e);
+
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存失败");
+
+                }
+                finally
+                {
+                    if (ustream != null)
+                    {
+                        try
+                        {
+                            ustream.close();
+                        }
+                        catch (IOException e)
+                        {
+                            _logger.error(e, e);
+                        }
+                    }
+                }
+            }
+        }
+
+        //String id = request.getParameter("id");
+
+        //String reason = request.getParameter("reason");
 
         try
         {
             User user = Helper.getUser(request);
+
+            //保存付款附件
+            if(attachmentList.size()>0){
+                for (AttachmentBean attachmentBean : attachmentList)
+                {
+                    attachmentBean.setId(commonDAO.getSquenceString20());
+                    attachmentBean.setRefId(id);
+                    attachmentBean.setAttachmentType(AttachmentBean.AttachmentType_FK);
+                }
+                attachmentDAO.saveAllEntityBeans(attachmentList);
+            }
 
             financeFacade.passStockPrePayByCEO(user.getId(), id, reason);
 
@@ -986,13 +1253,117 @@ public class StockPayAction extends DispatchAction
             HttpServletResponse response)
 	throws ServletException
 	{
-        String id = request.getParameter("id");
+        //处理附件 #836
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
+        try
+        {
+            rds.parser();
+        }
+        catch (FileUploadBase.SizeLimitExceededException e)
+        {
+            _logger.error(e, e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
+            return mapping.findForward("error");
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败");
+            return mapping.findForward("error");
+        }
 
-        String reason = request.getParameter("reason");
+        String id = rds.getParameter("id");
+        String reason = rds.getParameter("reason");
 
-        String[] bankIds = request.getParameterValues("bankId");
-        String[] payTypes = request.getParameterValues("payType");
-        String[] moneys = request.getParameterValues("money");
+        Map<String, String> map = rds.getParmterMap();
+
+        _logger.debug(map.keySet());
+        _logger.debug(map.get("bankId"));
+
+        List<String> bankIdList = rds.getParameters("bankId");
+        List<String>  payTypeList = rds.getParameters("payType");
+        List<String>  moneyList = rds.getParameters("money");
+
+        _logger.info("bankIdList.size(): "+bankIdList.size());
+
+        String[] bankIds = this.list2Array(bankIdList);
+        String[] payTypes = this.list2Array(payTypeList);
+        String[] moneys = this.list2Array(moneyList);
+
+        Map<String, InputStream> streamMap = rds.getStreamMap();
+        List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
+
+        _logger.info("***streamMap.isEmpty()****"+streamMap.isEmpty());
+
+        if(!streamMap.isEmpty())
+        {
+
+            for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
+            {
+                AttachmentBean attachmentBean = new AttachmentBean();
+
+                FileOutputStream out = null;
+
+                UtilStream ustream = null;
+
+                try
+                {
+                    String savePath = mkdir(this.getAttachmentPath());
+
+                    String fileAlais = SequenceTools.getSequence();
+
+                    String fileName = FileTools.getFileName(rds.getFileName(entry.getKey()));
+
+                    String rabsPath = '/' + savePath + '/' + fileAlais + "."
+                            + FileTools.getFilePostfix(fileName).toLowerCase();
+
+                    String filePath = this.getAttachmentPath() + '/' + rabsPath;
+
+                    attachmentBean.setName(fileName);
+
+                    attachmentBean.setPath(rabsPath);
+
+                    attachmentBean.setLogTime(TimeTools.now());
+
+                    out = new FileOutputStream(filePath);
+
+                    ustream = new UtilStream(entry.getValue(), out);
+
+                    ustream.copyStream();
+
+                    attachmentList.add(attachmentBean);
+                }
+                catch (IOException e)
+                {
+                    _logger.error(e, e);
+
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存失败");
+
+                }
+                finally
+                {
+                    if (ustream != null)
+                    {
+                        try
+                        {
+                            ustream.close();
+                        }
+                        catch (IOException e)
+                        {
+                            _logger.error(e, e);
+                        }
+                    }
+                }
+            }
+        }
+
+//        String id = request.getParameter("id");
+//
+//        String reason = request.getParameter("reason");
+//
+//        String[] bankIds = request.getParameterValues("bankId");
+//        String[] payTypes = request.getParameterValues("payType");
+//        String[] moneys = request.getParameterValues("money");
 
         List<OutBillBean> outBillList = new ArrayList<OutBillBean>();
 
@@ -1019,7 +1390,7 @@ public class StockPayAction extends DispatchAction
             User user = Helper.getUser(request);
 
             // 结束采购付款
-            financeFacade.endStockPrePayBySEC(user.getId(), id, reason, outBillList);
+            financeFacade.endStockPrePayBySEC(user.getId(), id, reason, outBillList, attachmentList);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功操作");
         }
@@ -1035,6 +1406,18 @@ public class StockPayAction extends DispatchAction
         request.setAttribute("mode", "2");
 
         return mapping.findForward("queryCEOStockPrePayApply");
+    }
+    
+    private String[] list2Array(List<String> list){
+    	String[] arr = null;
+    	if(list!=null && list.size()>0){
+    		arr = new String[list.size()];
+    		for(int i=0;i<list.size();i++){
+    			arr[i] = list.get(i);
+    		}
+    	}
+    	
+    	return arr;
     }
     
     /**
@@ -1619,5 +2002,21 @@ public class StockPayAction extends DispatchAction
 
     public void setParameterDAO(ParameterDAO parameterDAO) {
         this.parameterDAO = parameterDAO;
+    }
+
+    public AttachmentDAO getAttachmentDAO() {
+        return attachmentDAO;
+    }
+
+    public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
+        this.attachmentDAO = attachmentDAO;
+    }
+
+    public CommonDAO getCommonDAO() {
+        return commonDAO;
+    }
+
+    public void setCommonDAO(CommonDAO commonDAO) {
+        this.commonDAO = commonDAO;
     }
 }
