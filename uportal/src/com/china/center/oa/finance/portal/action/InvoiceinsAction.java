@@ -5516,7 +5516,7 @@ public class InvoiceinsAction extends DispatchAction
 		{
     		List<InvoiceinsImportBean> list = invoiceinsImportDAO.queryEntityBeansByFK(batchId);
     		
-			invoiceinsManager.process(list);
+			invoiceinsManager.process2(list);
 			
 			ajax.setSuccess("处理成功");
 		}

@@ -8,6 +8,7 @@
     <script language="JavaScript" src="../js/public.js"></script>
     <script language="JavaScript" src="../js/JCheck.js"></script>
     <script language="JavaScript" src="../js/json.js"></script>
+    <script src="../js/jquery/jquery.js"></script>
     <script language="JavaScript" src="../product_js/composeProduct.js"></script>
     <script language="javascript">
 
@@ -305,7 +306,7 @@
 
 </head>
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../product/product.do" method="post">
+<form name="formEntry" action="../product/product.do" method="post" id="formEntry">
     <input type="hidden" name="method" value="updateCompose">
     <input type=hidden name="id" value="${bean.id}" />
     <input type=hidden name="mtype" value="">
@@ -343,12 +344,12 @@
                         </c:forEach>
                     </select>
                     合成产品：
-                    <input type="text" style="width: 20%;cursor: pointer;" readonly="readonly" value="${bean.productName}" oncheck="notNone" name="productName"
+                    <input type="text" style="width: 20%;cursor: pointer;" readonly="readonly" value="${bean.productName}" oncheck="notNone" name="dirTargerName"
                            onclick="selectProduct(this)">
                     <input type="hidden" name="dirProductId" value="${bean.productId}"><strong>从BOM中选择:</strong>
                     <input type="checkbox" name='cbom' id ='cbom' onclick="bomClick()"/>
                     合成数量：<input type="text" style="width: 10%"
-                    name="dirAmount" value="${bean.amount}" oncheck="notNone;isNumber;range(1)">
+                    name="dirAmount" value="${bean.amount}" oncheck="notNone;isNumber;range(1)" onblur="amountChange();">
                     金价：<input type="text" style="width: 5%"
                     name="goldPrice" value="${bean.goldPrice}" oncheck="isFloat">
                     银价：<input type="text" style="width: 5%"
@@ -405,11 +406,12 @@
                         <td>
                             <table width="100%" border="0" cellspacing='1' id="tables">
                                 <tr align="center" class="content0">
-                                    <td width="30%" align="center">源仓区</td>
+                                    <td width="25%" align="center">源仓区</td>
                                     <td width="30%" align="center">源产品</td>
-                                    <td width="15%" align="center">使用数量</td>
-                                    <td width="15%" align="center">可用数量</td>
-                                    <td width="15%" align="center">价格</td>
+                                    <td width="8%" align="center">使用数量</td>
+                                    <td width="8%" align="center">可用数量</td>
+                                    <td width="8%" align="center">价格</td>
+                                    <td width="5%" align="center">XL</td>
                                     <td width="5%" align="left">
                                         <input type="button" accesskey="A" value="增加" class="button_class" onclick="addTr()">
                                     </td>
@@ -442,6 +444,10 @@
                                                    name="srcPrice" value="${item2.price}" oncheck="notNone;isFloat">
                                             <input type="hidden" name="srcRelation" value="${item2.relationId}">
                                         </td>
+                                        <td width="15%" align="center">
+                                            <input type="text" style="width: 100%" readonly="readonly"
+                                                   name="virtualPrice" value="${item2.virtualPrice}" oncheck="notNone;isFloat">
+                                        </td>
                                         <td width="5%" align="center">
                                             <input type="button" value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)">
                                         </td>
@@ -458,7 +464,10 @@
         <p:line flag="1" />
 
         <p:button leftWidth="100%" rightWidth="0%">
+            <div align="left" id="price"></div>
             <div align="right">
+                <input type="button" class="button_class"
+                       value="&nbsp;&nbsp;计算合成价格&nbsp;&nbsp;" onclick="computePrice()">&nbsp;&nbsp;
                 <input type="button" class="button_class"
                        value="&nbsp;&nbsp;保 存&nbsp;&nbsp;" onclick="saveBean()">&nbsp;&nbsp;
                 <input type="button" class="button_class" id="sub_b"
@@ -494,6 +503,8 @@
             <input type="hidden"
                    name="srcRelation" value="">
         </td>
+        <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
+                                              name="virtualPrice" value="" oncheck="isFloat"></td>
         <td width="5%" align="center"><input type=button
                                              value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>

@@ -65,3 +65,37 @@ function removeTr(obj)
         }
     }
 }
+
+function amountChange(){
+    var bomAmount = document.querySelectorAll('input[name="bomAmount"]');
+    var useAmount = document.querySelectorAll('input[name="useAmount"]');
+//    console.log(srcAmount);
+    var amount = document.querySelector('input[name="dirAmount"]');
+//    console.log(amount.value);
+    // console.log(rateList);
+    // var total = 0;
+    for (var i = 0 ; i < bomAmount.length; i++)
+    {
+        var oo = useAmount[i];
+        //合成数量*组成用量
+        oo.value = parseInt(amount.value)*parseInt(bomAmount[i].value);
+    }
+}
+
+function computePrice()
+{
+    var formData = $("#formEntry").serialize();
+   console.log("formData***"+formData);
+    $.ajax({
+        type: "POST",
+        url: '../product/product.do?method=computePrice',
+        data: formData, // serializes the form's elements.
+        success: function(data)
+        {
+//            alert(data);
+           console.log(data);
+            var jsonData = JSON.parse(data);
+            $O('price').innerHTML = "合成价格:"+jsonData.msg.price;
+        }
+    });
+}
