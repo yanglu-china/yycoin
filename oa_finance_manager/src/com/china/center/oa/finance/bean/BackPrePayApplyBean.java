@@ -25,7 +25,7 @@ public class BackPrePayApplyBean implements Serializable
     @Html(title = "标识", must = true, maxLength = 40)
     private String id = "";
     
-    @Html(title = "目的", must = true, maxLength = 40)
+    @Html(title = "目的", must = true, maxLength = 100)
     private String name = "";
 
     /**
