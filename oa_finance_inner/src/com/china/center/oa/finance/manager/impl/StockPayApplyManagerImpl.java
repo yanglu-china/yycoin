@@ -9,8 +9,10 @@
 package com.china.center.oa.finance.manager.impl;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import com.china.center.jdbc.util.ConditionParse;
@@ -246,6 +248,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
         StringBuffer idBuffer = new StringBuffer();
 
         int mtype = -1;
+        boolean before1118 = false;
         for (String id : idList)
         {
             StockPayApplyBean bean = stockPayApplyDAO.find(id);
@@ -290,6 +293,22 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
                 {
                     throw new MYException("不同属性的产品不能合并申请付款,请确认操作");
                 }
+            }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                Date payDate = sdf.parse(bean.getPayDate());
+
+                String stockPay = parameterDAO.getString("stockPay");
+                if (StringTools.isNullOrNone(stockPay)) {
+                    stockPay = "2019-11-18";
+                }
+                Date date = sdf.parse(stockPay);
+                if (payDate.before(date)) {
+                    before1118 = true;
+                }
+            }catch (Exception e){
+                _logger.error(e,e);
             }
 
             //2015/2/28发票类型必须一致
@@ -361,8 +380,12 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 
         apply.setMoneys(total);
 
-        // 今天
-        apply.setPayDate(TimeTools.now_short());
+        //#857 采购18号之前的单据合并付款默认最早时间是11月17号
+        if (before1118){
+            apply.setPayDate("2019-11-17");
+        } else{
+            apply.setPayDate(TimeTools.now_short());
+        }
 
         apply.setProvideId(beanList.get(0).getProvideId());
 
