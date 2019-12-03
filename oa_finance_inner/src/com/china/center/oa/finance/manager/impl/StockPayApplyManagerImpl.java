@@ -880,16 +880,18 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
         boolean flag = this.endStockPayBySEC(user, id, reason, outBillList);
 
         //保存付款附件
-        if(attachmentList.size()>0){
-            for (AttachmentBean attachmentBean : attachmentList)
-            {
-                attachmentBean.setId(commonDAO.getSquenceString20());
-                attachmentBean.setRefId(id);
-                attachmentBean.setAttachmentType(AttachmentBean.AttachmentType_FK);
-                //attachmentBean.setFlag(0);
-                _logger.debug(attachmentBean.toString());
+        for(OutBillBean outBillBean : outBillList){
+            if(attachmentList.size()>0){
+                for (AttachmentBean attachmentBean : attachmentList)
+                {
+                    attachmentBean.setId(commonDAO.getSquenceString20());
+                    attachmentBean.setRefId(outBillBean.getId());
+                    attachmentBean.setAttachmentType(AttachmentBean.AttachmentType_FK);
+                    //attachmentBean.setFlag(0);
+                    _logger.debug(attachmentBean.toString());
+                }
+                attachmentDAO.saveAllEntityBeans(attachmentList);
             }
-            attachmentDAO.saveAllEntityBeans(attachmentList);
         }
 
         return flag;
@@ -1106,17 +1108,20 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
         boolean flag = this.endStockPrePayBySEC(user, id, reason, outBillList);
 
         //保存付款附件
-        if(attachmentList.size()>0){
-            for (AttachmentBean attachmentBean : attachmentList)
-            {
-                attachmentBean.setId(commonDAO.getSquenceString20());
-                attachmentBean.setRefId(id);
-                attachmentBean.setAttachmentType(AttachmentBean.AttachmentType_FK);
-                //attachmentBean.setFlag(0);
-                _logger.debug(attachmentBean.toString());
+        for(OutBillBean outBillBean : outBillList){
+            if(attachmentList.size()>0){
+                for (AttachmentBean attachmentBean : attachmentList)
+                {
+                    attachmentBean.setId(commonDAO.getSquenceString20());
+                    attachmentBean.setRefId(outBillBean.getId());
+                    attachmentBean.setAttachmentType(AttachmentBean.AttachmentType_FK);
+                    //attachmentBean.setFlag(0);
+                    _logger.debug(attachmentBean.toString());
+                }
+                attachmentDAO.saveAllEntityBeans(attachmentList);
             }
-            attachmentDAO.saveAllEntityBeans(attachmentList);
         }
+
 
         return flag;
     }
