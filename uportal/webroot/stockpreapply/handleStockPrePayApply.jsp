@@ -154,8 +154,16 @@ function getNextInput(el)
                ${bean.payDate}
             </p:cell>
             
-			<p:cell title="供应商银行帐号">
+			<p:cell title="供应商开户行">
                ${bean.provideBank}
+            </p:cell>
+
+            <p:cell title="供应商开户名">
+                ${bean.provideKhm}
+            </p:cell>
+
+            <p:cell title="供应商银行帐号">
+                ${bean.provideAccount}
             </p:cell>
             
             <p:cell title="时间" end="true">

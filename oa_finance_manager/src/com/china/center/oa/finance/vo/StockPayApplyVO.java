@@ -41,6 +41,9 @@ public class StockPayApplyVO extends StockPayApplyBean
     @Relationship(relationField = "provideId", tagField = "accounts")
     private String provideAccount = "";
 
+    @Relationship(relationField = "provideId", tagField = "khm")
+    private String provideKhm = "";
+
     @Relationship(relationField = "stafferId")
     private String stafferName = "";
 
@@ -179,7 +182,15 @@ public class StockPayApplyVO extends StockPayApplyBean
 		this.attachmentUrl = attachmentUrl;
 	}
 
-	/**
+    public String getProvideKhm() {
+        return provideKhm;
+    }
+
+    public void setProvideKhm(String provideKhm) {
+        this.provideKhm = provideKhm;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

@@ -18,6 +18,12 @@ public class StockPrePayApplyVO extends StockPrePayApplyBean
     @Relationship(relationField = "providerId", tagField = "bank")
     private String provideBank = "";
 
+	@Relationship(relationField = "providerId", tagField = "accounts")
+	private String provideAccount = "";
+
+	@Relationship(relationField = "providerId", tagField = "khm")
+	private String provideKhm = "";
+
     @Relationship(relationField = "stafferId")
     private String stafferName = "";
     
@@ -109,5 +115,20 @@ public class StockPrePayApplyVO extends StockPrePayApplyBean
 	public void setAttachmentUrl(String attachmentUrl) {
 		this.attachmentUrl = attachmentUrl;
 	}
-	
+
+	public String getProvideAccount() {
+		return provideAccount;
+	}
+
+	public void setProvideAccount(String provideAccount) {
+		this.provideAccount = provideAccount;
+	}
+
+	public String getProvideKhm() {
+		return provideKhm;
+	}
+
+	public void setProvideKhm(String provideKhm) {
+		this.provideKhm = provideKhm;
+	}
 }
