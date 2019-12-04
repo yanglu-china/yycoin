@@ -1,22 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core"%>
 <%@ page import="java.util.*" %>
-
-<%
-String contextPath = request.getContextPath();
-String forwardIp = request.getHeader("x-forwarded-for");
-if(forwardIp == null || "".equals(forwardIp))
-{
-	forwardIp = request.getRemoteAddr();
-}
-if(contextPath.indexOf("uportaltw") != -1)
-{
-	if(!"49.65.250.241".equals(forwardIp) && !"218.94.130.10".equals(forwardIp) && !"61.155.2.130".equals(forwardIp))
-	{
-		response.sendRedirect("http://www.yycoin.com");
-	}
-}
-%>
 <html>
 <head>
 	<title>-=SKY·OA系统=-</title>
@@ -250,9 +234,9 @@ if(contextPath.indexOf("uportaltw") != -1)
 		    var url = window.location.href;
 		    // console.log(url);
 		    if (url.indexOf("uportaltw") != -1 ){
-                $O('appName').innerHTML  = "永银文化ERP(体外业务)";
-                $O('usernameLabel').innerHTML  = "体外系统-用户名";
-                $O('passwordLabel').innerHTML  = "体外系统-密码";
+                $O('appName').innerHTML  = "永银文化ERP(TW业务)";
+                $O('usernameLabel').innerHTML  = "TW系统-用户名";
+                $O('passwordLabel').innerHTML  = "TW系统-密码";
 			} else if (url.indexOf("zjgh") != -1 ){
                 $O('appName').innerHTML  = "国华ERP";
                 $O('usernameLabel').innerHTML  = "国华用户名";
