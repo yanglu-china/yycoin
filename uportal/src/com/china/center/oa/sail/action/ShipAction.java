@@ -2020,16 +2020,16 @@ public class ShipAction extends DispatchAction
                 }
             }
 
-            //农业银行特殊20191204
-            boolean isNhSpecial = false;
-            String channel = "";
-            List<OutBean> outBeanList = outDAO.queryEntityBeansByCondition("where fullid=?", vo.getId());
-            if(outBeanList!=null && outBeanList.size()>0){
-                channel = outBeanList.get(0).getChannel();
-            }
-            if (vo.getCustomerName().indexOf(ShipConstant.NYYH) != -1 && StringTools.isNullOrNone(channel)){
-                isNhSpecial = true;
-            }
+            //#858 农业银行特殊20191204
+//            boolean isNhSpecial = false;
+//            String channel = "";
+//            List<OutBean> outBeanList = outDAO.queryEntityBeansByCondition("where fullid=?", vo.getId());
+//            if(outBeanList!=null && outBeanList.size()>0){
+//                channel = outBeanList.get(0).getChannel();
+//            }
+//            if (vo.getCustomerName().indexOf(ShipConstant.NYYH) != -1 && StringTools.isNullOrNone(channel)){
+//                isNhSpecial = true;
+//            }
 
             try {
                 String msg5 = "**********before prepareForUnified****";
@@ -2073,6 +2073,9 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("printZjghReceipt");
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
+            } else if(vo.getCustomerName().indexOf(ShipConstant.NYYH)!= -1){
+                //#858
+                return mapping.findForward("printNhSpecialReceipt");
             }
             //#536
             else if("0".equals(batchPrint) && vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1){
@@ -2090,11 +2093,6 @@ public class ShipAction extends DispatchAction
                 //#635 更换发货单
                 if (customerName.contains("北京银行") || customerName.contains("中国银行")){
                     request.setAttribute("title", ShipConstant.YYWH+"——更换发货单");
-                }
-
-                if(isNhSpecial){
-                    request.setAttribute("title", "发货清单");
-                    return mapping.findForward("printNhSpecialReceipt");
                 }
                 return mapping.findForward("printUnifiedReceipt");
             }
@@ -2432,6 +2430,9 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("printZjghReceipt");
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
+            } else if(vo.getCustomerName().indexOf(ShipConstant.NYYH)!= -1){
+                //#858
+                return mapping.findForward("printNhSpecialReceipt");
             } else{
                 //#635 更换发货单
                 if (customerName.contains("北京银行") || customerName.contains("中国银行")){
