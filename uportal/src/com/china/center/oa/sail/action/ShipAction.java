@@ -2075,6 +2075,7 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("printNjReceipt");
             } else if(vo.getCustomerName().indexOf(ShipConstant.NYYH)!= -1){
                 //#858
+                request.setAttribute("title", "发货清单");
                 return mapping.findForward("printNhSpecialReceipt");
             }
             //#536
@@ -2432,6 +2433,7 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("printNjReceipt");
             } else if(vo.getCustomerName().indexOf(ShipConstant.NYYH)!= -1){
                 //#858
+                request.setAttribute("title", "发货清单");
                 return mapping.findForward("printNhSpecialReceipt");
             } else{
                 //#635 更换发货单
