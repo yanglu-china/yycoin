@@ -132,6 +132,11 @@ public class InvoiceinsBean implements Serializable
     private String description = "";
 
     /**
+     * #860 其他备注
+     */
+    @Html(title = "其他备注", maxLength = 100, type = Element.TEXTAREA)
+    private String otherDescription = "";
+    /**
      * 总部核对信息
      */
     private String checks = "";
@@ -1165,6 +1170,14 @@ public class InvoiceinsBean implements Serializable
 
     public void setFpdw(String fpdw) {
         this.fpdw = fpdw;
+    }
+
+    public String getOtherDescription() {
+        return otherDescription;
+    }
+
+    public void setOtherDescription(String otherDescription) {
+        this.otherDescription = otherDescription;
     }
 
     /**
