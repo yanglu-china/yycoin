@@ -32,7 +32,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.china.center.oa.publics.Util;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -77,6 +76,7 @@ import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.Util;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.ExportIbReportItemData;
 import com.china.center.oa.publics.bean.FlowLogBean;
@@ -5608,8 +5608,8 @@ public class TravelApplyAction extends DispatchAction
                 	{
                 		ConditionParse conditionParse = new ConditionParse();
                 		conditionParse.addCondition("code", "=", productCode);
-                		conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
-                		
+//                		conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+                		conditionParse.addCondition("bank", "like", "%" + customerName + "%");
                 		List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
                 		if (!ListTools.isEmptyOrNull(beans)) {
                 			ProductImportBean productImportBean = beans.get(0);
