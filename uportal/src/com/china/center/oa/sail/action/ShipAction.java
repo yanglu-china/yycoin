@@ -2020,6 +2020,17 @@ public class ShipAction extends DispatchAction
                 }
             }
 
+            //农业银行特殊20191204
+            boolean isNhSpecial = false;
+            String channel = "";
+            List<OutBean> outBeanList = outDAO.queryEntityBeansByCondition("where fullid=?", vo.getId());
+            if(outBeanList!=null && outBeanList.size()>0){
+                channel = outBeanList.get(0).getChannel();
+            }
+            if (vo.getCustomerName().indexOf(ShipConstant.NYYH) != -1 && StringTools.isNullOrNone(channel)){
+                isNhSpecial = true;
+            }
+
             try {
                 String msg5 = "**********before prepareForUnified****";
                 _logger.info(msg5);
@@ -2079,6 +2090,11 @@ public class ShipAction extends DispatchAction
                 //#635 更换发货单
                 if (customerName.contains("北京银行") || customerName.contains("中国银行")){
                     request.setAttribute("title", ShipConstant.YYWH+"——更换发货单");
+                }
+
+                if(isNhSpecial){
+                    request.setAttribute("title", "发货清单");
+                    return mapping.findForward("printNhSpecialReceipt");
                 }
                 return mapping.findForward("printUnifiedReceipt");
             }
