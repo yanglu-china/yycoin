@@ -156,6 +156,7 @@ public class ShipAction extends DispatchAction
     private final static String DGNS = "东莞农商";
 
     private final String ZP_INVOICE = "90000000000000000046";
+    private final String ZP_INVOICE2 = "90000000000000000042";
 
     /**
      * default construct
@@ -5855,7 +5856,7 @@ public class ShipAction extends DispatchAction
             rootElement.appendChild(invhead);
 
             String invoiceId = bean.getInvoiceId();
-            InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceId);
+//            InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceId);
             String fpzl;
             String gfmc = bean.getHeadContent();
             String gfsh = bean.getGfsh();
@@ -5863,7 +5864,7 @@ public class ShipAction extends DispatchAction
             String gfdz = bean.getGfdz();
 
             //专票
-            if (ZP_INVOICE.equals(invoiceId)){
+            if (ZP_INVOICE.equals(invoiceId) || ZP_INVOICE2.equals(invoiceId)){
                 fpzl = "0";
             } else{
                 fpzl = "2";
