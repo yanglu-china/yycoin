@@ -4069,14 +4069,15 @@ public class OutImportManagerImpl implements OutImportManager
 						out.setDepotpartId(baseBean.getDepotpartId());
 
 						try {
+							_logger.info("create out in offlineOrderJob " + out);
+							_logger.info("create basebean in offlineOrderJob " + baseBeans);
 							outDAO.saveEntityBean(out);
 							baseDAO.saveAllEntityBeans(baseBeans);
-							_logger.info("create out in offlineOrderJob " + out);
 							this.olOutDAO.updateStatus(olOutBean.getOlFullId(), 9);
 							this.clearOlOutErrorDescription(olOutBean);
 							addOutLog(fullId, null, out, "提交", SailConstant.OPR_OUT_PASS, 1);
 						}catch(Exception e){
-							_logger.error("数据库异常" + olOutBean.getOlFullId());
+							_logger.error("数据库异常" + olOutBean.getOlFullId(),e);
 							this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + "数据库异常，请检查是否数据重复");
 							continue;
 						}
