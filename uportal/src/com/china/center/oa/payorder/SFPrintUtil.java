@@ -348,13 +348,13 @@ public class SFPrintUtil {
 			String[] arr = strImg.split("\",\"");
 			/** 输出图片到本地 支持.jpg、.png格式 **/
 			for (int i = 0; i < arr.length; i++) {
-				String fileName = "e:\\oa_attachment\\" + orderService.getOrderid() + ".jpg";
+				String fileName = "e:\\oa_attachment\\sfprint\\" + orderService.getOrderid() + ".jpg";
 				Base64ImageTools.generateImage(arr[i].toString(), fileName);
 				fileNameList.add(fileName);
 
 			}
 		} else {
-			String fileName = "e:\\oa_attachment\\" + orderService.getOrderid() + ".jpg";
+			String fileName = "e:\\oa_attachment\\sfprint\\" + orderService.getOrderid() + ".jpg";
 			Base64ImageTools.generateImage(strImg, fileName);
 			fileNameList.add(fileName);
 

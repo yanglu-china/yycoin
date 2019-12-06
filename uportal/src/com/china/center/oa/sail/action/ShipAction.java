@@ -5894,7 +5894,7 @@ public class ShipAction extends DispatchAction
             HttpServletResponse response) throws IOException
 	{
 		String packageId = request.getParameter("packageId");
-		File f = new File("e:\\oa_attachment\\" + packageId + ".jpg");
+		File f = new File("e:\\oa_attachment\\sfprint\\" + packageId + ".jpg");
 		
 		DataInputStream dataInputStream = new DataInputStream(new FileInputStream(f)); 
 		 
