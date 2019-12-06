@@ -210,6 +210,7 @@
             <forward name="printBatch" path="/transport/printBatch.jsp" />
             <forward name="updateShipping" path="/transport/updateShipping.jsp" />
             <forward name="printInvoiceins" path="/transport/printInvoiceins.jsp" />
+            <forward name="printSfPage" path="/transport/printSfPage.jsp" />
             <forward name="error" path="/error.jsp" />
         </action>
         

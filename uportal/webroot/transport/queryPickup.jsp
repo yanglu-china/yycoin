@@ -230,6 +230,22 @@ function clears()
 	$O('industryName').value = '';
 }
 
+function sfPickup()
+{
+	var clis = getCheckBox('packageIds');
+	if (clis.length >1){
+		alert('选择CK单时一次只能打印一个出库单!');
+		return;
+	}
+	if (clis.length == 0){
+		alert('请选择一条出库单!');
+		return;
+	}
+	$O('sfprint').disabled=true;
+		//打印第一个选中的CK单
+	var packageId = clis[0].value;
+	$l('../sail/ship.do?method=showSfPrintPage&packageId='+packageId);
+}
 </script>
 
 </head>
@@ -484,7 +500,9 @@ function clears()
             <input type="button"
                    class="button_class" onclick="cancelPickup()"
                    value="&nbsp;&nbsp;撤销拣配&nbsp;&nbsp;">&nbsp;&nbsp;
-
+			<input type="button" id="sfprint" name="sfprint"
+                   class="button_class" onclick="sfPickup()"
+                   value="&nbsp;&nbsp;面单打印&nbsp;&nbsp;">&nbsp;&nbsp;
 		</div>
 	</p:button>
 
