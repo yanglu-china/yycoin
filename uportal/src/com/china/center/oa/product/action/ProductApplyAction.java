@@ -1329,8 +1329,9 @@ public class ProductApplyAction extends DispatchAction {
                                 .append("<br>");
                     }
 
+                    //#866 去掉渠道类型和管理类型
                     // 渠道类型
-                    if ( !StringTools.isNullOrNone(obj[3]))
+                    /*if ( !StringTools.isNullOrNone(obj[3]))
                     {
                         int channelType = this.getChannelType(obj[3]);
                         if (channelType == -1){
@@ -1375,12 +1376,12 @@ public class ProductApplyAction extends DispatchAction {
                                 .append("第[" + currentNumber + "]错误:")
                                 .append("管理类型为空")
                                 .append("<br>");
-                    }
+                    }*/
 
                     // 分类品名
-                    if ( !StringTools.isNullOrNone(obj[5]))
+                    if ( !StringTools.isNullOrNone(obj[3]))
                     {
-                        bean.setClassName(obj[5]);
+                        bean.setClassName(obj[3].trim());
                     }else
                     {
                         importError = true;
@@ -1392,9 +1393,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 旧货
-                    if ( !StringTools.isNullOrNone(obj[6]))
+                    if ( !StringTools.isNullOrNone(obj[4]))
                     {
-                        String secondhandGoods = obj[6];
+                        String secondhandGoods = obj[4].trim();
                         ConditionParse conditionParse = new ConditionParse();
                         conditionParse.addWhereStr();
                         conditionParse.addCondition("type", "=", "210");
@@ -1455,9 +1456,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 金
-                    if ( !StringTools.isNullOrNone(obj[7]))
+                    if ( !StringTools.isNullOrNone(obj[5]))
                     {
-                        bean.setGold(Double.valueOf(obj[7]));
+                        bean.setGold(Double.valueOf(obj[5].trim()));
                     }else
                     {
                         importError = true;
@@ -1469,9 +1470,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 银
-                    if ( !StringTools.isNullOrNone(obj[8]))
+                    if ( !StringTools.isNullOrNone(obj[6]))
                     {
-                        bean.setSilver(Double.valueOf(obj[8]));
+                        bean.setSilver(Double.valueOf(obj[6].trim()));
                     }else
                     {
                         importError = true;
@@ -1483,9 +1484,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 产品性质
-                    if ( !StringTools.isNullOrNone(obj[9]))
+                    if ( !StringTools.isNullOrNone(obj[7]))
                     {
-                        int nature = this.getNature(obj[9]);
+                        int nature = this.getNature(obj[7].trim());
                         if (nature == -1){
                             importError = true;
 
@@ -1508,7 +1509,7 @@ public class ProductApplyAction extends DispatchAction {
 
 
                     // 关联成品的code或者名称
-                    String product = obj[10].trim();
+                    String product = obj[8].trim();
                     // 配件产品需关联成品
                     if (bean.getNature() == ProductApplyConstant.NATURE_SINGLE) {
                         if ( !StringTools.isNullOrNone(product))
@@ -1549,12 +1550,12 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 进项发票
-                    if ( !StringTools.isNullOrNone(obj[11]))
+                    if ( !StringTools.isNullOrNone(obj[9]))
                     {
                         List<InvoiceBean> invoiceList1 = invoiceDAO.listForwardIn();
                         if (!ListTools.isEmptyOrNull(invoiceList1)){
                             for (InvoiceBean invoiceBean : invoiceList1){
-                                if (obj[11].equals(invoiceBean.getName())){
+                                if (obj[9].trim().equals(invoiceBean.getName())){
                                     bean.setInputInvoice(invoiceBean.getId());
                                     break;
                                 }
@@ -1580,12 +1581,12 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // 销项发票
-                    if ( !StringTools.isNullOrNone(obj[12]))
+                    if ( !StringTools.isNullOrNone(obj[10]))
                     {
                         List<InvoiceBean> invoiceList2 = invoiceDAO.listForwardOut();
                         if (!ListTools.isEmptyOrNull(invoiceList2)){
                             for (InvoiceBean invoiceBean : invoiceList2){
-                                if (obj[12].equals(invoiceBean.getName())){
+                                if (obj[10].trim().equals(invoiceBean.getName())){
                                     bean.setSailInvoice(invoiceBean.getId());
                                     break;
                                 }
@@ -1611,9 +1612,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // #316 采购类型
-                    if ( !StringTools.isNullOrNone(obj[13]))
+                    if ( !StringTools.isNullOrNone(obj[11]))
                     {
-                        String stype = obj[13].trim();
+                        String stype = obj[11].trim();
 
                         ConditionParse conditionParse = new ConditionParse();
                         conditionParse.addWhereStr();
@@ -1640,9 +1641,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     // #480 是否虚料标示
-                    if ( !StringTools.isNullOrNone(obj[14]))
+                    if ( !StringTools.isNullOrNone(obj[12]))
                     {
-                        String virtualFlag = obj[14].trim();
+                        String virtualFlag = obj[12].trim();
 
                         if ("Y".equalsIgnoreCase(virtualFlag)
                                 || "是".equals(virtualFlag)){
@@ -1669,9 +1670,9 @@ public class ProductApplyAction extends DispatchAction {
                     }
 
                     //#646 备注
-                    if ( !StringTools.isNullOrNone(obj[15]))
+                    if ( !StringTools.isNullOrNone(obj[13]))
                     {
-                        String description = obj[15].trim();
+                        String description = obj[13].trim();
                         bean.setDescription(description);
                     }
 

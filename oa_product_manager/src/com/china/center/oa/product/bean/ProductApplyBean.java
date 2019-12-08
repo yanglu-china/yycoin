@@ -86,7 +86,7 @@ public class ProductApplyBean implements Serializable {
      * 管理类型  type = pubManagerType
      */
     @Html(title = "管理类型", must = true, type = Element.SELECT)
-    private int  managerType = PublicConstant.MANAGER_TYPE_MANAGER;
+    private int  managerType = PublicConstant.MANAGER_TYPE_COMMON;
     
     /**
      * 文化类型 type = 204

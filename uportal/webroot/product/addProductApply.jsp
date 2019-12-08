@@ -103,8 +103,9 @@ function check()
 
 function load()
 {
+    setSelect($O('channelType'), '0');
+    setSelect($O('managerType'), '1');
 	loadForm();
-	
 	addVSTr();
 }
 
