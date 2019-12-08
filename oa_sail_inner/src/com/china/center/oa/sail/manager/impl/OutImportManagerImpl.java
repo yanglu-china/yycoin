@@ -3940,7 +3940,14 @@ public class OutImportManagerImpl implements OutImportManager
 									//#625 OA出库单数量等于折算系数*开单数量
 									double amount = Math.round(olBaseBean.getAmount()*productImportBean.getRated());
 									baseBean.setAmount(new BigDecimal(amount).intValueExact());
-									baseBean.setPrice(olBaseBean.getPrice()/productImportBean.getRated());
+									double price = olBaseBean.getPrice()/productImportBean.getRated();
+									if (Double.valueOf(price).isInfinite()){
+										_logger.error("rated is 0:"+olBaseBean.getOutId());
+										this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"t_center_product_import表的rated字段不能为0!");
+										continue;
+									} else{
+										baseBean.setPrice(price);
+									}
 								}
 							}
 						}
