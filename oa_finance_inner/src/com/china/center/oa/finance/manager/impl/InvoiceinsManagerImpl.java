@@ -4267,7 +4267,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
     @Transactional(rollbackFor = MYException.class)
     public void generateInvoiceins(String packageId, String insId, String fphm) {
-        //TODO 取返回的发票号码，写入对应的A单号中替换XN号码
+        // 取返回的发票号码，写入对应的A单号中替换XN号码
         List<InsVSInvoiceNumBean> numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insId);
         if (!ListTools.isEmptyOrNull(numList)){
             for (InsVSInvoiceNumBean item: numList){
@@ -4277,19 +4277,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 if (!StringTools.isNullOrNone(insNum.getInvoiceNum())){
                     String outId = insNum.getInsId();
                     this.packageItemDAO.replaceInvoiceNum(outId, insNum.getInvoiceNum(), fphm);
-
-                    //#328 如果是XN发票号,更新CK单为已捡配
-                    //TODO?
-//                    if (insNum.getInvoiceNum().contains("XN")){
-//                        ConditionParse conditionParse = new ConditionParse();
-//                        List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(outId,
-//                                AnoConstant.FK_FIRST);
-//                        if (!ListTools.isEmptyOrNull(packageItemBeanList)){
-//                            _logger.info(packageId+"****update XN***"+ ShipConstant.SHIP_STATUS_PICKUP);
-//
-//                            this.packageDAO.updateStatus(packageId, ShipConstant.SHIP_STATUS_PICKUP);
-//                        }
-//                    }
                 }
 
                 insNum.setInvoiceNum(fphm);
@@ -4298,7 +4285,19 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             }
         }
 
-        //# TODO CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
+        if (StringTools.isNullOrNone(packageId)){
+            //根据批次打印时先找到对应的CK单
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addCondition("outId","=",insId);
+            conditionParse.addCondition("productName","=","发票号："+fphm);
+            List<PackageItemBean> packageItemBeans = this.packageItemDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(packageItemBeans)){
+                packageId = packageItemBeans.get(0).getPackageId();
+                _logger.info("packageId***"+packageId);
+            }
+        }
+
+        //# CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
         List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(packageId);
         if (!ListTools.isEmptyOrNull(packageItemBeanList)){
             boolean  flag = true;
