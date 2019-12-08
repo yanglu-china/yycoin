@@ -28,7 +28,8 @@ function load()
          colModel : [
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} vstatus={status} vbatchId={batchId} >', width : 40, align: 'center'},
              {display: '批次号', name : 'batchId', width : '15%'},
-             {display: '状态', name : 'status', width : '20%', cc:'logStatus'},
+             {display: '状态', name : 'status', width : '5%', cc:'logStatus'},
+             {display: '原因', name : 'message', width : '60%'},
              {display: '时间', name : 'logTime', width : 'auto'}
              ],
          extAtt: {
