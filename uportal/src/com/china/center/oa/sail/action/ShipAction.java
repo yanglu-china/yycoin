@@ -6175,27 +6175,40 @@ public class ShipAction extends DispatchAction
                 details.appendChild(ggxh);
 
                 //计量单位
+                String fpdw = bean.getFpdw();
                 Element jldw = doc.createElement("jldw");
-                if (StringTools.isNullOrNone(bean.getFpdw())){
+                if (StringTools.isNullOrNone(fpdw)){
                     jldw.appendChild(doc.createTextNode("套"));
                 } else{
-                    jldw.appendChild(doc.createTextNode(bean.getFpdw()));
+                    jldw.appendChild(doc.createTextNode(fpdw));
                 }
                 details.appendChild(jldw);
 
-//                // 数量：invoiceins_item表中amount 字段合计
-//                int amount = this.getProductAmount(bean);
+                if ("批".equals(fpdw) || "*".equals(fpdw)){
+
+                } else{
+
+                }
+//                // 商品数量：invoiceins_item表中amount 字段
                 int amount = value.getAmount();
                 Element spsl = doc.createElement("spsl");
-                spsl.appendChild(
-                        doc.createTextNode(String.valueOf(amount)));
+                //#864 发票单位为 “批”* 时，单价和数量不送给开票接口
+                if ("批".equals(fpdw) || "*".equals(fpdw)){
+                    spsl.appendChild(doc.createTextNode(""));
+                } else{
+                    spsl.appendChild(doc.createTextNode(String.valueOf(amount)));
+                }
                 details.appendChild(spsl);
 
                 double moneys = value.getMoneys();
-                //单价： invoiceins_item表中price 字段值
+                //商品单价： invoiceins_item表中price 字段值
                 //单价：取invoiceins_item相同spmc的总金额/数量
                 Element spdj = doc.createElement("spdj");
-                spdj.appendChild(doc.createTextNode(String.valueOf(this.roundDouble(moneys/amount))));
+                if ("批".equals(fpdw) || "*".equals(fpdw)){
+                    spsl.appendChild(doc.createTextNode(""));
+                } else{
+                    spdj.appendChild(doc.createTextNode(String.valueOf(this.roundDouble(moneys/amount))));
+                }
                 details.appendChild(spdj);
 
                 //金额
