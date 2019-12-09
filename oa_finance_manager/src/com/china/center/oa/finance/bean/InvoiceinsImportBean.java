@@ -142,6 +142,11 @@ public class InvoiceinsImportBean implements Serializable
     private int transportPay = -1;
     
     private String description = "";
+
+	/**
+	 * #860 其他备注
+	 */
+	private String otherDescription = "";
     
     /**
      * 1:同销售单一致 2：新配送地址
@@ -695,6 +700,14 @@ public class InvoiceinsImportBean implements Serializable
 
 	public void setFpdw(String fpdw) {
 		this.fpdw = fpdw;
+	}
+
+	public String getOtherDescription() {
+		return otherDescription;
+	}
+
+	public void setOtherDescription(String otherDescription) {
+		this.otherDescription = otherDescription;
 	}
 
 	@Override

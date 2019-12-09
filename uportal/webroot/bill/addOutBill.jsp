@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"
 	errorPage="../common/error.jsp"%>
 <%@include file="../common/common.jsp"%>
+<%@ taglib prefix="attach" tagdir="/WEB-INF/tags/attach" %>
+
 <html>
 <head>
 <p:link title="增加付款单" />
@@ -143,7 +145,7 @@ function getBank(obj)
 
 </head>
 <body class="body_class" onload="changeAll()">
-<form name="formEntry" action="../finance/bill.do" method="post">
+<form name="formEntry" action="../finance/bill.do?method=addOutBill" enctype="multipart/form-data" method="post">
 <input type="hidden" name="method" value="addOutBill">
 <input type="hidden" name="provideId" value="">
 <input type="hidden" name="ownerId" value="">
@@ -217,6 +219,8 @@ function getBank(obj)
             <p:pro field="moneys"/>
 
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />
+			
+			<attach:attachmentsTag/>
 
 		</p:table>
 	</p:subBody>

@@ -10,6 +10,7 @@ package com.china.center.oa.finance.vo;
 
 
 import com.china.center.jdbc.annotation.Entity;
+import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.finance.bean.OutBillBean;
 
@@ -45,6 +46,11 @@ public class OutBillVO extends OutBillBean
 
     @Relationship(relationField = "bankId", tagField = "dutyId")
     private String dutyId = "";
+
+    @Ignore
+    private String attachmentsHint = "";
+    @Ignore
+    private String attachmentUrl = "";
 
     /**
      * default constructor
@@ -170,6 +176,22 @@ public class OutBillVO extends OutBillBean
     public void setDutyId(String dutyId)
     {
         this.dutyId = dutyId;
+    }
+
+    public String getAttachmentsHint() {
+        return attachmentsHint;
+    }
+
+    public void setAttachmentsHint(String attachmentsHint) {
+        this.attachmentsHint = attachmentsHint;
+    }
+
+    public String getAttachmentUrl() {
+        return attachmentUrl;
+    }
+
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = attachmentUrl;
     }
 
     /**

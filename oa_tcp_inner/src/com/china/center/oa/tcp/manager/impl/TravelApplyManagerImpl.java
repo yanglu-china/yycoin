@@ -3082,6 +3082,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         {
             attachmentBean.setId(commonDAO.getSquenceString20());
             attachmentBean.setRefId(bean.getId());
+            if(22 == bean.getStatus()){
+            	attachmentBean.setAttachmentType(AttachmentBean.AttachmentType_FK);
+            }
         }
         attachmentDAO.saveAllEntityBeans(attachmentList);
 

@@ -234,9 +234,9 @@
 		    var url = window.location.href;
 		    // console.log(url);
 		    if (url.indexOf("uportaltw") != -1 ){
-                $O('appName').innerHTML  = "永银文化ERP(体外业务)";
-                $O('usernameLabel').innerHTML  = "体外系统-用户名";
-                $O('passwordLabel').innerHTML  = "体外系统-密码";
+                $O('appName').innerHTML  = "永银文化ERP(TW业务)";
+                $O('usernameLabel').innerHTML  = "TW系统-用户名";
+                $O('passwordLabel').innerHTML  = "TW系统-密码";
 			} else if (url.indexOf("zjgh") != -1 ){
                 $O('appName').innerHTML  = "国华ERP";
                 $O('usernameLabel').innerHTML  = "国华用户名";

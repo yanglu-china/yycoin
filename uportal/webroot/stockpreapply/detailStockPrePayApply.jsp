@@ -53,6 +53,18 @@ function load()
                 </c:forEach>
 			</p:pro>
 
+			<p:cell title="供应商开户行">
+				${bean.provideBank}
+			</p:cell>
+
+			<p:cell title="供应商开户名">
+				${bean.provideKhm}
+			</p:cell>
+
+			<p:cell title="供应商银行帐号">
+				${bean.provideAccount}
+			</p:cell>
+
 			<p:cell title="付款金额">
 				${my:formatNum(bean.moneys)}
 			</p:cell>

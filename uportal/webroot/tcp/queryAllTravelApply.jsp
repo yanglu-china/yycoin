@@ -26,20 +26,22 @@ function load()
          url: gurl + 'queryAllTravelApply',
          colModel : [
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status}>', width : 40, align: 'center'},
-             {display: '标识', name : 'id', width : '15%'},
+             {display: '标识', name : 'id', width : '12%'},
              {display: '目的', name : 'name', width : '10%'},
              {display: '申请人', name : 'stafferName', width : '5%'},
              {display: '系列', name : 'stype', cc: 'tcpStype', width : '5%'},
-             {display: '类型', name : 'type', cc: 'tcpType', width : '12%'},
-             {display: '状态', name : 'status', cc: 'tcpStatus', width : '10%'},
+             {display: '类型', name : 'type', cc: 'tcpType', width : '10%'},
+             {display: '状态', name : 'status', cc: 'tcpStatus', width : '8%'},
              {display: '是否借款', name : 'borrow', cc: 'travelApplyBorrow', width : '5%'},
              {display: '报销', name : 'feedback', cc: 'tcpApplyFeedback', width : '8%'},
              {display: '费用/借款', name : 'showTotal', sortable: true, content: '{showTotal}/{showBorrowTotal}', cname: 'total', width : '10%'},
              {display: '合规标识', name : 'compliance', cc: 'tcpComplianceType', width : '5%'},
-             {display: '时间', name : 'logTime', sortable: true, width : 'auto'}
+             {display: '时间', name : 'logTime', sortable: true, width : 'auto'},
+             {display: '付款附件', name : 'attachmentsHint', width : '8%'}
              ],
          extAtt: {
-             id : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}>', end : '</a>'}
+             id : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}>', end : '</a>'},
+             attachmentsHint : {begin : '<a href={attachmentUrl}>', end : '</a>'}
          },
          buttons : [
              {id: 'search', bclass: 'search', onpress : doSearch},

@@ -55,11 +55,14 @@ public abstract class AbstractProviderBean implements Serializable
     @Html(title = "E-Mail", maxLength = 40)
     private String email = "";
 
-    @Html(title = "银行", maxLength = 100)
+    @Html(title = "开户银行", maxLength = 100)
     private String bank = "";
 
-    @Html(title = "帐号", maxLength = 40)
+    @Html(title = "银行帐号", maxLength = 40)
     private String accounts = "";
+
+    @Html(title = "开户名", maxLength = 100)
+    private String khm = "";
 
     @Html(title = "所属片区", type = Element.SELECT)
     private String location = "";
@@ -421,80 +424,43 @@ public abstract class AbstractProviderBean implements Serializable
         this.dues = dues;
     }
 
+    public String getKhm() {
+        return khm;
+    }
+
+    public void setKhm(String khm) {
+        this.khm = khm;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("AbstractProviderBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("name = ")
-            .append(this.name)
-            .append(TAB)
-            .append("code = ")
-            .append(this.code)
-            .append(TAB)
-            .append("connector = ")
-            .append(this.connector)
-            .append(TAB)
-            .append("address = ")
-            .append(this.address)
-            .append(TAB)
-            .append("phone = ")
-            .append(this.phone)
-            .append(TAB)
-            .append("tel = ")
-            .append(this.tel)
-            .append(TAB)
-            .append("fax = ")
-            .append(this.fax)
-            .append(TAB)
-            .append("qq = ")
-            .append(this.qq)
-            .append(TAB)
-            .append("email = ")
-            .append(this.email)
-            .append(TAB)
-            .append("bank = ")
-            .append(this.bank)
-            .append(TAB)
-            .append("accounts = ")
-            .append(this.accounts)
-            .append(TAB)
-            .append("location = ")
-            .append(this.location)
-            .append(TAB)
-            .append("type = ")
-            .append(this.type)
-            .append(TAB)
-            .append("dues = ")
-            .append(this.dues)
-            .append(TAB)
-            .append("mtype = ")
-            .append(this.mtype)
-            .append(TAB)
-            .append("htype = ")
-            .append(this.htype)
-            .append(TAB)
-            .append("bakId = ")
-            .append(this.bakId)
-            .append(TAB)
-            .append("logTime = ")
-            .append(this.logTime)
-            .append(TAB)
-            .append("description = ")
-            .append(this.description)
-            .append(TAB)
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "AbstractProviderBean{" +
+                "name='" + name + '\'' +
+                ", code='" + code + '\'' +
+                ", connector='" + connector + '\'' +
+                ", address='" + address + '\'' +
+                ", phone='" + phone + '\'' +
+                ", tel='" + tel + '\'' +
+                ", fax='" + fax + '\'' +
+                ", qq='" + qq + '\'' +
+                ", email='" + email + '\'' +
+                ", bank='" + bank + '\'' +
+                ", accounts='" + accounts + '\'' +
+                ", khm='" + khm + '\'' +
+                ", location='" + location + '\'' +
+                ", item='" + item + '\'' +
+                ", type=" + type +
+                ", dues=" + dues +
+                ", mtype=" + mtype +
+                ", htype=" + htype +
+                ", bakId=" + bakId +
+                ", logTime='" + logTime + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

@@ -37,3 +37,13 @@ END;
 
 -- #818
 alter table t_center_product add column kpslid varchar(19) default '';
+
+-- #854
+create table uportal.t_center_invoice_kp
+(
+ID int auto_increment
+primary key,
+name varchar(255) null,
+kpslid int(20) null
+) DEFAULT CHARSET=utf8
+;

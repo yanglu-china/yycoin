@@ -818,6 +818,19 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             saveFlowLog(user, oldStatus, bean, reason, PublicConstant.OPRMODE_PASS);
         }
 
+        //处理附件 #836
+        List<AttachmentBean> attachmentList = param.getAttachmentList();
+        if(attachmentList!=null && attachmentList.size()>0){
+            for (AttachmentBean attachmentBean : attachmentList) {
+                attachmentBean.setId(commonDAO.getSquenceString20());
+                attachmentBean.setRefId(bean.getId());
+                attachmentBean.setAttachmentType(AttachmentBean.AttachmentType_FK);
+            }      	
+            boolean flag = attachmentDAO.saveAllEntityBeans(attachmentList);
+
+            _logger.debug("flag:"+flag+", attachmentList.size():"+attachmentList.size());
+        }
+
         return true;
     }
     

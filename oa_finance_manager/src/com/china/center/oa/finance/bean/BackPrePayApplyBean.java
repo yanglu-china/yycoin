@@ -25,7 +25,7 @@ public class BackPrePayApplyBean implements Serializable
     @Html(title = "标识", must = true, maxLength = 40)
     private String id = "";
     
-    @Html(title = "目的", must = true, maxLength = 40)
+    @Html(title = "目的", must = true, maxLength = 100)
     private String name = "";
 
     /**
@@ -43,10 +43,10 @@ public class BackPrePayApplyBean implements Serializable
 
     private String logTime = "";
 
-    @Html(title = "备注", maxLength = 200, must = true, type = Element.TEXTAREA)
+    @Html(title = "备注", maxLength = 1000, must = true, type = Element.TEXTAREA)
     private String description = "";
 
-	@Html(title = "收款单备注", maxLength = 200, type = Element.TEXTAREA)
+	@Html(title = "收款单备注", maxLength = 1000, type = Element.TEXTAREA)
 	private String sfDescription = "";
 
     @Html(title = "状态", must = true, type = Element.SELECT)

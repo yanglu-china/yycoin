@@ -73,6 +73,10 @@ function pagePrint()
 				${bean.provideBank}
 			</p:cell>
 
+			<p:cell title="供应商开户名">
+				${bean.provideKhm}
+			</p:cell>
+
 			<p:cell title="供应商银行帐号">
 				${bean.provideAccount}
 			</p:cell>

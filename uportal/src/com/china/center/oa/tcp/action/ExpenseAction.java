@@ -294,12 +294,21 @@ public class ExpenseAction extends DispatchAction
 
         condtion.addCondition("order by ExpenseApplyBean.logTime desc");
 
+        final List<AttachmentBean> attachmentsList = attachmentDAO.queryEntityBeansByCondition("where attachmentType = ? ", AttachmentBean.AttachmentType_FK);
+
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYALLEXPENSE, request, condtion,
             this.expenseApplyDAO, new HandleResult<ExpenseApplyVO>()
             {
                 public void handle(ExpenseApplyVO vo)
                 {
                     TCPHelper.chageVO(vo);
+
+                    int attachmentCount = attachmentCount(attachmentsList, vo.getId());
+                    if(attachmentCount>0){
+                        String attachmentUrl = "../admin/down.do?method=downPayAttachmentsById&id="+vo.getId();
+                        vo.setAttachmentUrl(attachmentUrl);
+                        vo.setAttachmentsHint("附件（"+attachmentCount+"）");
+                    }
 
                     // 当前处理人
                     List<TcpApproveVO> approveList = tcpApproveDAO.queryEntityVOsByFK(vo.getId());
@@ -316,6 +325,16 @@ public class ExpenseAction extends DispatchAction
             });
 
         return JSONTools.writeResponse(response, jsonstr);
+    }
+
+    private static int attachmentCount(List<AttachmentBean> attachmentsList, String id){
+        int count = 0;
+        for(AttachmentBean bean : attachmentsList){
+            if(bean.getRefId().equals(id)){
+                count ++;
+            }
+        }
+        return count;
     }
 
     /**
@@ -1296,6 +1315,8 @@ public class ExpenseAction extends DispatchAction
                                             HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
+        _logger.debug("processExpenseBean...");
+        /*
         String id = request.getParameter("id");
         String oprType = request.getParameter("oprType");
         String reason = request.getParameter("reason");
@@ -1303,6 +1324,54 @@ public class ExpenseAction extends DispatchAction
         String compliance = request.getParameter("compliance");
         if (StringTools.isNullOrNone(compliance))
             compliance = "";
+        */
+        //处理附件 #836
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
+
+        try
+        {
+            rds.parser();
+        }
+        catch (FileUploadBase.SizeLimitExceededException e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
+
+            return mapping.findForward("error");
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败");
+
+            return mapping.findForward("error");
+        }
+
+        Map<String, String> paramterMap = rds.getParmterMap();
+
+        _logger.debug(paramterMap);
+
+        String id = rds.getParameter("id");
+        String oprType = rds.getParameter("oprType");
+        String reason = rds.getParameter("reason");
+        String processId = rds.getParameter("processId");
+        String compliance = rds.getParameter("compliance");
+        if (StringTools.isNullOrNone(compliance))
+            compliance = "";
+
+        ExpenseApplyBean bean = new ExpenseApplyBean();
+        ActionForward afor = parserAttachment(mapping, request, rds, bean);
+
+        _logger.debug("bean.getAttachmentList().size(): "+bean.getAttachmentList().size()+", oprType:"+oprType);
+
+        if (afor != null)
+        {
+            return afor;
+        }
+
+        rds.close();
         
         try
         {
@@ -1316,6 +1385,7 @@ public class ExpenseAction extends DispatchAction
             param.setProcessId(processId);
             param.setCompliance(compliance);
 
+            param.setAttachmentList(bean.getAttachmentList());
             // 组装参数
             fillWrap(request, param);
 

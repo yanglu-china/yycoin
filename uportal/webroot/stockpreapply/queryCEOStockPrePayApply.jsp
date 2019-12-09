@@ -35,10 +35,12 @@ function load()
              {display: '总金额', name : 'moneys', width : '8%', toFixed: 2},
              {display: '发票', name : 'invoiceName', width : '10%'},
              {display: '最早付款', name : 'payDate', sortable : true, width : '10%'},
-             {display: '时间', name : 'logTime', sortable : true, width : 'auto'}
+             {display: '时间', name : 'logTime', sortable : true, width : 'auto'},
+             {display: '付款附件', name : 'attachmentsHint', width : '8%'}
              ],
          extAtt: {
-             stafferName : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}&mode=' + mode + '>', end : '</a>'}
+             stafferName : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}&mode=' + mode + '>', end : '</a>'},
+             attachmentsHint : {begin : '<a href={attachmentUrl}>', end : '</a>'}
          },
          buttons : [
              {id: 'pass', caption: '处理',bclass: 'update', onpress : doProcess},

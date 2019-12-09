@@ -1,5 +1,47 @@
 package com.china.center.oa.sail.action;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.EmailValidator;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
@@ -25,59 +67,81 @@ import com.china.center.oa.finance.dao.InsVSInvoiceNumDAO;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.dao.InvoiceinsItemDAO;
 import com.china.center.oa.finance.vo.InvoiceinsVO;
-import com.china.center.oa.product.bean.*;
+import com.china.center.oa.payorder.SFPrintUtil;
+import com.china.center.oa.product.bean.ComposeProductBean;
+import com.china.center.oa.product.bean.DepotBean;
+import com.china.center.oa.product.bean.InvoiceKpBean;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.constant.ProductConstant;
-import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.dao.ComposeItemDAO;
+import com.china.center.oa.product.dao.ComposeProductDAO;
+import com.china.center.oa.product.dao.DepotDAO;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProductImportDAO;
+import com.china.center.oa.product.dao.ProductVSBankDAO;
+import com.china.center.oa.product.dao.ProductVSGiftDAO;
 import com.china.center.oa.product.vo.ComposeItemVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.StringUtils;
-import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.bean.AuthBean;
+import com.china.center.oa.publics.bean.CityBean;
+import com.china.center.oa.publics.bean.EnumBean;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.InvoiceBean;
+import com.china.center.oa.publics.bean.ProvinceBean;
+import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.AuthConstant;
-import com.china.center.oa.publics.constant.InvoiceConstant;
-import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.publics.dao.CityDAO;
+import com.china.center.oa.publics.dao.EnumDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.InvoiceDAO;
+import com.china.center.oa.publics.dao.ParameterDAO;
+import com.china.center.oa.publics.dao.ProvinceDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
-import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.bean.BankConfigForShip;
 import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.BranchRelationBean;
+import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.bean.ExpressBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.OutImportBean;
+import com.china.center.oa.sail.bean.PackageBean;
+import com.china.center.oa.sail.bean.PackageItemBean;
+import com.china.center.oa.sail.bean.PackageVSCustomerBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.ShipConstant;
-import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.dao.BankConfigForShipDAO;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.BranchRelationDAO;
+import com.china.center.oa.sail.dao.DistributionDAO;
+import com.china.center.oa.sail.dao.ExpressDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.dao.OutImportDAO;
+import com.china.center.oa.sail.dao.PackageDAO;
+import com.china.center.oa.sail.dao.PackageItemDAO;
+import com.china.center.oa.sail.dao.PackageVSCustomerDAO;
+import com.china.center.oa.sail.dao.TwBaseDAO;
+import com.china.center.oa.sail.dao.TwDistributionDAO;
+import com.china.center.oa.sail.dao.TwOutDAO;
 import com.china.center.oa.sail.helper.FlowLogHelper;
 import com.china.center.oa.sail.manager.ShipManager;
 import com.china.center.oa.sail.vo.OutInterface;
 import com.china.center.oa.sail.vo.PackageVO;
 import com.china.center.oa.sail.wrap.PackageWrap;
 import com.china.center.oa.sail.wrap.PickupWrap;
-import com.china.center.tools.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.validator.EmailValidator;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.net.InetAddress;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.RequestTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
 
 public class ShipAction extends DispatchAction
 {
@@ -156,6 +220,7 @@ public class ShipAction extends DispatchAction
     private final static String DGNS = "东莞农商";
 
     private final String ZP_INVOICE = "90000000000000000046";
+    private final String ZP_INVOICE2 = "90000000000000000042";
 
     /**
      * default construct
@@ -2020,6 +2085,17 @@ public class ShipAction extends DispatchAction
                 }
             }
 
+            //#858 农业银行特殊20191204
+//            boolean isNhSpecial = false;
+//            String channel = "";
+//            List<OutBean> outBeanList = outDAO.queryEntityBeansByCondition("where fullid=?", vo.getId());
+//            if(outBeanList!=null && outBeanList.size()>0){
+//                channel = outBeanList.get(0).getChannel();
+//            }
+//            if (vo.getCustomerName().indexOf(ShipConstant.NYYH) != -1 && StringTools.isNullOrNone(channel)){
+//                isNhSpecial = true;
+//            }
+
             try {
                 String msg5 = "**********before prepareForUnified****";
                 _logger.info(msg5);
@@ -2062,6 +2138,10 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("printZjghReceipt");
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
+            } else if(vo.getCustomerName().indexOf(ShipConstant.NYYH)!= -1){
+                //#858
+                request.setAttribute("title", "发货清单");
+                return mapping.findForward("printNhSpecialReceipt");
             }
             //#536
             else if("0".equals(batchPrint) && vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1){
@@ -2416,6 +2496,10 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("printZjghReceipt");
             } else if (vo.getCustomerName().indexOf("南京银行") != -1) {
                 return mapping.findForward("printNjReceipt");
+            } else if(vo.getCustomerName().indexOf(ShipConstant.NYYH)!= -1){
+                //#858
+                request.setAttribute("title", "发货清单");
+                return mapping.findForward("printNhSpecialReceipt");
             } else{
                 //#635 更换发货单
                 if (customerName.contains("北京银行") || customerName.contains("中国银行")){
@@ -5703,6 +5787,132 @@ public class ShipAction extends DispatchAction
 
         return mapping.findForward("printInvoiceins");
     }
+    
+    /**
+     * 	顺丰面单打印
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     */
+    public ActionForward showSfPrintPage(ActionMapping mapping, ActionForm form,
+            HttpServletRequest request,
+            HttpServletResponse response)
+    {
+    	String packageId = request.getParameter("packageId");
+    	ConditionParse cond = new ConditionParse();
+    	cond.addCondition("id", "=", packageId);
+    	cond.addCondition("transport1", "=", "1");
+    	
+    	List<PackageBean> packageList = packageDAO.queryEntityBeansByCondition(cond);
+    	if(packageList.size() == 0)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "只能打印顺丰快递公司的单号");
+
+            return mapping.findForward("queryPickup");
+    	}
+    	PackageBean packageBean = packageList.get(0);
+    	
+    	cond.clear();
+    	cond.addCondition("packageid", "=", packageBean.getId());
+    	
+    	List<PackageItemBean> packageItemList = packageItemDAO.queryEntityBeansByCondition(cond);
+    	if(packageItemList.size() == 0)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "packageitem is null,packageid:" + packageBean.getId());
+
+            return mapping.findForward("queryPickup");
+    	}
+    	PackageItemBean packageItem = packageItemList.get(0);
+    	
+    	String outId = packageItem.getOutId();
+    	
+    	cond.clear();
+    	
+    	cond.addCondition("outid", "=", outId);
+    	
+    	List<DistributionBean> distributionList = distributionDAO.queryEntityBeansByCondition(cond);
+    	if(distributionList.size() == 0)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "DistributionBean is null,packageid:" + packageBean.getId());
+
+            return mapping.findForward("queryPickup");
+    	}
+    
+    	DistributionBean disBean = distributionList.get(0);
+    	ProvinceBean provinceBean = provinceDAO.find(disBean.getProvinceId());
+    	if(provinceBean == null)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "provinceBean is null,packageid:" + packageBean.getId());
+
+            return mapping.findForward("queryPickup");
+    	}
+    	
+    	CityBean cityBean = cityDAO.find(disBean.getCityId());
+    	
+    	if(cityBean == null)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "cityBean is null,packageid:" + packageBean.getId());
+
+            return mapping.findForward("queryPickup");
+    	}
+    	
+    	Map<String,String> paramMap = new HashMap<String, String>();
+    	paramMap.put("orderid", packageBean.getId());
+    	paramMap.put("dcompany", packageBean.getReceiver());
+    	paramMap.put("dcontact", packageBean.getReceiver());
+    	paramMap.put("dtel", packageBean.getMobile());
+    	paramMap.put("dprovince",provinceBean.getName());
+    	paramMap.put("dcity", cityBean.getName());
+    	paramMap.put("daddress", packageBean.getAddress());
+
+    	SFPrintUtil printUtil = new SFPrintUtil();
+    	
+    	try {
+			printUtil.toPrint(paramMap);
+		} catch (Exception e) {
+			_logger.error("print error",e);
+			e.printStackTrace();
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getMessage());
+
+            return mapping.findForward("queryPickup");
+		}
+    	
+    	request.setAttribute("packageId", packageId);
+    	return mapping.findForward("printSfPage");
+    }
+    
+    /**
+	 * 	 本地文件生成下载的url
+	 * @param fileNameList
+	 * @return
+     * @throws IOException 
+	 */
+	public void downLoadSfPicUrl(ActionMapping mapping, ActionForm form,
+            HttpServletRequest request,
+            HttpServletResponse response) throws IOException
+	{
+		String packageId = request.getParameter("packageId");
+		File f = new File("e:\\oa_attachment\\sfprint\\" + packageId + ".jpg");
+		
+		DataInputStream dataInputStream = new DataInputStream(new FileInputStream(f)); 
+		 
+        OutputStream fileOutputStream = response.getOutputStream(); 
+        ByteArrayOutputStream output = new ByteArrayOutputStream(); 
+
+        byte[] buffer = new byte[1024]; 
+        int length; 
+
+        while ((length = dataInputStream.read(buffer)) > 0) { 
+            output.write(buffer, 0, length); 
+        } 
+        fileOutputStream.write(output.toByteArray());
+        fileOutputStream.flush();
+        dataInputStream.close(); 
+        fileOutputStream.close(); 
+	}
+    
 
     private List<InvoiceinsVO> findInvoiceinsWithXNAndBatch(String pickupId){
         List<InvoiceinsVO> invoiceinsList = new ArrayList<InvoiceinsVO>();
@@ -5836,7 +6046,7 @@ public class ShipAction extends DispatchAction
             rootElement.appendChild(invhead);
 
             String invoiceId = bean.getInvoiceId();
-            InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceId);
+//            InvoiceBean invoiceBean = this.invoiceDAO.find(invoiceId);
             String fpzl;
             String gfmc = bean.getHeadContent();
             String gfsh = bean.getGfsh();
@@ -5844,18 +6054,10 @@ public class ShipAction extends DispatchAction
             String gfdz = bean.getGfdz();
 
             //专票
-            if (ZP_INVOICE.equals(invoiceId)){
+            if (ZP_INVOICE.equals(invoiceId) || ZP_INVOICE2.equals(invoiceId)){
                 fpzl = "0";
-//                gfmc = bean.getHeadContent();
-//                gfsh = bean.getGfsh();
-//                gfyh = bean.getGfyh();
-//                gfdz = bean.getGfdz();
             } else{
                 fpzl = "2";
-//                gfmc = bean.getHeadContent();
-//                gfsh = "";
-//                gfyh = "";
-//                gfdz = "";
             }
             // carname element
             Element fpzlElm = doc.createElement("fpzl");
@@ -5958,9 +6160,10 @@ public class ShipAction extends DispatchAction
                 invdetails.appendChild(details);
 
                 //商品名称：invoiceins_item 表的开票品名字段
-                Element spmc = doc.createElement("spmc");
-                spmc.appendChild(doc.createTextNode(value.getSpmc()));
-                details.appendChild(spmc);
+                String spmc = value.getSpmc();
+                Element spmcElm = doc.createElement("spmc");
+                spmcElm.appendChild(doc.createTextNode(spmc));
+                details.appendChild(spmcElm);
 
                 //规格型号
                 Element ggxh = doc.createElement("ggxh");
@@ -5972,27 +6175,40 @@ public class ShipAction extends DispatchAction
                 details.appendChild(ggxh);
 
                 //计量单位
+                String fpdw = bean.getFpdw();
                 Element jldw = doc.createElement("jldw");
-                if (StringTools.isNullOrNone(bean.getFpdw())){
+                if (StringTools.isNullOrNone(fpdw)){
                     jldw.appendChild(doc.createTextNode("套"));
                 } else{
-                    jldw.appendChild(doc.createTextNode(bean.getFpdw()));
+                    jldw.appendChild(doc.createTextNode(fpdw));
                 }
                 details.appendChild(jldw);
 
-//                // 数量：invoiceins_item表中amount 字段合计
-//                int amount = this.getProductAmount(bean);
+                if ("批".equals(fpdw) || "*".equals(fpdw)){
+
+                } else{
+
+                }
+//                // 商品数量：invoiceins_item表中amount 字段
                 int amount = value.getAmount();
                 Element spsl = doc.createElement("spsl");
-                spsl.appendChild(
-                        doc.createTextNode(String.valueOf(amount)));
+                //#864 发票单位为 “批”* 时，单价和数量不送给开票接口
+                if ("批".equals(fpdw) || "*".equals(fpdw)){
+                    spsl.appendChild(doc.createTextNode(""));
+                } else{
+                    spsl.appendChild(doc.createTextNode(String.valueOf(amount)));
+                }
                 details.appendChild(spsl);
 
                 double moneys = value.getMoneys();
-                //单价： invoiceins_item表中price 字段值
+                //商品单价： invoiceins_item表中price 字段值
                 //单价：取invoiceins_item相同spmc的总金额/数量
                 Element spdj = doc.createElement("spdj");
-                spdj.appendChild(doc.createTextNode(String.valueOf(this.roundDouble(moneys/amount))));
+                if ("批".equals(fpdw) || "*".equals(fpdw)){
+                    spsl.appendChild(doc.createTextNode(""));
+                } else{
+                    spdj.appendChild(doc.createTextNode(String.valueOf(this.roundDouble(moneys/amount))));
+                }
                 details.appendChild(spdj);
 
                 //金额
@@ -6019,14 +6235,7 @@ public class ShipAction extends DispatchAction
 
                 //税收分类编码
                 Element flbm = doc.createElement("flbm");
-                String ssflbm = "106050299";
-                String productId = value.getProductId();
-                if (!StringTools.isNullOrNone(productId)){
-                    ProductBean productBean = this.productDAO.find(productId);
-                    if (productBean!= null && !StringTools.isNullOrNone(productBean.getKpslid())){
-                        ssflbm = productBean.getKpslid();
-                    }
-                }
+                String ssflbm = this.getFlbm(spmc, value.getProductId());
                 flbm.appendChild(doc.createTextNode(ssflbm));
                 details.appendChild(flbm);
 
@@ -6056,6 +6265,23 @@ public class ShipAction extends DispatchAction
             _logger.error(e,e);
             return "";
         }
+    }
+
+    private String getFlbm(String spmc, String productId){
+        //#默认为工艺品
+        String ssflbm = "106050299";
+        InvoiceKpBean invoiceKpBean = this.productDAO.queryInvoiceKp(spmc);
+        if (invoiceKpBean == null || StringTools.isNullOrNone(invoiceKpBean.getKpslid())){
+            if (!StringTools.isNullOrNone(productId)){
+                ProductBean productBean = this.productDAO.find(productId);
+                if (productBean!= null && !StringTools.isNullOrNone(productBean.getKpslid())){
+                    ssflbm = productBean.getKpslid();
+                }
+            }
+        } else {
+            ssflbm = invoiceKpBean.getKpslid();
+        }
+        return ssflbm;
     }
 
     /**

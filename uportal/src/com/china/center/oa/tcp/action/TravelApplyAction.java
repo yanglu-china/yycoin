@@ -32,7 +32,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.china.center.oa.publics.Util;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -77,6 +76,7 @@ import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.Util;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.ExportIbReportItemData;
 import com.china.center.oa.publics.bean.FlowLogBean;
@@ -462,12 +462,21 @@ public class TravelApplyAction extends DispatchAction
 
         condtion.addCondition("order by TravelApplyBean.logTime desc");
 
+        final List<AttachmentBean> attachmentsList = attachmentDAO.queryEntityBeansByCondition("where attachmentType = ? ", AttachmentBean.AttachmentType_FK);
+
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYALLTRAVELAPPLY, request,
             condtion, this.travelApplyDAO, new HandleResult<TravelApplyVO>()
             {
                 public void handle(TravelApplyVO vo)
                 {
                     TCPHelper.chageVO(vo);
+
+                    int attachmentCount = attachmentCount(attachmentsList, vo.getId());
+                    if(attachmentCount>0){
+                        String attachmentUrl = "../admin/down.do?method=downPayAttachmentsById&id="+vo.getId();
+                        vo.setAttachmentUrl(attachmentUrl);
+                        vo.setAttachmentsHint("附件（"+attachmentCount+"）");
+                    }
 
                     // 当前处理人
                     List<TcpApproveVO> approveList = tcpApproveDAO.queryEntityVOsByFK(vo.getId());
@@ -647,10 +656,19 @@ public class TravelApplyAction extends DispatchAction
 
         condtion.addCondition("order by TcpApproveBean.logTime desc");
 
+        final List<AttachmentBean> attachmentsList = attachmentDAO.queryEntityBeansByCondition("where attachmentType = ? ", AttachmentBean.AttachmentType_FK);
+
         String jsonstr = ActionTools.queryVOByJSONAndToString(cacheKey, request, condtion,
                 this.tcpApproveDAO, new HandleResult<TcpApproveVO>() {
             public void handle(TcpApproveVO vo) {
                 TCPHelper.getTcpApproveVO(vo);
+
+                int attachmentCount = attachmentCount(attachmentsList, vo.getApplyId());
+                if(attachmentCount>0){
+                    String attachmentUrl = "../admin/down.do?method=downPayAttachmentsById&id="+vo.getApplyId();
+                    vo.setAttachmentUrl(attachmentUrl);
+                    vo.setAttachmentsHint("附件（"+attachmentCount+"）");
+                }
 
                 if (mode.equals("98")) {
                     vo.setUrl(TcpConstanst.PREINVOICE_DETAIL_URL + vo.getApplyId());
@@ -658,7 +676,18 @@ public class TravelApplyAction extends DispatchAction
             }
         });
 
+
         return JSONTools.writeResponse(response, jsonstr);
+    }
+
+    private static int attachmentCount(List<AttachmentBean> attachmentsList, String id){
+        int count = 0;
+        for(AttachmentBean bean : attachmentsList){
+            if(bean.getRefId().equals(id)){
+                count ++;
+            }
+        }
+        return count;
     }
 
     /**
@@ -2156,10 +2185,14 @@ public class TravelApplyAction extends DispatchAction
         String reason = rds.getParameter("reason");
         String processId = rds.getParameter("processId");
         String compliance = rds.getParameter("compliance");
+        
         TravelApplyVO travelApplyVo = travelApplyManager.findVO(id);
         _logger.info("***travelApplyVO****"+travelApplyVo);
         Map<String, InputStream> streamMap = rds.getStreamMap();
         List<AttachmentBean> attachmentList = travelApplyVo.getAttachmentList() == null ?new ArrayList<AttachmentBean>():travelApplyVo.getAttachmentList();
+        
+        _logger.info("***streamMap.isEmpty()****"+streamMap.isEmpty());
+        
         	if(!streamMap.isEmpty())
         	{
         		
@@ -2236,6 +2269,9 @@ public class TravelApplyAction extends DispatchAction
 	            param.setReason(reason);
 	            param.setProcessId(processId);
 	            param.setCompliance(compliance);
+	            
+	            //param.setAttachmentList(attachmentList);
+	            
 	            if (travelApplyVo.getType() == TcpConstanst.TCP_APPLYTYPE_MID
                         ||travelApplyVo.getType() == TcpConstanst.TCP_APPLYTYPE_PUBLIC){
                     // #394 中收申请待财务支付时需要上传附件，改为从RDS中获取表单数据,form页面也改为multipart/form-data
@@ -5572,8 +5608,8 @@ public class TravelApplyAction extends DispatchAction
                 	{
                 		ConditionParse conditionParse = new ConditionParse();
                 		conditionParse.addCondition("code", "=", productCode);
-                		conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
-                		
+//                		conditionParse.addCondition("bank", "=", customerName.substring(0, 4));
+                		conditionParse.addCondition("bank", "like", "%" + customerName + "%");
                 		List<ProductImportBean> beans = this.productImportDAO.queryEntityBeansByCondition(conditionParse);
                 		if (!ListTools.isEmptyOrNull(beans)) {
                 			ProductImportBean productImportBean = beans.get(0);

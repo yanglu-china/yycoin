@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"
 	errorPage="../common/error.jsp"%>
 <%@include file="../common/common.jsp"%>
+<%@ taglib prefix="attach" tagdir="/WEB-INF/tags/attach" %>
+
 <html>
 <head>
 <p:link title="办公采购申请" guid="true"/>
@@ -187,7 +189,7 @@ function checkMoney2()
 </head>
 
 <body class="body_class" onload="load()">
-<c:if test="${bean.status == 11}">
+<c:if test="${bean.status == 11 || bean.status == 22}">
 <form name="formEntry" action="../tcp/apply.do?method=processTravelApplyBean"   enctype="multipart/form-data" method="post">
 <input type="hidden" name="oprType" value="0"> 
 <input type="hidden" name="processId" value=""> 
@@ -562,7 +564,7 @@ function checkMoney2()
                         <font color="red">*</font>
                         </td>
                     </tr>
-                    <c:if test="${bean.status == 11}">
+                    <c:if test="${bean.status == 11 or bean.status == 22}">
                     <p:subBody width="98%">
 						<p:table cells="1">
 							<p:cell title="附件" width="8" end="true">

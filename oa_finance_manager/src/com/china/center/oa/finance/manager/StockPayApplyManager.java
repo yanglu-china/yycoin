@@ -19,6 +19,7 @@ import com.china.center.oa.finance.bean.StockPayApplyBean;
 import com.china.center.oa.finance.bean.StockPrePayApplyBean;
 import com.china.center.oa.finance.listener.StockPayApplyListener;
 import com.china.center.oa.finance.vs.StockPayVSPreBean;
+import com.china.center.oa.publics.bean.AttachmentBean;
 
 
 /**
@@ -78,6 +79,9 @@ public interface StockPayApplyManager extends ListenerManager<StockPayApplyListe
     boolean endStockPayBySEC(User user, String id, String reason, List<OutBillBean> outBillList)
         throws MYException;
 
+    boolean endStockPayBySEC(User user, String id, String reason, List<OutBillBean> outBillList, List<AttachmentBean> attachmentList)
+            throws MYException;
+
     /**
      * 驳回(需要同步)
      * 
@@ -135,6 +139,9 @@ public interface StockPayApplyManager extends ListenerManager<StockPayApplyListe
      */
     boolean endStockPrePayBySEC(User user, String id, String reason, List<OutBillBean> outBillList)
         throws MYException;
+
+    boolean endStockPrePayBySEC(User user, String id, String reason, List<OutBillBean> outBillList, List<AttachmentBean> attachmentList)
+            throws MYException;
 
     /**
      * 驳回(需要同步)

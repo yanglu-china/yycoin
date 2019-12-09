@@ -1,6 +1,7 @@
 package com.china.center.oa.finance.vo;
 
 import com.china.center.jdbc.annotation.Entity;
+import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.oa.finance.bean.StockPrePayApplyBean;
 
@@ -17,8 +18,19 @@ public class StockPrePayApplyVO extends StockPrePayApplyBean
     @Relationship(relationField = "providerId", tagField = "bank")
     private String provideBank = "";
 
+	@Relationship(relationField = "providerId", tagField = "accounts")
+	private String provideAccount = "";
+
+	@Relationship(relationField = "providerId", tagField = "khm")
+	private String provideKhm = "";
+
     @Relationship(relationField = "stafferId")
     private String stafferName = "";
+    
+    @Ignore
+    private String attachmentsHint = "";
+    @Ignore
+    private String attachmentUrl = "";
 
 	public StockPrePayApplyVO()
 	{
@@ -86,5 +98,37 @@ public class StockPrePayApplyVO extends StockPrePayApplyBean
 	public void setStafferName(String stafferName)
 	{
 		this.stafferName = stafferName;
+	}
+
+	public String getAttachmentsHint() {
+		return attachmentsHint;
+	}
+
+	public void setAttachmentsHint(String attachmentsHint) {
+		this.attachmentsHint = attachmentsHint;
+	}
+
+	public String getAttachmentUrl() {
+		return attachmentUrl;
+	}
+
+	public void setAttachmentUrl(String attachmentUrl) {
+		this.attachmentUrl = attachmentUrl;
+	}
+
+	public String getProvideAccount() {
+		return provideAccount;
+	}
+
+	public void setProvideAccount(String provideAccount) {
+		this.provideAccount = provideAccount;
+	}
+
+	public String getProvideKhm() {
+		return provideKhm;
+	}
+
+	public void setProvideKhm(String provideKhm) {
+		this.provideKhm = provideKhm;
 	}
 }

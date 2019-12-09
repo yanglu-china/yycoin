@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"
 	errorPage="../common/error.jsp"%>
 <%@include file="../common/common.jsp"%>
+<%@ taglib prefix="attach" tagdir="/WEB-INF/tags/attach" %>
+
 <html>
 <head>
 <p:link title="付款申请" />
@@ -26,12 +28,14 @@ function submitBean()
 {
     $O('method').value = 'submitStockPay';
     
+    formEntry.enctype = "";
     submit('确定提交付款申请?', null, checkValue);
 }
 
 function closeBean()
 {
     $O('method').value = 'closeStockPay';
+    
     
     submit('确定强制关闭付款申请?', null, checkValue);
 }
@@ -73,6 +77,9 @@ function ajaxPararmter(str)
 function endBean()
 {
     $O('method').value = 'endStockPayBySEC';
+    
+	formEntry.action = "../finance/stock.do?method=endStockPayBySEC";
+	formEntry.enctype = "multipart/form-data";
     
     submit('确定付款给供应商?付款金额:${my:formatNum(bean.realMoneys)}', null, checkMoney);
 }
@@ -143,7 +150,7 @@ function getNextInput(el)
 
 </head>
 <body class="body_class" onload="load()">
-<form name="formEntry" action="../finance/stock.do" method="post">
+<form name="formEntry" action="../finance/stock.do"  method="post">
 <input type="hidden" name="method" value="submitStockPay"> 
 <input type="hidden" name="id" value="${bean.id}"> 
 <input type="hidden" name="mode" value="${mode}"> 
@@ -210,6 +217,10 @@ function getNextInput(el)
                ${bean.provideBank}
             </p:cell>
 
+            <p:cell title="供应商开户名">
+                ${bean.provideKhm}
+            </p:cell>
+
             <p:cell title="供应商银行帐号">
                 ${bean.provideAccount}
             </p:cell>
@@ -250,6 +261,10 @@ function getNextInput(el)
 				<textarea rows=3 cols=55 oncheck="notNone;maxLength(200);" name="reason"></textarea>
 				<font color="red">*</font>
 			</p:cell>
+			
+            <c:if test="${bean.status == 3}">
+                <attach:attachmentsTag/>
+            </c:if>			
 
 		</p:table>
 

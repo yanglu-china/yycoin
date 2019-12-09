@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.List;
 
 import com.china.center.oa.finance.vo.InBillVO;
+import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.dao.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -43,10 +45,6 @@ import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.IDPrefixConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
-import com.china.center.oa.publics.dao.CommonDAO;
-import com.china.center.oa.publics.dao.DutyDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
-import com.china.center.oa.publics.dao.StafferTransferDAO;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.OutDAO;
@@ -99,6 +97,8 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
     private StockItemDAO stockItemDAO = null;
 
     private StatBankManager statBankManager = null;
+
+    private AttachmentDAO attachmentDAO = null;
 
     private StafferVSCustomerDAO stafferVSCustomerDAO = null;
 
@@ -365,12 +365,37 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
         return addOutBillBeanWithoutTransaction(user, bean);
     }
 
+    @Transactional(rollbackFor = MYException.class)
+    public boolean addOutBillBean(User user, OutBillBean bean, List<AttachmentBean> attachmentList)
+            throws MYException
+    {
+        boolean flag = addOutBillBeanWithoutTransaction(user, bean);
+
+        //保存付款附件
+        if(attachmentList.size()>0){
+            String idxxx = "";
+            for (AttachmentBean attachmentBean : attachmentList)
+            {
+                attachmentBean.setId(commonDAO.getSquenceString20());
+                attachmentBean.setRefId(bean.getId());
+                attachmentBean.setAttachmentType(AttachmentBean.AttachmentType_FK);
+                //attachmentBean.setFlag(0);
+                _logger.debug(attachmentBean.toString());
+            }
+            attachmentDAO.saveAllEntityBeans(attachmentList);
+        }
+
+        return flag;
+    }
+
     public boolean addOutBillBeanWithoutTransaction(User user, OutBillBean bean)
         throws MYException
     {
 //        JudgeTools.judgeParameterIsNull(user, bean);
 
         double total = statBankManager.findTotalByBankId(bean.getBankId());
+        
+        _logger.debug("bean.getBankId():"+bean.getBankId()+", total: "+ total+", bean.getMoneys():"+bean.getMoneys());
 
         if (total - bean.getMoneys() < 0)
         {
@@ -1470,5 +1495,13 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
     public void setStafferVSCustomerDAO(StafferVSCustomerDAO stafferVSCustomerDAO)
     {
         this.stafferVSCustomerDAO = stafferVSCustomerDAO;
+    }
+
+    public AttachmentDAO getAttachmentDAO() {
+        return attachmentDAO;
+    }
+
+    public void setAttachmentDAO(AttachmentDAO attachmentDAO) {
+        this.attachmentDAO = attachmentDAO;
     }
 }

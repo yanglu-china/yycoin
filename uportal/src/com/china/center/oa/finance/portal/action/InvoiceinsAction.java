@@ -4144,7 +4144,7 @@ public class InvoiceinsAction extends DispatchAction
 
 
     /**
-     * #169 开票流程变更
+     * #169 批量导入开票申请
      * @param mapping
      * @param form
      * @param request
@@ -4163,7 +4163,7 @@ public class InvoiceinsAction extends DispatchAction
 
         boolean importError = false;
 
-        List<InvoiceinsImportBean> importItemList = new ArrayList<InvoiceinsImportBean>();
+        List<InvoiceinsImportBean> importItemList = new ArrayList<>();
 
         StringBuilder builder = new StringBuilder();
 
@@ -4195,7 +4195,7 @@ public class InvoiceinsAction extends DispatchAction
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next());
+                String[] obj = StringUtils.fillObj((String[])reader.next(), 28);
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -4844,6 +4844,12 @@ public class InvoiceinsAction extends DispatchAction
                                 .append("<br>");
 
                         importError = true;
+                    }
+
+                    // #860 其他备注
+                    if ( !StringTools.isNullOrNone(obj[27])) {
+                        String otherDescription = obj[27].trim();
+                        bean.setOtherDescription(otherDescription);
                     }
 
                     bean.setDescription(obj[15].trim());
@@ -5516,7 +5522,7 @@ public class InvoiceinsAction extends DispatchAction
 		{
     		List<InvoiceinsImportBean> list = invoiceinsImportDAO.queryEntityBeansByFK(batchId);
     		
-			invoiceinsManager.process(list);
+			invoiceinsManager.process2(list);
 			
 			ajax.setSuccess("处理成功");
 		}

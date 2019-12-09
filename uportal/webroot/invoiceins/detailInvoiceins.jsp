@@ -206,7 +206,9 @@ function load()
             </p:cell>
 
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />
-			
+
+            <p:pro field="otherDescription" />
+
           <p:cell title="发货方式" width="1" end="true">
              <input type="radio" name="shipping" value="0" >自提&nbsp;&nbsp;
              <input type="radio" name="shipping" value="1" >公司&nbsp;&nbsp;

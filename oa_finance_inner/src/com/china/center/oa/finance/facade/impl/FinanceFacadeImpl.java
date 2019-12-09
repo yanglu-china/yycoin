@@ -11,6 +11,7 @@ package com.china.center.oa.finance.facade.impl;
 
 import java.util.List;
 
+import com.china.center.oa.publics.bean.AttachmentBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -677,6 +678,28 @@ public class FinanceFacadeImpl extends AbstarctFacade implements FinanceFacade
         }
     }
 
+    public boolean addOutBillBean(String userId, OutBillBean bean, List<AttachmentBean> attachmentList)
+            throws MYException
+    {
+        JudgeTools.judgeParameterIsNull(userId, bean);
+
+        User user = userManager.findUser(userId);
+
+        checkUser(user);
+
+        synchronized (OUTBILL_LOCK)
+        {
+            if (containAuth(user, AuthConstant.OUTBILL_OPR))
+            {
+                return billManager.addOutBillBean(user, bean, attachmentList);
+            }
+            else
+            {
+                throw noAuth();
+            }
+        }
+    }
+
     public boolean deleteOutBillBean(String userId, String id)
         throws MYException
     {
@@ -856,6 +879,29 @@ public class FinanceFacadeImpl extends AbstarctFacade implements FinanceFacade
             if (containAuth(user, AuthConstant.STOCK_PAY_SEC))
             {
                 return stockPayApplyManager.endStockPayBySEC(user, id, reason, outBillList);
+            }
+            else
+            {
+                throw noAuth();
+            }
+        }
+    }
+
+    public boolean endStockPayBySEC(String userId, String id, String reason,
+                                    List<OutBillBean> outBillList, List<AttachmentBean> attachmentList)
+            throws MYException
+    {
+        JudgeTools.judgeParameterIsNull(userId, id);
+
+        User user = userManager.findUser(userId);
+
+        checkUser(user);
+
+        synchronized (STOCKPAYAPPLY_LOCK)
+        {
+            if (containAuth(user, AuthConstant.STOCK_PAY_SEC))
+            {
+                return stockPayApplyManager.endStockPayBySEC(user, id, reason, outBillList, attachmentList);
             }
             else
             {
@@ -1237,6 +1283,29 @@ public class FinanceFacadeImpl extends AbstarctFacade implements FinanceFacade
             if (containAuth(user, AuthConstant.STOCK_PAY_SEC))
             {
                 return stockPayApplyManager.endStockPrePayBySEC(user, id, reason, outBillList);
+            }
+            else
+            {
+                throw noAuth();
+            }
+        }
+    }
+
+    @Override
+    public boolean endStockPrePayBySEC(String userId, String id, String reason,
+                                       List<OutBillBean> outBillList, List<AttachmentBean> attachmentList) throws MYException
+    {
+        JudgeTools.judgeParameterIsNull(userId, id);
+
+        User user = userManager.findUser(userId);
+
+        checkUser(user);
+
+        synchronized (STOCKPREPAYAPPLY_LOCK)
+        {
+            if (containAuth(user, AuthConstant.STOCK_PAY_SEC))
+            {
+                return stockPayApplyManager.endStockPrePayBySEC(user, id, reason, outBillList, attachmentList);
             }
             else
             {

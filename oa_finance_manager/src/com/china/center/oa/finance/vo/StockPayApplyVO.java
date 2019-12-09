@@ -41,6 +41,9 @@ public class StockPayApplyVO extends StockPayApplyBean
     @Relationship(relationField = "provideId", tagField = "accounts")
     private String provideAccount = "";
 
+    @Relationship(relationField = "provideId", tagField = "khm")
+    private String provideKhm = "";
+
     @Relationship(relationField = "stafferId")
     private String stafferName = "";
 
@@ -49,6 +52,11 @@ public class StockPayApplyVO extends StockPayApplyBean
      * #478 查询结果实付金额总数
      */
     private double totalMoneys;
+    
+    @Ignore
+    private String attachmentsHint = "";
+    @Ignore
+    private String attachmentUrl = "";
 
     /**
      * default constructor
@@ -156,6 +164,30 @@ public class StockPayApplyVO extends StockPayApplyBean
 
     public void setProvideAccount(String provideAccount) {
         this.provideAccount = provideAccount;
+    }
+
+    public String getAttachmentsHint() {
+		return attachmentsHint;
+	}
+
+	public void setAttachmentsHint(String attachmentsHint) {
+		this.attachmentsHint = attachmentsHint;
+	}
+
+	public String getAttachmentUrl() {
+		return attachmentUrl;
+	}
+
+	public void setAttachmentUrl(String attachmentUrl) {
+		this.attachmentUrl = attachmentUrl;
+	}
+
+    public String getProvideKhm() {
+        return provideKhm;
+    }
+
+    public void setProvideKhm(String provideKhm) {
+        this.provideKhm = provideKhm;
     }
 
     /**

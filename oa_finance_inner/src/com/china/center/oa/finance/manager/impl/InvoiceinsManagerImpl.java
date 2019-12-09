@@ -455,12 +455,14 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 //2018年5月1号之前出库的订单，仅能开17的税率的票
                 throw new MYException("2018年5月1号之前出库的订单，仅能开17的税率的票:"+outBean.getFullId());
             }
-        } else{
-            if (!NumberUtils.equals(13,taxRate, 0.001)){
-                //#616 未出库的订单，都按13开
-                throw new MYException("未出库的订单，仅能开13的税率的票:"+outBean.getFullId());
-            }
         }
+        //2019-12-05去掉
+//        else{
+//            if (!NumberUtils.equals(13,taxRate, 0.001)){
+//                //#616 未出库的订单，都按13开
+//                throw new MYException("未出库的订单，仅能开13的税率的票:"+outBean.getFullId());
+//            }
+//        }
 
     }
 
@@ -469,13 +471,18 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		ProductBean product = productDAO.find(productId);
 		
 		if (null == product) {
-			throw new MYException("数据错误");
+			throw new MYException("产品不存在:"+productId);
 		} else {
+            //#863 混合产品不检查税率
+            if(product.getName().indexOf("+") != -1){
+                return;
+            }
 			String mtype = product.getReserve4();
 			int oldgoods = product.getConsumeInDay();
 
 			boolean isOldGoods = "1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD;
-			if (isOldGoods) {
+
+			if ( isOldGoods) {
 			    //旧货
 				if (!invoiceId.equals("90000000000000000007")) {
 					throw new MYException("普通且是旧货的商品只能开具增值税普通发票（旧货）类型发票");
@@ -2357,14 +2364,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                         String productId = array[1];
                         int amount2 = this.getProductAmount(baseList, productId);
                         productToAmountMap2.put(key2, amount2);
-//                    if ( amount != amount2){
-//                        sb.append("商品").append(productMap.get(productId))
-//                                .append("数量").append(amount).append("必须等于销售单").append(outId)
-//                                .append("中对应数量").append(amount2).append("<br>");
-//                    }
 
-                        if ( amount > amount2){
-                            sb.append("商品").append(productMap.get(productId))
+                        String productName = productMap.get(productId);
+                        //#863 商品名是XX+XX，不控制数量检查
+                        if ( productName.indexOf("+") == -1 && amount > amount2){
+                            sb.append("商品").append(productName)
                                     .append("数量").append(amount).append("必须小于等于销售单").append(outId)
                                     .append("中对应数量").append(amount2).append("<br>");
                         }
@@ -2456,7 +2460,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         }
         catch (Exception e)
         {
-            saveLogInner(batchId, OutImportConstant.LOGSTATUS_FAIL, "处理失败,系统错误，请联系管理员");
+            String msg = "处理失败,系统错误:"+e.toString();
+            saveLogInner(batchId, OutImportConstant.LOGSTATUS_FAIL, msg.substring(0,300));
 
             operationLog.error("批量开票数据处理错误：", e);
             throw new MYException("系统错误，请联系管理员:" + e);
@@ -2758,26 +2763,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 						outBalanceDAO.updatePayInvoiceData(vs.getOutBalanceId(), OutConstant.OUT_PAYINS_TYPE_INVOICE, PublicConstant.MANAGER_TYPE_COMMON, PublicConstant.DEFAULR_DUTY_ID, 1);
 					}
 				}
-
-//				FlowLogBean log = new FlowLogBean();
-//
-//				log.setActor("系统");
-//				log.setActorId(StafferConstant.SUPER_STAFFER);
-//				log.setFullId(obean.getId());
-//				log.setDescription("批量生成,待审批");
-//				log.setLogTime(TimeTools.now());
-//				log.setPreStatus(FinanceConstant.INVOICEINS_STATUS_SAVE);
-//				log.setAfterStatus(bean.getStatus());
-//				log.setOprMode(PublicConstant.OPRMODE_PASS);
-//
-//				flowLogDAO.saveEntityBean(log);
 			}
 			UserVO user = new UserVO();
 			user.setStafferName("邢君君");
 			user.setStafferId("239358493");
 			batchConfirmAndCreatePackage(user, invoiceinsVOList);
 		}catch(Exception e){
-			_logger.error(e);
+			_logger.error(e,e);
 			throw new RuntimeException(e);
 		}
 
@@ -3275,7 +3267,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			StringBuilder sb = new StringBuilder();
 
             StringBuilder sb2 = new StringBuilder();
-
+            StringBuilder sb3 = new StringBuilder();
 			for (InvoiceinsImportBean eachb : elist) {
 
 				invoicemoney += eachb.getInvoiceMoney();
@@ -3286,6 +3278,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 				if(sb2.indexOf(eachb.getDescription()) == -1){
                     sb2.append(eachb.getDescription());
                     sb2.append(";");
+                }
+
+                if(sb3.indexOf(eachb.getOtherDescription()) == -1){
+                    sb3.append(eachb.getOtherDescription());
+                    sb3.append(";");
                 }
 
 				if (eachb.getType() == FinanceConstant.INSVSOUT_TYPE_OUT) {
@@ -3365,7 +3362,14 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                 item.setPrice(baseBean.getPrice());
                                 item.setBaseId(baseBean.getId());
                                 item.setCostPrice(baseBean.getCostPrice());
-                                item.setMoneys(item.getAmount() * item.getPrice());
+
+                                if(eachb.getProductName().indexOf("+") == -1){
+                                    item.setMoneys(item.getAmount() * item.getPrice());
+                                } else{
+                                    //#863混合商品直接取开票金额
+                                    item.setMoneys(eachb.getInvoiceMoney());
+                                }
+
                                 item.setOutId(eachb.getOutId());
                                 item.setProductId(eachb.getProductId());
                                 item.setType(eachb.getType());
@@ -3526,6 +3530,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 //			bean.setDescription(first.getDescription());
             bean.setDescription(sb2.toString());
+            bean.setOtherDescription(sb3.toString());
 			// fill distribution
 			if (first.getAddrType() == InvoiceinsConstants.INVOICEINS_DIST_NEW) {
 				bean.setShipping(first.getShipping());
@@ -4259,7 +4264,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
     @Transactional(rollbackFor = MYException.class)
     public void generateInvoiceins(String packageId, String insId, String fphm) {
-        //TODO 取返回的发票号码，写入对应的A单号中替换XN号码
+        // 取返回的发票号码，写入对应的A单号中替换XN号码
         List<InsVSInvoiceNumBean> numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insId);
         if (!ListTools.isEmptyOrNull(numList)){
             for (InsVSInvoiceNumBean item: numList){
@@ -4269,19 +4274,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 if (!StringTools.isNullOrNone(insNum.getInvoiceNum())){
                     String outId = insNum.getInsId();
                     this.packageItemDAO.replaceInvoiceNum(outId, insNum.getInvoiceNum(), fphm);
-
-                    //#328 如果是XN发票号,更新CK单为已捡配
-                    //TODO?
-//                    if (insNum.getInvoiceNum().contains("XN")){
-//                        ConditionParse conditionParse = new ConditionParse();
-//                        List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(outId,
-//                                AnoConstant.FK_FIRST);
-//                        if (!ListTools.isEmptyOrNull(packageItemBeanList)){
-//                            _logger.info(packageId+"****update XN***"+ ShipConstant.SHIP_STATUS_PICKUP);
-//
-//                            this.packageDAO.updateStatus(packageId, ShipConstant.SHIP_STATUS_PICKUP);
-//                        }
-//                    }
                 }
 
                 insNum.setInvoiceNum(fphm);
@@ -4290,7 +4282,19 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             }
         }
 
-        //# TODO CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
+        if (StringTools.isNullOrNone(packageId)){
+            //根据批次打印时先找到对应的CK单
+            ConditionParse conditionParse = new ConditionParse();
+            conditionParse.addCondition("outId","=",insId);
+            conditionParse.addCondition("productName","=","发票号："+fphm);
+            List<PackageItemBean> packageItemBeans = this.packageItemDAO.queryEntityBeansByCondition(conditionParse);
+            if (!ListTools.isEmptyOrNull(packageItemBeans)){
+                packageId = packageItemBeans.get(0).getPackageId();
+                _logger.info("packageId***"+packageId);
+            }
+        }
+
+        //# CK单中的全部虚拟号码替换成真实发票号后，更新CK单状态为已捡配
         List<PackageItemBean> packageItemBeanList = this.packageItemDAO.queryEntityBeansByFK(packageId);
         if (!ListTools.isEmptyOrNull(packageItemBeanList)){
             boolean  flag = true;

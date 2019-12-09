@@ -236,18 +236,17 @@ public class OutImportManagerImpl implements OutImportManager
                         String twProductId = twthProductBean.getTwProductId();
 						twOutImportBean.setProductId(twProductId);
 						twOutImportBean.setProductName(twthProductBean.getTwProductName());
+						//#843
+//                        体内外同步生成订单，申请生成的体外订单默认仓库：
+//                        物流作业库-体外 (A1201809281431327543)
+//                        物流作业-已合成预占仓(A1201809281431327544)，
+//                        发货方式是默认自提，并打标成虚拟订单
+                        twOutImportBean.setDepotId("A1201809281431327543");
+                        twOutImportBean.setDepotpartId("A1201809281431327544");
+                        twOutImportBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
+                        twOutImportBean.setVirtualStatus(1);
 						_logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
 						twOutImportBeans.add(twOutImportBean);
-
-//                        ProductBean productBean = this.productDAO.find(twProductId);
-//                        if (productBean == null){
-//                            _logger.error("product id not exist***"+twProductId);
-//                        } else{
-//                            twOutImportBean.setProductId(twProductId);
-//                            twOutImportBean.setProductName(productBean.getName());
-//                            _logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
-//                            twOutImportBeans.add(twOutImportBean);
-//                        }
                     }
                 }
 			}
@@ -3941,7 +3940,14 @@ public class OutImportManagerImpl implements OutImportManager
 									//#625 OA出库单数量等于折算系数*开单数量
 									double amount = Math.round(olBaseBean.getAmount()*productImportBean.getRated());
 									baseBean.setAmount(new BigDecimal(amount).intValueExact());
-									baseBean.setPrice(olBaseBean.getPrice()/productImportBean.getRated());
+									double price = olBaseBean.getPrice()/productImportBean.getRated();
+									if (Double.valueOf(price).isInfinite()){
+										_logger.error("rated is 0:"+olBaseBean.getOutId());
+										this.updateOlOutDescription(olOutBean,olOutBean.getDescription()+"_ERROR_"+"t_center_product_import表的rated字段不能为0!");
+										continue;
+									} else{
+										baseBean.setPrice(price);
+									}
 								}
 							}
 						}
@@ -4070,14 +4076,15 @@ public class OutImportManagerImpl implements OutImportManager
 						out.setDepotpartId(baseBean.getDepotpartId());
 
 						try {
+							_logger.info("create out in offlineOrderJob " + out);
+							_logger.info("create basebean in offlineOrderJob " + baseBeans);
 							outDAO.saveEntityBean(out);
 							baseDAO.saveAllEntityBeans(baseBeans);
-							_logger.info("create out in offlineOrderJob " + out);
 							this.olOutDAO.updateStatus(olOutBean.getOlFullId(), 9);
 							this.clearOlOutErrorDescription(olOutBean);
 							addOutLog(fullId, null, out, "提交", SailConstant.OPR_OUT_PASS, 1);
 						}catch(Exception e){
-							_logger.error("数据库异常" + olOutBean.getOlFullId());
+							_logger.error("数据库异常" + olOutBean.getOlFullId(),e);
 							this.updateOlOutDescription(olOutBean, olOutBean.getDescription() + "_ERROR_" + "数据库异常，请检查是否数据重复");
 							continue;
 						}

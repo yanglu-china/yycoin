@@ -17,6 +17,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.publics.StringUtils;
+import com.china.center.oa.sail.bean.OutImportBean;
+import com.china.center.oa.sail.dao.OutImportDAO;
 import com.china.center.tools.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
@@ -92,6 +95,8 @@ public class BackPrePayAction extends DispatchAction
 	private AttachmentDAO attachmentDAO = null;
 	
 	private PayOrderDAO payOrderDao;
+
+	private OutImportDAO outImportDAO;
 	
 	private final static String QUERYSELFBACKPREPAY = "tcp.querySelfBackPrePay";
 	
@@ -245,6 +250,20 @@ public class BackPrePayAction extends DispatchAction
                     {
                         vo.setShowBackMoney(TCPHelper.formatNum2(vo.getBackMoney() / 100.0d));
 
+                        //银行单号
+                        String citicNo = StringUtils.getSecondPartMayNull(vo.getName(),"订单号");
+                        if (!StringTools.isNullOrNone(citicNo)){
+                            vo.setCiticNo(citicNo);
+
+                            //OA单号
+                            ConditionParse conditionParse = new ConditionParse();
+                            conditionParse.addCondition("citicNo","=",citicNo);
+                            List<OutImportBean> outImportBeans = outImportDAO.queryEntityBeansByCondition(conditionParse);
+                            if(!ListTools.isEmptyOrNull(outImportBeans)){
+                                vo.setOaNo(outImportBeans.get(0).getOANo());
+                            }
+                        }
+
                         // 结束时间
                         ConditionParse conditionParse = new ConditionParse();
                         conditionParse.addCondition("fullId","=",vo.getId());
@@ -254,15 +273,6 @@ public class BackPrePayAction extends DispatchAction
                             vo.setFinishTime(logs.get(0).getLogTime());
                         }
 
-                        //下载地址
-                        List<AttachmentBean> attachmentList = attachmentDAO.queryEntityVOsByFK(vo.getId());
-                        StringBuilder sb = new StringBuilder();
-                        for (AttachmentBean attachmentBean : attachmentList) {
-                            String url = "<a href='../tcp/backprepay.do?method=downAttachmentFile&id="
-                                    +attachmentBean.getId()+"'>"+attachmentBean.getName()+" </a>";
-                            sb.append(url).append("<br>");
-                        }
-                        vo.setAttachmentUrl(sb.toString());
                     }
                 });
 
@@ -524,7 +534,7 @@ public class BackPrePayAction extends DispatchAction
      * @param mapping
      * @param request
      * @param rds
-     * @param bean
+     * @param apply
      * @return
      */
     private ActionForward parserAttachment(ActionMapping mapping, HttpServletRequest request,
@@ -842,7 +852,7 @@ public class BackPrePayAction extends DispatchAction
     /**
 	 * 
 	 * @param request
-	 * @param bean
+	 * @param param
 	 */
     private void fillWrap(HttpServletRequest request, TcpParamWrap param)
     {
@@ -1200,5 +1210,8 @@ public class BackPrePayAction extends DispatchAction
 	public void setPayOrderDao(PayOrderDAO payOrderDao) {
 		this.payOrderDao = payOrderDao;
 	}
-	
+
+    public void setOutImportDAO(OutImportDAO outImportDAO) {
+        this.outImportDAO = outImportDAO;
+    }
 }

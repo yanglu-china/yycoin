@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"
 	errorPage="../common/error.jsp"%>
 <%@include file="../common/common.jsp"%>
+<%@ taglib prefix="attach" tagdir="/WEB-INF/tags/attach" %>
+
 <html>
 <head>
 <p:link title="差旅费申请" guid="true"/>
@@ -146,7 +148,7 @@ function checkMoney()
 </head>
 
 <body class="body_class" onload="load()">
-<c:if test="${bean.status == 11}">
+<c:if test="${bean.status == 11  || bean.status == 22}">
 <form name="formEntry" action="../tcp/apply.do?method=processTravelApplyBean"   enctype="multipart/form-data" method="post">
 <input type="hidden" name="oprType" value="0"> 
 <input type="hidden" name="processId" value=""> 
@@ -515,6 +517,9 @@ function checkMoney()
                         <font color="red">*</font>
                         </td>
                     </tr>
+                    <c:if test="${bean.status == '22'}">
+                        <attach:attachmentsTag/>
+                    </c:if>
                     <c:if test="${requestScope.pluginType == 'group'}">
                     <tr align="center" class="content1">
                         <td width="15%" align="center">提交到</td>

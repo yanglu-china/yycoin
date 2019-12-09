@@ -73,6 +73,7 @@ function load()
 
 
 			<p:pro field="bank" />
+			<p:pro field="khm" />
 			<p:pro field="accounts" />
 			
 			<p:pro field="address" cell="0" innerString="size=60" />
