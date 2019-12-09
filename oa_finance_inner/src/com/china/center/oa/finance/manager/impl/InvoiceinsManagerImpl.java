@@ -471,13 +471,18 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		ProductBean product = productDAO.find(productId);
 		
 		if (null == product) {
-			throw new MYException("数据错误");
+			throw new MYException("产品不存在:"+productId);
 		} else {
+            //#863 混合产品不检查税率
+            if(product.getName().indexOf("+") != -1){
+                return;
+            }
 			String mtype = product.getReserve4();
 			int oldgoods = product.getConsumeInDay();
 
 			boolean isOldGoods = "1".equals(mtype) && oldgoods == ProductConstant.PRODUCT_OLDGOOD;
-			if (isOldGoods) {
+
+			if ( isOldGoods) {
 			    //旧货
 				if (!invoiceId.equals("90000000000000000007")) {
 					throw new MYException("普通且是旧货的商品只能开具增值税普通发票（旧货）类型发票");
