@@ -4724,12 +4724,14 @@ public class TravelApplyAction extends DispatchAction
                         TcpIbReportBean ib = ibReportList.get(0);
                         double currentIb = customerToIbMap2.get(customerName);
                         double currentIb2 = this.roundDouble(currentIb);
+                        /*
                         if (currentIb2>ib.getIbMoneyTotal2()){
                             builder.append("客户[").append(customerName)
                                     .append("]").append("当前申请金额：" + currentIb2 + "大于可申请中收2金额：" + ib.getIbMoneyTotal2())
                                     .append("<br>");
                             importError = true;
                         }
+                        */
                         this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal2(), customerName, "中收2", importError, builder);
                     }
                 }
