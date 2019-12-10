@@ -243,7 +243,15 @@ public class OutImportManagerImpl implements OutImportManager
 //                        发货方式是默认自提，并打标成虚拟订单
                         twOutImportBean.setDepotId("A1201809281431327543");
                         twOutImportBean.setDepotpartId("A1201809281431327544");
+                        twOutImportBean.setComunicationBranch("物流作业-已合成预占仓");
                         twOutImportBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
+                        twOutImportBean.setTransport1(0);
+						twOutImportBean.setTransport2(0);
+						twOutImportBean.setProvinceId(null);
+						twOutImportBean.setCityId(null);
+						twOutImportBean.setAddress(null);
+						twOutImportBean.setReceiver(null);
+						twOutImportBean.setHandPhone(null);
                         twOutImportBean.setVirtualStatus(1);
 						_logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
 						twOutImportBeans.add(twOutImportBean);
