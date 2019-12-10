@@ -24,6 +24,7 @@ import com.china.center.oa.finance.manager.BillManager;
 import com.china.center.oa.finance.vo.InBillVO;
 import com.china.center.oa.finance.vo.OutBillVO;
 import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.Util;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.InvoiceBean;
@@ -557,6 +558,11 @@ public class BillAction extends DispatchAction
 <input type="hidden" name="bankId" value="">
 <input type="hidden" name="destBankId" value="">
              */
+            bean.setPayType(Util.getInteger(rds.getParameter("payType")));
+            bean.setType(Util.getInteger(rds.getParameter("type")));
+            bean.setMoneys(Util.getDouble(rds.getParameter("moneys")));
+            bean.setDescription(rds.getParameter("description"));
+
             bean.setBankId(rds.getParameter("bankId"));
             bean.setProvideId(rds.getParameter("provideId"));
             bean.setOwnerId(rds.getParameter("ownerId"));

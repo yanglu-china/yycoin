@@ -25,6 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.publics.Util;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1387,7 +1388,7 @@ public class ExpenseAction extends DispatchAction
 
             param.setAttachmentList(bean.getAttachmentList());
             // 组装参数
-            fillWrap(request, param);
+            fillWrap(rds, param);
 
             // 提交
             if ("0".equals(oprType))
@@ -1418,17 +1419,23 @@ public class ExpenseAction extends DispatchAction
      * @param param
      * @throws MYException
      */
-    private void fillWrap(HttpServletRequest request, TcpParamWrap param)
+    private void fillWrap(RequestDataStream rds, TcpParamWrap param)
         throws MYException
     {
         _logger.info("****fillWrap ********");
-        String[] fid = request.getParameterValues("fid");
+        //String[] fid = request.getParameterValues("fid");
+
+        String[] fid = Util.parseArrayFromRds(rds, "fid");
 
         // #570 稽核处理
         if (fid != null && fid.length > 0)
         {
-            String[] fcmoneysList = request.getParameterValues("f_cmoneys");
-            String[] feeItemList = request.getParameterValues("i_feeItem");
+            //String[] fcmoneysList = request.getParameterValues("f_cmoneys");
+            //String[] feeItemList = request.getParameterValues("i_feeItem");
+
+            String[] fcmoneysList = Util.parseArrayFromRds(rds, "f_cmoneys");
+            String[] feeItemList = Util.parseArrayFromRds(rds, "i_feeItem");
+            
             
             _logger.debug("feeItemList:");
             _logger.debug(feeItemList);
@@ -1450,13 +1457,17 @@ public class ExpenseAction extends DispatchAction
             param.setOther1(payList);
         }
 
-        String[] ppid = request.getParameterValues("p_cid");
+        //String[] ppid = request.getParameterValues("p_cid");
+        
+        String[] ppid = Util.parseArrayFromRds(rds, "p_cid");
 
         // 稽核处理
         if (ppid != null && ppid.length > 0)
         {
-            String[] pcmoneysList = request.getParameterValues("p_cmoneys");
-            String[] pcdescriptionList = request.getParameterValues("p_cdescription");
+            //String[] pcmoneysList = request.getParameterValues("p_cmoneys");
+            String[] pcmoneysList = Util.parseArrayFromRds(rds, "p_cmoneys");
+            //String[] pcdescriptionList = request.getParameterValues("p_cdescription");
+            String[] pcdescriptionList = Util.parseArrayFromRds(rds, "p_cdescription");
             List<TravelApplyPayBean> payList = travelApplyPayDAO
                 .queryEntityBeansByFK(param.getId());
             for (int i = 0; i < ppid.length; i++ )
@@ -1474,15 +1485,21 @@ public class ExpenseAction extends DispatchAction
             param.setOther(payList);
         }
 
-        String[] bankIds = request.getParameterValues("bankId");
+        //String[] bankIds = request.getParameterValues("bankId");
+        String[] bankIds = Util.parseArrayFromRds(rds, "bankId");
 
         // 财务付款/收款
         if (bankIds != null && bankIds.length > 0)
         {
-            int payType = CommonTools.parseInt(request.getParameter("payType"));
 
-            String[] payTypes = request.getParameterValues("payType");
-            String[] moneys = request.getParameterValues("money");
+            //int payType = CommonTools.parseInt(request.getParameter("payType"));
+        	
+        	int payType = CommonTools.parseInt(rds.getParameter("payType"));
+
+            //String[] payTypes = request.getParameterValues("payType");
+            String[] payTypes = Util.parseArrayFromRds(rds, "payType");
+            //String[] moneys = request.getParameterValues("money");
+            String[] moneys = Util.parseArrayFromRds(rds, "money");
 
             // 付款
             if (payType == TcpConstanst.PAYTYPE_PAY_YES)
@@ -1536,12 +1553,17 @@ public class ExpenseAction extends DispatchAction
         }
 
         // 凭证
-        String[] taxIds = request.getParameterValues("taxId");
+        //String[] taxIds = request.getParameterValues("taxId");
+        
+        String[] taxIds = Util.parseArrayFromRds(rds, "taxId");
 
         if (taxIds != null && taxIds.length > 0)
         {
-            String[] moneys = request.getParameterValues("t_money");
-            String[] stafferIds = request.getParameterValues("taxStafferId");
+            //String[] moneys = request.getParameterValues("t_money");
+            //String[] stafferIds = request.getParameterValues("taxStafferId");
+            
+            String[] moneys = Util.parseArrayFromRds(rds, "t_money");
+            String[] stafferIds = Util.parseArrayFromRds(rds, "taxStafferId");
 
             // FinanceItemBean
             List<String> taxList = new ArrayList<String>();
