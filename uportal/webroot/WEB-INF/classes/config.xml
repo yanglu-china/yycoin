@@ -21,6 +21,7 @@
 	<entry key="financeAttachmentPath">e:/oa_attachment/finance</entry>
 	<entry key="productStore">e:/oa_attachment/product</entry>
 	<entry key="stafferCreditStore">e:/oa_attachment/stafferCredit</entry>
+	<entry key="sfPrintStore">e:/oa_attachment/sfprint</entry>
 	<entry key="bankStore">e:/oa_attachment/bank</entry>
 	<entry key="script">e:/oa_attachment/script</entry>
 	<entry key="picPath">e:/oa_attachment/picPath</entry>
