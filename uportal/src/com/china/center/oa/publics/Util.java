@@ -3,6 +3,9 @@ package com.china.center.oa.publics;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.DecimalFormat;
+import java.util.List;
+
+import com.china.center.tools.RequestDataStream;
 
 
 public class Util {
@@ -331,5 +334,22 @@ public class Util {
 		return rst;
 		
 	}
+	
+	public static String[] parseArrayFromRds(RequestDataStream rds, String paramName){
+        List<String> list = rds.getParameters(paramName);
+        return list2Array(list);
+	}
+	
+	public static String[] list2Array(List<String> list){
+    	String[] arr = null;
+    	if(list!=null && list.size()>0){
+    		arr = new String[list.size()];
+    		for(int i=0;i<list.size();i++){
+    			arr[i] = list.get(i);
+    		}
+    	}
+    	
+    	return arr;
+    }
 }
 

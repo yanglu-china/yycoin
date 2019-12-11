@@ -4672,12 +4672,15 @@ public class TravelApplyAction extends DispatchAction
                         TcpIbReportBean ib = ibReportList.get(0);
                         double currentIb = customerToIbMap.get(customerName);
                         double currentIb2 = this.roundDouble(currentIb);
+                        /*
                         if (currentIb2>ib.getIbMoneyTotal()){
                             builder.append("客户[").append(customerName)
                                     .append("]").append("当前申请金额：" + currentIb2 + "大于可申请中收金额：" + ib.getIbMoneyTotal())
                                     .append("<br>");
                             importError = true;
                         }
+                        */
+                        this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal(), customerName, "中收", importError, builder);
                     }
                 }
             } else if (type == TcpConstanst.MOTIVATION_TYPE || type == TcpConstanst.MOTIVATION_TYPE3){
@@ -4695,12 +4698,15 @@ public class TravelApplyAction extends DispatchAction
                         TcpIbReportBean ib = ibReportList.get(0);
                         double currentMot = customerToMotivationMap.get(customerName);
                         double currentMot2 = this.roundDouble(currentMot);
+                        /*
                         if (currentMot2> ib.getMotivationMoneyTotal()){
                             builder.append("客户[").append(customerName)
                                     .append("]").append("当前申请金额："+currentMot2+"大于可申请激励金额："+ib.getMotivationMoneyTotal())
                                     .append("<br>");
                             importError = true;
                         }
+                        */
+                        this.compareApplyToAvailable(currentMot2, ib.getMotivationMoneyTotal(), customerName, "激励", importError, builder);
                     }
                 }
             } else if (type == TcpConstanst.IB_TYPE2){
@@ -4718,12 +4724,15 @@ public class TravelApplyAction extends DispatchAction
                         TcpIbReportBean ib = ibReportList.get(0);
                         double currentIb = customerToIbMap2.get(customerName);
                         double currentIb2 = this.roundDouble(currentIb);
+                        /*
                         if (currentIb2>ib.getIbMoneyTotal2()){
                             builder.append("客户[").append(customerName)
                                     .append("]").append("当前申请金额：" + currentIb2 + "大于可申请中收2金额：" + ib.getIbMoneyTotal2())
                                     .append("<br>");
                             importError = true;
                         }
+                        */
+                        this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal2(), customerName, "中收2", importError, builder);
                     }
                 }
             } else if (type == TcpConstanst.MOTIVATION_TYPE2){
@@ -4741,12 +4750,15 @@ public class TravelApplyAction extends DispatchAction
                         TcpIbReportBean ib = ibReportList.get(0);
                         double currentMot = customerToMotivationMap2.get(customerName);
                         double currentMot2 = this.roundDouble(currentMot);
+                        /*
                         if (currentMot2> ib.getMotivationMoneyTotal2()){
                             builder.append("客户[").append(customerName)
                                     .append("]").append("当前申请金额："+currentMot2+"大于可申请其他费用金额："+ib.getMotivationMoneyTotal2())
                                     .append("<br>");
                             importError = true;
                         }
+                        */
+                        this.compareApplyToAvailable(currentMot2, ib.getMotivationMoneyTotal2(), customerName, "其他费用", importError, builder);
                     }
                 }
             } else if (type == TcpConstanst.PLATFORM_TYPE){
@@ -4764,12 +4776,15 @@ public class TravelApplyAction extends DispatchAction
                         TcpIbReportBean ib = ibReportList.get(0);
                         double currentMot = customerToPlatformMap.get(customerName);
                         double currentMot2 = this.roundDouble(currentMot);
+                        /*
                         if (currentMot2> ib.getPlatformFeeTotal()){
                             builder.append("客户[").append(customerName)
                                     .append("]").append("当前申请金额："+currentMot2+"大于平台手续费金额："+ib.getPlatformFeeTotal())
                                     .append("<br>");
                             importError = true;
                         }
+                        */
+                        this.compareApplyToAvailable(currentMot2, ib.getPlatformFeeTotal(), customerName, "平台手续费", importError, builder);
                     }
                 }
             }
@@ -4920,6 +4935,22 @@ public class TravelApplyAction extends DispatchAction
         } else{
             return mapping.findForward("addTravelApply7import");
         }
+    }
+    
+    private void compareApplyToAvailable(double applyMoney, double availableMoney, String customer, String feeName, boolean importError, StringBuilder builder){
+    	
+        if (applyMoney> availableMoney){
+            builder.append("客户[").append(customer)
+                    .append("]").append("当前申请金额："+applyMoney+"大于"+feeName+"金额："+availableMoney)
+                    .append("<br>");
+            importError = true;
+        }else if (applyMoney< availableMoney){
+                builder.append("客户[").append(customer)
+                        .append("]").append("当前申请金额："+applyMoney+"小于"+feeName+"金额："+availableMoney)
+                        .append("<br>");
+                importError = true;
+        }
+    	
     }
 
     private CustomerBean getCustomer(List<CustomerBean> customerBeans, String name){
