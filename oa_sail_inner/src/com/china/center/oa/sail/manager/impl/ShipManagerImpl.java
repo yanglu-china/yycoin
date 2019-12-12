@@ -1,61 +1,104 @@
 package com.china.center.oa.sail.manager.impl;
 
+import static com.china.center.oa.sail.constanst.ShipConstant.SHIP_STATUS_PRINT_SIGNED;
+import static com.china.center.oa.sail.constanst.ShipConstant.SHIP_STATUS_PRINT_ZAITU;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import com.china.center.oa.product.bean.ProductBean;
-import com.china.center.oa.product.bean.ProductImportBean;
-import com.china.center.oa.product.dao.ProductDAO;
-import com.china.center.oa.product.dao.ProductImportDAO;
-import com.china.center.oa.publics.MD5;
-import com.center.china.osgi.config.ConfigLoader;
-import com.china.center.jdbc.annosql.constant.AnoConstant;
-import com.china.center.oa.client.bean.CustomerBean;
-import com.china.center.oa.client.dao.CustomerMainDAO;
-import com.china.center.oa.publics.StringUtils;
-import com.china.center.oa.publics.bean.FlowLogBean;
-import com.china.center.oa.publics.bean.StafferBean;
-import com.china.center.oa.publics.constant.PublicConstant;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
-import com.china.center.oa.publics.manager.CommonMailManager;
-import com.china.center.oa.sail.bean.*;
-import com.china.center.oa.sail.dao.*;
-import com.china.center.oa.sail.express.HttpRequest;
-import com.china.center.oa.sail.express.JacksonHelper;
-import com.china.center.oa.sail.vo.BranchRelationVO;
-import com.china.center.tools.*;
-import jxl.Workbook;
-import jxl.format.*;
-import jxl.write.*;
-import jxl.write.biff.RowsExceededException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
+import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.client.bean.CustomerBean;
+import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.product.bean.DepotBean;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.dao.DepotDAO;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProductImportDAO;
+import com.china.center.oa.publics.MD5;
+import com.china.center.oa.publics.StringUtils;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.CommonDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.manager.CommonMailManager;
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.BranchRelationBean;
+import com.china.center.oa.sail.bean.ConsignBean;
+import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.bean.ExpressBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.OutImportBean;
+import com.china.center.oa.sail.bean.PackageBean;
+import com.china.center.oa.sail.bean.PackageItemBean;
+import com.china.center.oa.sail.bean.PackageVSCustomerBean;
+import com.china.center.oa.sail.bean.PreConsignBean;
+import com.china.center.oa.sail.bean.TwOutBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.ShipConstant;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.BranchRelationDAO;
+import com.china.center.oa.sail.dao.ConsignDAO;
+import com.china.center.oa.sail.dao.DistributionDAO;
+import com.china.center.oa.sail.dao.ExpressDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.dao.OutImportDAO;
+import com.china.center.oa.sail.dao.PackageDAO;
+import com.china.center.oa.sail.dao.PackageItemDAO;
+import com.china.center.oa.sail.dao.PackageVSCustomerDAO;
+import com.china.center.oa.sail.dao.PreConsignDAO;
+import com.china.center.oa.sail.dao.TwDistributionDAO;
+import com.china.center.oa.sail.dao.TwOutDAO;
+import com.china.center.oa.sail.express.HttpRequest;
+import com.china.center.oa.sail.express.JacksonHelper;
 import com.china.center.oa.sail.manager.ShipManager;
+import com.china.center.oa.sail.vo.BranchRelationVO;
 import com.china.center.oa.sail.vo.DistributionVO;
 import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.sail.vo.PackageVO;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.JudgeTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
 
-import javax.servlet.http.HttpServletRequest;
-
-import static com.china.center.oa.sail.constanst.ShipConstant.SHIP_STATUS_PRINT_SIGNED;
-import static com.china.center.oa.sail.constanst.ShipConstant.SHIP_STATUS_PRINT_ZAITU;
+import jxl.Workbook;
+import jxl.format.PageOrientation;
+import jxl.format.PaperSize;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
+import jxl.write.biff.RowsExceededException;
 
 public class ShipManagerImpl implements ShipManager
 {
@@ -3673,6 +3716,13 @@ public class ShipManagerImpl implements ShipManager
             }
         }
         return null;
+    }
+    
+    
+    @Transactional(rollbackFor = MYException.class)
+    public void updatePackageBeanByBean(PackageBean bean)
+    {
+    	packageDAO.updateEntityBean(bean);
     }
 
     /**

@@ -49,8 +49,13 @@ public class SFPrintUtil {
 	
 	private final String reqURL="https://bsp-oisp.sf-express.com/bsp-oisp/sfexpressService";
 	
+	/**
+	 * 直接输出图片的BASE64编码字符串 可以使用html标签直接转换成图片【二联单】
+	 */
+	String url9 = "http://localhost:4040/sf/waybill/print?type=V2.0.FM_poster_100mm150mm&output=image";
 	
-	public void toPrint(Map<String,String> paramMap) throws Exception {
+	
+	public String toPrint(Map<String,String> paramMap) throws Exception {
 		
 		SfRequestService sfRequestService = new SfRequestService();
 		
@@ -66,7 +71,7 @@ public class SFPrintUtil {
 		orderService.setJ_tel("13951084037");
 		orderService.setJ_province("江苏省");
 		orderService.setJ_city("南京市");
-		orderService.setJ_address("南京市江宁区秣陵街道将军大道558号中航工业金城（永银文化）");
+		orderService.setJ_address("南京市江宁区秣陵街道将军大道558号中航工业金城(永银文化)");
 		
 		orderService.setD_company(paramMap.get("dcompany"));
 		orderService.setD_contact(paramMap.get("dcontact"));
@@ -90,6 +95,7 @@ public class SFPrintUtil {
 		sfLog.info("请求报文："+reqXml);
         String respXml= CallExpressServiceTools.callSfExpressServiceByCSIM(reqURL, reqXml, clientCode, checkword);
       
+        String sfNumber  = "";
 		 if (respXml != null) {
 			 sfLog.info("--------------------------------------");
 			 sfLog.info("返回报文: "+ respXml);
@@ -108,8 +114,10 @@ public class SFPrintUtil {
             			 SfResponseRlsInfo rlsInfo = orderResponse.getRslInfo();
             			 if(rlsInfo != null)
             			 {
+            				 String filePath = paramMap.get("filePath");
             				 SfResponseRlsDetail rlsDetail = rlsInfo.getRlsDetail();
-            				 WayBillPrinterTools(orderResponse,rlsDetail,orderService);
+            				 sfNumber = orderResponse.getMailno();
+            				 WayBillPrinterTools(orderResponse,rlsDetail,orderService,filePath);
             			 }
             		 }
             	 }
@@ -117,15 +125,25 @@ public class SFPrintUtil {
              else
              {
             	 String error = responseService.getError().getValue();
-            	 throw new Exception("顺丰面单" + error);
+            	 throw new Exception("顺丰面单打印出错:" +  error);
              }
              
-         }			
+         }
+		 return sfNumber;
 	}
 	
 	
-	
-	public List<String> WayBillPrinterTools(SfResponseOrderResponse orderResponse,SfResponseRlsDetail rlsDetail,SfOrderService orderService) throws Exception {
+	/**
+	 * 返回顺丰单号
+	 * @param orderResponse
+	 * @param rlsDetail
+	 * @param orderService
+	 * @param filePath
+	 * @return
+	 * @throws Exception
+	 */
+	public void WayBillPrinterTools(SfResponseOrderResponse orderResponse,SfResponseRlsDetail rlsDetail,
+											SfOrderService orderService, String filePath) throws Exception {
 
 		/********* 2联150 丰密运单 **************/
 		/**
@@ -137,10 +155,6 @@ public class SFPrintUtil {
 		 */
 		String url8 = "http://localhost:4040/sf/waybill/print?type=V2.0.FM_poster_100mm150mm&output=print";
 
-		/**
-		 * 直接输出图片的BASE64编码字符串 可以使用html标签直接转换成图片【二联单】
-		 */
-		String url9 = "http://localhost:4040/sf/waybill/print?type=V2.0.FM_poster_100mm150mm&output=image";
 
 		/********* 3联210 丰密运单 **************/
 		/**
@@ -201,7 +215,7 @@ public class SFPrintUtil {
 		dto.setAppId(clientCode);// 对应clientCode
 		dto.setAppKey(checkword);// 对应checkWord
 
-		dto.setMailNo(rlsDetail.getWaybillNo());
+		dto.setMailNo(orderResponse.getMailno());
 		// dto.setMailNo("SF7551234567890,SF2000601520988,SF2000601520997");//子母单方式
 
 		// 签回单号 签单返回服务 会打印两份快单 其中第二份作为返寄的单
@@ -237,7 +251,7 @@ public class SFPrintUtil {
 		dto.setExpressType(1);
 
 		// COD代收货款金额,只需填金额, 单位元- 此项和月结卡号绑定的增值服务相关
-		dto.setCodValue("0");
+//		dto.setCodValue("0");
 
 //		dto.setInsureValue("501");// 声明货物价值的保价金额,只需填金额,单位元
 		dto.setMonthAccount(sf_custid);// 月结卡号
@@ -314,7 +328,7 @@ public class SFPrintUtil {
 		StringWriter stringWriter = new StringWriter();
 		objectMapper.writeValue(stringWriter, waybillDtoList);
 
-		httpConn.getOutputStream().write(stringWriter.toString().getBytes());
+		httpConn.getOutputStream().write(stringWriter.toString().getBytes("UTF-8"));
 
 		httpConn.getOutputStream().flush();
 		httpConn.getOutputStream().close();
@@ -341,25 +355,25 @@ public class SFPrintUtil {
 		strImg = strImg.replace("\\n", "");
 		// System.out.println(strImg);
 
-		List<String> fileNameList = new ArrayList<String>();
+//		List<String> fileNameList = new ArrayList<String>();
 
 		if (strImg.contains("\",\"")) {
 			// 如子母单及签回单需要打印两份或者以上
 			String[] arr = strImg.split("\",\"");
 			/** 输出图片到本地 支持.jpg、.png格式 **/
 			for (int i = 0; i < arr.length; i++) {
-				String fileName = "e:\\oa_attachment\\sfprint\\" + orderService.getOrderid() + ".jpg";
+				String fileName = filePath + "/" + orderService.getOrderid() + ".jpg";
 				Base64ImageTools.generateImage(arr[i].toString(), fileName);
-				fileNameList.add(fileName);
+//				fileNameList.add(fileName);
 
 			}
 		} else {
-			String fileName = "e:\\oa_attachment\\sfprint\\" + orderService.getOrderid() + ".jpg";
+			String fileName = filePath + "/" + orderService.getOrderid() + ".jpg";
 			Base64ImageTools.generateImage(strImg, fileName);
-			fileNameList.add(fileName);
+//			fileNameList.add(fileName);
 
 		}
-		return fileNameList;
+//		return fileNameList;
 //		writeImageFont(files);
 		// 如需调用本地打印机(非服务端打印机请使用url9/url12 并且取消以下注释)
 //		int high = 0;
