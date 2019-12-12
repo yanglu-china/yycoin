@@ -6386,22 +6386,22 @@ public class ShipAction extends DispatchAction
                 if ("批".equals(fpdw) || "*".equals(fpdw)){
                     spsl.appendChild(doc.createTextNode(""));
                 } else{
-                    spdj.appendChild(doc.createTextNode(String.valueOf(this.roundDouble(moneys/amount))));
+                    spdj.appendChild(doc.createTextNode(String.valueOf(NumberUtils.roundDouble(moneys/amount,4))));
                 }
                 details.appendChild(spdj);
 
                 //金额
                 Element spje = doc.createElement("spje");
                 spje.appendChild(
-                        doc.createTextNode(String.valueOf(this.roundDouble(moneys))));
+                        doc.createTextNode(String.valueOf(NumberUtils.roundDouble(moneys))));
                 details.appendChild(spje);
 
                 // 总金额*VAL/100
                 // 含税税额：总金额*税率/(1+税率)
-                double sl = this.roundDouble((double)fpsl/100);
+                double sl = NumberUtils.roundDouble((double)fpsl/100);
                 _logger.info(sl);
                 Element spse = doc.createElement("spse");
-                double se = this.roundDouble(moneys*sl/(1+sl));
+                double se = NumberUtils.roundDouble(moneys*sl/(1+sl));
                 _logger.info(se);
                 spse.appendChild(doc.createTextNode(String.valueOf(se)));
                 details.appendChild(spse);
@@ -6461,17 +6461,6 @@ public class ShipAction extends DispatchAction
             ssflbm = invoiceKpBean.getKpslid();
         }
         return ssflbm;
-    }
-
-    /**
-     * 保留两位数
-     * @param value
-     * @return
-     */
-    private double roundDouble(double value){
-        BigDecimal bd = new BigDecimal(value);
-        double v1 = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-        return v1;
     }
 
     public PackageDAO getPackageDAO()
