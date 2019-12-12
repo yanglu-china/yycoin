@@ -21,8 +21,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.buffalo.request.RequestContext;
-
 import org.apache.catalina.session.StandardSessionFacade;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +28,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
@@ -76,7 +75,8 @@ import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 import com.china.center.webplugin.inter.WebPathListener;
 import com.china.center.webportal.listener.MySessionListener;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import net.buffalo.request.RequestContext;
 
 
 /**
@@ -612,7 +612,15 @@ public class LoginAction extends DispatchAction
         request.getSession().setAttribute("g_modifyPassword", "../admin/modifyPassword.jsp");
 
         // OA系统/SKY软件【V2.14.20100509】
+        
+        //add by zhangxian 2019-12-12
+        //根据contextpath判断体内还是体外
         String appName = ConfigLoader.getProperty("appName");
+        String contextPath = request.getContextPath();
+        if(contextPath.indexOf("uportaltw") != -1)
+        {
+        	appName = appName.replaceAll("体外", "TW");
+        }
         request.getSession().setAttribute("SN",
                 appName+"【" + ConfigLoader.getProperty("version") + "】");
 
