@@ -1,18 +1,19 @@
 package com.china.center.oa.sail.manager;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.sail.bean.BranchRelationBean;
 import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.bean.PackageBean;
 import com.china.center.oa.sail.bean.PackageItemBean;
 import com.china.center.oa.sail.bean.PreConsignBean;
 import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.sail.vo.PackageVO;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public interface ShipManager
 {
@@ -111,4 +112,6 @@ public interface ShipManager
     public ProductImportBean getProductImportBean(PackageItemBean item, String bank);
 
     void addLog(final String packageId, int preStatus, int afterStatus,String remark, String accept_time);
+    
+    public void updatePackageBeanByBean(PackageBean bean);
 }

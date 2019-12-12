@@ -1,11 +1,11 @@
 package com.china.center.oa.sail.action;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.net.InetAddress;
@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -142,6 +143,8 @@ import com.china.center.tools.RequestDataStream;
 import com.china.center.tools.RequestTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class ShipAction extends DispatchAction
 {
@@ -5800,22 +5803,62 @@ public class ShipAction extends DispatchAction
             HttpServletRequest request,
             HttpServletResponse response)
     {
-    	String packageId = request.getParameter("packageId");
-    	ConditionParse cond = new ConditionParse();
-    	cond.addCondition("id", "=", packageId);
-    	cond.addCondition("transport1", "=", "1");
+    	String packageIds = request.getParameter("packageIds");
     	
-    	List<PackageBean> packageList = packageDAO.queryEntityBeansByCondition(cond);
-    	if(packageList.size() == 0)
+    	if(org.apache.commons.lang.StringUtils.isEmpty(packageIds))
     	{
-    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "只能打印顺丰快递公司的单号");
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "出库单不能为空");
 
             return mapping.findForward("queryPickup");
     	}
-    	PackageBean packageBean = packageList.get(0);
     	
-    	cond.clear();
-    	cond.addCondition("packageid", "=", packageBean.getId());
+    	String[] packageIdsArray = org.apache.commons.lang.StringUtils.split(packageIds, "~");
+    	if(packageIdsArray == null || packageIdsArray.length == 0)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "出库单参数不正确，请重新选择单据");
+
+            return mapping.findForward("queryPickup");
+    	}
+    	for(String packageId : packageIdsArray)
+    	{
+    		ConditionParse cond = new ConditionParse();
+        	cond.addCondition("id", "=", packageId);
+        	cond.addCondition("transport1", "=", "1");
+        	
+        	List<PackageBean> packageList = packageDAO.queryEntityBeansByCondition(cond);
+        	if(packageList.size() == 0)
+        	{
+        		request.setAttribute(KeyConstant.ERROR_MESSAGE, packageId + "不是顺丰快递公司的单号");
+
+                return mapping.findForward("queryPickup");
+        	}
+        	
+        	String sfNumber = packageList.get(0).getTransportNo();
+        	if(org.apache.commons.lang.StringUtils.isNotEmpty(sfNumber))
+        	{
+        		request.setAttribute(KeyConstant.ERROR_MESSAGE, packageId + "已经发货，快递单号:" + sfNumber);
+
+                return mapping.findForward("queryPickup");
+        	}
+    	}
+    	
+    	HttpSession session = request.getSession();
+    	
+    	List<String> packageIdList = new ArrayList(Arrays.asList(packageIdsArray));
+    	
+    	//先打印第一笔单据
+    	String packageId = packageIdList.get(0);
+    	PackageBean packageBean = packageDAO.find(packageId);
+    	if(packageBean == null)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, packageId + "没有找到对应的数据信息");
+
+            return mapping.findForward("queryPickup");
+    	}
+    	
+    	
+    	ConditionParse cond = new ConditionParse();
+    	cond.addCondition("packageid", "=", packageId);
     	
     	List<PackageItemBean> packageItemList = packageItemDAO.queryEntityBeansByCondition(cond);
     	if(packageItemList.size() == 0)
@@ -5866,21 +5909,155 @@ public class ShipAction extends DispatchAction
     	paramMap.put("dprovince",provinceBean.getName());
     	paramMap.put("dcity", cityBean.getName());
     	paramMap.put("daddress", packageBean.getAddress());
+    	paramMap.put("filePath", ConfigLoader.getProperty("sfPrintStore"));
 
     	SFPrintUtil printUtil = new SFPrintUtil();
+    	String sfNumber = "";
     	
     	try {
-			printUtil.toPrint(paramMap);
+    		sfNumber = printUtil.toPrint(paramMap);
+			if(org.apache.commons.lang.StringUtils.isEmpty(sfNumber))
+    		{
+    			request.setAttribute(KeyConstant.ERROR_MESSAGE, "顺丰返回单据号为空，请重新打印");
+
+                return mapping.findForward("queryPickup");
+    		}
+    		//更新顺丰单号
+    		packageBean.setTransportNo(sfNumber);
+    		packageBean.setSfReceiveDate(TimeTools.now());
+    		shipManager.updatePackageBeanByBean(packageBean);
 		} catch (Exception e) {
 			_logger.error("print error",e);
 			e.printStackTrace();
-			request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getMessage());
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "单据号:" +  packageId + "打印出错,错误信息:" + e.getMessage());
+
+            return mapping.findForward("queryPickup");
+		}
+    	packageIdList.remove(0);
+    	session.setAttribute("packageIdList", packageIdList);
+    	request.setAttribute("packageId", packageId);
+    	return mapping.findForward("printSfPage");
+    }
+    
+    /**
+     * 循环打印顺丰单据
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     */
+    public ActionForward toSfPrintNextPage(ActionMapping mapping, ActionForm form,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+    	HttpSession session = request.getSession();
+    	List<String> packageIdList = (List<String>) session.getAttribute("packageIdList");
+    	
+    	if(packageIdList == null || packageIdList.size() == 0)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "单据已经打印完毕");
+
+            return mapping.findForward("queryPickup");
+    	}
+    	
+    	String packageId = packageIdList.get(0);
+    	PackageBean packageBean = packageDAO.find(packageId);
+    	if(packageBean == null)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, packageId + "没有找到对应的数据信息");
+
+            return mapping.findForward("queryPickup");
+    	}
+    	//已经存在顺丰单号,提示失败
+    	String sfTransport = packageBean.getTransportNo();
+    	if(org.apache.commons.lang.StringUtils.isNotEmpty(sfTransport))
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, packageId + "已经存在顺丰单号，不能再次生成，顺丰单号为:" + sfTransport);
+
+            return mapping.findForward("queryPickup");
+    	}
+    	ConditionParse cond = new ConditionParse();
+    	cond.addCondition("packageid", "=", packageId);
+    	
+    	List<PackageItemBean> packageItemList = packageItemDAO.queryEntityBeansByCondition(cond);
+    	if(packageItemList.size() == 0)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "packageitem is null,packageid:" + packageId);
+
+            return mapping.findForward("queryPickup");
+    	}
+    	PackageItemBean packageItem = packageItemList.get(0);
+    	
+    	String outId = packageItem.getOutId();
+    	
+    	cond.clear();
+    	
+    	cond.addCondition("outid", "=", outId);
+    	
+    	List<DistributionBean> distributionList = distributionDAO.queryEntityBeansByCondition(cond);
+    	if(distributionList.size() == 0)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "DistributionBean is null,packageid:" + packageId);
+
+            return mapping.findForward("queryPickup");
+    	}
+    
+    	DistributionBean disBean = distributionList.get(0);
+    	ProvinceBean provinceBean = provinceDAO.find(disBean.getProvinceId());
+    	if(provinceBean == null)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "provinceBean is null,packageid:" + packageId);
+
+            return mapping.findForward("queryPickup");
+    	}
+    	
+    	CityBean cityBean = cityDAO.find(disBean.getCityId());
+    	
+    	if(cityBean == null)
+    	{
+    		request.setAttribute(KeyConstant.ERROR_MESSAGE, "cityBean is null,packageid:" + packageId);
+
+            return mapping.findForward("queryPickup");
+    	}
+    	
+    	Map<String,String> paramMap = new HashMap<String, String>();
+    	paramMap.put("orderid", packageBean.getId());
+    	paramMap.put("dcompany", packageBean.getReceiver());
+    	paramMap.put("dcontact", packageBean.getReceiver());
+    	paramMap.put("dtel", packageBean.getMobile());
+    	paramMap.put("dprovince",provinceBean.getName());
+    	paramMap.put("dcity", cityBean.getName());
+    	paramMap.put("daddress", packageBean.getAddress());
+    	paramMap.put("filePath", ConfigLoader.getProperty("sfPrintStore"));
+
+    	SFPrintUtil printUtil = new SFPrintUtil();
+    	
+    	String sfNumber = "";
+    	
+    	try {
+    		sfNumber = printUtil.toPrint(paramMap);
+    		if(org.apache.commons.lang.StringUtils.isEmpty(sfNumber))
+    		{
+    			request.setAttribute(KeyConstant.ERROR_MESSAGE, "顺丰返回单据号为空，请重新打印");
+
+                return mapping.findForward("queryPickup");
+    		}
+    		//更新顺丰单号
+    		packageBean.setTransportNo(sfNumber);
+    		packageBean.setSfReceiveDate(TimeTools.now());
+    		shipManager.updatePackageBeanByBean(packageBean);
+    		
+		} catch (Exception e) {
+			_logger.error("print error",e);
+			e.printStackTrace();
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "单据号:" +  packageId + "打印出错,错误信息:" + e.getMessage());
 
             return mapping.findForward("queryPickup");
 		}
     	
+    	session.setAttribute("packageIdList", packageIdList.remove(0));
     	request.setAttribute("packageId", packageId);
-    	return mapping.findForward("printSfPage");
+    	return mapping.findForward("toSfPrintNextPage");
     }
     
     /**
@@ -5894,11 +6071,13 @@ public class ShipAction extends DispatchAction
             HttpServletResponse response) throws IOException
 	{
 		String packageId = request.getParameter("packageId");
-		File f = new File("e:\\oa_attachment\\sfprint\\" + packageId + ".jpg");
+		String path = ConfigLoader.getProperty("sfPrintStore");
 		
-		DataInputStream dataInputStream = new DataInputStream(new FileInputStream(f)); 
+		File f = new File(path + "/" + packageId + ".jpg");
+		
+		BufferedInputStream dataInputStream = new BufferedInputStream(new FileInputStream(f)); 
 		 
-        OutputStream fileOutputStream = response.getOutputStream(); 
+        BufferedOutputStream fileOutputStream = new BufferedOutputStream(response.getOutputStream()); 
         ByteArrayOutputStream output = new ByteArrayOutputStream(); 
 
         byte[] buffer = new byte[1024]; 

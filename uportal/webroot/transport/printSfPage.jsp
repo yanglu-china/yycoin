@@ -14,66 +14,30 @@ function pagePrint()
 	document.getElementById('ptr').style.display = 'none';
 	window.print();
 	document.getElementById('ptr').style.display = 'block';
+	setTimeout(function(){ 
+		var rr = window.confirm("是否打印下一张单据?");
+		if(rr)
+		{
+			$l('../sail/ship.do?method=toSfPrintNextPage');
+		}
+	}, 3000);
 
 }
-
 </script>
 </head>
 <body>
+<form name="formEntry" action="../sail/ship.do">
 <input type="hidden" name="packageId" value="${packageId}">
-
-<table width="100%" border="0" cellpadding="0" cellspacing="0" id="na">
-	<tr>
-		<td height="6" >
-		<table width="100%" border="0" cellpadding="0" cellspacing="0">
-			<tr>
-				<td align="center">
-				<font size="6"><b>
-				</b>
-				</font></td>
-			</tr>
-		</table>
-		</td>
-	</tr>
-</table>
-
+<input type="hidden" name="method" value="toSfPrintNextPage">
 <table width="90%" border="0" cellpadding="0" cellspacing="0"
 	align="center">
-	<tr>
-		<td colspan='2'>
-		<table width="100%" border="0" cellpadding="0" cellspacing="0">
-			<tr>
-
-			</tr>
-			<tr>
-				<td align="center">
-				<table width="100%" border="0" cellspacing="2">
-					<tr>
-						<td style="height: 27px" align="center">
-                            <font size=5><b>
-						顺&nbsp;&nbsp;&nbsp;丰&nbsp;&nbsp;&nbsp;面&nbsp;&nbsp;&nbsp;单${tw}</b>
-                            </font>
-                        </td>
-					</tr>
-				</table>
-				</td>
-			</tr>
-		</table>
-		</td>
-	</tr>
-
-
-	<tr>
-		<td height="10" colspan='2'></td>
-	</tr>
-
 	<tr>
 		<td colspan='2' align='center'>
 		<table width="100%" border="0" cellpadding="0" cellspacing="0">
 			
 			<tr>
 				<td>
-					<img src="../sail/ship.do?method=downLoadSfPicUrl&packageId=${packageId}" height="50%"/>
+					<img style="width: 50%;height: 50%;border: 0" src="../sail/ship.do?method=downLoadSfPicUrl&packageId=${packageId}"/>
 				</td>
 			</tr>
 			
@@ -90,5 +54,6 @@ function pagePrint()
 		</td>
 	</tr>
 </table>
+</form>
 </body>
 </html>
