@@ -6054,10 +6054,10 @@ public class ShipAction extends DispatchAction
 
             return mapping.findForward("queryPickup");
 		}
-    	
-    	session.setAttribute("packageIdList", packageIdList.remove(0));
+    	packageIdList.remove(0);
+    	session.setAttribute("packageIdList", packageIdList);
     	request.setAttribute("packageId", packageId);
-    	return mapping.findForward("toSfPrintNextPage");
+    	return mapping.findForward("printSfPage");
     }
     
     /**

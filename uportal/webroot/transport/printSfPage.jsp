@@ -20,7 +20,7 @@ function pagePrint()
 		{
 			$l('../sail/ship.do?method=toSfPrintNextPage');
 		}
-	}, 3000);
+	}, 1000);
 
 }
 </script>
