@@ -8090,7 +8090,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             if (baseBean.getAmount() < 0)
             {
                 _logger.error("***baseBean.getAmount()***"+baseBean.getAmount()+"***hasBack***"+hasBack);
-                throw new MYException("领样转销售或者退库数量不够[%s],请重新操作", baseBean.getProductName());
+                //throw new MYException("领样转销售或者退库数量不够[%s],请重新操作", baseBean.getProductName());
             }
         }
 
@@ -8212,7 +8212,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             if (baseBean.getAmount() < 0)
             {
                 _logger.error("***baseBean.getAmount()***"+baseBean.getAmount()+"***hasBack***"+hasBack);
-                throw new MYException("领样转销售或者退库数量不够[%s],请重新操作", baseBean.getProductName());
+                //throw new MYException("领样转销售或者退库数量不够[%s],请重新操作", baseBean.getProductName());
             }
             
             if (baseBean.getAmount() > 0) {

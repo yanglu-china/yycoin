@@ -13,6 +13,8 @@ import com.china.center.jdbc.inter.DAO;
 import com.china.center.oa.tcp.bean.TcpApproveBean;
 import com.china.center.oa.tcp.vo.TcpApproveVO;
 
+import java.util.List;
+
 
 /**
  * TcpApproveDAO
@@ -24,5 +26,7 @@ import com.china.center.oa.tcp.vo.TcpApproveVO;
  */
 public interface TcpApproveDAO extends DAO<TcpApproveBean, TcpApproveVO>
 {
+        List<TcpApproveBean> queryPreInvoiceType(int status,String customerId);
 
+        boolean updateApproverId(String id, String approverId);
 }
