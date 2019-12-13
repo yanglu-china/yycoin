@@ -310,7 +310,7 @@ function checkMoney2()
 <input type="hidden" name="oprType" value="0"> 
 <input type="hidden" name="processId" value=""> 
 <input type="hidden" name="id" value="${bean.id}"> 
-<input type="hidden" id="payType" name="payType" value="${bean.payType}">
+<input type="hidden" id="payType1" name="payType1" value="${bean.payType}">
 <input type="hidden" name="dutyId" value="${bean.dutyId}">
 <input type="hidden" id="refId" value="${bean.refId}">
 <input type="hidden" id="refMoney" value="${bean.refMoney}">
