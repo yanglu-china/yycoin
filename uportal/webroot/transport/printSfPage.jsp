@@ -14,14 +14,7 @@ function pagePrint()
 	document.getElementById('ptr').style.display = 'none';
 	window.print();
 	document.getElementById('ptr').style.display = 'block';
-	setTimeout(function(){ 
-		var rr = window.confirm("是否打印下一张单据?");
-		if(rr)
-		{
-			$l('../sail/ship.do?method=toSfPrintNextPage');
-		}
-	}, 1000);
-
+	$l('../sail/ship.do?method=toSfPrintNextPage');
 }
 </script>
 </head>
@@ -37,7 +30,7 @@ function pagePrint()
 			
 			<tr>
 				<td>
-					<img style="width: 50%;height: 50%;border: 0" src="../sail/ship.do?method=downLoadSfPicUrl&packageId=${packageId}"/>
+					<img style="height:30%;" src="../sail/ship.do?method=downLoadSfPicUrl&packageId=${packageId}"/>
 				</td>
 			</tr>
 			
