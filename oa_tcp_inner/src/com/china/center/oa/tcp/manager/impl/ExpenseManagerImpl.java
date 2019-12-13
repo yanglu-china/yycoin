@@ -944,10 +944,13 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         if (oldStatus == TcpConstanst.TCP_STATUS_WAIT_PAY) {
             StringBuffer idBuffer = new StringBuffer();
 
+            _logger.debug("bean.getPayType():"+bean.getPayType());
             if (bean.getPayType() != TcpConstanst.PAYTYPE_PAY_OK) {
                 // 财务付款
                 List<OutBillBean> outBillList = (List<OutBillBean>) param.getOther();
-
+                
+                _logger.debug("outBillList.length: "+((outBillList==null)?"null":outBillList.size()));
+                
                 if (outBillList != null) {
                     double total = 0.0d;
 
@@ -968,6 +971,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
 
                 // 收款单
                 List<InBillBean> inBillList = (List<InBillBean>) param.getOther2();
+                
+                _logger.debug("inBillList.length: "+((inBillList==null)?"null":inBillList.size()));
 
                 if (inBillList != null) {
                     double total = 0.0d;
@@ -988,6 +993,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
                 }
 
                 Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
+                
+                _logger.debug("listenerMapValues.size():"+(listenerMapValues.size()));
 
                 for (TcpPayListener tcpPayListener : listenerMapValues) {
                     // TODO_OSGI 这里是出差申请的借款生成凭证

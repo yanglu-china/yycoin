@@ -1802,12 +1802,16 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
             travelApplyDAO.updateDutyId(bean.getId(), dutyId);
         }
+        
+        _logger.debug("bean.getBorrow():"+bean.getBorrow()+", oldStatus:"+oldStatus);
 
         if (oldStatus == TcpConstanst.TCP_STATUS_WAIT_PAY
             && bean.getBorrow() == TcpConstanst.TRAVELAPPLY_BORROW_YES)
         {
             // 财务付款
             List<OutBillBean> outBillList = (List<OutBillBean>)param.getOther();
+            
+            _logger.debug("outBillList.size():"+outBillList.size());
 
             String dutyId = param.getDutyId();
 

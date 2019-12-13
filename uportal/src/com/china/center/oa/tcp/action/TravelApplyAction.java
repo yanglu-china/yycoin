@@ -2271,7 +2271,8 @@ public class TravelApplyAction extends DispatchAction
 	            param.setCompliance(compliance);
 	            
 	            //param.setAttachmentList(attachmentList);
-	            
+	            //#836 都采用了附件
+	            /*
 	            if (travelApplyVo.getType() == TcpConstanst.TCP_APPLYTYPE_MID
                         ||travelApplyVo.getType() == TcpConstanst.TCP_APPLYTYPE_PUBLIC){
                     // #394 中收申请待财务支付时需要上传附件，改为从RDS中获取表单数据,form页面也改为multipart/form-data
@@ -2280,6 +2281,9 @@ public class TravelApplyAction extends DispatchAction
                     // 组装参数
                     fillWrap(request, param);
                 }
+                */
+	            
+	            fillWrap(rds, param);
 
 	            travelApplyVo.setAttachmentList(attachmentList);
 	            travelApplyManager.updateAttachmentList(user, travelApplyVo);

@@ -1426,7 +1426,7 @@ public class ExpenseAction extends DispatchAction
         //String[] fid = request.getParameterValues("fid");
 
         String[] fid = Util.parseArrayFromRds(rds, "fid");
-
+    
         // #570 稽核处理
         if (fid != null && fid.length > 0)
         {
@@ -1488,18 +1488,25 @@ public class ExpenseAction extends DispatchAction
         //String[] bankIds = request.getParameterValues("bankId");
         String[] bankIds = Util.parseArrayFromRds(rds, "bankId");
 
+        //debug
+        List<String> bankIdList = rds.getParameters("bankId");
+        _logger.debug("bankIdList.size(): "+((bankIdList==null)?"null":bankIdList.size())+", bankIds.length: "+((bankIds==null)?"null":bankIds.length));
+        
         // 财务付款/收款
         if (bankIds != null && bankIds.length > 0)
         {
 
             //int payType = CommonTools.parseInt(request.getParameter("payType"));
         	
-        	int payType = CommonTools.parseInt(rds.getParameter("payType"));
+        	int payType = CommonTools.parseInt(rds.getParameter("payType1"));
 
             //String[] payTypes = request.getParameterValues("payType");
             String[] payTypes = Util.parseArrayFromRds(rds, "payType");
             //String[] moneys = request.getParameterValues("money");
             String[] moneys = Util.parseArrayFromRds(rds, "money");
+           
+            //debug
+            _logger.debug("payType: "+payType+", payTypes.length: "+((payTypes==null)?"null":payTypes.length)+", moneys.length: "+((moneys==null)?"null":moneys.length));
 
             // 付款
             if (payType == TcpConstanst.PAYTYPE_PAY_YES)

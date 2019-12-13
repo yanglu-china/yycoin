@@ -372,8 +372,8 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
         boolean flag = addOutBillBeanWithoutTransaction(user, bean);
 
         //保存付款附件
-        if(attachmentList.size()>0){
-            String idxxx = "";
+        if(attachmentList!=null && attachmentList.size()>0){
+
             for (AttachmentBean attachmentBean : attachmentList)
             {
                 attachmentBean.setId(commonDAO.getSquenceString20());
