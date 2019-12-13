@@ -232,18 +232,73 @@ function clears()
 
 function sfPickup()
 {
+	if (getRadioValue('pickupId') == '')
+	{
+		alert('请选择出库单');
+		return;
+	}
 	var clis = getCheckBox('packageIds');
 	if (clis.length == 0){
 		alert('请选择一条出库单!');
 		return;
 	}
-	$O('sfprint').disabled=true;
     var packageIds = "";
     for (var i = 0; i < clis.length; i++)
     {
         packageIds += clis[i].value + '~';
     }
 	$l('../sail/ship.do?method=showSfPrintPage&packageIds='+packageIds);
+}
+
+function selectCK(pcId)
+{
+	var pickupObj = $("input[type='radio']");
+	
+	$.each(pickupObj,function(){
+		var pickUpIdVal = $(this).val();
+		if(pcId == pickUpIdVal)
+		{
+			var name="pc_" +  pickUpIdVal;
+			var pcAll = $("input[name^='" + name + "']");
+			$.each(pcAll,function(i){
+			    var val = $(this).val();
+			    var valArray = val.split('_');
+			    var vpcId = valArray[0];
+			    var vckId = valArray[1];
+				if(pcId == vpcId)
+				{
+					var checkBoxAll = $("input[name='packageIds']");
+					$.each(checkBoxAll,function(){
+						var itemval = $(this).val();
+						if(itemval == vckId)
+						{
+							$(this).attr("checked",true);
+						}
+					});
+				}
+			});
+		}
+		else
+		{
+			var name="pc_" +  pickUpIdVal;
+			var pcAll = $("input[name^='" + name + "']");
+			$.each(pcAll,function(i){
+			    var val = $(this).val();
+			    var valArray = val.split('_');
+			    var vpcId = valArray[0];
+			    var vckId = valArray[1];
+				var checkBoxAll = $("input[name='packageIds']");
+				$.each(checkBoxAll,function(){
+					var itemval = $(this).val();
+					if(itemval == vckId)
+					{
+						$(this).attr("checked",false);
+					}
+				});
+			});
+		}
+	});
+	
 }
 </script>
 
@@ -420,7 +475,7 @@ function sfPickup()
 			
 			<c:forEach items="${itemList}" var="item" varStatus="vs">
                 <tr class="${vs.index % 2 == 0 ? 'content1' : 'content2'}">
-                    <td align="center"><input type="radio" name="pickupId"
+                    <td align="center"><input type="radio" name="pickupId" onclick="selectCK('${item.pickupId}')"
                         value="${item.pickupId}"
                         ${vs.index== 0 ? "checked" : ""}/></td>
                     <td align="center" onclick="hrefAndSelect(this)">${item.pickupId}</td>
@@ -437,7 +492,7 @@ function sfPickup()
                 </tr>
                 <c:forEach items="${item.packageList}" var="item2" varStatus="vs2">
                     <tr class="${vs2.index % 2 == 0 ? 'content1' : 'content2'}">
-                    <td align="center"></td>
+                    <td align="center"><input type="hidden" name="pc_${item.pickupId}_${item2.id}" id="pc_${item.pickupId}_${item2.id}" value="${item.pickupId}_${item2.id}"></td>
                     <td align="center">--</td>
                     <td align="center" onclick="hrefAndSelect(this)">${item2.index_pos}</td>
                     <td align="center"><input type="checkbox" name="packageIds" value="${item2.id}"></td>
