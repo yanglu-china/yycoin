@@ -123,7 +123,6 @@
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.catalina.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.attributes-2.2.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.beanutils-1.8.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.codec-1.4.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.digester-1.8.1.jar"/>
 	<classpathentry kind="lib" path="D:/workspace_eclipse-SDK-3.3.2-win32_2/jar_depend/com.springsource.org.apache.commons.discovery-0.4.0.jar"/>

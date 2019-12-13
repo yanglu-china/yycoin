@@ -18,6 +18,18 @@ public class NumberUtils {
         return v1;
     }
 
+    /**
+     * 根据精度四舍五入
+     * @param value
+     * @param scale
+     * @return
+     */
+    public static double roundDouble(double value, int scale){
+        BigDecimal bd = new BigDecimal(value);
+        double v1 = bd.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return v1;
+    }
+
     public static boolean equals(double x, double y) {
         return (Double.isNaN(x) && Double.isNaN(y)) || x == y;
     }
@@ -83,5 +95,6 @@ public class NumberUtils {
         map.put("90000000000000000004", 1900.2);
         max = findMax(map);
         System.out.println(max);
+        System.out.println(roundDouble(875999.92/14,4));
     }
 }
