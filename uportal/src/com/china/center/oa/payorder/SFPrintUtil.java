@@ -40,10 +40,10 @@ public class SFPrintUtil {
 	private final Log sfLog = LogFactory.getLog("taobao");
 	
 	//此处替换为您在丰桥平台获取的顾客编码
-	private final String clientCode="YYWHFZJT";
+	private final String clientCode="ZX_TcMqP";
 	
 	//此处替换为您在丰桥平台获取的校验码
-	private final String checkword="l2uxPyyt7V98kIjcSM45ciedz61MoNPP";
+	private final String checkword="pAS2zS3iYywfAQnVCZJLRsP85vFB74cj";
 	
 	private final String sf_custid = "7551234567";
 	
