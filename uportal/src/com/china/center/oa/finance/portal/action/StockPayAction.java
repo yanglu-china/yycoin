@@ -466,6 +466,13 @@ public class StockPayAction extends DispatchAction
                     }
                 }
 
+                //#869 付款单备注中不含“帆软生产采购付款流程自动生成付款单”字符的付款单才可被驳回
+                String description = bean.getDescription();
+                if (!StringTools.isNullOrNone(description) && description.indexOf("帆软生产采购付款流程自动生成付款单") == -1){
+                    request.setAttribute("canReject", 1);
+                } else{
+                    request.setAttribute("canReject", 0);
+                }
                 return mapping.findForward("handleStockPayApply");
             }
             else
