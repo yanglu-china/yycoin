@@ -81,6 +81,8 @@ public class OlOutBean implements Serializable
 
     private int lyStatus = 0;
 
+    private String virtualStatus = "";
+
     /**
      * 库存移动时间
      */
@@ -277,6 +279,14 @@ public class OlOutBean implements Serializable
 
     public void setPresentFlag(int presentFlag) {
         this.presentFlag = presentFlag;
+    }
+
+    public String getVirtualStatus() {
+        return virtualStatus;
+    }
+
+    public void setVirtualStatus(String virtualStatus) {
+        this.virtualStatus = virtualStatus;
     }
 
     @Override

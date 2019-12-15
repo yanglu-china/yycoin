@@ -81,4 +81,13 @@ public interface DepotConstant
 
     //空退空开库（仅限商务部操作）
     String KTKK_SW_DEPOT_ID = "A1201310151011526376";
+
+    //物流作业库-体外
+    String DEFAULT_DEPOT_TW = "A1201809281431327543";
+
+    //物流作业-已合成预占仓
+    String DEFAULT_DEPOTPART_TW = "A1201809281431327544";
+
+    String DEFAULT_DEPOTPART_TW_STR = "物流作业-已合成预占仓";
+
 }
