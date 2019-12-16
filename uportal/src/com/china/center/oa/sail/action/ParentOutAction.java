@@ -3079,8 +3079,17 @@ public class ParentOutAction extends DispatchAction
 			line.writeColumn("产品类型");
 			line.writeColumn("销售类型");
 
+			if (containAuth)
+			{
+				line.writeColumn("成本");
+			}
 //			line.writeColumn("成本");
 			line.writeColumn("业务员结算价");
+			if (containAuth)
+			{
+				line.writeColumn("总部结算价");
+				line.writeColumn("事业部结算价");
+			}
 //			line.writeColumn("总部结算价");
 //			line.writeColumn("事业部结算价");
 
@@ -3436,12 +3445,13 @@ public class ParentOutAction extends DispatchAction
 
 					if (containAuth)
 					{
-//						line.writeColumn(MathTools.formatNum(base
-//								.getCostPrice()));
+						
+						line.writeColumn(MathTools.formatNum(base
+								.getCostPrice()));
 						line.writeColumn(MathTools.formatNum(base
 								.getInputPrice()));
-//						line.writeColumn(MathTools.formatNum(base.getPprice()));
-//						line.writeColumn(MathTools.formatNum(base.getIprice()));
+						line.writeColumn(MathTools.formatNum(base.getPprice()));
+						line.writeColumn(MathTools.formatNum(base.getIprice()));
 					}
 					else
 					{
