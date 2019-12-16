@@ -1,5 +1,8 @@
 function checkMoney1(){
     var payTypeElement = document.getElementById("payType");
+    if(!payTypeElement){
+    	payTypeElement = document.getElementById("payType1");
+    }
     var payType = payTypeElement.value;
     // console.log(payType);
     //公司付款给员工
