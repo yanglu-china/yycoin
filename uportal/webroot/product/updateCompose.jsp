@@ -103,7 +103,6 @@
         function getProductRelation(oos)
         {
             var oo = oos[0];
-//    console.log(oo);
 
             current.value = oo.pname;
 
@@ -131,22 +130,25 @@
 
             reobj.value = oo.value;
 
+            var vobj = getEle(eles, "virtualPrice");
+
+            vobj.value = oo.pvirtualprice;
+
             var srcDe = getEle(tr.getElementsByTagName('select'), "srcDepotpart");
 
 //    setSelect(srcDe, oo.pdepotpart);
 
             if (oos.length > 1 ) {
-
                 for(var i = 1; i < oos.length; i++)
                 {
                     var trow = addTrInner();
-
                     setInputValueInTr(trow, 'srcProductId', oos[i].ppid);
                     setInputValueInTr(trow, 'targerName', oos[i].pname);
                     setInputValueInTr(trow, 'srcInputrowate', oos[i].pinputrowate);
                     setInputValueInTr(trow, 'srcPrice', oos[i].pprice);
                     setInputValueInTr(trow, 'srcAmount', oos[i].pamount);
                     setInputValueInTr(trow, 'srcRelation', oos[i].value);
+                    setInputValueInTr(trow, 'virtualPrice', oos[i].pvirtualprice);
 
                     //TODO why?
 //    	    var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");

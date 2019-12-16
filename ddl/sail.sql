@@ -47,3 +47,6 @@ name varchar(255) null,
 kpslid int(20) null
 ) DEFAULT CHARSET=utf8
 ;
+
+-- #867
+alter table t_center_olout add column virtualStatus varchar(5) default null;

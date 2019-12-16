@@ -241,9 +241,9 @@ public class OutImportManagerImpl implements OutImportManager
 //                        物流作业库-体外 (A1201809281431327543)
 //                        物流作业-已合成预占仓(A1201809281431327544)，
 //                        发货方式是默认自提，并打标成虚拟订单
-                        twOutImportBean.setDepotId("A1201809281431327543");
-                        twOutImportBean.setDepotpartId("A1201809281431327544");
-                        twOutImportBean.setComunicationBranch("物流作业-已合成预占仓");
+                        twOutImportBean.setDepotId(DepotConstant.DEFAULT_DEPOT_TW);
+                        twOutImportBean.setDepotpartId(DepotConstant.DEFAULT_DEPOTPART_TW);
+                        twOutImportBean.setComunicationBranch(DepotConstant.DEFAULT_DEPOTPART_TW_STR);
                         twOutImportBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
                         twOutImportBean.setTransport1(0);
 						twOutImportBean.setTransport2(0);
@@ -3813,6 +3813,7 @@ public class OutImportManagerImpl implements OutImportManager
                         out.setId(getOutId(id));
                         out.setFullId(fullId);
 
+
 						DistributionBean distributionBean = new DistributionBean();
                         distributionBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX));
                         distributionBean.setOutId(out.getFullId());
@@ -3866,8 +3867,7 @@ public class OutImportManagerImpl implements OutImportManager
                         distributionBean.setAddress(olOutBean.getAddress());
                         distributionBean.setReceiver(olOutBean.getReceiver());
                         distributionBean.setMobile(olOutBean.getTelephone());
-                        distributionDAO.saveEntityBean(distributionBean);
-						_logger.info("save distributionBean***"+distributionBean);
+
 
                         //olbase表中的字段写入OA的 base表中的对应同名字段，value取对应商品的amount*price
                         double total = 0.0f;
@@ -4066,6 +4066,32 @@ public class OutImportManagerImpl implements OutImportManager
 							baseBean.setTaxrate(sailInvoice2TaxRateMap.get(key));
 						}
 
+						//#867
+						if ("1".equals(olOutBean.getVirtualStatus())){
+							out.setVirtualStatus(1);
+							//体外订单的仓库：物流作业库-体外 物流作业-已合成预占仓，发货方式：自提
+							String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+							if (AppConstant.APP_NAME_TW.equals(appName)){
+								out.setLocation(DepotConstant.DEFAULT_DEPOT_TW);
+								out.setDepotpartId(DepotConstant.DEFAULT_DEPOTPART_TW);
+								baseBean.setLocationId(DepotConstant.DEFAULT_DEPOT_TW);
+								baseBean.setDepotpartId(DepotConstant.DEFAULT_DEPOTPART_TW);
+								baseBean.setDepotpartName(DepotConstant.DEFAULT_DEPOTPART_TW_STR);
+
+								distributionBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
+								distributionBean.setTransport1(0);
+								distributionBean.setTransport2(0);
+								distributionBean.setProvinceId(null);
+								distributionBean.setCityId(null);
+								distributionBean.setAddress(null);
+								distributionBean.setReceiver(null);
+								distributionBean.setMobile(null);
+							}
+						}
+
+						distributionDAO.saveEntityBean(distributionBean);
+						_logger.info("save distributionBean***"+distributionBean);
+
 						baseBeans.add(baseBean);
 
 						//生成OA订单后，回写OA单号至olout与olbase表的OANO字段
@@ -4081,7 +4107,7 @@ public class OutImportManagerImpl implements OutImportManager
                         out.setDutyId("90201008080000000001");
                         out.setReserve3(OutConstant.OUT_SAIL_TYPE_CREDIT_AND_CUR);
                         out.setFlowId("CITIC");
-						out.setDepotpartId(baseBean.getDepotpartId());
+
 
 						try {
 							_logger.info("create out in offlineOrderJob " + out);
