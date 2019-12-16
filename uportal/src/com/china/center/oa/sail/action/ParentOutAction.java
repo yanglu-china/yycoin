@@ -3618,7 +3618,9 @@ public class ParentOutAction extends DispatchAction
 		if (!ListTools.isEmptyOrNull(logs)){
 			for (FlowLogBean log: logs){
 				String description = log.getDescription();
-				if (!StringTools.isNullOrNone(description) && description.contains("付款申请通过")
+				if (!StringTools.isNullOrNone(description) &&
+						//#870 含“全部结算”，且付款状态为1
+						(description.contains("付款申请通过") || (description.contains("全部结算") && out.getPay() == 1))
 						&& description.contains(String.valueOf(out.getTotal()))){
 					payFlag = true;
 					break;
