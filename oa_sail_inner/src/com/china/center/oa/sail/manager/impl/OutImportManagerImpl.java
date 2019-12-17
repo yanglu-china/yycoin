@@ -237,22 +237,36 @@ public class OutImportManagerImpl implements OutImportManager
 						twOutImportBean.setProductId(twProductId);
 						twOutImportBean.setProductName(twthProductBean.getTwProductName());
 						//#843
-//                        体内外同步生成订单，申请生成的体外订单默认仓库：
-//                        物流作业库-体外 (A1201809281431327543)
-//                        物流作业-已合成预占仓(A1201809281431327544)，
-//                        发货方式是默认自提，并打标成虚拟订单
-                        twOutImportBean.setDepotId(DepotConstant.DEFAULT_DEPOT_TW);
-                        twOutImportBean.setDepotpartId(DepotConstant.DEFAULT_DEPOTPART_TW);
-                        twOutImportBean.setComunicationBranch(DepotConstant.DEFAULT_DEPOTPART_TW_STR);
-                        twOutImportBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
-                        twOutImportBean.setTransport1(0);
-						twOutImportBean.setTransport2(0);
-						twOutImportBean.setProvinceId(null);
-						twOutImportBean.setCityId(null);
-						twOutImportBean.setAddress(null);
-						twOutImportBean.setReceiver(null);
-						twOutImportBean.setHandPhone(null);
-                        twOutImportBean.setVirtualStatus(1);
+						if (twOutImportBean.getShipping() == OutConstant.OUT_SHIPPING_SELFSERVICE
+								||twOutImportBean.getShipping() == OutConstant.OUT_SHIPPING_3PL
+								||twOutImportBean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT
+								||twOutImportBean.getShipping() == OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT){
+							//主单发货方式：第三方/自提
+							// 体外订单的仓库：物流作业库-体外 物流作业-已合成预占仓，发货方式：自提
+							twOutImportBean.setDepotId(DepotConstant.DEFAULT_DEPOT_TW);
+							twOutImportBean.setDepotpartId(DepotConstant.DEFAULT_DEPOTPART_TW);
+							twOutImportBean.setComunicationBranch(DepotConstant.DEFAULT_DEPOTPART_TW_STR);
+
+							//自提
+							twOutImportBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
+							twOutImportBean.setTransport1(0);
+							twOutImportBean.setTransport2(0);
+							twOutImportBean.setProvinceId(null);
+							twOutImportBean.setCityId(null);
+							twOutImportBean.setAddress(null);
+							twOutImportBean.setReceiver(null);
+							twOutImportBean.setHandPhone(null);
+							twOutImportBean.setVirtualStatus(1);
+						} else if (twOutImportBean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING
+							&& DepotConstant.DFK_NJ.equals(twOutImportBean.getDepotId())
+							&& DepotConstant.DFK_NJ_DEFAULT.equals(twOutImportBean.getDepotpartId())){
+							//主单空发，代发库--南京物流中心 代发库--南京物流中心_默认仓区
+							//体外订单：代发库--直发产品专用 代发仓
+							twOutImportBean.setDepotId(DepotConstant.DFK);
+							twOutImportBean.setDepotpartId(DepotConstant.DFC);
+							twOutImportBean.setComunicationBranch(DepotConstant.DFC_STR);
+						}
+
 						_logger.info(outImportBean.getCustomerId()+"***twoutbean***"+twOutImportBean);
 						twOutImportBeans.add(twOutImportBean);
                     }
