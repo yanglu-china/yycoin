@@ -633,7 +633,7 @@ function forward()
 
 						<td align="center"><input type="text"
 												  style="width: 100%" name="virtualPrice" onkeyup="cc(this)"
-							onblur="blu(this)"></td>
+							onblur="blu(this)" value="0.00"></td>
 
 						<td align="left"><input type=button value="清空"  class="button_class" onclick="clears()"></td>
 					</tr>
