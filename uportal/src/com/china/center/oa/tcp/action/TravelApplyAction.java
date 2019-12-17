@@ -4948,12 +4948,15 @@ public class TravelApplyAction extends DispatchAction
                     .append("]").append("当前申请金额："+applyMoney+"大于"+feeName+"金额："+availableMoney)
                     .append("<br>");
             importError = true;
-        }else if (applyMoney< availableMoney){
+        }
+        /*
+        else if (applyMoney< availableMoney){
                 builder.append("客户[").append(customer)
                         .append("]").append("当前申请金额："+applyMoney+"小于"+feeName+"金额："+availableMoney)
                         .append("<br>");
                 importError = true;
         }
+        */
     	
     }
 
