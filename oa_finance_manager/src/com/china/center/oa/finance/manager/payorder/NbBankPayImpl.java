@@ -75,7 +75,7 @@ public class NbBankPayImpl {
 	 * 客户编号 
 	 */
 	 //test
-	private static final String custNo = "0000070401";
+	private static final String custNo = "0000070401"; 
 	//prod
 //	private static final String custNo = "0000243857";
 	
