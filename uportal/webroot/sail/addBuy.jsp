@@ -591,7 +591,8 @@ function forward()
 							style="width: 100%" name="rstafferName"></td>
 
 						<td align="center"><input type="text"
-												  value="0.00" readonly="readonly" style="width: 100%" name="virtualPrice"></td>
+												  value="0.00" style="width: 100%" name="virtualPrice" onkeyup="cc(this)"
+							onblur="blu(this)"></td>
 							
 						<td align="center"></td>
 					</tr>
@@ -630,8 +631,9 @@ function forward()
 						<td align="center"><input type="text" id="unRstafferName" readonly="readonly"
 							style="width: 100%" name="rstafferName"></td>
 
-						<td align="center"><input type="text" readonly="readonly"
-												  style="width: 100%" name="virtualPrice"></td>
+						<td align="center"><input type="text"
+												  style="width: 100%" name="virtualPrice" onkeyup="cc(this)"
+							onblur="blu(this)"></td>
 
 						<td align="left"><input type=button value="清空"  class="button_class" onclick="clears()"></td>
 					</tr>
