@@ -41,6 +41,8 @@ public class SFPrintUtil {
 	
 	//此处替换为您在丰桥平台获取的顾客编码
 	private final String clientCode="ZX_TcMqP";
+	//prod private final String clientCode="ZX_TcMqP";
+	
 	
 	//此处替换为您在丰桥平台获取的校验码
 	private final String checkword="pAS2zS3iYywfAQnVCZJLRsP85vFB74cj";
@@ -52,7 +54,7 @@ public class SFPrintUtil {
 	/**
 	 * 直接输出图片的BASE64编码字符串 可以使用html标签直接转换成图片【二联单】
 	 */
-	String url9 = "http://localhost:4040/sf/waybill/print?type=V2.0.FM_poster_100mm150mm&output=image";
+	String url9 = "http://101.37.13.154:4040/sf/waybill/print?type=V2.0.FM_poster_100mm150mm&output=image";
 	
 	
 	public String toPrint(Map<String,String> paramMap) throws Exception {
