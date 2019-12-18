@@ -32,7 +32,7 @@ public class TaoBaoTokenDAOImpl extends BaseDAO<TaobaoTokenBean, TaobaoTokenBean
 				"SELECT DISTINCT a.id,a.transportNo,a.transport1,d.name AS logisticsName,d.tbcode AS logosticsCode,c.citicNo,a.customerId");
 		sqlBuffer.append(" FROM t_center_package a,t_center_package_item b,t_center_out_import c,t_center_express d");
 		sqlBuffer.append(" WHERE a.transportno <> '' AND a.id=b.packageid AND b.outId=c.OANo AND d.id=c.transport1 ");
-		sqlBuffer.append(" AND a.customerid in ('651827562','607296916','651827564') and taobaoflag=0");
+		sqlBuffer.append(" AND a.customerid in ('651827562','607296916','651827564','690271628') and taobaoflag=0");
 		return this.jdbcOperation.queryObjectsBySql(sqlBuffer.toString()).list(TaobaoLogisticsBean.class);
 	}
 
