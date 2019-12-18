@@ -4178,7 +4178,7 @@ public class OutAction extends ParentOutAction
 
             condtion.addWhereStr();
 
-            setInnerCondition2(request, condtion);
+            setInnerCondition2(request, condtion, true);
             
             int total = outDAO.countByCondition(condtion.toString());
 
@@ -4301,7 +4301,7 @@ public class OutAction extends ParentOutAction
      * @param request
      * @param condtion
      */
-    protected void setInnerCondition2(HttpServletRequest request, ConditionParse condtion)
+    protected void setInnerCondition2(HttpServletRequest request, ConditionParse condtion, boolean checkStafer)
     {
         // 条件查询
         String outTime = request.getParameter("outTime");
@@ -4398,7 +4398,8 @@ public class OutAction extends ParentOutAction
             condtion.addCondition("OutBean.customerId", "=", customerId);
         }
 
-        if ( !StringTools.isNullOrNone(stafferId))
+        //#847 不校验订单挂靠人和预开票申请人是否一致
+        if ( checkStafer && !StringTools.isNullOrNone(stafferId))
         {
             condtion.addCondition("OutBean.stafferId", "=", stafferId);
         }
@@ -4696,7 +4697,7 @@ public class OutAction extends ParentOutAction
             // 已付款
 //            condtion.addIntCondition("OutBean.pay", "=", OutConstant.PAY_YES);
             
-            setInnerCondition2(request, condtion);
+            setInnerCondition2(request, condtion, false);
 
             int total = outDAO.countByCondition(condtion.toString());
 
