@@ -30,6 +30,7 @@ import com.china.center.oa.finance.manager.payorder.sf.jaxobject.resp.SfResponse
 import com.china.center.oa.finance.manager.payorder.sf.jaxobject.resp.SfResponseServiceBody;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sf.csim.express.service.CallExpressServiceTools;
+import com.sf.dto.CargoInfoDto;
 import com.sf.dto.RlsInfoDto;
 import com.sf.dto.WaybillDto;
 import com.sf.util.Base64ImageTools;
@@ -72,7 +73,19 @@ public class SFPrintUtil {
 		sfRequestService.setLang("zh-CN");
 		
 		SfOrderService orderService = new SfOrderService();
-		orderService.setOrderid(paramMap.get("orderid"));
+		
+		String packageId = paramMap.get("orderid");
+		String logTime = paramMap.get("logTime");
+		if(StringUtils.isNotEmpty(logTime))
+		{
+			logTime = logTime.replaceAll("-", "").replaceAll(" ", "").replaceAll(":", "");
+		}
+		else
+		{
+			logTime = "";
+		}
+		String sfOrderId = packageId + logTime;
+		orderService.setOrderid(sfOrderId);
 		orderService.setJ_company("永银文化发展集团有限公司");
 		orderService.setJ_contact("乔纯维");
 		orderService.setJ_tel("13951084037");
@@ -124,7 +137,7 @@ public class SFPrintUtil {
             				 String filePath = paramMap.get("filePath");
             				 SfResponseRlsDetail rlsDetail = rlsInfo.getRlsDetail();
             				 sfNumber = orderResponse.getMailno();
-            				 WayBillPrinterTools(orderResponse,rlsDetail,orderService,filePath);
+            				 WayBillPrinterTools(orderResponse,rlsDetail,orderService,filePath,packageId);
             			 }
             		 }
             	 }
@@ -150,7 +163,7 @@ public class SFPrintUtil {
 	 * @throws Exception
 	 */
 	public void WayBillPrinterTools(SfResponseOrderResponse orderResponse,SfResponseRlsDetail rlsDetail,
-											SfOrderService orderService, String filePath) throws Exception {
+											SfOrderService orderService, String filePath,String packageId) throws Exception {
 
 		/********* 2联150 丰密运单 **************/
 		/**
@@ -271,7 +284,7 @@ public class SFPrintUtil {
 		// 主运单号
 		rlsMain.setWaybillNo(dto.getMailNo());
 		rlsMain.setDestRouteLabel(rlsDetail.getDestRouteLabel());
-		rlsMain.setPrintIcon(rlsDetail.getPrintIcon());
+		rlsMain.setPrintIcon("00000000");
 		rlsMain.setProCode(rlsDetail.getProCode());
 		rlsMain.setAbFlag("A");
 		rlsMain.setXbFlag("XB");
@@ -315,17 +328,16 @@ public class SFPrintUtil {
 		dto.setEncryptCustName(true);// 加密寄件人及收件人名称
 		dto.setEncryptMobile(true);// 加密寄件人及收件人联系手机
 
-//		CargoInfoDto cargo1 = new CargoInfoDto();
-//		cargo1.setCargo("苹果7S");
-//		cargo1.setCargoCount(1);
-//		cargo1.setCargoUnit("件");
-//		cargo1.setSku("00015645");
-//		cargo1.setRemark("手机贵重物品 小心轻放");
-//
-//		List<CargoInfoDto> cargoInfoList = new ArrayList<CargoInfoDto>();
-//		cargoInfoList.add(cargo1);
-//
-//		dto.setCargoInfoDtoList(cargoInfoList);
+		CargoInfoDto cargo1 = new CargoInfoDto();
+		cargo1.setCargo(packageId);
+		cargo1.setCargoCount(1);
+		cargo1.setCargoUnit("件");
+		cargo1.setRemark("请本人签收，当面验货，不得代签");
+
+		List<CargoInfoDto> cargoInfoList = new ArrayList<CargoInfoDto>();
+		cargoInfoList.add(cargo1);
+
+		dto.setCargoInfoDtoList(cargoInfoList);
 
 		waybillDtoList.add(dto);
 
@@ -369,13 +381,13 @@ public class SFPrintUtil {
 			String[] arr = strImg.split("\",\"");
 			/** 输出图片到本地 支持.jpg、.png格式 **/
 			for (int i = 0; i < arr.length; i++) {
-				String fileName = filePath + "/" + orderService.getOrderid() + ".jpg";
+				String fileName = filePath + "/" + packageId + ".jpg";
 				Base64ImageTools.generateImage(arr[i].toString(), fileName);
 //				fileNameList.add(fileName);
 
 			}
 		} else {
-			String fileName = filePath + "/" + orderService.getOrderid() + ".jpg";
+			String fileName = filePath + "/" + packageId + ".jpg";
 			Base64ImageTools.generateImage(strImg, fileName);
 //			fileNameList.add(fileName);
 

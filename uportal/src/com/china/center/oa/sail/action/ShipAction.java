@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -5833,13 +5832,13 @@ public class ShipAction extends DispatchAction
                 return mapping.findForward("queryPickup");
         	}
         	
-        	String sfNumber = packageList.get(0).getTransportNo();
-        	if(org.apache.commons.lang.StringUtils.isNotEmpty(sfNumber))
-        	{
-        		request.setAttribute(KeyConstant.ERROR_MESSAGE, packageId + "已经发货，快递单号:" + sfNumber);
-
-                return mapping.findForward("queryPickup");
-        	}
+//        	String sfNumber = packageList.get(0).getTransportNo();
+//        	if(org.apache.commons.lang.StringUtils.isNotEmpty(sfNumber))
+//        	{
+//        		request.setAttribute(KeyConstant.ERROR_MESSAGE, packageId + "已经发货，快递单号:" + sfNumber);
+//
+//                return mapping.findForward("queryPickup");
+//        	}
     	}
     	
     	HttpSession session = request.getSession();
@@ -5910,6 +5909,7 @@ public class ShipAction extends DispatchAction
     	paramMap.put("dcity", cityBean.getName());
     	paramMap.put("daddress", packageBean.getAddress());
     	paramMap.put("filePath", ConfigLoader.getProperty("sfPrintStore"));
+    	paramMap.put("logTime", packageBean.getLogTime());
 
     	SFPrintUtil printUtil = new SFPrintUtil();
     	String sfNumber = "";
@@ -5924,7 +5924,7 @@ public class ShipAction extends DispatchAction
     		}
     		//更新顺丰单号
     		packageBean.setTransportNo(sfNumber);
-    		packageBean.setSfReceiveDate(TimeTools.now());
+    		packageBean.setLogTime(TimeTools.now());
     		shipManager.updatePackageBeanByBean(packageBean);
 		} catch (Exception e) {
 			_logger.error("print error",e);
