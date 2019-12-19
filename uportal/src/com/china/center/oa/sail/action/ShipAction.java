@@ -6175,6 +6175,15 @@ public class ShipAction extends DispatchAction
     }
 
 
+    /**
+     * 生成开票接口数据
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
     public ActionForward generateInvoiceinsXml(ActionMapping mapping, ActionForm form,
                                                HttpServletRequest request,
                                                HttpServletResponse response)
@@ -6196,10 +6205,17 @@ public class ShipAction extends DispatchAction
 
         //generate XML payload
         List<InvoiceWrapper> payloads = new ArrayList<>();
-        for (InvoiceinsBean  bean:invoiceinsList){
-            String payload = this.createXML(user, bean);
-            InvoiceWrapper wrapper = new InvoiceWrapper(bean.getId(), payload);
-            payloads.add(wrapper);
+        try {
+            for (InvoiceinsBean bean : invoiceinsList) {
+                String payload = this.createXML(user, bean);
+                InvoiceWrapper wrapper = new InvoiceWrapper(bean.getId(), payload);
+                payloads.add(wrapper);
+            }
+        }catch (MYException e){
+            result.setError("操作失败!" + e.getMessage());
+            String jsonstr = mapper.toJson(result);
+            _logger.info(jsonstr);
+            return JSONTools.writeResponse(response, jsonstr);
         }
 
         result.setSuccessAndObj("OK", payloads);
@@ -6209,7 +6225,7 @@ public class ShipAction extends DispatchAction
     }
 
 
-    private String createXML(User user, InvoiceinsBean bean){
+    private String createXML(User user, InvoiceinsBean bean) throws MYException{
         try {
             DocumentBuilderFactory dbFactory =
                     DocumentBuilderFactory.newInstance();
@@ -6363,11 +6379,7 @@ public class ShipAction extends DispatchAction
                 }
                 details.appendChild(jldw);
 
-                if ("批".equals(fpdw) || "*".equals(fpdw)){
 
-                } else{
-
-                }
 //                // 商品数量：invoiceins_item表中amount 字段
                 int amount = value.getAmount();
                 Element spsl = doc.createElement("spsl");
@@ -6415,6 +6427,9 @@ public class ShipAction extends DispatchAction
                 //税收分类编码
                 Element flbm = doc.createElement("flbm");
                 String ssflbm = this.getFlbm(spmc, value.getProductId());
+                if (StringTools.isNullOrNone(ssflbm)){
+                    throw new MYException("请检查税收分类编码:"+value.getParentId()+";"+spmc+";产品:"+value.getProductId());
+                }
                 flbm.appendChild(doc.createTextNode(ssflbm));
                 details.appendChild(flbm);
 
@@ -6440,15 +6455,18 @@ public class ShipAction extends DispatchAction
             String output = writer.getBuffer().toString();
             _logger.info("***output***"+output);
             return output;
-        } catch (Exception e) {
+        } catch(MYException e){
+            throw e;
+        }
+        catch (Exception e) {
             _logger.error(e,e);
-            return "";
+            throw new MYException("系统异常:"+e);
         }
     }
 
     private String getFlbm(String spmc, String productId){
-        //#默认为工艺品
-        String ssflbm = "106050299";
+        //#默认为空
+        String ssflbm = "";
         InvoiceKpBean invoiceKpBean = this.productDAO.queryInvoiceKp(spmc);
         if (invoiceKpBean == null || StringTools.isNullOrNone(invoiceKpBean.getKpslid())){
             if (!StringTools.isNullOrNone(productId)){
