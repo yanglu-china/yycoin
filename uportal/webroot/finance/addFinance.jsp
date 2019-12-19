@@ -55,15 +55,12 @@ function checks()
 		
 		if (ins.value != '')
 		{
-		    eachIn = parseFloat(ins.value);
-			inMoney += eachIn;
+			inMoney = add(inMoney,ins.value);
 		}
 		
 		if (ous.value != '')
 		{
-			eachOut = parseFloat(ous.value);
-			
-			outMoney += eachOut;
+			outMoney = add(outMoney,ous.value);
 		}
 		
 		if (eachIn * eachOut != 0)
@@ -85,7 +82,6 @@ function checks()
 		    return false;  
 		}
 	}
-	
 	if (formatNum(inMoney, 2) != formatNum(outMoney, 2))
 	{
 		alert('借贷必相等,借方:' + inMoney + ',贷方:' + outMoney);

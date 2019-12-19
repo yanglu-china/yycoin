@@ -57,15 +57,15 @@ function checks()
 		if (ins.value != '')
 		{
 		    eachIn = parseFloat(ins.value);
-			inMoney += eachIn;
+			inMoney = add(ins.value,inMoney);
 		}
 		
 		if (ous.value != '')
 		{
 			eachOut = parseFloat(ous.value);
 			
-			outMoney += eachOut;
-			inotal += eachOut;
+			outMoney = add(outMoney,ous.value);
+			inotal = add(inotal,ous.value);
 		}
 		
 		if (eachIn * eachOut != 0)
