@@ -223,6 +223,7 @@ public class ShipAction extends DispatchAction
 
     private final String ZP_INVOICE = "90000000000000000046";
     private final String ZP_INVOICE2 = "90000000000000000042";
+    private final String ZP_INVOICE40 = "90000000000000000040";
 
     /**
      * default construct
@@ -6248,8 +6249,9 @@ public class ShipAction extends DispatchAction
             String gfyh = bean.getGfyh();
             String gfdz = bean.getGfdz();
 
-            //专票
-            if (ZP_INVOICE.equals(invoiceId) || ZP_INVOICE2.equals(invoiceId)){
+            if (ZP_INVOICE.equals(invoiceId) || ZP_INVOICE2.equals(invoiceId)
+                    || ZP_INVOICE40.equals(invoiceId)){
+                //专票
                 fpzl = "0";
             } else{
                 fpzl = "2";
