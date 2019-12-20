@@ -121,6 +121,8 @@
 					}
 				}
 				 CloseCard();
+			} else{
+                alert(data.retMsg);
 			}
 		}
 

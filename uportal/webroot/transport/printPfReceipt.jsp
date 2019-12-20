@@ -211,7 +211,7 @@ function callBackPrintFun()
 						<td colspan="4"><table><tr><td>2.约定有配套赠品的，本次如未配送，将随后补发，请留意收货。</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="4"><table><tr><td>3.如需要退换补货，请留存照片等说明情况的依据，<b>在收货后三日内联系我方人员</b>，提供需退换补货的订单号及退货快递单号。需退回的货品，烦请保留所有配件完整，原样（含发票）完整打包后寄回。不原路返回的退款要求，请同时寄回有效盖章的退款函，注明退回账号信息。</td></tr></table></td>
+						<td colspan="4"><table><tr><td>3.如遇产品质量问题，经确认需要换货的，请留存照片等说明情况的依据，在收货后三日内联系我方人员，提供需换货的订单号及将换货寄回的快递单号，需换货的货品，烦请保留所有配件完整，原样（含发票）完成打包后寄回。</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td></td></tr></table></td>

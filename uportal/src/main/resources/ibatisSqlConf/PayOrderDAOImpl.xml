@@ -46,20 +46,21 @@
 
 	<select id="queryPayOrderList" parameterClass="java.util.Map" resultMap="PayOrder">
         select * from (
-        <![CDATA[/*注释采购付款
+        <![CDATA[
         SELECT a.*,b.name as cityname FROM (
 		SELECT id AS billno,'1' AS billtype ,'采购付款' AS billtypedesc,paydate AS billdate ,'1' AS billstatus,logtime,description,
-		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpayapply a 
+		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys AS payeeAmount,cityid FROM t_center_stockpayapply a 
 		WHERE STATUS=3 AND (a.payflag=0 or a.payflag is null)) 
 		a LEFT JOIN	t_center_city  b ON a.cityid=b.id
+		/*注释采购付款
 		UNION
 		SELECT a.*,b.name as cityname FROM (
 		SELECT id AS billno,'2' AS billtype ,'采购预付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate ,'1' AS billstatus,logtime,description,
 		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpreapply a 
 		WHERE STATUS=3 AND (a.payflag=0 or a.payflag is null)) 
-		a LEFT JOIN t_center_city  b ON a.cityid=b.id
+		a LEFT JOIN t_center_city  b ON a.cityid=b.id*/
 		UNION
-		*/]]>
+		]]>
 		SELECT a.id AS billNo,'3' AS billtype,'借款申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100 AS payeeAmount,'' AS cityid,b.bankcity as cityname
 		FROM t_center_travelapply a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId AND (b.payflag=0 or b.payflag is null)
@@ -105,7 +106,7 @@
     <select id="queryPayOrderList41" parameterClass="java.util.Map" resultMap="PayOrder">
     	SELECT a.*,b.name as cityname FROM (
 		SELECT id AS billno,'1' AS billtype ,'采购付款' AS billtypedesc,paydate AS billdate ,'1' AS billstatus,logtime,description,
-		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys/100 AS payeeAmount,cityid FROM t_center_stockpayapply a 
+		TRIM(custaccountbank) AS payeebank,TRIM(custaccountname) AS payeeBankAccName,TRIM(custaccount) AS payeeBankAcc,realmoneys AS payeeAmount,cityid FROM t_center_stockpayapply a 
 		WHERE STATUS=3 AND (a.payflag=0 or a.payflag is null) and realmoneys>0) 
 		a LEFT JOIN	t_center_city  b ON a.cityid=b.id
 		<dynamic prepend="where"> 
