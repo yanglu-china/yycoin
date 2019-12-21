@@ -53,6 +53,11 @@ public class ProductApplyBean implements Serializable {
      */
     @Html(title = "关联成品", name = "refProductName", maxLength = 100)
     private String refProductId = "";
+
+    /**
+     * #871 调试用(关联成品)
+     */
+    private String refProduct = "";
     
     /**
      * 名称拼音全拼
@@ -715,6 +720,14 @@ public class ProductApplyBean implements Serializable {
 
     public void setVirtualFlag(int virtualFlag) {
         this.virtualFlag = virtualFlag;
+    }
+
+    public void setRefProduct(String refProduct) {
+        this.refProduct = refProduct;
+    }
+
+    public String getRefProduct() {
+        return refProduct;
     }
 
     public String toString()
