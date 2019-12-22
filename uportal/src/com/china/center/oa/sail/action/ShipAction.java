@@ -32,6 +32,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import com.china.center.oa.product.helper.StorageRelationHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
@@ -6337,9 +6338,11 @@ public class ShipAction extends DispatchAction
             rootElement.appendChild(invdetails);
 
             List<InvoiceinsItemBean> items = this.invoiceinsItemDAO.queryEntityBeansByFK(bean.getId());
+            //根据"开票品名+单价"分组
             Map<String, InvoiceinsItemBean> spmcToInvoice = new HashMap<>();
             for (InvoiceinsItemBean item: items){
-                String spmc = item.getSpmc();
+//                String spmc = item.getSpmc();
+                String spmc = item.getSpmc()+"_"+StorageRelationHelper.getPriceKey(item.getPrice());
                 if(spmcToInvoice.containsKey(spmc)){
                     InvoiceinsItemBean value = spmcToInvoice.get(spmc);
                     value.setAmount(value.getAmount()+item.getAmount());
