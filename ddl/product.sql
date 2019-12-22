@@ -1,0 +1,1 @@
+alter table t_product_apply add column refProduct varchar(200) default '';

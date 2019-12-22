@@ -1530,6 +1530,7 @@ public class ProductApplyAction extends DispatchAction {
                                         .append("<br>");
                             } else{
                                 bean.setRefProductId(productBeans.get(0).getId());
+                                bean.setRefProduct(product);
                             }
                         }else
                         {
