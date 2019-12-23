@@ -1203,6 +1203,21 @@ public class FinanceFacadeImpl extends AbstarctFacade implements FinanceFacade
         return invoiceinsManager.backInvoiceins(user, id);
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 */
+	public int backInvoiceins(String userId, List<String> ids) throws MYException
+	{
+		JudgeTools.judgeParameterIsNull(userId, ids);
+		
+        User user = userManager.findUser(userId);
+
+        checkUser(user);
+        
+		return invoiceinsManager.backInvoiceins(user, ids);
+	}
+	
 	@Override
 	public boolean batchSplitInBill(String userId, String billId, List<BatchSplitInBillWrap> list)
 			throws MYException

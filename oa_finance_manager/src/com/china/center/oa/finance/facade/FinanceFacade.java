@@ -374,6 +374,8 @@ public interface FinanceFacade
     boolean backInvoiceins(String userId, String id)
     throws MYException;
     
+    public int backInvoiceins(String userId, List<String> ids) throws MYException;
+    
     String freezeInBillBean(String userId, String id, double newMoney)
     throws MYException;
     

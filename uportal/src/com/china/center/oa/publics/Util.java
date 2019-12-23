@@ -156,6 +156,11 @@ public class Util {
     public static String getString(Object obj){
     	return getString(obj,"");
     }
+
+	public static String getStringTrim(Object obj){
+		String str = getString(obj,"");
+		return str.trim();
+	}
     
 	/**
 	 * get Integer value FROM object
