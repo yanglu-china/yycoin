@@ -67,64 +67,76 @@
             // console.log(data);
 			if (data.retMsg.toLowerCase() === "ok") {
 				OpenCard();
+                var j = 0;
                 var dataList = data.obj;
-                // console.log(dataList);
-				for (var j = 0; j < dataList.length; j++) {
-				    var key = dataList[j].invoiceId;
-				    // alert(key);
-				    var xml = dataList[j].payload;
-				    alert(xml);
-					var response =  a.JsaeroKP(xml);
-					alert(response);
-					var oDOM = null;
-					var xmlDoc = null;
-					if (typeof DOMParser != "undefined"){
-						var oParser = new DOMParser();
-						oDOM = oParser.parseFromString(response, "text/xml");
-                        xmlDoc = oParser.parseFromString(xml,"text/xml");
-					}else if (typeof ActiveXObject != "undefined") {
-						//IE8
-						oDOM = new ActiveXObject("Microsoft.XMLDOM");
-						oDOM.async = false;
-						oDOM.loadXML(response);
-
-                        xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-                        xmlDoc.async="false";
-                        xmlDoc.loadXML(xml);
-						if (oDOM.parseError != 0) {
-							throw new Error("XML parsing error: " + oDOM.parseError.reason);
-						}
-					}else {
-						alert("No XML parser available.");
-					}
-
-					var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
-//			alert(result);
-					if (result === '0'){
-						var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
-						var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
-						//打印发票
-                        //发票种类
-                        var fpzl = xmlDoc.getElementsByTagName("fpzl")[0].childNodes[0].nodeValue;
-						//打印标志（DYBZ）：0-打印发票；1-打印销货清单
-						var dybz = "0";
-                        //打印模式（DYMS）：0-不弹框打印；1-弹框打印
-						var dyms = "0";
-                        var result = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
-                        alert(result);
-                        //更新发票号码
-						var packageId = $O('packageId').value;
-						$ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
-					}else{
-						var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
-						alert(msg);
-					}
-				}
+                dyfpLoop(dataList, j);
 				 CloseCard();
 			} else{
                 alert(data.retMsg);
 			}
 		}
+
+        /**
+		 * 延时打印发票循环
+         * @param dataList
+         * @param j
+         */
+        function dyfpLoop (dataList, j) {           //  create a loop function
+            setTimeout(function () {    //  call a 3s setTimeout when the loop is called
+                var key = dataList[j].invoiceId;
+                var xml = dataList[j].payload;
+                var response =  a.JsaeroKP(xml);
+                alert(response);
+                var oDOM = null;
+                var xmlDoc = null;
+                if (typeof DOMParser != "undefined"){
+                    var oParser = new DOMParser();
+                    oDOM = oParser.parseFromString(response, "text/xml");
+                    xmlDoc = oParser.parseFromString(xml,"text/xml");
+                }else if (typeof ActiveXObject != "undefined") {
+                    //IE8
+                    oDOM = new ActiveXObject("Microsoft.XMLDOM");
+                    oDOM.async = false;
+                    oDOM.loadXML(response);
+
+                    xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                    xmlDoc.async="false";
+                    xmlDoc.loadXML(xml);
+                    if (oDOM.parseError != 0) {
+                        throw new Error("XML parsing error: " + oDOM.parseError.reason);
+                    }
+                }else {
+                    alert("No XML parser available.");
+                }
+
+                var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
+//			alert(result);
+                if (result === '0'){
+                    var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
+                    var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
+                    //打印发票
+                    //发票种类
+                    var fpzl = xmlDoc.getElementsByTagName("fpzl")[0].childNodes[0].nodeValue;
+                    //打印标志（DYBZ）：0-打印发票；1-打印销货清单
+                    var dybz = "0";
+                    //打印模式（DYMS）：0-不弹框打印；1-弹框打印
+                    var dyms = "0";
+                    var result = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
+                    alert(result);
+                    //更新发票号码
+                    var packageId = $O('packageId').value;
+                    $ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
+                }else{
+                    var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
+                    alert(msg);
+                }
+
+                j++;                     //  increment the counter
+                if (j < dataList.length) {            //  if the counter < 10, call the loop function
+                    dyfpLoop(dataList, j);             //  ..  again which will trigger another
+                }
+            }, 10000)
+            }
 
 		function parseXml(response){
 			var oDOM = null;
@@ -147,25 +159,9 @@
 
 		//打印发票
 		function callbackUpdateInsNum(data){
-			var obj = data.obj;
-			// alert(data.extraObj);
-//	console.log(obj);
-// 			alert("obj.insId:"+obj.insId);
-// 			alert(obj.id);
-// 			alert(obj.invoiceNum);
-			//TODO print
-//			var xml =  a.JsaeroDY(obj.insId,obj.id,obj.invoiceNum,"0");
-//			alert(xml);
-//			var oDOM = parseXml(xml);
-//			var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
-//			if (result === '1') {
-//				var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
-//				alert(msg);
-//			}
-
 			// display invoice number
-			var insDiv = $O(obj.extraObj);
-			insDiv.value=obj.invoiceNum;
+            var insDiv = $O(data.extraObj);
+            insDiv.value=data.obj.invoiceNum;
 		}
 		function load()
 		{
