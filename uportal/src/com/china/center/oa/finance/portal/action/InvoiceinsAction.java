@@ -3305,7 +3305,7 @@ public class InvoiceinsAction extends DispatchAction
 
         boolean importError = false;
 
-        List<String> importIdList = new ArrayList<String>();
+        List<String> insIdList = new ArrayList<String>();
 
         StringBuilder builder = new StringBuilder();
 
@@ -3397,11 +3397,37 @@ public class InvoiceinsAction extends DispatchAction
 
                             importError = true;
                         }
+                    }
+                } else {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("销售单号不能为空")
+                            .append("<br>");
 
-                        //销售单与发票号一致性
-                        //int count = insVSInvoiceNumDAO.countByCondition("where insId = ? and invoiceNum = ?", bean.getOutId(), bean.getInvoiceNum());
+                    importError = true;
+                }
 
-                        InvoiceinsBean invoiceinsBean = invoiceinsDAO.find(bean.getInvoiceNum());
+                // 发票号
+                if (!StringTools.isNullOrNone(obj[2])) {
+
+                    List<InsVSInvoiceNumBean> insVSNumBeans = insVSInvoiceNumDAO.queryEntityBeansByCondition("where invoiceNum = ?", bean.getInvoiceNum());
+                    InsVSInvoiceNumBean insVSNumBean = null;
+
+                    _logger.debug("bean.getInvoiceNum():"+bean.getInvoiceNum()+", insVSNumBeans.size():"+insVSNumBeans.size());
+
+                    //销售单与系统中的发票号码一致性
+                    if(insVSNumBeans == null || insVSNumBeans.size() == 0){
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发票号码不存在")
+                                .append("<br>");
+
+                        importError = true;
+                    }else{
+                        insVSNumBean = insVSNumBeans.get(0);
+                        InvoiceinsBean invoiceinsBean = invoiceinsDAO.find(insVSNumBean.getInsId());
+
+                        _logger.debug("insVSNumBean.getInsId():"+insVSNumBean.getInsId()+", insVSNumBeans.size():"+insVSNumBeans.size());
 
                         if(invoiceinsBean == null){
                             builder
@@ -3422,20 +3448,10 @@ public class InvoiceinsAction extends DispatchAction
                             }
                         }
                     }
-                } else {
-                    builder
-                            .append("第[" + currentNumber + "]错误:")
-                            .append("销售单号不能为空")
-                            .append("<br>");
-
-                    importError = true;
-                }
-
-                // 发票号
-                if (!StringTools.isNullOrNone(obj[2])) {
 
                     //发票号与销售单一致性
-                    int count = insVSOutDAO.countByCondition("where insId = ? and outId = ?", bean.getInvoiceNum(), bean.getOutId());
+                    int count = insVSOutDAO.countByCondition("where insId = ? and outId = ?", insVSNumBean.getInsId(), bean.getOutId());
+
                     if(count == 0) {
                         builder
                                 .append("第[" + currentNumber + "]错误:")
@@ -3443,6 +3459,10 @@ public class InvoiceinsAction extends DispatchAction
                                 .append("<br>");
 
                         importError = true;
+                    }
+
+                    if(!insIdList.contains(insVSNumBean.getInsId())){
+                        insIdList.add(insVSNumBean.getInsId());
                     }
 
                 } else {
@@ -3454,8 +3474,6 @@ public class InvoiceinsAction extends DispatchAction
                     importError = true;
                 }
 
-
-                importIdList.add(bean.getInvoiceNum());
             } else {
                 builder
                         .append("第[" + currentNumber + "]错误:")
@@ -3499,7 +3517,7 @@ public class InvoiceinsAction extends DispatchAction
         {
 
             User user = Helper.getUser(request);
-            int effects = financeFacade.backInvoiceins(user.getId(), importIdList);
+            int effects = financeFacade.backInvoiceins(user.getId(), insIdList);
             request.setAttribute(KeyConstant.MESSAGE, "批量申请成功, 数量："+effects);
         }
         catch(MYException e)
