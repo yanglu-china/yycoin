@@ -17,6 +17,12 @@
         <result property="description" column="description" />
         <result property="cityId" column="cityid" />
         <result property="cityName" column="cityname" />
+        
+    </resultMap>
+    
+    <resultMap id="PayOrder4" class="com.china.center.oa.finance.vo.PayOrderVO" extends="PayOrder">
+    	<result property="approveTime" column="approveTime" />
+        <result property="approveName" column="approveName" />
     </resultMap>
     
     <resultMap id="PayOrderListLogVO" class="com.china.center.oa.finance.vo.PayOrderListLogVO">
@@ -198,11 +204,13 @@
          order by billdate desc
     </select>
     
-    <select id="queryPayOrderList44" parameterClass="java.util.Map" resultMap="PayOrder">
+    <select id="queryPayOrderList44" parameterClass="java.util.Map" resultMap="PayOrder4">
     	SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
-		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,b.bankcity as cityname
-		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b WHERE a.id=b.parentId
+		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,b.bankcity as cityname,
+		c.logtime as approveTime,c.actor as approveName
+		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b,t_center_approvelog c WHERE a.id=b.parentId
 		AND a.status=22 AND a.type NOT IN (8,10,15,22) AND cmoneys>0 AND (b.payflag=0 or b.payflag is null) and b.cmoneys>0
+		AND a.id=c.fullid AND c.afterstatus=22
 		<dynamic prepend=""> 
             <isNotEmpty prepend="and" property="payOrderNo"> 
                     a.id= #payOrderNo#
@@ -219,11 +227,26 @@
             <isNotEmpty prepend="and" property="payeeAmount"> 
                     (b.cmoneys/100)=$payeeAmount$
             </isNotEmpty>
-            <isNotEmpty prepend="and" property="billTime"> 
-                    DATE_FORMAT(a.logtime,'%Y-%m-%d')>=#billTime#
+            <isNotEmpty property="datetype">
+            	<isEqual property="datetype" compareValue="1">
+            		<isNotEmpty prepend="and" property="billTime"> 
+                    	DATE_FORMAT(a.logtime,'%Y-%m-%d')>=#billTime#
+		            </isNotEmpty>
+		            <isNotEmpty prepend="and" property="billEndTime"> 
+		                    <![CDATA[DATE_FORMAT(a.logtime,'%Y-%m-%d')<=#billEndTime#]]>
+		            </isNotEmpty>
+            	</isEqual>
+            	<isEqual property="datetype" compareValue="2">
+            		<isNotEmpty prepend="and" property="billTime"> 
+                    	DATE_FORMAT(c.logtime,'%Y-%m-%d')>=#billTime#
+		            </isNotEmpty>
+		            <isNotEmpty prepend="and" property="billEndTime"> 
+		            	<![CDATA[DATE_FORMAT(c.logtime,'%Y-%m-%d')<=#billEndTime#]]>
+		            </isNotEmpty>
+            	</isEqual>
             </isNotEmpty>
-            <isNotEmpty prepend="and" property="billEndTime"> 
-                    <![CDATA[DATE_FORMAT(a.logtime,'%Y-%m-%d')<=#billEndTime#]]>
+            <isNotEmpty prepend="and" property="approveName"> 
+                 c.actor like concat('%', #approveName#, '%')
             </isNotEmpty>
         </dynamic>
         order by billdate desc

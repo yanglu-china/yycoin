@@ -41,6 +41,10 @@ public class PayOrderVO implements Serializable {
 	private String cityId;
 	
 	private String cityName;
+	
+	private String approveTime;
+	
+	private String approveName;
 
 	public String getBillNo() {
 		return billNo;

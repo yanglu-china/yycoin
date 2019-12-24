@@ -12,6 +12,26 @@
 <script src="../js/plugin/dialog/jquery.dialog.js"></script>
 <script src="../js/plugin/highlight/jquery.highlight.js"></script>
 <script type="text/javascript">
+$(document).ready(function(){
+	var payOrderType ='${queryMap.payOrderType}';
+	var payOrderStatus = '${payOrderStatus}';
+	if(payOrderType != 4)
+	{
+		$("#trdatetype").attr("style","display:none");
+	}
+	else
+	{
+		if(payOrderStatus == 1)
+		{
+			$("#trdatetype").attr("style","display:blocked");
+		}
+		else
+		{
+			$("#trdatetype").attr("style","display:none");
+		}
+	}
+});
+
 var billNoArr = new Array();
 function query()
 {
@@ -69,6 +89,36 @@ function change(outid,outbillid,billtype)
 {
 	window.location.href='../payorder/queryPayOrder.do?method=modifyPayOrder&outid=' + outid +"&outbillid=" + outbillid;
 }
+function changeselect(sel)
+{
+	var paystatus = $("#payOrderStatus").val();
+	if(sel.value==4)
+	{
+		if(paystatus == 1)
+		{
+			$("#trdatetype").attr("style","display:blocked");
+		}
+	}
+	else
+	{
+		$("#trdatetype").attr("style","display:none");
+	}
+}
+function changestatus(sel)
+{
+	var payOrderType = $("#payOrderType").val();
+	if(sel.value == 1)
+	{
+		if(payOrderType == 4)
+		{
+			$("#trdatetype").attr("style","display:blocked");
+		}
+	}
+	else
+	{
+		$("#trdatetype").attr("style","display:none");
+	}
+}
 </script>
 </head>
 <body>
@@ -84,7 +134,7 @@ function change(outid,outbillid,billtype)
 	<tr class="content1">
         <td style="width: 15%" align="center">单据类型:</td>
         <td align="center" style="width: 35%">
-        	<select name="payOrderType" id="payOrderType" class="select_class" values="${queryMap.payOrderType}">
+        	<select name="payOrderType" id="payOrderType" class="select_class" values="${queryMap.payOrderType}" onchange="changeselect(this)">
 				<option value="">--</option>
 				<option value="1">采购付款</option>
 				<!-- <option value="2">采购预付款</option> -->
@@ -122,13 +172,24 @@ function change(outid,outbillid,billtype)
 	<tr class="content2">
 		<td width="15%" align="center">单据状态:</td>
         <td align="center">
-	         <select name="payOrderStatus" id="payOrderStatus" class="select_class" values="${queryMap.payOrderStatus}">
+	         <select name="payOrderStatus" id="payOrderStatus" class="select_class" values="${queryMap.payOrderStatus}" onchange="changestatus(this)">
 	              <option value="1">待付款</option>
 	              <option value="2">待确认</option>
 	              <option value="3">已付款</option>
 	              <option value="4">未成功待付款</option>
 	         </select>
          </td>
+	</tr>
+	<tr class="content1" id="trdatetype">
+		<td style="width: 15%;" align="center">日期类型:</td>
+        <td align="center" style="width: 35%;">
+        	<select name="datetype" id="datetype" class="select_class" values="${queryMap.datetype}">
+				<option value="1">单据日期</option>
+				<option value="2">财务审批日期</option>
+			</select>
+        </td>
+		<td width="15%" align="center">财务审批人:</td>
+		<td align="center" colspan="1"><input type="text" name="approveName" type="0" size="20" value="${queryMap.approveName }"/></td>
 	</tr>
 	<tr class="content1">
 		<td colspan="4" align="right">
@@ -165,7 +226,15 @@ function change(outid,outbillid,billtype)
 						</c:if>
 							<td align="center" onclick="tableSort(this)" class="td_class">单据号</td>
 							<td align="center" onclick="tableSort(this)" class="td_class">单据类型</td>
-							<td align="center" onclick="tableSort(this)" class="td_class">单据日期</td>
+							<c:choose>
+								<c:when test="${queryMap.datetype == 2}">
+								<td align="center" onclick="tableSort(this)" class="td_class">财务审批日期</td>
+								</c:when>
+								<c:otherwise>
+									<td align="center" onclick="tableSort(this)" class="td_class">单据日期</td>
+								</c:otherwise>
+							</c:choose>
+							
 							<td align="center" onclick="tableSort(this)" class="td_class">收款金额(元)</td>
 							<td align="center" onclick="tableSort(this)" class="td_class">收款银行</td>
 							<td align="center" onclick="tableSort(this)" class="td_class">收款户名</td>
