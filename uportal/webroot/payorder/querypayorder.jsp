@@ -58,6 +58,9 @@ function res()
 	$O('payeeBank').value = '';
 	$('#payOrderType').val(0);
 	$('#payOrderStatus').val(0);
+	$("#trdatetype").attr("style","display:none");
+	$O('approveName').value = '';
+	$('#datetype').val(0);
 }
 function checkall(){
 	billNoArr = new Array();
@@ -183,7 +186,7 @@ function changestatus(sel)
 	<tr class="content1" id="trdatetype">
 		<td style="width: 15%;" align="center">日期类型:</td>
         <td align="center" style="width: 35%;">
-        	<select name="datetype" id="datetype" class="select_class" values="${queryMap.datetype}">
+        	<select name="datetype" id="datetype" class="select_class" values="${queryMap.datetype}" onchange="changedatetype(this)">
 				<option value="1">单据日期</option>
 				<option value="2">财务审批日期</option>
 			</select>
@@ -229,6 +232,7 @@ function changestatus(sel)
 							<c:choose>
 								<c:when test="${queryMap.datetype == 2}">
 								<td align="center" onclick="tableSort(this)" class="td_class">财务审批日期</td>
+								<td align="center" onclick="tableSort(this)" class="td_class">财务审批人</td>
 								</c:when>
 								<c:otherwise>
 									<td align="center" onclick="tableSort(this)" class="td_class">单据日期</td>
@@ -273,6 +277,9 @@ function changestatus(sel)
 									<td align="center">${item.billTypeDesc}
 									</td>
 									<td align="center">${item.billDate}</td>
+									<c:if test="${not empty item.approveName}">
+									<td align="center">${item.approveName}</td>
+									</c:if>
 									<td align="center">${my:formatNum(item.payeeAmount)}</td>
 									<td align="center">${item.payeeBank}</td>
 									<td align="center">${item.payeeBankAccName}</td>

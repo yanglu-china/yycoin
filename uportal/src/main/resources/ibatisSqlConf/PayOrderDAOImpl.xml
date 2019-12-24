@@ -205,7 +205,16 @@
     </select>
     
     <select id="queryPayOrderList44" parameterClass="java.util.Map" resultMap="PayOrder4">
-    	SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,'1' AS billstatus,a.logtime,a.description,
+    	SELECT a.id AS billNo,'4' AS billtype,'报销申请付款' AS billtypedesc,
+    	<isNotEmpty property="datetype">
+            	<isEqual property="datetype" compareValue="1">
+            	DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,
+            	</isEqual>
+            	<isEqual property="datetype" compareValue="2">
+            	DATE_FORMAT(c.logtime,'%Y-%m-%d') AS billdate,
+            	</isEqual>
+        </isNotEmpty>
+    	'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,b.bankcity as cityname,
 		c.logtime as approveTime,c.actor as approveName
 		FROM t_center_tcpexpense a ,T_CENTER_TRAVELAPPLYPAY b,t_center_approvelog c WHERE a.id=b.parentId
