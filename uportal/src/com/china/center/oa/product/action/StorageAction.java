@@ -2331,7 +2331,7 @@ public class StorageAction extends DispatchAction
 
             write.openFile(bufferedout);
 
-            write.writeLine("日期,事业部,仓库,仓区,仓区属性,储位,产品名称,产品编码,产品数量,基础结算价,成本价,归属,销售类型");
+            write.writeLine("日期,事业部,仓库,仓区,仓区属性,储位,产品名称,产品编码,产品数量,基础结算价,成本价,XL单价金额,归属,销售类型");
 
             String now = TimeTools.now("yyyy-MM-dd");
             
@@ -2412,6 +2412,10 @@ public class StorageAction extends DispatchAction
         		
         		BigDecimal productCostDel = new BigDecimal(exportData.getSailprice());
         		productCostDel = productCostDel.setScale(2, BigDecimal.ROUND_HALF_UP);
+        		
+        		BigDecimal virtualPriceDel = new BigDecimal(exportData.getVirtualPrice());
+        		
+        		virtualPriceDel = virtualPriceDel.setScale(2, BigDecimal.ROUND_HALF_UP);
 
         		//有结算价取结算价，没有取成本价
         		if(sailPriceDel.intValue() == 0)
@@ -2433,7 +2437,7 @@ public class StorageAction extends DispatchAction
                                 + exportData.getProductName() + ',' + code + ','
                                 + String.valueOf(exportData.getAmount()) + ','
                                 + MathTools.formatNum(sailPriceDel.doubleValue()) + ',' + MathTools.formatNum(productCostDel.doubleValue())
-                                + "," + sname
+                                + "," + virtualPriceDel + "," + sname
                                 +','+proSailtype
                 );
                 
