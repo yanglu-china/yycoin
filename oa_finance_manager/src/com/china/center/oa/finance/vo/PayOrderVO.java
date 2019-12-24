@@ -41,6 +41,10 @@ public class PayOrderVO implements Serializable {
 	private String cityId;
 	
 	private String cityName;
+	
+	private String approveTime;
+	
+	private String approveName;
 
 	public String getBillNo() {
 		return billNo;
@@ -152,6 +156,22 @@ public class PayOrderVO implements Serializable {
 
 	public void setCityName(String cityName) {
 		this.cityName = cityName;
+	}
+
+	public String getApproveTime() {
+		return approveTime;
+	}
+
+	public void setApproveTime(String approveTime) {
+		this.approveTime = approveTime;
+	}
+
+	public String getApproveName() {
+		return approveName;
+	}
+
+	public void setApproveName(String approveName) {
+		this.approveName = approveName;
 	}
 	
 }
