@@ -3413,16 +3413,17 @@ public class InvoiceinsAction extends DispatchAction
                     List<InsVSInvoiceNumBean> insVSNumBeans = insVSInvoiceNumDAO.queryEntityBeansByCondition("where invoiceNum = ?", bean.getInvoiceNum());
                     InsVSInvoiceNumBean insVSNumBean = null;
 
-                    _logger.debug("bean.getInvoiceNum():"+bean.getInvoiceNum()+", insVSNumBeans.size():"+insVSNumBeans.size());
-
                     //销售单与系统中的发票号码一致性
                     if(insVSNumBeans == null || insVSNumBeans.size() == 0){
+                        _logger.debug("bean.getInvoiceNum():"+bean.getInvoiceNum()+", insVSNumBeans.size():"+insVSNumBeans.size());
+
                         builder
                                 .append("第[" + currentNumber + "]错误:")
                                 .append("发票号码不存在")
                                 .append("<br>");
 
                         importError = true;
+                        continue;
                     }else{
                         insVSNumBean = insVSNumBeans.get(0);
                         InvoiceinsBean invoiceinsBean = invoiceinsDAO.find(insVSNumBean.getInsId());
@@ -3436,6 +3437,7 @@ public class InvoiceinsAction extends DispatchAction
                                     .append("<br>");
 
                             importError = true;
+                            continue;
                         }else{
                             _logger.debug("invoiceinsBean.getRefIds():"+invoiceinsBean.getRefIds()+", bean.getOutId():"+bean.getOutId());
                             if(!invoiceinsBean.getRefIds().contains(bean.getOutId())){
@@ -3445,6 +3447,7 @@ public class InvoiceinsAction extends DispatchAction
                                         .append("<br>");
 
                                 importError = true;
+                                continue;
                             }
                         }
                     }
