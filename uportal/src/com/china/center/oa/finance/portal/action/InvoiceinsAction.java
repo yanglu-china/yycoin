@@ -31,7 +31,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.finance.bean.*;
 import com.china.center.oa.publics.StringUtils;
+import com.china.center.oa.publics.Util;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,14 +57,6 @@ import com.china.center.common.MYException;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.finance.bean.InsVSInvoiceNumBean;
-import com.china.center.oa.finance.bean.InvoiceBindOutBean;
-import com.china.center.oa.finance.bean.InvoiceStorageBean;
-import com.china.center.oa.finance.bean.InvoiceinsBean;
-import com.china.center.oa.finance.bean.InvoiceinsDetailBean;
-import com.china.center.oa.finance.bean.InvoiceinsImportBean;
-import com.china.center.oa.finance.bean.InvoiceinsItemBean;
-import com.china.center.oa.finance.bean.StockPayApplyBean;
 import com.china.center.oa.finance.constant.FinanceConstant;
 import com.china.center.oa.finance.constant.InvoiceinsConstants;
 import com.china.center.oa.finance.dao.InsImportLogDAO;
@@ -3290,6 +3284,252 @@ public class InvoiceinsAction extends DispatchAction
     	}
     	
     	return mapping.findForward("queryInvoiceins");
+	}
+    
+    /**
+     * 批量退票
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward batchBackInvoiceins(ActionMapping mapping, ActionForm form,
+            HttpServletRequest request, HttpServletResponse response)
+	throws ServletException
+	{
+
+    	_logger.info("***batchBackInvoiceins begin***");
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<String> insIdList = new ArrayList<String>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("batchBackInvoiceins");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("batchBackInvoiceins");
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try {
+        reader.readFile(rds.getUniqueInputStream());
+
+        while (reader.hasNext()) {
+            String[] obj = fillObj((String[]) reader.next());
+
+            // 第一行忽略
+            if (reader.getCurrentLineNumber() == 1) {
+                continue;
+            }
+
+            if (StringTools.isNullOrNone(obj[0])) {
+            	_logger.debug("业务员为空");
+                continue;
+            }
+
+            int currentNumber = reader.getCurrentLineNumber();
+            
+            _logger.debug("currentNumber:"+currentNumber+", obj.length:"+obj.length);
+
+            if (obj.length >= 4) {
+                InvoiceBatchBackBean bean = new InvoiceBatchBackBean();
+
+                bean.setStafferName(Util.getStringTrim(obj[0]));
+                bean.setOutId(Util.getStringTrim(obj[1]));
+                bean.setInvoiceNum(Util.getStringTrim(obj[2]));
+                bean.setMemo(Util.getStringTrim(obj[3]));
+                bean.setLineNumber(currentNumber);
+                
+                _logger.debug("InvoiceBatchBackBean :"+bean.toString());
+
+                // 业务员
+                if (!StringTools.isNullOrNone(obj[0])) {
+                    //
+                } else {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("业务员不能为空")
+                            .append("<br>");
+
+                    importError = true;
+                }
+
+                // 销售单
+                if (!StringTools.isNullOrNone(obj[1])) {
+                    String outId = bean.getOutId();
+
+                    OutBean outBean = outDAO.find(outId);
+
+                    if (null == outBean) {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("销售单不存在")
+                                .append("<br>");
+
+                        importError = true;
+                    } else {
+                        //业务员与销售单
+                        if(!outBean.getStafferName().equals(bean.getStafferName())){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("业务员与销售单对应的申请人不一致")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
+                    }
+                } else {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("销售单号不能为空")
+                            .append("<br>");
+
+                    importError = true;
+                }
+
+                // 发票号
+                if (!StringTools.isNullOrNone(obj[2])) {
+
+                    List<InsVSInvoiceNumBean> insVSNumBeans = insVSInvoiceNumDAO.queryEntityBeansByCondition("where invoiceNum = ?", bean.getInvoiceNum());
+                    InsVSInvoiceNumBean insVSNumBean = null;
+
+                    //销售单与系统中的发票号码一致性
+                    if(insVSNumBeans == null || insVSNumBeans.size() == 0){
+                        _logger.debug("bean.getInvoiceNum():"+bean.getInvoiceNum()+", insVSNumBeans.size():"+insVSNumBeans.size());
+
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发票号码不存在")
+                                .append("<br>");
+
+                        importError = true;
+                        continue;
+                    }else{
+                        insVSNumBean = insVSNumBeans.get(0);
+                        InvoiceinsBean invoiceinsBean = invoiceinsDAO.find(insVSNumBean.getInsId());
+
+                        _logger.debug("insVSNumBean.getInsId():"+insVSNumBean.getInsId()+", insVSNumBeans.size():"+insVSNumBeans.size());
+
+                        if(invoiceinsBean == null){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("发票号码不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                            continue;
+                        }else{
+                            _logger.debug("invoiceinsBean.getRefIds():"+invoiceinsBean.getRefIds()+", bean.getOutId():"+bean.getOutId());
+                            if(!invoiceinsBean.getRefIds().contains(bean.getOutId())){
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("销售单与系统中的发票号码不一致")
+                                        .append("<br>");
+
+                                importError = true;
+                                continue;
+                            }
+                        }
+                    }
+
+                    //发票号与销售单一致性
+                    int count = insVSOutDAO.countByCondition("where insId = ? and outId = ?", insVSNumBean.getInsId(), bean.getOutId());
+
+                    if(count == 0) {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发票号码与系统中的销售单不一致")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    if(!insIdList.contains(insVSNumBean.getInsId())){
+                        insIdList.add(insVSNumBean.getInsId());
+                    }
+
+                } else {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("发票号码不能为空")
+                            .append("<br>");
+
+                    importError = true;
+                }
+
+            } else {
+                builder
+                        .append("第[" + currentNumber + "]错误:")
+                        .append("数据格式错误")
+                        .append("<br>");
+
+                importError = true;
+            }
+        }
+
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("batchBackInvoiceins");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("batchBackInvoiceins");
+        }
+
+        try
+        {
+
+            User user = Helper.getUser(request);
+            int effects = financeFacade.backInvoiceins(user.getId(), insIdList);
+            request.setAttribute(KeyConstant.MESSAGE, "批量申请成功, 数量："+effects);
+        }
+        catch(MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "批量申请出错:"+ e.getErrorContent());
+        }
+
+        return mapping.findForward("batchBackInvoiceins");    	
+
 	}
 
     /**  2015/4/8

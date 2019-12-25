@@ -39,7 +39,7 @@
             <forward name="addInvoiceins2" path="/invoiceins/addInvoiceins2.jsp" />
             <forward name="navigationAddInvoiceins1" path="/invoiceins/navigationAddInvoiceins1.jsp" />
             <forward name="navigationAddInvoiceins2" path="/invoiceins/navigationAddInvoiceins2.jsp" />
-            <forward name="queryInvoiceins" path="/invoiceins/queryInvoiceins.jsp" />
+            <forward name="queryInvoiceins" path="/invoiceins/queryInvoiceins.jsp" />           
             <forward name="detailInvoiceins" path="/invoiceins/detailInvoiceins.jsp" />
             <forward name="navigationUpdateInvoiceins1" path="/invoiceins/navigationUpdateInvoiceins1.jsp" />
             <forward name="detailInvoiceinsException" path="/invoiceins/detailInvoiceinsException.jsp" />
@@ -55,6 +55,7 @@
             <forward name="batchUpdateInsNum" path="/invoiceins/batchUpdateInsNum.jsp" />
             <forward name="batchApproveInvoiceins" path="/invoiceins/batchApproveInvoiceins.jsp" />
             <forward name="batchTransferInvoiceins" path="/invoiceins/batchTransferInvoiceins.jsp" />
+            <forward name="batchBackInvoiceins" path="/invoiceins/batchBackInvoiceins.jsp" />
             <forward name="error" path="/error.jsp" />
         </action>
         

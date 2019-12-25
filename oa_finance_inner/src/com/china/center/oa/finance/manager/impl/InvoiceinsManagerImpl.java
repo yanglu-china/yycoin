@@ -1645,10 +1645,33 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	
     	InvoiceinsBean bean = invoiceinsDAO.find(id);
     	
+    	this.backInvoiceins(user, bean, false);
+    	
+    	return true;
+	}
+    
+    @Transactional(rollbackFor = MYException.class)
+    public int backInvoiceins(User user, List<String> ids) throws MYException{
+    	int effects = 0;
+    	for(String id : ids){
+    		InvoiceinsBean bean = invoiceinsDAO.find(id);
+    		
+    		boolean flag = this.backInvoiceins(user, bean, true);
+    		if(flag){
+    			effects++;
+    		}
+    	}
+    	return effects;
+    }
+    
+    private boolean backInvoiceins(User user, InvoiceinsBean bean, boolean fromBatch) throws MYException{
+    	
     	if (null == bean)
     	{
     		throw new MYException("数据错误");
     	}
+    	
+    	String id = bean.getId();
     	
     	if (bean.getStatus() != FinanceConstant.INVOICEINS_STATUS_END)
     	{
@@ -1690,13 +1713,19 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
     	newBean.setLogTime(TimeTools.now());
     	
-    	newBean.setDescription("退票，原票：" + bean.getId());
+    	if(fromBatch){
+    		newBean.setDescription("批量导入退票申请");
+    	}else{
+    		newBean.setDescription("退票，原票：" + bean.getId());
+    	}
     	
     	newBean.setRefId(bean.getId());
     	
     	newBean.setStafferId(user.getStafferId());
     	
-    	invoiceinsDAO.saveEntityBean(newBean);
+    	boolean flag = invoiceinsDAO.saveEntityBean(newBean);
+    	
+    	_logger.debug("save invoiceins: "+ flag);
     	
     	List<InvoiceinsItemBean> itemList = invoiceinsItemDAO.queryEntityBeansByFK(id);
     	
@@ -1717,7 +1746,9 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		
     		newItem.setMoneys(newItem.getAmount() * newItem.getPrice());
     		
-    		invoiceinsItemDAO.saveEntityBean(newItem);
+    		flag = invoiceinsItemDAO.saveEntityBean(newItem);
+    		
+    		_logger.debug("save InvoiceinsItemBean: "+ flag);
     	}
     	
     	List<InsVSOutBean> vsList = insVSOutDAO.queryEntityBeansByFK(id, AnoConstant.FK_FIRST);
@@ -1734,11 +1765,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		
     		newItem.setMoneys(-each.getMoneys());
     		
-    		insVSOutDAO.saveEntityBean(newItem);
+    		flag = insVSOutDAO.saveEntityBean(newItem);
+    		
+    		_logger.debug("save InsVSOutBean: "+ flag);
     	}
     	
     	return true;
-	}
+    }
     
     private void checkBaseId(InvoiceinsItemBean item) throws MYException
     {

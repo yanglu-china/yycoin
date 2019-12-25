@@ -160,6 +160,12 @@ public class PayOrderAction extends DispatchAction {
 		String payeeAmount = request.getParameter("payeeAmount");
 		String billTime = request.getParameter("billTime");
 		String billEndTime = request.getParameter("billEndTime");
+		String datetype = request.getParameter("datetype");
+		String approveName = request.getParameter("approveName");
+		if(StringUtils.isEmpty(datetype))
+		{
+			datetype = "1";
+		}
 		queryMap.put("payOrderNo", payOrderNo);
 		queryMap.put("payeeBank", payeeBank);
 		queryMap.put("payeeAccName", payeeAccName);
@@ -214,6 +220,11 @@ public class PayOrderAction extends DispatchAction {
 					list = payOrderDao.queryPayOrderList43(queryMap);
 				}
 				if (CONSTANTS_PAYORDERTYPE_4.equals(payOrderType)) {
+					queryMap.put("datetype", datetype);
+					if(StringUtils.isNotEmpty(approveName))
+					{
+						queryMap.put("approveName", approveName);
+					}
 					list = payOrderDao.queryPayOrderList44(queryMap);
 				}
 				if (CONSTANTS_PAYORDERTYPE_5.equals(payOrderType)) {

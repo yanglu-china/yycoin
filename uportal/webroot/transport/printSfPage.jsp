@@ -43,7 +43,7 @@ function ret()
 			
 			<tr>
 				<td>
-					<img style="height:35%;padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;" src="../sail/ship.do?method=downLoadSfPicUrl&packageId=${packageId}"/>
+					<img style="height:30%;padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;" src="../sail/ship.do?method=downLoadSfPicUrl&packageId=${packageId}"/>
 				</td>
 			</tr>
 			

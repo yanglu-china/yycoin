@@ -48,6 +48,8 @@ public class DepotExportData implements Serializable {
 	private String configprice;
 	
 	private String gsPriceUp;
+	
+	private String virtualPrice;
 
 	public String getDepotName() {
 		return depotName;
@@ -207,6 +209,14 @@ public class DepotExportData implements Serializable {
 
 	public void setGsPriceUp(String gsPriceUp) {
 		this.gsPriceUp = gsPriceUp;
+	}
+
+	public String getVirtualPrice() {
+		return virtualPrice;
+	}
+
+	public void setVirtualPrice(String virtualPrice) {
+		this.virtualPrice = virtualPrice;
 	}
 
 }

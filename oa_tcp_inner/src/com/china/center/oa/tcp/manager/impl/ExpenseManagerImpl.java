@@ -1228,7 +1228,8 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             return true;
         } else{
             for (FinanceBean financeBean: financeBeans){
-                if (financeBean.getDescription().contains("财务审批通过:")
+            	
+                if (financeBean.getDescription().contains("-------财务审批通过:")
                  || financeBean.getDescription().contains("报销最终通过:")){
                     return false;
                 }

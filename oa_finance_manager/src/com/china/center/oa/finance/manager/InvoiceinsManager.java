@@ -72,6 +72,9 @@ public interface InvoiceinsManager extends ListenerManager<InvoiceinsListener>
     boolean backInvoiceins(User user, String id)
     throws MYException;
     
+    int backInvoiceins(User user, List<String> ids)
+    throws MYException;
+    
     boolean importInvoice(User user, List<InvoiceStorageBean> list)
     throws MYException;
     
