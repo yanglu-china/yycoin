@@ -6442,6 +6442,23 @@ public class ShipAction extends DispatchAction
                 Element kcje = doc.createElement("kcje");
                 kcje.appendChild(doc.createTextNode(""));
                 details.appendChild(kcje);
+
+                if (fpsl == 0){
+                    //优惠政策
+                    Element yhczElm = doc.createElement("yhzc");
+                    yhczElm.appendChild(doc.createTextNode("1"));
+                    details.appendChild(yhczElm);
+
+                    //优惠政策内容
+                    Element yhnrElm = doc.createElement("yhnr");
+                    yhnrElm.appendChild(doc.createTextNode("免税"));
+                    details.appendChild(yhnrElm);
+
+                    //零税标志
+                    Element lsbzElm = doc.createElement("lsbz");
+                    lsbzElm.appendChild(doc.createTextNode("1"));
+                    details.appendChild(lsbzElm);
+                }
             }
 
             // write the content into xml file

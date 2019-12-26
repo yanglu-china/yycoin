@@ -70,7 +70,6 @@
                 var j = 0;
                 var dataList = data.obj;
                 dyfpLoop(dataList, j);
-				 CloseCard();
 			} else{
                 alert(data.retMsg);
 			}
@@ -86,7 +85,6 @@
                 var key = dataList[j].invoiceId;
                 var xml = dataList[j].payload;
                 var response =  a.JsaeroKP(xml);
-                alert(response);
                 var oDOM = null;
                 var xmlDoc = null;
                 if (typeof DOMParser != "undefined"){
@@ -122,7 +120,6 @@
                     //打印模式（DYMS）：0-不弹框打印；1-弹框打印
                     var dyms = "0";
                     var result = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
-                    alert(result);
                     //更新发票号码
                     var packageId = $O('packageId').value;
                     $ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
@@ -134,7 +131,9 @@
                 j++;                     //  increment the counter
                 if (j < dataList.length) {            //  if the counter < 10, call the loop function
                     dyfpLoop(dataList, j);             //  ..  again which will trigger another
-                }
+                } else if(j == dataList.length){
+                    CloseCard();
+				}
             }, 10000)
             }
 
