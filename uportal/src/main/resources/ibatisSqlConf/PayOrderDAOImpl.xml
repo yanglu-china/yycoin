@@ -211,7 +211,7 @@
             	DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,
             	</isEqual>
             	<isEqual property="datetype" compareValue="2">
-            	DATE_FORMAT(c.logtime,'%Y-%m-%d') AS billdate,
+            	c.logtime AS billdate,
             	</isEqual>
         </isNotEmpty>
         <isEmpty property="datetype">
