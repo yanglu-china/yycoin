@@ -4092,14 +4092,10 @@ public class OutImportManagerImpl implements OutImportManager
 								baseBean.setDepotpartId(DepotConstant.DEFAULT_DEPOTPART_TW);
 								baseBean.setDepotpartName(DepotConstant.DEFAULT_DEPOTPART_TW_STR);
 
+								//改为自提
 								distributionBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
 								distributionBean.setTransport1(0);
 								distributionBean.setTransport2(0);
-								distributionBean.setProvinceId(null);
-								distributionBean.setCityId(null);
-								distributionBean.setAddress(null);
-								distributionBean.setReceiver(null);
-								distributionBean.setMobile(null);
 							}
 						}
 
