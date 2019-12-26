@@ -214,6 +214,9 @@
             	DATE_FORMAT(c.logtime,'%Y-%m-%d') AS billdate,
             	</isEqual>
         </isNotEmpty>
+        <isEmpty property="datetype">
+        	DATE_FORMAT(a.logtime,'%Y-%m-%d') AS billdate,
+        </isEmpty>
     	'1' AS billstatus,a.logtime,a.description,
 		TRIM(b.bankName) AS  payeebank,TRIM(b.userName) AS payeeBankAccName,TRIM(b.bankNo) AS payeeBankAcc,b.cmoneys/100  AS payeeAmount,'' AS cityid,b.bankcity as cityname,
 		c.logtime as approveTime,c.actor as approveName
