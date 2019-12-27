@@ -32,7 +32,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import com.china.center.oa.product.helper.StorageRelationHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
@@ -82,6 +81,7 @@ import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.product.dao.ProductVSBankDAO;
 import com.china.center.oa.product.dao.ProductVSGiftDAO;
+import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.vo.ComposeItemVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.NumberUtils;
@@ -6031,6 +6031,7 @@ public class ShipAction extends DispatchAction
     	paramMap.put("dcity", cityBean.getName());
     	paramMap.put("daddress", packageBean.getAddress());
     	paramMap.put("filePath", ConfigLoader.getProperty("sfPrintStore"));
+    	paramMap.put("logTime", packageBean.getLogTime());
 
     	SFPrintUtil printUtil = new SFPrintUtil();
     	
