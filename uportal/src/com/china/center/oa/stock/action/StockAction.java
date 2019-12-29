@@ -7,23 +7,20 @@ package com.china.center.oa.stock.action;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.china.center.actionhelper.jsonimpl.JSONStringer;
 import com.china.center.oa.customer.constant.CustomerConstant;
 import com.china.center.oa.product.constant.StorageConstant;
 import com.china.center.oa.publics.Util;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.dao.*;
-import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.ExpressBean;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.constanst.OutConstant;
@@ -32,7 +29,6 @@ import com.china.center.oa.sail.dao.ExpressDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.tools.*;
-import net.sf.json.JSON;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -1681,16 +1677,21 @@ public class StockAction extends DispatchAction
 
                 bean.setLogTime(TimeTools.now());
 
-                bean.setPrePrice(Float.parseFloat(request.getParameter("price_" + indexs[i])));
+                String price = request.getParameter("price_" + indexs[i]);
+//                bean.setPrePrice(Float.parseFloat(price));
+                BigDecimal priceBd = new BigDecimal(price);
+                bean.setPrePrice(priceBd.doubleValue());
 
                 //2015/10/28 实际价格==参考价格
                 bean.setPrice(bean.getPrePrice());
 
                 bean.setShowId(request.getParameter("showId_" + indexs[i]));
 
-                bean.setAmount(CommonTools.parseInt(request.getParameter("amount_" + indexs[i])));
+                String amount = request.getParameter("amount_" + indexs[i]);
+                bean.setAmount(CommonTools.parseInt(amount));
                 //2015/10/29 直接设置total
-                bean.setTotal(bean.getPrice() * bean.getAmount());
+//                bean.setTotal(bean.getPrice() * bean.getAmount());
+                bean.setTotal(priceBd.multiply(new BigDecimal(amount)).doubleValue());
                 bean.setNearlyPayDate(TimeTools.now_short());
 
                 int num = storageRelationDAO.sumAllProductByProductId(bean.getProductId());
