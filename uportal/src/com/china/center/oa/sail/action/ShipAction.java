@@ -225,6 +225,7 @@ public class ShipAction extends DispatchAction
     private final String ZP_INVOICE = "90000000000000000046";
     private final String ZP_INVOICE2 = "90000000000000000042";
     private final String ZP_INVOICE40 = "90000000000000000040";
+    private final String dzfp = "电子发票";
 
     /**
      * default construct
@@ -6097,7 +6098,7 @@ public class ShipAction extends DispatchAction
     
 
     private List<InvoiceinsVO> findInvoiceinsWithXNAndBatch(String pickupId){
-        List<InvoiceinsVO> invoiceinsList = new ArrayList<InvoiceinsVO>();
+        List<InvoiceinsVO> invoiceinsList = new ArrayList<>();
         List<PackageBean> packageBeans = packageDAO.queryEntityBeansByFK(pickupId);
         for (PackageBean packageBean: packageBeans){
             List<PackageItemBean> itemList = this.packageItemDAO.queryEntityBeansByFK(packageBean.getId());
@@ -6107,6 +6108,11 @@ public class ShipAction extends DispatchAction
                     String insId = item.getOutId();
                     InvoiceinsVO invoiceinsBean = this.invoiceinsDAO.findVO(insId);
                     if (invoiceinsBean!= null){
+                        if (dzfp.equals(invoiceinsBean.getReceiver()) ||
+                                (invoiceinsBean.getOtherDescription()!= null && invoiceinsBean.getOtherDescription().contains(dzfp))){
+                            _logger.info("filter dzfp***"+invoiceinsBean.getId());
+                            continue;
+                        }
                         int amount = this.getProductAmount(invoiceinsBean);
                         double price = invoiceinsBean.getMoneys()/amount;
                         int fpsl = this.getFpsl(invoiceinsBean);
@@ -6131,6 +6137,11 @@ public class ShipAction extends DispatchAction
                 String insId = item.getOutId();
                 InvoiceinsVO invoiceinsBean = this.invoiceinsDAO.findVO(insId);
                 if (invoiceinsBean!= null){
+                    if (dzfp.equals(invoiceinsBean.getReceiver()) ||
+                            (invoiceinsBean.getOtherDescription()!= null && invoiceinsBean.getOtherDescription().contains(dzfp))){
+                        _logger.info("filter dzfp***"+invoiceinsBean.getId());
+                        continue;
+                    }
                     int amount = this.getProductAmount(invoiceinsBean);
                     double price = invoiceinsBean.getMoneys()/amount;
                     int fpsl = this.getFpsl(invoiceinsBean);
