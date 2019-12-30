@@ -6076,7 +6076,7 @@ public class ShipAction extends DispatchAction
 		String packageId = request.getParameter("packageId");
 		String path = ConfigLoader.getProperty("sfPrintStore");
 		
-		File f = new File(path + "/" + packageId + ".jpg");
+		File f = new File(path + "/" + packageId + ".png");
 		
 		BufferedInputStream dataInputStream = new BufferedInputStream(new FileInputStream(f)); 
 		 
