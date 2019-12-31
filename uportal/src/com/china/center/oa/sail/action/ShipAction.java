@@ -32,7 +32,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import com.china.center.oa.product.helper.StorageRelationHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
@@ -82,6 +81,7 @@ import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductImportDAO;
 import com.china.center.oa.product.dao.ProductVSBankDAO;
 import com.china.center.oa.product.dao.ProductVSGiftDAO;
+import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.vo.ComposeItemVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.NumberUtils;
@@ -225,6 +225,7 @@ public class ShipAction extends DispatchAction
     private final String ZP_INVOICE = "90000000000000000046";
     private final String ZP_INVOICE2 = "90000000000000000042";
     private final String ZP_INVOICE40 = "90000000000000000040";
+    private final String dzfp = "电子发票";
 
     /**
      * default construct
@@ -6031,6 +6032,7 @@ public class ShipAction extends DispatchAction
     	paramMap.put("dcity", cityBean.getName());
     	paramMap.put("daddress", packageBean.getAddress());
     	paramMap.put("filePath", ConfigLoader.getProperty("sfPrintStore"));
+    	paramMap.put("logTime", packageBean.getLogTime());
 
     	SFPrintUtil printUtil = new SFPrintUtil();
     	
@@ -6075,7 +6077,7 @@ public class ShipAction extends DispatchAction
 		String packageId = request.getParameter("packageId");
 		String path = ConfigLoader.getProperty("sfPrintStore");
 		
-		File f = new File(path + "/" + packageId + ".jpg");
+		File f = new File(path + "/" + packageId + ".png");
 		
 		BufferedInputStream dataInputStream = new BufferedInputStream(new FileInputStream(f)); 
 		 
@@ -6096,7 +6098,7 @@ public class ShipAction extends DispatchAction
     
 
     private List<InvoiceinsVO> findInvoiceinsWithXNAndBatch(String pickupId){
-        List<InvoiceinsVO> invoiceinsList = new ArrayList<InvoiceinsVO>();
+        List<InvoiceinsVO> invoiceinsList = new ArrayList<>();
         List<PackageBean> packageBeans = packageDAO.queryEntityBeansByFK(pickupId);
         for (PackageBean packageBean: packageBeans){
             List<PackageItemBean> itemList = this.packageItemDAO.queryEntityBeansByFK(packageBean.getId());
@@ -6106,6 +6108,11 @@ public class ShipAction extends DispatchAction
                     String insId = item.getOutId();
                     InvoiceinsVO invoiceinsBean = this.invoiceinsDAO.findVO(insId);
                     if (invoiceinsBean!= null){
+                        if (dzfp.equals(invoiceinsBean.getReceiver()) ||
+                                (invoiceinsBean.getOtherDescription()!= null && invoiceinsBean.getOtherDescription().contains(dzfp))){
+                            _logger.info("filter dzfp***"+invoiceinsBean.getId());
+                            continue;
+                        }
                         int amount = this.getProductAmount(invoiceinsBean);
                         double price = invoiceinsBean.getMoneys()/amount;
                         int fpsl = this.getFpsl(invoiceinsBean);
@@ -6130,6 +6137,11 @@ public class ShipAction extends DispatchAction
                 String insId = item.getOutId();
                 InvoiceinsVO invoiceinsBean = this.invoiceinsDAO.findVO(insId);
                 if (invoiceinsBean!= null){
+                    if (dzfp.equals(invoiceinsBean.getReceiver()) ||
+                            (invoiceinsBean.getOtherDescription()!= null && invoiceinsBean.getOtherDescription().contains(dzfp))){
+                        _logger.info("filter dzfp***"+invoiceinsBean.getId());
+                        continue;
+                    }
                     int amount = this.getProductAmount(invoiceinsBean);
                     double price = invoiceinsBean.getMoneys()/amount;
                     int fpsl = this.getFpsl(invoiceinsBean);
@@ -6442,6 +6454,23 @@ public class ShipAction extends DispatchAction
                 Element kcje = doc.createElement("kcje");
                 kcje.appendChild(doc.createTextNode(""));
                 details.appendChild(kcje);
+
+                if (fpsl == 0){
+                    //优惠政策
+                    Element yhczElm = doc.createElement("yhzc");
+                    yhczElm.appendChild(doc.createTextNode("1"));
+                    details.appendChild(yhczElm);
+
+                    //优惠政策内容
+                    Element yhnrElm = doc.createElement("yhnr");
+                    yhnrElm.appendChild(doc.createTextNode("免税"));
+                    details.appendChild(yhnrElm);
+
+                    //零税标志
+                    Element lsbzElm = doc.createElement("lsbz");
+                    lsbzElm.appendChild(doc.createTextNode("1"));
+                    details.appendChild(lsbzElm);
+                }
             }
 
             // write the content into xml file

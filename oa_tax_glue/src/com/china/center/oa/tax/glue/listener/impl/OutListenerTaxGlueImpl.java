@@ -17,19 +17,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.center.china.osgi.config.ConfigLoader;
-import com.china.center.oa.product.bean.ProductVSGiftBean;
-import com.china.center.oa.product.dao.ProductVSGiftDAO;
-import com.china.center.oa.publics.constant.AppConstant;
-import com.china.center.oa.publics.manager.OrgManager;
-import com.china.center.oa.publics.vo.StafferVO;
-import com.china.center.oa.sail.vo.OutInterface;
-import com.china.center.oa.stock.bean.StockItemBean;
-import com.china.center.oa.stock.dao.StockItemDAO;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
@@ -39,14 +30,19 @@ import com.china.center.oa.finance.bean.InBillBean;
 import com.china.center.oa.finance.constant.FinanceConstant;
 import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.finance.manager.BillManager;
+import com.china.center.oa.product.bean.ProductVSGiftBean;
+import com.china.center.oa.product.dao.ProductVSGiftDAO;
 import com.china.center.oa.product.dao.ProviderDAO;
 import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.IDPrefixConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.DepartmentDAO;
 import com.china.center.oa.publics.dao.DutyDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.manager.OrgManager;
+import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.publics.wrap.ResultBean;
 import com.china.center.oa.sail.bean.BaseBalanceBean;
 import com.china.center.oa.sail.bean.BaseBean;
@@ -58,6 +54,9 @@ import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.listener.OutListener;
+import com.china.center.oa.sail.vo.OutInterface;
+import com.china.center.oa.stock.bean.StockItemBean;
+import com.china.center.oa.stock.dao.StockItemDAO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.bean.FinanceItemBean;
 import com.china.center.oa.tax.bean.FinanceTagBean;
@@ -6425,8 +6424,9 @@ public class OutListenerTaxGlueImpl implements OutListener
             return TaxItemConstanst.DROP0;
         }
         
-        if (outBean.getForceBuyType() == OutConstant.DROP_STAFFER                
-                || outBean.getForceBuyType() == OutConstant.DROP_PART)
+        //mod by zhangxian 2019-12-27
+        //报废 单中“员工报废”的单据生成的凭证改为    借:其他应收款-个人 贷:库存商品
+        if (outBean.getForceBuyType() == OutConstant.DROP_PART)
         {
             //#364 TODO
             StafferVO sb = stafferDAO.findVO(outBean.getStafferId());
@@ -6444,7 +6444,12 @@ public class OutListenerTaxGlueImpl implements OutListener
 
             return TaxItemConstanst.DROP2;
         }
+        if(outBean.getForceBuyType() == OutConstant.DROP_STAFFER)
+        {
+            return TaxItemConstanst.TAX_OTHER_PERSON;
+        }
         
+        //end mod
         if (outBean.getForceBuyType() == OutConstant.DROP_COMMON)         
         {
             return TaxItemConstanst.DROP3;

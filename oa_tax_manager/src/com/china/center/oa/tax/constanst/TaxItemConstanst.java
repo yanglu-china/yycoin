@@ -275,4 +275,9 @@ public interface TaxItemConstanst
     String SPECIAL = "1133-16";
 
     String LEAVE_EXPENSE = "2181-02";
+    
+    /**
+     * 	其他应收款-个人
+     */
+    String TAX_OTHER_PERSON = "1133-21";
 }
