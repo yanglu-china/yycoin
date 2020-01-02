@@ -405,7 +405,7 @@ public class BackPayApplyListenerTaxGlueImpl implements BackPayApplyListener
 
         if (staffer == null)
         {
-            throw new MYException("数据错误,请确认操作");
+            throw new MYException("职员不存在："+outBean.getStafferId());
         }
 
         String name = "销售退款:" + outBean.getFullId() + '.';

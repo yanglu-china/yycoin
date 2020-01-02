@@ -8227,10 +8227,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 
      */
-    public boolean checkOutBack(String outId) throws MYException
+   public boolean checkOutBack(String outId) throws MYException
 	{
         List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
-        
+
         List<OutBean> refBuyList = queryRefOut1(outId, true);
 
         int amount = 0;
@@ -8254,7 +8254,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
             amount += baseBean.getAmount();
         }
-        
+
         if (amount - hasBack < 0)
         {
         	throw new MYException("[%s]退库数量溢出,请重新操作", outId);
@@ -8262,6 +8262,25 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         return true;
     }
+
+    /**
+     * #880 确认退货无法控制可退数量
+     * @param outId
+     * @return
+     * @throws MYException
+     */
+//    public boolean checkOutBack(String outId) throws MYException
+//    {
+//        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
+//        for (BaseBean baseBean: baseList){
+//            boolean result = this.checkOutBack(outId, baseBean.getProductId(), baseBean.getCostPriceKey(), baseBean.getAmount());
+//            if (result){
+//                throw new MYException("[%s]退库数量溢出,请重新操作", outId);
+//            }
+//        }
+//
+//        return true;
+//    }
 
     @Override
     public boolean checkOutBack(String outId, String productId, String priceKey, int amount) throws MYException{
