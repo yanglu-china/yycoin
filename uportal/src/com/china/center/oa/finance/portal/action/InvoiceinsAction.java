@@ -3425,12 +3425,21 @@ public class InvoiceinsAction extends DispatchAction
                         importError = true;
                         continue;
                     }else{
-                        insVSNumBean = insVSNumBeans.get(0);
-                        InvoiceinsBean invoiceinsBean = invoiceinsDAO.find(insVSNumBean.getInsId());
-
-                        _logger.debug("insVSNumBean.getInsId():"+insVSNumBean.getInsId()+", insVSNumBeans.size():"+insVSNumBeans.size());
-
-                        if(invoiceinsBean == null){
+                    	boolean exists = false;
+                    	
+                    	_logger.debug("insVSNumBean.getInsId():"+insVSNumBean.getInsId()+", insVSNumBeans.size():"+insVSNumBeans.size());
+                    	
+                    	for(InsVSInvoiceNumBean insVSNumBean : insVSNumBeans){
+                    		
+                            InvoiceinsBean invoiceinsBean = invoiceinsDAO.find(insVSNumBean.getInsId());                         
+                            
+                            if(invoiceinsBean!=null){
+                            	exists = true;
+                            }
+                    		
+                    	}
+                    	
+                        if(!exists){
                             builder
                                     .append("第[" + currentNumber + "]错误:")
                                     .append("发票号码不存在")
@@ -3438,7 +3447,10 @@ public class InvoiceinsAction extends DispatchAction
 
                             importError = true;
                             continue;
-                        }else{
+                        }
+
+                        /*
+                        else{
                             _logger.debug("invoiceinsBean.getRefIds():"+invoiceinsBean.getRefIds()+", bean.getOutId():"+bean.getOutId());
                             if(!invoiceinsBean.getRefIds().contains(bean.getOutId())){
                                 builder
@@ -3450,6 +3462,7 @@ public class InvoiceinsAction extends DispatchAction
                                 continue;
                             }
                         }
+                        */
                     }
 
                     //发票号与销售单一致性
