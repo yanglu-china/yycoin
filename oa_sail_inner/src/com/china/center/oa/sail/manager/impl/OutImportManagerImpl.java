@@ -248,15 +248,9 @@ public class OutImportManagerImpl implements OutImportManager
 							twOutImportBean.setComunicationBranch(DepotConstant.DEFAULT_DEPOTPART_TW_STR);
 
 							//自提
-//							twOutImportBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
-//							twOutImportBean.setTransport1(0);
-//							twOutImportBean.setTransport2(0);
-//							twOutImportBean.setProvinceId(null);
-//							twOutImportBean.setCityId(null);
-//							twOutImportBean.setAddress(null);
-//							twOutImportBean.setReceiver(null);
-//							twOutImportBean.setHandPhone(null);
-//							twOutImportBean.setVirtualStatus(1);
+							twOutImportBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
+							twOutImportBean.setTransport1(0);
+							twOutImportBean.setTransport2(0);
 						} else if (twOutImportBean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING
 							&& DepotConstant.DFK_NJ.equals(twOutImportBean.getDepotId())
 							&& DepotConstant.DFK_NJ_DEFAULT.equals(twOutImportBean.getDepotpartId())){
@@ -4092,14 +4086,10 @@ public class OutImportManagerImpl implements OutImportManager
 								baseBean.setDepotpartId(DepotConstant.DEFAULT_DEPOTPART_TW);
 								baseBean.setDepotpartName(DepotConstant.DEFAULT_DEPOTPART_TW_STR);
 
+								//改为自提
 								distributionBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
 								distributionBean.setTransport1(0);
 								distributionBean.setTransport2(0);
-								distributionBean.setProvinceId(null);
-								distributionBean.setCityId(null);
-								distributionBean.setAddress(null);
-								distributionBean.setReceiver(null);
-								distributionBean.setMobile(null);
 							}
 						}
 

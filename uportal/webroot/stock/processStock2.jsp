@@ -17,19 +17,7 @@
 var g_id;
 var to_be_warehouse;
 var xqqrBeans;
-
-<%--var jmap = new Object();--%>
-<%--<c:forEach items="${bean.itemVO}" var="item">--%>
-<%--jmap['${item.id}'] = "${divMap[item.id]}";--%>
-<%--</c:forEach>--%>
-//console.log(jmap);
-
-//function showDiv(id)
-//{
-////    console.log("ID*******"+id);
-////    console.log("jamp*****"+jmap[id]);
-//    tooltip.showTable(jmap[id]);
-//}
+var isCommitted = 0;
 
 function fech(id,productId, amount,totalWarehouseNum)
 {
@@ -164,12 +152,17 @@ function updatePrice()
 
 function batchFetchProduct()
 {
+    if (isCommitted == 1){
+        alert("表单提交中...")
+		return false;
+	}
     if ($$('depotpartId') == '')
     {
         alert('请选择仓区');
         return false;
     }
 
+    isCommitted = 1;
     formEntry.method.value = 'batchFetchProduct';
     formEntry.submit();
 }

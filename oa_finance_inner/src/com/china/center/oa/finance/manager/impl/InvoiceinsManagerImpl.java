@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
@@ -2063,8 +2064,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	for (InvoiceinsImportBean each : list) {
     		each.setBatchId(batchId);
     	}
-    	
-    	invoiceinsImportDAO.saveAllEntityBeans(list);
+
+    	try {
+            invoiceinsImportDAO.saveAllEntityBeans(list);
+        }catch (DataIntegrityViolationException e){
+    	    _logger.error(e,e);
+    	    throw new MYException("开票信息重复,请联系管理员!");
+        }
 
 		_logger.info("importInvoiceins for batchId:" + batchId);
     	

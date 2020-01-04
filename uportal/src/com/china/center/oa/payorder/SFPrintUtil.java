@@ -99,6 +99,7 @@ public class SFPrintUtil {
 		orderService.setD_province(paramMap.get("dprovince"));
 		orderService.setD_city(paramMap.get("dcity"));
 		orderService.setD_address(paramMap.get("daddress"));
+		orderService.setRemark(packageId);
 		
 		orderService.setCustid(sf_custid);
 		//寄方付
@@ -245,7 +246,7 @@ public class SFPrintUtil {
 		dto.setConsignerProvince(orderService.getD_province());
 		dto.setConsignerCity(orderService.getD_city());
 //		dto.setConsignerCounty("南山区");
-		dto.setConsignerAddress(orderService.getD_address()); // 详细地址建议最多30个字 字段过长影响打印效果
+		dto.setConsignerAddress(orderService.getD_address() + "             " + packageId); // 详细地址建议最多30个字 字段过长影响打印效果
 		dto.setConsignerCompany(orderService.getD_company());
 		dto.setConsignerMobile(orderService.getD_tel());
 		dto.setConsignerName(orderService.getD_contact());
@@ -269,6 +270,7 @@ public class SFPrintUtil {
 		// 快递类型
 		// 1 ：标准快递 2.顺丰特惠 3： 电商特惠 5：顺丰次晨 6：顺丰即日 7.电商速配 15：生鲜速配
 		dto.setExpressType(1);
+		dto.setElectric("E");
 
 		// COD代收货款金额,只需填金额, 单位元- 此项和月结卡号绑定的增值服务相关
 //		dto.setCodValue("0");
@@ -320,8 +322,8 @@ public class SFPrintUtil {
 		// dto.setCustLogo("D:\\ibm.jpg");
 
 		// 备注相关
-//		dto.setMainRemark("");
-//		dto.setChildRemark("");
+		dto.setMainRemark(packageId);
+		dto.setChildRemark(packageId);
 //		dto.setReturnTrackingRemark("");
 
 		// 加密项
@@ -381,13 +383,13 @@ public class SFPrintUtil {
 			String[] arr = strImg.split("\",\"");
 			/** 输出图片到本地 支持.jpg、.png格式 **/
 			for (int i = 0; i < arr.length; i++) {
-				String fileName = filePath + "/" + packageId + ".jpg";
+				String fileName = filePath + "/" + packageId + ".png";
 				Base64ImageTools.generateImage(arr[i].toString(), fileName);
 //				fileNameList.add(fileName);
 
 			}
 		} else {
-			String fileName = filePath + "/" + packageId + ".jpg";
+			String fileName = filePath + "/" + packageId + ".png";
 			Base64ImageTools.generateImage(strImg, fileName);
 //			fileNameList.add(fileName);
 
@@ -396,14 +398,14 @@ public class SFPrintUtil {
 //		writeImageFont(files);
 		// 如需调用本地打印机(非服务端打印机请使用url9/url12 并且取消以下注释)
 //		int high = 0;
-//		if (reqURL.contains("image") && !files.isEmpty()) {
+//		if (reqURL.contains("image") && !fileNameList.isEmpty()) {
 //			if (reqURL.contains("V2")) {
 //				high = 150;
 //			} else {
 //				high = 210;
 //			}
-//			for (String fileName : files) {
-//				PrintUtil.drawImage(fileName, high, false);// false为不弹出打印框
+//			for (String fileName : fileNameList) {
+//				PrintUtil.drawImage(fileName, high, true);// false为不弹出打印框
 //			}
 //		}
 	}

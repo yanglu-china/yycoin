@@ -9,11 +9,11 @@
 package com.china.center.oa.stock.manager.impl;
 
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.customer.constant.CustomerConstant;
-import com.china.center.oa.product.bean.DepotBean;
 import com.china.center.oa.product.bean.DepotpartBean;
 import com.china.center.oa.product.bean.PriceConfigBean;
 import com.china.center.oa.product.dao.DepotDAO;
@@ -611,7 +611,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
         List<StockItemVO> itemList = stockItemDAO.queryEntityVOsByFK(id);
 
-        double total = 0.0d;
+//        double total = 0.0d;
 
         // 如果是结束需要验证是否是外网询价
         checkEndStock(sb, nextStatus, itemList);
@@ -622,6 +622,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             || nextStatus == StockConstant.STOCK_STATUS_STOCKPASS_DUTYCEO
             || nextStatus == StockConstant.STOCK_STATUS_STOCKPASS_CEO)
         {
+            BigDecimal bd = new BigDecimal(0);
             for (StockItemBean stockItemBean : itemList)
             {
                 //2015/10/24 不再检查询价状态
@@ -630,10 +631,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 //                    throw new MYException("采购单下存在没有询价的产品,不能通过");
 //                }
 
-                total += stockItemBean.getTotal();
+//                total += stockItemBean.getTotal();
+                bd = bd.add(new BigDecimal(stockItemBean.getTotal()));
             }
 
-            stockDAO.updateTotal(id, total);
+//            stockDAO.updateTotal(id, total);
+            stockDAO.updateTotal(id, bd.doubleValue());
         }
 
         String reason = "";
@@ -646,7 +649,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             {
                 nextStatus = StockConstant.STOCK_STATUS_PRICEPASS;
 
-                total = 0.0d;
+                BigDecimal bd = new BigDecimal(0);
+//                total = 0.0d;
 
                 // 这里直接处理无需询价的逻辑
                 for (StockItemBean stockItemBean : itemList)
@@ -671,10 +675,12 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
                     stockItemDAO.updateEntityBean(stockItemBean);
 
-                    total += stockItemBean.getTotal();
+//                    total += stockItemBean.getTotal();
+
+                    bd = bd.add(new BigDecimal(stockItemBean.getTotal()));
                 }
 
-                stockDAO.updateTotal(id, total);
+                stockDAO.updateTotal(id, bd.doubleValue());
 
                 reason = "代销采购无需询价";
             }

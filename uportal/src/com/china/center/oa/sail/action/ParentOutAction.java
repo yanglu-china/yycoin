@@ -7921,7 +7921,7 @@ public class ParentOutAction extends DispatchAction
                     type = StorageConstant.OPR_STORAGE_OUTBACK;
 
                     // add check 溢出
-                    outManager.checkOutBack(out.getRefOutFullId());
+//                    outManager.checkOutBack(out.getRefOutFullId());
                 }
 
                 //未入库前对应的BaseBean
@@ -7929,22 +7929,55 @@ public class ParentOutAction extends DispatchAction
 
                 //成品行退货
                 List<BaseBean> baseBeans = this.getBaseBeansFromRequest(request);
+                //根据productId合计产品数量
+				Map<String, BaseBean> product2Amount = new HashMap<>();
 
                 //根据数据库中BaseBean进行相应设置
                 if (!ListTools.isEmptyOrNull(baseBeans)){
                      for (BaseBean base :baseBeans){
                          String productId = base.getProductId();
+
+                         //TODO costPrice会存在多个？
                          for(BaseBean b : baseList){
                              if (productId.equals(b.getProductId())){
                                  base.setCostPrice(b.getCostPrice());
+                                 base.setCostPriceKey(b.getCostPriceKey());
                                  base.setOwner(b.getOwner());
                                  base.setInputRate(b.getInputRate());
                                  base.setPrice(b.getPrice());
                                  base.setVirtualPrice(b.getVirtualPrice());
+                                 _logger.info("***base is ***"+base);
+								 continue;
                              }
                          }
+
+						 //相同产品的数量合计
+						 BaseBean b1 = product2Amount.get(productId);
+						 if (b1 == null){
+							 product2Amount.put(productId, base);
+						 } else{
+							 b1.setAmount(base.getAmount()+b1.getAmount());
+						 }
                      }
                 }
+
+                _logger.info("****map is***"+product2Amount);
+                //#880
+				if (out.getType() == OutConstant.OUT_TYPE_INBILL
+						&& (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
+						|| out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
+						|| out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT)){
+                	for (String productId : product2Amount.keySet()){
+						//合计同一商品数量后检查是否可退货
+						BaseBean base = product2Amount.get(productId);
+						String outId = out.getRefOutFullId();
+						boolean result = outManager.checkOutBack(outId, productId,
+								base.getCostPriceKey(), base.getAmount());
+						if (result){
+							throw new MYException("[%s]退库数量溢出,请重新操作", outId);
+						}
+					}
+				}
 
                 //配件退货
                 List<DecomposeProductBean> beans = this.getDecomposeBeanFromRequest(accessoryList, user);
@@ -8049,7 +8082,7 @@ public class ParentOutAction extends DispatchAction
             int inAmount = productNumberIn.get(productId);
             _logger.info(productId+" vs outAmount***"+outAmount+"***vs inAmount***"+inAmount);
             if(outAmount!= inAmount){
-                _logger.error(productId+"*****************************退库商品数量不对******************************");
+                _logger.error(productId+"**退库商品与销售单数量不一致************");
                 throw new MYException("退库商品数量不对:"+productId);
             }
         }
@@ -8115,14 +8148,11 @@ public class ParentOutAction extends DispatchAction
             return beans;
         }
         String[] arr1 = str.split(";");
-        System.out.println(arr1.length);
 
         for (String s : arr1){
-            System.out.println(s);
             String[] arr2 = s.split(":");
             String productId = arr2[0];
             String[] arr3 = arr2[1].split("&");
-            System.out.println("productId:"+productId+":"+arr3.length);
             DecomposeProductBean bean = new DecomposeProductBean();
             bean.setProductId(productId);
             //TODO  price
@@ -8131,14 +8161,11 @@ public class ParentOutAction extends DispatchAction
             bean.setLogTime(TimeTools.now());
             bean.setType(StorageConstant.OPR_STORAGE_DECOMPOSE);
 
-
             if (arr3.length>=3){
                 List<ComposeItemBean> itemList = new ArrayList<ComposeItemBean>();
                 for (int i=3;i<arr3.length;i+=3){
-                    System.out.println(arr3[i]);
                     ComposeItemBean each = new ComposeItemBean();
                     for (int j=0;j<3;j++){
-                        System.out.println(arr3[i+j]);
                         String value = arr3[i+j].split("=")[1];
                         if (j==0){
                             each.setProductId(value);
@@ -8157,7 +8184,6 @@ public class ParentOutAction extends DispatchAction
                 }
                 bean.setItemList(itemList);
             }
-            System.out.println("****配件行:"+bean.getProductId()+" amount:"+bean.getAmount());
             beans.add(bean);
         }
         return beans;
