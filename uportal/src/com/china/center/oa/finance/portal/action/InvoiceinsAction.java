@@ -3415,7 +3415,7 @@ public class InvoiceinsAction extends DispatchAction
 
                     //销售单与系统中的发票号码一致性
                     if(insVSNumBeans == null || insVSNumBeans.size() == 0){
-                        _logger.debug("bean.getInvoiceNum():"+bean.getInvoiceNum()+", insVSNumBeans.size():"+insVSNumBeans.size());
+                        //_logger.debug("bean.getInvoiceNum():"+bean.getInvoiceNum()+", insVSNumBeans.size():"+insVSNumBeans.size());
 
                         builder
                                 .append("第[" + currentNumber + "]错误:")
@@ -3429,12 +3429,13 @@ public class InvoiceinsAction extends DispatchAction
                     	
                     	_logger.debug("insVSNumBean.getInsId():"+insVSNumBean.getInsId()+", insVSNumBeans.size():"+insVSNumBeans.size());
                     	
-                    	for(InsVSInvoiceNumBean insVSNumBean : insVSNumBeans){
+                    	for(InsVSInvoiceNumBean insVSNumBeanTemp : insVSNumBeans){
                     		
-                            InvoiceinsBean invoiceinsBean = invoiceinsDAO.find(insVSNumBean.getInsId());                         
+                            InvoiceinsBean invoiceinsBean = invoiceinsDAO.find(insVSNumBeanTemp.getInsId());                         
                             
                             if(invoiceinsBean!=null){
                             	exists = true;
+                            	insVSNumBean = insVSNumBeanTemp;
                             }
                     		
                     	}
