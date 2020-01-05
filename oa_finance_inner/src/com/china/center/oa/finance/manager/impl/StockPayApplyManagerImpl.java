@@ -455,7 +455,7 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
     }
     
     private void saveFlowLog(User user, int preStatus, StockPayApplyBean apply, String reason,
-                             int oprMode)
+                             int oprMode) throws MYException
     {
         FlowLogBean log = new FlowLogBean();
 
@@ -472,6 +472,13 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
         log.setPreStatus(preStatus);
 
         log.setAfterStatus(apply.getStatus());
+
+        //#879 流程状态异常时抛出Exception
+        if (preStatus == StockPayApplyConstant.APPLY_STATUS_SEC
+                && apply.getStatus() == StockPayApplyConstant.APPLY_STATUS_CFO){
+            _logger.error(apply.getId()+"***status change wrong!");
+            throw new MYException(apply.getId()+"单据流程状态异常!");
+        }
 
         flowLogDAO.saveEntityBean(log);
     }

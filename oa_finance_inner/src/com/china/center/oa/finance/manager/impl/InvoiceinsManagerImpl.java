@@ -2068,6 +2068,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	try {
             invoiceinsImportDAO.saveAllEntityBeans(list);
         }catch (DataIntegrityViolationException e){
+    	    _logger.error(e,e);
     	    throw new MYException("开票信息重复,请联系管理员!");
         }
 

@@ -3415,7 +3415,7 @@ public class InvoiceinsAction extends DispatchAction
 
                     //销售单与系统中的发票号码一致性
                     if(insVSNumBeans == null || insVSNumBeans.size() == 0){
-                        _logger.debug("bean.getInvoiceNum():"+bean.getInvoiceNum()+", insVSNumBeans.size():"+insVSNumBeans.size());
+                        //_logger.debug("bean.getInvoiceNum():"+bean.getInvoiceNum()+", insVSNumBeans.size():"+insVSNumBeans.size());
 
                         builder
                                 .append("第[" + currentNumber + "]错误:")
@@ -3425,12 +3425,22 @@ public class InvoiceinsAction extends DispatchAction
                         importError = true;
                         continue;
                     }else{
-                        insVSNumBean = insVSNumBeans.get(0);
-                        InvoiceinsBean invoiceinsBean = invoiceinsDAO.find(insVSNumBean.getInsId());
-
-                        _logger.debug("insVSNumBean.getInsId():"+insVSNumBean.getInsId()+", insVSNumBeans.size():"+insVSNumBeans.size());
-
-                        if(invoiceinsBean == null){
+                    	boolean exists = false;
+                    	
+                    	//_logger.debug("insVSNumBean.getInsId():"+insVSNumBean.getInsId()+", insVSNumBeans.size():"+insVSNumBeans.size());
+                    	
+                    	for(InsVSInvoiceNumBean insVSNumBeanTemp : insVSNumBeans){
+                    		
+                            InvoiceinsBean invoiceinsBean = invoiceinsDAO.find(insVSNumBeanTemp.getInsId());                         
+                            
+                            if(invoiceinsBean!=null){
+                            	exists = true;
+                            	insVSNumBean = insVSNumBeanTemp;
+                            }
+                    		
+                    	}
+                    	
+                        if(!exists){
                             builder
                                     .append("第[" + currentNumber + "]错误:")
                                     .append("发票号码不存在")
@@ -3438,7 +3448,10 @@ public class InvoiceinsAction extends DispatchAction
 
                             importError = true;
                             continue;
-                        }else{
+                        }
+
+                        /*
+                        else{
                             _logger.debug("invoiceinsBean.getRefIds():"+invoiceinsBean.getRefIds()+", bean.getOutId():"+bean.getOutId());
                             if(!invoiceinsBean.getRefIds().contains(bean.getOutId())){
                                 builder
@@ -3450,6 +3463,7 @@ public class InvoiceinsAction extends DispatchAction
                                 continue;
                             }
                         }
+                        */
                     }
 
                     //发票号与销售单一致性
@@ -4598,6 +4612,15 @@ public class InvoiceinsAction extends DispatchAction
                         String name = obj[4].trim();
 
                         bean.setInvoiceHead(name);
+
+                        if(name.length() > 100){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("开票抬头长度不能超过100")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
                     }else
                     {
                         builder
@@ -4991,30 +5014,24 @@ public class InvoiceinsAction extends DispatchAction
                         bean.setAmount(Integer.valueOf(obj[19]));
                     }
 
-                    // 增值税开票信息
-                    /*if ( !StringTools.isNullOrNone(obj[20]))
-                    {
-                        String zzsInfo = obj[20].trim();
-                        bean.setZzsInfo(zzsInfo);
-                    } else{
-                        if ("增值税专用发票17%".equals(obj[3].trim())) {
-                            builder
-                                    .append("第[" + currentNumber + "]错误:")
-                                    .append("增值税专用发票17%增值税发票信息不能为空")
-                                    .append("<br>");
-
-                            importError = true;
-                        }
-                    }*/
 
                     // 增值税开票信息
                     StringBuilder kpxx = new StringBuilder();
-                    //购方名称
+
+                    //购方名称(长度100)
                     if ( !StringTools.isNullOrNone(obj[20]))
                     {
                         String gfmc = obj[20].trim();
                         bean.setGfmc(gfmc);
                         kpxx.append(gfmc).append(",");
+                        if(gfmc.length() > 100){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("购方名称长度不能超过100")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
                     }
 
                     //购方税号
@@ -5023,22 +5040,50 @@ public class InvoiceinsAction extends DispatchAction
                         String gfsh = obj[21].trim();
                         bean.setGfsh(gfsh);
                         kpxx.append(gfsh).append(",");
+                        if(gfsh.length() > 20){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("购方税号长度不能超过20")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
                     }
 
                     //购方开户银行及银行账号
                     if ( !StringTools.isNullOrNone(obj[22]))
                     {
                         String gfyh = obj[22].trim();
-                        bean.setGfyh(gfyh);
-                        kpxx.append(gfyh).append(",");
+                        //把换行替换为空格
+                        String gfyh2 = gfyh.replace("\n"," ");
+                        bean.setGfyh(gfyh2);
+                        kpxx.append(gfyh2).append(",");
+                        if(gfyh2.length() > 100){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("购方银行长度不能超过100")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
                     }
 
                     //购方企业地址及联系电话
                     if ( !StringTools.isNullOrNone(obj[23]))
                     {
                         String gfdz = obj[23].trim();
-                        bean.setGfdz(gfdz);
-                        kpxx.append(gfdz);
+                        //把换行替换为空格
+                        String gfdz2 = gfdz.replace("\n"," ");
+                        bean.setGfdz(gfdz2);
+                        kpxx.append(gfdz2);
+                        if(gfdz2.length() > 100){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("购方地址长度不能超过100")
+                                    .append("<br>");
+
+                            importError = true;
+                        }
                     }
 
                     //规格型号
