@@ -2747,6 +2747,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 
                 outDAO.updateTotalWarehouseNum(stockId, productId, providerId, Math.abs(element.getAmount()));
             }
+            
+            //更新待结束采购状态
+            this.checkAndUpdateStatus(outBean);
 
             return;
         }
@@ -2817,6 +2820,15 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             _logger.info("processBuyBaseList finished:"+outBean.getFullId());
         }
         _logger.info("******processBuyBaseList exit ");
+    }
+    
+    private void checkAndUpdateStatus(final OutBean outBean)
+    {
+    	String stockId = outBean.getRefOutFullId();
+        int count = outDAO.countPartialFetch(stockId);
+        if(count == 0){
+            outDAO.updateStockStatus(stockId, "7"); //待结束采购
+        }
     }
 
     /**
