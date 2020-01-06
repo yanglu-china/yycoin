@@ -246,6 +246,7 @@ public class OutImportManagerImpl implements OutImportManager
 							twOutImportBean.setDepotId(DepotConstant.DEFAULT_DEPOT_TW);
 							twOutImportBean.setDepotpartId(DepotConstant.DEFAULT_DEPOTPART_TW);
 							twOutImportBean.setComunicationBranch(DepotConstant.DEFAULT_DEPOTPART_TW_STR);
+							twOutImportBean.setVirtualStatus(1);
 
 							//自提
 							twOutImportBean.setShipping(OutConstant.OUT_SHIPPING_SELFSERVICE);
