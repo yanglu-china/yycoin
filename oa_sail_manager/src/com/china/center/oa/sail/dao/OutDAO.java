@@ -456,4 +456,8 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     public void clearTicket(String fullId);
     
     public void updateTotalWarehouseNum(String stockId, String productId, String providerId, int addCount);
+    
+    public int countPartialFetch(String stockId);
+    
+    public void updateStockStatus(String stockId, String status);
 }

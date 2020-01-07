@@ -1399,4 +1399,17 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
     	
     	return buffer.toString();
     }
+    
+    public int countPartialFetch(String stockId)
+    {
+        String sql = "SELECT count(1) from t_center_stockitem a WHERE a.stockId=? AND a.totalWarehouseNum<a.amount";
+
+        return this.jdbcOperation.queryForInt(sql, stockId);
+    }
+    
+    public void updateStockStatus(String stockId, String status){
+    	String sql = "update t_center_stock set status='"+status+"' where id='"+stockId+"'";
+    	
+    	this.jdbcOperation.execute(sql);
+    }
 }

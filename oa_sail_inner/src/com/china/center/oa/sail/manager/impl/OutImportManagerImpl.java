@@ -236,6 +236,8 @@ public class OutImportManagerImpl implements OutImportManager
                         String twProductId = twthProductBean.getTwProductId();
 						twOutImportBean.setProductId(twProductId);
 						twOutImportBean.setProductName(twthProductBean.getTwProductName());
+						//体外同步订单默认都是虚拟订单
+						twOutImportBean.setVirtualStatus(1);
 						//#843
 						if (twOutImportBean.getShipping() == OutConstant.OUT_SHIPPING_SELFSERVICE
 								||twOutImportBean.getShipping() == OutConstant.OUT_SHIPPING_3PL
