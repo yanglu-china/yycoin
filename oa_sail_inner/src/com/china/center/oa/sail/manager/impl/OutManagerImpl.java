@@ -9446,7 +9446,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     }
 	
 	/**
-	 * CORE 处理空开空退，产生一退货单，新销售单，且涉及到凭证
+	 * CORE 处理空开空退&空出空进
+     * 产生一退货单，新销售单，且涉及到凭证
 	 * @param bean
 	 * @param out
 	 * @throws MYException
@@ -9503,14 +9504,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	private String createNewBuyBean(OutRepaireBean bean, OutBean out, User user, String reason) throws MYException
 	{
 		String newBuyId;
-		
 		OutBean newOutBean = new OutBean();
-    	
     	BeanUtil.copyProperties(newOutBean, out);
-    	
     	String id = getAll(commonDAO.getSquence());
-
-        LocationBean location = locationDAO.find(out.getLocationId());
 
         //String flag = location.getCode();
         //# 373
@@ -9619,7 +9615,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     	}
 
     	//#59 空开空退XT单的poDate取当前日期
-    	newOutBean.setPodate(TimeTools.now_short());
+//    	newOutBean.setPodate(TimeTools.now_short());
+        //#882 poDate取原单,flowTime取当前时间
+        newOutBean.setPodate(out.getPodate());
+    	newOutBean.setFlowTime(TimeTools.now());
+
         newOutBean.setLogTime(TimeTools.now());
         newOutBean.setManagerTime(TimeTools.now());
     	outDAO.saveEntityBean(newOutBean);
