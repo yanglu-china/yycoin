@@ -4684,7 +4684,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         */
-                        this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal(), customerName, "中收", importError, builder);
+                        importError = this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal(), customerName, "中收", builder);
                     }
                 }
             } else if (type == TcpConstanst.MOTIVATION_TYPE || type == TcpConstanst.MOTIVATION_TYPE3){
@@ -4710,7 +4710,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         */
-                        this.compareApplyToAvailable(currentMot2, ib.getMotivationMoneyTotal(), customerName, "激励", importError, builder);
+                        importError = this.compareApplyToAvailable(currentMot2, ib.getMotivationMoneyTotal(), customerName, "激励", builder);
                     }
                 }
             } else if (type == TcpConstanst.IB_TYPE2){
@@ -4736,7 +4736,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         */
-                        this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal2(), customerName, "中收2", importError, builder);
+                        importError = this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal2(), customerName, "中收2", builder);
                     }
                 }
             } else if (type == TcpConstanst.MOTIVATION_TYPE2){
@@ -4762,7 +4762,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         */
-                        this.compareApplyToAvailable(currentMot2, ib.getMotivationMoneyTotal2(), customerName, "其他费用", importError, builder);
+                        importError = this.compareApplyToAvailable(currentMot2, ib.getMotivationMoneyTotal2(), customerName, "其他费用", builder);
                     }
                 }
             } else if (type == TcpConstanst.PLATFORM_TYPE){
@@ -4788,7 +4788,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         */
-                        this.compareApplyToAvailable(currentMot2, ib.getPlatformFeeTotal(), customerName, "平台手续费", importError, builder);
+                        importError = this.compareApplyToAvailable(currentMot2, ib.getPlatformFeeTotal(), customerName, "平台手续费", builder);
                     }
                 }
             }
@@ -4941,8 +4941,9 @@ public class TravelApplyAction extends DispatchAction
         }
     }
     
-    private void compareApplyToAvailable(double applyMoney, double availableMoney, String customer, String feeName, boolean importError, StringBuilder builder){
+    private boolean compareApplyToAvailable(double applyMoney, double availableMoney, String customer, String feeName, StringBuilder builder){
     	
+    	boolean importError = false;
         if (applyMoney> availableMoney){
             builder.append("客户[").append(customer)
                     .append("]").append("当前申请金额："+applyMoney+"大于"+feeName+"金额："+availableMoney)
@@ -4957,6 +4958,7 @@ public class TravelApplyAction extends DispatchAction
                 importError = true;
         }
         */
+        return importError;
     	
     }
 
