@@ -4184,10 +4184,8 @@ public class TravelApplyAction extends DispatchAction
         }
 
         List<TcpShareVO> shareList = new ArrayList<TcpShareVO>();
-        List<CustomerBean> customerBeans = customerMainDAO.listEntityBeans();
         List<ProductBean> productBeans = productDAO.listEntityBeans();
         List<BudgetBean> budgetBeans = budgetDAO.listEntityBeans();
-        List<TcpVSOutBean> tcpVSOutBeans = tcpVSOutDAO.listEntityBeans();
         try
         {
             FileInputStream fs = new FileInputStream(filePath);
@@ -4275,17 +4273,22 @@ public class TravelApplyAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
                         String name = obj[1].trim();
-                        CustomerBean customerBean = this.getCustomer(customerBeans, name);
-                        if (customerBean == null){
-                            builder
-                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                    .append("客户名不存在")
-                                    .append("</font><br>");
-
-                            importError = true;
+                        ConditionParse condp = new ConditionParse();
+                        condp.addCondition("name", "=", name);
+                        List<CustomerBean>  custBeanList = customerMainDAO.queryEntityBeansByCondition(condp);
+                        if(custBeanList.size() == 0)
+                        {
+                        	 builder
+                             .append("<font color=red>第[" + currentNumber + "]行错误:")
+                             .append("客户名不存在")
+                             .append("</font><br>");
+                        	 importError = true;
                         }
-                        item.setCustomerName(name);
-                        vsOutBean.setCustomerName(name);
+                        else
+                        {
+                        	item.setCustomerName(name);
+                        	vsOutBean.setCustomerName(name);
+                        }
 
                     String stafferId = "";
                     // 订单号
@@ -4315,15 +4318,28 @@ public class TravelApplyAction extends DispatchAction
 
                             importError = true;
                         }else{
-                            String customerName = this.getCustomerName(customerBeans, out.getCustomerId());
-                            if (!item.getCustomerName().equals(customerName)){
-                                builder
-                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                        .append(outId+"订单号和客户名不匹配:"+item.getCustomerName())
-                                        .append("</font><br>");
+                            CustomerBean  custBean = customerMainDAO.find(out.getCustomerId());
+                            if(custBean == null)
+                            {
+                            	 builder
+                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                 .append(outId+"订单号和客户名不匹配:"+item.getCustomerName())
+                                 .append("</font><br>");
 
-                                importError = true;
+                            	 importError = true;
                             }
+                            else
+                            {
+                            	 if (!item.getCustomerName().equals(custBean.getName())){
+                                     builder
+                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                             .append(outId+"订单号和客户名不匹配:"+item.getCustomerName())
+                                             .append("</font><br>");
+
+                                     importError = true;
+                                 }
+                            }
+                           
                             stafferId = out.getStafferId();
                             //同一个订单不能重复提交中收报销申请
                             if (out.getIbFlag() == 1){
@@ -4411,17 +4427,20 @@ public class TravelApplyAction extends DispatchAction
 //
 //                                importError = true;
 //                            }
-                            TcpVSOutBean tcpVSOutBean = this.getTcpVSOut(tcpVSOutBeans, type, outId);
-                            _logger.info("***tcpVSOutBean****"+tcpVSOutBean);
-                            if(tcpVSOutBean!= null){
-                                builder
-                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                        .append(outId+"订单号已提交中收激励申请(t_center_vs_tcpout表):"+tcpVSOutBean.getRefId())
-                                        .append("</font><br>");
+                            ConditionParse vscond = new ConditionParse();
+                            vscond.addCondition("type", "=", type);
+                            vscond.addCondition("fullid", "=", outId);
+                            List<TcpVSOutBean> vsList = tcpVSOutDAO.queryEntityBeansByCondition(vscond);
+                            if(vsList.size() > 0)
+                            {
+                            	 builder
+                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                 .append(outId+"订单号已提交中收激励申请(t_center_vs_tcpout表):"+vsList.get(0).getRefId())
+                                 .append("</font><br>");
 
-                                importError = true;
+                            	 importError = true;
                             }
-
+                            
                             //#441 2017/3/29 再次检查是否已提交申请过
                             ConditionParse conditionParse1 = new ConditionParse();
                             conditionParse1.addWhereStr();
@@ -4684,7 +4703,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         */
-                        importError = this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal(), customerName, "中收", builder);
+                        importError = this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal(), customerName, "中收", builder,importError);
                     }
                 }
             } else if (type == TcpConstanst.MOTIVATION_TYPE || type == TcpConstanst.MOTIVATION_TYPE3){
@@ -4710,7 +4729,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         */
-                        importError = this.compareApplyToAvailable(currentMot2, ib.getMotivationMoneyTotal(), customerName, "激励", builder);
+                        importError = this.compareApplyToAvailable(currentMot2, ib.getMotivationMoneyTotal(), customerName, "激励", builder,importError);
                     }
                 }
             } else if (type == TcpConstanst.IB_TYPE2){
@@ -4736,7 +4755,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         */
-                        importError = this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal2(), customerName, "中收2", builder);
+                        importError = this.compareApplyToAvailable(currentIb2, ib.getIbMoneyTotal2(), customerName, "中收2", builder,importError);
                     }
                 }
             } else if (type == TcpConstanst.MOTIVATION_TYPE2){
@@ -4762,7 +4781,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         */
-                        importError = this.compareApplyToAvailable(currentMot2, ib.getMotivationMoneyTotal2(), customerName, "其他费用", builder);
+                        importError = this.compareApplyToAvailable(currentMot2, ib.getMotivationMoneyTotal2(), customerName, "其他费用", builder,importError);
                     }
                 }
             } else if (type == TcpConstanst.PLATFORM_TYPE){
@@ -4788,7 +4807,7 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }
                         */
-                        importError = this.compareApplyToAvailable(currentMot2, ib.getPlatformFeeTotal(), customerName, "平台手续费", builder);
+                        importError = this.compareApplyToAvailable(currentMot2, ib.getPlatformFeeTotal(), customerName, "平台手续费", builder,importError);
                     }
                 }
             }
@@ -4941,9 +4960,9 @@ public class TravelApplyAction extends DispatchAction
         }
     }
     
-    private boolean compareApplyToAvailable(double applyMoney, double availableMoney, String customer, String feeName, StringBuilder builder){
+    private boolean compareApplyToAvailable(double applyMoney, double availableMoney, String customer, String feeName, StringBuilder builder,boolean importError){
     	
-    	boolean importError = false;
+    	boolean importErrorSub = importError;
         if (applyMoney> availableMoney){
             builder.append("客户[").append(customer)
                     .append("]").append("当前申请金额："+applyMoney+"大于"+feeName+"金额："+availableMoney)
@@ -4958,7 +4977,7 @@ public class TravelApplyAction extends DispatchAction
                 importError = true;
         }
         */
-        return importError;
+        return importErrorSub;
     	
     }
 
