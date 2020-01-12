@@ -617,14 +617,14 @@ function addTr1()
                 <td>
                 <table width="100%" border="0" cellspacing='1' id="tables">
                     <tr align="center" class="content0">
-                        <td width="5%" align="center">类型</td>
+                        <td width="3%" align="center">类型</td>
                         <td width="15%" align="center">仓库</td>
                         <td width="15%" align="center">仓区</td>
-                        <td width="30%" align="center">产品</td>
-                        <td width="5%" align="center">数量</td>
-                        <td width="5%" align="center">成本</td>
-                        <td width="5%" align="center">XL</td>
-                        <td width="5%" align="left"><input type="button" accesskey="A"
+                        <td width="42%" align="center">产品</td>
+                        <td width="3%" align="center">数量</td>
+                        <td width="3%" align="center">成本</td>
+                        <td width="3%" align="center">XL</td>
+                        <td width="3%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr1()"></td>
                     </tr>
                 </table>
