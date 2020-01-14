@@ -169,10 +169,6 @@ function load()
                 ${bean.zzsInfo}
             </p:cell>
 
-            <p:cell title="开票品名">
-                ${bean.spmc}
-            </p:cell>
-			
 			<p:cell title="客户/分公司">
                ${bean.customerName}
             </p:cell>
