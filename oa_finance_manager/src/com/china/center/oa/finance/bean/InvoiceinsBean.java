@@ -279,11 +279,6 @@ public class InvoiceinsBean implements Serializable
     private String zzsInfo = "";
 
     /**
-     * #404 开票品名
-     */
-    private String spmc = "";
-
-    /**
      * #767 购方名称
      */
     private String gfmc = "";
@@ -1116,14 +1111,6 @@ public class InvoiceinsBean implements Serializable
         this.zzsInfo = zzsInfo;
     }
 
-    public String getSpmc() {
-        return spmc;
-    }
-
-    public void setSpmc(String spmc) {
-        this.spmc = spmc;
-    }
-
     public String getGfmc() {
         return gfmc;
     }
@@ -1235,7 +1222,6 @@ public class InvoiceinsBean implements Serializable
                 ", invoiceFollowOut='" + invoiceFollowOut + '\'' +
                 ", packaged=" + packaged +
                 ", zzsInfo='" + zzsInfo + '\'' +
-                ", spmc='" + spmc + '\'' +
                 ", gfmc='" + gfmc + '\'' +
                 ", gfsh='" + gfsh + '\'' +
                 ", gfyh='" + gfyh + '\'' +

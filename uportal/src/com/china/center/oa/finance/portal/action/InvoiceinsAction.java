@@ -16,14 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1336,11 +1329,12 @@ public class InvoiceinsAction extends DispatchAction
                         ws.addCell(new Label(j++ , i, element.getHeadContent()));
 //                        ws.addCell(new Label(j++ , i, element.getSpmc()));
                        //#753
-                        if (StringTools.isNullOrNone(eachVS.getSpmc())){
-                            ws.addCell(new Label(j++ , i, element.getSpmc()));
-                        } else{
-                            ws.addCell(new Label(j++ , i, eachVS.getSpmc()));
-                        }
+                        ws.addCell(new Label(j++ , i, eachVS.getSpmc()));
+//                        if (StringTools.isNullOrNone(eachVS.getSpmc())){
+//                            ws.addCell(new Label(j++ , i, element.getSpmc()));
+//                        } else{
+//                            ws.addCell(new Label(j++ , i, eachVS.getSpmc()));
+//                        }
 
                         ws.addCell(new Label(j++ , i, element.getCustomerName()));
                         ws.addCell(new Label(j++ , i, element.getInvoiceName()));
@@ -1551,7 +1545,7 @@ public class InvoiceinsAction extends DispatchAction
                     ws.addCell(new Label(j++ , i, element.getId()));
                     ws.addCell(new Label(j++ , i, element.getDutyName()));
                     ws.addCell(new Label(j++ , i, element.getHeadContent()));
-                    ws.addCell(new Label(j++ , i, element.getSpmc()));
+                    ws.addCell(new Label(j++ , i, this.concatSpmc(element.getId())));
                     ws.addCell(new Label(j++ , i, element.getCustomerName()));
                     ws.addCell(new Label(j++ , i, element.getInvoiceName()));
                     ws.addCell(new Label(j++ , i, element.getZzsInfo()));
@@ -1600,6 +1594,21 @@ public class InvoiceinsAction extends DispatchAction
         }
 
         return null;
+    }
+
+    private String concatSpmc(String insId){
+        List<InvoiceinsItemBean> items = this.invoiceinsItemDAO.queryEntityBeansByFK(insId);
+        Set<String> set = new HashSet<>();
+        StringBuilder sb = new StringBuilder();
+        for (InvoiceinsItemBean importBean: items){
+            String spmc = importBean.getSpmc();
+            if (!org.apache.commons.lang.StringUtils.isEmpty(spmc) && !set.contains(spmc)){
+                sb.append(spmc).append(",");
+                set.add(spmc);
+            }
+        }
+        String spmc = sb.toString();
+        return org.apache.commons.lang.StringUtils.removeEnd(spmc, ",");
     }
     
     /**

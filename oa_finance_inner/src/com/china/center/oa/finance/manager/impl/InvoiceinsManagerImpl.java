@@ -3268,9 +3268,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 			bean.setFpgg(first.getFpgg());
 			bean.setFpdw(first.getFpdw());
 			bean.setZzsInfo(first.getZzsInfo());
-//            bean.setSpmc(first.getSpmc());
-            //# 738
-            bean.setSpmc(this.concatSpmc(elist));
 
 			//2015/2/1 票随货发
 			bean.setInvoiceFollowOut(first.getInvoiceFollowOut());
