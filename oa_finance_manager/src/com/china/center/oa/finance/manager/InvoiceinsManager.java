@@ -132,4 +132,11 @@ public interface InvoiceinsManager extends ListenerManager<InvoiceinsListener>
     boolean batchConfirmAndCreatePackage(User user, List<InvoiceinsVO> beanList) throws MYException;
 
     void generateInvoiceins(String packageId,String insId,String fphm);
+
+    /**
+     * 合并开票品名
+     * @param insId
+     * @return
+     */
+    String concatSpmc(String insId);
 }

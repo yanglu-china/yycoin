@@ -4348,6 +4348,22 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             }
         }
     }
+
+    public String concatSpmc(String insId){
+        List<InvoiceinsItemBean> items = this.invoiceinsItemDAO.queryEntityBeansByFK(insId);
+        Set<String> set = new HashSet<>();
+        StringBuilder sb = new StringBuilder();
+        for (InvoiceinsItemBean importBean: items){
+            String spmc = importBean.getSpmc();
+            if (!org.apache.commons.lang.StringUtils.isEmpty(spmc) && !set.contains(spmc)){
+                sb.append(spmc).append(",");
+                set.add(spmc);
+            }
+        }
+        String spmc = sb.toString();
+        return org.apache.commons.lang.StringUtils.removeEnd(spmc, ",");
+    }
+
     /**
      * @return the commonDAO
      */

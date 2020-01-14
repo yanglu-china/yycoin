@@ -308,6 +308,13 @@ public class InvoiceinsBean implements Serializable
      * 计量单位
      */
     private String fpdw = "";
+
+
+    /**
+     * 开票品名
+     */
+    @Ignore
+    private String spmc = "";
     
 	//-----------------------------------distribution------------------------------
 	
@@ -1167,6 +1174,14 @@ public class InvoiceinsBean implements Serializable
         this.otherDescription = otherDescription;
     }
 
+    public String getSpmc() {
+        return spmc;
+    }
+
+    public void setSpmc(String spmc) {
+        this.spmc = spmc;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
@@ -1222,6 +1237,7 @@ public class InvoiceinsBean implements Serializable
                 ", invoiceFollowOut='" + invoiceFollowOut + '\'' +
                 ", packaged=" + packaged +
                 ", zzsInfo='" + zzsInfo + '\'' +
+                ", spmc='" + spmc + '\'' +
                 ", gfmc='" + gfmc + '\'' +
                 ", gfsh='" + gfsh + '\'' +
                 ", gfyh='" + gfyh + '\'' +
