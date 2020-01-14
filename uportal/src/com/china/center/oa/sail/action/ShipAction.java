@@ -32,6 +32,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import com.china.center.oa.finance.manager.InvoiceinsManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
@@ -215,6 +216,8 @@ public class ShipAction extends DispatchAction
     private ProductVSGiftDAO productVSGiftDAO = null;
 
     private ParameterDAO parameterDAO = null;
+
+    private InvoiceinsManager  invoiceinsManager = null;
 
     private final static String QUERYPACKAGE = "queryPackage";
 
@@ -5785,6 +5788,10 @@ public class ShipAction extends DispatchAction
             invoiceinsList = this.findInvoiceinsWithXNAndBatch(batchId);
         }
 
+        for (InvoiceinsVO invoiceinsVO: invoiceinsList){
+            String spmc = this.invoiceinsManager.concatSpmc(invoiceinsVO.getId());
+            invoiceinsVO.setSpmc(spmc);
+        }
         _logger.info("***invoiceinsList***"+invoiceinsList);
         request.setAttribute("invoiceList", invoiceinsList);
         request.setAttribute("packageId", packageId);
@@ -6825,5 +6832,9 @@ public class ShipAction extends DispatchAction
 
     public void setParameterDAO(ParameterDAO parameterDAO) {
         this.parameterDAO = parameterDAO;
+    }
+
+    public void setInvoiceinsManager(InvoiceinsManager invoiceinsManager) {
+        this.invoiceinsManager = invoiceinsManager;
     }
 }

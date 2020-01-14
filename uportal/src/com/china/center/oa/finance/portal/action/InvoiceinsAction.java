@@ -1545,7 +1545,7 @@ public class InvoiceinsAction extends DispatchAction
                     ws.addCell(new Label(j++ , i, element.getId()));
                     ws.addCell(new Label(j++ , i, element.getDutyName()));
                     ws.addCell(new Label(j++ , i, element.getHeadContent()));
-                    ws.addCell(new Label(j++ , i, this.concatSpmc(element.getId())));
+                    ws.addCell(new Label(j++ , i, this.invoiceinsManager.concatSpmc(element.getId())));
                     ws.addCell(new Label(j++ , i, element.getCustomerName()));
                     ws.addCell(new Label(j++ , i, element.getInvoiceName()));
                     ws.addCell(new Label(j++ , i, element.getZzsInfo()));
@@ -1596,20 +1596,6 @@ public class InvoiceinsAction extends DispatchAction
         return null;
     }
 
-    private String concatSpmc(String insId){
-        List<InvoiceinsItemBean> items = this.invoiceinsItemDAO.queryEntityBeansByFK(insId);
-        Set<String> set = new HashSet<>();
-        StringBuilder sb = new StringBuilder();
-        for (InvoiceinsItemBean importBean: items){
-            String spmc = importBean.getSpmc();
-            if (!org.apache.commons.lang.StringUtils.isEmpty(spmc) && !set.contains(spmc)){
-                sb.append(spmc).append(",");
-                set.add(spmc);
-            }
-        }
-        String spmc = sb.toString();
-        return org.apache.commons.lang.StringUtils.removeEnd(spmc, ",");
-    }
     
     /**
      * 向导页面从1到2
