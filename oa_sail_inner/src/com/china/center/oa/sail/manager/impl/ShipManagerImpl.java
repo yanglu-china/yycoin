@@ -3411,6 +3411,18 @@ public class ShipManagerImpl implements ShipManager
             return item.getProductName();
         }
 
+        //#887 直接从base表中找到对应的productImportId再关联读取
+        String baseId = item.getBaseId();
+        if(!StringTools.isNullOrNone(baseId)){
+            BaseBean baseBean = this.baseDAO.find(baseId);
+            if (baseBean!= null){
+                ProductImportBean productImportBean = this.productImportDAO.find(baseBean.getProductImportId());
+                if (productImportBean!= null){
+                    return productImportBean.getBankProductName();
+                }
+            }
+        }
+
         String productId = item.getProductId();
         ProductBean productBean = this.productDAO.find(productId);
         if (productBean!= null){
