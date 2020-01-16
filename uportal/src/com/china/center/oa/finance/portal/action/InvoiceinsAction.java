@@ -5688,9 +5688,10 @@ public class InvoiceinsAction extends DispatchAction
         AppResult result = new AppResult();
 
         this.invoiceinsManager.generateInvoiceins(packageId, insId, fphm);
+        this.invoiceinsDAO.updatePrintStatus();
+
         InsVSInvoiceNumBean ins = new InsVSInvoiceNumBean();
         ins.setInvoiceNum(fphm);
-
         //发票种类 0专票 2普票
         ins.setInsId("2");
         InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(insId);
@@ -5703,6 +5704,7 @@ public class InvoiceinsAction extends DispatchAction
             }
         }
         ins.setId(fpdm);
+
         result.setExtraObj(insId);
         result.setSuccessAndObj("OK", ins);
         String jsonstr = mapper.toJson(result);

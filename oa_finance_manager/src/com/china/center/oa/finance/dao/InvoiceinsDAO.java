@@ -34,4 +34,6 @@ public interface InvoiceinsDAO extends DAO<InvoiceinsBean, InvoiceinsVO>
                                                    PageSeparate page);
 
     String getLatestPrintSignal();
+
+    void updatePrintStatus();
 }

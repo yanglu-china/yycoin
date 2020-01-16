@@ -82,7 +82,7 @@ public class InvoiceinsDAOImpl extends BaseDAO<InvoiceinsBean, InvoiceinsVO> imp
 
 	@Override
 	public String getLatestPrintSignal() {
-		String sql = "select singal from t_center_billprint_status order by busitime desc";
+		String sql = "select singal from t_center_billprint_status where status=1 order by busitime desc";
 
 		final List<String> result = new ArrayList<>();
 		jdbcOperation.query(sql,
@@ -101,5 +101,11 @@ public class InvoiceinsDAOImpl extends BaseDAO<InvoiceinsBean, InvoiceinsVO> imp
 		} else{
 			return result.get(0);
 		}
+	}
+
+	@Override
+	public void updatePrintStatus() {
+		String sql = "update t_center_billprint_status set status=0";
+		this.jdbcOperation.update(sql);
 	}
 }
