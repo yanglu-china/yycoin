@@ -15,6 +15,7 @@
     <script src="../js/plugin/dialog/jquery.dialog.js"></script>
     <script src="../js/plugin/highlight/jquery.highlight.js"></script>
     <script src="../js/adapter.js"></script>
+    <script src="../js/json.js"></script>
     <script language="javascript">
          var a=new ActiveXObject("JSTAXS.Tax");
         /*开启金税盘*/
