@@ -3289,6 +3289,19 @@ public class ShipAction extends DispatchAction
             }
         }
 
+        //# 889
+        if("华夏银行信用卡呼叫中心".equals(vo.getCustomerName())){
+            vo.setMobile("****");
+        }
+
+        //#886
+        if("国华天猫旗舰店-线上".equals(vo.getCustomerName())){
+            request.setAttribute("stafferName", "国华");
+            request.setAttribute("phone","13101881710");
+        } else if("拍卖客户".equals(vo.getCustomerName())){
+            request.setAttribute("stafferName", "南方钱币");
+            request.setAttribute("phone","13101881710");
+        }
         request.setAttribute("total", totalAmount);
     }
 
