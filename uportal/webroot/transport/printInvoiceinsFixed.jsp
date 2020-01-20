@@ -4,7 +4,7 @@
 
 <html>
 <head>
-    <p:link title="打印发票" />
+    <p:link title="打印发票(固定间隔)" />
     <link href="../js/plugin/dialog/css/dialog.css" type="text/css" rel="stylesheet"/>
     <script src="../js/title_div.js"></script>
     <script src="../js/public.js"></script>
@@ -16,98 +16,95 @@
     <script src="../js/plugin/highlight/jquery.highlight.js"></script>
     <script src="../js/adapter.js"></script>
     <script src="../transport_js/print_invoiceins.js"></script>
-    <script src="../js/json.js"></script>
     <script language="javascript">
-        //开票
+        //打印开票
         function callbackGenerateInvoice(data)
         {
             // console.log(data);
             if (data.retMsg.toLowerCase() === "ok") {
                 OpenCard();
+                var j = 0;
                 var dataList = data.obj;
-                // console.log(dataList);
-                for (var j = 0; j < dataList.length; j++) {
-                    //查询打印机状态
-                    $.ajax({
-                        type: "POST",
-                        url: '../finance/invoiceins.do?method=queryPrintStatus',
-                        data: [], // serializes the form's elements.
-                        async: false,
-                        success: function(data2)
-                        {
-                            var json = JSON.parse(data2);
-                            if (json.retCode == 0){
-                                var key = dataList[j].invoiceId;
-                                // alert(key);
-                                var xml = dataList[j].payload;
-                                // console.log(xml);
-                                var response =  a.JsaeroKP(xml);
-                                // alert(response);
-                                //test code
-                                // var response = "<Result>0<fphm>111</fphm><fpdm>222</fpdm><fpzl>0</fpzl></Result>";
-                                var oDOM = null;
-                                var xmlDoc = null;
-                                if (typeof DOMParser != "undefined"){
-                                    var oParser = new DOMParser();
-                                    oDOM = oParser.parseFromString(response, "text/xml");
-                                    xmlDoc = oParser.parseFromString(xml,"text/xml");
-                                }else if (typeof ActiveXObject != "undefined") {
-                                    //IE8
-                                    oDOM = new ActiveXObject("Microsoft.XMLDOM");
-                                    oDOM.async = false;
-                                    oDOM.loadXML(response);
-
-                                    xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-                                    xmlDoc.async="false";
-                                    xmlDoc.loadXML(xml);
-                                    if (oDOM.parseError != 0) {
-                                        throw new Error("XML parsing error: " + oDOM.parseError.reason);
-                                    }
-                                }else {
-                                    alert("No XML parser available.");
-                                }
-
-                                var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
-                                if (result === '0'){
-                                    var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
-                                    var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
-                                    //打印发票
-                                    //发票种类
-                                     var fpzl = xmlDoc.getElementsByTagName("fpzl")[0].childNodes[0].nodeValue;
-                                    var fpzl = 0;
-                                    //打印标志（DYBZ）：0-打印发票；1-打印销货清单
-                                    var dybz = "0";
-                                    //打印模式（DYMS）：0-不弹框打印；1-弹框打印
-                                    var dyms = "0";
-                                     var response2 = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
-                                    // alert(result);
-                                    // var response2 = "<invinterface><Result>1</Result><ErrMsg>error!</ErrMsg></invinterface>";
-                                    var oDom2 = parseXml(response2);
-                                    var result2 = oDom2.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
-                                    if (result2 === '0'){
-                                        //更新发票号码
-                                        var packageId = $O('packageId').value;
-                                        $ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
-                                    } else{
-                                        var msg = oDom2.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
-                                        alert(msg);
-                                        break;
-                                    }
-                                }else{
-                                    var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
-                                    alert(msg);
-                                }
-                            } else{
-                                alert("打印机未就绪!");
-                            }
-                        }
-                    });
-
-                }
-                CloseCard();
+                var interval = parseInt(data.extraObj);
+                // console.log(interval);
+                dyfpLoop(dataList, interval, j);
+            } else{
+                alert(data.retMsg);
             }
         }
 
+        /**
+         * 打印发票循环(发票之间有延时)
+         * @param dataList
+         * @param j
+         */
+        function dyfpLoop (dataList, interval, j) {           //  create a loop function
+            setTimeout(function () {    //  call a 3s setTimeout when the loop is called
+                var key = dataList[j].invoiceId;
+                var xml = dataList[j].payload;
+                var response =  a.JsaeroKP(xml);
+                // for test
+                // var response = "<Result>0<fphm>111</fphm><fpdm>222</fpdm><fpzl>0</fpzl></Result>";
+                var oDOM = null;
+                var xmlDoc = null;
+                if (typeof DOMParser != "undefined"){
+                    var oParser = new DOMParser();
+                    oDOM = oParser.parseFromString(response, "text/xml");
+                    xmlDoc = oParser.parseFromString(xml,"text/xml");
+                }else if (typeof ActiveXObject != "undefined") {
+                    //IE8
+                    oDOM = new ActiveXObject("Microsoft.XMLDOM");
+                    oDOM.async = false;
+                    oDOM.loadXML(response);
+
+                    xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                    xmlDoc.async="false";
+                    xmlDoc.loadXML(xml);
+                    if (oDOM.parseError != 0) {
+                        throw new Error("XML parsing error: " + oDOM.parseError.reason);
+                    }
+                }else {
+                    alert("No XML parser available.");
+                }
+
+                var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
+//			alert(result);
+                if (result === '0'){
+                    var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
+                    var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
+                    //打印发票
+                    //发票种类
+                    var fpzl = xmlDoc.getElementsByTagName("fpzl")[0].childNodes[0].nodeValue;
+                    //打印标志（DYBZ）：0-打印发票；1-打印销货清单
+                    var dybz = "0";
+                    //打印模式（DYMS）：0-不弹框打印；1-弹框打印
+                    var dyms = "0";
+                    var response2 = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
+                    // var response2 = "<invinterface><Result>1</Result><ErrMsg>error!</ErrMsg></invinterface>";
+                    var oDom2 = parseXml(response2);
+                    var result2 = oDom2.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
+                    if (result2 === '0'){
+                        //更新发票号码
+                        var packageId = $O('packageId').value;
+                        $ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
+                    } else{
+                        var msg = oDom2.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
+                        alert(msg);
+                    }
+                }else{
+                    var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
+                    alert(msg);
+                }
+
+                j++;
+                if (j < dataList.length) {
+                    dyfpLoop(dataList, interval, j);
+                } else if(j == dataList.length){
+                    //打印完最后一张发票后关闭税控机
+                    CloseCard();
+                }
+            }, interval)
+        }
 
         function load()
         {
@@ -125,10 +122,11 @@
 <form name="formEntry" action="../sail/ship.do">
     <input type="hidden" name="method" value="printInvoiceins">
     <input type="hidden" value="1" name="firstLoad">
+    <input type="hidden" value="1" name="fixedInterval">
 
     <p:navigation
             height="22">
-        <td width="550" class="navigation">打印发票 &gt;&gt; </td>
+        <td width="550" class="navigation">打印发票(固定间隔) &gt;&gt; </td>
         <td width="85"></td>
     </p:navigation> <br>
 
@@ -212,4 +210,3 @@
 
 </body>
 </html>
-
