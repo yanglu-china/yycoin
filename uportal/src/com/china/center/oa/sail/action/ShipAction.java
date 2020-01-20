@@ -5810,7 +5810,12 @@ public class ShipAction extends DispatchAction
         request.setAttribute("packageId", packageId);
         request.setAttribute("batchId", batchId);
 
-        return mapping.findForward("printInvoiceins");
+        String fixedInterval = request.getParameter("fixedInterval");
+        if ("1".equals(fixedInterval)){
+            return mapping.findForward("printInvoiceinsFixed");
+        } else{
+            return mapping.findForward("printInvoiceins");
+        }
     }
     
     /**
@@ -6253,6 +6258,9 @@ public class ShipAction extends DispatchAction
         }
 
         result.setSuccessAndObj("OK", payloads);
+
+        int interval = this.parameterDAO.getInt("PRINT_INTERVAL");
+        result.setExtraObj(interval);
         String jsonstr = mapper.toJson(result);
         _logger.info(jsonstr);
         return JSONTools.writeResponse(response, jsonstr);
