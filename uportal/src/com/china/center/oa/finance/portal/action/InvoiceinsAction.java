@@ -5688,9 +5688,10 @@ public class InvoiceinsAction extends DispatchAction
         AppResult result = new AppResult();
 
         this.invoiceinsManager.generateInvoiceins(packageId, insId, fphm);
+        this.invoiceinsDAO.updatePrintStatus();
+
         InsVSInvoiceNumBean ins = new InsVSInvoiceNumBean();
         ins.setInvoiceNum(fphm);
-
         //发票种类 0专票 2普票
         ins.setInsId("2");
         InvoiceinsBean invoiceinsBean = this.invoiceinsDAO.find(insId);
@@ -5703,10 +5704,47 @@ public class InvoiceinsAction extends DispatchAction
             }
         }
         ins.setId(fpdm);
+
         result.setExtraObj(insId);
         result.setSuccessAndObj("OK", ins);
         String jsonstr = mapper.toJson(result);
         _logger.info("generateInvoiceins JSON***"+jsonstr);
+        return JSONTools.writeResponse(response, jsonstr);
+    }
+
+    /**
+     * #884 查询打印机状态
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward queryPrintStatus(ActionMapping mapping, ActionForm form,
+                                            HttpServletRequest request,
+                                            HttpServletResponse response)
+            throws ServletException
+    {
+        User user = (User) request.getSession().getAttribute("user");
+        _logger.info("***queryPrintStatus***");
+
+        JsonMapper mapper = new JsonMapper();
+        AppResult result = new AppResult();
+        result.setError("Fail");
+        for (int i=0;i<20;i++){
+            String signal = this.invoiceinsDAO.getLatestPrintSignal();
+            if ("FE970501B06645".equals(signal)){
+                result.setSuccess("OK");
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            }catch (Exception e){_logger.error(e,e);}
+        }
+
+        String jsonstr = mapper.toJson(result);
+        _logger.info("queryPrintStatus JSON***"+jsonstr);
         return JSONTools.writeResponse(response, jsonstr);
     }
 

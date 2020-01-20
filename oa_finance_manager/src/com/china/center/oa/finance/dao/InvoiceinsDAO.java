@@ -32,4 +32,8 @@ public interface InvoiceinsDAO extends DAO<InvoiceinsBean, InvoiceinsVO>
 
     List<InvoiceinsVO> queryInvoiceinsByConstion(ConditionParse condition,
                                                    PageSeparate page);
+
+    String getLatestPrintSignal();
+
+    void updatePrintStatus();
 }

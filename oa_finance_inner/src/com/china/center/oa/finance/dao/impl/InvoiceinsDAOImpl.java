@@ -9,6 +9,9 @@
 package com.china.center.oa.finance.dao.impl;
 
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.china.center.jdbc.inter.impl.BaseDAO;
@@ -17,7 +20,9 @@ import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.vo.InvoiceinsVO;
+import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
+import org.springframework.jdbc.core.RowCallbackHandler;
 
 
 /**
@@ -74,4 +79,33 @@ public class InvoiceinsDAOImpl extends BaseDAO<InvoiceinsBean, InvoiceinsVO> imp
         
         return sql;
     }
+
+	@Override
+	public String getLatestPrintSignal() {
+		String sql = "select singal from t_center_billprint_status where status=1 order by busitime desc";
+
+		final List<String> result = new ArrayList<>();
+		jdbcOperation.query(sql,
+				new Object[] {}, new RowCallbackHandler()
+				{
+					public void processRow(ResultSet rst)
+							throws SQLException
+					{
+                        result.add(rst.getString("singal"));
+					}
+				});
+
+		if (ListTools.isEmptyOrNull(result))
+		{
+			return "";
+		} else{
+			return result.get(0);
+		}
+	}
+
+	@Override
+	public void updatePrintStatus() {
+		String sql = "update t_center_billprint_status set status=0";
+		this.jdbcOperation.update(sql);
+	}
 }
