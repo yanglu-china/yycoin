@@ -2150,6 +2150,9 @@ public class ShipAction extends DispatchAction
                 //#858
                 request.setAttribute("title", "发货清单");
                 return mapping.findForward("printNhSpecialReceipt");
+            } else if(vo.getCustomerName().indexOf(ShipConstant.XMPY)!= -1){
+                //#892
+                return mapping.findForward("printXmypReceipt");
             }
             //#536
             else if("0".equals(batchPrint) && vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1){
@@ -2508,6 +2511,9 @@ public class ShipAction extends DispatchAction
                 //#858
                 request.setAttribute("title", "发货清单");
                 return mapping.findForward("printNhSpecialReceipt");
+            } else if(vo.getCustomerName().indexOf(ShipConstant.XMPY)!= -1){
+                //#892
+                return mapping.findForward("printXmypReceipt");
             } else{
                 //#635 更换发货单
                 if (customerName.contains("北京银行") || customerName.contains("中国银行")){
