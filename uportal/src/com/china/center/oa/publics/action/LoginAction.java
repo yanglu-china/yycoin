@@ -162,6 +162,8 @@ public class LoginAction extends DispatchAction
         boolean enc = false;
 
         StafferVO stafferBean = null;
+
+        String password = request.getParameter("password");
         // 正常登录
         if ("0".equals(loginType))
         {
@@ -176,7 +178,7 @@ public class LoginAction extends DispatchAction
         	
             String longinName = request.getParameter("userName");
 
-            String password = request.getParameter("password");
+//            String password = request.getParameter("password");
 
             String rand = request.getParameter("rand");
 
@@ -572,6 +574,10 @@ public class LoginAction extends DispatchAction
                 return mapping.findForward(e.getErrorContent());
             }
             handleLoginSucess(request, null, user);
+            //#898 强制修改默认密码
+            if ("123456789q~".equals(password)){
+                return mapping.findForward("defaultPassword");
+            }
         }
         else
         {
@@ -1205,6 +1211,11 @@ public class LoginAction extends DispatchAction
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "原密码错误");
         }
 
+
+        String modifyDefaultPassword = request.getParameter("modifyDefaultPassword");
+        if ("1".equals(modifyDefaultPassword)){
+            return mapping.findForward("index");
+        }
         return mapping.findForward("password");
     }
 
