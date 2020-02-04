@@ -35,4 +35,6 @@ public interface PrincipalshipDAO extends DAO<PrincipalshipBean, PrincipalshipBe
     List<PrincipalshipBean> listSYBSubPrincipalship();
 
     PrincipalshipBean findUniqueByName(String name);
+    
+    List<String> listSubOrgIds(String orgId);
 }

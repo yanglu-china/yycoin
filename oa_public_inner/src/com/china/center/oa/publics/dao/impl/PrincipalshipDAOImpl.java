@@ -57,6 +57,34 @@ public class PrincipalshipDAOImpl extends BaseDAO<PrincipalshipBean, Principalsh
 
         return result;
     }
+    
+    public List<String> listSubOrgIds(String orgId)
+    {
+    	List<String> result = new ArrayList<String>();
+    	StringBuffer buffer = new StringBuffer();
+    	buffer.append(" select a.*");
+    	buffer.append(" from t_center_principalship a"); 
+    	buffer.append(" LEFT JOIN t_center_principalship p1 on a.parentId=p1.ID");
+    	buffer.append(" LEFT JOIN t_center_principalship p2 on p1.parentId=p2.ID");
+    	buffer.append(" LEFT JOIN t_center_principalship p3 on p2.parentId=p3.ID");
+    	buffer.append(" LEFT JOIN t_center_principalship p4 on p3.parentId=p4.ID");
+    	buffer.append(" LEFT JOIN t_center_principalship p5 on p4.parentId=p5.ID");
+    	buffer.append(" where a.ID='"+orgId+"'");
+    	buffer.append(" or p1.ID='"+orgId+"'");
+    	buffer.append(" or p2.ID='"+orgId+"'");
+    	buffer.append(" or p3.ID='"+orgId+"'");
+    	buffer.append(" or p4.ID='"+orgId+"'");
+    	buffer.append(" or p5.ID='"+orgId+"'");
+    	
+        List<PrincipalshipBean> list = jdbcOperation.queryForListBySql(buffer.toString(), claz);
+
+        for (PrincipalshipBean principalshipBean : list)
+        {
+        	result.add(principalshipBean.getId());
+        }
+
+        return result;
+    }
 
     public PrincipalshipBean findUniqueByName(String name)
     {

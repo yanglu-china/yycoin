@@ -69,6 +69,7 @@ function closesd()
 	type="hidden" value="1" name="load"><input
     type="hidden" value="${selectMode}" name="selectMode"> 
     <input type=hidden value="${otype}" name="otype">
+    <input type=hidden value="${transferUserFlag}" name="transferUserFlag">
     <p:navigation
 	height="22">
 	<td width="550" class="navigation">用户管理</td>
