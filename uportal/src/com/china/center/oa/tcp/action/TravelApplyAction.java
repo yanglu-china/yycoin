@@ -637,7 +637,18 @@ public class TravelApplyAction extends DispatchAction
         {
         	condtion.addIntCondition("TcpApproveBean.status", "=", TcpConstanst.TCP_STATUS_APPLY_RELATE);
         }else{
-        	condtion.addCondition("TcpApproveBean.approverId", "=", user.getStafferId());
+        	//condtion.addCondition("TcpApproveBean.approverId", "=", user.getStafferId());
+            //#897 获得同一工号下项目
+            StringBuffer sqlBuffer = new StringBuffer();
+
+            sqlBuffer.append(" AND TcpApproveBean.approverId in");
+            sqlBuffer.append(" (");
+            sqlBuffer.append(" SELECT  staffer.id from t_center_oastaffer staffer where staffer.`code` in");
+            sqlBuffer.append(" (");
+            sqlBuffer.append(" select staffer1.`code` from t_center_oastaffer staffer1 where staffer1.id='"+user.getStafferId()+"'");
+            sqlBuffer.append(" )");
+            sqlBuffer.append(" )");
+        	condtion.addCondition(sqlBuffer.toString());
         }
         
         if ("0".equals(mode) || StringTools.isNullOrNone(mode)){
