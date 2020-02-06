@@ -41,59 +41,63 @@
         function dyfpLoop (dataList, interval, j) {           //  create a loop function
             setTimeout(function () {    //  call a 3s setTimeout when the loop is called
                 var key = dataList[j].invoiceId;
-                var xml = dataList[j].payload;
-                var response =  a.JsaeroKP(xml);
-                // for test
-                // var response = "<Result>0<fphm>111</fphm><fpdm>222</fpdm><fpzl>0</fpzl></Result>";
-                var oDOM = null;
-                var xmlDoc = null;
-                if (typeof DOMParser != "undefined"){
-                    var oParser = new DOMParser();
-                    oDOM = oParser.parseFromString(response, "text/xml");
-                    xmlDoc = oParser.parseFromString(xml,"text/xml");
-                }else if (typeof ActiveXObject != "undefined") {
-                    //IE8
-                    oDOM = new ActiveXObject("Microsoft.XMLDOM");
-                    oDOM.async = false;
-                    oDOM.loadXML(response);
+                var exist = sessionStorage.getItem(key);
+                if (!exist){
+                    sessionStorage.setItem(key, "1");
+                    var xml = dataList[j].payload;
+                    var response =  a.JsaeroKP(xml);
+                    // for test
+                    // var response = "<Result>0<fphm>111</fphm><fpdm>222</fpdm><fpzl>0</fpzl></Result>";
+                    var oDOM = null;
+                    var xmlDoc = null;
+                    if (typeof DOMParser != "undefined"){
+                        var oParser = new DOMParser();
+                        oDOM = oParser.parseFromString(response, "text/xml");
+                        xmlDoc = oParser.parseFromString(xml,"text/xml");
+                    }else if (typeof ActiveXObject != "undefined") {
+                        //IE8
+                        oDOM = new ActiveXObject("Microsoft.XMLDOM");
+                        oDOM.async = false;
+                        oDOM.loadXML(response);
 
-                    xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-                    xmlDoc.async="false";
-                    xmlDoc.loadXML(xml);
-                    if (oDOM.parseError != 0) {
-                        throw new Error("XML parsing error: " + oDOM.parseError.reason);
+                        xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                        xmlDoc.async="false";
+                        xmlDoc.loadXML(xml);
+                        if (oDOM.parseError != 0) {
+                            throw new Error("XML parsing error: " + oDOM.parseError.reason);
+                        }
+                    }else {
+                        alert("No XML parser available.");
                     }
-                }else {
-                    alert("No XML parser available.");
-                }
 
-                var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
+                    var result = oDOM.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
 //			alert(result);
-                if (result === '0'){
-                    var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
-                    var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
-                    //打印发票
-                    //发票种类
-                    var fpzl = xmlDoc.getElementsByTagName("fpzl")[0].childNodes[0].nodeValue;
-                    //打印标志（DYBZ）：0-打印发票；1-打印销货清单
-                    var dybz = "0";
-                    //打印模式（DYMS）：0-不弹框打印；1-弹框打印
-                    var dyms = "0";
-                    var response2 = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
-                    // var response2 = "<invinterface><Result>1</Result><ErrMsg>error!</ErrMsg></invinterface>";
-                    var oDom2 = parseXml(response2);
-                    var result2 = oDom2.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
-                    if (result2 === '0'){
-                        //更新发票号码
-                        var packageId = $O('packageId').value;
-                        $ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
-                    } else{
-                        var msg = oDom2.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
+                    if (result === '0'){
+                        var fphm = oDOM.getElementsByTagName("fphm")[0].childNodes[0].nodeValue;
+                        var fpdm = oDOM.getElementsByTagName("fpdm")[0].childNodes[0].nodeValue;
+                        //打印发票
+                        //发票种类
+                        var fpzl = xmlDoc.getElementsByTagName("fpzl")[0].childNodes[0].nodeValue;
+                        //打印标志（DYBZ）：0-打印发票；1-打印销货清单
+                        var dybz = "0";
+                        //打印模式（DYMS）：0-不弹框打印；1-弹框打印
+                        var dyms = "0";
+                        var response2 = a.JsaeroDY(fpzl,fpdm,fphm,dybz,dyms);
+                        // var response2 = "<invinterface><Result>1</Result><ErrMsg>error!</ErrMsg></invinterface>";
+                        var oDom2 = parseXml(response2);
+                        var result2 = oDom2.getElementsByTagName("Result")[0].childNodes[0].nodeValue;
+                        if (result2 === '0'){
+                            //更新发票号码
+                            var packageId = $O('packageId').value;
+                            $ajax('../finance/invoiceins.do?method=generateInvoiceins&insId='+key+'&fphm='+fphm+"&packageId="+packageId+"&fpdm="+fpdm, callbackUpdateInsNum);
+                        } else{
+                            var msg = oDom2.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
+                            alert(msg);
+                        }
+                    }else{
+                        var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
                         alert(msg);
                     }
-                }else{
-                    var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
-                    alert(msg);
                 }
 
                 j++;
@@ -109,6 +113,7 @@
         function load()
         {
             loadForm();
+            sessionStorage.clear();
         }
 
         function querys()
