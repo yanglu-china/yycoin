@@ -160,9 +160,24 @@ public class PackageItemBean implements Serializable
 
 	@Ignore
 	private String invoiceHead = "";
+
+
+	/**
+	 * #891
+	 */
+	@Ignore
+	private String recommendation = "";
 	
 	public PackageItemBean()
 	{
+	}
+
+	public String getRecommendation() {
+		return recommendation;
+	}
+
+	public void setRecommendation(String recommendation) {
+		this.recommendation = recommendation;
 	}
 
 	public String getItemType() {
