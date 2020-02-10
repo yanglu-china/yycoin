@@ -1083,15 +1083,22 @@ public interface OutConstant
     String HEAD_ZJGH = "GH";
 
     /**
-     * #611 钱币事业部孟君
+     * #611 孟君
      */
     int QB_INDUSTRY_MJ = 2;
     /**
-     * #611 钱币事业部非孟君
+     * 钱币事业部
      */
-    int QB_INDUSTRY_NOT_MJ = 1;
+    int QB_INDUSTRY_S = 3;
+    /**
+     * #899
+     * 终端事业部
+     */
+    int ZD_INDUSTRY_S = 4;
 
     String QB_PMKH= "钱币拍卖客户";
     String QB_INDUSTRY= "钱币事业部";
     String QB_INDUSTRY_ID = "633816253";
+    String ZD_INDUSTRY= "终端事业部";
+    String ZD_INDUSTRY_ID = "180301093";
 }
