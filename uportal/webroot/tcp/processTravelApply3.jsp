@@ -5,7 +5,7 @@
 
 <html>
 <head>
-<p:link title="对公业务申请" guid="true"/>
+<p:link title="个人借款申请" guid="true"/>
 <script language="JavaScript" src="../js/common.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/math.js"></script>
@@ -37,17 +37,17 @@ function processBean(opr)
     
     if ("0" == opr)
     {
-        msg = '确定通过对公业务申请?';
+        msg = '确定通过个人借款申请?';
     }
     
     if ("1" == opr)
     {
-        msg = '确定驳回到对公业务申请到初始?';
+        msg = '确定驳回到个人借款申请到初始?';
     }
     
     if ("2" == opr)
     {
-        msg = '确定驳回到对公业务申请到上一步?';
+        msg = '确定驳回到个人借款申请到上一步?';
     }
     
     if ($O('processer'))
@@ -167,7 +167,7 @@ function checkMoney()
 
 <p:navigation height="22">
 	<td width="550" class="navigation"><span style="cursor: pointer;"
-        onclick="javascript:history.go(-1)">待我处理</span> &gt;&gt; 对公业务申请处理</td>
+        onclick="javascript:history.go(-1)">待我处理</span> &gt;&gt; 个人借款申请处理</td>
     <td width="85"></td>
 </p:navigation> <br>
 
@@ -175,7 +175,7 @@ function checkMoney()
 
 	<p:title>
 		<td class="caption">
-		 <strong>对公业务申请及借款-${my:get('tcpStatus', bean.status)}</strong>
+		 <strong>个人借款申请及借款-${my:get('tcpStatus', bean.status)}</strong>
 		</td>
 	</p:title>
 
@@ -265,7 +265,7 @@ function checkMoney()
 	
     <p:title>
         <td class="caption">
-         <strong>对公业务费用明细</strong>
+         <strong>个人借款费用明细</strong>
         </td>
     </p:title>
 
