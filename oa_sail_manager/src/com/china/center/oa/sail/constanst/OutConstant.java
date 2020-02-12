@@ -1097,6 +1097,7 @@ public interface OutConstant
     int ZD_INDUSTRY_S = 4;
 
     String QB_PMKH= "钱币拍卖客户";
+    String ZD_PMKH= "终端拍卖客户";
     String QB_INDUSTRY= "钱币事业部";
     String QB_INDUSTRY_ID = "633816253";
     String ZD_INDUSTRY= "终端事业部";

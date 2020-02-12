@@ -1323,8 +1323,8 @@
                  String customerName = bean.getComunicatonBranchName();
                  int industry = this.checkStafferIndustry(bean.getStafferId2());
                  if (industry == OutConstant.QB_INDUSTRY_MJ){
-                     //当登录人是孟君，读取在售表BANK= 钱币拍卖客户
-                     productImportBean = this.outManager.getProductImportBean(OutConstant.QB_PMKH, null,
+                     //当登录人是孟君，读取在售表BANK= 终端拍卖客户
+                     productImportBean = this.outManager.getProductImportBean(OutConstant.ZD_PMKH, null,
                              bean.getProductCode(), null, bean.getCiticOrderDate(), bean.getOutType(), true);
                  } else if(industry == OutConstant.QB_INDUSTRY_S){
                      //钱币事业部
