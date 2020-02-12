@@ -3,7 +3,7 @@
 <%@include file="../common/common.jsp"%>
 <html>
 <head>
-<p:link title="对公业务申请" guid="true"/>
+<p:link title="个人借款申请" guid="true"/>
 <script language="JavaScript" src="../js/common.js"></script>
 <script language="JavaScript" src="../js/key.js"></script>
 <script language="JavaScript" src="../tcp_js/travelApply.js"></script>
@@ -23,7 +23,7 @@ function load()
 <input type="hidden" name="departmentId" value="${g_stafferBean.principalshipId}"> 
 
 <p:navigation height="22">
-    <td width="550" class="navigation">对公业务申请明细</td>
+    <td width="550" class="navigation">个人借款申请明细</td>
     <td width="85"></td>
 </p:navigation> <br>
 
@@ -31,7 +31,7 @@ function load()
 
     <p:title>
         <td class="caption">
-         <strong>对公业务</strong>
+         <strong>个人借款业务</strong>
         </td>
     </p:title>
 

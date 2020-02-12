@@ -2150,6 +2150,12 @@ public class ShipAction extends DispatchAction
                 //#858
                 request.setAttribute("title", "发货清单");
                 return mapping.findForward("printNhSpecialReceipt");
+            } else if(vo.getCustomerName().indexOf(ShipConstant.XMPY)!= -1){
+                //#892
+                return mapping.findForward("printXmypReceipt");
+            } else if(vo.getCustomerName().indexOf(ShipConstant.GSYH)!= -1){
+                //#891
+                return mapping.findForward("printGsReceipt");
             }
             //#536
             else if("0".equals(batchPrint) && vo.getCustomerName().indexOf(ShipConstant.GDNX) != -1){
@@ -2508,6 +2514,12 @@ public class ShipAction extends DispatchAction
                 //#858
                 request.setAttribute("title", "发货清单");
                 return mapping.findForward("printNhSpecialReceipt");
+            } else if(vo.getCustomerName().indexOf(ShipConstant.XMPY)!= -1){
+                //#892
+                return mapping.findForward("printXmypReceipt");
+            } else if(vo.getCustomerName().indexOf(ShipConstant.GSYH)!= -1){
+                //#891
+                return mapping.findForward("printGsReceipt");
             } else{
                 //#635 更换发货单
                 if (customerName.contains("北京银行") || customerName.contains("中国银行")){
@@ -2831,9 +2843,10 @@ public class ShipAction extends DispatchAction
 
     //#409 吉林银行联行网点
     private String[] getProductCodeAndLhwdFromOutImport(String outId){
-        String[] result = new String[2];
+        String[] result = new String[3];
         String productCode = "";
         String lhwd = "";
+        String recommendation = "";
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
         conditionParse.addCondition("OANo", "=", outId);
@@ -2845,12 +2858,14 @@ public class ShipAction extends DispatchAction
                 if (!StringTools.isNullOrNone(outImportBean.getProductCode())){
                     productCode = outImportBean.getProductCode();
                     lhwd = outImportBean.getLhwd();
+                    recommendation = outImportBean.getRecommendation();
                     break;
                 }
             }
         }
         result[0] = productCode;
         result[1] = lhwd;
+        result[2] = recommendation;
         return result;
     }
 
@@ -2973,10 +2988,11 @@ public class ShipAction extends DispatchAction
                 _logger.info("****ZS orders of ZY bank***********"+outId);
                 item.setProductCode("");
             }else{
-//                item.setProductCode(this.getProductCodeFromOutImport(outId));
                 String[] temp = this.getProductCodeAndLhwdFromOutImport(outId);
                 item.setProductCode(temp[0]);
                 item.setLhwd(temp[1]);
+                //#891
+                item.setRecommendation(temp[2]);
             }
         }
     }

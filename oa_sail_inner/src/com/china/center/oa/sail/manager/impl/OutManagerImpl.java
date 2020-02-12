@@ -13833,7 +13833,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info(String.format(template, customerName, branchName, productCode, channel, citicOrderDate, outType));
         String appName = ConfigLoader.getProperty("appName");
         String bank = "";
-        if (OutConstant.QB_PMKH.equals(customerName) || OutConstant.QB_INDUSTRY.equals(customerName)){
+        if (OutConstant.ZD_PMKH.equals(customerName) || OutConstant.QB_INDUSTRY.equals(customerName)
+                || OutConstant.ZD_INDUSTRY.equals(customerName)){
             bank = customerName;
         } else if (!StringTools.isNullOrNone(customerName)) {
             bank = StringUtils.subString(customerName, 4);

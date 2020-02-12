@@ -40,7 +40,6 @@
  import com.china.center.oa.sail.bean.*;
  import com.china.center.oa.sail.constanst.OutConstant;
  import com.china.center.oa.sail.constanst.OutImportConstant;
- import com.china.center.oa.sail.constanst.ShipConstant;
  import com.china.center.oa.sail.dao.*;
  import com.china.center.oa.sail.helper.OutImportHelper;
  import com.china.center.oa.sail.manager.OutImportManager;
@@ -55,8 +54,6 @@
  import org.apache.struts.action.ActionForward;
  import org.apache.struts.action.ActionMapping;
  import org.apache.struts.actions.DispatchAction;
- import org.joda.time.DateTime;
- import org.joda.time.Days;
 
  import javax.servlet.ServletException;
  import javax.servlet.http.HttpServletRequest;
@@ -1324,18 +1321,28 @@
                  ProductImportBean productImportBean = null;
                  //#505 中信导入、银行领样导入都读取Product import表
                  String customerName = bean.getComunicatonBranchName();
-                 int qbIndustry = this.belongToQbIndustry(bean.getStafferId2());
-                 if (qbIndustry == OutConstant.QB_INDUSTRY_MJ){
-                     //当登录人是孟君，读取在售表BANK= 钱币拍卖客户
-                     productImportBean = this.outManager.getProductImportBean(OutConstant.QB_PMKH, null,
+                 int industry = this.checkStafferIndustry(bean.getStafferId2());
+                 if (industry == OutConstant.QB_INDUSTRY_MJ){
+                     //当登录人是孟君，读取在售表BANK= 终端拍卖客户
+                     productImportBean = this.outManager.getProductImportBean(OutConstant.ZD_PMKH, null,
                              bean.getProductCode(), null, bean.getCiticOrderDate(), bean.getOutType(), true);
-                 } else if(qbIndustry == OutConstant.QB_INDUSTRY_NOT_MJ){
-                     //当登录人非孟君，读取在售表BANK= 钱币事业部
+                 } else if(industry == OutConstant.QB_INDUSTRY_S){
+                     //钱币事业部
                      try {
                          productImportBean = this.outManager.getProductImportBean(OutConstant.QB_INDUSTRY, null,
                                  bean.getProductCode(), null, bean.getCiticOrderDate(), bean.getOutType(), true);
                      }catch (MYException e){
                          //2020-01-30 如果职员挂靠钱币事业部，读取在售表BANK= 钱币事业部，没找到产品，就再根据客户银行找产品，如还没找到，就报错
+                         productImportBean = this.outManager.getProductImportBean(customerName, bean.getBranchName(),
+                                 bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType(), true);
+                     }
+                 } else if(industry == OutConstant.ZD_INDUSTRY_S){
+                     //终端事业部
+                     try {
+                         productImportBean = this.outManager.getProductImportBean(OutConstant.ZD_INDUSTRY, null,
+                                 bean.getProductCode(), null, bean.getCiticOrderDate(), bean.getOutType(), true);
+                     }catch (MYException e){
+                         //如果没找到产品，就再根据客户银行找产品，如还没找到，就报错
                          productImportBean = this.outManager.getProductImportBean(customerName, bean.getBranchName(),
                                  bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType(), true);
                      }
@@ -1474,23 +1481,27 @@
      }
 
      /**
-      * 是否钱币事业部
+      * 检查职员事业部
       * @param stafferId
       * @return
       */
-     private int belongToQbIndustry(String stafferId){
+     private int checkStafferIndustry(String stafferId){
          if (StringTools.isNullOrNone(stafferId)){
              return 0;
          } else{
              StafferVO sb = this.stafferDAO.findVO(stafferId);
-             if (sb!= null && OutConstant.QB_INDUSTRY_ID.equals(sb.getIndustryId())){
+             if (sb == null){
+                 return 0;
+             } else{
                  if ("孟君".equals(sb.getName())){
                      return OutConstant.QB_INDUSTRY_MJ;
+                 } else if (OutConstant.QB_INDUSTRY_ID.equals(sb.getIndustryId())){
+                    return OutConstant.QB_INDUSTRY_S;
+                 } else if (OutConstant.ZD_INDUSTRY_ID.equals(sb.getIndustryId())){
+                     return OutConstant.ZD_INDUSTRY_S;
                  } else{
-                     return OutConstant.QB_INDUSTRY_NOT_MJ;
+                     return 0;
                  }
-             } else{
-                 return 0;
              }
          }
      }

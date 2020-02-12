@@ -3,7 +3,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<p:link title="对公业务申请管理" link="true" guid="true" cal="true" dialog="true" />
+<p:link title="个人借款管理" link="true" guid="true" cal="true" dialog="true" />
 <script src="../js/common.js"></script>
 <script src="../js/public.js"></script>
 <script src="../js/pop.js"></script>
@@ -22,7 +22,7 @@ function load()
      preload();
      
      guidMap = {
-         title: '对公业务申请列表',
+         title: '个人借款申请列表',
          url: gurl + 'querySelfTravelApply&type=3',
          colModel : [
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status}>', width : 40, align: 'center'},

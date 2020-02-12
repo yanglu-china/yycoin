@@ -60,6 +60,7 @@
 					 redirect="true" />
 			<forward name="lock" path="/admin/lock.jsp" />
 			<forward name="password" path="/admin/modifyPassword.jsp" />
+			<forward name="defaultPassword" path="/admin/modifyDefaultPassword.jsp" />
 		</action>
 
 		<action path="/admin/logout"

@@ -220,7 +220,7 @@ public class StorageRelationDAOImpl extends BaseDAO<StorageRelationBean, Storage
     	sql = sql + "e.type AS depotpartType,f.name AS storageName,c.name AS productname,c.cost,c.plancost,c.code AS productcode,c.sailType,";
     	sql = sql + "b.price AS sailprice FROM T_CENTER_DEPOT a,T_CENTER_STORAGERALATION b,t_center_product c,T_CENTER_DEPOTPART e,T_CENTER_STORAGE f ,T_CENTER_PRINCIPALSHIP g ";
     	sql = sql + " WHERE a.STATUS=0  AND b.amount>0 AND b.productId=c.id  AND a.id=b.locationId AND b.depotpartId=e.id AND b.storageId=f.id AND a.industryId=g.ID ORDER BY b.storageId,b.productId )";
-    	sql = sql + "  bbb LEFT JOIN (SELECT * FROM t_center_price_config WHERE TYPE=1) d  ON bbb.productid=d.productid";
+    	sql = sql + "  bbb LEFT JOIN (SELECT * FROM t_center_price_config WHERE TYPE=1) d  ON bbb.productid=d.productid ORDER BY bbb.depotname,d.productid";
 
     	return jdbcOperation.queryForListBySql(sql, DepotExportData.class);
     }

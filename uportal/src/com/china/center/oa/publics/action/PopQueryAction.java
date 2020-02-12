@@ -275,7 +275,7 @@ public class PopQueryAction extends DispatchAction
     {
         _logger.info("**********rptQueryUser*********");
         CommonTools.saveParamers(request);
-
+        
         List<UserVO> list = null;
 
         if (PageSeparateTools.isFirstLoad(request))
@@ -301,6 +301,25 @@ public class PopQueryAction extends DispatchAction
             list = userDAO.queryEntityVOsByCondition(PageSeparateTools.getCondition(request,
                 RPTQUERYUSER), PageSeparateTools.getPageSeparate(request, RPTQUERYUSER));
         }
+
+        /*
+        List<UserVO> beanList = new ArrayList<UserVO>();
+        //#895 商务登录 过滤非营销中心人员
+        String transferUserFlag = request.getParameter("transferUserFlag");
+        _logger.debug("**********rptQueryUser********* transferUserFlag:"+transferUserFlag);
+        if("1".equals(transferUserFlag)){
+            //获取营销中心隶属部门代码
+            List<String> subOrgIds = principalshipDAO.listSubOrgIds("3");
+            //过滤
+            for(UserVO userVO : list){
+                if(subOrgIds.contains(userVO.getPrincipalshipId())){
+                    beanList.add(userVO);
+                }
+            }
+            list.clear();
+            list.addAll(beanList);
+        }
+        */
 
         for (UserVO userVO : list)
         {
@@ -332,6 +351,8 @@ public class PopQueryAction extends DispatchAction
             }
         }
 
+        String transferUserFlag = request.getParameter("transferUserFlag");
+        request.setAttribute("transferUserFlag", transferUserFlag);
 
         request.setAttribute("beanList", list);
 
@@ -785,6 +806,31 @@ public class PopQueryAction extends DispatchAction
         	condtion.addIntCondition("StafferBean.otype", "=", StafferConstant.OTYPE_SAIL);	
         	
         	condtion.addCondition("StafferBean.id", "<>", stafferId);
+        }
+
+        //#895 商务登录 过滤非营销中心人员
+        String transferUserFlag = request.getParameter("transferUserFlag");
+        _logger.debug("**********rptQueryUser********* transferUserFlag:"+transferUserFlag);
+        if("1".equals(transferUserFlag)){
+            final String orgId = "3";
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(" AND StafferBean.principalshipId in");
+            buffer.append(" (");
+            buffer.append(" select a.ID");
+            buffer.append(" from t_center_principalship a");
+            buffer.append(" LEFT JOIN t_center_principalship p1 on a.parentId=p1.ID");
+            buffer.append(" LEFT JOIN t_center_principalship p2 on p1.parentId=p2.ID");
+            buffer.append(" LEFT JOIN t_center_principalship p3 on p2.parentId=p3.ID");
+            buffer.append(" LEFT JOIN t_center_principalship p4 on p3.parentId=p4.ID");
+            buffer.append(" LEFT JOIN t_center_principalship p5 on p4.parentId=p5.ID");
+            buffer.append(" where a.ID='"+orgId+"'");
+            buffer.append(" or p1.ID='"+orgId+"'");
+            buffer.append(" or p2.ID='"+orgId+"'");
+            buffer.append(" or p3.ID='"+orgId+"'");
+            buffer.append(" or p4.ID='"+orgId+"'");
+            buffer.append(" or p5.ID='"+orgId+"'");
+            buffer.append(" )");
+            condtion.addCondition(buffer.toString());
         }
     }
 

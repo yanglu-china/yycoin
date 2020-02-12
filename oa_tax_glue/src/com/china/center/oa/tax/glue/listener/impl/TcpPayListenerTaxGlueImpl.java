@@ -11,6 +11,10 @@ package com.china.center.oa.tax.glue.listener.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
@@ -41,18 +45,18 @@ import com.china.center.oa.tax.dao.FinanceMonthDAO;
 import com.china.center.oa.tax.dao.TaxDAO;
 import com.china.center.oa.tax.helper.FinanceHelper;
 import com.china.center.oa.tax.manager.FinanceManager;
-import com.china.center.oa.tcp.bean.*;
+import com.china.center.oa.tcp.bean.AbstractTcpBean;
+import com.china.center.oa.tcp.bean.ExpenseApplyBean;
+import com.china.center.oa.tcp.bean.RebateApplyBean;
+import com.china.center.oa.tcp.bean.TcpShareBean;
+import com.china.center.oa.tcp.bean.TravelApplyBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
-import com.china.center.oa.tcp.dao.TcpShareDAO;
 import com.china.center.oa.tcp.listener.TcpPayListener;
 import com.china.center.oa.tcp.vo.TcpShareVO;
 import com.china.center.oa.tcp.vo.TravelApplyVO;
 import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -449,7 +453,8 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
             throw new MYException("数据错误,请确认操作");
         }
 
-        String name = "出差申请借款:" + bean.getId() + '.';
+        String name = "申请借款:" + bean.getId() + '.';
+        int beanType = bean.getType();
 
         for(OutBillBean outBillBean: outBillList){
             FinanceItemBean itemIn = new FinanceItemBean();
@@ -463,9 +468,20 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
             itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
 
             FinanceHelper.copyFinanceItem(financeBean, itemIn);
-
+            
+            TaxBean inTax = null;
+            
+            //add by zhangxian 2020-02-12
+            //增加单据类型的判断,20为对公借款,科目为预付账款
+            if(beanType == 20)
+            {
+            	inTax = taxDAO.findByUnique(TaxItemConstanst.PREPAID_ACCOUNTS);
+            }
             // 其他应收款_备用金(部门/职员)
-            TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.OTHER_RECEIVE_BORROW);
+            else
+            {
+            	inTax = taxDAO.findByUnique(TaxItemConstanst.OTHER_RECEIVE_BORROW);
+            }
 
             if (inTax == null)
             {

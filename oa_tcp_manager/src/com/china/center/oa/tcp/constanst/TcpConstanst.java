@@ -385,9 +385,9 @@ public interface TcpConstanst
     int TCP_APPLYTYPE_STOCK = 2;
 
     /**
-     * 对公业务申请及借款
+     * 个人借款申请
      */
-    @Defined(key = "tcpType", value = "对公业务申请及借款")
+    @Defined(key = "tcpType", value = "个人借款申请")
     int TCP_APPLYTYPE_PUBLIC = 3;
     
     /**
@@ -461,6 +461,12 @@ public interface TcpConstanst
      */
     @Defined(key = "tcpType", value = "特殊流程报销")
     int TCP_EXPENSETYPE_SPECIAL = 19;
+    
+    /**
+     * 对公业务申请
+     */
+    @Defined(key = "tcpType", value = "对公业务申请")
+    int TCP_EXPENSETYPE_COMMON_20 = 20;
     
     /**
      * 返利

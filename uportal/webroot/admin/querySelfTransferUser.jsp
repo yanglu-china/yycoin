@@ -101,7 +101,7 @@ function eLogin()
 
 function $selectStaffer()
 {   
-    window.common.modal('../admin/pop.do?method=rptQueryUser&otype=99&load=1&selectMode=1');
+    window.common.modal('../admin/pop.do?method=rptQueryUser&otype=99&load=1&selectMode=1&transferUserFlag=1');
 }
 
 function getUsers(oos)

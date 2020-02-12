@@ -9294,8 +9294,10 @@ public class ParentOutAction extends DispatchAction
 			if (!String.valueOf(OutConstant.VTYPE_SPECIAL).equals(vtype))
 			{
 				// 只能查询自己的
-				condtion.addCondition("OutBean.STAFFERID", "=",
-						user.getStafferId());
+//				condtion.addCondition("OutBean.STAFFERID", "=",
+//						user.getStafferId());
+
+				this.getByStafferCode(condtion, user.getStafferId());
 			}
 		}
 
@@ -10215,7 +10217,8 @@ public class ParentOutAction extends DispatchAction
 					OutConstant.OUTTYPE_OUT_CONSIGN);*/
 
 			// 只能退自己的(移交的通过流程)
-			condtion.addCondition("OutBean.stafferId", "=", user.getStafferId());
+//			condtion.addCondition("OutBean.stafferId", "=", user.getStafferId());
+			this.getByStafferCode(condtion, user.getStafferId());
 		}
 		// 查询没有结束的个人领样 含巡展
 		else if ("9".equals(queryType))
@@ -10224,7 +10227,8 @@ public class ParentOutAction extends DispatchAction
 			
 			condtion.addCondition("and OutBean.status in (3, 4)");
 
-			condtion.addCondition("OutBean.stafferId", "=", user.getStafferId());
+//			condtion.addCondition("OutBean.stafferId", "=", user.getStafferId());
+			this.getByStafferCode(condtion, user.getStafferId());
 
 			request.setAttribute("outType", OutConstant.OUTTYPE_OUT_SWATCH);
 
@@ -10297,6 +10301,20 @@ public class ParentOutAction extends DispatchAction
 		request.getSession().setAttribute("ppmap", queryOutCondtionMap);
 
 		return condtion;
+	}
+
+	//#894 获得同一工号下销售单
+	private void getByStafferCode(ConditionParse condtion, String stafferId){
+		StringBuffer sqlBuffer = new StringBuffer();
+
+		sqlBuffer.append(" AND OutBean.STAFFERID in");
+		sqlBuffer.append(" (");
+		sqlBuffer.append(" SELECT  staffer.id from t_center_oastaffer staffer where staffer.`code` in");
+		sqlBuffer.append(" (");
+		sqlBuffer.append(" select staffer1.`code` from t_center_oastaffer staffer1 where staffer1.id='"+stafferId+"'");
+		sqlBuffer.append(" )");
+		sqlBuffer.append(" )");
+		condtion.addCondition(sqlBuffer.toString());
 	}
 
 	/**

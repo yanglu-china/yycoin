@@ -3,7 +3,7 @@
 <%@include file="../common/common.jsp"%>
 <html>
 <head>
-<p:link title="对公业务申请" guid="true"/>
+<p:link title="个人借款申请" guid="true"/>
 <script language="JavaScript" src="../js/string.js"></script>
 <script language="JavaScript" src="../js/compatible.js"></script>
 <script language="JavaScript" src="../js/common.js"></script>
@@ -29,17 +29,17 @@ function addBean(opr)
     
     if ("0" == opr)
     {
-        submit('确定修改对公业务申请?', null, checks);
+        submit('确定修改个人借款申请?', null, checks);
     }
     
     if ("1" == opr)
     {
-        submit('确定提交对公业务申请?', null, checks);
+        submit('确定提交个人借款申请?', null, checks);
     }
     
     if ("2" == opr)
     {
-        submit('稽核修改费用,每项费用只能减少.确定提交稽核修改对公业务申请?', null, checks);
+        submit('稽核修改费用,每项费用只能减少.确定提交稽核修改个人借款申请?', null, checks);
     }
 }
 
@@ -115,7 +115,7 @@ function getOpeningBank(oos)
 <input type="hidden" name="stype" value="${g_stafferBean.otype}">
 <input type="hidden" name="provinceId" value="">
 <p:navigation height="22">
-	<td width="550" class="navigation">对公业务申请</td>
+	<td width="550" class="navigation">个人借款申请</td>
 	<td width="85"></td>
 </p:navigation> <br>
 
@@ -123,7 +123,7 @@ function getOpeningBank(oos)
 
 	<p:title>
 		<td class="caption">
-		 <strong>对公业务申请及借款更新</strong>
+		 <strong>个人借款申请及借款更新</strong>
 		</td>
 	</p:title>
 
@@ -182,7 +182,7 @@ function getOpeningBank(oos)
 	
     <p:title>
         <td class="caption">
-         <strong>对公业务费用明细</strong>
+         <strong>个人借款费用明细</strong>
         </td>
     </p:title>
 

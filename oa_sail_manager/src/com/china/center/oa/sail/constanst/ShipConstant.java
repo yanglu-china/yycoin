@@ -139,6 +139,8 @@ public interface ShipConstant
 	String GDNX = "广东农信";
 	
 	String NYYH = "农业银行";
+	String XMPY = "永银文创博物馆店-小米有品";
+    String GSYH = "甘肃银行";
 	
 	String SHIPPING_ADDRESS = "地址：江苏省南京市江宁区将军大道558号";
 }
