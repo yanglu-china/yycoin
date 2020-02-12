@@ -169,6 +169,11 @@ public interface TaxItemConstanst
     String OTHER_RECEIVE_BORROW = "1133-01";
     
     /**
+     * 预付账款
+     */
+    String PREPAID_ACCOUNTS= "1151";
+    
+    /**
      * 资金往来手续费
      */
     String HAND_BANK_FINA = "5506-07";
