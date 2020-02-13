@@ -130,6 +130,12 @@ public interface FinanceConstant
     @Defined(key = "inbillType", value = "钱生钱")
     int INBILL_TYPE_QSQ = 10;
 
+    /**
+     * 银行卡利息收入
+     */
+    @Defined(key = "inbillType", value = "银行卡利息收入")
+    int INBILL_TYPE_YHKLXSR = 11;
+
 
     /**
      * 采购退款
