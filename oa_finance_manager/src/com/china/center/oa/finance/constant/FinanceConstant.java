@@ -536,13 +536,13 @@ public interface FinanceConstant
      * 税金-城市维护建设费
      */
     @Defined(key = "outbillType", value = "税金-城市维护建设费")
-    int OUTBILL_TYPE_SJWHF = 43;
+    int OUTBILL_TYPE_SJWHF = 44;
 
     /**
      * 税金-消费税
      */
     @Defined(key = "outbillType", value = "税金-消费税")
-    int OUTBILL_TYPE_SJXFS = 44;
+    int OUTBILL_TYPE_SJXFS = 45;
 
     
     /**

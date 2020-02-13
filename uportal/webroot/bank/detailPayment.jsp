@@ -128,11 +128,11 @@ function clearValues()
                 ${bean.stafferName}
             </p:cell>
 
-			<p:cell title="关联客户">
+			<p:cell title="关联客户" >
                 ${bean.customerName}
             </p:cell>
 
-            <p:pro field="posTerminalNumber" cell="2" />
+            <p:pro field="posTerminalNumber" />
 
 			<p:pro field="description" cell="2" />
 			
