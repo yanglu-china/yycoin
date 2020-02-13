@@ -74,6 +74,9 @@ public class PaymentBean implements Serializable
     @Html(title = "类型", type = Element.SELECT, must = true)
     private int type = FinanceConstant.PAYMENT_PAY_PUBLIC;
 
+    @Html(title = "导款类型", type = Element.SELECT, must = true)
+    private int dkType = FinanceConstant.INBILL_TYPE_SAILOUT;
+
     /**
      * 当回款申请关联的时候状态就是已认领了(设计中缺少中间状态)
      */
@@ -606,99 +609,51 @@ public class PaymentBean implements Serializable
         this.posTerminalNumber = posTerminalNumber;
     }
 
+    public int getDkType() {
+        return dkType;
+    }
+
+    public void setDkType(int dkType) {
+        this.dkType = dkType;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
-     * 
+     *
      * @return a <code>String</code> representation of this object.
      */
-    public String toString()
-    {
-        final String TAB = ",";
-
-        StringBuilder retValue = new StringBuilder();
-
-        retValue
-            .append("PaymentBean ( ")
-            .append(super.toString())
-            .append(TAB)
-            .append("id = ")
-            .append(this.id)
-            .append(TAB)
-            .append("name = ")
-            .append(this.name)
-            .append(TAB)
-            .append("fromer = ")
-            .append(this.fromer)
-            .append(TAB)
-            .append("bankId = ")
-            .append(this.bankId)
-            .append(TAB)
-            .append("stafferId = ")
-            .append(this.stafferId)
-            .append(TAB)
-            .append("destStafferId = ")
-            .append(this.destStafferId)
-            .append(TAB)
-            .append("customerId = ")
-            .append(this.customerId)
-            .append(TAB)
-            .append("refId = ")
-            .append(this.refId)
-            .append(TAB)
-            .append("batchId = ")
-            .append(this.batchId)
-            .append(TAB)
-            .append("type = ")
-            .append(this.type)
-            .append(TAB)
-            .append("status = ")
-            .append(this.status)
-            .append(TAB)
-            .append("useall = ")
-            .append(this.useall)
-            .append(TAB)
-            .append("useMoney = ")
-            .append(this.useMoney)
-            .append(TAB)
-            .append("money = ")
-            .append(this.money)
-            .append(TAB)
-            .append("bakmoney = ")
-            .append(this.bakmoney)
-            .append(TAB)
-            .append("handling = ")
-            .append(this.handling)
-            .append(TAB)
-            .append("receiveTime = ")
-            .append(this.receiveTime)
-            .append(TAB)
-            .append("logTime = ")
-            .append(this.logTime)
-            .append(TAB)
-            .append("updateTime = ")
-            .append(this.updateTime)
-            .append(TAB)
-            .append("checks1 = ")
-            .append(this.checks1)
-            .append(TAB)
-            .append("checks2 = ")
-            .append(this.checks2)
-            .append(TAB)
-            .append("checks3 = ")
-            .append(this.checks3)
-            .append(TAB)
-            .append("checkStatus = ")
-            .append(this.checkStatus)
-            .append(TAB)
-            .append("description = ")
-            .append(this.description)
-            .append(TAB)
-            .append("fromerNo = ")
-            .append(this.fromerNo)
-            .append(TAB)            
-            .append(" )");
-
-        return retValue.toString();
+    @Override
+    public String toString() {
+        return "PaymentBean{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", fromer='" + fromer + '\'' +
+                ", bankId='" + bankId + '\'' +
+                ", stafferId='" + stafferId + '\'' +
+                ", destStafferId='" + destStafferId + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", refId='" + refId + '\'' +
+                ", batchId='" + batchId + '\'' +
+                ", type=" + type +
+                ", dkType=" + dkType +
+                ", status=" + status +
+                ", useall=" + useall +
+                ", useMoney=" + useMoney +
+                ", money=" + money +
+                ", bakmoney=" + bakmoney +
+                ", handling=" + handling +
+                ", receiveTime='" + receiveTime + '\'' +
+                ", logTime='" + logTime + '\'' +
+                ", updateTime='" + updateTime + '\'' +
+                ", checks1='" + checks1 + '\'' +
+                ", checks2='" + checks2 + '\'' +
+                ", checks3='" + checks3 + '\'' +
+                ", checkStatus=" + checkStatus +
+                ", description='" + description + '\'' +
+                ", fromerNo='" + fromerNo + '\'' +
+                ", ctype=" + ctype +
+                ", posTerminalNumber='" + posTerminalNumber + '\'' +
+                '}';
     }
 
 }

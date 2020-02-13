@@ -116,6 +116,10 @@ function clearValues()
 				<p:option type="paymentType" />
 			</p:pro>
 
+			<p:pro field="dkType">
+				<p:option type="inbillType" />
+			</p:pro>
+
 			<p:pro field="money" />
 
 			<p:pro field="handling" />

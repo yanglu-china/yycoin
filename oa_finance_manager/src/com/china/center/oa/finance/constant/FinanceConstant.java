@@ -67,37 +67,37 @@ public interface FinanceConstant
     /**
      * 销售收入
      */
-    @Defined(key = "inbillType", value = "销售收入")
+    @Defined(key = "inbillType", value = "销售回款")
     int INBILL_TYPE_SAILOUT = 0;
 
     /**
      * 银行贷款(The loan is interest free)
      */
-    @Defined(key = "inbillType", value = "银行贷款")
+//    @Defined(key = "inbillType", value = "银行贷款")
     int INBILL_TYPE_LOAN = 1;
 
     /**
      * 卖出公司资产
      */
-    @Defined(key = "inbillType", value = "卖出公司资产")
+//    @Defined(key = "inbillType", value = "卖出公司资产")
     int INBILL_TYPE_ASSETS = 2;
 
     /**
      * 利息
      */
-    @Defined(key = "inbillType", value = "利息")
+//    @Defined(key = "inbillType", value = "利息")
     int INBILL_TYPE_INTEREST = 3;
 
     /**
      * 坏账
      */
-    @Defined(key = "inbillType", value = "销售坏账")
+//    @Defined(key = "inbillType", value = "销售坏账")
     int INBILL_TYPE_BADOUT = 4;
 
     /**
      * 预收转费用
      */
-    @Defined(key = "inbillType", value = "预收转费用")
+//    @Defined(key = "inbillType", value = "预收转费用")
     int INBILL_TYPE_FEE = 5;
 
     /**
@@ -105,6 +105,31 @@ public interface FinanceConstant
      */
     @Defined(key = "inbillType", value = "个人还款")
     int INBILL_TYPE_UNBORROW = 6;
+
+    /**
+     * 贷款-本金
+     */
+    @Defined(key = "inbillType", value = "贷款-本金")
+    int INBILL_TYPE_DKBJ = 7;
+
+    /**
+     * 理财-本金
+     */
+    @Defined(key = "inbillType", value = "理财-本金")
+    int INBILL_TYPE_LCBJ = 8;
+
+    /**
+     * 理财-收益
+     */
+    @Defined(key = "inbillType", value = "理财-收益")
+    int INBILL_TYPE_LCSY = 9;
+
+    /**
+     * 钱生钱
+     */
+    @Defined(key = "inbillType", value = "钱生钱")
+    int INBILL_TYPE_QSQ = 10;
+
 
     /**
      * 采购退款
@@ -293,31 +318,31 @@ public interface FinanceConstant
     /**
      * 买固定资产
      */
-    @Defined(key = "outbillType", value = "买固定资产")
+//    @Defined(key = "outbillType", value = "买固定资产")
     int OUTBILL_TYPE_BUY_ASSET = 1;
 
     /**
      * 买低值用品(买办公品)
      */
-    @Defined(key = "outbillType", value = "买办公低值品")
+//    @Defined(key = "outbillType", value = "买办公低值品")
     int OUTBILL_TYPE_BUY_COMMON = 2;
 
     /**
      * 买无形资产
      */
-    @Defined(key = "outbillType", value = "买无形资产")
+//    @Defined(key = "outbillType", value = "买无形资产")
     int OUTBILL_TYPE_BUY_ABS = 3;
 
     /**
      * 支付代摊费用
      */
-    @Defined(key = "outbillType", value = "支付代摊费用")
+//    @Defined(key = "outbillType", value = "支付代摊费用")
     int OUTBILL_TYPE_PAY_APPORTION = 4;
 
     /**
      * 长期股权投资
      */
-    @Defined(key = "outbillType", value = "长期股权投资")
+//    @Defined(key = "outbillType", value = "长期股权投资")
     int OUTBILL_TYPE_BUY_STOCK = 5;
 
     /**
@@ -329,13 +354,13 @@ public interface FinanceConstant
     /**
      * 押金和定金
      */
-    @Defined(key = "outbillType", value = "押金和定金")
+//    @Defined(key = "outbillType", value = "押金和定金")
     int OUTBILL_TYPE_CASH = 7;
 
     /**
      * 费用报销
      */
-    @Defined(key = "outbillType", value = "费用报销")
+//    @Defined(key = "outbillType", value = "费用报销")
     int OUTBILL_TYPE_WIPEOUT = 8;
 
     /**
@@ -359,7 +384,7 @@ public interface FinanceConstant
     /**
      * 资金-销售费用
      */
-    @Defined(key = "outbillType", value = "资金-销售费用")
+//    @Defined(key = "outbillType", value = "资金-销售费用")
     int OUTBILL_TYPE_SALECHARGE = 11;
     
     /**
@@ -377,51 +402,142 @@ public interface FinanceConstant
     /**
      * 采购过账
      */
-    @Defined(key = "outbillType", value = "采购过账")
+//    @Defined(key = "outbillType", value = "采购过账")
     int OUTBILL_TYPE_CGGZ = 17;
 
     /**
      * 永银付款
      */
-    @Defined(key = "outbillType", value = "永银付款")
+//    @Defined(key = "outbillType", value = "永银付款")
     int OUTBILL_TYPE_YYPAY = 18;
 
     /**
      * 金银料来款
      */
-    @Defined(key = "outbillType", value = "金银料来款")
+//    @Defined(key = "outbillType", value = "金银料来款")
     int OUTBILL_TYPE_MATERIAL_IN = 19;
 
     /**
      * 回购
      */
-    @Defined(key = "outbillType", value = "回购")
+//    @Defined(key = "outbillType", value = "回购")
     int OUTBILL_TYPE_RE_PURCHASE = 20;
 
     /**
      * 集邮走账
      */
-    @Defined(key = "outbillType", value = "集邮走账")
+//    @Defined(key = "outbillType", value = "集邮走账")
     int OUTBILL_TYPE_STAMP = 21;
 
     /**
      * 拍卖
      */
-    @Defined(key = "outbillType", value = "拍卖")
+//    @Defined(key = "outbillType", value = "拍卖")
     int OUTBILL_TYPE_AUCTION = 22;
 
     /**
      * 特殊订单款
      */
-    @Defined(key = "outbillType", value = "特殊订单款")
+//    @Defined(key = "outbillType", value = "特殊订单款")
     int OUTBILL_TYPE_SPECIAL = 23;
 
 
     /**
      * 离职人员报销
      */
-    @Defined(key = "outbillType", value = "离职人员报销")
+//    @Defined(key = "outbillType", value = "离职人员报销")
     int OUTBILL_TYPE_LEAVE_EXPENSE = 24;
+
+    /**
+     * 社保
+     */
+    @Defined(key = "outbillType", value = "社保")
+    int OUTBILL_TYPE_SB = 30;
+
+    /**
+     * 公积金
+     */
+    @Defined(key = "outbillType", value = "公积金")
+    int OUTBILL_TYPE_GJJ = 31;
+
+    /**
+     * 贷款-本金
+     */
+    @Defined(key = "outbillType", value = "贷款-本金")
+    int OUTBILL_TYPE_DKBJ = 32;
+
+    /**
+     * 贷款-利息（月付）
+     */
+    @Defined(key = "outbillType", value = "贷款-利息（月付）")
+    int OUTBILL_TYPE_DKLXYF = 33;
+
+    /**
+     * 贷款-利息（季付）
+     */
+    @Defined(key = "outbillType", value = "贷款-利息（季付）")
+    int OUTBILL_TYPE_DKLXJF = 34;
+
+    /**
+     * 理财-本金
+     */
+    @Defined(key = "outbillType", value = "理财-本金")
+    int OUTBILL_TYPE_LCBJ = 35;
+
+    /**
+     * 钱生钱
+     */
+    @Defined(key = "outbillType", value = "钱生钱")
+    int OUTBILL_TYPE_QSQ = 37;
+
+    /**
+     * 税金-所得税
+     */
+    @Defined(key = "outbillType", value = "税金-所得税")
+    int OUTBILL_TYPE_SJSDS = 38;
+
+    /**
+     * 税金-增值税
+     */
+    @Defined(key = "outbillType", value = "税金-增值税")
+    int OUTBILL_TYPE_SJZZS = 39;
+
+    /**
+     * 税金-个税（旧货）
+     */
+    @Defined(key = "outbillType", value = "税金-个税（旧货）")
+    int OUTBILL_TYPE_SJGSJH = 40;
+
+    /**
+     * 税金-个税（工资）
+     */
+    @Defined(key = "outbillType", value = "税金-个税（工资）")
+    int OUTBILL_TYPE_SJGSGZ = 41;
+
+    /**
+     * 税金-印花税
+     */
+    @Defined(key = "outbillType", value = "税金-印花税")
+    int OUTBILL_TYPE_SJYHS = 42;
+
+    /**
+     * 税金-教育附加
+     */
+    @Defined(key = "outbillType", value = "税金-教育附加")
+    int OUTBILL_TYPE_SJJYFJ = 43;
+
+    /**
+     * 税金-城市维护建设费
+     */
+    @Defined(key = "outbillType", value = "税金-城市维护建设费")
+    int OUTBILL_TYPE_SJWHF = 43;
+
+    /**
+     * 税金-消费税
+     */
+    @Defined(key = "outbillType", value = "税金-消费税")
+    int OUTBILL_TYPE_SJXFS = 44;
+
     
     /**
      * 转账

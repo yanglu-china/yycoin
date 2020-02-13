@@ -316,6 +316,10 @@ function load()
             <p:cell title="类型">
                ${my:get('paymentType', bean.type)}
             </p:cell>
+
+            <p:cell title="导款类型">
+                ${my:get('inbillType', bean.dkType)}
+            </p:cell>
             
             <p:cell title="金额">
                ${my:formatNum(bean.money)}
