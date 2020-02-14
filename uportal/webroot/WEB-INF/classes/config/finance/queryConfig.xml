@@ -65,6 +65,12 @@
             <type>select</type>
             <option>$paymentType</option>
         </condtion>
+        <condtion name="dkType" caption="导款类型">
+            <opr>=</opr>
+            <datatype>1</datatype>
+            <type>select</type>
+            <option>$inbillType</option>
+        </condtion>
         <condtion name="customerName" filed="name" caption="客户" pfix="UnitViewBean">
             <opr>like</opr>
             <type>text</type>

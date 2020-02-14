@@ -136,9 +136,73 @@ public class PaymentListenerTaxGlueImpl implements PaymentListener
             createAddItem2(user, bean, bank, financeBean, itemList);
         }
 
+//        //销售回款&采购退款
+//        int dkType = bean.getDkType();
+//        if (dkType == FinanceConstant.INBILL_TYPE_SAILOUT ||
+//                dkType == FinanceConstant.INBILL_TYPE_PURCHASEBACK){
+//            // 借:银行科目 贷:银行对应的暂记户科目
+//            createAddItem1(user, bean, bank, financeBean, itemList);
+//
+//            // 手续费
+//            if (bean.getHandling() > 0)
+//            {
+//                createAddItem2(user, bean, bank, financeBean, itemList);
+//            }
+//        } else{
+//            this.createFinanceItem(user, bean, bank, name, name, TaxItemConstanst.YHCK,TaxItemConstanst.QTYSK_ZJH, financeBean, itemList);
+//        }
+
         financeBean.setItemList(itemList);
 
         financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+    }
+
+    private void createFinanceItem(User user, PaymentBean bean, BankBean bank,
+                                String itemInName,String itemOutName,
+                                String itemTaxIdIn, String itemTaxIdOut,
+                                FinanceBean financeBean, List<FinanceItemBean> itemList)
+            throws MYException
+    {
+//        String name = user.getStafferName() + "导入回款:" + bean.getId() + '.';
+
+        // 借:
+        FinanceItemBean itemIn = new FinanceItemBean();
+        String pareId = commonDAO.getSquenceString();
+        itemIn.setPareId(pareId);
+        itemIn.setName(itemInName);
+        itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+        FinanceHelper.copyFinanceItem(financeBean, itemIn);
+        TaxBean inTax = taxDAO.findByUnique(itemTaxIdIn);
+        if (inTax == null)
+        {
+            throw new MYException("[%s]缺少对应科目,请确认操作", itemTaxIdIn);
+        }
+        // 科目拷贝
+        FinanceHelper.copyTax(inTax, itemIn);
+        double inMoney = bean.getMoney();
+        itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
+        itemIn.setOutmoney(0);
+        itemIn.setDescription(itemIn.getName());
+        itemList.add(itemIn);
+
+        // 贷方
+        FinanceItemBean itemOut = new FinanceItemBean();
+        itemOut.setPareId(pareId);
+        itemOut.setName(itemOutName);
+        itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
+        FinanceHelper.copyFinanceItem(financeBean, itemOut);
+        TaxBean outTax = taxDAO.findByUnique(itemTaxIdOut);
+        if (outTax == null)
+        {
+            throw new MYException("[%s]缺少科目,请确认操作", itemTaxIdOut);
+        }
+        // 科目拷贝
+        FinanceHelper.copyTax(outTax, itemOut);
+        double outMoney = bean.getMoney();
+        itemOut.setInmoney(0);
+        itemOut.setOutmoney(FinanceHelper.doubleToLong(outMoney));
+        itemOut.setDescription(itemOut.getName());
+        itemList.add(itemOut);
     }
 
     /**

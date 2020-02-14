@@ -655,7 +655,23 @@ public class BillListenerTaxGlueImpl implements BillListener
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_STAMP
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_AUCTION
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_SPECIAL
-                || bean.getType() == FinanceConstant.OUTBILL_TYPE_LEAVE_EXPENSE)
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_LEAVE_EXPENSE
+                //#900
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SB
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_GJJ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_DKBJ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_DKLXYF
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_DKLXJF
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_LCBJ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_QSQ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJSDS
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJZZS
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJGSJH
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJGSGZ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJYHS
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJJYFJ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJWHF
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJXFS)
         {
             this.processOutBill(user, bean);
 
@@ -979,6 +995,48 @@ public class BillListenerTaxGlueImpl implements BillListener
         } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_LEAVE_EXPENSE){
             name = "离职人员报销(人工):" + bean.getId() + '.';
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_LEAVE_EXPENSE);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SB){
+            name = "社保:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SB);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_GJJ){
+            name = "公积金:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_GJJ);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_DKBJ){
+            name = "贷款-本金:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_DKBJ);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_DKLXYF){
+            name = "贷款-利息（月付）:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_DKLXYF);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_DKLXJF){
+            name = "贷款-利息（季付）:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_DKLXJF);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_LCBJ){
+            name = "理财-本金:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_LCBJ);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJSDS){
+            name = "税金-所得税:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_SDS);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJZZS){
+            name = "税金-增值税:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_ZZS);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJGSJH){
+            name = "税金-个税（旧货）:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_GSJH);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJGSGZ){
+            name = "税金-个税（工资）:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_GSGZ);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJYHS){
+            name = "税金-印花税:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_YHS);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJJYFJ){
+            name = "税金-教育附加:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_JYFJ);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJWHF){
+            name = "税金-城市维护建设费:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_WHF);
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJXFS){
+            name = "税金-消费税:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_XFS);
         }
 
         financeBean.setName(name);
@@ -1401,6 +1459,64 @@ public class BillListenerTaxGlueImpl implements BillListener
             name = "其他应收款-离职人员报销:" + bean.getId() + '.';
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_LEAVE_EXPENSE);
             taxId = TaxItemConstanst.LEAVE_EXPENSE;
+        }
+        //#900
+        else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SB){
+            name = "社保:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SB);
+            taxId = TaxItemConstanst.YFZGXC_SB;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_GJJ){
+            name = "公积金:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_GJJ);
+            taxId = TaxItemConstanst.YFZGXC_GJJ;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_DKBJ){
+            name = "贷款-本金:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_DKBJ);
+            taxId = TaxItemConstanst.DQJK_GSDK;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_DKLXYF){
+            name = "贷款-利息（月付）:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_DKLXYF);
+            taxId = TaxItemConstanst.DKLX;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_DKLXJF){
+            name = "贷款-利息（季付）:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_DKLXJF);
+            taxId = TaxItemConstanst.YFLX;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_LCBJ){
+            name = "理财-本金:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_LCBJ);
+            taxId = TaxItemConstanst.QTHBZJ_JJ;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJSDS){
+            name = "税金-所得税:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_SDS);
+            taxId = TaxItemConstanst.YJSDS;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJZZS){
+            name = "税金-增值税:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_ZZS);
+            taxId = TaxItemConstanst.WJZZS;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJGSJH){
+            name = "税金-个税（旧货）:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_GSJH);
+            taxId = TaxItemConstanst.YJSF_GDS;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJGSGZ){
+            name = "税金-个税（工资）:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_GSGZ);
+            taxId = TaxItemConstanst.YJSF_GDS;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJYHS){
+            name = "税金-印花税:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_YHS);
+            taxId = TaxItemConstanst.YJYHS;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJJYFJ){
+            name = "税金-教育附加:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_JYFJ);
+            taxId = TaxItemConstanst.YJJYFFJ;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJWHF){
+            name = "税金-城市维护建设费:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_WHF);
+            taxId = TaxItemConstanst.YJCSWHF;
+        } else if (bean.getType() == FinanceConstant.OUTBILL_TYPE_SJXFS){
+            name = "税金-消费税:" + bean.getId() + '.';
+            financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_SJ_XFS);
+            taxId = TaxItemConstanst.YJXFS;
         }
 
         TaxBean inTax = null;

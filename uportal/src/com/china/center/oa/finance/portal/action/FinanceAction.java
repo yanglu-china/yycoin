@@ -2998,15 +2998,17 @@ public class FinanceAction extends DispatchAction {
 		PaymentBean oldPay = paymentDAO.findByUnique(bean.getBankId(),
 				bean.getRefId());
 
-		if (oldPay != null && oldPay.getMoney() != bean.getMoney()) {
-			throw new MYException("导入金额出现错误,标识[%s]已经存在,且金额[%f]:[%f]不一致",
-					bean.getRefId(),oldPay.getMoney(), bean.getMoney());
-		}
+//		if (oldPay != null && oldPay.getMoney() != bean.getMoney()) {
+//			throw new MYException("导入金额出现错误,标识[%s]已经存在,且金额[%f]:[%f]不一致",
+//					bean.getRefId(),oldPay.getMoney(), bean.getMoney());
+//		}
 
 		// 插入新的值
 		if (oldPay == null) {
 			payList.add(bean);
-		}
+		} else{
+            throw new MYException("回款已导入:标示[%s],银行[%s]",bean.getRefId(),bean.getBankId());
+        }
 
 		return true;
 	}

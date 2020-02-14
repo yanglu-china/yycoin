@@ -501,6 +501,48 @@ public interface TaxConstanst
      */
     @Defined(key = "financeCreateType", value = "资金-内部资金认领")
     int FINANCE_CREATETYPE_INNERBILL_GETPAY = 95;
+
+    @Defined(key = "financeCreateType", value = "社保")
+    int FINANCE_CREATETYPE_INNERBILL_SB= 101;
+
+    @Defined(key = "financeCreateType", value = "公积金")
+    int FINANCE_CREATETYPE_INNERBILL_GJJ= 102;
+
+    @Defined(key = "financeCreateType", value = "贷款-本金")
+    int FINANCE_CREATETYPE_INNERBILL_DKBJ= 103;
+
+    @Defined(key = "financeCreateType", value = "贷款-利息（月付）")
+    int FINANCE_CREATETYPE_INNERBILL_DKLXYF= 104;
+
+    @Defined(key = "financeCreateType", value = "贷款-利息（季付）")
+    int FINANCE_CREATETYPE_INNERBILL_DKLXJF= 105;
+
+    @Defined(key = "financeCreateType", value = "理财-本金")
+    int FINANCE_CREATETYPE_INNERBILL_LCBJ= 106;
+
+    @Defined(key = "financeCreateType", value = "税金-所得税")
+    int FINANCE_CREATETYPE_INNERBILL_SJ_SDS= 108;
+
+    @Defined(key = "financeCreateType", value = "税金-增值税")
+    int FINANCE_CREATETYPE_INNERBILL_SJ_ZZS= 109;
+
+    @Defined(key = "financeCreateType", value = "税金-个税（旧货）")
+    int FINANCE_CREATETYPE_INNERBILL_SJ_GSJH= 110;
+
+    @Defined(key = "financeCreateType", value = "税金-个税（工资）")
+    int FINANCE_CREATETYPE_INNERBILL_SJ_GSGZ= 111;
+
+    @Defined(key = "financeCreateType", value = "税金-印花税")
+    int FINANCE_CREATETYPE_INNERBILL_SJ_YHS= 112;
+
+    @Defined(key = "financeCreateType", value = "税金-教育附加")
+    int FINANCE_CREATETYPE_INNERBILL_SJ_JYFJ= 113;
+
+    @Defined(key = "financeCreateType", value = "税金-城市维护建设费")
+    int FINANCE_CREATETYPE_INNERBILL_SJ_WHF= 114;
+
+    @Defined(key = "financeCreateType", value = "税金-消费税")
+    int FINANCE_CREATETYPE_INNERBILL_SJ_XFS= 115;
     
     /**
      * 损益结转
