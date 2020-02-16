@@ -34,10 +34,7 @@
  import com.china.center.oa.product.vs.StorageRelationBean;
  import com.china.center.oa.publics.Helper;
  import com.china.center.oa.publics.StringUtils;
- import com.china.center.oa.publics.bean.CityBean;
- import com.china.center.oa.publics.bean.EnumBean;
- import com.china.center.oa.publics.bean.ProvinceBean;
- import com.china.center.oa.publics.bean.StafferBean;
+ import com.china.center.oa.publics.bean.*;
  import com.china.center.oa.publics.dao.*;
  import com.china.center.oa.publics.vo.StafferVO;
  import com.china.center.oa.publics.vo.UserVO;
