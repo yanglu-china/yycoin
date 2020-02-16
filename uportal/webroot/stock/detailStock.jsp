@@ -308,11 +308,13 @@ function showDiv(id)
         <p:subBody width="100%">
             <table width="100%" border="0" cellspacing='1' id="tables">
                 <tr align="center" class="content0">
-                    <td width="20%" align="center">采购产品</td>
-                    <td width="20%" align="center">采购数量</td>
-                    <td width="20%" align="center">已退货数量</td>
-                    <td width="20%" align="center">供应商</td>
-                    <td width="20%" align="center">退货时间</td>
+                    <td width="15%" align="center">采购产品</td>
+                    <td width="14%" align="center">采购数量</td>
+                    <td width="14%" align="center">退货中数量</td>
+                    <td width="14%" align="center">已退货数量</td>
+                    <td width="14%" align="center">供应商</td>
+                    <td width="14%" align="center">退货时间</td>
+                    <td width="15%" align="center">备注</td>
                 </tr>
                 
                 <c:forEach items="${baseList}" var="itemBase" varStatus="vs">
@@ -323,9 +325,11 @@ function showDiv(id)
 	                        ${itemBase.productName}
 	                    </td>
 	                    <td align="center">${itemBase.amount}</td>
+	                    <td align="center">${itemBase.backingAmount}</td>
 	                    <td align="center">${itemBase.backAmount}</td>
 	                    <td align="center">${itemBase.provider}</td>
-	                    <td align="center">${itemBase.approveTime}</td>               
+	                    <td align="center">${itemBase.approveTime}</td>      
+	                    <td align="center">${itemBase.description}</td>          
                     </tr>
 
                 </c:forEach>                 

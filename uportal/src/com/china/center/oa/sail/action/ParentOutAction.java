@@ -27,12 +27,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+
+import org.apache.commons.fileupload.FileUploadBase;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
@@ -191,6 +194,7 @@ import com.china.center.oa.sail.wrap.BatchBackWrap;
 import com.china.center.oa.sail.wrap.PromotionWrap;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
+
 import com.china.center.tools.BeanUtil;
 import com.china.center.tools.CommonTools;
 import com.china.center.tools.ListTools;
@@ -620,6 +624,38 @@ public class ParentOutAction extends DispatchAction
 
 		return mapping.findForward("addBatchBack");
 	}
+	
+
+	/** 进入批量增加报废单
+	 * addBatchBack
+	 * 
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param reponse
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward addBatchDrop(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse reponse)
+			throws ServletException
+	{
+		// 增加黑名单-停止销售类型判断
+		User user = Helper.getUser(request);
+
+		request.getSession().removeAttribute("backWrapList");
+		
+		String stafferId = user.getStafferId();
+
+		StafferBean stafferBean = stafferDAO.find(stafferId);
+
+		prepareBack(request, stafferBean);
+
+		request.setAttribute("stafferBean", stafferBean);
+
+		return mapping.findForward("addBatchBack");
+	}
+	
 
 	private void prepareBack(HttpServletRequest request, StafferBean stafferBean)
 	{
@@ -6578,6 +6614,656 @@ public class ParentOutAction extends DispatchAction
 			return querySelfBuy(mapping, form, request, reponse);
 		}
 	}
+	
+	/**
+	 * 增加(保存修改)修改库单(包括销售单和入库单)
+	 * 
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param reponse
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward addOutWithAttachment(ActionMapping mapping, ActionForm form,
+			HttpServletRequest request, HttpServletResponse reponse)
+			throws ServletException
+	{
+		// 是否锁定库存
+		if (storageRelationManager.isStorageRelationLock())
+		{
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "库存被锁定,不能开单");
+
+			return mapping.findForward("error");
+		}
+
+        _logger.info("addOutWithAttachment 111111111111111");
+		CommonTools.saveParamers(request);
+		
+        RequestDataStream rds = new RequestDataStream(request, 1024 * 1024 * 20L);
+        try
+        {
+            rds.parser();
+        }
+        catch (FileUploadBase.SizeLimitExceededException e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:附件超过20M");
+
+            return mapping.findForward("error");
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败");
+
+            return mapping.findForward("error");
+        }
+
+		User user = (User) request.getSession().getAttribute("user");
+
+		String locationId = Helper.getCurrentLocationId(request);
+
+		String location = rds.getParameter("location");
+
+		String locationShadow = rds.getParameter("locationShadow");
+
+		String saves = rds.getParameter("saves");
+
+		String step = rds.getParameter("step");
+
+		String hasProm = rds.getParameter("hasProm");
+
+		String oprType = rds.getParameter("oprType");
+		
+		_logger.info("locationId: "+locationId+", location: "+location+", oprType: "+oprType);
+
+		if (StringTools.isNullOrNone(oprType)) oprType = "";
+		
+		int buyReturnFlag = 0;
+		if("1".equals(rds.getParameter("buyReturnFlag"))){
+			buyReturnFlag = 1;
+		}
+
+		// 客户信用级别
+		String customercreditlevel = request
+				.getParameter("customercreditlevel");
+
+		String fullId = rds.getParameter("fullId");
+
+		String update = rds.getParameter("update");
+
+		if ("save".equals(saves))
+		{
+			saves = "保存";
+		}
+		else
+		{
+			saves = "提交";
+		}
+        _logger.info("addOutWithAttachment 22222222222222222222222");
+		//ParamterMap map = new ParamterMap(request);
+		
+        ParamterMap map = new ParamterMap(rds.getParmterMap());
+        
+		_logger.info("map...");
+		_logger.info(map);
+
+		ActionForward action = null;
+
+		OutBean outBean = null;
+
+		// 第一销售页面
+		outBean = new OutBean();
+
+		outBean.setLocationId(locationId);
+
+		// 增加职员的ID
+		outBean.setStafferId(user.getStafferId());
+		outBean.setStafferName(user.getStafferName());
+
+		//BeanUtil.getBean(outBean, request);
+
+		BeanUtil.getBean(outBean, rds.getParmterMap());
+		
+		outBean.setLocation(location);
+		
+		outBean.setBuyReturnFlag(buyReturnFlag);
+
+		if (StringTools.isNullOrNone(outBean.getLocation())
+				&& !oprType.equals("0"))
+		{
+			outBean.setLocation(locationShadow);
+
+			// for monitor
+			_logger.info("Debug Location ...." + location + ", fullid="
+					+ fullId);
+			_logger.info("Debug LocationShadow ...." + locationShadow);
+		}
+        _logger.info("addOutWithAttachment 33333333333333333333333");
+		outBean.setLogTime(TimeTools.now());
+
+		if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+				&& outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+		{
+			if (StringTools.isNullOrNone(outBean.getDestinationId()))
+			{
+				request.setAttribute(KeyConstant.ERROR_MESSAGE,
+						"调拨没有目的仓库属性,请重新操作");
+
+				return mapping.findForward("error");
+			}
+
+			outBean.setReserve1(OutConstant.MOVEOUT_OUT);
+		}
+
+		if (StringTools.isNullOrNone(outBean.getLocation())
+				&& !oprType.equals("0"))
+		{
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "没有库存属性,请重新操作");
+
+			return mapping.findForward("error");
+		}
+
+		// 商务 - begin
+		ActionForward error = checkAuthForEcommerce(request, user, mapping);
+
+		if (null != error)
+		{
+			return error;
+		}
+
+		User g_srcUser = (User) request.getSession().getAttribute("g_srcUser");
+
+		String elogin = (String) request.getSession().getAttribute("g_elogin");
+
+		String g_loginType = (String) request.getSession().getAttribute(
+				"g_loginType");
+
+		if (!StringTools.isNullOrNone(elogin) && null == g_srcUser)
+		{
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "登陆异常,请重新登陆");
+
+			return mapping.findForward("error");
+		}
+        _logger.info("addOutWithAttachment 44444444444444444444444");
+		// 当前切换用户登陆的且为商务登陆的，记录经办人
+		if (!StringTools.isNullOrNone(elogin) && null != g_srcUser
+				&& g_loginType.equals("1"))
+		{
+			outBean.setOperator(g_srcUser.getStafferId());
+			outBean.setOperatorName(g_srcUser.getStafferName());
+		}
+		else
+		{
+			outBean.setOperator(user.getStafferId());
+			outBean.setOperatorName(user.getStafferName());
+		}
+		// 商务 - end
+        _logger.info("addOutWithAttachment 5555555555555555555");
+		// 销售单
+		if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+		{
+			// 只在销售的第一个页面时用到
+
+			// 强制设置成OUT_SAIL_TYPE_MONEY
+			if (CustomerConstant.BLACK_LEVEL.equals(customercreditlevel))
+			{
+				outBean.setReserve3(OutConstant.OUT_SAIL_TYPE_MONEY);
+			}
+
+			// 业务员黑名单
+			StafferBean sb = stafferDAO.find(user.getStafferId());
+
+			if (sb != null && sb.getBlack() == StafferConstant.BLACK_YES)
+			{
+				outBean.setReserve3(OutConstant.OUT_SAIL_TYPE_MONEY);
+			}
+			
+			if (outBean.getReserve3() != OutConstant.OUT_SAIL_TYPE_LOCATION_MANAGER)
+			{
+				outBean.setGuarantor("");
+			}
+
+			// 销售属性的设置
+			if (OATools.getManagerFlag())
+			{
+
+				InvoiceBean invoiceBean = invoiceDAO.find(outBean
+						.getInvoiceId());
+
+				if (invoiceBean == null)
+
+				outBean.setRatio("0");
+
+				else
+				{
+
+					int ratio = (int) (invoiceBean.getVal() * 10);
+
+					outBean.setRatio(String.valueOf(ratio));
+				}
+			}
+            _logger.info("addOutWithAttachment 6666666666666666666666666666");
+			action = processCommonOut(mapping, form, request, reponse, user,
+					saves, fullId, outBean, map, "1");
+
+		}
+		else
+		{
+			if (outBean.getOutType() != OutConstant.OUTTYPE_IN_OTHER
+					&& outBean.getOutType() != OutConstant.OUTTYPE_IN_OUTBACK)
+			{
+				outBean.setRefOutFullId("");
+
+				if (outBean.getOutType() != OutConstant.OUTTYPE_IN_DROP)
+				{
+					outBean.setForceBuyType(-1);
+					outBean.setReserve9("");
+				}
+			}
+
+			// 其它入库，领样对冲单不经过这儿
+			if (outBean.getOutType() == OutConstant.OUTTYPE_IN_OTHER)
+			{
+				if (outBean.getForceBuyType() == -1)
+				{
+					request.setAttribute(KeyConstant.ERROR_MESSAGE,
+							"其它入库没有选择事由");
+
+					return mapping.findForward("error");
+				}
+
+				String customerName1 = rds.getParameter("customerName1");
+				if (!StringTools.isNullOrNone(customerName1))
+				{
+					outBean.setCustomerName(customerName1);
+				}
+			}
+
+			// 默认很多属性
+			outBean.setStafferId(user.getStafferId());
+			outBean.setStafferName(user.getStafferName());
+
+			if (StringTools.isNullOrNone(outBean.getCustomerId()))
+			{
+				outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+				outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+			}
+
+			outBean.setDepartment("公共部门");
+			outBean.setArriveDate(TimeTools.now_short(10));
+            _logger.info("addOutWithAttachment 77777777777777777777");
+			// 入库单的处理
+			try
+			{
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+                {
+                    this.fillDistributionForRemoteAllocate(request, outBean);
+                }
+                
+                //mod by zhangxian 2019-10-11
+                //创建报废单和采购退货单时，目的库 置为空
+                if (outBean.getOutType() == OutConstant.OUTTYPE_IN_DROP || outBean.getOutType() == OutConstant.OUTTYPE_IN_STOCK)
+                {
+                	outBean.setDestinationId(null);
+                }
+                //end mod 2019-10-11
+                
+                //mod by zhangxian 2019-06-18
+                //增加预占库存的扣减
+				//#718 回滚
+                /*String productIdString = request.getParameter("idsList");
+                String amountString = request.getParameter("amontList");
+                String[] idsList = new String[] {};
+                String[] amountList = new String[] {};
+                if(org.apache.commons.lang.StringUtils.isNotEmpty(productIdString))
+                {
+                	idsList = org.apache.commons.lang.StringUtils.split(productIdString, "~");
+                }
+                if(org.apache.commons.lang.StringUtils.isNotEmpty(amountString))
+                {
+                	amountList = org.apache.commons.lang.StringUtils.split(amountString, "~");
+                }
+                String locationid = request.getParameter("location");
+                for(int i=0;i<idsList.length;i++){
+                    //TODO 该产品全部库存-在途库存-预占>=合成数量，就可以正常合成
+                	String productId = idsList[i];
+                	String amount = amountList[i];
+                    ConditionParse conditionParseRelation = new ConditionParse();
+                    conditionParseRelation.addWhereStr();
+                    conditionParseRelation.addCondition("productid","=", productId);
+                    conditionParseRelation.addCondition("locationid","=", locationid);
+                    List<StorageRelationBean> relationList = storageRelationDAO.queryEntityBeansByCondition(conditionParseRelation);
+                    for(StorageRelationBean relation:relationList) {
+                        int preassign = storageRelationManager.sumPreassignByStorageRelation(relation);
+                        //在途数量
+                        ConditionParse conditionOut = new ConditionParse();
+                        conditionOut.addWhereStr();
+                        conditionOut.addCondition("OutBean.type", "=", "1");
+                        conditionOut.addCondition("and OutBean.status in (7,8)");
+                        conditionOut.addCondition("OutBean.inway", "=", "1");
+                        conditionOut.addCondition("OutBean.location","=",locationid);
+                        int zt = outDAO.countVOByCondition(conditionOut.toString());
+                        _logger.info("relation.getAmount()***"+relation.getAmount()+"***zt**"+zt + "***preassign**:" + preassign);
+                        if((relation.getAmount() - zt - preassign) < Math.abs(Integer.valueOf(amount))){
+                        	ProductBean productBean = this.productDAO.find(productId);
+                            throw new MYException(String.format("入库出错,库存不足,,产品:%s",productBean.getName()));
+                        }
+                    }
+                }*/
+                
+				//handle attachment
+				
+	            ActionForward afor = parserAttachment(mapping, request, rds, outBean);
+
+	            if (afor != null) {
+	                return afor;
+	            }
+	            rds.close();
+                
+                //end mod
+				String id = outManager.addOut(outBean, map.getParameterMap(), user);
+                _logger.info("addOutWithAttachment 88888888888888888888*********"+id);
+				if ("提交".equals(saves))
+				{
+					int ttype = StorageConstant.OPR_STORAGE_INOTHER;
+
+					if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+					{
+						ttype = StorageConstant.OPR_STORAGE_REDEPLOY;
+					}
+					
+					// if id start with 'TM', then split SO, and then submit each
+					if (id.startsWith("TM"))
+					{
+						// split out, then delete original out in the same
+						// transaction
+						String[] ids = outManager.splitOut(id);
+
+						for (String eachId : ids)
+						{
+							_logger.info("入库拆单(共拆成" + ids.length + "张)：原单" + id
+									+ ", 新单：" + eachId);
+                            _logger.info("addOutWithAttachment 999999999999999999999999*********"+eachId);
+							outManager.submit(eachId, user, ttype);
+						}
+					}else {
+                        _logger.info("addOutWithAttachment aaaaaaaaaaaaaaaa*********");
+						outManager.submit(id, user, ttype);
+					}
+				}
+				
+			}
+			catch (MYException e)
+			{
+                e.printStackTrace();
+				_logger.warn(e, e);
+
+				request.setAttribute(KeyConstant.ERROR_MESSAGE,
+						"处理错误:" + e.getErrorContent());
+
+				return mapping.findForward("error");
+			}
+			catch (Exception e)
+			{
+                e.printStackTrace();
+				_logger.error(e, e);
+
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getMessage());
+
+				return mapping.findForward("error");
+			}
+		}
+
+		if (action != null)
+		{
+			return action;
+		}
+
+		CommonTools.removeParamers(request);
+
+		// 第一步做完转到第二步页面
+		if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+				&& step.equals("1"))
+		{
+			DistributionBean distributionBean = null;
+
+			List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
+			
+			if (!ListTools.isEmptyOrNull(distList))
+			{
+				distributionBean = distList.get(0);
+			}
+			
+			List<BaseVO> baseList = baseDAO.queryEntityVOsByFK(outBean.getFullId());
+
+			// 按仓库排序
+			Collections.sort(baseList, new Comparator<BaseVO>()
+			{
+				public int compare(BaseVO o1, BaseVO o2)
+				{
+					return Integer.parseInt(o1.getLocationId().substring(11))
+							- Integer
+									.parseInt(o2.getLocationId().substring(11));
+				}
+			});
+
+			judgeCanPromotion(request, baseList);
+
+			request.setAttribute("distributionBean", distributionBean);
+
+			List<AttachmentBean> attachmentList = attachmentDAO
+					.queryEntityBeansByFK(outBean.getFullId());
+
+			String attacmentIds = "";
+
+			for (AttachmentBean attachmentBean : attachmentList)
+			{
+				attacmentIds = attacmentIds + attachmentBean.getId() + ";";
+			}
+
+			request.setAttribute("attacmentIds", attacmentIds);
+
+			request.setAttribute("hasProm", hasProm);
+
+			OutVO outVO = outDAO.findVO(outBean.getFullId());
+
+			if (outVO == null)
+			{
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据错误");
+
+				return mapping.findForward("error");
+			}
+
+			outVO.setAttachmentList(attachmentList);
+
+			request.setAttribute("outBean", outVO);
+
+			request.setAttribute("baseList", baseList);
+
+			String desc = outVO.getDescription();
+
+			int idx = desc.indexOf("&&");
+
+			String logDesc = "";
+			
+			if (idx != -1)
+			{
+				logDesc = desc.substring(idx + 2, desc.length());
+			}
+
+			String swatchLog = outManager.processSwatchCheck(outVO);
+			
+			request.setAttribute("logDesc", swatchLog);
+			
+			List<ExpressBean> expressList = expressDAO
+					.listEntityBeansByOrder("order by id");
+
+			request.setAttribute("expressList", expressList);
+
+			// 地址区
+			
+			
+			request.setAttribute("update", update);
+
+			//TODO#52
+			String depotList = rds.getParameter("depotList");
+			if (StringTools.isNullOrNone(depotList)){
+				request.setAttribute("kf","0");
+			}else if (depotList.contains("A1201205251506100751")
+					|| depotList.contains("A1201301221008971864")
+					|| depotList.contains("A1201310151011526376")){
+				request.setAttribute("kf","1");
+			} else{
+				request.setAttribute("kf","0");
+			}
+			_logger.info("***depotList***"+depotList);
+
+			return mapping.findForward("addOut51");
+		}
+
+		request.getSession().setAttribute(
+				KeyConstant.MESSAGE,
+				"库单提交成功");
+
+		CommonTools.removeParamers(request);
+
+		RequestTools.actionInitQuery(request);
+
+		if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+		{
+			if (!outBean.getStafferId().equals(outBean.getOperator()))
+			{
+				outManager.sendOutMail(outBean, "商务开单确认.");
+			}
+
+			return querySelfOut(mapping, form, request, reponse);
+		}
+		else
+		{
+			return querySelfBuy(mapping, form, request, reponse);
+		}
+	}
+	
+    /**
+     * parserAttachment
+     * 
+     * @param mapping
+     * @param request
+     * @param rds
+     * @param outBean
+     * @return
+     */
+    private ActionForward parserAttachment(ActionMapping mapping, HttpServletRequest request,
+                                           RequestDataStream rds, OutBean outBean)
+    {
+        List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
+
+        outBean.setAttachmentList(attachmentList);
+
+        String attacmentIds = rds.getParameter("attacmentIds");
+
+        String[] split = attacmentIds.split(";");
+
+        for (String each : split)
+        {
+            if (StringTools.isNullOrNone(each))
+            {
+                continue;
+            }
+
+            AttachmentBean att = attachmentDAO.find(each);
+
+            if (att != null)
+            {
+                attachmentList.add(att);
+            }
+        }
+
+        // parser attachment
+        if ( !rds.haveStream())
+        {
+            return null;
+        }
+
+        Map<String, InputStream> streamMap = rds.getStreamMap();
+
+        for (Map.Entry<String, InputStream> entry : streamMap.entrySet())
+        {
+            AttachmentBean bean = new AttachmentBean();
+
+            FileOutputStream out = null;
+
+            UtilStream ustream = null;
+
+            try
+            {
+                String savePath = mkdir(this.getAttachmentPath());
+
+                String fileAlais = SequenceTools.getSequence();
+
+                String fileName = FileTools.getFileName(rds.getFileName(entry.getKey()));
+
+                String rabsPath = '/' + savePath + '/' + fileAlais + "."
+                                  + FileTools.getFilePostfix(fileName).toLowerCase();
+
+                String filePath = this.getAttachmentPath() + '/' + rabsPath;
+
+                bean.setName(fileName);
+
+                bean.setPath(rabsPath);
+
+                bean.setLogTime(TimeTools.now());
+
+                out = new FileOutputStream(filePath);
+
+                ustream = new UtilStream(entry.getValue(), out);
+
+                ustream.copyStream();
+
+                attachmentList.add(bean);
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存失败");
+
+                return mapping.findForward("queryForAdd");
+            }
+            finally
+            {
+                if (ustream != null)
+                {
+                    try
+                    {
+                        ustream.close();
+                    }
+                    catch (IOException e)
+                    {
+                        _logger.error(e, e);
+                    }
+                }
+            }
+        }
+
+
+
+        return null;
+    }
+
+    private String mkdir(String root)
+    {
+        String path = TimeTools.now("yyyy/MM/dd/HH") + "/"
+                      + SequenceTools.getSequence(String.valueOf(new Random().nextInt(1000)));
+
+        FileTools.mkdirs(root + '/' + path);
+
+        return path;
+    }
 
 	private void judgeCanPromotion(HttpServletRequest request,
 			List<BaseVO> baseList)
@@ -9295,9 +9981,9 @@ public class ParentOutAction extends DispatchAction
 			{
 				// 只能查询自己的
 //				condtion.addCondition("OutBean.STAFFERID", "=",
-//						user.getStafferId());
+//				user.getStafferId());
 
-				this.getByStafferCode(condtion, user.getStafferId());
+		this.getByStafferCode(condtion, user.getStafferId());
 			}
 		}
 
@@ -10302,7 +10988,7 @@ public class ParentOutAction extends DispatchAction
 
 		return condtion;
 	}
-
+	
 	//#894 获得同一工号下销售单
 	private void getByStafferCode(ConditionParse condtion, String stafferId){
 		StringBuffer sqlBuffer = new StringBuffer();

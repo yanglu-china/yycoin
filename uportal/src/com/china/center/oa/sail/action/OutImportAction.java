@@ -11,6 +11,7 @@
  import com.china.center.actionhelper.common.KeyConstant;
  import com.china.center.actionhelper.json.AjaxResult;
  import com.china.center.common.MYException;
+ import com.china.center.common.taglib.DefinedCommon;
  import com.china.center.jdbc.util.ConditionParse;
  import com.china.center.jdbc.util.PageSeparate;
  import com.china.center.oa.client.bean.CiticBranchBean;
@@ -27,8 +28,10 @@
  import com.china.center.oa.product.bean.*;
  import com.china.center.oa.product.constant.DepotConstant;
  import com.china.center.oa.product.dao.*;
+ import com.china.center.oa.product.helper.StorageRelationHelper;
  import com.china.center.oa.product.manager.PriceConfigManager;
  import com.china.center.oa.product.manager.StorageRelationManager;
+ import com.china.center.oa.product.vs.StorageRelationBean;
  import com.china.center.oa.publics.Helper;
  import com.china.center.oa.publics.StringUtils;
  import com.china.center.oa.publics.bean.CityBean;
@@ -37,9 +40,12 @@
  import com.china.center.oa.publics.bean.StafferBean;
  import com.china.center.oa.publics.dao.*;
  import com.china.center.oa.publics.vo.StafferVO;
+ import com.china.center.oa.publics.vo.UserVO;
  import com.china.center.oa.sail.bean.*;
+ import com.china.center.oa.sail.bean.BaseBean;
  import com.china.center.oa.sail.constanst.OutConstant;
  import com.china.center.oa.sail.constanst.OutImportConstant;
+ import com.china.center.oa.sail.constanst.ShipConstant;
  import com.china.center.oa.sail.dao.*;
  import com.china.center.oa.sail.helper.OutImportHelper;
  import com.china.center.oa.sail.manager.OutImportManager;
@@ -48,12 +54,15 @@
  import com.china.center.oa.sail.vo.BaseVO;
  import com.china.center.oa.sail.vo.OutImportVO;
  import com.china.center.tools.*;
+ import org.apache.commons.lang.time.DateUtils;
  import org.apache.commons.logging.Log;
  import org.apache.commons.logging.LogFactory;
  import org.apache.struts.action.ActionForm;
  import org.apache.struts.action.ActionForward;
  import org.apache.struts.action.ActionMapping;
  import org.apache.struts.actions.DispatchAction;
+ import org.joda.time.DateTime;
+ import org.joda.time.Days;
 
  import javax.servlet.ServletException;
  import javax.servlet.http.HttpServletRequest;
@@ -95,6 +104,8 @@
 
      private StafferDAO stafferDAO = null;
 
+     private UserDAO userDAO = null;
+
      private StafferVSCustomerDAO stafferVSCustomerDAO = null;
 
      private CiticVSStafferDAO citicVSStafferDAO = null;
@@ -115,7 +126,13 @@
 
      private OutDAO outDAO = null;
 
+     private DutyDAO dutyDAO = null;
+
      private BaseDAO baseDAO = null;
+
+     private StorageDAO storageDAO = null;
+
+     private StorageRelationDAO storageRelationDAO = null;
 
      private ProvinceDAO provinceDAO = null;
 
@@ -3741,6 +3758,488 @@
          return null;
 
      }
+     
+     /**
+      * 批量报废单
+      * @param mapping
+      * @param form
+      * @param request
+      * @param response
+      * @return
+      * @throws ServletException
+      */
+     public ActionForward batchDropImport(ActionMapping mapping, ActionForm form,
+             HttpServletRequest request, HttpServletResponse response)
+     throws ServletException{
+    	 _logger.debug("batchDropImport...");
+         RequestDataStream rds = new RequestDataStream(request);
+
+         boolean importError = false;
+
+         List<BatchDropBean> importItemList = new ArrayList<BatchDropBean>();
+
+         StringBuilder builder = new StringBuilder();
+
+         try
+         {
+             rds.parser();
+         }
+         catch (Exception e1)
+         {
+             _logger.error(e1, e1);
+
+             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+             return mapping.findForward("batchDropImport");
+         }
+
+         if ( !rds.haveStream())
+         {
+        	 _logger.error("has no stream...");
+        	 
+             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+             return mapping.findForward("batchDropImport");
+         }
+
+         //constants forceBuyTypes
+         List<String> forceBuyTypes = new ArrayList<String>();
+         for(int i=50; i<56; i++){
+             forceBuyTypes.add(DefinedCommon.getValue("forceBuyTypes", i));
+         }
+         
+         _logger.debug("batchDropImport..."+forceBuyTypes.size());
+
+         ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+         try
+         {
+             reader.readFile(rds.getUniqueInputStream());
+             
+             _logger.debug("batchDropImport..."+forceBuyTypes.size());
+
+             while (reader.hasNext())
+             {
+                 String[] obj = fillObj((String[])reader.next());
+                 
+                 int currentNumber = reader.getCurrentLineNumber();
+                 _logger.debug("batchDropImport...currentNumber:"+currentNumber);
+
+                 // 第一行忽略
+                 if (currentNumber == 1)
+                 {
+                	 _logger.debug("第一行忽略");
+                     continue;
+                 }
+
+                 if (StringTools.isNullOrNone(obj[0]))
+                 {
+                	 _logger.debug("第一栏为空...");
+                     continue;
+                 }
+                 
+                 _logger.debug("batchDropImport obj.length:"+obj.length);
+
+                 if (obj.length >= 17 )
+                 {
+                     BatchDropBean bean = new BatchDropBean();
+
+                     bean.getOutBean().setType(OutConstant.OUT_TYPE_INBILL);
+
+                     String cellValue = "";
+                     //入库类型
+                     cellValue = obj[0];
+                     if("报废".equals(cellValue)){
+                         int outType = OutConstant.OUTTYPE_IN_DROP2;
+                         bean.getOutBean().setOutType(outType);
+                     }else{
+                         builder.append("第[" + currentNumber + "]错误:入库类型应为报废<br>");
+                         importError = true;
+                     }
+
+                     //入库日期
+                     cellValue = obj[1];
+                     if(!StringTools.isNullOrNone(cellValue)){
+                         if(!this.checkDateFormat(cellValue)){
+                             builder.append("第[" + currentNumber + "]错误:入库日期格式应为yyyy-MM-dd<br>");
+                             importError = true;
+                         }else{
+                             bean.getOutBean().setOutTime(cellValue);
+                         }
+
+                     }else{
+                         builder.append("第[" + currentNumber + "]错误:入库日期必填<br>");
+                         importError = true;
+                     }
+
+                     //入库事由
+
+                     cellValue = obj[2];
+                     if(forceBuyTypes.contains(cellValue)){
+                         bean.getOutBean().setForceBuyType(50 + forceBuyTypes.indexOf(cellValue));
+                     }else{
+                         builder.append("第[" + currentNumber + "]错误:入库事由填写错误<br>");
+                         importError = true;
+                     }
+
+                     //报废类型
+                     cellValue = obj[3];
+                     int dropType = 10;
+                     if(!StringTools.isNullOrNone(cellValue)){
+                         if("盘亏".equals(cellValue)
+                         ||"领样退回报废".equals(cellValue)
+                         ||"不良品报废".equals(cellValue)
+                         ||"其他".equals(cellValue)) {
+                             bean.getOutBean().setDropType(dropType);
+                         }else{
+                             builder.append("第[" + currentNumber + "]错误:报废类型错误<br>");
+                             importError = true;
+                         }
+                     }else{
+                         builder.append("第[" + currentNumber + "]错误:报废类型必填<br>");
+                         importError = true;
+                     }
+
+                     //纳税实体
+                     cellValue = obj[4];
+                     _logger.debug("纳税实体:"+cellValue);
+                     ConditionParse conditionParse1 = new ConditionParse();
+                     conditionParse1.addWhereStr();
+                     conditionParse1.addCondition("name","=",cellValue);
+
+                     List<DutyBean> dutyEntities = dutyDAO.queryEntityBeansByCondition(conditionParse1);
+                     if(dutyEntities.size()>0){
+                         bean.getOutBean().setDutyId(dutyEntities.get(0).getId());
+                     }else{
+                         builder.append("第[" + currentNumber + "]错误:纳税实体不存在<br>");
+                         importError = true;
+                     }
+
+                     //业务员/职员
+                     cellValue = obj[5];
+                     if(!StringTools.isNullOrNone(cellValue)){
+                         UserVO user = userDAO.findUserByName(cellValue);
+                         if(user!=null){
+                             bean.getOutBean().setStafferId(user.getStafferId());
+                             bean.getOutBean().setStafferName(user.getName());
+                         }else{
+                             builder.append("第[" + currentNumber + "]错误:业务员/职员不存在<br>");
+                             importError = true;
+                         }
+                     }else{
+                         builder.append("第[" + currentNumber + "]错误:业务员/职员必填<br>");
+                         importError = true;
+                     }
+                     
+                     BaseBean baseBean = new BaseBean();
+
+                     //OA品名
+                     cellValue = obj[6];
+                     if(!StringTools.isNullOrNone(cellValue)){
+                         ProductBean productBean = productDAO.findByName(cellValue);
+                         if(productBean!=null){
+                             baseBean.setProductId(productBean.getId());
+                             baseBean.setProductName(productBean.getName());
+                         }else{
+                             builder.append("第[" + currentNumber + "]错误:OA品名不存在<br>");
+                             importError = true;
+                         }
+                     }else{
+                         builder.append("第[" + currentNumber + "]错误:OA品名必填<br>");
+                         importError = true;
+                     }
+
+                     //单位
+                     cellValue = obj[9];
+                     String unit = "套";
+                     if(!StringTools.isNullOrNone(cellValue)){
+                         unit = cellValue;
+                     }
+                     baseBean.setUnit(unit);
+
+                     //单价
+                     cellValue = obj[10];
+                     if(!StringTools.isNullOrNone(cellValue) && !"0".equals(cellValue)){
+                         try{
+                             baseBean.setPrice(Double.parseDouble(cellValue));
+                         }catch(Exception ex){
+                             builder.append("第[" + currentNumber + "]错误:单价错误<br>");
+                             importError = true;
+                         }
+                     }else{
+                         builder.append("第[" + currentNumber + "]错误:单价必填且不为0<br>");
+                         importError = true;
+                     }
+
+                     //总金额
+                     cellValue = obj[11];
+                     if(!StringTools.isNullOrNone(cellValue) && !"0".equals(cellValue)){
+                         try{
+                             baseBean.setValue(Double.parseDouble(cellValue));
+                         }catch(Exception ex){
+                             builder.append("第[" + currentNumber + "]错误:总金额错误<br>");
+                             importError = true;
+                         }
+                     }else{
+                         builder.append("第[" + currentNumber + "]错误:总金额必填且不为0<br>");
+                         importError = true;
+                     }
+
+                     //源仓库
+                     cellValue = obj[12];
+                     DepotBean depotBean = null;
+                     if(!StringTools.isNullOrNone(cellValue)){
+                         ConditionParse conditionParse = new ConditionParse();
+                         conditionParse.addWhereStr();
+                         conditionParse.addCondition("name", "=", cellValue);
+                         List<DepotBean> depotBeans = this.depotDAO.queryEntityBeansByCondition(conditionParse);
+                         if(depotBeans.size()>0){
+                             depotBean = depotBeans.get(0);
+                        	 _logger.debug("depotBean.getId():"+depotBean.getId()+",depotBean.getName():"+depotBean.getName());
+                             bean.getOutBean().setLocationId("999");
+                             bean.getOutBean().setLocation(depotBean.getId());
+
+                             baseBean.setLocationId(depotBean.getId());
+                             baseBean.setDepotName(depotBean.getName());
+                         }else{
+                             builder.append("第[" + currentNumber + "]错误:源仓库不存在<br>");
+                             importError = true;
+                         }
+                     }else{
+                         builder.append("第[" + currentNumber + "]错误:源仓库必填<br>");
+                         importError = true;
+                     }
+
+                     //仓区
+                     DepotpartBean depotpartBean = null;
+                     if(depotBean!=null){
+                         cellValue = obj[13];
+                         if(!StringTools.isNullOrNone(cellValue)){
+                             ConditionParse conditionParse = new ConditionParse();
+                             conditionParse.addWhereStr();
+                             conditionParse.addCondition("name", "=", cellValue);
+                             conditionParse.addCondition("locationId", "=", depotBean.getId());
+                             List<DepotpartBean> depotpartBeans = depotpartDAO.queryEntityBeansByCondition(conditionParse);
+                             if(depotpartBeans.size()>0){
+                                 depotpartBean = depotpartBeans.get(0);
+                                 _logger.debug("depotpartBean.getId():"+depotpartBean.getId()+",depotpartBean.getName():"+depotpartBean.getName());
+                                 baseBean.setDepotpartId(depotpartBean.getId());
+                                 baseBean.setDepotpartName(depotpartBean.getName());
+                             }else{
+                                 builder.append("第[" + currentNumber + "]错误:仓区不存在或与源仓库不对应<br>");
+                                 importError = true;
+                             }
+                         }else{
+                             builder.append("第[" + currentNumber + "]错误:仓区必填<br>");
+                             importError = true;
+                         }
+                     }
+
+                     //储位
+                     StorageBean storageBean = null;
+                     if(depotpartBean!=null){
+                         cellValue = obj[14];
+                         if(!StringTools.isNullOrNone(cellValue)){
+                             ConditionParse conditionParse = new ConditionParse();
+                             conditionParse.addWhereStr();
+                             conditionParse.addCondition("name", "=", cellValue);
+                             conditionParse.addCondition("depotpartId", "=", depotpartBean.getId());
+                             _logger.debug("name:"+cellValue+",depotpartBean.getId():"+depotpartBean.getId());
+                             List<StorageBean> storageBeans = storageDAO.queryEntityBeansByCondition(conditionParse);
+                             if(storageBeans.size()>0){
+                                 storageBean = storageBeans.get(0);
+                                 baseBean.setStorageId(storageBean.getId());
+                             }else{
+                                 builder.append("第[" + currentNumber + "]错误:储位不存在或与仓区不对应<br>");
+                                 importError = true;
+                             }
+                         }else{
+                             builder.append("第[" + currentNumber + "]错误:储位必填<br>");
+                             importError = true;
+                         }
+                     }
+
+                     //虚料金额
+                     cellValue = obj[15];
+                     if(StringTools.isNullOrNone(cellValue)){
+                         cellValue = "0";
+                     }
+
+                     try{
+                         baseBean.setVirtualPrice(Double.parseDouble(cellValue));
+                     }catch(Exception ex){
+                         builder.append("第[" + currentNumber + "]错误:虚料金额错误<br>");
+                         importError = true;
+                     }
+
+
+                     //入库单备注
+                     cellValue = obj[16];
+                     baseBean.setDescription(cellValue);
+
+                     if(storageBean!=null){
+
+                         String locationId = baseBean.getLocationId();
+                         String depotpartId = baseBean.getDepotpartId();
+                         String storageId = baseBean.getStorageId();
+                         String productId = baseBean.getProductId();
+
+                         ConditionParse conditionParse = new ConditionParse();
+                         conditionParse.addWhereStr();
+                         conditionParse.addCondition("locationId", "=", locationId);
+                         conditionParse.addCondition("depotpartId", "=", depotpartId);
+                         conditionParse.addCondition("storageId", "=", storageId);
+                         conditionParse.addCondition("productId", "=", productId);
+
+                         List<StorageRelationBean> storageRelations = storageRelationDAO.queryEntityBeansByCondition(conditionParse);
+                         StorageRelationBean storageRelationBean = null;
+                         if(storageRelations.size()>0){
+                             storageRelationBean = storageRelations.get(0);
+                         }
+                         //成本
+                         cellValue = obj[7];
+                         if(!StringTools.isNullOrNone(cellValue)){
+                             try{
+                                 double price = Double.parseDouble(cellValue);
+                                 double price0 = storageRelationBean.getPrice();
+                                 if(price != price0){
+                                     builder.append("第[" + currentNumber + "]错误:成本与库存不匹配<br>");
+                                     importError = true;
+                                 }else{
+                                	 baseBean.setCostPrice(price);
+                                     baseBean.setCostPriceKey(StorageRelationHelper.getPriceKey(price));
+                                 }
+                             }catch(Exception ex){
+                                 builder.append("第[" + currentNumber + "]错误:成本填写错误<br>");
+                                 importError = true;
+                             }
+
+                         }else{
+                             builder.append("第[" + currentNumber + "]错误:成本必填<br>");
+                             importError = true;
+                         }
+
+                         //数量
+                         cellValue = obj[8];
+                         if(!StringTools.isNullOrNone(cellValue)){
+                             int amount = Integer.parseInt(cellValue);
+                             int amount0 = storageRelationBean.getAmount();
+                             _logger.debug("导入值amount:"+amount+",参照值amount0:"+amount0);
+                             if(amount < 0){
+                                 if(Math.abs(amount)>amount0){
+                                     builder.append("第[" + currentNumber + "]错误:数量大于库存<br>");
+                                     importError = true;
+                                 }else{
+                                     baseBean.setAmount(amount);
+                                 }
+                             }else{
+                                 builder.append("第[" + currentNumber + "]错误:数量应为负数<br>");
+                                 importError = true;
+                             }
+                         }else{
+                             builder.append("第[" + currentNumber + "]错误:数量必填<br>");
+                             importError = true;
+                         }
+                     }
+
+                     bean.getBaseBeanList().add(baseBean);
+                     
+                     _logger.debug("add bean...");
+
+                     importItemList.add(bean);
+                 }
+                 else
+                 {
+                     builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("数据长度不足17格错误")
+                         .append("<br>");
+
+                     importError = true;
+                 }
+             }
+
+
+         }catch (Exception e)
+         {
+             _logger.error(e, e);
+
+             request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+             return mapping.findForward("batchDropImport");
+         }
+         finally
+         {
+             try
+             {
+                 reader.close();
+             }
+             catch (IOException e)
+             {
+                 _logger.error(e, e);
+             }
+         }
+
+         rds.close();
+
+         if (importError){
+
+             request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+             return mapping.findForward("batchDropImport");
+         }
+
+         String batchId = "";
+
+         User user = Helper.getUser(request);
+
+         try
+         {
+             batchId = outImportManager.batchDrop(user, importItemList);
+             request.setAttribute(KeyConstant.MESSAGE, "批量报废申请成功");
+         }
+         catch(MYException e)
+         {
+             request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
+
+             return mapping.findForward("batchDropImport");
+         }
+
+         request.setAttribute("batchId", batchId);
+
+         request.setAttribute("flag", 0);
+
+         //return queryBatchDrop(mapping, form, request, response);
+         return mapping.findForward("batchDropImport");
+     }
+
+     private boolean checkDateFormat(String dateStr){
+         boolean flag = true;
+         if(dateStr.length() != 10){
+             flag = false;
+         }
+         String[] strs =dateStr.split("-");
+         if(strs.length!=3){
+             flag = false;
+         }
+         return flag;
+     }
+
+     public ActionForward queryBatchDrop(ActionMapping mapping, ActionForm form,
+             HttpServletRequest request, HttpServletResponse response)
+     throws ServletException
+     {
+         String batchId = RequestTools.getValueFromRequest(request, "batchId");
+
+         CommonTools.saveParamers(request);
+
+         // 查询
+         List<BatchApproveBean> baList = batchApproveDAO.queryEntityBeansByFK(batchId);
+
+         request.setAttribute("baList", baList);
+
+         return mapping.findForward("queryBatchDrop");
+     }
 
      /**
       * 批量审核
@@ -7198,6 +7697,38 @@
      public void setBaseDAO(BaseDAO baseDAO)
      {
          this.baseDAO = baseDAO;
+     }
+
+     public UserDAO getUserDAO() {
+         return userDAO;
+     }
+
+     public void setUserDAO(UserDAO userDAO) {
+         this.userDAO = userDAO;
+     }
+
+     public DutyDAO getDutyDAO() {
+         return dutyDAO;
+     }
+
+     public void setDutyDAO(DutyDAO dutyDAO) {
+         this.dutyDAO = dutyDAO;
+     }
+
+     public StorageDAO getStorageDAO() {
+         return storageDAO;
+     }
+
+     public void setStorageDAO(StorageDAO storageDAO) {
+         this.storageDAO = storageDAO;
+     }
+
+     public StorageRelationDAO getStorageRelationDAO() {
+         return storageRelationDAO;
+     }
+
+     public void setStorageRelationDAO(StorageRelationDAO storageRelationDAO) {
+         this.storageRelationDAO = storageRelationDAO;
      }
 
      /**

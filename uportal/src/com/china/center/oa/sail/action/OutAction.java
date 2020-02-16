@@ -1836,6 +1836,24 @@ public class OutAction extends ParentOutAction
                         }
                     }
 
+                    // 进入待财务审批
+                    if (statuss == OutConstant.BUY_STATUS_SECOND_PASS)
+                    {
+                        try
+                        {
+                            resultStatus = outManager.pass(fullId, user,
+                                    OutConstant.STATUS_PASS, reason, null, depotpartId);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
+                    }
+
                     // 进入待董事长审批
                     if (statuss == OutConstant.BUY_STATUS_CHAIRMA_CHECK)
                     {

@@ -78,6 +78,12 @@ public class OutBean implements Serializable, OutInterface
      */
     private int outType = OutConstant.OUTTYPE_OUT_COMMON;
 
+
+    /**
+     * 报废类型
+     */
+    private int dropType = OutConstant.DROPTYPE_INVENTORY_SHORTAGE;
+
     /**
      * 0:销售单 1:入库单
      */
@@ -589,6 +595,7 @@ public class OutBean implements Serializable, OutInterface
         this.outTime = outBean.outTime;
         this.managerTime = outBean.managerTime;
         this.outType = outBean.outType;
+        this.dropType = outBean.dropType;
         this.type = outBean.type;
         this.hasInvoice = outBean.hasInvoice;
         this.invoiceId = outBean.invoiceId;
@@ -862,6 +869,14 @@ public class OutBean implements Serializable, OutInterface
     public void setOutType(int outType)
     {
         this.outType = outType;
+    }
+
+    public int getDropType() {
+        return dropType;
+    }
+
+    public void setDropType(int dropType) {
+        this.dropType = dropType;
     }
 
     /**

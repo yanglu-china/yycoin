@@ -33,6 +33,9 @@ public class UserVO extends UserBean implements User
     @Relationship(relationField = "stafferId", tagField = "name")
     private String stafferName = "";
 
+    @Relationship(relationField = "stafferId", tagField = "principalshipId")
+    private String principalshipId = "";
+
     @Relationship(relationField = "roleId")
     private String roleName = "";
 
@@ -58,6 +61,14 @@ public class UserVO extends UserBean implements User
     public void setStafferName(String stafferName)
     {
         this.stafferName = stafferName;
+    }
+
+    public String getPrincipalshipId() {
+        return principalshipId;
+    }
+
+    public void setPrincipalshipId(String principalshipId) {
+        this.principalshipId = principalshipId;
     }
 
     /**

@@ -186,7 +186,8 @@ public class BaseDAOImpl extends com.china.center.jdbc.inter.impl.BaseDAO<BaseBe
     public List<Map> queryBaseByStockId(String stockId)
     {
     	StringBuffer buffer = new StringBuffer();
-    	buffer.append(" SELECT a.*,b.buyReturnType buyReturnType, b.status outStatus, b.customerId customerId,  b.customerId providerId, b.invoiceId invoiceId,b.dutyId dutyId FROM t_center_base a");
+    	buffer.append(" SELECT a.*,b.buyReturnType buyReturnType, b.status outStatus, b.customerId customerId,  b.customerId providerId, b.invoiceId invoiceId,b.dutyId dutyId,a.description  description");
+    	buffer.append(" FROM t_center_base a");
     	buffer.append(" LEFT JOIN t_center_out b on b.fullId=a.outId");
     	buffer.append(" WHERE b.refOutFullId='"+stockId+"'");
     	
