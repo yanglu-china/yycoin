@@ -317,4 +317,7 @@ public interface TaxItemConstanst
     String YHCK = "1002";
     //其他应付款-暂记户
     String QTYSK_ZJH = "2181-04";
+
+    //投资收益
+    String TZSY = "5201";
 }

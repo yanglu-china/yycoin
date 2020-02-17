@@ -1798,14 +1798,89 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setLogTime(TimeTools.now());
 
-        List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
+        List<FinanceItemBean> itemList = new ArrayList<>();
 
-        // 借: 银行对应的暂记户科目  贷:其他应付款—财务待处理
-        createAddItem11(user, bean, bank, financeBean, itemList);
+        if (bean.getDkType() == FinanceConstant.INBILL_TYPE_DKBJ){
+            //贷款-本金
+            this.createFinanceItem(user, bean, bank, "", "",
+                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.DQJK_GSDK,
+                    financeBean, itemList);
+        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCBJ){
+            //理财-本金
+            this.createFinanceItem(user, bean, bank, "", "",
+                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.QTHBZJ_JJ,
+                    financeBean, itemList);
+        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCSY){
+            //理财-收益
+            this.createFinanceItem(user, bean, bank, "", "",
+                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.TZSY,
+                    financeBean, itemList);
+        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCSY){
+            //个人还款
+            this.createFinanceItem(user, bean, bank, "", "",
+                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.OTHER_RECEIVE_BORROW,
+                    financeBean, itemList);
+        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
+                || bean.getDkType() == FinanceConstant.INBILL_TYPE_OTHER){
+            //钱生钱,其他
+            //“钱生钱”和“其他”，财务操作认领成功后，无需自动生成凭证，页面直接跳转手工做凭证页面
+            return;
+        } else{
+            // 借: 银行对应的暂记户科目  贷:其他应付款—财务待处理
+            createAddItem11(user, bean, bank, financeBean, itemList);
+        }
 
         financeBean.setItemList(itemList);
 
         financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+    }
+
+    private void createFinanceItem(User user, PaymentBean bean, BankBean bank,
+                                   String itemInName,String itemOutName,
+                                   String itemTaxIdIn, String itemTaxIdOut,
+                                   FinanceBean financeBean, List<FinanceItemBean> itemList)
+            throws MYException
+    {
+//        String name = user.getStafferName() + "导入回款:" + bean.getId() + '.';
+
+        // 借:
+        FinanceItemBean itemIn = new FinanceItemBean();
+        String pareId = commonDAO.getSquenceString();
+        itemIn.setPareId(pareId);
+        itemIn.setName(itemInName);
+        itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+        FinanceHelper.copyFinanceItem(financeBean, itemIn);
+        TaxBean inTax = taxDAO.findByUnique(itemTaxIdIn);
+        if (inTax == null)
+        {
+            throw new MYException("[%s]缺少对应科目,请确认操作", itemTaxIdIn);
+        }
+        // 科目拷贝
+        FinanceHelper.copyTax(inTax, itemIn);
+        double inMoney = bean.getMoney();
+        itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
+        itemIn.setOutmoney(0);
+        itemIn.setDescription(itemIn.getName());
+        itemList.add(itemIn);
+
+        // 贷方
+        FinanceItemBean itemOut = new FinanceItemBean();
+        itemOut.setPareId(pareId);
+        itemOut.setName(itemOutName);
+        itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
+        FinanceHelper.copyFinanceItem(financeBean, itemOut);
+        TaxBean outTax = taxDAO.findByUnique(itemTaxIdOut);
+        if (outTax == null)
+        {
+            throw new MYException("[%s]缺少科目,请确认操作", itemTaxIdOut);
+        }
+        // 科目拷贝
+        FinanceHelper.copyTax(outTax, itemOut);
+        double outMoney = bean.getMoney();
+        itemOut.setInmoney(0);
+        itemOut.setOutmoney(FinanceHelper.doubleToLong(outMoney));
+        itemOut.setDescription(itemOut.getName());
+        itemList.add(itemOut);
     }
     
     private void createAddItem11(User user, PaymentBean bean, BankBean bank,
