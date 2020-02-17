@@ -3919,6 +3919,8 @@
                          if(user!=null){
                              bean.getOutBean().setStafferId(user.getStafferId());
                              bean.getOutBean().setStafferName(user.getName());
+                             
+                             bean.getOutBean().setReserve9(user.getStafferId());
                          }else{
                              builder.append("第[" + currentNumber + "]错误:业务员/职员不存在<br>");
                              importError = true;
