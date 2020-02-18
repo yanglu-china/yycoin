@@ -2332,8 +2332,16 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         inBillBean.setType(payment.getDkType());
         inBillBean.setBankId(payment.getBankId());
         inBillBean.setMoneys(payment.getMoney());
+        inBillBean.setSrcMoneys(payment.getMoney());
         inBillBean.setDescription("财务认领:" + paymentId);
-        this.inBillDAO.saveEntityBean(inBillBean);
+        inBillBean.setLogTime(TimeTools.now());
+        inBillBean.setCustomerId(payment.getCustomerId());
+        inBillBean.setStafferId(payment.getStafferId());
+        inBillBean.setOwnerId(payment.getStafferId());
+        inBillBean.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
+        inBillBean.setPaymentId(paymentId);
+        //不要直接dao保存会有些字段未设置全
+        billManager.addInBillBeanWithoutTransaction(user, inBillBean);
         
 //        outBill.setStatus(FinanceConstant.OUTBILL_STATUS_END);
 //
