@@ -75,6 +75,7 @@ public class DutyAction extends DispatchAction
         ConditionParse condtion = new ConditionParse();
 
         condtion.addWhereStr();
+        condtion.addCondition("showtype", "=", "0");
 
         ActionTools.processJSONQueryCondition(QUERYDUTY, request, condtion);
 

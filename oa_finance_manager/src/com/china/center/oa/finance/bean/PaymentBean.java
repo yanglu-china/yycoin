@@ -144,7 +144,7 @@ public class PaymentBean implements Serializable
     /**
      * 内部、外部
      */
-    @Html(title = "资金性质")
+    @Html(title = "资金性质", type = Element.SELECT)
     private int ctype = FinanceConstant.PAYMENTCTYPE_EXTERNAL;
 
 

@@ -11,6 +11,7 @@ package com.china.center.oa.publics.listener.impl;
 
 import java.util.List;
 
+import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.publics.dao.DutyDAO;
 import com.china.center.oa.publics.listener.QueryListener;
 
@@ -34,7 +35,12 @@ public class QueryListenerDutyImpl implements QueryListener
      */
     public List<?> getBeanList()
     {
-        return dutyDAO.listEntityBeans();
+    	ConditionParse condtion = new ConditionParse();
+
+        condtion.addWhereStr();
+        condtion.addCondition("showtype", "=", "0");
+        return dutyDAO.queryEntityBeansByCondition(condtion);
+        //return dutyDAO.listEntityBeans();
     }
 
     /*
