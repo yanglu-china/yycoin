@@ -2338,7 +2338,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         inBillBean.setCustomerId(payment.getCustomerId());
         inBillBean.setStafferId(payment.getStafferId());
         inBillBean.setOwnerId(payment.getStafferId());
-        inBillBean.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
+        inBillBean.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
         inBillBean.setPaymentId(paymentId);
         //不要直接dao保存会有些字段未设置全
         billManager.addInBillBeanWithoutTransaction(user, inBillBean);
