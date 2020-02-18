@@ -89,6 +89,10 @@ function clearValues()
 			<p:pro field="dkType">
 				<p:option type="inbillType"/>
 			</p:pro>
+
+			<p:pro field="ctype">
+				<p:option type="paymentCtype"/>
+			</p:pro>
             
             <p:cell title="指定职员">
             <input type="text" readonly="readonly" name="owerName" style="width: 240px"/>
