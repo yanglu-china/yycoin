@@ -35,8 +35,8 @@ function check()
     var total = ${my:formatNum(bean.money)};
     
     var pu = 0.0;
-
     pu = parseFloat($$('outMoney'));
+
     
     if (total != pu)
     {
@@ -133,6 +133,10 @@ function checkCurrentUser()
             
             <p:cell title="类型">
                ${my:get('paymentType', bean.type)}
+            </p:cell>
+
+            <p:cell title="导款类型">
+                ${my:get('inbillType', bean.dkType)}
             </p:cell>
             
             <p:cell title="金额">

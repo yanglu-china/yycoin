@@ -285,4 +285,39 @@ public interface TaxItemConstanst
      * 	其他应收款-个人
      */
     String TAX_OTHER_PERSON = "1133-21";
+
+    //应付职工薪酬-社保
+    String YFZGXC_SB = "2151-02";
+    //应付职工薪酬-公积金
+    String YFZGXC_GJJ = "2151-03";
+    //短期借款-公司贷款
+    String DQJK_GSDK = "2101-02";
+    //贷款利息
+    String DKLX = "5506-03";
+    //应付利息
+    String YFLX = "2231";
+    //其他货币资金-基金
+    String QTHBZJ_JJ = "1009-09";
+    //应交所得税
+    String YJSDS = "2171-06";
+    //未交增值税
+    String WJZZS = "2171-02";
+    //应交税费-个调税
+    String YJSF_GDS = "2171-12";
+    //应交印花税
+    String YJYHS = "2171-03";
+    //应交教育费附加
+    String YJJYFFJ = "2171-07";
+    //应交城市维护建设税
+    String YJCSWHF = "2171-08";
+    //应交消费税
+    String YJXFS = "2171-04";
+
+    //银行存款
+    String YHCK = "1002";
+    //其他应付款-暂记户
+    String QTYSK_ZJH = "2181-04";
+
+    //投资收益
+    String TZSY = "5201";
 }

@@ -41,6 +41,7 @@ function load()
              {display: '资金性质', name : 'ctype', cc: 'paymentCtype', width : '5%'},
              {display: '帐户', name : 'bankName', width : '18%'},
              {display: '类型', name : 'type', cc: 'paymentType', width : '5%'},
+             {display: '导款类型', name : 'dkType', cc: 'inbillType', width : '5%'},
              {display: '状态', name : 'status', cc: 'paymentStatus', width : '5%'},
              //{display: '金额使用', name : 'useall', cc: 'paymentUseall', width : '8%'},
              {display: '认领人', name : 'stafferName',  width : '5%'},
@@ -119,7 +120,7 @@ function drawBean3(opr, grid)
         $l(gurl + 'find' + ukey + '&mode=3&id=' + getRadioValue('checkb'));
     }
     else
-    $error('不能操作');
+    $error('内部资金才能认领');
 }
 
 // 供应商退款认领

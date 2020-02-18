@@ -22,6 +22,8 @@ public interface OutImportManager
 	boolean processAsyn(List<? extends OutImportBean> list);
 	
 	List<ReplenishmentBean> queryReplenishmentBean() throws MYException;
+
+	public String batchDrop(User user, List<BatchDropBean> beans) throws MYException;
 	
 	String batchApproveImport(List<BatchApproveBean> list, int type)
 		throws MYException;

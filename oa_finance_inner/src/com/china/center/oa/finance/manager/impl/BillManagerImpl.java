@@ -428,7 +428,23 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_STAMP
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_AUCTION
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_SPECIAL
-                || bean.getType() == FinanceConstant.OUTBILL_TYPE_LEAVE_EXPENSE)
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_LEAVE_EXPENSE
+        //#900
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SB
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_GJJ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_DKBJ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_DKLXYF
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_DKLXJF
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_LCBJ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_QSQ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJSDS
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJZZS
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJGSJH
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJGSGZ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJYHS
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJJYFJ
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJWHF
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJXFS)
                 && bean.getCreateType() == FinanceConstant.BILL_CREATETYPE_HAND)
         {
         	// 转账一步到位

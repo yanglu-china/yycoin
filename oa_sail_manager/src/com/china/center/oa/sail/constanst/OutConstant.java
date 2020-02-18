@@ -729,6 +729,22 @@ public interface OutConstant
     @Defined(key = "forceBuyTypes", value="配件报废")
     int DROP_PART = 55;
     
+    /**
+     * 报废类型 
+     * 盘亏、领样退回报废、不良品报废
+     */
+    @Defined(key = "dropTypes", value="盘亏")
+    int DROPTYPE_INVENTORY_SHORTAGE = 10;
+    
+    @Defined(key = "dropTypes", value="领样退回报废")
+    int DROPTYPE_SAMPLE_SCRAP = 20;
+    
+    @Defined(key = "dropTypes", value="不良品报废")
+    int DROPTYPE_DEFECTIVE = 30;
+    
+    @Defined(key = "dropTypes", value="其他")
+    int DROPTYPE_OTHERS = 90;
+    
 
     /**
      * 执行状态   

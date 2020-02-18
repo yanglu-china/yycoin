@@ -42,6 +42,8 @@ public interface OutManager extends ListenerManager<OutListener>
     String addOut(final OutBean outBean, final Map dataMap, final User user)
         throws MYException;
     
+    public String addOut(BatchDropBean batchDropBean, final User user) throws MYException;
+    
 
     /**
      * coloneOutAndSubmitAffair(接受调拨生成入库单)

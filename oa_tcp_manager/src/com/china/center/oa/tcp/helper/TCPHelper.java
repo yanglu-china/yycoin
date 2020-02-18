@@ -578,11 +578,11 @@ public abstract class TCPHelper
         vo.setShowCheckTotal(MathTools.formatNum(MathTools.longToDouble2(vo.getCheckTotal())));
 
         if (vo.getType() <= 10 || vo.getType() == TcpConstanst.TCP_APPLYTYPE_PLATFORM
-                || vo.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION3)
+                || vo.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION3 || vo.getType() == TcpConstanst.TCP_EXPENSETYPE_COMMON_20)
         {
             vo.setUrl(TcpConstanst.TCP_TRAVELAPPLY_PROCESS_URL + vo.getApplyId());
         }
-        else if (vo.getType() > 10 && vo.getType() <= 20)
+        else if (vo.getType() > 10 && vo.getType() < 20)
         {
             vo.setUrl(TcpConstanst.TCP_EXPENSE_PROCESS_URL + vo.getApplyId());
         }else if (vo.getType() == 21)

@@ -29,6 +29,7 @@ function load()
              {display: '系统标识', name : 'id', width : '12%'},
              {display: '帐户', name : 'bankName', width : '12%'},
              {display: '类型', name : 'type', cc: 'paymentType', width : '5%'},
+             {display: '导款类型', name : 'dkType', cc: 'inbillType', width : '5%'},
              {display: '状态', name : 'status', cc: 'paymentStatus', width : '5%'},
              {display: '认领人', name : 'stafferName', cc: 'paymentStatus', width : '5%'},
              {display: '回款来源', name : 'fromer', width : '8%'},

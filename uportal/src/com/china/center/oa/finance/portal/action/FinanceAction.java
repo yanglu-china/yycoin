@@ -24,6 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.publics.DefinedCommontUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -2915,35 +2916,48 @@ public class FinanceAction extends DispatchAction {
 
 		if (StringTools.isNullOrNone(obj[0])) {
 			throw new MYException("缺少唯一标识");
+		} else{
+			bean.setRefId(obj[0].trim());
 		}
 
-		if (StringTools.isNullOrNone(obj[1])) {
+		String type = obj[1];
+		if (StringTools.isNullOrNone(type)) {
 			throw new MYException("缺少类型");
+		} else{
+			if ("对私".equals(type.trim())) {
+				bean.setType(FinanceConstant.PAYMENT_PAY_SELF);
+			} else {
+				bean.setType(FinanceConstant.PAYMENT_PAY_PUBLIC);
+			}
 		}
 
-		if (StringTools.isNullOrNone(obj[2])) {
-			throw new MYException("缺少回款来源");
+
+		bean.setBankId(bankId);
+
+		String dkType = obj[2];
+		if (StringTools.isNullOrNone(dkType)) {
+			throw new MYException("缺少导款类型");
+		} else{
+			try {
+				int dk = DefinedCommontUtils.getValue(FinanceConstant.class, "inbillType", dkType.trim());
+				bean.setDkType(dk);
+			}catch (MYException e){
+				throw new MYException("导款类型不支持:"+dkType);
+			}
 		}
-		
-		if (StringTools.isNullOrNone(obj[3])) {
+
+		bean.setFromer(obj[3]);
+
+		if (StringTools.isNullOrNone(obj[4])) {
 			throw new MYException("缺少回款金额");
 		}
-
-		if ("对私".equals(obj[1])) {
-			bean.setType(FinanceConstant.PAYMENT_PAY_SELF);
-		} else {
-			bean.setType(FinanceConstant.PAYMENT_PAY_PUBLIC);
-		}
-
-		bean.setRefId(obj[0].trim());
-		bean.setBankId(bankId);
-		bean.setFromer(obj[2]);
 		//#606 Excel数字格式导入时会带有特殊字符,需要去掉
-		if (obj[3]!= null){
-			bean.setMoney(MathTools.parseDouble(obj[3].trim()));
+		if (obj[4]!= null){
+			bean.setMoney(MathTools.parseDouble(obj[4].trim()));
 		}
-		bean.setHandling(MathTools.parseDouble(obj[4]));
-		String date = obj[5].trim();
+
+		bean.setHandling(MathTools.parseDouble(obj[5]));
+		String date = obj[6].trim();
 		if (!StringTools.isNullOrNone(date)){
 			if (DateTimeUtils.isDateValid(date)){
 				bean.setReceiveTime(date);
@@ -2954,18 +2968,18 @@ public class FinanceAction extends DispatchAction {
 
 		bean.setBatchId(batchId);
 
-		bean.setDescription(obj[6]);
-		
-		if (!StringTools.isNullOrNone(obj[7])) {
-			bean.setFromerNo(obj[7]);
-		}
+		bean.setDescription(obj[7]);
 		
 		if (!StringTools.isNullOrNone(obj[8])) {
+			bean.setFromerNo(obj[8].trim());
+		}
+		
+		if (!StringTools.isNullOrNone(obj[9])) {
 
-            if (obj[8].trim().equals("外部"))
+            if (obj[9].trim().equals("外部"))
             {
                 bean.setCtype(0);
-            }else if (obj[8].trim().equals("内部"))
+            }else if (obj[9].trim().equals("内部"))
             {
                 bean.setCtype(1);
             }else{
@@ -2977,22 +2991,24 @@ public class FinanceAction extends DispatchAction {
         }
 
 
-        if (!StringTools.isNullOrNone(obj[9])) {
-            bean.setPosTerminalNumber(obj[9]);
+        if (!StringTools.isNullOrNone(obj[10])) {
+            bean.setPosTerminalNumber(obj[10]);
         }
 
 		PaymentBean oldPay = paymentDAO.findByUnique(bean.getBankId(),
 				bean.getRefId());
 
-		if (oldPay != null && oldPay.getMoney() != bean.getMoney()) {
-			throw new MYException("导入金额出现错误,标识[%s]已经存在,且金额[%f]:[%f]不一致",
-					bean.getRefId(),oldPay.getMoney(), bean.getMoney());
-		}
+//		if (oldPay != null && oldPay.getMoney() != bean.getMoney()) {
+//			throw new MYException("导入金额出现错误,标识[%s]已经存在,且金额[%f]:[%f]不一致",
+//					bean.getRefId(),oldPay.getMoney(), bean.getMoney());
+//		}
 
 		// 插入新的值
 		if (oldPay == null) {
 			payList.add(bean);
-		}
+		} else{
+            throw new MYException("回款已导入:标示[%s],银行[%s]",bean.getRefId(),bean.getBankId());
+        }
 
 		return true;
 	}
@@ -3566,13 +3582,13 @@ public class FinanceAction extends DispatchAction {
     public ActionForward drawTransfer(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response)
 			throws ServletException {
-		try {
+
 			String id = request.getParameter("id");
 
 			String description = request.getParameter("description");
 			
 			User user = Helper.getUser(request);
-
+        try {
 			//商务 
 	        ActionForward error = checkAuthForEcommerce(request, user, mapping);
 	    	
@@ -3594,7 +3610,15 @@ public class FinanceAction extends DispatchAction {
 					"操作操作：" + e.getErrorContent());
 		}
 
-		return mapping.findForward("querySelfPayment");
+        PaymentBean bean = paymentDAO.find(id);
+		if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
+				|| bean.getDkType() == FinanceConstant.INBILL_TYPE_OTHER){
+			//钱生钱,其他
+			//“钱生钱”和“其他”，财务操作认领成功后，无需自动生成凭证，页面直接跳转手工做凭证页面
+            return mapping.findForward("addFinance");
+		} else{
+            return mapping.findForward("querySelfPayment");
+		}
 	}
     
     private PaymentApplyBean addTransferApply(HttpServletRequest request, String id,

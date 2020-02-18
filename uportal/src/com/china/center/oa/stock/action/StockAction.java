@@ -2621,17 +2621,23 @@ public class StockAction extends DispatchAction
 
             for(StockItemVO stockItemVO : stockItemVOs) {
                 int backAmount = 0;
+                int backingAmount = 0;
                 String approveTime = "";
+                String description = "";
                 //统计对应的退货信息
                 for (Map baseItem : tempList) {
                     String productId = Util.getString(baseItem.get("productId"));
                     String providerId = Util.getString(baseItem.get("providerId"));
+                    description = Util.getString(baseItem.get("description"));
                     int status = Util.getInteger(baseItem.get("outStatus"));
                     if (productId.equals(stockItemVO.getProductId()) && providerId.equals(stockItemVO.getProviderId())) {
                         //获取退货数量
+                    	int amount = Util.getInteger(baseItem.get("amount"));
                         if (OutConstant.BUY_RETURN_STATUS_PASS == status || OutConstant.BUY_RETURN_STATUS_SEC_PASS == status) {
-                            int amount = Util.getInteger(baseItem.get("amount"));
+                            
                             backAmount += Math.abs(amount);
+                        }else{
+                        	backingAmount += Math.abs(amount);
                         }
                         //获取审批时间
                         if ((OutConstant.BUY_RETURN_STATUS_PASS == status)) {
@@ -2650,8 +2656,10 @@ public class StockAction extends DispatchAction
                 summaryMap.put("productName", stockItemVO.getProductName());
                 summaryMap.put("amount", stockItemVO.getAmount()+"");
                 summaryMap.put("backAmount", backAmount+"");
+                summaryMap.put("backingAmount", backingAmount+"");
                 summaryMap.put("provider", stockItemVO.getProviderName());
                 summaryMap.put("approveTime", approveTime);
+                summaryMap.put("description", description);
 
                 summaryList.add(summaryMap);
 

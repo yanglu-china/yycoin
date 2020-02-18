@@ -1605,6 +1605,11 @@ public class OutAction extends ParentOutAction
 
                 out = outDAO.find(fullId);
                 
+                //#888 设置财务审核后状态为待审核
+                if(out.getOutType() == OutConstant.OUTTYPE_IN_DROP2 && ioldStatus == OutConstant.BUY_STATUS_SECOND_PASS){
+                    statuss = OutConstant.BUY_STATUS_PASS;
+                }
+                
                 _logger.debug("out.getBuyReturnFlag(): "+out.getBuyReturnFlag()+", type: "+out.getType()+", outType: "+out.getOutType());
                 
                 if (out == null)

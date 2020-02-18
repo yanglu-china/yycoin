@@ -343,6 +343,11 @@ var g_url_query = 0;
 
 function managerChange()
 {
+
+    showTr('dropType_tr', false);
+    showTr('attach_tr', false);
+    showTr('tr_att_more', false);
+        
     g_url_query = 0;
     
     //调拨
@@ -436,6 +441,10 @@ function managerChange()
         showTr('invoice_tr', false);
         showTr('staffer_tr',false);
         showTr('customer_tr',false);
+        
+       	showTr('dropType_tr', false);
+        showTr('attach_tr', false);
+        showTr('tr_att_more', false);
 	
 		titleChange2();
 	
@@ -455,6 +464,8 @@ function managerChange()
 	    	
 	    	showTr('table_tr', true);
 	        showTr('button_tr', true);	
+	        showTr('dropType_tr', true);
+	        showTr('attach_tr', true);
 	    }else
 	    {
 		    var nameList = document.getElementsByName("price");
@@ -489,6 +500,11 @@ function managerChange()
 	         
 	       	 showTr('table_tr', true);
 	         showTr('button_tr', true);	
+	         
+	         showTr('dropType_tr', false);
+	         showTr('attach_tr', false);
+	         showTr('tr_att_more', false);
+	         
 	    }
         
     }

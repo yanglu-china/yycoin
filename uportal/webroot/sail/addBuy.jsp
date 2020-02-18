@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"
 	errorPage="../common/error.jsp"%>
 <%@include file="../common/common.jsp"%>
-
 <html>
 <head>
 <p:link title="填写入库单" />
@@ -228,11 +227,30 @@ function forward()
 
 }
 
+var gMore = 0;
+
+function showMoreAtt()
+{
+    var obj = getObj('tr_att_more');
+    
+    if (gMore % 2 == 0)
+    {
+        $v('tr_att_more', true);
+    }
+    else
+    {
+        $v('tr_att_more', false);
+    }
+    
+    gMore++;
+}
+
 </script>
 </head>
 <body class="body_class" onload="load()">
-<form name="outForm" method=post action="../sail/out.do">
-	<input type=hidden name="method" value="addOut" />
+
+<form name="outForm" action="../sail/out.do?method=addOutWithAttachment"  enctype="multipart/form-data" method="post">
+
 	<input type=hidden name="nameList" />
 	<input type=hidden name="idsList" />
 	<input type=hidden name="unitList" />
@@ -261,6 +279,8 @@ function forward()
 <input type=hidden name="inputPriceList" value="" />
 <input type=hidden name="id" value="" />
 <input type=hidden name="showCostList" value="" />
+
+<input type="hidden" name="attacmentIds" value="${attacmentIds}">
 
 <input type=hidden name="oprType" value="0">
 <p:navigation
@@ -349,8 +369,17 @@ function forward()
 						</select><font color="#FF0000">*</font></td>
 
 					</tr>
+					
+					<tr class="content2" id = "dropType_tr">
+						<td align="right" id="outd">报废类型：</td>
+						<td colspan="3">
+						<select name="dropType" class="select_class">
+							<p:option type="dropTypes"></p:option>
+						</select><font color="#FF0000">*</font></td>
 
-					<tr class="content2" id = "refOutFullId_tr">
+					</tr>					
+
+					<tr class="content1" id = "refOutFullId_tr">
 						<td align="right" id="outd">原销售单号：</td>
 						<td colspan="3"><input type="text" name="refOutFullId" value="" title="请输入完整的原单号"
 							maxlength="40" size="40"
@@ -508,6 +537,23 @@ function forward()
 							<font color="#FF0000">*</font>
 							</td>
 					</tr>
+					
+					<tr align="center" class="content1" id="attach_tr">
+					    <td width="15%" align="right">附件：</td>
+					    <td align="left" colspan="3">
+					        <input type="file" name="atts" size="70" >
+					        <font color="blue"><span style="cursor: pointer;" onclick="showMoreAtt()" >【更多附件】 </span><b>建议压缩后上传,最大支持10M</b></font>
+					    </td>
+					</tr>
+					<tr id="tr_att_more" align="center" class="content1" style="display:none;">
+					    <td width="15%" align="right">附件N：</td>
+					    <td align="left" colspan="3">
+					        <input type="file" name="atts0" size="70" > <br>
+					        <input type="file" name="atts1" size="70" > <br>
+					        <input type="file" name="atts2" size="70" > <br>
+					        <input type="file" name="atts3" size="70" > <br>
+					    </td>
+					</tr>                    					
 
 				</table>
 				</td>

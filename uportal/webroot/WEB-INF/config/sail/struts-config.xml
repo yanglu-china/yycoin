@@ -157,6 +157,10 @@
             <forward name="importBatchSwatch" path="/sailImport/batchSwatchImport.jsp" />
             <forward name="importConsign" path="/sailImport/importConsign.jsp" />
             <forward name="importOutId" path="/sailImport/importOutId.jsp" />
+
+            <forward name="queryBatchDrop" path="/sailImport/queryBatchDrop.jsp" />
+            <forward name="batchDropImport" path="/sailImport/batchDropImport.jsp" />
+            
             <forward name="importOutDepot" path="/sailImport/importOutDepot.jsp" />
             <forward name="uploadDistAddress" path="/sailImport/uploadDistAddress.jsp" />
             <forward name="querySplitOut" path="/sailImport/querySplitOut.jsp" />

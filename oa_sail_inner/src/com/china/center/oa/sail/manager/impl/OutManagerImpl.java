@@ -101,6 +101,7 @@ import com.china.center.oa.publics.DateTimeUtils;
 import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.AreaBean;
+import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.CityBean;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.EnumBean;
@@ -147,6 +148,7 @@ import com.china.center.oa.sail.bean.AutoApproveBean;
 import com.china.center.oa.sail.bean.BaseBalanceBean;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.BaseRepaireBean;
+import com.china.center.oa.sail.bean.BatchDropBean;
 import com.china.center.oa.sail.bean.BatchReturnLog;
 import com.china.center.oa.sail.bean.ConsignBean;
 import com.china.center.oa.sail.bean.DeliveryRankVSOutBean;
@@ -685,6 +687,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         
                         dutyId = coutBean.getDutyId();
                     }
+                    
+                    _logger.debug("outBean.getFullId():"+outBean.getFullId());
 
                     // 组织BaseBean
                     boolean addSub = false;
@@ -1334,6 +1338,26 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             throw new RuntimeException(e.getErrorContent(), e);
                         }
                     }
+                    
+                    //#836 handle attachments
+                    List<AttachmentBean> attachmentList = outBean.getAttachmentList();
+                    
+                    _logger.info("null != attachmentList:"+(null != attachmentList));
+                    
+                    _logger.debug("outBean.getFullId():"+outBean.getFullId());
+
+                    if(null != attachmentList && attachmentList.size() > 0)
+                    {
+                    	_logger.info("attachmentList.size():"+ attachmentList.size());
+            	        for (AttachmentBean attachmentBean : attachmentList)
+            	        {
+            	            attachmentBean.setId(commonDAO.getSquenceString20());
+            	            attachmentBean.setRefId(outBean.getFullId());
+            	            _logger.info("attachmentBean:"+ attachmentBean.toString());
+            	        }
+
+            	        attachmentDAO.saveAllEntityBeans(attachmentList);
+                    }
 
                     return Boolean.TRUE;
                 }
@@ -1358,6 +1382,287 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info(user.getStafferName() + "/" + user.getName() + "/ADD:" + outBean);
 
         return fullId;
+    }
+    
+    /**
+     * 增加报废单
+     * 
+     * @param outBean
+     * @return String 销售单的ID
+     * @throws Exception
+     */
+    public String addOut(BatchDropBean batchDropBean, final User user)
+        throws MYException
+    {
+    	final String batchId = batchDropBean.getBatchId();
+    	final OutBean outBean = batchDropBean.getOutBean();
+    	final List<BaseBean> baseBeans = batchDropBean.getBaseBeanList();
+        
+        // 0:表示新的批量开单 1:表示单笔（仓库+管理类型+旧货）用于驳回态修改
+        final String oprType = "0";
+
+        this.genFullId(outBean, oprType);
+
+        // 批量产品开单时，为saveOutInner准备
+        if (oprType.equals("0") && outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+        	outBean.setLocation(oprType);
+        
+        this.sumTotal(outBean, baseBeans);
+        
+        outBean.setStatus(OutConstant.STATUS_SAVE);
+
+        outBean.setPay(OutConstant.PAY_NOT);
+
+        outBean.setInway(OutConstant.IN_WAY_NO);
+
+        outBean.setCurcredit(0.0d);
+
+        outBean.setStaffcredit(0.0d);
+
+        if (StringTools.isNullOrNone(outBean.getCustomerId())
+            || CustomerConstant.PUBLIC_CUSTOMER_ID.equals(outBean.getCustomerId()))
+        {
+            outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+
+            outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+        }else{
+        	
+        	if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL){
+        		// 增加客户与职员对应关系的校验 
+            	StafferVSCustomerBean stafferVSCust = stafferVSCustomerDAO.findByUnique(outBean.getCustomerId());
+            	
+            	if (null == stafferVSCust){
+            		throw new MYException("客户[%s]没有挂靠职员", outBean.getCustomerName());
+            	}else{
+            		if (!stafferVSCust.getStafferId().equals(outBean.getStafferId()))
+            		{
+            			throw new MYException("客户[%s]不在职员[%s]名下", outBean.getCustomerName(), outBean.getStafferName());
+            		}
+            	}
+        	}
+        }
+
+        if (StringTools.isNullOrNone(outBean.getInvoiceId()))
+        {
+            outBean.setHasInvoice(OutConstant.HASINVOICE_NO);
+        }
+        else
+        {
+            outBean.setHasInvoice(OutConstant.HASINVOICE_YES);
+        }
+
+        // 赠送的价格为0
+        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+            && outBean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
+        {
+            outBean.setTotal(0.0d);
+        }
+
+        // 行业属性
+        setInvoiceId(outBean);
+
+        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
+        {
+            outBean.setEventId("");
+            outBean.setRefBindOutId("");
+            outBean.setPromStatus(-1);
+        }
+        
+        // 增加管理员操作在数据库事务中完成
+        TransactionTemplate tran = new TransactionTemplate(transactionManager);
+        try
+        {
+            tran.execute(new TransactionCallback()
+            {
+                public Object doInTransaction(TransactionStatus arg0)
+                {
+                	String dutyId = "";
+
+                    // 组织BaseBean
+                    boolean addSub = false;
+
+                    boolean hasZero = false;
+
+                    double total = 0.0d;
+                    
+                    double taxTotal = 0.0d;
+
+                    List<BaseBean> baseList = new ArrayList<BaseBean>();
+                    
+                    List<ProductBean> tempProductList = new ArrayList<ProductBean>();
+                    
+//                    boolean isManagerPass = false;
+                    StringBuffer messsb = new StringBuffer();
+                    
+                    // 处理每个base
+                    for (BaseBean base : baseBeans )
+                    {
+
+                        base.setId(commonDAO.getSquenceString());
+
+                        if (base.getAmount() == 0)
+                        {
+                            continue;
+                        }
+
+                        base.setOutId(outBean.getFullId());
+
+                        ProductBean product = productDAO.find(base.getProductId());
+
+                        if (product == null)
+                        {
+                            throw new RuntimeException("产品为空,数据不完备");
+                        }
+
+                        //#359
+                        if ((outBean.getType() == OutConstant.OUT_TYPE_OUTBILL && outBean.getOutType() == OutConstant.OUTTYPE_OUT_COMMON)
+                                ||(outBean.getType() == OutConstant.OUT_TYPE_INBILL && outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)){
+                            CustomerBean customerBean = customerMainDAO.find(outBean.getCustomerId());
+                            try {
+                                ProductImportBean productImportBean = getProductImportBean(outBean, customerBean, base.getProductId());
+                                if (productImportBean != null){
+                                   base.setGrossProfit(productImportBean.getGrossProfit());
+                                   base.setCash(productImportBean.getCash());
+                                   base.setCash2(productImportBean.getCash2());
+                                }
+                            }catch (Exception e){
+                                _logger.error(e);
+                            }
+                        }
+
+                        tempProductList.add(product);
+
+                        // 赠送的价格为0
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                            && outBean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
+                        {
+                            base.setPrice(0.0d);
+                        }
+
+                        if (base.getPrice() == 0)
+                        {
+                            hasZero = true;
+                        }
+
+                        // 这里需要核对价格 调拨
+                        if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
+                            && (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT || outBean
+                                .getOutType() == OutConstant.OUTTYPE_IN_DROP))
+                        {
+                            if ( !MathTools.equal(base.getPrice(), base.getCostPrice()))
+                            {
+                                throw new RuntimeException("调拨/报废的时候价格必须相等");
+                            }
+                        }
+                        
+                        //base.setMtype(outBean.getMtype());
+                        base.setMtype(MathTools.parseInt(product.getReserve4()));
+
+                        double sailPrice = 0.0d;
+                        
+                        double minPrice = 0.0d;
+
+                        sailPrice = product.getSailPrice();
+                        
+                        minPrice = sailPrice;
+
+                        baseList.add(base);
+
+                        // 增加单个产品到base表
+                        baseDAO.saveEntityBean(base);
+
+                        _logger.info("生成BaseBean:"+base);
+
+                        addSub = true;
+                    }                  
+                    
+                    outBean.setTaxTotal(taxTotal);
+                    
+                    outBean.setBaseList(baseList);
+
+                    // 保存入库单
+                    try
+                    {
+                        saveOutInner(outBean);
+                        _logger.debug("save outBean.getFullId():"+outBean.getFullId());
+                    }
+                    catch (MYException e1)
+                    {
+                        throw new RuntimeException(e1.toString());
+                    }
+
+                    if ( !addSub)
+                    {
+                        throw new RuntimeException("没有产品数量");
+                    }
+
+                    return Boolean.TRUE;
+                }
+            });
+        }
+        catch (TransactionException e)
+        {
+            _logger.error("增加库单错误：", e);
+            throw new MYException("数据库内部错误");
+        }
+        catch (DataAccessException e)
+        {
+            _logger.error("增加库单错误：", e);
+            throw new MYException(e.getCause().toString());
+        }
+        catch (Exception e)
+        {
+            _logger.error("增加库单错误：", e);
+            throw new MYException("系统错误，请联系管理员:" + e);
+        }
+
+        _logger.info(user.getStafferName() + "/" + user.getName() + "/ADD:" + outBean);
+
+        return outBean.getFullId();
+    }
+    
+    private void genFullId(OutBean outBean, String oprType) throws MYException{
+        // 先保存
+        String id = getAll(commonDAO.getSquence());
+
+        /*
+        LocationBean location = locationDAO.find(outBean.getLocationId());
+
+        if (location == null)
+        {
+            _logger.error("区域不存在:" + outBean.getLocationId());
+
+            throw new MYException("区域不存在:" + outBean.getLocationId());
+        }
+        */
+
+        //String flag = location.getCode();
+        String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
+        
+        _logger.debug("type:"+outBean.getType()+", outType:"+outBean.getOutType()+", flag:"+flag);
+        
+        // 临时单号，待拆分为SO单
+        if (oprType.equals("0"))
+        {
+        	flag = "TM";
+        }
+
+        String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+
+        String fullId = flag + time + id;
+
+        outBean.setId(getOutId(id));
+
+        outBean.setFullId(fullId);
+    }
+    
+    private void sumTotal(OutBean outBean, List<BaseBean> baseBeans){
+    	double total = 0;
+    	for(BaseBean bean:baseBeans){
+    		total += bean.getValue();
+    	}
+    	outBean.setTotal(total); 
     }
 
     private boolean isVirtualProduct(String productId){
@@ -2472,6 +2777,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             {
                 nextStatus = OutConstant.BUY_STATUS_SECOND_PASS;
             }
+            // #888 报废
+            else if (outBean.getOutType() == OutConstant.OUTTYPE_IN_DROP2)
+            {
+                nextStatus = OutConstant.BUY_STATUS_SECOND_PASS;
+            }            
             // 其他直接是待分公司经理审核
             else
             {
@@ -3756,7 +4066,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         }
                         else
                         {
-                            if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_APPLY)
+                            if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_APPLY
+                              ||outBean.getOutType() == OutConstant.OUTTYPE_IN_DROP2 )
                             	newNextStatus = OutConstant.BUY_STATUS_PASS;
                         }
 
@@ -8496,6 +8807,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 	
                 	List<DistributionBean> distBeanList = distributionDAO.queryEntityBeansByFK(id);
                 	
+                	List<AttachmentBean> attachmentBeanList = attachmentDAO.queryEntityBeansByFK(id);
+                	
                 	DistributionBean distBean = null;
                 	
                 	if (!ListTools.isEmptyOrNull(distBeanList))
@@ -8597,6 +8910,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 			mtype = each.getMtype();
                 		}
                 		
+                		//handle attachments #888
+                		List<AttachmentBean> newAttachmentBeanList = new ArrayList<AttachmentBean>();
+                		for(AttachmentBean attachmentBean : attachmentBeanList){
+                			
+                			attachmentBean.setId(commonDAO.getSquenceString20());
+                			attachmentBean.setRefId(newOutId);
+                			
+                			newAttachmentBeanList.add(attachmentBean);
+                		}
+                		                		
                 		newOutBean.setTotal(total);
                 		
                 		newOutBean.setTaxTotal(taxTotal);
@@ -8611,6 +8934,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         saveOutWithPodate(newOutBean);
                 		
                 		baseDAO.saveAllEntityBeans(newBaseList);
+                		
+                		attachmentDAO.saveAllEntityBeans(newAttachmentBeanList);
                 		
                 		if (null != distBean)
                 		{
@@ -8637,6 +8962,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 	outDAO.deleteEntityBean(id);
                 	
                 	baseDAO.deleteEntityBeansByFK(id);
+                	
+                	attachmentDAO.deleteEntityBeansByFK(id);
                 	
                 	distributionDAO.deleteEntityBeansByFK(id);
                 	
@@ -13833,6 +14160,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info(String.format(template, customerName, branchName, productCode, channel, citicOrderDate, outType));
         String appName = ConfigLoader.getProperty("appName");
         String bank = "";
+        
         if (OutConstant.ZD_PMKH.equals(customerName) || OutConstant.QB_INDUSTRY.equals(customerName)
                 || OutConstant.ZD_INDUSTRY.equals(customerName)){
             bank = customerName;

@@ -212,16 +212,25 @@ function checkBean()
 						<td><input type="text" name="customerName" maxlength="14" value="${bean.customerName}" onclick="selectCustomer()"
 							 style="cursor: pointer;"
 							readonly="readonly"><font color="#FF0000">*</font></td>
-						<c:if test="${bean.outType == 1}">
+						<c:choose>
+						  <c:when test="${bean.outType == 1}">
 						<td align="right">调拨方向：</td>
 						<td><select name="department" class="select_class" values="${bean.reserve1}">
 							<p:option type="moveOut"></p:option>
-						</select><font color="#FF0000">*</font></td>
-						</c:if>
-						<c:if test="${bean.outType != 1}">
+						</select><font color="#FF0000">*</font></td>						  
+						  </c:when>
+						  <c:when test="${bean.outType == 2}">
+						<td align="right" >报废类型：</td>
+						<td>
+						<select name="dropType" class="select_class" values="${bean.dropType}">
+							<p:option type="dropTypes"></p:option>
+						</select><font color="#FF0000">*</font></td>					  
+						  </c:when>
+						  <c:otherwise>
                         <td align="right"></td>
-                        <td></td>
-                        </c:if>
+                        <td></td>						  
+						  </c:otherwise>
+						</c:choose>
 					</tr>
 					
 					<tr class="content2">
@@ -406,6 +415,17 @@ function checkBean()
 						<td colspan="3">${my:get('backPay', bean.backPay)}
 						</td>
 					</tr>
+                    
+					<tr class="content2">
+                        <td align="right">附件：</td>
+                        <td colspan="3">
+			            <c:forEach items="${bean.attachmentList}" var="item">
+			            <a href="../sail/out.do?method=downAttachmentFile&id=${item.id}" title="点击下载附件">${item.name}</a>
+			            <br>
+			            <br>
+			            </c:forEach>
+                       </td>
+                    </tr>                    				
 
 				</table>
 				</td>

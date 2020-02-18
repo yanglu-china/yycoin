@@ -40,6 +40,7 @@ import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vo.AddressVO;
 import com.china.center.oa.client.vo.StafferVSCustomerVO;
 import com.china.center.oa.product.constant.ProductConstant;
+import com.china.center.oa.product.constant.StorageConstant;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
@@ -1933,6 +1934,55 @@ public class OutImportManagerImpl implements OutImportManager
         }
 
         return idStr;
+    }
+    
+	/**
+	 * 批量增加报废单
+	 * @param user
+	 * @param beans
+	 * @return
+	 * @throws MYException
+	 */
+	public String batchDrop(User user, List<BatchDropBean> beans) throws MYException{
+    	_logger.debug("batchDrop 88888888888888888888*********beans.size():"+beans.size());
+    	//JudgeTools.judgeParameterIsNull(beans);
+
+    	//合并处理
+		//TODO
+    	
+    	String batchId = commonDAO.getSquenceString20();
+    	
+    	_logger.debug("batchDrop 88888888888888888888*********batchId: "+batchId);
+    	
+    	for(BatchDropBean each :beans)
+    	{
+    		each.setBatchId(batchId);
+    		each.getOutBean().setDescription("批量导入报废单，batchId:"+batchId);
+			String id = outManager.addOut(each, user);
+			_logger.debug("batchDrop 88888888888888888888*********"+id);
+
+			//提交
+			int ttype = StorageConstant.OPR_STORAGE_INOTHER;
+
+			// if id start with 'TM', then split SO, and then submit each
+			if (id.startsWith("TM"))
+			{
+				// split out, then delete original out in the same
+				// transaction
+				String[] ids = outManager.splitOut(id);
+
+				for (String eachId : ids)
+				{
+					_logger.info("入库拆单(共拆成" + ids.length + "张)：原单" + id
+							+ ", 新单：" + eachId);
+					outManager.submit(eachId, user, ttype);
+				}
+			}else {
+				outManager.submit(id, user, ttype);
+			}
+    	}
+    	
+		return batchId;
     }
     
     @Transactional(rollbackFor = MYException.class)
