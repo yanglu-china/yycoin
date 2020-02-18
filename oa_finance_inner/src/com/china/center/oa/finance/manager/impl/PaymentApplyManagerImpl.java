@@ -2298,25 +2298,25 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         {
             throw new MYException("回款已经被人认领,请确认操作");
         }
-		
+
 		PaymentVSOutBean vs = vsList.get(0);
 		
-		OutBillBean outBill = outBillDAO.find(vs.getOutId());
-		
-		if (null == outBill)
-		{
-			throw new MYException("数据错误,请确认操作");
-		}
-		
-		if (outBill.getStatus() != FinanceConstant.OUTBILL_STATUS_CONFIRM)
-		{
-			throw new MYException("转账付款单状态不是待确认,请确认操作");
-		}
-		
-		if (!MathTools.equal(payment.getMoney(), outBill.getMoneys()))
-		{
-			throw new MYException("转账付款单金额[%.2f]与回款金额[%.2f]不一致,请确认操作", outBill.getMoneys(), payment.getMoney());
-		}
+//		OutBillBean outBill = outBillDAO.find(vs.getOutId());
+//
+//		if (null == outBill)
+//		{
+//			throw new MYException("数据错误,请确认操作");
+//		}
+//
+//		if (outBill.getStatus() != FinanceConstant.OUTBILL_STATUS_CONFIRM)
+//		{
+//			throw new MYException("转账付款单状态不是待确认,请确认操作");
+//		}
+//
+//		if (!MathTools.equal(payment.getMoney(), outBill.getMoneys()))
+//		{
+//			throw new MYException("转账付款单金额[%.2f]与回款金额[%.2f]不一致,请确认操作", outBill.getMoneys(), payment.getMoney());
+//		}
 		
 		payment.setStafferId(user.getStafferId());
 
@@ -2325,12 +2325,21 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 		payment.setStatus(FinanceConstant.PAYMENT_STATUS_END);
         
         paymentDAO.updateEntityBean(payment);
+
+        //#900
+        InBillBean inBillBean = new InBillBean();
+        inBillBean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_BILL_PREFIX));
+        inBillBean.setType(payment.getDkType());
+        inBillBean.setBankId(payment.getBankId());
+        inBillBean.setMoneys(payment.getMoney());
+        inBillBean.setDescription("财务认领:" + paymentId);
+        this.inBillDAO.saveEntityBean(inBillBean);
         
-        outBill.setStatus(FinanceConstant.OUTBILL_STATUS_END);
-        
-        outBill.setDescription(outBill.getDescription() + ", 内部资金勾款:" + paymentId);
-        
-        outBillDAO.updateEntityBean(outBill);
+//        outBill.setStatus(FinanceConstant.OUTBILL_STATUS_END);
+//
+//        outBill.setDescription(outBill.getDescription() + ", 内部资金勾款:" + paymentId);
+//
+//        outBillDAO.updateEntityBean(outBill);
 		
         bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_PAYMENTAPPLY_PREFIX));
 
@@ -2359,7 +2368,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
 		for (PaymentApplyListener listener : listenerMapValues)
 		{
-		    listener.onDrawTransfer(user, payment, outBill.getId());
+		    listener.onDrawTransfer(user, payment, inBillBean.getId());
 		}
 
         return true;
