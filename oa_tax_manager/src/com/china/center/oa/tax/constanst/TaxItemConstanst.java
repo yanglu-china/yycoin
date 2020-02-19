@@ -291,9 +291,23 @@ public interface TaxItemConstanst
     //应付职工薪酬-公积金-公积金
     String YFZGXC_GJJ = "2151-03-01";
     //短期借款-公司贷款
-    String DQJK_GSDK = "2101-02";
+//    String DQJK_GSDK = "2101-02";
+    //浦发
+    String DQJK_GSDK_PF = "2101-02-01";
+    //南京
+    String DQJK_GSDK_NJ = "2101-02-03";
+    //江苏
+    String DQJK_GSDK_JS = "2101-02-06";
+    //北京
+    String DQJK_GSDK_BJ = "2101-02-14";
+    //中信
+    String DQJK_GSDK_ZX = "2101-02-15";
+    //交通
+    String DQJK_GSDK_JT = "2101-02-20";
+    //宁波健康
+    String DQJK_GSDK_NB_JK = "2101-02-17";
     //贷款利息
-    String DKLX = "5506-03";
+    String DKLX = "5506-11";
     //应付利息
     String YFLX = "2231";
     //其他货币资金-基金

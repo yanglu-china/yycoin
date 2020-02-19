@@ -2546,7 +2546,29 @@ public class FinanceManagerImpl implements FinanceManager {
         item.getShowChineseOutmoney();
         item.getShowChineseLastmoney();
     }
-    
+
+
+    @Override
+    public String getDkbjTaxId(String bankName) {
+        if (bankName.contains("浦发银行")){
+            return TaxItemConstanst.DQJK_GSDK_PF;
+        } else if (bankName.contains("中信银行")){
+            return TaxItemConstanst.DQJK_GSDK_ZX;
+        } else if (bankName.contains("南京银行")){
+            return TaxItemConstanst.DQJK_GSDK_NJ;
+        } else if (bankName.contains("江苏银行")){
+            return TaxItemConstanst.DQJK_GSDK_JS;
+        } else if (bankName.contains("北京银行")){
+            return TaxItemConstanst.DQJK_GSDK_BJ;
+        } else if (bankName.contains("交通银行")){
+            return TaxItemConstanst.DQJK_GSDK_JT;
+        } else if (bankName.contains("宁波银行健康路支行")){
+            return TaxItemConstanst.DQJK_GSDK_NB_JK;
+        } else{
+            return null;
+        }
+    }
+
     /**
      * @return the financeDAO
      */

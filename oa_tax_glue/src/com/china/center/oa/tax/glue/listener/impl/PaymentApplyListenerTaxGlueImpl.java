@@ -1803,7 +1803,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         if (bean.getDkType() == FinanceConstant.INBILL_TYPE_DKBJ){
             //贷款-本金
             this.createFinanceItem(user, bean, bank, "", "",
-                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.DQJK_GSDK,
+                    TaxItemConstanst.QTYSK_ZJH, this.financeManager.getDkbjTaxId(bank.getName()),
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCBJ){
             //理财-本金
@@ -1869,6 +1869,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         itemOut.setName(itemOutName);
         itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
         FinanceHelper.copyFinanceItem(financeBean, itemOut);
+        if (itemTaxIdOut == null){
+            throw new MYException("[%s]缺少银行科目,请确认操作");
+        }
         TaxBean outTax = taxDAO.findByUnique(itemTaxIdOut);
         if (outTax == null)
         {

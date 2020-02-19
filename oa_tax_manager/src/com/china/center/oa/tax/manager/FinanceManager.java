@@ -204,4 +204,11 @@ public interface FinanceManager
      * @throws MYException
      */
     boolean asynQueryFinanceTax(String begin, String end) throws MYException;
+
+    /**
+     * #900
+     * @param bankName
+     * @return 贷款本金对应银行科目
+     */
+    String getDkbjTaxId(String bankName);
 }
