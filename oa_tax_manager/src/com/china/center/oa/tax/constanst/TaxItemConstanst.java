@@ -286,10 +286,10 @@ public interface TaxItemConstanst
      */
     String TAX_OTHER_PERSON = "1133-21";
 
-    //应付职工薪酬-社保
-    String YFZGXC_SB = "2151-02";
-    //应付职工薪酬-公积金
-    String YFZGXC_GJJ = "2151-03";
+    //应付职工薪酬-社保-社保
+    String YFZGXC_SB = "2151-02-01";
+    //应付职工薪酬-公积金-公积金
+    String YFZGXC_GJJ = "2151-03-01";
     //短期借款-公司贷款
     String DQJK_GSDK = "2101-02";
     //贷款利息
