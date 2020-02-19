@@ -9,6 +9,30 @@
 package com.china.center.oa.tax.action;
 
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
@@ -30,37 +54,58 @@ import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
-import com.china.center.oa.publics.constant.StafferConstant;
 import com.china.center.oa.publics.constant.SysConfigConstant;
-import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.publics.dao.AttachmentDAO;
+import com.china.center.oa.publics.dao.DutyDAO;
+import com.china.center.oa.publics.dao.ParameterDAO;
+import com.china.center.oa.publics.dao.PrincipalshipDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.sail.bean.UnitViewBean;
 import com.china.center.oa.sail.dao.UnitViewDAO;
 import com.china.center.oa.sail.manager.OutManager;
-import com.china.center.oa.tax.bean.*;
+import com.china.center.oa.tax.bean.FinanceBean;
+import com.china.center.oa.tax.bean.FinanceItemBean;
+import com.china.center.oa.tax.bean.FinanceMonthBean;
+import com.china.center.oa.tax.bean.FinanceMonthBefBean;
+import com.china.center.oa.tax.bean.FinanceRefer;
+import com.china.center.oa.tax.bean.TaxBean;
+import com.china.center.oa.tax.bean.UnitBean;
 import com.china.center.oa.tax.constanst.FinaConstant;
 import com.china.center.oa.tax.constanst.TaxConstanst;
-import com.china.center.oa.tax.dao.*;
+import com.china.center.oa.tax.dao.CheckViewDAO;
+import com.china.center.oa.tax.dao.FinanceDAO;
+import com.china.center.oa.tax.dao.FinanceItemDAO;
+import com.china.center.oa.tax.dao.FinanceItemTempDAO;
+import com.china.center.oa.tax.dao.FinanceMonthBefDAO;
+import com.china.center.oa.tax.dao.FinanceMonthDAO;
+import com.china.center.oa.tax.dao.FinanceReferDAO;
+import com.china.center.oa.tax.dao.FinanceRepDAO;
+import com.china.center.oa.tax.dao.FinanceShowDAO;
+import com.china.center.oa.tax.dao.FinanceTagDAO;
+import com.china.center.oa.tax.dao.FinanceTempDAO;
+import com.china.center.oa.tax.dao.FinanceTurnDAO;
+import com.china.center.oa.tax.dao.TaxDAO;
+import com.china.center.oa.tax.dao.UnitDAO;
 import com.china.center.oa.tax.facade.TaxFacade;
 import com.china.center.oa.tax.helper.FinanceHelper;
 import com.china.center.oa.tax.helper.TaxHelper;
 import com.china.center.oa.tax.manager.FinanceManager;
-import com.china.center.oa.tax.vo.*;
+import com.china.center.oa.tax.vo.FinanceItemVO;
+import com.china.center.oa.tax.vo.FinanceRepVO;
+import com.china.center.oa.tax.vo.FinanceShowVO;
+import com.china.center.oa.tax.vo.StafferUnitVO;
+import com.china.center.oa.tax.vo.TaxVO;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.*;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.SequenceTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.WriteFileBuffer;
 
 
 /**
@@ -219,7 +264,7 @@ public class ParentQueryFinaAction extends DispatchAction
         }
         catch (Exception e)
         {
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "查询失败");
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getMessage());
 
             _logger.error(e, e);
 
