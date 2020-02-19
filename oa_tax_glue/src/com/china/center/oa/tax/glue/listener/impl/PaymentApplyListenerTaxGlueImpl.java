@@ -1803,22 +1803,22 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         if (bean.getDkType() == FinanceConstant.INBILL_TYPE_DKBJ){
             //贷款-本金
             this.createFinanceItem(user, bean, bank, "", "",
-                    TaxItemConstanst.QTYSK_ZJH, this.financeManager.getDkbjTaxId(bank.getName()),
+                    this.getBankTaxId(bank), this.financeManager.getDkbjTaxId(bank.getName()),
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCBJ){
             //理财-本金
             this.createFinanceItem(user, bean, bank, "", "",
-                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.QTHBZJ_JJ,
+                    this.getBankTaxId(bank), TaxItemConstanst.QTHBZJ_JJ,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCSY){
             //理财-收益
             this.createFinanceItem(user, bean, bank, "", "",
-                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.TZSY,
+                    this.getBankTaxId(bank), TaxItemConstanst.TZSY,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCSY){
             //个人还款
             this.createFinanceItem(user, bean, bank, "", "",
-                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.OTHER_RECEIVE_BORROW,
+                    this.getBankTaxId(bank), TaxItemConstanst.OTHER_RECEIVE_BORROW,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
                 || bean.getDkType() == FinanceConstant.INBILL_TYPE_OTHER){
@@ -1833,6 +1833,18 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         financeBean.setItemList(itemList);
 
         financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+    }
+
+    private String getBankTaxId(BankBean bank) throws MYException{
+        //银行其他应付款-暂记户
+        TaxBean inTax = taxDAO.findTempByBankId(bank.getId());
+
+        if (inTax == null)
+        {
+            throw new MYException("银行[%s]缺少对应科目,请确认操作", bank.getName());
+        } else{
+            return inTax.getId();
+        }
     }
 
     private void createFinanceItem(User user, PaymentBean bean, BankBean bank,
