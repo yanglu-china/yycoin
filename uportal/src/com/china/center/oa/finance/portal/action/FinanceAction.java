@@ -3582,13 +3582,13 @@ public class FinanceAction extends DispatchAction {
     public ActionForward drawTransfer(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response)
 			throws ServletException {
-		try {
+
 			String id = request.getParameter("id");
 
 			String description = request.getParameter("description");
 			
 			User user = Helper.getUser(request);
-
+        try {
 			//商务 
 	        ActionForward error = checkAuthForEcommerce(request, user, mapping);
 	    	
@@ -3610,7 +3610,15 @@ public class FinanceAction extends DispatchAction {
 					"操作操作：" + e.getErrorContent());
 		}
 
-		return mapping.findForward("querySelfPayment");
+        PaymentBean bean = paymentDAO.find(id);
+		if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
+				|| bean.getDkType() == FinanceConstant.INBILL_TYPE_OTHER){
+			//钱生钱,其他
+			//“钱生钱”和“其他”，财务操作认领成功后，无需自动生成凭证，页面直接跳转手工做凭证页面
+            return mapping.findForward("addFinance");
+		} else{
+            return mapping.findForward("querySelfPayment");
+		}
 	}
     
     private PaymentApplyBean addTransferApply(HttpServletRequest request, String id,

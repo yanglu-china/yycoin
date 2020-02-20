@@ -92,6 +92,7 @@ import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.publics.vo.StafferVO;
+import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.bean.OutImportBean;
 import com.china.center.oa.sail.constanst.OutConstant;
@@ -4302,10 +4303,11 @@ public class TravelApplyAction extends DispatchAction
                         }
 
                     String stafferId = "";
+                    String outId = "";
                     // 订单号
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
-                        String outId = obj[2];
+                        outId = obj[2];
                         item.setFullId(outId);
                         vsOutBean.setFullId(outId);
                         //#596
@@ -4553,6 +4555,31 @@ public class TravelApplyAction extends DispatchAction
                         String amount = obj[4];
                         item.setAmount(Integer.valueOf(amount));
                         vsOutBean.setAmount(item.getAmount());
+                        //查询base表的数量
+                        List<BaseBean> list = baseDAO.queryEntityBeansByFK(outId);
+                        if(list.size() == 0)
+                        {
+                        	builder.append("<font color=red>第[" + currentNumber + "]行错误:")
+                            .append("订单号[").append(outId)
+                            .append("]").append("base表无数据")
+                            .append("<br>");
+                        	importError = true;
+                        }
+                        int baseAmount = 0;
+                        for(BaseBean  baseBean : list)
+                        {
+                        	baseAmount += baseBean.getAmount();
+                        	
+                        }
+                        if(Integer.valueOf(amount) != baseAmount)
+                        {
+                        	builder.append("<font color=red>第[" + currentNumber + "]行错误:")
+                            .append("订单号[").append(outId)
+                            .append("]").append("base表数量为" + baseAmount + ";导入的文件数量:" + Integer.valueOf(amount) + ";数量不相等")
+                            .append("<br>");
+                        	importError = true;
+                        }
+                        
                     }
 
                     //中收/激励金额

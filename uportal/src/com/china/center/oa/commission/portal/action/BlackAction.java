@@ -1,20 +1,62 @@
 package com.china.center.oa.commission.portal.action;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
-import com.china.center.actionhelper.common.*;
+import com.china.center.actionhelper.common.ActionTools;
+import com.china.center.actionhelper.common.JSONPageSeparateTools;
+import com.china.center.actionhelper.common.JSONTools;
+import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.actionhelper.common.OldPageSeparateTools;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
 import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
-import com.china.center.oa.commission.bean.*;
-import com.china.center.oa.commission.dao.*;
+import com.china.center.oa.commission.bean.BlackBean;
+import com.china.center.oa.commission.bean.BlackOutBean;
+import com.china.center.oa.commission.bean.BlackRuleBean;
+import com.china.center.oa.commission.bean.BlackRuleProductBean;
+import com.china.center.oa.commission.bean.BlackRuleStafferBean;
+import com.china.center.oa.commission.bean.HisBlackBean;
+import com.china.center.oa.commission.bean.HisBlackOutBean;
+import com.china.center.oa.commission.dao.BlackDAO;
+import com.china.center.oa.commission.dao.BlackOutDAO;
+import com.china.center.oa.commission.dao.BlackOutDetailDAO;
+import com.china.center.oa.commission.dao.BlackRuleDAO;
+import com.china.center.oa.commission.dao.BlackRuleProductDAO;
+import com.china.center.oa.commission.dao.BlackRuleStafferDAO;
+import com.china.center.oa.commission.dao.HisBlackDAO;
+import com.china.center.oa.commission.dao.HisBlackOutDAO;
+import com.china.center.oa.commission.dao.HisBlackOutDetailDAO;
 import com.china.center.oa.commission.helper.BlackHelper;
 import com.china.center.oa.commission.manager.BlackManager;
-import com.china.center.oa.commission.vo.*;
+import com.china.center.oa.commission.vo.BlackOutDetailVO;
+import com.china.center.oa.commission.vo.BlackRuleProductVO;
+import com.china.center.oa.commission.vo.BlackRuleStafferVO;
+import com.china.center.oa.commission.vo.BlackRuleVO;
+import com.china.center.oa.commission.vo.BlackVO;
+import com.china.center.oa.commission.vo.HisBlackOutDetailVO;
+import com.china.center.oa.commission.vo.HisBlackVO;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
@@ -25,26 +67,20 @@ import com.china.center.oa.sail.bean.BaseBalanceBean;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.OutBalanceBean;
 import com.china.center.oa.sail.constanst.OutConstant;
-import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.dao.BaseBalanceDAO;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.DistributionDAO;
+import com.china.center.oa.sail.dao.OutBalanceDAO;
+import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.vo.DistributionVO;
 import com.china.center.oa.sail.vo.OutVO;
-import com.china.center.tools.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.WriteFileBuffer;
 
 public class BlackAction extends DispatchAction 
 {
@@ -1649,7 +1685,7 @@ public class BlackAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("单号,结算单号,类型,客户,业务员,事业部名称,产品,数量,单价,当时结算价");
+            write.writeLine("单号,结算单号,类型,客户,业务员,事业部名称,产品,数量,单价,当时结算价,库管通过日期,银行销售日期,统计日期");
 
             WriteFileBuffer line = new WriteFileBuffer(write);
             
@@ -1678,7 +1714,9 @@ public class BlackAction extends DispatchAction
                 	line.writeColumn(eachd.getAmount());
                 	line.writeColumn(eachd.getPrice());
                 	line.writeColumn(eachd.getCostPrice());
-                	
+                	line.writeColumn(outVO.getChangeTime());
+                	line.writeColumn(outVO.getPodate());
+                	line.writeColumn(eachd.getBackupDate());
                 	line.writeLine();
             	}
             }

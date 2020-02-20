@@ -738,6 +738,29 @@ public class ProductApplyManagerImpl extends AbstractListenerManager<ProductAppl
         logDAO.saveEntityBean(log);
     }
 
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void generateCodeJob() {
+        _logger.info("***generateCodeJob running***");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addIntCondition("codeGenerated","=",0);
+        List<ProductApplyBean> productApplyBeans = this.productApplyDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(productApplyBeans)){
+            for (ProductApplyBean bean: productApplyBeans){
+                try {
+                    createFullName(bean);
+                    createCode(bean);
+                    createSpell(bean);
+                    bean.setCodeGenerated(1);
+                    this.productApplyDAO.updateEntityBean(bean);
+                }catch (MYException e){
+                    _logger.error(e);
+                }
+            }
+        }
+        _logger.info("***generateCodeJob finished***");
+    }
+
     public ProductApplyDAO getProductApplyDAO() {
         return productApplyDAO;
     }

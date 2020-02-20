@@ -32,18 +32,18 @@ function addBean()
 function check()
 {
 	 //计算是否回款溢出
-    var total = ${my:formatNum(bean.money)};
-    
-    var pu = 0.0;
+    <%--var total = ${my:formatNum(bean.money)};--%>
+    <%----%>
+    <%--var pu = 0.0;--%>
+    <%--pu = parseFloat($$('outMoney'));--%>
 
-    pu = parseFloat($$('outMoney'));
-    
-    if (total != pu)
-    {
-    	alert('回款金额使用溢出,请核对');
-        
-        return false;
-    }
+    <%----%>
+    <%--if (total != pu)--%>
+    <%--{--%>
+    	<%--alert('回款金额使用溢出,请核对');--%>
+        <%----%>
+        <%--return false;--%>
+    <%--}--%>
 
     return true;
 }
@@ -134,6 +134,10 @@ function checkCurrentUser()
             <p:cell title="类型">
                ${my:get('paymentType', bean.type)}
             </p:cell>
+
+            <p:cell title="导款类型">
+                ${my:get('inbillType', bean.dkType)}
+            </p:cell>
             
             <p:cell title="金额">
                ${my:formatNum(bean.money)}
@@ -151,15 +155,7 @@ function checkCurrentUser()
                <textarea rows=3 cols=55  oncheck="maxLength(200);" name="description"></textarea>
             </p:cell>
             
-            <p:cell title="关联单据" end="true">
-                    <input type="text" size="40" value="关联付款单号" readonly="readonly" name="billId"> 
-                    &nbsp;回款金额:<input type="text" name="outMoney" readonly="readonly" oncheck="isFloat2">
-                    <input type="button" value="&nbsp;转账付款单&nbsp;" name="qout" id="qout"
-                        class="button_class" onclick="opens()">&nbsp;
-                    <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
-                        class="button_class" onclick="clears()">&nbsp;&nbsp;
-             </p:cell>
-            
+
         </p:table>
 
     </p:subBody>
