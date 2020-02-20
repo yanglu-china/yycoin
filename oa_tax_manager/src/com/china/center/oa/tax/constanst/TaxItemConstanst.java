@@ -326,6 +326,8 @@ public interface TaxItemConstanst
     String YJCSWHF = "2171-08";
     //应交消费税
     String YJXFS = "2171-04";
+    //银行手续费
+    String YHSXF = "5506-07";
 
     //银行存款
     String YHCK = "1002";

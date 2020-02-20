@@ -1802,28 +1802,28 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         if (bean.getDkType() == FinanceConstant.INBILL_TYPE_DKBJ){
             //贷款-本金
-            this.createFinanceItem(user, bean, bank, "", "",
+            this.createFinanceItem(user, bean, "", "",
                     this.getBankTaxId(bank), this.financeManager.getDkbjTaxId(bank.getName()),
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCBJ){
             //理财-本金
-            this.createFinanceItem(user, bean, bank, "", "",
+            this.createFinanceItem(user, bean,  "", "",
                     this.getBankTaxId(bank), TaxItemConstanst.QTHBZJ_JJ,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCSY){
             //理财-收益
-            this.createFinanceItem(user, bean, bank, "", "",
+            this.createFinanceItem(user, bean,  "", "",
                     this.getBankTaxId(bank), TaxItemConstanst.TZSY,
                     financeBean, itemList);
-        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCSY){
+        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_UNBORROW){
             //个人还款
-            this.createFinanceItem(user, bean, bank, "", "",
+            this.createFinanceItem(user, bean,  "", "",
                     this.getBankTaxId(bank), TaxItemConstanst.OTHER_RECEIVE_BORROW,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_YHKLXSR){
             //银行卡利息收入
-            this.createFinanceItem(user, bean, bank, "", "",
-                    this.getBankTaxId(bank), TaxItemConstanst.HAND_BANK_DEPARTMENT,
+            this.createFinanceItem(user, bean,  "", "",
+                    this.getBankTaxId(bank), TaxItemConstanst.YHSXF,
                     financeBean, itemList);
         }else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
                 || bean.getDkType() == FinanceConstant.INBILL_TYPE_OTHER){
@@ -1852,7 +1852,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         }
     }
 
-    private void createFinanceItem(User user, PaymentBean bean, BankBean bank,
+    private void createFinanceItem(User user, PaymentBean bean,
                                    String itemInName,String itemOutName,
                                    String itemTaxIdIn, String itemTaxIdOut,
                                    FinanceBean financeBean, List<FinanceItemBean> itemList)
@@ -1900,6 +1900,20 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         itemOut.setInmoney(0);
         itemOut.setOutmoney(FinanceHelper.doubleToLong(outMoney));
         itemOut.setDescription(itemOut.getName());
+
+        // 辅助核算 部门/职员/客户
+        if (TaxItemConstanst.YHSXF.equals(itemTaxIdOut)
+                ||TaxItemConstanst.OTHER_RECEIVE_BORROW.equals(itemTaxIdOut)){
+            String stafferId = user.getStafferId();
+            StafferBean staffer = this.stafferDAO.find(stafferId);
+            if (staffer!= null){
+                itemOut.setDepartmentId(staffer.getPrincipalshipId());
+                itemOut.setStafferId(stafferId);
+                itemOut.setUnitId(bean.getCustomerId());
+                itemOut.setUnitType(TaxConstanst.UNIT_TYPE_CUSTOMER);
+            }
+        }
+
         itemList.add(itemOut);
     }
     
