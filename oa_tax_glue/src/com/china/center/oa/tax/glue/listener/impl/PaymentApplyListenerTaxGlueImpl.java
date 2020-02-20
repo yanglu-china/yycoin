@@ -1820,7 +1820,12 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
             this.createFinanceItem(user, bean, bank, "", "",
                     this.getBankTaxId(bank), TaxItemConstanst.OTHER_RECEIVE_BORROW,
                     financeBean, itemList);
-        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
+        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_YHKLXSR){
+            //银行卡利息收入
+            this.createFinanceItem(user, bean, bank, "", "",
+                    this.getBankTaxId(bank), TaxItemConstanst.HAND_BANK_DEPARTMENT,
+                    financeBean, itemList);
+        }else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
                 || bean.getDkType() == FinanceConstant.INBILL_TYPE_OTHER){
             //钱生钱,其他
             //“钱生钱”和“其他”，财务操作认领成功后，无需自动生成凭证，页面直接跳转手工做凭证页面
