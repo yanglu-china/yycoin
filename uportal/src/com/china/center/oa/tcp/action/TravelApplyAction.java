@@ -4565,8 +4565,12 @@ public class TravelApplyAction extends DispatchAction
                             .append("<br>");
                         	importError = true;
                         }
-                        BaseBean  baseBean = list.get(0);
-                        int baseAmount = baseBean.getAmount();
+                        int baseAmount = 0;
+                        for(BaseBean  baseBean : list)
+                        {
+                        	baseAmount += baseBean.getAmount();
+                        	
+                        }
                         if(Integer.valueOf(amount) != baseAmount)
                         {
                         	builder.append("<font color=red>第[" + currentNumber + "]行错误:")
