@@ -4101,7 +4101,9 @@
                              try{
                                  double price = Double.parseDouble(cellValue);
                                  double price0 = storageRelationBean.getPrice();
-                                 if(price != price0){
+                                 long lp = Math.round(price * 100);
+                                 long lp0 = Math.round(price0 * 100);
+                                 if(lp != lp0){
                                      builder.append("第[" + currentNumber + "]错误:成本与库存不匹配<br>");
                                      importError = true;
                                  }else{
