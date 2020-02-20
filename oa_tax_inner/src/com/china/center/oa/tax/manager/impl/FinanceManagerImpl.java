@@ -8,15 +8,19 @@
  */
 package com.china.center.oa.tax.manager.impl;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 import com.center.china.osgi.config.ConfigLoader;
-import com.china.center.oa.finance.bean.AdvanceReceiptBean;
-import com.china.center.oa.finance.bean.BankBean;
-import com.china.center.oa.finance.bean.InBillBean;
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.oa.finance.bean.*;
 import com.china.center.oa.finance.constant.FinanceConstant;
 import com.china.center.oa.finance.dao.BankDAO;
 import com.china.center.oa.finance.dao.InBillDAO;
+import com.china.center.oa.finance.vs.PaymentVSOutBean;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.constant.*;
@@ -2569,6 +2573,180 @@ public class FinanceManagerImpl implements FinanceManager {
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void repairFinanceBeanJob() {
+        _logger.info("repairFinanceBeanJob running***");
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+        try
+        {
+            InputStream is = new FileInputStream("E:\\data.xls");
+            reader.readFile(is);
+
+            while (reader.hasNext())
+            {
+                String[] obj = StringUtils.fillObj((String[])reader.next(),100);
+                int currentNumber = reader.getCurrentLineNumber();
+                System.out.println("****currentNumber***"+currentNumber);
+                if (obj.length >= 2 )
+                {
+                    String inbillId = obj[0];
+                    System.out.println(inbillId);
+                    String paymentId = obj[14];
+                    System.out.println(paymentId);
+                    String dutyId = obj[24];
+                    System.out.println(dutyId);
+                    FinanceBean financeBean = new FinanceBean();
+                    String name = "系统自动补录："+paymentId;
+
+                    financeBean.setName(name);
+
+                    financeBean.setType(TaxConstanst.FINANCE_TYPE_MANAGER);
+
+                    financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_BILL_GETPAY);
+
+                    // 关联的回款单号
+                    financeBean.setRefId(paymentId);
+                    //关联的收款单
+                    financeBean.setRefBill(inbillId);
+                    financeBean.setCreaterId("系统");
+                    //TODO
+//                    financeBean.setRefOut(item.getOutId());
+//
+                    financeBean.setDutyId(dutyId);
+                    financeBean.setDescription(financeBean.getName());
+
+                    //TODO
+                    financeBean.setFinanceDate(TimeTools.now_short());
+                    financeBean.setLogTime(TimeTools.now());
+
+                    List<FinanceItemBean> itemList = new ArrayList<>();
+
+                    String stafferId = obj[9];
+                    String customerId = obj[8];
+                    String bankId = obj[3];
+                    // 银行对应的暂记户科目/应收账款 --> 改为直接从预收到应收账款
+                    this.createAddItem3(name, bankId,stafferId, customerId,
+                            null, financeBean, itemList);
+
+                    financeBean.setItemList(itemList);
+
+//                    if (apply.isAutoPayFlag()){
+//                        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, type, false);
+//                    } else{
+//                        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, type, true);
+//                    }
+                }
+            }
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void createAddItem3(String name, String bankId, String stafferId, String customerId,
+                                PaymentVSOutBean item, FinanceBean financeBean,
+                                List<FinanceItemBean> itemList) throws MYException {
+
+        // 银行对应的暂记户科目（没有手续费）/应收账款
+        FinanceItemBean itemIn = new FinanceItemBean();
+
+        String pareId = commonDAO.getSquenceString();
+
+        itemIn.setPareId(pareId);
+
+        itemIn.setName("银行暂记户:" + name);
+
+        itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+        FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+        // 获取暂记户科目
+        // TaxBean inTax = taxDAO.findTempByBankId(bank.getId());
+
+        // 预收账款(客户/职员/部门)
+        TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.PREREVEIVE_PRODUCT);
+
+        if (inTax == null) {
+            throw new MYException("银行[%s]缺少对应的暂记户科目,请确认操作", bankId);
+        }
+
+        // 科目拷贝
+        FinanceHelper.copyTax(inTax, itemIn);
+
+        // 当前发生额
+        double inMoney = item.getMoneys();
+
+        itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
+
+        itemIn.setOutmoney(0);
+
+        itemIn.setDescription(itemIn.getName());
+
+        // 申请人
+        StafferBean staffer = stafferDAO.find(stafferId);
+
+        if (staffer == null) {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 辅助核算 客户/职员/部门
+        itemIn.setDepartmentId(staffer.getPrincipalshipId());
+        itemIn.setStafferId(stafferId);
+        itemIn.setUnitId(customerId);
+        itemIn.setUnitType(TaxConstanst.UNIT_TYPE_CUSTOMER);
+
+        itemList.add(itemIn);
+
+        // 贷方
+        FinanceItemBean itemOut = new FinanceItemBean();
+
+        itemOut.setPareId(pareId);
+
+        itemOut.setName("应收账款:" + name);
+
+        itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
+
+        FinanceHelper.copyFinanceItem(financeBean, itemOut);
+
+        // 应收账款(客户/职员/部门)
+        TaxBean outTax = taxDAO.findByUnique(TaxItemConstanst.REVEIVE_PRODUCT);
+
+        if (outTax == null) {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 科目拷贝
+        FinanceHelper.copyTax(outTax, itemOut);
+
+        double outMoney = item.getMoneys();
+
+        itemOut.setInmoney(0);
+
+        itemOut.setOutmoney(FinanceHelper.doubleToLong(outMoney));
+
+        itemOut.setDescription(itemOut.getName());
+
+        // 辅助核算 客户/职员/部门
+        itemOut.setDepartmentId(staffer.getPrincipalshipId());
+        itemOut.setStafferId(stafferId);
+        itemOut.setUnitId(customerId);
+        itemOut.setUnitType(TaxConstanst.UNIT_TYPE_CUSTOMER);
+
+        itemList.add(itemOut);
+    }
+
     /**
      * @return the financeDAO
      */
@@ -2904,4 +3082,9 @@ public class FinanceManagerImpl implements FinanceManager {
 	{
 		this.transactionManager = transactionManager;
 	}
+
+	public static void main(String[] args){
+	    FinanceManagerImpl imp = new FinanceManagerImpl();
+	    imp.repairFinanceBeanJob();
+    }
 }

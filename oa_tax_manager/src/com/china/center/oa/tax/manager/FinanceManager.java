@@ -211,4 +211,9 @@ public interface FinanceManager
      * @return 贷款本金对应银行科目
      */
     String getDkbjTaxId(String bankName);
+
+    /**
+     * #901
+     */
+    void repairFinanceBeanJob();
 }
