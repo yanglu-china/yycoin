@@ -91,7 +91,6 @@
                                     } else{
                                         var msg = oDom2.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
                                         alert(msg);
-                                        break;
                                     }
                                 }else{
                                     var msg = oDOM.getElementsByTagName("ErrMsg")[0].childNodes[0].nodeValue;
