@@ -2452,6 +2452,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         paymentDAO.updateEntityBean(payment);
         
         bean.setType(FinanceConstant.PAYAPPLY_TYPE_PAYMENT);
+        bean.setDrawProvider(true);
         
         // 回款认领凭证 1.银行-暂记户  2.暂记户-预收
         // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用 通过

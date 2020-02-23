@@ -438,6 +438,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         //throw new MYException("没有执行生成回款认领(转预收)凭证");
     }
 
+
     private void processMainFinanceTag(User user, InBillBean inBillBean) throws MYException
     {
 		FinanceTagBean tag = new FinanceTagBean();
@@ -1029,14 +1030,25 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         itemOut.setPareId(pareId);
 
-        itemOut.setName("预收账款:" + name);
+        if (apply.isDrawProvider()){
+            itemOut.setName("应付账款:" + name);
+        } else{
+            itemOut.setName("预收账款:" + name);
+        }
 
         itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
 
         FinanceHelper.copyFinanceItem(financeBean, itemOut);
 
-        // 预收账款(客户/职员/部门)
-        TaxBean outTax = taxDAO.findByUnique(TaxItemConstanst.PREREVEIVE_PRODUCT);
+        TaxBean outTax ;
+        //#890
+        if (apply.isDrawProvider()){
+            // 应付账款
+            outTax = taxDAO.findByUnique(TaxItemConstanst.PAY_PRODUCT);
+        } else{
+            // 预收账款(客户/职员/部门)
+            outTax = taxDAO.findByUnique(TaxItemConstanst.PREREVEIVE_PRODUCT);
+        }
 
         if (outTax == null) {
             throw new MYException("数据错误,请确认操作");

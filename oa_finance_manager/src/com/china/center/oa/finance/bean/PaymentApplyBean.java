@@ -131,6 +131,12 @@ public class PaymentApplyBean implements Serializable
     private boolean autoPayFlag = false;
 
     /**
+     * #890
+     */
+    @Ignore
+    private boolean drawProvider = false;
+
+    /**
      * default constructor
      */
     public PaymentApplyBean()
@@ -482,6 +488,14 @@ public class PaymentApplyBean implements Serializable
 
     public void setAutoPayFlag(boolean autoPayFlag) {
         this.autoPayFlag = autoPayFlag;
+    }
+
+    public boolean isDrawProvider() {
+        return drawProvider;
+    }
+
+    public void setDrawProvider(boolean drawProvider) {
+        this.drawProvider = drawProvider;
     }
 
     /**
