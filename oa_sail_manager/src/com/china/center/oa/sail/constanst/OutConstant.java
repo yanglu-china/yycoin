@@ -1110,12 +1110,23 @@ public interface OutConstant
      * #899
      * 终端事业部
      */
+    @Deprecated
     int ZD_INDUSTRY_S = 4;
 
+    //零售事业部
+    int LS_INDUSTRY_S = 5;
+
+    @Deprecated
     String QB_PMKH= "钱币拍卖客户";
     String ZD_PMKH= "终端拍卖客户";
-    String QB_INDUSTRY= "钱币事业部";
-    String QB_INDUSTRY_ID = "633816253";
     String ZD_INDUSTRY= "终端事业部";
     String ZD_INDUSTRY_ID = "180301093";
+
+
+    //#899
+    String LS_PMKH= "零售拍卖客户";
+    String QB_INDUSTRY= "钱币事业部";
+    String QB_INDUSTRY_ID = "633816253";
+    String LS_INDUSTRY= "零售事业部";
+    String LS_INDUSTRY_ID= "180301093";
 }
