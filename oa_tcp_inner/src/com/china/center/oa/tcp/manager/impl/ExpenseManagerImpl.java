@@ -1338,8 +1338,25 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
         for (TcpApproveBean tcpApproveBean : approveList) {
             if (tcpApproveBean.getApproverId().equals(user.getStafferId())) {
                 hasAuth = true;
-
                 break;
+            }else{
+                //验证工号一致
+                ConditionParse conditionParse = new ConditionParse();
+                conditionParse.addCondition("id", "=", user.getStafferId());
+                List<StafferBean> loginStaffers = stafferDAO.queryEntityBeansByCondition(conditionParse);
+
+                conditionParse = new ConditionParse();
+                conditionParse.addCondition("id", "=", tcpApproveBean.getApproverId());
+                List<StafferBean> approveStaffers = stafferDAO.queryEntityBeansByCondition(conditionParse);
+
+                if(loginStaffers.size()>0 && approveStaffers.size()>0){
+                    String code0 = loginStaffers.get(0).getCode();
+                    String code1 = approveStaffers.get(0).getCode();
+                    if(code0.equals(code1)){
+                        hasAuth = true;
+                        break;
+                    }
+                }
             }
         }
 
