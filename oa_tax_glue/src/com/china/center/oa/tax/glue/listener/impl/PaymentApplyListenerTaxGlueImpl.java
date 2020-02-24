@@ -1915,7 +1915,8 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         // 辅助核算 部门/职员/客户
         if (TaxItemConstanst.YHSXF.equals(itemTaxIdOut)
-                ||TaxItemConstanst.OTHER_RECEIVE_BORROW.equals(itemTaxIdOut)){
+                ||TaxItemConstanst.OTHER_RECEIVE_BORROW.equals(itemTaxIdOut)
+                ||TaxItemConstanst.TZSY.equals(itemTaxIdOut)){
             String stafferId = user.getStafferId();
             StafferBean staffer = this.stafferDAO.find(stafferId);
             if (staffer!= null){
