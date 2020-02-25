@@ -372,7 +372,7 @@ public interface FinanceConstant
     /**
      * 税金
      */
-    @Defined(key = "outbillType", value = "税金")
+//    @Defined(key = "outbillType", value = "税金")
     int OUTBILL_TYPE_DUTY = 9;
 
     /**
