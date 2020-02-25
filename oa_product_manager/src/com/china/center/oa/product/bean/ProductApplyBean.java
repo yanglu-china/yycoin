@@ -286,6 +286,11 @@ public class ProductApplyBean implements Serializable {
      */
     @Html(title = "XL", type = Element.SELECT, must = true)
     private int virtualFlag = ProductConstant.VIRTUAL_NO;
+
+    /**
+     * #885
+     */
+    private int codeGenerated = 1;
     
     @Ignore
     private List<ProductSubApplyBean> productSubApplyList = null;
@@ -728,6 +733,14 @@ public class ProductApplyBean implements Serializable {
 
     public String getRefProduct() {
         return refProduct;
+    }
+
+    public int getCodeGenerated() {
+        return codeGenerated;
+    }
+
+    public void setCodeGenerated(int codeGenerated) {
+        this.codeGenerated = codeGenerated;
     }
 
     public String toString()

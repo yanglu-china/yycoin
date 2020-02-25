@@ -2332,8 +2332,16 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         inBillBean.setType(payment.getDkType());
         inBillBean.setBankId(payment.getBankId());
         inBillBean.setMoneys(payment.getMoney());
+        inBillBean.setSrcMoneys(payment.getMoney());
         inBillBean.setDescription("财务认领:" + paymentId);
-        this.inBillDAO.saveEntityBean(inBillBean);
+        inBillBean.setLogTime(TimeTools.now());
+        inBillBean.setCustomerId(payment.getCustomerId());
+        inBillBean.setStafferId(payment.getStafferId());
+        inBillBean.setOwnerId(payment.getStafferId());
+        inBillBean.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
+        inBillBean.setPaymentId(paymentId);
+        //不要直接dao保存会有些字段未设置全
+        billManager.addInBillBeanWithoutTransaction(user, inBillBean);
         
 //        outBill.setStatus(FinanceConstant.OUTBILL_STATUS_END);
 //
@@ -2444,6 +2452,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         paymentDAO.updateEntityBean(payment);
         
         bean.setType(FinanceConstant.PAYAPPLY_TYPE_PAYMENT);
+        bean.setDrawProvider(true);
         
         // 回款认领凭证 1.银行-暂记户  2.暂记户-预收
         // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用 通过

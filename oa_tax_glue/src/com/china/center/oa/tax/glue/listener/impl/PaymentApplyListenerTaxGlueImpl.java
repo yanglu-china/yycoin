@@ -438,6 +438,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         //throw new MYException("没有执行生成回款认领(转预收)凭证");
     }
 
+
     private void processMainFinanceTag(User user, InBillBean inBillBean) throws MYException
     {
 		FinanceTagBean tag = new FinanceTagBean();
@@ -1029,14 +1030,25 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         itemOut.setPareId(pareId);
 
-        itemOut.setName("预收账款:" + name);
+        if (apply.isDrawProvider()){
+            itemOut.setName("应付账款:" + name);
+        } else{
+            itemOut.setName("预收账款:" + name);
+        }
 
         itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
 
         FinanceHelper.copyFinanceItem(financeBean, itemOut);
 
-        // 预收账款(客户/职员/部门)
-        TaxBean outTax = taxDAO.findByUnique(TaxItemConstanst.PREREVEIVE_PRODUCT);
+        TaxBean outTax ;
+        //#890
+        if (apply.isDrawProvider()){
+            // 应付账款
+            outTax = taxDAO.findByUnique(TaxItemConstanst.PAY_PRODUCT);
+        } else{
+            // 预收账款(客户/职员/部门)
+            outTax = taxDAO.findByUnique(TaxItemConstanst.PREREVEIVE_PRODUCT);
+        }
 
         if (outTax == null) {
             throw new MYException("数据错误,请确认操作");
@@ -1802,25 +1814,30 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         if (bean.getDkType() == FinanceConstant.INBILL_TYPE_DKBJ){
             //贷款-本金
-            this.createFinanceItem(user, bean, bank, "", "",
-                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.DQJK_GSDK,
+            this.createFinanceItem(user, bean, "", "",
+                    this.getBankTaxId(bank), this.financeManager.getDkbjTaxId(bank.getName()),
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCBJ){
             //理财-本金
-            this.createFinanceItem(user, bean, bank, "", "",
-                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.QTHBZJ_JJ,
+            this.createFinanceItem(user, bean,  "", "",
+                    this.getBankTaxId(bank), TaxItemConstanst.QTHBZJ_JJ,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCSY){
             //理财-收益
-            this.createFinanceItem(user, bean, bank, "", "",
-                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.TZSY,
+            this.createFinanceItem(user, bean,  "", "",
+                    this.getBankTaxId(bank), TaxItemConstanst.TZSY,
                     financeBean, itemList);
-        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCSY){
+        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_UNBORROW){
             //个人还款
-            this.createFinanceItem(user, bean, bank, "", "",
-                    TaxItemConstanst.QTYSK_ZJH, TaxItemConstanst.OTHER_RECEIVE_BORROW,
+            this.createFinanceItem(user, bean,  "", "",
+                    this.getBankTaxId(bank), TaxItemConstanst.OTHER_RECEIVE_BORROW,
                     financeBean, itemList);
-        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
+        } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_YHKLXSR){
+            //银行卡利息收入
+            this.createFinanceItem(user, bean,  "", "",
+                    this.getBankTaxId(bank), TaxItemConstanst.YHSXF,
+                    financeBean, itemList);
+        }else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
                 || bean.getDkType() == FinanceConstant.INBILL_TYPE_OTHER){
             //钱生钱,其他
             //“钱生钱”和“其他”，财务操作认领成功后，无需自动生成凭证，页面直接跳转手工做凭证页面
@@ -1835,7 +1852,19 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
-    private void createFinanceItem(User user, PaymentBean bean, BankBean bank,
+    private String getBankTaxId(BankBean bank) throws MYException{
+        //银行其他应付款-暂记户
+        TaxBean inTax = taxDAO.findTempByBankId(bank.getId());
+
+        if (inTax == null)
+        {
+            throw new MYException("银行[%s]缺少对应科目,请确认操作", bank.getName());
+        } else{
+            return inTax.getId();
+        }
+    }
+
+    private void createFinanceItem(User user, PaymentBean bean,
                                    String itemInName,String itemOutName,
                                    String itemTaxIdIn, String itemTaxIdOut,
                                    FinanceBean financeBean, List<FinanceItemBean> itemList)
@@ -1869,6 +1898,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         itemOut.setName(itemOutName);
         itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
         FinanceHelper.copyFinanceItem(financeBean, itemOut);
+        if (itemTaxIdOut == null){
+            throw new MYException("[%s]缺少银行科目,请确认操作");
+        }
         TaxBean outTax = taxDAO.findByUnique(itemTaxIdOut);
         if (outTax == null)
         {

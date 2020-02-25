@@ -286,14 +286,28 @@ public interface TaxItemConstanst
      */
     String TAX_OTHER_PERSON = "1133-21";
 
-    //应付职工薪酬-社保
-    String YFZGXC_SB = "2151-02";
-    //应付职工薪酬-公积金
-    String YFZGXC_GJJ = "2151-03";
+    //应付职工薪酬-社保-社保
+    String YFZGXC_SB = "2151-02-01";
+    //应付职工薪酬-公积金-公积金
+    String YFZGXC_GJJ = "2151-03-01";
     //短期借款-公司贷款
-    String DQJK_GSDK = "2101-02";
+//    String DQJK_GSDK = "2101-02";
+    //浦发
+    String DQJK_GSDK_PF = "2101-02-01";
+    //南京
+    String DQJK_GSDK_NJ = "2101-02-03";
+    //江苏
+    String DQJK_GSDK_JS = "2101-02-06";
+    //北京
+    String DQJK_GSDK_BJ = "2101-02-14";
+    //中信
+    String DQJK_GSDK_ZX = "2101-02-15";
+    //交通
+    String DQJK_GSDK_JT = "2101-02-20";
+    //宁波健康
+    String DQJK_GSDK_NB_JK = "2101-02-17";
     //贷款利息
-    String DKLX = "5506-03";
+    String DKLX = "5506-11";
     //应付利息
     String YFLX = "2231";
     //其他货币资金-基金
@@ -312,11 +326,13 @@ public interface TaxItemConstanst
     String YJCSWHF = "2171-08";
     //应交消费税
     String YJXFS = "2171-04";
+    //银行手续费
+    String YHSXF = "5506-07";
 
     //银行存款
     String YHCK = "1002";
     //其他应付款-暂记户
-    String QTYSK_ZJH = "2181-04";
+//    String QTYSK_ZJH = "2181-04";
 
     //投资收益
     String TZSY = "5201";

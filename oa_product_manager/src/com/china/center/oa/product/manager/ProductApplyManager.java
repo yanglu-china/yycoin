@@ -33,4 +33,9 @@ public interface ProductApplyManager extends ListenerManager<ProductApplyListene
     boolean importProductApply(User user, List<ProductApplyBean> beans) throws MYException;
 
     boolean importProductForMailOut(User user, List<ProductImportBean> beans) throws MYException;
+
+    /**
+     * #885
+     */
+    void generateCodeJob();
 }
