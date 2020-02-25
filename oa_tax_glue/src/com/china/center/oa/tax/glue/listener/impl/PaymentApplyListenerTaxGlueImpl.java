@@ -1880,6 +1880,21 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         itemOut.setInmoney(0);
         itemOut.setOutmoney(FinanceHelper.doubleToLong(outMoney));
         itemOut.setDescription(itemOut.getName());
+
+        // 辅助核算 部门/职员/客户
+        if (TaxItemConstanst.YHSXF.equals(itemTaxIdOut)
+                ||TaxItemConstanst.OTHER_RECEIVE_BORROW.equals(itemTaxIdOut)
+                ||TaxItemConstanst.TZSY.equals(itemTaxIdOut)){
+            String stafferId = user.getStafferId();
+            StafferBean staffer = this.stafferDAO.find(stafferId);
+            if (staffer!= null){
+                itemOut.setDepartmentId(staffer.getPrincipalshipId());
+                itemOut.setStafferId(stafferId);
+                itemOut.setUnitId(bean.getCustomerId());
+                itemOut.setUnitType(TaxConstanst.UNIT_TYPE_CUSTOMER);
+            }
+        }
+
         itemList.add(itemOut);
     }
     

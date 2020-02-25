@@ -14161,8 +14161,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         String appName = ConfigLoader.getProperty("appName");
         String bank = "";
         
-        if (OutConstant.ZD_PMKH.equals(customerName) || OutConstant.QB_INDUSTRY.equals(customerName)
-                || OutConstant.ZD_INDUSTRY.equals(customerName)){
+        if (OutConstant.LS_PMKH.equals(customerName) || OutConstant.QB_INDUSTRY.equals(customerName)
+                || OutConstant.LS_INDUSTRY.equals(customerName)){
             bank = customerName;
         } else if (!StringTools.isNullOrNone(customerName)) {
             bank = StringUtils.subString(customerName, 4);
