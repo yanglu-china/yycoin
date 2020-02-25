@@ -896,15 +896,15 @@ function checkBean()
                         </tr>
                     </c:forEach>
 
-					<c:forEach items="${ytList}" var="item" varStatus="vs">
-						<tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
-							<td align="center"><a href="../tcp/backprepay.do?method=findBackPrePay&id=${item.id}">${item.id}</a></td>
+					<%--<c:forEach items="${ytList}" var="item" varStatus="vs">--%>
+						<%--<tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>--%>
+							<%--<td align="center"><a href="../tcp/backprepay.do?method=findBackPrePay&id=${item.id}">${item.id}</a></td>--%>
 
-							<td  align="center">${my:formatNum(item.total/100)}</td>
-							<td  align="center">${item.logTime}</td>
+							<%--<td  align="center">${my:formatNum(item.total)}</td>--%>
+							<%--<td  align="center">${item.logTime}</td>--%>
 
-						</tr>
-					</c:forEach>
+						<%--</tr>--%>
+					<%--</c:forEach>--%>
                 </table>
                 </td>
             </tr>
