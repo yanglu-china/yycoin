@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.china.center.common.taglib.DefinedCommon;
+import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.mail.bean.MailBean;
 import com.china.center.oa.mail.manager.MailMangaer;
 import com.china.center.oa.publics.StringUtils;
@@ -319,9 +320,31 @@ public class TcpFlowManagerImpl implements TcpFlowManager
             _logger.info("***approveList***"+approveList.size());
             for (TcpApproveBean tcpApproveBean : approveList)
             {
+            	//bug fix: 
+            	boolean sameUser = false;
                 if (tcpApproveBean.getApproverId().equals(user.getStafferId()))
                 {
-                    tcpApproveDAO.deleteEntityBean(tcpApproveBean.getId());
+                	sameUser = true;
+                }else{
+                    //验证工号一致
+                    ConditionParse conditionParse = new ConditionParse();
+                    conditionParse.addCondition("id", "=", user.getStafferId());
+                    List<StafferBean> loginStaffers = stafferDAO.queryEntityBeansByCondition(conditionParse);
+
+                    conditionParse = new ConditionParse();
+                    conditionParse.addCondition("id", "=", tcpApproveBean.getApproverId());
+                    List<StafferBean> approveStaffers = stafferDAO.queryEntityBeansByCondition(conditionParse);
+
+                    if(loginStaffers.size()>0 && approveStaffers.size()>0){
+                        String code0 = loginStaffers.get(0).getCode();
+                        String code1 = approveStaffers.get(0).getCode();
+                        if(code0.equals(code1)){
+                        	sameUser = true;
+                        }
+                    }
+                }
+                if(sameUser){
+                	tcpApproveDAO.deleteEntityBean(tcpApproveBean.getId());
                 }
             }
         }
