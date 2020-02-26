@@ -436,7 +436,6 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_DKLXYF
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_DKLXJF
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_LCBJ
-                || bean.getType() == FinanceConstant.OUTBILL_TYPE_QSQ
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJSDS
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJZZS
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJGSJH

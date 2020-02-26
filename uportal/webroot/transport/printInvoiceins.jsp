@@ -74,7 +74,6 @@
                                     //打印发票
                                     //发票种类
                                      var fpzl = xmlDoc.getElementsByTagName("fpzl")[0].childNodes[0].nodeValue;
-                                    var fpzl = 0;
                                     //打印标志（DYBZ）：0-打印发票；1-打印销货清单
                                     var dybz = "0";
                                     //打印模式（DYMS）：0-不弹框打印；1-弹框打印
