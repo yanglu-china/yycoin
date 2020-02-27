@@ -2780,7 +2780,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             // #888 报废
             else if (outBean.getOutType() == OutConstant.OUTTYPE_IN_DROP2)
             {
-                nextStatus = OutConstant.BUY_STATUS_SECOND_PASS;
+                //nextStatus = OutConstant.BUY_STATUS_SECOND_PASS;
+            	nextStatus = OutConstant.STATUS_CEO_CHECK;
             }            
             // 其他直接是待分公司经理审核
             else
@@ -4066,8 +4067,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         }
                         else
                         {
-                            if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_APPLY
-                              ||outBean.getOutType() == OutConstant.OUTTYPE_IN_DROP2 )
+                            if (outBean.getOutType() == OutConstant.OUTTYPE_OUT_APPLY)
                             	newNextStatus = OutConstant.BUY_STATUS_PASS;
                         }
 
