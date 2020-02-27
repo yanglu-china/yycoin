@@ -1606,8 +1606,12 @@ public class OutAction extends ParentOutAction
                 out = outDAO.find(fullId);
                 
                 //#888 设置财务审核后状态为待审核
-                if(out.getOutType() == OutConstant.OUTTYPE_IN_DROP2 && ioldStatus == OutConstant.BUY_STATUS_SECOND_PASS){
-                    statuss = OutConstant.BUY_STATUS_PASS;
+                if(out.getOutType() == OutConstant.OUTTYPE_IN_DROP2){
+                	if(ioldStatus == OutConstant.BUY_STATUS_CEO_CHECK){
+                		statuss = OutConstant.BUY_STATUS_SECOND_PASS;
+                	}else if(ioldStatus == OutConstant.BUY_STATUS_SECOND_PASS){
+                		statuss = OutConstant.BUY_STATUS_PASS;
+                	}
                 }
                 
                 _logger.debug("out.getBuyReturnFlag(): "+out.getBuyReturnFlag()+", type: "+out.getType()+", outType: "+out.getOutType());
@@ -1797,6 +1801,15 @@ public class OutAction extends ParentOutAction
 
                         return mapping.findForward("error");
                     }
+                    
+                    // 报废处理  提交--【入库-总裁审批】--【入库-财务审批】--结束
+                    if(out.getOutType() == OutConstant.OUTTYPE_IN_DROP2){
+                    	if(ioldStatus == OutConstant.BUY_STATUS_CEO_CHECK){
+                    		statuss = OutConstant.BUY_STATUS_SECOND_PASS;
+                    	}else if(ioldStatus == OutConstant.BUY_STATUS_SECOND_PASS){
+                    		statuss = OutConstant.BUY_STATUS_PASS;
+                    	}
+                    }
 
                     // 财务审核--事业部经理(其它入库)
                     if (statuss == OutConstant.BUY_STATUS_LOCATION_MANAGER_CHECK)
@@ -1840,6 +1853,24 @@ public class OutAction extends ParentOutAction
                             return mapping.findForward("error");
                         }
                     }
+                    
+                    // 进入待财务审批
+                    if (statuss == OutConstant.BUY_STATUS_SECOND_PASS)
+                    {
+                        try
+                        {
+                            resultStatus = outManager.pass(fullId, user,
+                                OutConstant.BUY_STATUS_SECOND_PASS, reason, null, depotpartId);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.warn(e, e);
+
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getErrorContent());
+
+                            return mapping.findForward("error");
+                        }
+                    }                    
 
                     // 进入待董事长审批
                     if (statuss == OutConstant.BUY_STATUS_CHAIRMA_CHECK)
