@@ -16,3 +16,8 @@ INSERT INTO t_center_schedule_job VALUES (562,SYSDATE(),NULL,'yscfJob','Default'
 -- #860
 alter table T_CENTER_INVOICEINS_IMPORT add otherDescription varchar(100) default '';
 alter table T_CENTER_INVOICEINS add otherDescription varchar(100) default '';
+
+-- #878
+alter table T_CENTER_INVOICEINS_IMPORT add column created int(2) default -1;
+INSERT INTO t_center_schedule_job VALUES (565,SYSDATE(),NULL,'createInvoiceinsJob','Default','0','0 0/1 * * * ?','开票申请','com.china.center.oa.finance.manager.impl.InvoiceinsManagerImpl',0,'invoiceinsManager','createInvoiceinsJob',0);
+
