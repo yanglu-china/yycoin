@@ -2430,7 +2430,9 @@ public class OutImportManagerImpl implements OutImportManager
 		{
 		    BaseBean baseBean = iterator.next();
 
-		    int hasBack = 0;
+//		    int hasBack = 0;
+			//#903
+			int hasBack = this.outDAO.sumHasBack2(baseBean.getOutId(), baseBean.getProductName());
 
 		    // 退库
 		    for (OutBean ref : refBuyList)

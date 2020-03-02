@@ -1133,10 +1133,16 @@ public class TravelApplyAction extends DispatchAction
             return mapping.findForward("error");
         }
         BeanUtil.getBean(bean, rds.getParmterMap());
+        
+        //#902 若类型若填写【激励】type=8 和【其他费用】 type=10，生成的UT申请单中，【是否借款类型】默认为【不借款(占预算)】
+        if(bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION || bean.getType() == TcpConstanst.TCP_APPLYTYPE_MOTIVATION2){
+        	bean.setBorrow(TcpConstanst.TRAVELAPPLY_BORROW_NO);
+        }
 
         String addOrUpdate = rds.getParameter("addOrUpdate");
 
         String oprType = rds.getParameter("oprType");
+        
 
         String processId = rds.getParameter("processId");
 

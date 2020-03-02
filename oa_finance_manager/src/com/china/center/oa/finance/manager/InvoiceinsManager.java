@@ -116,6 +116,12 @@ public interface InvoiceinsManager extends ListenerManager<InvoiceinsListener>
      */
     void autoApproveJob() throws MYException;
 
+    /**
+     * #878 后台生成开票申请
+     * @throws MYException
+     */
+    void createInvoiceinsJob() throws MYException;
+
     //2015/4/8 设置发票号A开头对应的CK单为紧急
     public boolean updateEmergency(User user, String fullId) throws MYException;
 
