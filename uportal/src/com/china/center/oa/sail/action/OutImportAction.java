@@ -582,6 +582,15 @@
 
                      importError = true;
                  }
+             } else if (bean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
+                 && bean.getPrice() != 0)
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("赠送类型订单单价须为0")
+                         .append("<br>");
+
+                 importError = true;
              }
          }
          else
@@ -1507,7 +1516,8 @@
              if (sb == null){
                  return 0;
              } else{
-                 if ("孟君".equals(sb.getName())){
+                 //孟君工号
+                 if ("YY02472".equals(sb.getCode())){
                      return OutConstant.QB_INDUSTRY_MJ;
                  } else if (OutConstant.QB_INDUSTRY_ID.equals(sb.getIndustryId())){
                     return OutConstant.QB_INDUSTRY_S;
@@ -1916,6 +1926,15 @@
 
                      importError = true;
                  }
+             }else if (bean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
+                     && bean.getPrice() != 0)
+             {
+                 builder
+                         .append("第[" + currentNumber + "]错误:")
+                         .append("赠送类型订单单价须为0")
+                         .append("<br>");
+
+                 importError = true;
              }
          }
          else
