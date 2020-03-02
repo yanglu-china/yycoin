@@ -1337,8 +1337,8 @@
                  String customerName = bean.getComunicatonBranchName();
                  int industry = this.checkStafferIndustry(bean.getStafferId2());
                  if (industry == OutConstant.QB_INDUSTRY_MJ){
-                     //当登录人是孟君，读取在售表BANK= 终端拍卖客户
-                     productImportBean = this.outManager.getProductImportBean(OutConstant.ZD_PMKH, null,
+                     //#899 当登录人是孟君，读取在售表BANK= 零售拍卖客户
+                     productImportBean = this.outManager.getProductImportBean(OutConstant.LS_PMKH, null,
                              bean.getProductCode(), null, bean.getCiticOrderDate(), bean.getOutType(), true);
                  } else if(industry == OutConstant.QB_INDUSTRY_S){
                      //钱币事业部
@@ -1350,10 +1350,10 @@
                          productImportBean = this.outManager.getProductImportBean(customerName, bean.getBranchName(),
                                  bean.getProductCode(), bean.getChannel(), bean.getCiticOrderDate(), bean.getOutType(), true);
                      }
-                 } else if(industry == OutConstant.ZD_INDUSTRY_S){
-                     //终端事业部
+                 } else if(industry == OutConstant.LS_INDUSTRY_S){
+                     //零售事业部
                      try {
-                         productImportBean = this.outManager.getProductImportBean(OutConstant.ZD_INDUSTRY, null,
+                         productImportBean = this.outManager.getProductImportBean(OutConstant.LS_INDUSTRY, null,
                                  bean.getProductCode(), null, bean.getCiticOrderDate(), bean.getOutType(), true);
                      }catch (MYException e){
                          //如果没找到产品，就再根据客户银行找产品，如还没找到，就报错
@@ -1511,8 +1511,8 @@
                      return OutConstant.QB_INDUSTRY_MJ;
                  } else if (OutConstant.QB_INDUSTRY_ID.equals(sb.getIndustryId())){
                     return OutConstant.QB_INDUSTRY_S;
-                 } else if (OutConstant.ZD_INDUSTRY_ID.equals(sb.getIndustryId())){
-                     return OutConstant.ZD_INDUSTRY_S;
+                 } else if (OutConstant.LS_INDUSTRY_ID.equals(sb.getIndustryId())){
+                     return OutConstant.LS_INDUSTRY_S;
                  } else{
                      return 0;
                  }
