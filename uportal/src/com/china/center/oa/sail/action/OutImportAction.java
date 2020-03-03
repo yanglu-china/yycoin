@@ -3902,11 +3902,14 @@
                      cellValue = obj[3];
                      int dropType = 10;
                      if(!StringTools.isNullOrNone(cellValue)){
-                         if("盘亏".equals(cellValue)
-                         ||"领样退回报废".equals(cellValue)
-                         ||"不良品报废".equals(cellValue)
-                         ||"其他".equals(cellValue)) {
-                             bean.getOutBean().setDropType(dropType);
+                         if("盘亏".equals(cellValue)) {
+                             bean.getOutBean().setDropType(OutConstant.DROPTYPE_INVENTORY_SHORTAGE);
+                         }else if("领样退回报废".equals(cellValue)) {
+                             bean.getOutBean().setDropType(OutConstant.DROPTYPE_SAMPLE_SCRAP);
+                         }else if("不良品报废".equals(cellValue)) {
+                             bean.getOutBean().setDropType(OutConstant.DROPTYPE_DEFECTIVE);
+                         }else if("其他".equals(cellValue)) {
+                             bean.getOutBean().setDropType(OutConstant.DROPTYPE_OTHERS);
                          }else{
                              builder.append("第[" + currentNumber + "]错误:报废类型错误<br>");
                              importError = true;
