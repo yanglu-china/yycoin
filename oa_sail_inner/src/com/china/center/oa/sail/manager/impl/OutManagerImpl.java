@@ -1387,7 +1387,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 增加报废单
      * 
-     * @param outBean
+     * @param batchDropBean
      * @return String 销售单的ID
      * @throws Exception
      */

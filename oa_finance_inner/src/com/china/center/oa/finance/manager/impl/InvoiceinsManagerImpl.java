@@ -3179,7 +3179,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     			}
     			
     			eachb.setRefInsId(bean.getId());
-    			
+    			this.setCreateFlag(eachb);
     			invoiceinsImportDAO.updateEntityBean(eachb);
     		}
     		
@@ -3557,6 +3557,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 				eachb.setRefInsId(bean.getId());
 
+                this.setCreateFlag(eachb);
 				invoiceinsImportDAO.updateEntityBean(eachb);
 			}
 
@@ -3622,6 +3623,16 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
 		}
 	}
+
+    /**
+     * #878
+     * @param bean
+     */
+	private void setCreateFlag(InvoiceinsImportBean bean){
+        if(bean.getCreated() == 1){
+            bean.setCreated(99);
+        }
+    }
 
     /**
      * #738 多个商品合并开票时把开票品名也合并(并且去重)
@@ -4362,6 +4373,21 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         }
         String spmc = sb.toString();
         return org.apache.commons.lang.StringUtils.removeEnd(spmc, ",");
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void createInvoiceinsJob() throws MYException {
+        _logger.info("****createInvoiceinsJob running***");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addIntCondition("created", "=", 1);
+        List<InvoiceinsImportBean> invoiceinsImportBeans = this.invoiceinsImportDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(invoiceinsImportBeans)){
+            this.process2(invoiceinsImportBeans);
+        }
+        _logger.info("****createInvoiceinsJob finished****");
     }
 
     /**

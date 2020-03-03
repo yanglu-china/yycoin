@@ -212,6 +212,11 @@ public class InvoiceinsImportBean implements Serializable
 	private String fpdw = "";
 
 	/**
+	 * #878标志位
+	 */
+	private int created = -1;
+
+	/**
 	 * 
 	 */
 	public InvoiceinsImportBean()
@@ -708,6 +713,14 @@ public class InvoiceinsImportBean implements Serializable
 
 	public void setOtherDescription(String otherDescription) {
 		this.otherDescription = otherDescription;
+	}
+
+	public int getCreated() {
+		return created;
+	}
+
+	public void setCreated(int created) {
+		this.created = created;
 	}
 
 	@Override
