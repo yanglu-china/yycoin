@@ -261,6 +261,12 @@ public interface TcpConstanst
      */
     @Defined(key = "expensePayType", value = "员工付款给公司")
     int PAYTYPE_PAY_NO = 2;
+    
+    /**
+     *供应商还款给公司
+     */
+    @Defined(key = "expensePayType", value = "供应商还款给公司")
+    int PAYTYPE_PAY_3 = 3;
 
     /**
      * 现金
