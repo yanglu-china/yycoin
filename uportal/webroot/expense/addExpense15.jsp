@@ -245,7 +245,7 @@ function getOpeningBank(oos)
     </p:title>
 
     <p:line flag="0" />
-
+    <!--  
     <tr>
         <td colspan='2' align='center'>
             <label for="budget">月度预算：</label>
@@ -267,7 +267,8 @@ function getOpeningBank(oos)
             </select>
         </td>
     </tr>
-
+    -->
+    
     <tr>
         <td colspan='2' align='center'>
         <table width="98%" border="0" cellpadding="0" cellspacing="0"
@@ -276,9 +277,11 @@ function getOpeningBank(oos)
                 <td>
                 <table width="100%" border="0" cellspacing='1' id="tables_share">
                     <tr align="center" class="content0">
-                        <td width="30%" align="center">月度预算</td>
+                        <!--  
+                        <td width="30%" align="center">月度预算</td>      
                         <td width="30%" align="center">部门</td>
                         <td width="15%" align="center">权签人</td>
+                        -->
                         <td width="15%" align="center">承担人</td>
                         <td width="15%" align="center">分担金额</td>
                         <td width="5%" align="left"><input type="button" accesskey="B"
@@ -417,7 +420,7 @@ function getOpeningBank(oos)
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>
     
-    <%@include file="share_tr0.jsp"%>
+    <%@include file="share_tr0_nobudget.jsp"%>
     
 </table>
 </body>

@@ -364,7 +364,7 @@ function checkMoney()
         </td>
     </tr>
     
-   <%@include file="share_process.jsp"%>
+   <%@include file="share_process_nobudget.jsp"%>
 
     <c:if test="${bean.importFlag}">
         <p:title>
