@@ -6890,7 +6890,7 @@ public class ParentOutAction extends DispatchAction
 			{
                 if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
                 {
-                    this.fillDistributionForRemoteAllocate(request, outBean);
+                    this.fillDistributionForRemoteAllocate(rds.getParmterMap(), outBean);
                 }
                 
                 //mod by zhangxian 2019-10-11
@@ -7968,12 +7968,11 @@ public class ParentOutAction extends DispatchAction
 	}
 
     /**
-     * 2015/8/6 入库调拨生成配送单
-	 * 2015/10/20 入库换货也需要生成配送单
-     * @param rds
+     * 2020-03-04 GLQ
+     * @param map
      * @param out
      */
-    private void fillDistributionForRemoteAllocate(HttpServletRequest rds, OutBean out)
+    private void fillDistributionForRemoteAllocate(Map map, OutBean out)
     {
         DistributionBean distributionBean = new DistributionBean();
 
@@ -7981,10 +7980,25 @@ public class ParentOutAction extends DispatchAction
 
         out.setDistributeBean(distributionBean);
 
-        BeanUtil.getBean(distributionBean, rds);
+        BeanUtil.getBean(distributionBean, map);
+
         _logger.info(out+" fillDistributionForRemoteAllocate*****"+distributionBean);
 
     }
+
+	private void fillDistributionForRemoteAllocate(HttpServletRequest request, OutBean out)
+	{
+		DistributionBean distributionBean = new DistributionBean();
+
+		distributionBean.setOutId(out.getFullId());
+
+		out.setDistributeBean(distributionBean);
+
+		BeanUtil.getBean(distributionBean, request);
+
+		_logger.info(out+" fillDistributionForRemoteAllocate*****"+distributionBean);
+
+	}
 
 	/**
 	 * 处理销售单的逻辑
