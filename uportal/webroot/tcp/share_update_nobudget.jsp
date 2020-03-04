@@ -31,6 +31,7 @@
                     
                     <c:forEach items="${bean.shareVOList}" var="itemEach" varStatus="vs">
                     <tr class="content1">
+                    <!--  
                      <td align="left"><input type="text" style="width: 100%;cursor: pointer;"
                                 name="s_budgetName" value="${itemEach.budgetName}" oncheck="notNone;" readonly="readonly" onclick="selectBudget(this)">
                      <input type="hidden" name="s_budgetId" value="${itemEach.budgetId}"> 
@@ -47,6 +48,7 @@
                                 name="s_approverName" value="${itemEach.approverName}" oncheck="notNone;" readonly="readonly">
                      <input type="hidden" name="s_approverId" value="${itemEach.approverId}"> 
                      </td>
+                     -->
                      
                      <td align="left">
                      <input type="text" style="width: 100%;cursor: pointer;"

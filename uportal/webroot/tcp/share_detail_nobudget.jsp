@@ -27,9 +27,11 @@
                     </tr>
                     <c:forEach items="${bean.shareVOList}" var="item">
                     <tr align="center" class="content1">
+                    <!--  
                         <td align="center">${item.budgetName}</td>
                         <td align="center">${item.departmentName}</td>
                         <td align="center">${item.approverName}</td>
+                        -->
                         <td align="center">${item.bearName}</td>
                         <td align="center">${item.showRealMonery}</td>
                     </tr>
