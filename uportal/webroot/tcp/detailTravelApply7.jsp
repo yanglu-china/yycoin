@@ -243,7 +243,7 @@ function load()
         </td>
     </tr>
     
-    <%@include file="share_detail.jsp"%>
+    <%@include file="share_detail_nobudget.jsp"%>
 
     <c:if test="${bean.importFlag}">
         <p:title>

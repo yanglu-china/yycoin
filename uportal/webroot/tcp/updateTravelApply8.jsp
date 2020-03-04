@@ -338,7 +338,7 @@ function getOpeningBank(oos)
         </td>
     </tr>
     
-    <%@include file="share_update.jsp"%>
+    <%@include file="share_update_nobudget.jsp"%>
     
 	    <p:title>
 	        <td class="caption">
