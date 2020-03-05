@@ -507,7 +507,7 @@ function getOpeningBank(oos)
         </td>
     </tr>
     
-    <%@include file="share_tr.jsp"%>
+    <%@include file="share_tr_nobudget.jsp"%>
     
 </table>
 </body>
