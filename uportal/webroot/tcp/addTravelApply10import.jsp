@@ -344,7 +344,7 @@ function getOpeningBank(oos)
     </c:if>
     
     <c:if test="${imp}">
-    <%@include file="share_update.jsp"%>
+    <%@include file="share_update_nobudget.jsp"%>
     </c:if>    
     
     <p:title>
