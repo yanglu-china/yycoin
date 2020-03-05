@@ -72,12 +72,96 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
         return result;
     }
 
+
+    @Override
+    public List<DhZjbVO> queryDhInfo2() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT DISTINCT")
+                .append("c.id as cid ,c.dhno,c.productId,c.stockid,c.createUser,c.depotid,c.price")
+                .append("c.ydh_amount,c.sd_amount,c.zj_cj_amount,c.zj_hg_amount,c.ydh_amount-c.zj_hg_amount as bhg_amount")
+                .append("c.wl_remarks,c.type")
+                .append("d.id as did,d.sccg_rk_type,d.sccg_rkamount, d.sccg_rkck,d.sccg_rkcq, d.sccg_cldz,d.pid")
+                .append("FROM t_center_dh_result c")
+                .append("LEFT JOIN t_center_dh_result_zb d on c.id = d.pid where c.status = '结束' and c.processedFlag = 0");
+
+        final List<DhZjbVO> result = new LinkedList<>();
+
+        this.jdbcOperation.query(sb.toString(), new Object[] {},
+                new RowCallbackHandler()
+                {
+
+                    public void processRow(ResultSet rst)
+                            throws SQLException
+                    {
+                        DhZjbVO wrap = new DhZjbVO();
+                        int id = rst.getInt("cid");
+                        int did = rst.getInt("did");
+                        String dhno = rst.getString("dhno");
+                        String productId = rst.getString("productId");
+//                        int cg_amount = rst.getInt("cg_amount");
+                        int ydh_amount = rst.getInt("ydh_amount");
+                        int zj_hg_amount = rst.getInt("zj_hg_amount");
+                        int bhg_amount = rst.getInt("bhg_amount");
+                        int sdAmount = rst.getInt("sd_amount");
+                        //入库仓库
+                        String sccg_rkfx = rst.getString("sccg_rkck");
+                        //入库仓区 TODO
+                        String sccg_rkcq = rst.getString("sccg_rkcq");
+                        String sccg_cldz = rst.getString("sccg_cldz");
+                        String createUser = rst.getString("createUser");
+                        String stockId = rst.getString("stockid");
+                        String depotpartId = rst.getString("depotpartid");
+                        String depotId = rst.getString("depotid");
+                        double price = rst.getFloat("price");
+
+                        wrap.setId(id);
+                        wrap.setStockId(stockId);
+                        wrap.setDhNo(dhno);
+                        wrap.setProductId(productId);
+//                        wrap.setCgAmount(cg_amount);
+                        wrap.setYdhAmount(ydh_amount);
+                        wrap.setZjHgAmount(zj_hg_amount);
+                        wrap.setZjBhgAmount(bhg_amount);
+                        wrap.setSdAmount(sdAmount);
+                        wrap.setSccgRkfx(sccg_rkfx);
+                        wrap.setSccgCldz(sccg_cldz);
+                        wrap.setCreateUser(createUser);
+                        wrap.setDepotId(depotId);
+                        wrap.setDepotpartId(depotpartId);
+                        wrap.setPrice(price);
+                        result.add(wrap);
+                    }
+                });
+
+        return result;
+    }
+
     @Override
     public boolean updateProcessedFlag(int id, String outId) {
         String sql = "update t_center_dh_zjb set processedFlag = 1, outId = ? " +
                 " where id = ?";
 
         int i = jdbcOperation.update(sql, outId, id);
+
+        return i != 0;
+    }
+
+    @Override
+    public boolean updateProcessedFlag2(int id) {
+        String sql = "update t_center_dh_result set processedFlag = 1 " +
+                " where id = ?";
+
+        int i = jdbcOperation.update(sql, id);
+
+        return i != 0;
+    }
+
+    @Override
+    public boolean updateOutId(int id, String outId) {
+        String sql = "update t_center_dh_result_zb set outid = ? " +
+                " where id = ?";
+
+        int i = jdbcOperation.update(sql, outId,id);
 
         return i != 0;
     }
