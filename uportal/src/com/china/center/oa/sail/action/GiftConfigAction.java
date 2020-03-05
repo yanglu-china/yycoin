@@ -10,6 +10,21 @@
 package com.china.center.oa.sail.action;
 
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
@@ -21,7 +36,6 @@ import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProductVSGiftBean;
-import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductVSGiftDAO;
 import com.china.center.oa.product.manager.GiftConfigManager;
@@ -29,21 +43,11 @@ import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
-import com.china.center.oa.sail.bean.SailConfBean;
-import com.china.center.tools.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.china.center.oa.publics.dao.PrincipalshipDAO;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.StringTools;
 
 
 /**
@@ -63,6 +67,8 @@ public class GiftConfigAction extends DispatchAction
     private GiftConfigManager giftConfigManager = null;
 
     private ProductDAO productDAO = null;
+    
+    private PrincipalshipDAO principalshipDAO;
 
     private static final String QUERYSAILCONFIG = "queryGiftConfig";
 
@@ -346,8 +352,7 @@ public class GiftConfigAction extends DispatchAction
                         item.setStafferShare(Integer.valueOf(stafferShare));
                     }
 
-                    if (item.getCompanyShare()+ item.getStafferShare()!= 100 &&
-                            item.getCompanyShare()+item.getStafferShare()!= 0){
+                    if (item.getCompanyShare()+ item.getStafferShare()!= 100){
                         builder
                                 .append("第[" + currentNumber + "]错误:")
                                 .append("公司和个人承担比例之和必须为100或者0!")
@@ -589,6 +594,27 @@ public class GiftConfigAction extends DispatchAction
                                              HttpServletResponse response)
         throws ServletException
     {
+    	//事业部
+    	ConditionParse cond = new ConditionParse();
+    	cond.addCondition("LEVEL", "=", "4");
+    	cond.addCondition("status", "=", "0");
+    	List<PrincipalshipBean> sybList =  principalshipDAO.queryEntityBeansByCondition(cond);
+    	
+    	//业务部
+    	cond.clear();
+    	cond.addCondition("LEVEL", "=", "5");
+    	cond.addCondition("status", "=", "0");
+    	List<PrincipalshipBean> ywbList =  principalshipDAO.queryEntityBeansByCondition(cond);
+    	
+    	//大区
+    	cond.clear();
+    	cond.addCondition("LEVEL", "=", "6");
+    	cond.addCondition("status", "=", "0");
+    	List<PrincipalshipBean> dqList =  principalshipDAO.queryEntityBeansByCondition(cond);
+    	
+    	request.setAttribute("sybList", sybList);
+    	request.setAttribute("ywbList", ywbList);
+    	request.setAttribute("dqList", dqList);
         return mapping.findForward("addGiftConfig");
     }
 
@@ -714,6 +740,28 @@ public class GiftConfigAction extends DispatchAction
 
             return mapping.findForward("queryGiftConfig");
         }
+        
+      //事业部
+    	ConditionParse cond = new ConditionParse();
+    	cond.addCondition("LEVEL", "=", "4");
+    	cond.addCondition("status", "=", "0");
+    	List<PrincipalshipBean> sybList =  principalshipDAO.queryEntityBeansByCondition(cond);
+    	
+    	//业务部
+    	cond.clear();
+    	cond.addCondition("LEVEL", "=", "5");
+    	cond.addCondition("status", "=", "0");
+    	List<PrincipalshipBean> ywbList =  principalshipDAO.queryEntityBeansByCondition(cond);
+    	
+    	//大区
+    	cond.clear();
+    	cond.addCondition("LEVEL", "=", "6");
+    	cond.addCondition("status", "=", "0");
+    	List<PrincipalshipBean> dqList =  principalshipDAO.queryEntityBeansByCondition(cond);
+    	
+    	request.setAttribute("sybList", sybList);
+    	request.setAttribute("ywbList", ywbList);
+    	request.setAttribute("dqList", dqList);
 
         request.setAttribute("bean", vo);
 
@@ -785,4 +833,13 @@ public class GiftConfigAction extends DispatchAction
     public void setProductDAO(ProductDAO productDAO) {
         this.productDAO = productDAO;
     }
+
+	public PrincipalshipDAO getPrincipalshipDAO() {
+		return principalshipDAO;
+	}
+
+	public void setPrincipalshipDAO(PrincipalshipDAO principalshipDAO) {
+		this.principalshipDAO = principalshipDAO;
+	}
+    
 }
