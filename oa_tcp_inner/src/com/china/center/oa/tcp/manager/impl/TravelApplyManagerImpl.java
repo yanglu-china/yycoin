@@ -1174,6 +1174,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
                 // 先处理一个
                 List<TcpShareVO> shareVOList = bean.getShareVOList();
+                _logger.info("******shareVOList.size():"+shareVOList.size());
 
                 if (ListTools.isEmptyOrNull(shareVOList))
                 {
@@ -1183,7 +1184,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 for (TcpShareVO tcpShareVO : shareVOList)
                 {
                     processList.add(tcpShareVO.getApproverId());
+                    _logger.info("******tcpShareVO.getApproverId():"+tcpShareVO.getApproverId());
                 }
+                
+                _logger.info("******processList.size():"+processList.size());
 
                 int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
                     TcpConstanst.TCP_POOL_COMMON);
