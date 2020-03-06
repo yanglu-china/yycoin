@@ -1,7 +1,6 @@
 package com.china.center.oa.product.bean;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.FK;
@@ -174,8 +173,17 @@ public class ProductVSGiftBean implements Serializable
     private String ywbid = "";
     private String dqid = "";
     
+    @Html(title = "事业部承担比例", maxLength = 10)
+    private int sybShare = 0;
+    
+    @Html(title = "业务部承担比例", maxLength = 10)
+    private int ywbShare = 0;
+    
+    @Html(title = "大区承担比例", maxLength = 10)
+    private int dqShare = 0;
+    
     @Html(title = "公共基金", maxLength = 10)
-    private BigDecimal publicfunds;
+    private int publicfunds;
     
 
     public ProductVSGiftBean()
@@ -510,12 +518,36 @@ public class ProductVSGiftBean implements Serializable
 		this.dqid = dqid;
 	}
 
-	public BigDecimal getPublicfunds() {
+	public int getPublicfunds() {
 		return publicfunds;
 	}
 
-	public void setPublicfunds(BigDecimal publicfunds) {
+	public void setPublicfunds(int publicfunds) {
 		this.publicfunds = publicfunds;
+	}
+
+	public int getSybShare() {
+		return sybShare;
+	}
+
+	public void setSybShare(int sybShare) {
+		this.sybShare = sybShare;
+	}
+
+	public int getYwbShare() {
+		return ywbShare;
+	}
+
+	public void setYwbShare(int ywbShare) {
+		this.ywbShare = ywbShare;
+	}
+
+	public int getDqShare() {
+		return dqShare;
+	}
+
+	public void setDqShare(int dqShare) {
+		this.dqShare = dqShare;
 	}
 
 	@Override
