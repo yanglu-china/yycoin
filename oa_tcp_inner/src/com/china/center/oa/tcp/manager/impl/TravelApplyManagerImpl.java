@@ -1174,6 +1174,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
                 // 先处理一个
                 List<TcpShareVO> shareVOList = bean.getShareVOList();
+                _logger.info("******shareVOList.size():"+shareVOList.size());
 
                 if (ListTools.isEmptyOrNull(shareVOList))
                 {
@@ -1183,7 +1184,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 for (TcpShareVO tcpShareVO : shareVOList)
                 {
                     processList.add(tcpShareVO.getApproverId());
+                    _logger.info("******tcpShareVO.getApproverId():"+tcpShareVO.getApproverId());
                 }
+                
+                _logger.info("******processList.size():"+processList.size());
 
                 int newStatus = this.tcpFlowManager.saveApprove(user, processList, bean, token.getNextStatus(),
                     TcpConstanst.TCP_POOL_COMMON);
@@ -3233,6 +3237,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         bean.setPayList(payList);
 
+        //#910 去掉预算项关联
+        /*
         List<TcpShareVO> shareList = tcpShareDAO.queryEntityVOsByFK(id);
         _logger.info(id+"***shareList***"+shareList.size());
         if (ListTools.isEmptyOrNull(shareList)){
@@ -3252,6 +3258,26 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 shareList.add(vo);
             }
         }
+        */
+        List<TcpShareVO> shareList = new ArrayList<>();
+        List<TcpShareBean> tcpShareBeans = tcpShareDAO.queryEntityBeansByFK(id);
+        _logger.info(id+"***shareList***"+tcpShareBeans.size());
+        shareList = new ArrayList<>();
+        for(TcpShareBean tcpShareBean : tcpShareBeans){
+            TcpShareVO vo = new TcpShareVO();
+            vo.setId(tcpShareBean.getId());
+            vo.setRefId(tcpShareBean.getRefId());
+            vo.setRatio(tcpShareBean.getRatio());
+            vo.setRealMonery(tcpShareBean.getRealMonery());
+            vo.setBearId(tcpShareBean.getBearId());
+            vo.setApproverId(tcpShareBean.getApproverId());
+            StafferBean stafferBean = this.stafferDAO.find(tcpShareBean.getBearId());
+            if(stafferBean!= null){
+                vo.setBearName(stafferBean.getName());
+            }
+            shareList.add(vo);
+        }
+        
         for (TcpShareVO tcpShareVO : shareList)
         {
             if (!StringTools.isNullOrNone(tcpShareVO.getDepartmentId())){
