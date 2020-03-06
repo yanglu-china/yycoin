@@ -3215,6 +3215,25 @@ public class TravelApplyAction extends DispatchAction
         List<String> approverIdList = rds.getParameters("s_approverId");
         List<String> bearIdList = rds.getParameters("s_bearId");
         List<String> ratioList = rds.getParameters("s_ratio");
+        
+        //#910  
+        boolean isApproverIdListEmpty = false;
+        if(approverIdList==null){
+        	isApproverIdListEmpty = true;
+        }else{
+        	isApproverIdListEmpty = true;
+        	for(String str : approverIdList){
+        		if(!StringTools.isNullOrNone(str)){
+        			isApproverIdListEmpty = false;
+        		}
+        	}
+        }
+        if(isApproverIdListEmpty ){
+        	approverIdList = new ArrayList<String>();
+        	approverIdList.addAll(bearIdList);
+        }
+        
+        
         int rtotal = 0;
         if(null != ratioList && ratioList.size() > 0)
         {
