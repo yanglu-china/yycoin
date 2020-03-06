@@ -165,6 +165,29 @@ function load()
             </p:cell>
 
             <p:pro field="companyShare" innerString="size=60 oncheck='isMathNumber'"/>
+            
+            <p:cell title="事业部">
+            	<select name="sybid" class="select_class" oncheck="notNone;" values="${bean.sybid}">
+                    <c:forEach items='${sybList}' var="item">
+                        <option value="${item.id}">${item.name}</option>
+                    </c:forEach>
+                </select>
+            </p:cell>
+             <p:cell title="业务部">
+            	<select name="ywbid" class="select_class" values="${bean.ywbid}">
+                    <c:forEach items='${ywbList}' var="item">
+                        <option value="${item.id}">${item.name}</option>
+                    </c:forEach>
+                </select>
+            </p:cell>
+             <p:cell title="大区">
+            	<select name="dqid" class="select_class" values="${bean.dqid}">
+                    <c:forEach items='${dqList}' var="item">
+                        <option value="${item.id}">${item.name}</option>
+                    </c:forEach>
+                </select>
+            </p:cell>
+            <p:pro field="publicfunds" innerString="size=10" value="${bean.publicfunds}"/>
 
             <p:pro field="stafferShare" innerString="size=60 oncheck='isMathNumber'"/>
 
