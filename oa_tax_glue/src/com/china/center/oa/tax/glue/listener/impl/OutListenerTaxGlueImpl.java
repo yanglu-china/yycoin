@@ -4512,7 +4512,7 @@ public class OutListenerTaxGlueImpl implements OutListener
                 // 辅助核算 单位/部门/职员/纳税实体
                 itemIn.setUnitId(outBean.getCustomerId());
 
-                this.setBearStaffer(outBean, itemIn);
+                this.setBearStaffer(outBean, itemIn); 
 
                 itemIn.setDuty2Id(outBean.getDutyId());
 
@@ -4559,6 +4559,171 @@ public class OutListenerTaxGlueImpl implements OutListener
 
                 itemList.add(itemIn);
             }
+          //事业部承担比例
+            if (giftBean.getSybShare()> 0){
+                FinanceItemBean itemIn = new FinanceItemBean();
+
+                itemIn.setPareId(pare1);
+
+                itemIn.setName("主营业务成本:" + name);
+
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+                String itemInTaxId = this.getPresentTaxId(outBean);
+
+                TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+                if (itemInTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(itemInTax, itemIn);
+
+                double money = type * getOutCost(outBean);
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(money)*giftBean.getSybShare()/100);
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 单位/部门/职员/纳税实体
+                itemIn.setUnitId(outBean.getCustomerId());
+
+                this.setBearStaffer(outBean, itemIn); 
+
+                itemIn.setDuty2Id(outBean.getDutyId());
+
+                itemList.add(itemIn);
+            }
+          //业务部承担比例
+            if (giftBean.getYwbShare()> 0){
+                FinanceItemBean itemIn = new FinanceItemBean();
+
+                itemIn.setPareId(pare1);
+
+                itemIn.setName("主营业务成本:" + name);
+
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+                String itemInTaxId = this.getPresentTaxId(outBean);
+
+                TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+                if (itemInTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(itemInTax, itemIn);
+
+                double money = type * getOutCost(outBean);
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(money)*giftBean.getYwbShare()/100);
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 单位/部门/职员/纳税实体
+                itemIn.setUnitId(outBean.getCustomerId());
+
+                this.setBearStaffer(outBean, itemIn); 
+
+                itemIn.setDuty2Id(outBean.getDutyId());
+
+                itemList.add(itemIn);
+            }
+          //大区承担比例
+            if (giftBean.getDqShare()> 0){
+                FinanceItemBean itemIn = new FinanceItemBean();
+
+                itemIn.setPareId(pare1);
+
+                itemIn.setName("主营业务成本:" + name);
+
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+                String itemInTaxId = this.getPresentTaxId(outBean);
+
+                TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+                if (itemInTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(itemInTax, itemIn);
+
+                double money = type * getOutCost(outBean);
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(money)*giftBean.getDqShare()/100);
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 单位/部门/职员/纳税实体
+                itemIn.setUnitId(outBean.getCustomerId());
+
+                this.setBearStaffer(outBean, itemIn); 
+
+                itemIn.setDuty2Id(outBean.getDutyId());
+
+                itemList.add(itemIn);
+            }
+          //公共基金承担比例
+            if (giftBean.getPublicfunds()> 0){
+                FinanceItemBean itemIn = new FinanceItemBean();
+
+                itemIn.setPareId(pare1);
+
+                itemIn.setName("主营业务成本:" + name);
+
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+                String itemInTaxId = this.getPresentTaxId(outBean);
+
+                TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+                if (itemInTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(itemInTax, itemIn);
+
+                double money = type * getOutCost(outBean);
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(money)*giftBean.getPublicfunds()/100);
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 单位/部门/职员/纳税实体
+                itemIn.setUnitId(outBean.getCustomerId());
+
+                this.setBearStaffer(outBean, itemIn); 
+
+                itemIn.setDuty2Id(outBean.getDutyId());
+
+                itemList.add(itemIn);
+            }
+
         } else{
             // 借:库存商品 贷:应付账款-供应商
             FinanceItemBean itemIn = new FinanceItemBean();

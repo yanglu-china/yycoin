@@ -163,13 +163,15 @@ function getProduct(oos)
                 <input type="text" name="excludeCity" id="excludeCity" placeholder="可多选，以分号;分割" size="100">
             </p:cell>
 
-            <p:pro field="companyShare" innerString="size=60 oncheck='isMathNumber'"/>
+            <p:pro field="companyShare" innerString="size=10 oncheck='isMathNumber'"/>
             <p:cell title="事业部">
             	<select name="sybid" class="select_class" oncheck="notNone;">
                     <c:forEach items='${sybList}' var="item">
                         <option value="${item.id}">${item.name}</option>
                     </c:forEach>
                 </select>
+                &nbsp;&nbsp;&nbsp;
+                <p:pro field="sybShare" innerString="size=10 oncheck='isMathNumber'"/>
             </p:cell>
              <p:cell title="业务部">
             	<select name="ywbid" class="select_class">
@@ -177,6 +179,8 @@ function getProduct(oos)
                         <option value="${item.id}">${item.name}</option>
                     </c:forEach>
                 </select>
+                &nbsp;&nbsp;&nbsp;
+                <p:pro field="ywbShare" innerString="size=10 oncheck='isMathNumber'"/>
             </p:cell>
              <p:cell title="大区">
             	<select name="dqid" class="select_class">
@@ -184,10 +188,12 @@ function getProduct(oos)
                         <option value="${item.id}">${item.name}</option>
                     </c:forEach>
                 </select>
+                &nbsp;&nbsp;&nbsp;
+                <p:pro field="dqShare" innerString="size=10 oncheck='isMathNumber'"/>
             </p:cell>
-            <p:pro field="publicfunds" innerString="size=10"/>
+            <p:pro field="publicfunds" innerString="size=10 oncheck='isMathNumber'"/>
 
-            <p:pro field="stafferShare" innerString="size=60 oncheck='isMathNumber'"/>
+            <p:pro field="stafferShare" innerString="size=10 oncheck='isMathNumber'"/>
 
             <p:pro field="beginDate" />
 

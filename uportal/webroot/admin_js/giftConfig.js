@@ -33,10 +33,14 @@ function checkBean(){
 
     var companyShare = $$('companyShare');
     var stafferShare = $$('stafferShare');
+    var sybShare = $$('sybShare');
+    var ywbShare = $$('ywbShare');
+    var dqShare = $$('dqShare');
+    var publicfunds = $$('publicfunds');
     // console.log(Number(companyShare));
     // console.log(Number(stafferShare));
-    if(Number(companyShare)+Number(stafferShare)!= 100){
-        alert('公司和个人承担比例之和必须为100');
+    if(Number(companyShare)+Number(stafferShare) + Number(sybShare) +Number(ywbShare) + Number(dqShare)+Number(publicfunds)!= 100){
+        alert('公司,个人承担,事业部,业务部,大区,公共基金各项比例之和必须为100');
         return false;
     }
     
