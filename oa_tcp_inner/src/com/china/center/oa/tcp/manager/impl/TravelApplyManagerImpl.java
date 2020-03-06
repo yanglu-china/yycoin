@@ -3270,6 +3270,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             vo.setRatio(tcpShareBean.getRatio());
             vo.setRealMonery(tcpShareBean.getRealMonery());
             vo.setBearId(tcpShareBean.getBearId());
+            vo.setApproverId(tcpShareBean.getApproverId());
             StafferBean stafferBean = this.stafferDAO.find(tcpShareBean.getBearId());
             if(stafferBean!= null){
                 vo.setBearName(stafferBean.getName());
