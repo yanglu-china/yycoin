@@ -9,6 +9,9 @@
 package com.china.center.oa.tax.glue.listener.impl;
 
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,6 +20,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.oa.publics.StringUtils;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -69,10 +76,7 @@ import com.china.center.oa.tax.dao.TaxDAO;
 import com.china.center.oa.tax.helper.FinanceHelper;
 import com.china.center.oa.tax.manager.FinanceManager;
 import com.china.center.oa.tax.manager.FinanceTagManager;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -822,6 +826,9 @@ public class OutListenerTaxGlueImpl implements OutListener
         FinanceBean financeBean = new FinanceBean();
 
         String name = "销售出库:" + outBean.getFullId() + '.';
+        if (user == null){
+            name = "系统补录销售出库:" + outBean.getFullId() + '.';
+        }
 
         financeBean.setName(name);
 
@@ -912,43 +919,14 @@ public class OutListenerTaxGlueImpl implements OutListener
     private void processOutCommon2(User user, OutBean outBean)
         throws MYException
     {
-        // // 应收账款（销售金额，含税价）/其他应收款
-        // FinanceBean financeBean = new FinanceBean();
-        //
-        // String name = "销售-个人领转销售:" + outBean.getFullId() + '.';
-        //
-        // financeBean.setName(name);
-        //
-        // financeBean.setType(TaxConstanst.FINANCE_TYPE_MANAGER);
-        //
-        // financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_SAIL_SWATCHSAIL);
-        //
-        // financeBean.setRefId(outBean.getFullId());
-        //
-        // financeBean.setRefOut(outBean.getFullId());
-        //
-        // financeBean.setDutyId(outBean.getDutyId());
-        //
-        // financeBean.setDescription(financeBean.getName());
-        //
-        // financeBean.setFinanceDate(TimeTools.now_short());
-        //
-        // financeBean.setLogTime(TimeTools.now());
-        //
-        // List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
-        //
-        // // 应收账款（销售金额，含税价）/其他应收款
-        // createOutCommonItem3(user, outBean, financeBean, itemList);
-        //
-        // financeBean.setItemList(itemList);
-        //
-        // financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
-
         // 应收账款（销售金额，含税价）(1132) 主营业务收入：含税价
         // 主营业务成本(5401) 库存商品（成本价*数量）
         FinanceBean financeBean = new FinanceBean();
 
         String name = "销售-个人领转销售:" + outBean.getFullId() + '.';
+        if (user == null){
+            name = "系统补录销售-个人领转销售:" + outBean.getFullId() + '.';
+        }
 
         financeBean.setName(name);
 
@@ -7179,7 +7157,55 @@ public class OutListenerTaxGlueImpl implements OutListener
     		}
     	}
 	}
-	
+
+
+    /**
+     * #911 SO单库管审批凭证缺失修复
+     */
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void repairKgspPzJob() {
+        _logger.info("***repairKgspPzJob running***");
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+        try
+        {
+            InputStream is = new FileInputStream("E:\\data1.xls");
+            reader.readFile(is);
+
+            while (reader.hasNext())
+            {
+                String[] obj = StringUtils.fillObj((String[])reader.next(),10);
+                String outId = obj[0];
+                System.out.println(outId);
+                _logger.info(outId);
+                try {
+                    OutBean outBean = this.outDAO.find(outId);
+                    if (outBean != null) {
+                        this.onConfirmOutOrBuy(null, outBean);
+                    }
+                }catch (Exception e){
+                    _logger.error(e,e);
+                }
+            }
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            _logger.error(e);
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        _logger.info("***repairKgspPzJob finished***");
+    }
+
     /*
      * (non-Javadoc)
      * 

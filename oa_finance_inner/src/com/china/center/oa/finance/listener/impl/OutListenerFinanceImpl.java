@@ -1166,7 +1166,12 @@ public class OutListenerFinanceImpl extends AbstractListenerManager<BillListener
 	{
 		
 	}
-	
+
+    @Override
+    public void repairKgspPzJob() {
+
+    }
+
     /*
      * (non-Javadoc)
      * 
