@@ -21,6 +21,7 @@ import com.china.center.oa.finance.bean.OutBillBean;
 import com.china.center.oa.finance.bean.PaymentApplyBean;
 import com.china.center.oa.finance.bean.PaymentBean;
 import com.china.center.oa.finance.constant.FinanceConstant;
+import com.china.center.oa.finance.constant.FinanceConstantTw;
 import com.china.center.oa.finance.dao.BankDAO;
 import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.finance.dao.OutBillDAO;
@@ -217,8 +218,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
      * 贷：张三预收-10000 贷：李四预收10000
      * 
      * @param user
-     * @param target
-     * @param inBillBean
+     * @param apply
      * @param bank
      * @throws MYException
      */
@@ -291,8 +291,8 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
      * 
      * @param user
      * @param bank
-     * @param outBean
-     * @param inBillBean
+     * @param target
+     * @param srcStaffer
      * @param financeBean
      * @param itemList
      * @throws MYException
@@ -855,9 +855,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
      * 
      * @param user
      * @param apply
-     * @param item
-     * @param payment
-     * @param bank
+     * @param outBean
      * @throws MYException
      */
     private void mainFinanceInBadPay(User user, PaymentApplyBean apply, OutBean outBean)
@@ -914,10 +912,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
      * 
      * @param user
      * @param apply
-     * @param item
      * @param payment
      * @param bank
-     * @param inBillBean
+     * @param outBillBean
      * @throws MYException
      */
     private void secondFinance(User user, PaymentApplyBean apply, BankBean bank,
@@ -1337,10 +1334,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
      * 其它应收-坏账(1133-16)/应收账款
      * 
      * @param user
-     * @param bean
-     * @param bank
      * @param apply
-     * @param item
      * @param financeBean
      * @param itemList
      * @throws MYException
@@ -1814,35 +1808,57 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         if (bean.getDkType() == FinanceConstant.INBILL_TYPE_DKBJ){
             //贷款-本金
-            this.createFinanceItem(user, bean, "", "",
+            this.financeManager.createFinanceItem(user, bean, "", "",
                     this.getBankTaxId(bank), this.financeManager.getDkbjTaxId(bank.getName()),
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCBJ){
             //理财-本金
-            this.createFinanceItem(user, bean,  "", "",
+            this.financeManager.createFinanceItem(user, bean,  "", "",
                     this.getBankTaxId(bank), TaxItemConstanst.QTHBZJ_JJ,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCSY){
             //理财-收益
-            this.createFinanceItem(user, bean,  "", "",
+            this.financeManager.createFinanceItem(user, bean,  "", "",
                     this.getBankTaxId(bank), TaxItemConstanst.TZSY,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_UNBORROW){
             //个人还款
-            this.createFinanceItem(user, bean,  "", "",
+            this.financeManager.createFinanceItem(user, bean,  "", "",
                     this.getBankTaxId(bank), TaxItemConstanst.OTHER_RECEIVE_BORROW,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_YHKLXSR){
             //银行卡利息收入
-            this.createFinanceItem(user, bean,  "", "",
+            this.financeManager.createFinanceItem(user, bean,  "", "",
                     this.getBankTaxId(bank), TaxItemConstanst.YHSXF,
                     financeBean, itemList);
-        }else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
-                || bean.getDkType() == FinanceConstant.INBILL_TYPE_OTHER){
+        } else if (bean.notCreatePz()){
             //钱生钱,其他
             //“钱生钱”和“其他”，财务操作认领成功后，无需自动生成凭证，页面直接跳转手工做凭证页面
             return;
-        } else{
+        }
+        //体外凭证
+        else if (bean.getDkType() == FinanceConstantTw.INBILL_TYPE_JYLLK){
+            //金银料来款
+            this.financeManager.createFinanceItem(user, bean,  "", "",
+                    this.getBankTaxId(bank), TaxItemConstanst.OTHER_JYL,
+                    financeBean, itemList);
+        } else if (bean.getDkType() == FinanceConstantTw.INBILL_TYPE_YHFK){
+            //永银付款
+            this.financeManager.createFinanceItem(user, bean,  "", "",
+                    this.getBankTaxId(bank), TaxItemConstanst.OTHER_YYFK,
+                    financeBean, itemList);
+        } else if (bean.getDkType() == FinanceConstantTw.INBILL_TYPE_CGGZ){
+            //采购过账
+            this.financeManager.createFinanceItem(user, bean,  "", "",
+                    this.getBankTaxId(bank), TaxItemConstanst.CGGZ,
+                    financeBean, itemList);
+        } else if (bean.getDkType() == FinanceConstantTw.INBILL_TYPE_TYHK){
+            //体育还款
+            this.financeManager.createFinanceItem(user, bean,  "", "",
+                    this.getBankTaxId(bank), TaxItemConstanst.OTHER_YYTY,
+                    financeBean, itemList);
+        }
+        else{
             // 借: 银行对应的暂记户科目  贷:其他应付款—财务待处理
             createAddItem11(user, bean, bank, financeBean, itemList);
         }
@@ -1864,7 +1880,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         }
     }
 
-    private void createFinanceItem(User user, PaymentBean bean,
+    /*private void createFinanceItem(User user, PaymentBean bean,
                                    String itemInName,String itemOutName,
                                    String itemTaxIdIn, String itemTaxIdOut,
                                    FinanceBean financeBean, List<FinanceItemBean> itemList)
@@ -1928,7 +1944,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         }
 
         itemList.add(itemOut);
-    }
+    }*/
     
     private void createAddItem11(User user, PaymentBean bean, BankBean bank,
             FinanceBean financeBean, List<FinanceItemBean> itemList)
@@ -2052,7 +2068,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
      * 
      * @param user
      * @param apply
-     * @param item
+     * @param vs
      * @param payment
      * @param bank
      * @throws MYException
@@ -2103,7 +2119,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
      * @param bean
      * @param bank
      * @param apply
-     * @param item
+     * @param vs
      * @param financeBean
      * @param itemList
      * @throws MYException

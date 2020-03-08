@@ -72,6 +72,7 @@
             <forward name="queryTabInBillAndOutBill" path="/bill/queryTabInBillAndOutBill.jsp" />
             <forward name="rptQueryOutBill" path="/bill/rptQueryOutBill.jsp" />
             <forward name="rptQueryInBill" path="/bill/rptQueryInBill.jsp" />
+            <forward name="addFinance" path="/finance/addFinance.jsp" />
         </action>
         
         <action path="/finance/stock" parameter="method"

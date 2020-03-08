@@ -116,9 +116,17 @@ function clearValues()
 				<p:option type="paymentType" />
 			</p:pro>
 
-			<p:pro field="dkType">
-				<p:option type="inbillType" />
-			</p:pro>
+			<c:if test="${appName=='永银ERP'}">
+				<p:pro field="dkType">
+					<p:option type="inbillType" />
+				</p:pro>
+			</c:if>
+
+			<c:if test="${appName=='永银ERP(体外)'}">
+				<p:pro field="dkType">
+					<p:option type="inbillTypeTw" />
+				</p:pro>
+			</c:if>
 
 			<p:pro field="money" />
 

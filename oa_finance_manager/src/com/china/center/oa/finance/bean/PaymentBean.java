@@ -22,6 +22,7 @@ import com.china.center.jdbc.annotation.Unique;
 import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.finance.constant.FinanceConstant;
+import com.china.center.oa.finance.constant.FinanceConstantTw;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.sail.bean.UnitViewBean;
 
@@ -615,6 +616,19 @@ public class PaymentBean implements Serializable
 
     public void setDkType(int dkType) {
         this.dkType = dkType;
+    }
+
+    /**
+     * 这几种类型不生成凭证
+     * @return
+     */
+    public boolean notCreatePz(){
+        return this.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
+                || this.getDkType() == FinanceConstant.INBILL_TYPE_OTHER
+                || this.getDkType() == FinanceConstantTw.INBILL_TYPE_JFTH
+                || this.getDkType() == FinanceConstantTw.INBILL_TYPE_JFDJK
+                || this.getDkType() == FinanceConstantTw.INBILL_TYPE_HGK
+                || this.getDkType() == FinanceConstantTw.INBILL_TYPE_QSQBJ;
     }
 
     /**

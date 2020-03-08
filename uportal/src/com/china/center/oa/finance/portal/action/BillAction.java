@@ -18,6 +18,7 @@ import com.china.center.oa.finance.bean.InBillBean;
 import com.china.center.oa.finance.bean.OutBillBean;
 import com.china.center.oa.finance.constant.BackPayApplyConstant;
 import com.china.center.oa.finance.constant.FinanceConstant;
+import com.china.center.oa.finance.constant.FinanceConstantTw;
 import com.china.center.oa.finance.dao.*;
 import com.china.center.oa.finance.facade.FinanceFacade;
 import com.china.center.oa.finance.manager.BillManager;
@@ -30,6 +31,7 @@ import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.InvoiceBean;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.publics.constant.SysConfigConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.publics.manager.AuthManager;
 import com.china.center.oa.publics.manager.UserManager;
@@ -342,6 +344,8 @@ public class BillAction extends DispatchAction
 
         request.setAttribute("bankList", banlList);
 
+        String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+        request.setAttribute("appName", appName);
         return mapping.findForward("addInBill");
     }
 
@@ -367,6 +371,8 @@ public class BillAction extends DispatchAction
 
         request.setAttribute("invoiceList", invoiceList);
 
+        String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+        request.setAttribute("appName", appName);
         return mapping.findForward("addOutBill");
     }
 
@@ -598,8 +604,15 @@ public class BillAction extends DispatchAction
         }
 
         CommonTools.removeParamers(request);
-
-        return mapping.findForward("queryOutBill");
+        int type = bean.getType();
+        if (type == FinanceConstantTw.OUTBILL_TYPE_QSQBJ
+                ||type == FinanceConstantTw.OUTBILL_TYPE_JJTC
+                ||type == FinanceConstantTw.OUTBILL_TYPE_ZCSFY){
+            //跳转手工做凭证页面
+            return mapping.findForward("addFinance");
+        } else{
+            return mapping.findForward("queryOutBill");
+        }
     }
 
     public String getAttachmentPath()
@@ -1072,6 +1085,8 @@ public class BillAction extends DispatchAction
 
         request.setAttribute("financeBeanList", financeBeanList);
 
+        String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+        request.setAttribute("appName", appName);
         return mapping.findForward("detailInBill");
     }
 
@@ -1119,12 +1134,15 @@ public class BillAction extends DispatchAction
             }
 
             request.setAttribute("bean", outBill);
-
+            String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+            request.setAttribute("appName", appName);
             return mapping.findForward("detailOutBill");
         }
 
         request.setAttribute("bean", bean);
 
+        String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+        request.setAttribute("appName", appName);
         return mapping.findForward("detailInBill");
     }
 
@@ -1168,7 +1186,9 @@ public class BillAction extends DispatchAction
         List<FinanceBean> financeBeanList = financeDAO.queryRefFinanceItemByBillId(id);
 
         request.setAttribute("financeBeanList", financeBeanList);
-
+        String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+        request.setAttribute("appName", appName);
+        System.out.println(appName);
         return mapping.findForward("detailOutBill");
     }
 

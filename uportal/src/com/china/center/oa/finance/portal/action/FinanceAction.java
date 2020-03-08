@@ -24,7 +24,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.finance.constant.FinanceConstantTw;
 import com.china.center.oa.publics.DefinedCommontUtils;
+import com.china.center.oa.publics.constant.AppConstant;
+import com.china.center.oa.publics.constant.SysConfigConstant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -2679,7 +2682,9 @@ public class FinanceAction extends DispatchAction {
 		List<BankBean> bankList = bankDAO.listEntityBeans();
 
 		request.setAttribute("bankList", bankList);
-
+        String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+        request.setAttribute("appName", appName);
+        System.out.println(appName);
 		return mapping.findForward("addPayment");
 	}
 
@@ -2939,8 +2944,14 @@ public class FinanceAction extends DispatchAction {
 			throw new MYException("缺少导款类型");
 		} else{
 			try {
-				int dk = DefinedCommontUtils.getValue(FinanceConstant.class, "inbillType", dkType.trim());
-				bean.setDkType(dk);
+				String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+				if (AppConstant.APP_NAME_TW.equals(appName)){
+					int dk = DefinedCommontUtils.getValue(FinanceConstantTw.class, "inbillTypeTw", dkType.trim());
+					bean.setDkType(dk);
+				} else if(AppConstant.APP_NAME.equals(appName)){
+					int dk = DefinedCommontUtils.getValue(FinanceConstant.class, "inbillType", dkType.trim());
+					bean.setDkType(dk);
+				}
 			}catch (MYException e){
 				throw new MYException("导款类型不支持:"+dkType);
 			}
@@ -3192,6 +3203,8 @@ public class FinanceAction extends DispatchAction {
 			request.setAttribute("financeBeanList", financeBeanList);
 
 			// 明细
+			String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+			request.setAttribute("appName", appName);
 			return mapping.findForward("detailPayment");
 		}
 
@@ -3214,6 +3227,8 @@ public class FinanceAction extends DispatchAction {
 		
 		// 财务认领
 		if ("3".equals(mode)) {
+			String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+			request.setAttribute("appName", appName);
 			return mapping.findForward("drawTransfer");
 		}
 		
@@ -3611,8 +3626,7 @@ public class FinanceAction extends DispatchAction {
 		}
 
         PaymentBean bean = paymentDAO.find(id);
-		if (bean.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
-				|| bean.getDkType() == FinanceConstant.INBILL_TYPE_OTHER){
+		if (bean.notCreatePz()){
 			//钱生钱,其他
 			//“钱生钱”和“其他”，财务操作认领成功后，无需自动生成凭证，页面直接跳转手工做凭证页面
             return mapping.findForward("addFinance");

@@ -180,14 +180,23 @@ function getBank(obj)
                     value="&nbsp;...&nbsp;" name="qout" class="button_class"
                     onclick="selectBank(0)">
             </p:cell>
-            
+
             <p:pro field="payType">
                 <p:option type="outbillPayType"/>
             </p:pro>
-			
-			<p:pro field="type" innerString="onchange=changeAll()">
-				<p:option type="outbillType"/>
-			</p:pro>
+
+			<c:if test="${appName=='永银ERP'}">
+				<p:pro field="type" innerString="onchange=changeAll()">
+					<p:option type="outbillType"/>
+				</p:pro>
+			</c:if>
+
+			<c:if test="${appName=='永银ERP(体外)'}">
+				<p:pro field="type" innerString="onchange=changeAll()">
+					<p:option type="outbillTypeTw"/>
+				</p:pro>
+			</c:if>
+
 			
 			<p:cell title="选择目的帐户">
                 <input name="destBankName" type="text" readonly="readonly" size="60">

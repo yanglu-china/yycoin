@@ -27,7 +27,11 @@ var thisObj;
 function load()
 {
      preload();
-     
+    var url = window.location.href;
+    var outBillType = {display: '类型', name : 'type', cc: 'outbillType', sortable : true , width : '6%'};
+    if (url.indexOf("uportaltw") != -1){
+        outBillType = {display: '类型', name : 'type', cc: 'outbillTypeTw', sortable : true , width : '6%'};
+    }
      guidMap = {
          title: '付款单列表',
          url: gurl + 'query' + ukey,
@@ -35,7 +39,8 @@ function load()
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status} lcheck={checkStatus} llock={lock} lctype={createType}>', width : 40, align: 'center'},
              {display: '标识', name : 'id', width : '12%'},
              {display: '帐号', name : 'bankName', sortable : true, cname: 'bankId', width : '15%'},
-             {display: '类型', name : 'type', cc: 'outbillType', sortable : true , width : '6%'},
+             // {display: '类型', name : 'type', cc: 'outbillType', sortable : true , width : '6%'},
+             outBillType,
              {display: '核对', name : 'checkStatus', cc: 'pubCheckStatus', sortable : true, width : '5%'},
              {display: '金额', name : 'moneys',  toFixed: 2, sortable : true, width : '5%'},
              {display: '单位', name : 'provideName', sortable : true, cname: 'provideId', width : '10%'},

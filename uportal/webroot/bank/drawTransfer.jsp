@@ -135,9 +135,18 @@ function checkCurrentUser()
                ${my:get('paymentType', bean.type)}
             </p:cell>
 
-            <p:cell title="导款类型">
-                ${my:get('inbillType', bean.dkType)}
+            <c:if test="${appName=='永银ERP'}">
+                <p:cell title="导款类型">
+                    ${my:get('inbillType', bean.dkType)}
+                </p:cell>
+            </c:if>
+
+            <c:if test="${appName=='永银ERP(体外)'}">
+                <<p:cell title="导款类型">
+                ${my:get('inbillTypeTw', bean.dkType)}
             </p:cell>
+            </c:if>
+
             
             <p:cell title="金额">
                ${my:formatNum(bean.money)}
