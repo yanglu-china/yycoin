@@ -1324,6 +1324,9 @@ public class OutListenerTaxGlueImpl implements OutListener
         FinanceBean financeBean = new FinanceBean();
 
         String name = "入库-销售退库:" + outBean.getFullId() + '.';
+        if (user == null){
+            name = "系统补录入库-销售退库:" + outBean.getFullId() + '.';
+        }
 
         financeBean.setName(name);
 
@@ -3206,6 +3209,10 @@ public class OutListenerTaxGlueImpl implements OutListener
     {
         String name = "入库-销售退库:" + outBean.getFullId() + '.';
 
+        if (user == null){
+            name = "系统补录入库-销售退库:" + outBean.getFullId() + '.';
+        }
+
         // 借:库存商品 贷:应付账款-供应商
         FinanceItemBean itemIn = new FinanceItemBean();
 
@@ -3262,6 +3269,12 @@ public class OutListenerTaxGlueImpl implements OutListener
 //        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
         //2015/1/18 不从数据库重新去读baseList
         List<BaseBean> baseList = outBean.getBaseList();
+
+        //#911
+        if (user == null && ListTools.isEmptyOrNull(baseList)){
+            baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
+            outBean.setBaseList(baseList);
+        }
 
         long outTotal = 0L;
 
@@ -5271,6 +5284,9 @@ public class OutListenerTaxGlueImpl implements OutListener
         List<BaseBean> baseList = outBean.getBaseList();
 
         String name = "入库-销售退库:" + outBean.getFullId() + '.';
+        if (user == null){
+            name = "系统补录入库-销售退库:" + outBean.getFullId() + '.';
+        }
 
         String pare1 = commonDAO.getSquenceString();
 
