@@ -35,6 +35,9 @@ public class OutVO extends OutBean implements  OutVOInterface
 
     @Relationship(relationField = "customerId", tagField = "code")
     private String customerCode = "";
+    
+    @Relationship(relationField = "fullId", tagField = "logTime")
+    private String ctApproveTime = "";
 
     /**
      * 源仓库
@@ -156,7 +159,15 @@ public class OutVO extends OutBean implements  OutVOInterface
         this.destinationName = destinationName;
     }
 
-    /**
+    public String getCtApproveTime() {
+		return ctApproveTime;
+	}
+
+	public void setCtApproveTime(String ctApproveTime) {
+		this.ctApproveTime = ctApproveTime;
+	}
+
+	/**
      * @return the depotpartName
      */
     public String getDepotpartName()

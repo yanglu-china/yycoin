@@ -736,7 +736,12 @@ function hrefAndSelect(obj)
 							<td align="center" onclick="hrefAndSelect(this)">${my:get('buyReturnStatus', item.status)}</td>
 							<td align="center" onclick="hrefAndSelect(this)">${my:get('outType_in', item.outType)}</td>
 							<td align="center" onclick="hrefAndSelect(this)">${item.outTime}</td>
+							<c:if test="${item.outType == 6}">
+							<td align="center" onclick="hrefAndSelect(this)">${item.ctApproveTime}</td>
+							</c:if>
+							<c:if test="${item.outType != 6}">
 							<td align="center" onclick="hrefAndSelect(this)">${item.changeTime}</td>
+							</c:if>
 							<td align="center" onclick="hrefAndSelect(this)">${my:formatNum(item.total)}</td>
 							<td align="center" onclick="hrefAndSelect(this)">${item.stafferName}</td>
 							<c:if test="${item.outType == 4}">					
