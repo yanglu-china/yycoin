@@ -1915,8 +1915,8 @@ public class OutAction extends ParentOutAction
                     // 报废处理  提交--【入库-总裁审批】--【入库-财务审批】--结束
                     if(out.getOutType() == OutConstant.OUTTYPE_IN_DROP2 && statuss != OutConstant.BUY_STATUS_REJECT){
                     	if(ioldStatus == OutConstant.BUY_STATUS_CEO_CHECK){
-                    		statuss = OutConstant.BUY_STATUS_SECOND_PASS;
-                    	}else if(ioldStatus == OutConstant.BUY_STATUS_SECOND_PASS){
+                    		statuss = OutConstant.BUY_STATUS_FINANCE_RECORD;
+                    	}else if(ioldStatus == OutConstant.BUY_STATUS_FINANCE_RECORD){
                     		statuss = OutConstant.BUY_STATUS_PASS;
                     	}
                     }
@@ -1965,12 +1965,12 @@ public class OutAction extends ParentOutAction
                     }
                     
                     // 进入待财务审批
-                    if (statuss == OutConstant.BUY_STATUS_SECOND_PASS)
+                    if (statuss == OutConstant.BUY_STATUS_SECOND_PASS || statuss == OutConstant.BUY_STATUS_FINANCE_RECORD)
                     {
                         try
                         {
                             resultStatus = outManager.pass(fullId, user,
-                                OutConstant.BUY_STATUS_SECOND_PASS, reason, null, depotpartId);
+                                statuss, reason, null, depotpartId);
                         }
                         catch (MYException e)
                         {
