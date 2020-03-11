@@ -2781,7 +2781,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             else if (outBean.getOutType() == OutConstant.OUTTYPE_IN_DROP2)
             {
                 //nextStatus = OutConstant.BUY_STATUS_SECOND_PASS;
-            	nextStatus = OutConstant.STATUS_CEO_CHECK;
+            	nextStatus = OutConstant.BUY_STATUS_CEO_CHECK;
             }            
             // 其他直接是待分公司经理审核
             else

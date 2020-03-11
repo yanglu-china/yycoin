@@ -304,9 +304,9 @@ function centerCheck()
     }
 }
 
-var nextStatusMap = {"1" : 9, "2" : 10, "3" : 3, "4" : 3, "10" : 8};
+var nextStatusMap = {"1" : 9, "2" : 10, "3" : 3, "4" : 3, "10" : 8, "11" : 3};
 
-var oldStatusMap = {"1" : 8, "2" : 9, "3" : 10, "4" : 1, "10" : 5};
+var oldStatusMap = {"1" : 8, "2" : 9, "3" : 10, "4" : 1, "10" : 5, "11" : 11};
 
 var queryType = "${queryType}";
 
@@ -735,10 +735,17 @@ function hrefAndSelect(obj)
 							onMouseOver="showDiv('${item.fullId}')" onmousemove="tooltip.move()" onmouseout="tooltip.hide()"><a onclick="hrefAndSelect(this)" href="../sail/out.do?method=findOut&queryType=${queryType}&radioIndex=${vs.index}&fow=99&outId=${item.fullId}${pcheck}">
 							${item.fullId}</a></td>
 							<td align="center" onclick="hrefAndSelect(this)">${item.customerName}</td>
-							<td align="center" onclick="hrefAndSelect(this)">${my:get('buyStatus', item.status)}</td>
+							<td align="center" onclick="hrefAndSelect(this)">
+							${my:get('buyStatus', item.status)}
+							</td>
 							<td align="center" onclick="hrefAndSelect(this)">${my:get('outType_in', item.outType)}</td>
 							<td align="center" onclick="hrefAndSelect(this)">${item.outTime}</td>
+							<c:if test="${item.outType == 6}">
+							<td align="center" onclick="hrefAndSelect(this)">${item.ctApproveTime}</td>
+							</c:if>
+							<c:if test="${item.outType != 6}">
 							<td align="center" onclick="hrefAndSelect(this)">${item.changeTime}</td>
+							</c:if>
 							<td align="center" onclick="hrefAndSelect(this)">${my:formatNum(item.total)}</td>
 							<td align="center" onclick="hrefAndSelect(this)">${item.stafferName}</td>
 							<c:if test="${item.outType == 4}">					

@@ -562,6 +562,12 @@ public interface OutConstant
     int BUY_STATUS_CHAIRMA_CHECK = 10;
     
     /**
+     * 待财务登记入账
+     */
+    @Defined(key = "buyStatus", value = "待财务登记入账")
+    int BUY_STATUS_FINANCE_RECORD = 11;
+    
+    /**
      * 保存
      */
     @Defined(key = "buyReturnStatus", value = "保存")

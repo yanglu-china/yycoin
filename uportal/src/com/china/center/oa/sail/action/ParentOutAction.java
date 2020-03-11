@@ -11412,6 +11412,17 @@ public class ParentOutAction extends DispatchAction
 			queryOutCondtionMap.put("status",
 					String.valueOf(OutConstant.BUY_STATUS_SECOND_PASS));
 		}
+		// 财务登记入账
+		else if ("11".equals(queryType))
+		{
+			condtion.addIntCondition("OutBean.status", "=",
+					OutConstant.BUY_STATUS_FINANCE_RECORD);
+
+			request.setAttribute("status", OutConstant.BUY_STATUS_FINANCE_RECORD);
+
+			queryOutCondtionMap.put("status",
+					String.valueOf(OutConstant.BUY_STATUS_FINANCE_RECORD));
+		}		
 		// 未知的则什么都没有
 		else
 		{

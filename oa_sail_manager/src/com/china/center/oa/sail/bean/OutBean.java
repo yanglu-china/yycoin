@@ -39,6 +39,7 @@ import com.china.center.tools.StringTools;
 public class OutBean implements Serializable, OutInterface
 {
     @Id
+    @Join(tagClass = CTApproveTimeBean.class, type = JoinType.LEFT)
     private String fullId = "";
 
     /**
