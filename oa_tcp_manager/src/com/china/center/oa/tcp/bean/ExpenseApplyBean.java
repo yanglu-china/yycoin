@@ -70,6 +70,11 @@ public class ExpenseApplyBean extends AbstractTcpBean implements Serializable
      */
     @Ignore
     private long totalCmoney = 0;
+    
+    
+    @Html(title = "单据类型")
+    private String remark = "";
+    
 
     /**
      * default constructor
@@ -202,6 +207,14 @@ public class ExpenseApplyBean extends AbstractTcpBean implements Serializable
 
 	public void setTotalCmoney(long totalCmoney) {
 		this.totalCmoney = totalCmoney;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 	/**
