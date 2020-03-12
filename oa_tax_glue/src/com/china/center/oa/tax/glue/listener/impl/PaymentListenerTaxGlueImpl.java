@@ -142,16 +142,16 @@ public class PaymentListenerTaxGlueImpl implements PaymentListener
                 || dkType == FinanceConstantTw.INBILL_TYPE_JFDJK
                 || dkType == FinanceConstantTw.INBILL_TYPE_TYHK){
             //积分退回\积分抵借款\体育还款
-            //TODO 借：现金
+            //借：现金
             //贷：其他应付款-暂记户
             TaxBean outTax = taxDAO.findTempByBankId(bank.getId());
             if (outTax == null)
             {
                 throw new MYException("银行[%s]缺少暂记户科目,请确认操作", bank.getName());
             }
-//            this.financeManager.createFinanceItem(user, bean,  "", "",
-//                    this.getBankTaxId(bank), outTax.getId(),
-//                    financeBean, itemList);
+            this.financeManager.createFinanceItem(user, bean,  "", "",
+                    TaxItemConstanst.XJ, outTax.getId(),
+                    financeBean, itemList);
         } else{
             // 借:银行科目 贷:银行对应的暂记户科目
             createAddItem1(user, bean, bank, financeBean, itemList);

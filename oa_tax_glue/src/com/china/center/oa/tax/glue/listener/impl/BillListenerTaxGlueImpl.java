@@ -1569,11 +1569,11 @@ public class BillListenerTaxGlueImpl implements BillListener
         }else if (bean.getType() == FinanceConstantTw.OUTBILL_TYPE_JZLX){
             name = "集资利息:" + bean.getId() + '.';
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_JZLX);
-            taxId = TaxItemConstanst.YFLX_JZLX;
+            taxId = TaxItemConstanst.YFLX;
         }else if (bean.getType() == FinanceConstantTw.OUTBILL_TYPE_FDLX){
             name = "房贷利息:" + bean.getId() + '.';
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_FDLX);
-            taxId = TaxItemConstanst.YFLX_FDLX;
+            taxId = TaxItemConstanst.YFLX;
         }else if (bean.getType() == FinanceConstantTw.OUTBILL_TYPE_JJTC){
             name = "奖金、提成等:" + bean.getId() + '.';
             financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_INNERBILL_JJTC);
@@ -1612,7 +1612,6 @@ public class BillListenerTaxGlueImpl implements BillListener
         FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
 
-
         // 科目拷贝
         FinanceHelper.copyTax(inTax, itemIn);
 
@@ -1644,6 +1643,14 @@ public class BillListenerTaxGlueImpl implements BillListener
 
         // 银行科目
         TaxBean outTax = taxDAO.findByBankId(bean.getBankId());
+
+        //集资利息\房贷利息\体育借款贷：现金
+        if (bean.getType() == FinanceConstantTw.OUTBILL_TYPE_JZLX
+                || bean.getType() == FinanceConstantTw.OUTBILL_TYPE_FDLX
+                || bean.getType() == FinanceConstantTw.OUTBILL_TYPE_TYJK){
+            itemOut.setName("现金:" + name);
+            outTax = taxDAO.find(TaxItemConstanst.XJ);
+        }
 
         if (outTax == null)
         {
