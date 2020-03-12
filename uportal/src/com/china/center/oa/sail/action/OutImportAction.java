@@ -1385,15 +1385,16 @@
                      //#907 匹配到的主数据渠道必须与导入模板中一致
                      //case1 主数据渠道为空,但是导入模板非空
                      //case2 主数据渠道不为空,但与模版不一致
-                     String channel = productImportBean.getChannel();
-                     if ((StringTools.isNullOrNone(channel) && !StringTools.isNullOrNone(bean.getChannel()))
-                     || (!StringTools.isNullOrNone(channel) && !channel.equals(bean.getChannel()))){
-                         builder.append("第[" + currentNumber + "]错误:")
-                                 .append("产品主数据渠道必须与导入模板中一致:"+productImportBean.getId())
-                                 .append("<br>");
-
-                         importError = true;
-                     }
+                     //2020-03012 暂先不上线
+//                     String channel = productImportBean.getChannel();
+//                     if ((StringTools.isNullOrNone(channel) && !StringTools.isNullOrNone(bean.getChannel()))
+//                     || (!StringTools.isNullOrNone(channel) && !channel.equals(bean.getChannel()))){
+//                         builder.append("第[" + currentNumber + "]错误:")
+//                                 .append("产品主数据渠道必须与导入模板中一致:"+productImportBean.getId())
+//                                 .append("<br>");
+//
+//                         importError = true;
+//                     }
                      bean.setProductId(productBean.getId());
                      bean.setProductName(productBean.getName());
                      bean.setProductImportId(productImportBean.getId());
