@@ -1309,9 +1309,20 @@ function clears()
 	</tr>
 
 	<tr>
-		<td height="10" colspan='2'></td>
+		<table width="98%" border="0" cellpadding="0" cellspacing="0"
+			class="border">
+			<tr>
+				<td>
+					<table width="100%" border="0" cellspacing='1' id="mainTable">
+						<tr align="center" class="content0">
+							<td colspan="11">金额小计</td>
+							<td colspan="4">${totalDecimal}</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
 	</tr>
-
 	<c:if test="${my:length(listOut1) > 0}">
 	<tr>
 		<td width="100%">
