@@ -628,7 +628,7 @@ function exports()
 
 	<p:button leftWidth="100%" rightWidth="0%">
 		<div align="right">
-		<c:if test="${ltype == '2' || ltype == '1'|| ltype == '0'}">
+		<c:if test="${ltype == '2' || ltype == '1'|| ltype == '0' || ltype == '7'|| ltype == '8'}">
 		<input type="button" class="button_class"
 			id="b_export" style="cursor: pointer"
 			value="&nbsp;&nbsp;导出采购单&nbsp;&nbsp;" onclick="exports()">
