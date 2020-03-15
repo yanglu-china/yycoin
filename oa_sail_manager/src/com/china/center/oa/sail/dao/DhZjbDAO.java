@@ -10,10 +10,9 @@ package com.china.center.oa.sail.dao;
 
 
 import com.china.center.jdbc.inter.DAO;
+import com.china.center.oa.sail.bean.DhResultVO;
 import com.china.center.oa.sail.bean.DhZjbBean;
 import com.china.center.oa.sail.bean.DhZjbVO;
-import com.china.center.oa.sail.bean.OlOutBean;
-
 import java.util.List;
 
 
@@ -33,11 +32,11 @@ public interface DhZjbDAO extends DAO<DhZjbBean, DhZjbBean>
      */
     List<DhZjbVO> queryDhInfo();
 
-    List<DhZjbVO> queryDhInfo2();
+    List<DhResultVO> queryDhInfo2();
 
     boolean updateProcessedFlag(int id, String outId);
 
-    boolean updateProcessedFlag2(int id);
+    boolean updateProcessedFlag2(int id, int flag);
 
     boolean updateOutId(int id, String outId);
 }

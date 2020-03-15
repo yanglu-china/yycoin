@@ -1,6 +1,7 @@
 package com.china.center.oa.sail.dao.impl;
 
 import com.china.center.jdbc.inter.impl.BaseDAO;
+import com.china.center.oa.sail.bean.DhResultVO;
 import com.china.center.oa.sail.bean.DhZjbBean;
 import com.china.center.oa.sail.bean.DhZjbVO;
 import com.china.center.oa.sail.dao.DhZjbDAO;
@@ -74,17 +75,17 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
 
 
     @Override
-    public List<DhZjbVO> queryDhInfo2() {
+    public List<DhResultVO> queryDhInfo2() {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT DISTINCT")
-                .append("c.id as cid ,c.dhno,c.productId,c.stockid,c.createUser,c.depotid,c.price")
-                .append("c.ydh_amount,c.sd_amount,c.zj_cj_amount,c.zj_hg_amount,c.ydh_amount-c.zj_hg_amount as bhg_amount")
-                .append("c.wl_remarks,c.type")
-                .append("d.id as did,d.sccg_rk_type,d.sccg_rkamount, d.sccg_rkck,d.sccg_rkcq, d.sccg_cldz,d.pid")
-                .append("FROM t_center_dh_result c")
+        sb.append("SELECT DISTINCT ")
+                .append("c.id as cid ,c.dhno,c.productId,c.stockid,c.createUser,c.depotid,c.depotpartid,c.price,")
+                .append("c.ydh_amount,c.sd_amount,c.zj_cj_amount,c.zj_hg_amount,c.ydh_amount-c.zj_hg_amount as bhg_amount,")
+                .append("c.wl_remarks,c.type,")
+                .append("d.id as did,d.sccg_rk_type,d.sccg_rkamount, d.sccg_rkck,d.sccg_rkcq, d.sccg_cldz,d.pid ")
+                .append("FROM t_center_dh_result c ")
                 .append("LEFT JOIN t_center_dh_result_zb d on c.id = d.pid where c.status = '结束' and c.processedFlag = 0");
 
-        final List<DhZjbVO> result = new LinkedList<>();
+        final List<DhResultVO> result = new LinkedList<>();
 
         this.jdbcOperation.query(sb.toString(), new Object[] {},
                 new RowCallbackHandler()
@@ -93,12 +94,11 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
                     public void processRow(ResultSet rst)
                             throws SQLException
                     {
-                        DhZjbVO wrap = new DhZjbVO();
-                        int id = rst.getInt("cid");
-                        int did = rst.getInt("did");
+                        DhResultVO wrap = new DhResultVO();
+                        int resultId = rst.getInt("cid");
+                        int zbId = rst.getInt("did");
                         String dhno = rst.getString("dhno");
                         String productId = rst.getString("productId");
-//                        int cg_amount = rst.getInt("cg_amount");
                         int ydh_amount = rst.getInt("ydh_amount");
                         int zj_hg_amount = rst.getInt("zj_hg_amount");
                         int bhg_amount = rst.getInt("bhg_amount");
@@ -112,13 +112,14 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
                         String stockId = rst.getString("stockid");
                         String depotpartId = rst.getString("depotpartid");
                         String depotId = rst.getString("depotid");
+                        int type = rst.getInt("type");
                         double price = rst.getFloat("price");
 
-                        wrap.setId(id);
+                        wrap.setResultId(resultId);
+                        wrap.setZbId(zbId);
                         wrap.setStockId(stockId);
                         wrap.setDhNo(dhno);
                         wrap.setProductId(productId);
-//                        wrap.setCgAmount(cg_amount);
                         wrap.setYdhAmount(ydh_amount);
                         wrap.setZjHgAmount(zj_hg_amount);
                         wrap.setZjBhgAmount(bhg_amount);
@@ -129,6 +130,7 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
                         wrap.setDepotId(depotId);
                         wrap.setDepotpartId(depotpartId);
                         wrap.setPrice(price);
+                        wrap.setType(type);
                         result.add(wrap);
                     }
                 });
@@ -147,11 +149,11 @@ public class DhZjbDAOImpl extends BaseDAO<DhZjbBean, DhZjbBean> implements DhZjb
     }
 
     @Override
-    public boolean updateProcessedFlag2(int id) {
-        String sql = "update t_center_dh_result set processedFlag = 1 " +
+    public boolean updateProcessedFlag2(int id, int flag) {
+        String sql = "update t_center_dh_result set processedFlag = ? " +
                 " where id = ?";
 
-        int i = jdbcOperation.update(sql, id);
+        int i = jdbcOperation.update(sql, flag, id);
 
         return i != 0;
     }
