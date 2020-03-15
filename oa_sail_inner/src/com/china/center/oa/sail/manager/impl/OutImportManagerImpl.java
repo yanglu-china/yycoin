@@ -4657,6 +4657,7 @@ public void offlineStorageInJob() {
 
 						try {
 							BaseBean refBaseBean = this.outManager.getBaseBean(outId, productId, costPriceKey);
+							baseBean.setRefId(refBaseBean.getId());
 							baseBean.setPrice(refBaseBean.getPrice());
 							baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
 							baseBean.setCostPrice(costPrice);
