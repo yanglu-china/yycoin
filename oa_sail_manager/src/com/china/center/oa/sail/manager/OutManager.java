@@ -757,6 +757,14 @@ public interface OutManager extends ListenerManager<OutListener>
 
     boolean checkOutBack(String outId, String productId, String priceKey, int amount) throws MYException;
 
+    /**
+     * 根据商品名返回销售单已退库的数量
+     * @param outId
+     * @param productName
+     * @return
+     */
+    int getOutBackAmount(String outId, String productName);
+
     int processBuyOutInWay(final User user, final String fullId, final OutBean outBean)
             throws MYException;
 
