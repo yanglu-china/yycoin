@@ -624,6 +624,7 @@ public class PaymentBean implements Serializable
      */
     public boolean notCreatePz(){
         return this.getDkType() == FinanceConstant.INBILL_TYPE_QSQ
+                || this.getDkType() == FinanceConstant.INBILL_TYPE_DSDF
                 || this.getDkType() == FinanceConstant.INBILL_TYPE_OTHER
                 || this.getDkType() == FinanceConstantTw.INBILL_TYPE_JFTH
                 || this.getDkType() == FinanceConstantTw.INBILL_TYPE_JFDJK
