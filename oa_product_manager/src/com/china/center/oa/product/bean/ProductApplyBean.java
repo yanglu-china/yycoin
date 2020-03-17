@@ -72,13 +72,13 @@ public class ProductApplyBean implements Serializable {
     /**
      * 1:纸币是z，2:金银币是j，3:古币是g，4:邮票是y，0:其他类型是q
      */
-    @Html(title = "产品类型", type = Element.SELECT, must = true)
+    @Html(title = "产品材质一级分类", type = Element.SELECT, must = true)
     private int type = ProductConstant.PRODUCT_TYPE_OTHER;
     
     /**
      * 材质类型 type = 201
      */
-    @Html(title = "材质类型", must = true, type = Element.SELECT)
+    @Html(title = "产品材质二级分类", must = true, type = Element.SELECT)
     private int materiaType = -1 ;
     
     /**

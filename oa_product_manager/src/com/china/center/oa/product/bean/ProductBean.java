@@ -69,7 +69,7 @@ public class ProductBean implements Serializable, IdInterface
     /**
      * 1:纸币是z，2:金银币是j，3:古币是g，4:邮票是y，0:其他类型是q
      */
-    @Html(title = "产品类型", type = Element.SELECT, must = true)
+    @Html(title = "产品材质一级分类", type = Element.SELECT, must = true)
     private int type = ProductConstant.PRODUCT_TYPE_OTHER;
 
     /**

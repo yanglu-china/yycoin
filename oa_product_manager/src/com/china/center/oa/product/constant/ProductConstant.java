@@ -160,13 +160,13 @@ public interface ProductConstant
     /**
      * 流通币
      */
-    @Defined(key = "productType", value = "流通币")
+    @Defined(key = "productType", value = "流通纪念币")
     int PRODUCT_TYPE_METAL = 2;
 
     /**
      * 旧币
      */
-    @Defined(key = "productType", value = "旧币")
+    @Defined(key = "productType", value = "古钱币")
     int PRODUCT_TYPE_NUMISMATICS = 3;
 
     /**
@@ -178,8 +178,62 @@ public interface ProductConstant
     /**
      * 其他
      */
-    @Defined(key = "productType", value = "其他")
+    @Defined(key = "productType", value = "包装其他")
     int PRODUCT_TYPE_MONCE = 5;
+    
+    /**
+     * 其他
+     */
+    @Defined(key = "productType", value = "机制币")
+    int PRODUCT_TYPE_6 = 6;
+    
+    /**
+     * 其他
+     */
+    @Defined(key = "productType", value = "民国纸币")
+    int PRODUCT_TYPE_7 = 7;
+    
+    /**
+     * 其他
+     */
+    @Defined(key = "productType", value = "纪念钞")
+    int PRODUCT_TYPE_8 = 8;
+    
+    /**
+     * 其他
+     */
+    @Defined(key = "productType", value = "人民币")
+    int PRODUCT_TYPE_9 = 9;
+    
+    /**
+     * 其他
+     */
+    @Defined(key = "productType", value = "外币")
+    int PRODUCT_TYPE_10 =10;
+    
+    /**
+     * 其他
+     */
+    @Defined(key = "productType", value = "首饰")
+    int PRODUCT_TYPE_11 = 11;
+    
+    /**
+     * 其他
+     */
+    @Defined(key = "productType", value = "消费")
+    int PRODUCT_TYPE_12 = 12;
+    
+    /**
+     * 其他
+     */
+    @Defined(key = "productType", value = "XL")
+    int PRODUCT_TYPE_13 = 13;
+    
+    /**
+     * 其他
+     */
+    @Defined(key = "productType", value = "备用")
+    int PRODUCT_TYPE_14 = 14;
 
     /**
      * 自有
