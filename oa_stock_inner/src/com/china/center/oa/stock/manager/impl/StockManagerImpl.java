@@ -88,6 +88,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     private CommonDAO commonDAO = null;
     
     private final Log _logger = LogFactory.getLog(getClass());
+    
+    private final Log sfLog = LogFactory.getLog("stockstatus");
 
     /**
      * 流程日志
@@ -2199,6 +2201,176 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             }
         }
         _logger.info("***dhDiaoboJob2 finished***");
+    }
+    
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
+    public void updateStockStatusJob(){
+    	sfLog.info("updateStockStatusJob start ...");
+    	long t1 = System.currentTimeMillis();
+    	//get items with status "待采购拿货"
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("status","=", StockConstant.STOCK_STATUS_STOCKMANAGERPASS);
+    	List<StockBean> stockBeans = this.stockDAO.queryEntityBeansByCondition(conditionParse);
+    	
+    	sfLog.debug("stockBeans.size():"+stockBeans.size());
+    	
+    	boolean isAllFetch = true; //是否已全部拿货
+    	
+    	for(StockBean stockBean : stockBeans){
+    		isAllFetch = true;
+    		conditionParse = new ConditionParse();
+            conditionParse.addCondition("stockId","=", stockBean.getId());
+            List<StockItemBean> stockItemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
+            
+            sfLog.debug("stockBean:"+stockBean.toString()+", stockItemBeans.size():"+stockItemBeans.size());
+            
+            if(stockItemBeans.size()==0){
+            	sfLog.debug("no stockItemBeans, skip... ");
+            	continue;
+            }
+            
+            for(StockItemBean stockItemBean : stockItemBeans){
+            	int amount = stockItemBean.getAmount(); //采购数量
+            	int fetchAmount = 0;//已拿货数量
+            	int returnAmount1 = 0;//已入库退货数量
+            	int returnAmount2 = 0;//未入库退货数量
+            	
+            	//sfLog.debug("111111111111");
+            	
+            	if(stockItemBean.getFechProduct() != 1){
+                    String refOutIds = stockItemBean.getRefOutId();
+                    String stockId = stockItemBean.getStockId();
+                    if(StringTools.isNullOrNone(refOutIds) && StringTools.isNullOrNone(stockId)){
+                    	sfLog.debug("skip... "+stockItemBean.toString());
+                    	continue;
+                    }
+                    
+            		//不是“已拿货”状态，进一步查看
+            		conditionParse = new ConditionParse();
+                    conditionParse.addCondition("status","=", OutConstant.STATUS_PASS);
+
+                    StringBuffer conditionBuffer = new StringBuffer();
+                    conditionBuffer.append(" AND (");
+                    if(!StringTools.isNullOrNone(refOutIds)){
+                    	StringBuffer idBuffer = new StringBuffer();
+                    	String[] refOutIdArr = refOutIds.split(";");
+                    	for(String str : refOutIdArr){
+                    		idBuffer.append(",'"+str+"'");
+                    	}
+                    	conditionBuffer.append(" fullid in ("+idBuffer.substring(1)+")");
+                    }else{
+                    	conditionBuffer.append(" 1=2");
+                    }
+                    
+                    if(!StringTools.isNullOrNone(stockId)){
+                    	conditionBuffer.append(" or refOutFullId='"+stockId+"'");
+                    }else{
+                    	conditionBuffer.append(" or 1=2");
+                    }
+                    
+                    conditionBuffer.append(" )");
+                    
+                    conditionParse.addCondition(conditionBuffer.toString());
+                    
+                    List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
+                    
+                    if(outBeans.size()==0){
+                    	sfLog.debug("no outBean, skip... ");
+                    	isAllFetch = false;
+                    	continue;
+                    }
+                    
+            		
+                	//get related data from base 
+                    Map<String, String> outId2TypeMap = new HashMap<String, String>(); //普通入库0， 已入库退货1， 未入库退货2
+                    conditionParse = new ConditionParse();
+                    
+                	StringBuffer idBuffer = new StringBuffer();
+                	for(OutBean outBean : outBeans){
+                		
+                		idBuffer.append(",'"+outBean.getFullId()+"'");
+                		
+                		String type = "0";
+                		if(outBean.getBuyReturnFlag() == 1){
+                			if(outBean.getBuyReturnType() == 1){
+                				type = "1";
+                			}else if(outBean.getBuyReturnType() == 2){
+                				type = "2";
+                			}
+                		}
+                		outId2TypeMap.put(outBean.getFullId(), type);
+                	}
+                    
+                    conditionParse.addCondition(" AND outId in ("+idBuffer.substring(1)+")");
+                    
+                    List<BaseBean> bases = this.baseDAO.queryEntityBeansByCondition(conditionParse);
+                    for(BaseBean base : bases){
+                    	String type = outId2TypeMap.get(base.getOutId());
+                    	int itemAmount = Math.abs(base.getAmount());
+                    	if("0".equals(type)){
+                    		fetchAmount = fetchAmount + itemAmount;
+                    	}else if("1".equals(type)){
+                    		returnAmount1 = returnAmount1 + itemAmount;
+                    	}else if("2".equals(type)){
+                    		returnAmount2 = returnAmount2 + itemAmount;
+                    	}
+                    }
+                	
+                	//update status 已拿货
+                    if(this.needChangeStatus(amount, fetchAmount, returnAmount1, returnAmount2)){
+                    	stockItemBean.setFechProduct(StockConstant.STOCK_ITEM_FECH_YES);
+                    	this.stockItemDAO.updateEntityBean(stockItemBean);
+                    	sfLog.info("update stock item to 已拿货 "+stockItemBean.toString());
+                    }else{
+                    	isAllFetch = false;
+                    	sfLog.debug("break cycle....");
+                    	break;
+                    }
+            		
+            	}
+            }
+            
+            //update status 待结束采购
+            if(isAllFetch){
+            	stockBean.setStatus(StockConstant.STOCK_STATUS_END);
+            	this.stockDAO.updateEntityBean(stockBean);
+            	//add log
+            	this.addLog2(stockBean.getId(), StockConstant.STOCK_STATUS_STOCKMANAGERPASS, StockConstant.STOCK_STATUS_END, 0, "提交");
+            	sfLog.info("update stock 待结束采购  "+stockBean.toString());
+            }
+
+    	}
+    	
+    	long t2 = System.currentTimeMillis();
+    	
+    	sfLog.info("***updateStockStatusJob finished*** time cost: "+(t2-t1)+" millis");
+    	
+    }
+    
+    /**
+     * 
+     * @param amount //采购数量
+     * @param fetchAmmount //已拿货数量
+     * @param returnAmmount1 已入库退货数量
+     * @param returnAmmount2 未入库退货数量
+     * @return
+     */
+    private boolean needChangeStatus(int amount, int fetchAmmount, int returnAmmount1, int returnAmmount2){
+    	boolean flag = false;
+    	if(amount == fetchAmmount){
+    		flag = true;
+    	}else if(amount == returnAmmount1){
+    		flag = true;
+    	}else if(amount == returnAmmount2){
+    		flag = true;
+    	}else if(amount == (returnAmmount1+returnAmmount2)){
+    		flag = true;
+    	}else if(amount == (fetchAmmount+returnAmmount2)){
+    		flag = true;
+    	}
+    	
+    	return flag;
     }
 
 

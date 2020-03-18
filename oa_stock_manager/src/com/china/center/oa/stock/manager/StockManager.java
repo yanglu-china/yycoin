@@ -122,4 +122,9 @@ public interface StockManager extends ListenerManager<StockListener>
      * #909
      */
     void dhDiaoboJob2();
+    
+    /**
+     * #916
+     */
+    public void updateStockStatusJob();
 }
