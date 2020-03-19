@@ -4698,7 +4698,8 @@ public class TravelApplyAction extends DispatchAction
 
 
                     //预算
-                    if ( !StringTools.isNullOrNone(obj[6]))
+                        //#922去掉预算项
+                   /* if ( !StringTools.isNullOrNone(obj[6]))
                     {
                         TcpShareVO share = new TcpShareVO();
                         String budget = obj[6];
@@ -4750,7 +4751,7 @@ public class TravelApplyAction extends DispatchAction
                                 .append("</font><br>");
 
                         importError = true;
-                    }
+                    }*/
 
                 }
                 else
