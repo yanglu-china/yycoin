@@ -8677,6 +8677,27 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         return 0.0d;
     }
 
+    @Override
+    public int getOutBackAmount(String outId, String productName) {
+        List<OutBean> refBuyList = queryRefOut1(outId, true);
+
+        //所有退单的总数量
+        int backAmount = 0;
+        if (!ListTools.isEmptyOrNull(refBuyList)){
+            for (OutBean refBuyBean : refBuyList){
+                List<BaseBean> baseBeans = refBuyBean.getBaseList();
+                for (BaseBean baseBean:baseBeans){
+                    if (productName.equals(baseBean.getProductName())){
+                        backAmount += baseBean.getAmount();
+                    }
+                }
+            }
+        }
+
+        int hasBack = this.outDAO.sumHasBack2(outId, productName);
+        return backAmount+hasBack;
+    }
+
     /**
      * @return the invoiceCreditDAO
      */

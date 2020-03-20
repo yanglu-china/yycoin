@@ -32,6 +32,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.sail.manager.OutManager;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -224,6 +225,8 @@ public class TravelApplyAction extends DispatchAction
     private OutDAO outDAO = null;
 
     private OutImportDAO outImportDAO = null;
+
+    private OutManager outManager = null;
 
     private CustomerMainDAO customerMainDAO = null;
 
@@ -4548,8 +4551,20 @@ public class TravelApplyAction extends DispatchAction
                         item.setProductName(productName);
                         vsOutBean.setProductName(productName);
 
-                        //#401
                         ConditionParse conditionParse = new ConditionParse();
+                        conditionParse.addCondition("fullId", "=", item.getFullId());
+                        conditionParse.addCondition("productName", "=", productName);
+                        List<TcpIbReportItemBean> ibReportList2 = this.tcpIbReportItemDAO.queryEntityBeansByCondition(conditionParse);
+                        if (ListTools.isEmptyOrNull(ibReportList2)) {
+                            builder.append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("订单号[").append(item.getFullId())
+                                    .append("]").append("和品名不符：" + productName)
+                                    .append("<br>");
+                            importError = true;
+                        }
+
+                        //#401
+                        /*ConditionParse conditionParse = new ConditionParse();
                         conditionParse.addCondition("fullId","=", item.getFullId());
                         List<TcpIbReportItemBean> ibReportList = this.tcpIbReportItemDAO.queryEntityBeansByCondition(conditionParse);
                         if (ListTools.isEmptyOrNull(ibReportList)){
@@ -4571,7 +4586,14 @@ public class TravelApplyAction extends DispatchAction
                                         .append("<br>");
                                 importError = true;
                             }
-                        }
+                        }*/
+                    } else{
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("商品名必填")
+                                .append("</font><br>");
+
+                        importError = true;
                     }
 
                     //数量
@@ -4594,17 +4616,20 @@ public class TravelApplyAction extends DispatchAction
                         for(BaseBean  baseBean : list)
                         {
                         	baseAmount += baseBean.getAmount();
-                        	
                         }
-                        if(Integer.valueOf(amount) != baseAmount)
+
+                        //已退数量
+                        int backAmount = this.outManager.getOutBackAmount(outId, item.getProductName());
+                        int canBack = baseAmount-backAmount;
+                        //申请数量必须等于可退数量
+                        if(Integer.valueOf(amount) != canBack)
                         {
                         	builder.append("<font color=red>第[" + currentNumber + "]行错误:")
                             .append("订单号[").append(outId)
-                            .append("]").append("base表数量为" + baseAmount + ";导入的文件数量:" + Integer.valueOf(amount) + ";数量不相等")
+                            .append("]").append("可退数量为" + canBack + ";导入的文件数量:" + Integer.valueOf(amount) + ";数量不相等")
                             .append("<br>");
                         	importError = true;
                         }
-                        
                     }
 
                     //中收/激励金额
@@ -4673,7 +4698,8 @@ public class TravelApplyAction extends DispatchAction
 
 
                     //预算
-                    if ( !StringTools.isNullOrNone(obj[6]))
+                        //#922去掉预算项
+                   /* if ( !StringTools.isNullOrNone(obj[6]))
                     {
                         TcpShareVO share = new TcpShareVO();
                         String budget = obj[6];
@@ -4725,7 +4751,7 @@ public class TravelApplyAction extends DispatchAction
                                 .append("</font><br>");
 
                         importError = true;
-                    }
+                    }*/
 
                 }
                 else
@@ -6554,6 +6580,8 @@ public class TravelApplyAction extends DispatchAction
 	public void setMayCurConsumeSubmitDAO(MayCurConsumeSubmitDAO mayCurConsumeSubmitDAO) {
 		this.mayCurConsumeSubmitDAO = mayCurConsumeSubmitDAO;
 	}
-    
-    
+
+    public void setOutManager(OutManager outManager) {
+        this.outManager = outManager;
+    }
 }

@@ -1,11 +1,3 @@
-/**
- * File Name: PaymentListenerTaxGlueImpl.java<br>
- * CopyRight: Copyright by www.center.china<br>
- * Description:<br>
- * CREATER: ZHUACHEN<br>
- * CreateTime: 2011-6-8<br>
- * Grant: open source to everybody
- */
 package com.china.center.oa.tax.glue.listener.impl;
 
 
@@ -17,6 +9,8 @@ import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.finance.bean.BankBean;
 import com.china.center.oa.finance.bean.PaymentBean;
+import com.china.center.oa.finance.constant.FinanceConstant;
+import com.china.center.oa.finance.constant.FinanceConstantTw;
 import com.china.center.oa.finance.dao.BankDAO;
 import com.china.center.oa.finance.dao.InBillDAO;
 import com.china.center.oa.finance.dao.OutBillDAO;
@@ -32,6 +26,7 @@ import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.bean.FinanceItemBean;
 import com.china.center.oa.tax.bean.TaxBean;
 import com.china.center.oa.tax.constanst.TaxConstanst;
+import com.china.center.oa.tax.constanst.TaxItemConstanst;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.oa.tax.dao.FinanceItemDAO;
 import com.china.center.oa.tax.dao.TaxDAO;
@@ -91,6 +86,13 @@ public class PaymentListenerTaxGlueImpl implements PaymentListener
     public void onAddBean(User user, PaymentBean bean)
         throws MYException
     {
+        int dkType = bean.getDkType();
+         if (dkType == FinanceConstantTw.INBILL_TYPE_HGK
+            || dkType == FinanceConstantTw.INBILL_TYPE_QSQBJ){
+            //回购款\钱生钱本金手工做凭证
+             System.out.println("***hgk******");
+            return;
+        }
         if ( !TaxGlueHelper.bankGoon(bean.getBankId(), this.taxDAO))
         {
             return;
@@ -125,10 +127,28 @@ public class PaymentListenerTaxGlueImpl implements PaymentListener
 
         financeBean.setLogTime(TimeTools.now());
 
-        List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
+        List<FinanceItemBean> itemList = new ArrayList<>();
 
-        // 借:银行科目 贷:银行对应的暂记户科目
-        createAddItem1(user, bean, bank, financeBean, itemList);
+        //导入回款后直接生成未认领凭证
+        if (dkType == FinanceConstantTw.INBILL_TYPE_JFTH
+                || dkType == FinanceConstantTw.INBILL_TYPE_JFDJK
+                || dkType == FinanceConstantTw.INBILL_TYPE_TYHK){
+            //积分退回\积分抵借款\体育还款
+            //借：现金
+            //贷：其他应付款-暂记户
+            TaxBean outTax = taxDAO.findTempByBankId(bank.getId());
+            if (outTax == null)
+            {
+                throw new MYException("银行[%s]缺少暂记户科目,请确认操作", bank.getName());
+            }
+            this.financeManager.createFinanceItem(user, bean,  "", "",
+                    TaxItemConstanst.XJ, outTax.getId(),
+                    financeBean, itemList);
+        } else{
+            // 借:银行科目 贷:银行对应的暂记户科目
+            createAddItem1(user, bean, bank, financeBean, itemList);
+        }
+
 
         // 手续费
         if (bean.getHandling() > 0)
@@ -136,74 +156,12 @@ public class PaymentListenerTaxGlueImpl implements PaymentListener
             createAddItem2(user, bean, bank, financeBean, itemList);
         }
 
-//        //销售回款&采购退款
-//        int dkType = bean.getDkType();
-//        if (dkType == FinanceConstant.INBILL_TYPE_SAILOUT ||
-//                dkType == FinanceConstant.INBILL_TYPE_PURCHASEBACK){
-//            // 借:银行科目 贷:银行对应的暂记户科目
-//            createAddItem1(user, bean, bank, financeBean, itemList);
-//
-//            // 手续费
-//            if (bean.getHandling() > 0)
-//            {
-//                createAddItem2(user, bean, bank, financeBean, itemList);
-//            }
-//        } else{
-//            this.createFinanceItem(user, bean, bank, name, name, TaxItemConstanst.YHCK,TaxItemConstanst.QTYSK_ZJH, financeBean, itemList);
-//        }
 
         financeBean.setItemList(itemList);
 
         financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
-    private void createFinanceItem(User user, PaymentBean bean, BankBean bank,
-                                String itemInName,String itemOutName,
-                                String itemTaxIdIn, String itemTaxIdOut,
-                                FinanceBean financeBean, List<FinanceItemBean> itemList)
-            throws MYException
-    {
-//        String name = user.getStafferName() + "导入回款:" + bean.getId() + '.';
-
-        // 借:
-        FinanceItemBean itemIn = new FinanceItemBean();
-        String pareId = commonDAO.getSquenceString();
-        itemIn.setPareId(pareId);
-        itemIn.setName(itemInName);
-        itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
-        FinanceHelper.copyFinanceItem(financeBean, itemIn);
-        TaxBean inTax = taxDAO.findByUnique(itemTaxIdIn);
-        if (inTax == null)
-        {
-            throw new MYException("[%s]缺少对应科目,请确认操作", itemTaxIdIn);
-        }
-        // 科目拷贝
-        FinanceHelper.copyTax(inTax, itemIn);
-        double inMoney = bean.getMoney();
-        itemIn.setInmoney(FinanceHelper.doubleToLong(inMoney));
-        itemIn.setOutmoney(0);
-        itemIn.setDescription(itemIn.getName());
-        itemList.add(itemIn);
-
-        // 贷方
-        FinanceItemBean itemOut = new FinanceItemBean();
-        itemOut.setPareId(pareId);
-        itemOut.setName(itemOutName);
-        itemOut.setForward(TaxConstanst.TAX_FORWARD_OUT);
-        FinanceHelper.copyFinanceItem(financeBean, itemOut);
-        TaxBean outTax = taxDAO.findByUnique(itemTaxIdOut);
-        if (outTax == null)
-        {
-            throw new MYException("[%s]缺少科目,请确认操作", itemTaxIdOut);
-        }
-        // 科目拷贝
-        FinanceHelper.copyTax(outTax, itemOut);
-        double outMoney = bean.getMoney();
-        itemOut.setInmoney(0);
-        itemOut.setOutmoney(FinanceHelper.doubleToLong(outMoney));
-        itemOut.setDescription(itemOut.getName());
-        itemList.add(itemOut);
-    }
 
     /**
      * createAddItem
@@ -221,7 +179,7 @@ public class PaymentListenerTaxGlueImpl implements PaymentListener
     {
         String name = user.getStafferName() + "导入回款:" + bean.getId() + '.';
 
-        // 借:库存商品 贷:应付账款-供应商
+        // 借:银行存款 贷:其他应付款-暂记户
         FinanceItemBean itemIn = new FinanceItemBean();
 
         String pareId = commonDAO.getSquenceString();

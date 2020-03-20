@@ -4296,10 +4296,18 @@ public class StockAction extends DispatchAction
         final ConditionParse condition = OldPageSeparateTools.getCondition(request, "queryStock");
 
         PageSeparate page = new PageSeparate(oldPage);
+        
+        String ltype = request.getParameter("ltype");
+        
+        int amountLimit = 1000;
+        
+        if(ltype.equals("7") || ltype.equals("8")){
+        	amountLimit = 5000;
+        }
 
-        if (page.getRowCount() > 1000)
+        if (page.getRowCount() > amountLimit)
         {
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导出的记录数不能超过1000");
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导出的记录数不能超过"+amountLimit);
 
             return mapping.findForward("error");
         }

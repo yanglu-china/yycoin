@@ -1,11 +1,3 @@
-/**
- * File Name: TaxConstanst.java<br>
- * CopyRight: Copyright by www.center.china<br>
- * Description:<br>
- * CREATER: ZHUACHEN<br>
- * CreateTime: 2011-1-30<br>
- * Grant: open source to everybody
- */
 package com.china.center.oa.tax.constanst;
 
 
@@ -543,6 +535,30 @@ public interface TaxConstanst
 
     @Defined(key = "financeCreateType", value = "税金-消费税")
     int FINANCE_CREATETYPE_INNERBILL_SJ_XFS= 115;
+
+    @Defined(key = "financeCreateType", value = "个人借款-激励")
+    int FINANCE_CREATETYPE_INNERBILL_GRJK_JL= 116;
+
+    @Defined(key = "financeCreateType", value = "个人借款-通用费用报销")
+    int FINANCE_CREATETYPE_INNERBILL_GRJK_BX= 117;
+
+    @Defined(key = "financeCreateType", value = "钱生钱本金")
+    int FINANCE_CREATETYPE_INNERBILL_QSQBJ= 118;
+
+    @Defined(key = "financeCreateType", value = "集资利息")
+    int FINANCE_CREATETYPE_INNERBILL_JZLX= 119;
+
+    @Defined(key = "financeCreateType", value = "房贷利息")
+    int FINANCE_CREATETYPE_INNERBILL_FDLX= 120;
+
+    @Defined(key = "financeCreateType", value = "奖金、提成等")
+    int FINANCE_CREATETYPE_INNERBILL_JJTC= 121;
+
+    @Defined(key = "financeCreateType", value = "总裁室费用")
+    int FINANCE_CREATETYPE_INNERBILL_ZCSFY= 122;
+
+    @Defined(key = "financeCreateType", value = "体育借款")
+    int FINANCE_CREATETYPE_INNERBILL_TYJK= 123;
     
     /**
      * 损益结转

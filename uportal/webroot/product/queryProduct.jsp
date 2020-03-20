@@ -122,7 +122,7 @@ function load()
              {display: '名称', name : 'name', width : '20%'},
              {display: '编码', name : 'code', width : '8%'},
              {display: '状态', name : 'status', cc : 'productStatus', width : '8%'},
-             {display: '类型', name : 'type', cc : 'productType', width : '8%'},
+             {display: '产品材质一级分类', name : 'type', cc : 'productType', width : '8%'},
              {display: 'XL', name : 'abstractType', cc : 'productAbstractType', width : '8%'},
              {display: '合成', name : 'ctype', cc : 'productCtype', width : '8%'},
              {display: '管理', name : 'reserve4', cc : 'pubManagerType', width : '8%'},

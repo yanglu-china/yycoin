@@ -117,4 +117,14 @@ public interface StockManager extends ListenerManager<StockListener>
      * #460 到货调拨JOB
      */
     void dhDiaoboJob();
+
+    /**
+     * #909
+     */
+    void dhDiaoboJob2();
+    
+    /**
+     * #916
+     */
+    public void updateStockStatusJob();
 }

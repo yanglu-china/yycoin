@@ -84,15 +84,7 @@ function load()
             <p:cell title="类型" end="true">
                 <select name="type" class="select_class" style="width: 50%;" oncheck="notNone" onchange="changeAction()">
                  <option value="">--</option>
-                 <option value="0">出差申请</option>
-                 <option value="1">业务招待申请</option>
-                 <option value="2">办公采购申请</option>
-                 <option value="3">对公业务申请</option>
-                 <option value="8">激励申请</option>
-                 <option value="11">出差报销</option>
-                 <option value="12">业务招待报销</option>
                  <option value="13">日常费用报销</option>
-                 <option value="14">通用费用报销</option>
                  <option value="19">特殊流程报销</option>
              </select>&nbsp;<font color="red">*</font>
             </p:cell>

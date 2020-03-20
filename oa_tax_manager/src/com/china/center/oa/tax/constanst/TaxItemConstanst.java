@@ -1,11 +1,3 @@
-/**
- * File Name: TaxItemConstanst.java<br>
- * CopyRight: Copyright by www.center.china<br>
- * Description:<br>
- * CREATER: ZHUACHEN<br>
- * CreateTime: 2011-6-12<br>
- * Grant: open source to everybody
- */
 package com.china.center.oa.tax.constanst;
 
 /**
@@ -265,6 +257,7 @@ public interface TaxItemConstanst
      */
     String SALARY = "2151-01-01-01";
 
+    //其他应付款-生产部
     String CGGZ = "2181-99";
 
     String YYPAY = "2181-98";
@@ -336,4 +329,18 @@ public interface TaxItemConstanst
 
     //投资收益
     String TZSY = "5201";
+
+    //体外凭证
+    //其他应付款-金银料
+    String OTHER_JYL = "2181-97";
+    //其他应付款-永银付款
+    String OTHER_YYFK = "2181-98";
+    //其他应收款-永银体育
+    String OTHER_YYTY = "1133-50";
+    //TODO 应付利息-集资利息,暂取应付利息
+    String YFLX_JZLX = "5505-0001";
+    //TODO 应付利息-房贷利息
+    String YFLX_FDLX = "5505-0003";
+    //现金现金-永银-公司总部-现钞
+    String XJ = "1001-15-03";
 }

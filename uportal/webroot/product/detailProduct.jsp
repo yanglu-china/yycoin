@@ -108,7 +108,7 @@ function load()
 				<%--<p:pro field="checkDays">--%>
 					<%--<p:option type="201"/>--%>
 				<%--</p:pro>--%>
-				<p:cell title="材质类型">
+				<p:cell title="产品材质二级分类">
 					${bean.materialType}
 				</p:cell>
 				<p:pro field="maxStoreDays">

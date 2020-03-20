@@ -22,10 +22,7 @@ import com.china.center.oa.product.dao.PriceConfigDAO;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.publics.NumberUtils;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.DhZjbVO;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.SailConfBean;
+import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.DhZjbDAO;
@@ -91,6 +88,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     private CommonDAO commonDAO = null;
     
     private final Log _logger = LogFactory.getLog(getClass());
+    
+    private final Log sfLog = LogFactory.getLog("stockstatus");
 
     /**
      * 流程日志
@@ -2028,21 +2027,352 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         _logger.info("***dhDiaoboJob finished***");
     }
 
-    private StockItemBean getStockItem(String stockId, String productId){
-        ConditionParse conditionParse = new ConditionParse();
-        conditionParse.addWhereStr();
-        conditionParse.addCondition("stockId","=",stockId);
-        conditionParse.addCondition("productId","=", productId);
-        List<StockItemBean> stockItemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
-        if (ListTools.isEmptyOrNull(stockItemBeans)){
-            return null;
-        } else if (stockItemBeans.size()>1){
-            _logger.info(stockId+" vs "+productId+"***getStockItem more than 1:"+stockItemBeans.size());
-            return null;
-        } else{
-            return stockItemBeans.get(0);
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
+    public void dhDiaoboJob2(){
+        _logger.info("***dhDiaoboJob2 running***");
+        List<DhResultVO> dhZjbVOList = this.dhZjbDAO.queryDhInfo2();
+        if (!ListTools.isEmptyOrNull(dhZjbVOList)){
+            _logger.info("***dhZjbVOList size***"+dhZjbVOList.size());
+            for(DhResultVO vo: dhZjbVOList){
+                boolean created = false;
+                try {
+                    //合格数量调拨单
+                    OutBean outBean = new OutBean();
+
+                    String depotId = vo.getSccgRkfx();
+
+                    if (vo.getType() == 1){
+                        outBean.setDescription("到货调拨JOB2,到货单号:" + vo.getDhNo()+".采购单:"+vo.getStockId());
+                    } else{
+                        outBean.setDescription("到货调拨JOB2,到货单号:" + vo.getDhNo() );
+                    }
+
+                    outBean.setType(OutConstant.OUT_TYPE_INBILL);
+                    outBean.setOutType(OutConstant.OUTTYPE_IN_MOVEOUT);
+
+                    String id = OutHelper.getAll(commonDAO.getSquence());
+                    String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+                    String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
+
+                    String fullId = flag + time + id;
+                    outBean.setId(OutHelper.getOutId(id));
+                    outBean.setFullId(fullId);
+
+                    String stafferId = vo.getCreateUser();
+                    StafferBean stafferBean = this.stafferDAO.find(stafferId);
+                    if (stafferBean == null) {
+                        _logger.error("staffer not exists:" + stafferId);
+                        continue;
+                    } else {
+                        outBean.setIndustryId(stafferBean.getIndustryId());
+                        outBean.setIndustryId2(stafferBean.getIndustryId2());
+                        outBean.setIndustryId3(stafferBean.getIndustryId3());
+                        // 增加职员的ID
+                        outBean.setStafferId(vo.getCreateUser());
+                        outBean.setStafferName(stafferBean.getName());
+                    }
+
+                    String now = TimeTools.now();
+                    String nowShort = TimeTools.now_short();
+                    outBean.setOutTime(nowShort);
+                    outBean.setPodate(nowShort);
+                    outBean.setLogTime(now);
+                    outBean.setChangeTime(now);
+                    outBean.setFlowTime(now);
+
+                    outBean.setOperatorName("系统");
+                    outBean.setReserve1(OutConstant.MOVEOUT_OUT);
+
+                    outBean.setCustomerId(CustomerConstant.PUBLIC_CUSTOMER_ID);
+                    outBean.setCustomerName(CustomerConstant.PUBLIC_CUSTOMER_NAME);
+
+                    BaseBean baseBean = new BaseBean();
+
+                    baseBean.setId(commonDAO.getSquenceString());
+                    baseBean.setOutId(fullId);
+
+                    DepotpartBean depotpartBean = this.depotpartDAO.find(vo.getDepotpartId());
+                    if (depotpartBean == null) {
+                        _logger.error("defaultOKDepotpart not found:" + vo.getDepotpartId());
+                        continue;
+                    } else {
+                        //源仓区
+                        baseBean.setDepotpartId(depotpartBean.getId());
+                        baseBean.setDepotpartName(depotpartBean.getName());
+                    }
+
+                    String productId = vo.getProductId();
+                    ProductBean product = this.productDAO.find(productId);
+                    if (product == null) {
+                        _logger.error("No product found " + productId);
+                        continue;
+                    }
+                    baseBean.setProductId(productId);
+                    baseBean.setProductName(product.getName());
+                    baseBean.setUnit("套");
+
+                    //调拨数量取实到数量
+                    baseBean.setAmount(-vo.getSdAmount());
+                    baseBean.setPrice(NumberUtils.roundDouble(vo.getPrice()));
+                    baseBean.setValue(NumberUtils.roundDouble(baseBean.getAmount() * baseBean.getPrice()));
+                    baseBean.setCostPrice(NumberUtils.roundDouble(vo.getPrice()));
+                    baseBean.setCostPriceKey(StorageRelationHelper
+                            .getPriceKey(baseBean.getCostPrice()));
+
+                    baseBean.setOwner("0");
+                    baseBean.setOwnerName("公共");
+                    baseBean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
+
+                    // 业务员结算价，总部结算价
+                    double sailPrice = product.getSailPrice();
+
+                    // 根据配置获取结算价
+                    List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+
+                    if (!ListTools.isEmptyOrNull(pcblist)) {
+                        PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+                        sailPrice = cb.getSailPrice();
+                    }
+
+                    // 获取销售配置
+                    SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+                            product);
+
+                    // 总部结算价(产品结算价 * (1 + 总部结算率))
+                    baseBean.setPprice(sailPrice
+                            * (1 + sailConf.getPratio() / 1000.0d));
+
+                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                    baseBean.setIprice(sailPrice
+                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                            .getPratio() / 1000.0d));
+
+                    // 业务员结算价就是事业部结算价
+                    baseBean.setInputPrice(baseBean.getIprice());
+
+//                if (baseBean.getInputPrice() == 0)
+//                {
+//                    _logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
+//                    continue;
+//                }
+
+                    outBean.setLocationId("999");
+                    //源仓库
+                    outBean.setLocation(vo.getDepotId());
+                    //目的仓库
+                    outBean.setDestinationId(depotId);
+
+                    outBean.setCustomerId("99");
+                    outBean.setCustomerName("公共客户");
+                    outBean.setDepartment("公共部门");
+
+                    outBean.setDutyId("90201008080000000001");
+                    outBean.setPmtype(PublicConstant.MANAGER_TYPE_COMMON);
+
+                    outBean.setTotal(baseBean.getValue());
+                    outBean.setStatus(OutConstant.BUY_STATUS_PASS);
+                    outBean.setInway(OutConstant.IN_WAY);
+                    outDAO.saveEntityBean(outBean);
+                    baseDAO.saveEntityBean(baseBean);
+                    this.addLog2(outBean.getFullId(), 0, OutConstant.BUY_STATUS_PASS, 0, "提交");
+                    _logger.info("create out in dhDiaboJob2 " + outBean + "***with base bean***" + baseBean);
+                    vo.setOutId(fullId);
+
+                    //入库提交后直接变动库存
+                    int result = this.outManager.processBuyOutInWay(null, fullId, outBean);
+                    _logger.info(vo+"***processBuyOutInWay result***" + result);
+                    created = true;
+                }catch (MYException e){
+                    _logger.error(e);
+                    //有问题回滚
+                    outDAO.deleteEntityBean(vo.getOutId());
+                    baseDAO.deleteEntityBeansByFK(vo.getOutId());
+                    created = false;
+                    _logger.info("****roollback DB***"+vo.getOutId());
+                    continue;
+                } finally {
+                    if (created) {
+                        this.dhZjbDAO.updateProcessedFlag2(vo.getResultId(), 1);
+                        this.dhZjbDAO.updateOutId(vo.getZbId(), vo.getOutId());
+                    }
+                }
+            }
         }
+        _logger.info("***dhDiaoboJob2 finished***");
     }
+    
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
+    public void updateStockStatusJob(){
+    	sfLog.info("updateStockStatusJob start ...");
+    	long t1 = System.currentTimeMillis();
+    	//get items with status "待采购拿货"
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addCondition("status","=", StockConstant.STOCK_STATUS_STOCKMANAGERPASS);
+    	List<StockBean> stockBeans = this.stockDAO.queryEntityBeansByCondition(conditionParse);
+    	
+    	sfLog.debug("stockBeans.size():"+stockBeans.size());
+    	
+    	boolean isAllFetch = true; //是否已全部拿货
+    	
+    	for(StockBean stockBean : stockBeans){
+    		isAllFetch = true;
+    		conditionParse = new ConditionParse();
+            conditionParse.addCondition("stockId","=", stockBean.getId());
+            List<StockItemBean> stockItemBeans = this.stockItemDAO.queryEntityBeansByCondition(conditionParse);
+            
+            sfLog.debug("stockBean:"+stockBean.toString()+", stockItemBeans.size():"+stockItemBeans.size());
+            
+            if(stockItemBeans.size()==0){
+            	sfLog.debug("no stockItemBeans, skip... ");
+            	continue;
+            }
+            
+            for(StockItemBean stockItemBean : stockItemBeans){
+            	int amount = stockItemBean.getAmount(); //采购数量
+            	int fetchAmount = 0;//已拿货数量
+            	int returnAmount1 = 0;//已入库退货数量
+            	int returnAmount2 = 0;//未入库退货数量
+            	
+            	//sfLog.debug("111111111111");
+            	
+            	if(stockItemBean.getFechProduct() != 1){
+                    String refOutIds = stockItemBean.getRefOutId();
+                    String stockId = stockItemBean.getStockId();
+                    if(StringTools.isNullOrNone(refOutIds) && StringTools.isNullOrNone(stockId)){
+                    	sfLog.debug("skip... "+stockItemBean.toString());
+                    	continue;
+                    }
+                    
+            		//不是“已拿货”状态，进一步查看
+            		conditionParse = new ConditionParse();
+                    conditionParse.addCondition("status","=", OutConstant.STATUS_PASS);
+
+                    StringBuffer conditionBuffer = new StringBuffer();
+                    conditionBuffer.append(" AND (");
+                    if(!StringTools.isNullOrNone(refOutIds)){
+                    	StringBuffer idBuffer = new StringBuffer();
+                    	String[] refOutIdArr = refOutIds.split(";");
+                    	for(String str : refOutIdArr){
+                    		idBuffer.append(",'"+str+"'");
+                    	}
+                    	conditionBuffer.append(" fullid in ("+idBuffer.substring(1)+")");
+                    }else{
+                    	conditionBuffer.append(" 1=2");
+                    }
+                    
+                    if(!StringTools.isNullOrNone(stockId)){
+                    	conditionBuffer.append(" or refOutFullId='"+stockId+"'");
+                    }else{
+                    	conditionBuffer.append(" or 1=2");
+                    }
+                    
+                    conditionBuffer.append(" )");
+                    
+                    conditionParse.addCondition(conditionBuffer.toString());
+                    
+                    List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(conditionParse);
+                    
+                    if(outBeans.size()==0){
+                    	sfLog.debug("no outBean, skip... ");
+                    	isAllFetch = false;
+                    	continue;
+                    }
+                    
+            		
+                	//get related data from base 
+                    Map<String, String> outId2TypeMap = new HashMap<String, String>(); //普通入库0， 已入库退货1， 未入库退货2
+                    conditionParse = new ConditionParse();
+                    
+                	StringBuffer idBuffer = new StringBuffer();
+                	for(OutBean outBean : outBeans){
+                		
+                		idBuffer.append(",'"+outBean.getFullId()+"'");
+                		
+                		String type = "0";
+                		if(outBean.getBuyReturnFlag() == 1){
+                			if(outBean.getBuyReturnType() == 1){
+                				type = "1";
+                			}else if(outBean.getBuyReturnType() == 2){
+                				type = "2";
+                			}
+                		}
+                		outId2TypeMap.put(outBean.getFullId(), type);
+                	}
+                    
+                    conditionParse.addCondition(" AND outId in ("+idBuffer.substring(1)+")");
+                    
+                    List<BaseBean> bases = this.baseDAO.queryEntityBeansByCondition(conditionParse);
+                    for(BaseBean base : bases){
+                    	String type = outId2TypeMap.get(base.getOutId());
+                    	int itemAmount = Math.abs(base.getAmount());
+                    	if("0".equals(type)){
+                    		fetchAmount = fetchAmount + itemAmount;
+                    	}else if("1".equals(type)){
+                    		returnAmount1 = returnAmount1 + itemAmount;
+                    	}else if("2".equals(type)){
+                    		returnAmount2 = returnAmount2 + itemAmount;
+                    	}
+                    }
+                	
+                	//update status 已拿货
+                    if(this.needChangeStatus(amount, fetchAmount, returnAmount1, returnAmount2)){
+                    	stockItemBean.setFechProduct(StockConstant.STOCK_ITEM_FECH_YES);
+                    	this.stockItemDAO.updateEntityBean(stockItemBean);
+                    	sfLog.info("update stock item to 已拿货 "+stockItemBean.toString());
+                    }else{
+                    	isAllFetch = false;
+                    	sfLog.debug("break cycle....");
+                    	break;
+                    }
+            		
+            	}
+            }
+            
+            //update status 待结束采购
+            if(isAllFetch){
+            	stockBean.setStatus(StockConstant.STOCK_STATUS_END);
+            	this.stockDAO.updateEntityBean(stockBean);
+            	//add log
+            	this.addLog2(stockBean.getId(), StockConstant.STOCK_STATUS_STOCKMANAGERPASS, StockConstant.STOCK_STATUS_END, 0, "提交");
+            	sfLog.info("update stock 待结束采购  "+stockBean.toString());
+            }
+
+    	}
+    	
+    	long t2 = System.currentTimeMillis();
+    	
+    	sfLog.info("***updateStockStatusJob finished*** time cost: "+(t2-t1)+" millis");
+    	
+    }
+    
+    /**
+     * 
+     * @param amount //采购数量
+     * @param fetchAmmount //已拿货数量
+     * @param returnAmmount1 已入库退货数量
+     * @param returnAmmount2 未入库退货数量
+     * @return
+     */
+    private boolean needChangeStatus(int amount, int fetchAmmount, int returnAmmount1, int returnAmmount2){
+    	boolean flag = false;
+    	if(amount == fetchAmmount){
+    		flag = true;
+    	}else if(amount == returnAmmount1){
+    		flag = true;
+    	}else if(amount == returnAmmount2){
+    		flag = true;
+    	}else if(amount == (returnAmmount1+returnAmmount2)){
+    		flag = true;
+    	}else if(amount == (fetchAmmount+returnAmmount2)){
+    		flag = true;
+    	}
+    	
+    	return flag;
+    }
+
 
     /**
      * @return the stockDAO

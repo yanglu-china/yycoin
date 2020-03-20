@@ -12,6 +12,7 @@ package com.china.center.oa.finance.manager.impl;
 import java.util.Collection;
 import java.util.List;
 
+import com.china.center.oa.finance.constant.FinanceConstantTw;
 import com.china.center.oa.finance.vo.InBillVO;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.dao.*;
@@ -443,7 +444,11 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJYHS
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJJYFJ
                 || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJWHF
-                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJXFS)
+                || bean.getType() == FinanceConstant.OUTBILL_TYPE_SJXFS
+                //体外付款单
+                || bean.getType() == FinanceConstantTw.OUTBILL_TYPE_JZLX
+                || bean.getType() == FinanceConstantTw.OUTBILL_TYPE_FDLX
+                || bean.getType() == FinanceConstantTw.OUTBILL_TYPE_TYJK)
                 && bean.getCreateType() == FinanceConstant.BILL_CREATETYPE_HAND)
         {
         	// 转账一步到位

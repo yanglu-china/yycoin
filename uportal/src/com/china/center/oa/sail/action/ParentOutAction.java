@@ -8,22 +8,37 @@
  */
 package com.china.center.oa.sail.action;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.china.center.tools.*;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-
-import org.apache.commons.fileupload.FileUploadBase;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
@@ -182,14 +197,15 @@ import com.china.center.oa.sail.wrap.BatchBackWrap;
 import com.china.center.oa.sail.wrap.PromotionWrap;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.osgi.jsp.ElTools;
-
 import com.china.center.tools.BeanUtil;
 import com.china.center.tools.CommonTools;
+import com.china.center.tools.FileTools;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.MathTools;
 import com.china.center.tools.ParamterMap;
 import com.china.center.tools.RequestDataStream;
 import com.china.center.tools.RequestTools;
+import com.china.center.tools.SequenceTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 import com.china.center.tools.UtilStream;
@@ -9478,6 +9494,7 @@ public class ParentOutAction extends DispatchAction
 		// 发货单
 		ConsignBean temp = null;
 
+		BigDecimal totalDecimal = new BigDecimal("0");
 		for (OutBean outBean : list)
 		{
 			temp = consignDAO.findDefaultConsignByFullId(outBean.getFullId());
@@ -9486,13 +9503,17 @@ public class ParentOutAction extends DispatchAction
 			{
 				outBean.setConsign(temp.getReprotType());
 			}
+			totalDecimal = totalDecimal.add(new BigDecimal(outBean.getTotal()));
 		}
+		
+		
 
 		// 处理仓库
 		List<DepotBean> depotList = handerDepot(request, user);
 
 		request.setAttribute("depotList", depotList);
 
+		request.setAttribute("totalDecimal", new DecimalFormat("0.00").format(totalDecimal));
 		int radioIndex = CommonTools.parseInt(request
 				.getParameter("radioIndex"));
 
