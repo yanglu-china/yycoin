@@ -1,17 +1,11 @@
-/**
- * File Name: FinanceManager.java<br>
- * CopyRight: Copyright by www.center.china<br>
- * Description:<br>
- * CREATER: ZHUACHEN<br>
- * CreateTime: 2011-2-7<br>
- * Grant: open source to everybody
- */
 package com.china.center.oa.tax.manager;
 
 
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
+import com.china.center.oa.finance.bean.PaymentBean;
 import com.china.center.oa.tax.bean.FinanceBean;
+import com.china.center.oa.tax.bean.FinanceItemBean;
 import com.china.center.oa.tax.bean.FinanceTurnBean;
 
 import java.util.List;
@@ -216,4 +210,9 @@ public interface FinanceManager
      * #901
      */
     void repairFinanceBeanJob();
+
+    void createFinanceItem(User user, PaymentBean bean,
+                                   String itemInName,String itemOutName,
+                                   String itemTaxIdIn, String itemTaxIdOut,
+                                   FinanceBean financeBean, List<FinanceItemBean> itemList) throws MYException;
 }
