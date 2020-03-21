@@ -33,14 +33,44 @@ function checkBean(){
 
     var companyShare = $$('companyShare');
     var stafferShare = $$('stafferShare');
+    var sybShare = $$('sybShare');
+    var ywbShare = $$('ywbShare');
+    var dqShare = $$('dqShare');
+    var publicfunds = $$('publicfunds');
     // console.log(Number(companyShare));
     // console.log(Number(stafferShare));
-    if(Number(companyShare) + Number(stafferShare)!= 0 && Number(companyShare)+Number(stafferShare)!= 100){
-        alert('公司和个人承担比例之和必须为100或者0!');
+    if(Number(companyShare)+Number(stafferShare) + Number(sybShare) +Number(ywbShare) + Number(dqShare)+Number(publicfunds)!= 100){
+        alert('公司,个人承担,事业部,业务部,大区,公共基金各项比例之和必须为100');
+        return false;
+    }
+    
+    var publicfunds = $$("publicfunds");
+    if(publicfunds == '')
+    {
+    	alert('请填写公共基金');
+        return false;
+    }
+    if(!isAAANumber(publicfunds))
+    {
+    	alert('公共基金只能是数字');
         return false;
     }
 }
 
+/**
+* 校验只要是数字（包含正负整数，0以及正负浮点数）就返回true
+**/
+
+function isAAANumber(val){
+
+    var regPos = /^\d+(\.\d+)?$/; //非负浮点数
+    if(regPos.test(val)){
+        return true;
+    }else{
+        return false;
+    }
+
+}
 
 
 function clears(idx)

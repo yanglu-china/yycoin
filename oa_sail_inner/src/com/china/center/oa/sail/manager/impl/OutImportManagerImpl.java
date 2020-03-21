@@ -9,6 +9,7 @@ import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.helper.StorageRelationHelper;
+import com.china.center.oa.publics.StringUtils;
 import com.china.center.oa.publics.bean.*;
 import com.china.center.oa.publics.bean.LogBean;
 import com.china.center.oa.publics.constant.*;
@@ -4541,209 +4542,215 @@ public void offlineStorageInJob() {
 				if (!StringTools.isNullOrNone(item.getReoano())){
 					continue;
 				}
-				StringBuilder generatedOutId = new StringBuilder();
 				String outId = item.getOutId();
-				OutBean originalOut = this.outDAO.find(outId);
+				try{
+					OutBean originalOut = this.outDAO.find(outId);
 
-				if (originalOut == null){
-					_logger.error("No out found "+outId);
-					this.updateDescriptionByOutId(item,item.getDescription()+"_ERROR_"+"no t_center_out found");
-					continue;
-				} else{
-					//industryid,2,3几个字段根据stafferid到表oastaffer表取对应值
-					StafferBean stafferBean = stafferDAO.find(originalOut.getStafferId());
-					if (stafferBean == null){
-						_logger.error("No staffer found "+originalOut.getStafferId());
+					if (originalOut == null){
+						_logger.error("No out found "+outId);
+						this.updateDescriptionByOutId(item,item.getDescription()+"_ERROR_"+"no t_center_out found");
 						continue;
-					}
-
-					String productId = item.getProductId();
-					int amount;
-					try {
-						amount = Integer.valueOf(item.getAmount());
-					}catch(NumberFormatException e){
-						_logger.error("amount should be integer "+item.getAmount());
-						this.updateDescription(item,item.getDescription()+"_ERROR_"+"amount should be integer:"+item.getAmount());
-						continue;
-					}
-
-					double costPrice = item.getCostPrice();
-					String costPriceKey = StorageRelationHelper.getPriceKey(costPrice);
-					try {
-						boolean result = outManager.checkOutBack(outId, productId,costPriceKey, amount);
-						if (result) {
-							_logger.error("Can not in stock " + outId);
-							this.updateDescription(item, item.getDescription() + "_ERROR_" + "退库数量溢出");
+					} else{
+						//industryid,2,3几个字段根据stafferid到表oastaffer表取对应值
+						StafferBean stafferBean = stafferDAO.find(originalOut.getStafferId());
+						if (stafferBean == null){
+							_logger.error("No staffer found "+originalOut.getStafferId());
 							continue;
 						}
-					}catch (MYException e){
-						this.updateDescription(item, item.getDescription() + "_ERROR_" + e.getMessage());
-						continue;
-					}
 
-					OutBean outBean = new OutBean();
-					outBean.setType(OutConstant.OUT_TYPE_INBILL);
-					outBean.setOutType(Integer.valueOf(item.getType()));
-
-					String id = getAll(commonDAO.getSquence());
-					String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
-					String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
-
-					String fullId = flag + time + id;
-					outBean.setId(getOutId(id));
-					outBean.setFullId(fullId);
-
-					outBean.setIndustryId(stafferBean.getIndustryId());
-					outBean.setIndustryId2(stafferBean.getIndustryId2());
-					outBean.setIndustryId3(stafferBean.getIndustryId3());
-
-					outBean.setStafferId(originalOut.getStafferId());
-					outBean.setStafferName(originalOut.getStafferName());
-					outBean.setCustomerId(originalOut.getCustomerId());
-					if ("99".equals(outBean.getCustomerId())){
-						outBean.setCustomerName("系统内置供应商");
-					} else{
-						outBean.setCustomerName(originalOut.getCustomerName());
-					}
-
-					outBean.setDescription("线下入库"+"_"+outId+"_"+item.getId());
-					String now = TimeTools.now_short();
-					outBean.setOutTime(now);
-					outBean.setPodate(now);
-					outBean.setRedate(now);
-					outBean.setArriveDate(now);
-					String nowLong = TimeTools.now();
-					outBean.setLogTime(nowLong);
-					outBean.setChangeTime(nowLong);
-					outBean.setOperatorName("系统");
-
-					BaseBean baseBean = new BaseBean();
-					baseBean.setId(commonDAO.getSquenceString());
-					baseBean.setOutId(fullId);
-
-					if (StringTools.isNullOrNone(item.getDepot())){
-						baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
-						baseBean.setDepotpartId("1");
-						baseBean.setDepotpartName("可发成品仓");
-					} else{
-						baseBean.setLocationId(item.getDepot());
-						DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(item.getDepot());
-						if (defaultOKDepotpart == null){
-							_logger.error("defaultOKDepotpart is null:"+item.getDepot());
-							this.updateDescription(item,item.getDescription()+"_ERROR_"+"depot does not exist:"+item.getDepot());
+						String productId = item.getProductId();
+						int amount;
+						try {
+							amount = Integer.valueOf(item.getAmount());
+						}catch(NumberFormatException e){
+							_logger.error("amount should be integer "+item.getAmount());
+							this.updateDescription(item,item.getDescription()+"_ERROR_"+"amount should be integer:"+item.getAmount());
 							continue;
+						}
+
+						double costPrice = item.getCostPrice();
+						String costPriceKey = StorageRelationHelper.getPriceKey(costPrice);
+						try {
+							boolean result = outManager.checkOutBack(outId, productId,costPriceKey, amount);
+							if (result) {
+								_logger.error("Can not in stock " + outId);
+								this.updateDescription(item, item.getDescription() + "_ERROR_" + "退库数量溢出");
+								continue;
+							}
+						}catch (MYException e){
+							this.updateDescription(item, item.getDescription() + "_ERROR_" + e.getMessage());
+							continue;
+						}
+
+						OutBean outBean = new OutBean();
+						outBean.setType(OutConstant.OUT_TYPE_INBILL);
+						outBean.setOutType(Integer.valueOf(item.getType()));
+
+						String id = getAll(commonDAO.getSquence());
+						String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+						String flag = OutHelper.getSailHead(outBean.getType(), outBean.getOutType());
+
+						String fullId = flag + time + id;
+						outBean.setId(getOutId(id));
+						outBean.setFullId(fullId);
+
+						outBean.setIndustryId(stafferBean.getIndustryId());
+						outBean.setIndustryId2(stafferBean.getIndustryId2());
+						outBean.setIndustryId3(stafferBean.getIndustryId3());
+
+						outBean.setStafferId(originalOut.getStafferId());
+						outBean.setStafferName(originalOut.getStafferName());
+						outBean.setCustomerId(originalOut.getCustomerId());
+						if ("99".equals(outBean.getCustomerId())){
+							outBean.setCustomerName("系统内置供应商");
 						} else{
-							baseBean.setDepotpartId(defaultOKDepotpart.getId());
-							baseBean.setDepotpartName(defaultOKDepotpart.getName());
+							outBean.setCustomerName(originalOut.getCustomerName());
 						}
+
+						outBean.setDescription("线下入库"+"_"+outId+"_"+item.getId());
+						String now = TimeTools.now_short();
+						outBean.setOutTime(now);
+						outBean.setPodate(now);
+						outBean.setRedate(now);
+						outBean.setArriveDate(now);
+						String nowLong = TimeTools.now();
+						outBean.setLogTime(nowLong);
+						outBean.setChangeTime(nowLong);
+						outBean.setOperatorName("系统");
+
+						BaseBean baseBean = new BaseBean();
+						baseBean.setId(commonDAO.getSquenceString());
+						baseBean.setOutId(fullId);
+
+						if (StringTools.isNullOrNone(item.getDepot())){
+							baseBean.setLocationId(DepotConstant.CENTER_DEPOT_ID);
+							baseBean.setDepotpartId("1");
+							baseBean.setDepotpartName("可发成品仓");
+						} else{
+							baseBean.setLocationId(item.getDepot());
+							DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(item.getDepot());
+							if (defaultOKDepotpart == null){
+								_logger.error("defaultOKDepotpart is null:"+item.getDepot());
+								this.updateDescription(item,item.getDescription()+"_ERROR_"+"depot does not exist:"+item.getDepot());
+								continue;
+							} else{
+								baseBean.setDepotpartId(defaultOKDepotpart.getId());
+								baseBean.setDepotpartName(defaultOKDepotpart.getName());
+							}
+						}
+
+						ProductBean product = this.productDAO.find(productId);
+						if (product == null){
+							_logger.error("No product found "+productId);
+							this.updateDescription(item,item.getDescription()+"_ERROR_"+"no product:"+productId);
+							continue;
+						}
+						baseBean.setProductId(productId);
+						baseBean.setProductName(item.getProductName());
+
+						//#359
+						CustomerBean customerBean = this.customerMainDAO.find(outBean.getCustomerId());
+						this.setGrossProfitAndCash(outBean,customerBean, baseBean);
+
+						baseBean.setUnit("套");
+						baseBean.setAmount(amount);
+
+						try {
+							BaseBean refBaseBean = this.outManager.getBaseBean(outId, productId, costPriceKey);
+							baseBean.setRefId(refBaseBean.getId());
+							baseBean.setPrice(refBaseBean.getPrice());
+							baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
+							baseBean.setCostPrice(costPrice);
+							baseBean.setCostPriceKey(costPriceKey);
+
+							//#545
+							baseBean.setVirtualPrice(refBaseBean.getVirtualPrice());
+							baseBean.setVirtualPriceKey(StorageRelationHelper
+									.getPriceKey(baseBean.getVirtualPrice()));
+
+							baseBean.setIbMoney(refBaseBean.getIbMoney());
+							baseBean.setMotivationMoney(refBaseBean.getMotivationMoney());
+							baseBean.setIbMoney2(refBaseBean.getIbMoney2());
+							baseBean.setMotivationMoney2(refBaseBean.getMotivationMoney2());
+							baseBean.setPlatformFee(refBaseBean.getPlatformFee());
+						}catch (MYException e){
+							_logger.error(e,e);
+							this.updateDescription(item, item.getDescription() + "_ERROR_" + e.getMessage());
+							continue;
+						}
+
+						baseBean.setOwner("0");
+						baseBean.setOwnerName("公共");
+
+						// 业务员结算价，总部结算价
+						double sailPrice = product.getSailPrice();
+
+						// 根据配置获取结算价
+						List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+
+						if (!ListTools.isEmptyOrNull(pcblist))
+						{
+							PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+							sailPrice = cb.getSailPrice();
+						}
+
+						// 获取销售配置
+						SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+								product);
+
+						// 总部结算价(产品结算价 * (1 + 总部结算率))
+						baseBean.setPprice(sailPrice
+								* (1 + sailConf.getPratio() / 1000.0d));
+
+						//#647
+						if (sailConf.getIprice() > 0){
+							baseBean.setIprice(sailConf.getIprice());
+						} else{
+							// 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+							baseBean.setIprice(sailPrice
+									* (1 + sailConf.getIratio() / 1000.0d + sailConf
+									.getPratio() / 1000.0d));
+						}
+
+						// 业务员结算价就是事业部结算价
+						baseBean.setInputPrice(baseBean.getIprice());
+
+						if (baseBean.getInputPrice() == 0)
+						{
+							_logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
+							this.updateDescription(item,item.getDescription()+"_ERROR_"+baseBean.getProductName() + " t_center_base inputPrice should not be 0");
+							continue;
+						}
+
+						//生成退货单号时，也同时写入t_center_outback表的description字段中，增加在现有字段后，根据outbackid 到outback表找对应的id
+						OutBackBean outBackBean = this.outBackDAO.find(item.getOutBackId());
+						if (outBackBean!= null){
+							String description = outBackBean.getDescription() + "_"+fullId;
+							//限制最长2000个字符
+							this.outBackDAO.updateDescription(item.getOutBackId(), StringUtils.subString(description,2000));
+							//更新out表的transportNo
+							outBean.setTransportNo(outBackBean.getTransportNo());
+						}
+
+						outBean.setTotal(baseBean.getValue());
+
+						//#777
+						outBean.setStatus(OutConstant.BUY_STATUS_SUBMIT);
+						outBean.setLocation(baseBean.getLocationId());
+						outBean.setLocationId("999");
+
+						outBean.setInvoiceId(originalOut.getInvoiceId());
+						outBean.setDutyId("90201008080000000001");
+						outBean.setRefOutFullId(outId);
+						outBean.setDepotpartId(baseBean.getDepotpartId());
+						outDAO.saveEntityBean(outBean);
+						baseDAO.saveEntityBean(baseBean);
+						this.outBackItemDAO.updateOano(item.getId(), fullId);
+						_logger.info("create out in offlineStorageInJob "+outBean+"***with base bean***"+baseBean);
 					}
-
-					ProductBean product = this.productDAO.find(productId);
-					if (product == null){
-						_logger.error("No product found "+productId);
-						this.updateDescription(item,item.getDescription()+"_ERROR_"+"no product:"+productId);
-						continue;
-					}
-					baseBean.setProductId(productId);
-					baseBean.setProductName(item.getProductName());
-
-					//#359
-					CustomerBean customerBean = this.customerMainDAO.find(outBean.getCustomerId());
-					this.setGrossProfitAndCash(outBean,customerBean, baseBean);
-
-					baseBean.setUnit("套");
-					baseBean.setAmount(amount);
-
-					try {
-						BaseBean refBaseBean = this.outManager.getBaseBean(outId, productId, costPriceKey);
-						baseBean.setPrice(refBaseBean.getPrice());
-						baseBean.setValue(baseBean.getAmount() * baseBean.getPrice());
-						baseBean.setCostPrice(costPrice);
-						baseBean.setCostPriceKey(costPriceKey);
-
-						//#545
-						baseBean.setVirtualPrice(refBaseBean.getVirtualPrice());
-						baseBean.setVirtualPriceKey(StorageRelationHelper
-								.getPriceKey(baseBean.getVirtualPrice()));
-
-						baseBean.setIbMoney(refBaseBean.getIbMoney());
-						baseBean.setMotivationMoney(refBaseBean.getMotivationMoney());
-						baseBean.setIbMoney2(refBaseBean.getIbMoney2());
-						baseBean.setMotivationMoney2(refBaseBean.getMotivationMoney2());
-						baseBean.setPlatformFee(refBaseBean.getPlatformFee());
-					}catch (MYException e){
-						_logger.error(e,e);
-						this.updateDescription(item, item.getDescription() + "_ERROR_" + e.getMessage());
-						continue;
-					}
-
-					baseBean.setOwner("0");
-					baseBean.setOwnerName("公共");
-
-					// 业务员结算价，总部结算价
-					double sailPrice = product.getSailPrice();
-
-					// 根据配置获取结算价
-					List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
-
-					if (!ListTools.isEmptyOrNull(pcblist))
-					{
-						PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
-
-						sailPrice = cb.getSailPrice();
-					}
-
-					// 获取销售配置
-					SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
-							product);
-
-					// 总部结算价(产品结算价 * (1 + 总部结算率))
-					baseBean.setPprice(sailPrice
-							* (1 + sailConf.getPratio() / 1000.0d));
-
-					//#647
-					if (sailConf.getIprice() > 0){
-						baseBean.setIprice(sailConf.getIprice());
-					} else{
-						// 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-						baseBean.setIprice(sailPrice
-								* (1 + sailConf.getIratio() / 1000.0d + sailConf
-								.getPratio() / 1000.0d));
-					}
-
-					// 业务员结算价就是事业部结算价
-					baseBean.setInputPrice(baseBean.getIprice());
-
-					if (baseBean.getInputPrice() == 0)
-					{
-						_logger.error(baseBean.getProductName() + " 业务员结算价不能为0");
-						this.updateDescription(item,item.getDescription()+"_ERROR_"+baseBean.getProductName() + " t_center_base inputPrice should not be 0");
-						continue;
-					}
-
-					//生成退货单号时，也同时写入t_center_outback表的description字段中，增加在现有字段后，根据outbackid 到outback表找对应的id
-					OutBackBean outBackBean = this.outBackDAO.find(item.getOutBackId());
-					if (outBackBean!= null){
-						this.outBackDAO.updateDescription(item.getOutBackId(), outBackBean.getDescription() + "_"+fullId);
-						//更新out表的transportNo
-						outBean.setTransportNo(outBackBean.getTransportNo());
-					}
-
-					outBean.setTotal(baseBean.getValue());
-
-					//#777
-					outBean.setStatus(OutConstant.BUY_STATUS_SUBMIT);
-					outBean.setLocation(baseBean.getLocationId());
-					outBean.setLocationId("999");
-
-					outBean.setInvoiceId(originalOut.getInvoiceId());
-					outBean.setDutyId("90201008080000000001");
-					outBean.setRefOutFullId(outId);
-					outBean.setDepotpartId(baseBean.getDepotpartId());
-					outDAO.saveEntityBean(outBean);
-					baseDAO.saveEntityBean(baseBean);
-					this.outBackItemDAO.updateOano(item.getId(), fullId);
-					_logger.info("create out in offlineStorageInJob "+outBean+"***with base bean***"+baseBean);
+				}catch (Exception e){
+					_logger.error(e,e);
 				}
 			}
 		}

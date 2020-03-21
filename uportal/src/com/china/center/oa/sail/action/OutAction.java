@@ -1,15 +1,42 @@
 package com.china.center.oa.sail.action;
 
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+// import edu.emory.mathcs.backport.java.util.Collections;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
-import com.china.center.actionhelper.common.*;
+import com.china.center.actionhelper.common.ActionTools;
+import com.china.center.actionhelper.common.JSONTools;
+import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.actionhelper.common.OldPageSeparateTools;
+import com.china.center.actionhelper.common.PageSeparateTools;
 import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.jsonimpl.JSONArray;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
-import com.china.center.common.taglib.DefinedCommon;
 import com.china.center.jdbc.annosql.constant.AnoConstant;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
@@ -18,38 +45,129 @@ import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vo.StafferVSCustomerVO;
 import com.china.center.oa.customervssail.dao.OutQueryDAO;
-import com.china.center.oa.finance.bean.*;
-import com.china.center.oa.finance.dao.*;
+import com.china.center.oa.finance.bean.BackPrePayApplyBean;
+import com.china.center.oa.finance.bean.InBillBean;
+import com.china.center.oa.finance.bean.InvoiceinsBean;
+import com.china.center.oa.finance.bean.PaymentApplyBean;
+import com.china.center.oa.finance.bean.PaymentBean;
+import com.china.center.oa.finance.bean.PreInvoiceVSOutBean;
+import com.china.center.oa.finance.dao.BackPrePayApplyDAO;
+import com.china.center.oa.finance.dao.InBillDAO;
+import com.china.center.oa.finance.dao.InsVSOutDAO;
+import com.china.center.oa.finance.dao.InvoiceinsItemDAO;
+import com.china.center.oa.finance.dao.OutBillDAO;
+import com.china.center.oa.finance.dao.PaymentApplyDAO;
+import com.china.center.oa.finance.dao.PaymentDAO;
+import com.china.center.oa.finance.dao.PreInvoiceVSOutDAO;
 import com.china.center.oa.finance.vo.InBillVO;
 import com.china.center.oa.finance.vo.OutBillVO;
 import com.china.center.oa.finance.vs.InsVSOutBean;
-import com.china.center.oa.product.bean.*;
+import com.china.center.oa.product.bean.DepotBean;
+import com.china.center.oa.product.bean.DepotpartBean;
+import com.china.center.oa.product.bean.PriceConfigBean;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProductImportBean;
 import com.china.center.oa.product.constant.StorageConstant;
-import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.dao.DepotDAO;
+import com.china.center.oa.product.dao.DepotpartDAO;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProviderDAO;
+import com.china.center.oa.product.dao.StorageDAO;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.publics.Helper;
-import com.china.center.oa.publics.bean.*;
-import com.china.center.oa.publics.constant.*;
-import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.publics.bean.AttachmentBean;
+import com.china.center.oa.publics.bean.DutyBean;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.InvoiceBean;
+import com.china.center.oa.publics.bean.PrincipalshipBean;
+import com.china.center.oa.publics.bean.ShowBean;
+import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.AuthConstant;
+import com.china.center.oa.publics.constant.InvoiceConstant;
+import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.publics.constant.PublicLock;
+import com.china.center.oa.publics.constant.SysConfigConstant;
+import com.china.center.oa.publics.dao.AreaDAO;
+import com.china.center.oa.publics.dao.AttachmentDAO;
+import com.china.center.oa.publics.dao.CityDAO;
+import com.china.center.oa.publics.dao.CommonDAO;
+import com.china.center.oa.publics.dao.DepartmentDAO;
+import com.china.center.oa.publics.dao.DutyDAO;
+import com.china.center.oa.publics.dao.DutyVSInvoiceDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.InvoiceCreditDAO;
+import com.china.center.oa.publics.dao.InvoiceDAO;
+import com.china.center.oa.publics.dao.LocationDAO;
+import com.china.center.oa.publics.dao.ParameterDAO;
+import com.china.center.oa.publics.dao.PrincipalshipDAO;
+import com.china.center.oa.publics.dao.ProvinceDAO;
+import com.china.center.oa.publics.dao.ShowDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.dao.UserDAO;
 import com.china.center.oa.publics.helper.LockHelper;
 import com.china.center.oa.publics.helper.OATools;
-import com.china.center.oa.publics.manager.*;
+import com.china.center.oa.publics.manager.AuthManager;
+import com.china.center.oa.publics.manager.CommonMailManager;
+import com.china.center.oa.publics.manager.FatalNotify;
+import com.china.center.oa.publics.manager.OrgManager;
+import com.china.center.oa.publics.manager.StafferManager;
+import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.publics.vo.InvoiceCreditVO;
 import com.china.center.oa.publics.wrap.ResultBean;
-import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.bean.AppOutVSOutBean;
+import com.china.center.oa.sail.bean.BaseBalanceBean;
 import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.BaseInterface;
+import com.china.center.oa.sail.bean.BaseRepaireBean;
+import com.china.center.oa.sail.bean.ConsignBean;
+import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.bean.OutBalanceBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.OutRepaireBean;
+import com.china.center.oa.sail.bean.PackageBean;
+import com.china.center.oa.sail.bean.PreConsignBean;
+import com.china.center.oa.sail.bean.PresentFlagBean;
+import com.china.center.oa.sail.bean.PromotionBean;
+import com.china.center.oa.sail.bean.SailConfBean;
+import com.china.center.oa.sail.bean.StatsDeliveryRankBean;
+import com.china.center.oa.sail.bean.TwBaseBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.constanst.PromotionConstant;
-import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.dao.AppOutDAO;
+import com.china.center.oa.sail.dao.AppOutVSOutDAO;
+import com.china.center.oa.sail.dao.BaseBalanceDAO;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.BaseRepaireDAO;
+import com.china.center.oa.sail.dao.ConsignDAO;
+import com.china.center.oa.sail.dao.DistributionDAO;
+import com.china.center.oa.sail.dao.ExpressDAO;
+import com.china.center.oa.sail.dao.OutBalanceDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.dao.OutRepaireDAO;
+import com.china.center.oa.sail.dao.PreConsignDAO;
+import com.china.center.oa.sail.dao.PromotionDAO;
+import com.china.center.oa.sail.dao.PromotionItemDAO;
+import com.china.center.oa.sail.dao.SailConfigDAO;
+import com.china.center.oa.sail.dao.StatsDeliveryRankDAO;
 import com.china.center.oa.sail.helper.FlowLogHelper;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.helper.YYTools;
-import com.china.center.oa.sail.listener.OutListener;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailManager;
-import com.china.center.oa.sail.vo.*;
+import com.china.center.oa.sail.vo.AppOutVO;
+import com.china.center.oa.sail.vo.BaseVO;
+import com.china.center.oa.sail.vo.DistributionInterface;
+import com.china.center.oa.sail.vo.DistributionVO;
+import com.china.center.oa.sail.vo.DistributionVOInterface;
+import com.china.center.oa.sail.vo.OutBalanceVO;
+import com.china.center.oa.sail.vo.OutRepaireVO;
+import com.china.center.oa.sail.vo.OutVO;
+import com.china.center.oa.sail.vo.OutVOInterface;
+import com.china.center.oa.sail.vo.ProductExchangeConfigVO;
+import com.china.center.oa.sail.vo.SailConfigVO;
+import com.china.center.oa.sail.vo.TwOutVO;
 import com.china.center.oa.sail.wrap.ConfirmInsWrap;
 import com.china.center.oa.sail.wrap.CreditWrap;
 import com.china.center.oa.stock.bean.StockItemBean;
@@ -61,25 +179,15 @@ import com.china.center.oa.tax.constanst.TaxConstanst;
 import com.china.center.oa.tax.constanst.TaxItemConstanst;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.oa.tax.dao.TaxDAO;
-import com.china.center.oa.sail.dao.PreConsignDAO;
-import com.china.center.oa.tax.glue.listener.impl.OutListenerTaxGlueImpl;
 import com.china.center.oa.tax.helper.FinanceHelper;
 import com.china.center.oa.tax.manager.FinanceManager;
-import com.china.center.tools.*;
-// import edu.emory.mathcs.backport.java.util.Collections;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.Map.Entry;
+import com.china.center.tools.BeanUtil;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
 
 
 /**
@@ -1615,7 +1723,6 @@ public class OutAction extends ParentOutAction
                 	}
                 }
                 */
-                _logger.debug("out.getBuyReturnFlag(): "+out.getBuyReturnFlag()+", type: "+out.getType()+", outType: "+out.getOutType());
                 
                 if (out == null)
                 {
@@ -1623,6 +1730,8 @@ public class OutAction extends ParentOutAction
 
                     return mapping.findForward("error");
                 }
+                
+                _logger.debug("out.getBuyReturnFlag(): "+out.getBuyReturnFlag()+", type: "+out.getType()+", outType: "+out.getOutType());
                 
                 if (out.getStatus() == statuss)
                 {

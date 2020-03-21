@@ -2,7 +2,12 @@ package com.china.center.oa.product.bean;
 
 import java.io.Serializable;
 
-import com.china.center.jdbc.annotation.*;
+import com.china.center.jdbc.annotation.Entity;
+import com.china.center.jdbc.annotation.FK;
+import com.china.center.jdbc.annotation.Html;
+import com.china.center.jdbc.annotation.Id;
+import com.china.center.jdbc.annotation.Join;
+import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.jdbc.annotation.enums.JoinType;
 
@@ -163,6 +168,23 @@ public class ProductVSGiftBean implements Serializable
     private String createTime = "";
 
     private String creator = "";
+    
+    private String sybid = "";
+    private String ywbid = "";
+    private String dqid = "";
+    
+    @Html(title = "事业部承担比例", maxLength = 10)
+    private int sybShare = 0;
+    
+    @Html(title = "业务部承担比例", maxLength = 10)
+    private int ywbShare = 0;
+    
+    @Html(title = "大区承担比例", maxLength = 10)
+    private int dqShare = 0;
+    
+    @Html(title = "公共基金", maxLength = 10)
+    private int publicfunds;
+    
 
     public ProductVSGiftBean()
 	{
@@ -472,38 +494,78 @@ public class ProductVSGiftBean implements Serializable
         this.creator = creator;
     }
 
-    @Override
-    public String toString() {
-        return "ProductVSGiftBean{" +
-                "id='" + id + '\'' +
-                ", productId='" + productId + '\'' +
-                ", giftProductId='" + giftProductId + '\'' +
-                ", amount=" + amount +
-                ", giftProductId2='" + giftProductId2 + '\'' +
-                ", amount2=" + amount2 +
-                ", giftProductId3='" + giftProductId3 + '\'' +
-                ", amount3=" + amount3 +
-                ", sailAmount=" + sailAmount +
-                ", activity='" + activity + '\'' +
-                ", bank='" + bank + '\'' +
-                ", excludeBank='" + excludeBank + '\'' +
-                ", beginDate='" + beginDate + '\'' +
-                ", endDate='" + endDate + '\'' +
-                ", description='" + description + '\'' +
-                ", industryName='" + industryName + '\'' +
-                ", industryName2='" + industryName2 + '\'' +
-                ", industryName3='" + industryName3 + '\'' +
-                ", city='" + city + '\'' +
-                ", province='" + province + '\'' +
-                ", stafferName='" + stafferName + '\'' +
-                ", excludeIndustryName='" + excludeIndustryName + '\'' +
-                ", excludeIndustryName2='" + excludeIndustryName2 + '\'' +
-                ", excludeIndustryName3='" + excludeIndustryName3 + '\'' +
-                ", excludeCity='" + excludeCity + '\'' +
-                ", companyShare=" + companyShare +
-                ", stafferShare=" + stafferShare +
-                ", excludeProvince='" + excludeProvince + '\'' +
-                ", excludeStafferName='" + excludeStafferName + '\'' +
-                '}';
-    }
+    public String getSybid() {
+		return sybid;
+	}
+
+	public void setSybid(String sybid) {
+		this.sybid = sybid;
+	}
+
+	public String getYwbid() {
+		return ywbid;
+	}
+
+	public void setYwbid(String ywbid) {
+		this.ywbid = ywbid;
+	}
+
+	public String getDqid() {
+		return dqid;
+	}
+
+	public void setDqid(String dqid) {
+		this.dqid = dqid;
+	}
+
+	public int getPublicfunds() {
+		return publicfunds;
+	}
+
+	public void setPublicfunds(int publicfunds) {
+		this.publicfunds = publicfunds;
+	}
+
+	public int getSybShare() {
+		return sybShare;
+	}
+
+	public void setSybShare(int sybShare) {
+		this.sybShare = sybShare;
+	}
+
+	public int getYwbShare() {
+		return ywbShare;
+	}
+
+	public void setYwbShare(int ywbShare) {
+		this.ywbShare = ywbShare;
+	}
+
+	public int getDqShare() {
+		return dqShare;
+	}
+
+	public void setDqShare(int dqShare) {
+		this.dqShare = dqShare;
+	}
+
+	@Override
+	public String toString() {
+		return "ProductVSGiftBean [id=" + id + ", productId=" + productId + ", giftProductId=" + giftProductId
+				+ ", amount=" + amount + ", giftProductId2=" + giftProductId2 + ", amount2=" + amount2
+				+ ", giftProductId3=" + giftProductId3 + ", amount3=" + amount3 + ", sailAmount=" + sailAmount
+				+ ", activity=" + activity + ", bank=" + bank + ", excludeBank=" + excludeBank + ", beginDate="
+				+ beginDate + ", endDate=" + endDate + ", description=" + description + ", industryName=" + industryName
+				+ ", industryName2=" + industryName2 + ", industryName3=" + industryName3 + ", city=" + city
+				+ ", province=" + province + ", stafferName=" + stafferName + ", excludeIndustryName="
+				+ excludeIndustryName + ", excludeIndustryName2=" + excludeIndustryName2 + ", excludeIndustryName3="
+				+ excludeIndustryName3 + ", excludeCity=" + excludeCity + ", companyShare=" + companyShare
+				+ ", stafferShare=" + stafferShare + ", excludeProvince=" + excludeProvince + ", excludeStafferName="
+				+ excludeStafferName + ", branchName=" + branchName + ", excludeBranchName=" + excludeBranchName
+				+ ", customerName=" + customerName + ", excludeCustomerName=" + excludeCustomerName + ", channel="
+				+ channel + ", excludeChannel=" + excludeChannel + ", createTime=" + createTime + ", creator=" + creator
+				+ ", sybid=" + sybid + ", ywbid=" + ywbid + ", dqid=" + dqid + ", publicfunds=" + publicfunds + "]";
+	}
+
 }

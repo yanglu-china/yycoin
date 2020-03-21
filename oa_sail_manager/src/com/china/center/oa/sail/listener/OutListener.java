@@ -141,4 +141,9 @@ public interface OutListener extends ParentListener
      * @throws MYException
      */
     void onTranOut(User user, OutBean out, StafferBean targerStaffer) throws MYException;
+
+    /**
+     * #911
+     */
+    void repairKgspPzJob();
 }

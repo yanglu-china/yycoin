@@ -9,6 +9,9 @@
 package com.china.center.oa.tax.glue.listener.impl;
 
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,6 +20,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.oa.publics.StringUtils;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -69,10 +76,7 @@ import com.china.center.oa.tax.dao.TaxDAO;
 import com.china.center.oa.tax.helper.FinanceHelper;
 import com.china.center.oa.tax.manager.FinanceManager;
 import com.china.center.oa.tax.manager.FinanceTagManager;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -822,6 +826,9 @@ public class OutListenerTaxGlueImpl implements OutListener
         FinanceBean financeBean = new FinanceBean();
 
         String name = "销售出库:" + outBean.getFullId() + '.';
+        if (user == null){
+            name = "系统补录销售出库:" + outBean.getFullId() + '.';
+        }
 
         financeBean.setName(name);
 
@@ -949,6 +956,9 @@ public class OutListenerTaxGlueImpl implements OutListener
         FinanceBean financeBean = new FinanceBean();
 
         String name = "销售-个人领转销售:" + outBean.getFullId() + '.';
+        if (user == null){
+            name = "系统补录销售-个人领转销售:" + outBean.getFullId() + '.';
+        }
 
         financeBean.setName(name);
 
@@ -1346,6 +1356,9 @@ public class OutListenerTaxGlueImpl implements OutListener
         FinanceBean financeBean = new FinanceBean();
 
         String name = "入库-销售退库:" + outBean.getFullId() + '.';
+        if (user == null){
+            name = "系统补录入库-销售退库:" + outBean.getFullId() + '.';
+        }
 
         financeBean.setName(name);
 
@@ -3228,6 +3241,10 @@ public class OutListenerTaxGlueImpl implements OutListener
     {
         String name = "入库-销售退库:" + outBean.getFullId() + '.';
 
+        if (user == null){
+            name = "系统补录入库-销售退库:" + outBean.getFullId() + '.';
+        }
+
         // 借:库存商品 贷:应付账款-供应商
         FinanceItemBean itemIn = new FinanceItemBean();
 
@@ -3284,6 +3301,12 @@ public class OutListenerTaxGlueImpl implements OutListener
 //        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
         //2015/1/18 不从数据库重新去读baseList
         List<BaseBean> baseList = outBean.getBaseList();
+
+        //#911
+        if (user == null && ListTools.isEmptyOrNull(baseList)){
+            baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
+            outBean.setBaseList(baseList);
+        }
 
         long outTotal = 0L;
 
@@ -4559,6 +4582,171 @@ public class OutListenerTaxGlueImpl implements OutListener
 
                 itemList.add(itemIn);
             }
+          //事业部承担比例
+            if (giftBean.getSybShare()> 0){
+                FinanceItemBean itemIn = new FinanceItemBean();
+
+                itemIn.setPareId(pare1);
+
+                itemIn.setName("主营业务成本:" + name);
+
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+                String itemInTaxId = this.getPresentTaxId(outBean);
+
+                TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+                if (itemInTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(itemInTax, itemIn);
+
+                double money = type * getOutCost(outBean);
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(money)*giftBean.getSybShare()/100);
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 单位/部门/职员/纳税实体
+                itemIn.setUnitId(outBean.getCustomerId());
+
+                this.setBearStaffer(outBean, itemIn); 
+
+                itemIn.setDuty2Id(outBean.getDutyId());
+
+                itemList.add(itemIn);
+            }
+          //业务部承担比例
+            if (giftBean.getYwbShare()> 0){
+                FinanceItemBean itemIn = new FinanceItemBean();
+
+                itemIn.setPareId(pare1);
+
+                itemIn.setName("主营业务成本:" + name);
+
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+                String itemInTaxId = this.getPresentTaxId(outBean);
+
+                TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+                if (itemInTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(itemInTax, itemIn);
+
+                double money = type * getOutCost(outBean);
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(money)*giftBean.getYwbShare()/100);
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 单位/部门/职员/纳税实体
+                itemIn.setUnitId(outBean.getCustomerId());
+
+                this.setBearStaffer(outBean, itemIn); 
+
+                itemIn.setDuty2Id(outBean.getDutyId());
+
+                itemList.add(itemIn);
+            }
+          //大区承担比例
+            if (giftBean.getDqShare()> 0){
+                FinanceItemBean itemIn = new FinanceItemBean();
+
+                itemIn.setPareId(pare1);
+
+                itemIn.setName("主营业务成本:" + name);
+
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+                String itemInTaxId = this.getPresentTaxId(outBean);
+
+                TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+                if (itemInTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(itemInTax, itemIn);
+
+                double money = type * getOutCost(outBean);
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(money)*giftBean.getDqShare()/100);
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 单位/部门/职员/纳税实体
+                itemIn.setUnitId(outBean.getCustomerId());
+
+                this.setBearStaffer(outBean, itemIn); 
+
+                itemIn.setDuty2Id(outBean.getDutyId());
+
+                itemList.add(itemIn);
+            }
+          //公共基金承担比例
+            if (giftBean.getPublicfunds()> 0){
+                FinanceItemBean itemIn = new FinanceItemBean();
+
+                itemIn.setPareId(pare1);
+
+                itemIn.setName("主营业务成本:" + name);
+
+                itemIn.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+                FinanceHelper.copyFinanceItem(financeBean, itemIn);
+
+                String itemInTaxId = this.getPresentTaxId(outBean);
+
+                TaxBean itemInTax = taxDAO.findByUnique(itemInTaxId);
+
+                if (itemInTax == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                // 科目拷贝
+                FinanceHelper.copyTax(itemInTax, itemIn);
+
+                double money = type * getOutCost(outBean);
+
+                itemIn.setInmoney(FinanceHelper.doubleToLong(money)*giftBean.getPublicfunds()/100);
+
+                itemIn.setOutmoney(0);
+
+                itemIn.setDescription(itemIn.getName());
+
+                // 辅助核算 单位/部门/职员/纳税实体
+                itemIn.setUnitId(outBean.getCustomerId());
+
+                this.setBearStaffer(outBean, itemIn); 
+
+                itemIn.setDuty2Id(outBean.getDutyId());
+
+                itemList.add(itemIn);
+            }
+
         } else{
             // 借:库存商品 贷:应付账款-供应商
             FinanceItemBean itemIn = new FinanceItemBean();
@@ -5128,6 +5316,9 @@ public class OutListenerTaxGlueImpl implements OutListener
         List<BaseBean> baseList = outBean.getBaseList();
 
         String name = "入库-销售退库:" + outBean.getFullId() + '.';
+        if (user == null){
+            name = "系统补录入库-销售退库:" + outBean.getFullId() + '.';
+        }
 
         String pare1 = commonDAO.getSquenceString();
 
@@ -7014,7 +7205,55 @@ public class OutListenerTaxGlueImpl implements OutListener
     		}
     	}
 	}
-	
+
+
+    /**
+     * #911 SO单库管审批凭证缺失修复
+     */
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void repairKgspPzJob() {
+        _logger.info("***repairKgspPzJob running***");
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+        try
+        {
+            InputStream is = new FileInputStream("E:\\data1.xls");
+            reader.readFile(is);
+
+            while (reader.hasNext())
+            {
+                String[] obj = StringUtils.fillObj((String[])reader.next(),10);
+                String outId = obj[0];
+                System.out.println(outId);
+                _logger.info(outId);
+                try {
+                    OutBean outBean = this.outDAO.find(outId);
+                    if (outBean != null) {
+                        this.onConfirmOutOrBuy(null, outBean);
+                    }
+                }catch (Exception e){
+                    _logger.error(e,e);
+                }
+            }
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            _logger.error(e);
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        _logger.info("***repairKgspPzJob finished***");
+    }
+
     /*
      * (non-Javadoc)
      * 

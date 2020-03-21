@@ -1,3 +1,11 @@
+/**
+ * File Name: PaymentApplyListenerTaxGlueImpl.java<br>
+ * CopyRight: Copyright by www.center.china<br>
+ * Description:<br>
+ * CREATER: ZHUACHEN<br>
+ * CreateTime: 2011-6-11<br>
+ * Grant: open source to everybody
+ */
 package com.china.center.oa.tax.glue.listener.impl;
 
 import java.util.ArrayList;
@@ -1879,6 +1887,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
             throws MYException
     {
 //        String name = user.getStafferName() + "导入回款:" + bean.getId() + '.';
+
         // 借:
         FinanceItemBean itemIn = new FinanceItemBean();
         String pareId = commonDAO.getSquenceString();
@@ -1898,6 +1907,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         itemIn.setOutmoney(0);
         itemIn.setDescription(itemIn.getName());
         itemList.add(itemIn);
+
         // 贷方
         FinanceItemBean itemOut = new FinanceItemBean();
         itemOut.setPareId(pareId);
@@ -1918,6 +1928,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         itemOut.setInmoney(0);
         itemOut.setOutmoney(FinanceHelper.doubleToLong(outMoney));
         itemOut.setDescription(itemOut.getName());
+
         // 辅助核算 部门/职员/客户
         if (TaxItemConstanst.YHSXF.equals(itemTaxIdOut)
                 ||TaxItemConstanst.OTHER_RECEIVE_BORROW.equals(itemTaxIdOut)
@@ -1931,6 +1942,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
                 itemOut.setUnitType(TaxConstanst.UNIT_TYPE_CUSTOMER);
             }
         }
+
         itemList.add(itemOut);
     }*/
     

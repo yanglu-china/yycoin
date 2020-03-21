@@ -120,10 +120,19 @@ function typeManager()
                     value="&nbsp;...&nbsp;" name="qout" class="button_class"
                     onclick="selectBank()">
             </p:cell>
-			
-			<p:pro field="type" innerString="onchange=typeManager()">
-				<p:option type="inbillType"/>
-			</p:pro>
+
+			<c:if test="${appName=='永银ERP'}">
+				<p:pro field="type" innerString="onchange=typeManager()">
+					<p:option type="inbillType"/>
+				</p:pro>
+			</c:if>
+
+			<c:if test="${appName=='永银ERP(体外)'}">
+				<p:pro field="type" innerString="onchange=typeManager()">
+					<p:option type="inbillTypeTw"/>
+				</p:pro>
+			</c:if>
+
             
             <!--  
             <p:pro field="customerId" innerString="size=60 style='display: none'">

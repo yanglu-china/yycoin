@@ -79,7 +79,9 @@ function load()
             
             <p:pro field="lastMoney" value="${my:formatNum(bean.lastMoney / 100.0)}"/>
             
-            <p:pro field="ticikCount" cell="0"/>
+            <p:pro field="ticikCount"/>
+            
+            <p:pro field="remark"/>
             
             <p:pro field="showTotal"/>
             

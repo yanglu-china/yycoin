@@ -13,6 +13,7 @@ import com.china.center.oa.customer.constant.CreditConstant;
 import com.china.center.oa.customer.constant.CustomerConstant;
 import com.china.center.oa.finance.constant.BackPayApplyConstant;
 import com.china.center.oa.finance.constant.FinanceConstant;
+import com.china.center.oa.finance.constant.FinanceConstantTw;
 import com.china.center.oa.finance.constant.StockPayApplyConstant;
 import com.china.center.oa.gm.constant.GroupConstant;
 import com.china.center.oa.gm.constant.MailConstant;
@@ -47,7 +48,7 @@ public class MyPageSelectOption extends PageSelectOption {
     public void init(){
         dymOption = new DefaultDymOptionImpl();
         if (optionMap.isEmpty()){
-            List<Class> constantClasses = new ArrayList<Class>();
+            List<Class> constantClasses = new ArrayList<>();
 
             constantClasses.add(AlarmConstant.class);
 
@@ -66,6 +67,7 @@ public class MyPageSelectOption extends PageSelectOption {
             constantClasses.add(DutyConstant.class);
 
             constantClasses.add(FinanceConstant.class);
+            constantClasses.add(FinanceConstantTw.class);
             constantClasses.add(FinaConstant.class);
             constantClasses.add(TaxConstanst.class);
 
@@ -132,7 +134,7 @@ public class MyPageSelectOption extends PageSelectOption {
             for (EnumBean enumBean: enumBeanList){
                 List<MapBean> mapBeanList = optionMap.get(enumBean.getType());
                 if (mapBeanList == null){
-                    mapBeanList = new ArrayList<MapBean>();
+                    mapBeanList = new ArrayList<>();
                     optionMap.put(enumBean.getType(), mapBeanList);
                 }
                 MapBean mapBean = new MapBean();

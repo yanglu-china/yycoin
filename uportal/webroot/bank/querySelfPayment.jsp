@@ -32,7 +32,11 @@ var thisObj;
 function load()
 {
      preload();
-     
+    var url = window.location.href;
+    var dkType = {display: '导款类型', name : 'dkType', cc: 'inbillType', width : '5%'};
+    if (url.indexOf("uportaltw") != -1){
+        dkType = {display: '导款类型', name : 'dkType', cc: 'inbillTypeTw', width : '5%'};
+    }
      guidMap = {
          title: '回款列表(回款认领被驳回后想重新认领请先退领再认领)',
          url: gurl + 'querySelfPayment',
@@ -41,7 +45,8 @@ function load()
              {display: '资金性质', name : 'ctype', cc: 'paymentCtype', width : '5%'},
              {display: '帐户', name : 'bankName', width : '18%'},
              {display: '类型', name : 'type', cc: 'paymentType', width : '5%'},
-             {display: '导款类型', name : 'dkType', cc: 'inbillType', width : '5%'},
+             // {display: '导款类型', name : 'dkType', cc: 'inbillType', width : '5%'},
+             dkType,
              {display: '状态', name : 'status', cc: 'paymentStatus', width : '5%'},
              //{display: '金额使用', name : 'useall', cc: 'paymentUseall', width : '8%'},
              {display: '认领人', name : 'stafferName',  width : '5%'},

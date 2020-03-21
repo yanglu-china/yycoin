@@ -57,9 +57,18 @@ function pagePrint()
                ${bean.id}
             </p:cell>
 
-			<p:pro field="type" innerString="style='WIDTH: 340px;'">
-			   <p:option type="inbillType" />
-			</p:pro>
+
+            <c:if test="${appName=='永银ERP'}">
+                <p:pro field="type" innerString="style='WIDTH: 340px;'">
+                    <p:option type="inbillType" />
+                </p:pro>
+            </c:if>
+
+            <c:if test="${appName=='永银ERP(体外)'}">
+                <p:pro field="type" innerString="style='WIDTH: 340px;'">
+                    <p:option type="inbillTypeTw" />
+                </p:pro>
+            </c:if>
 
 			<p:pro field="status" innerString="style='WIDTH: 340px;'">
                <p:option type="inbillStatus" />

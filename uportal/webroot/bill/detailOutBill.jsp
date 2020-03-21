@@ -62,9 +62,20 @@ function pagePrint()
                 <p:option type="outbillPayType"/>
             </p:pro>
 
-			<p:pro field="type" innerString="style='WIDTH: 340px;'">
-			   <p:option type="outbillType" />
-			</p:pro>
+            <%--<p:pro field="type" innerString="style='WIDTH: 340px;'">--%>
+                <%--<p:option type="outbillTypeTw" />--%>
+            <%--</p:pro>--%>
+            <c:if test="${appName=='永银ERP'}">
+                <p:pro field="type" innerString="style='WIDTH: 340px;'">
+                    <p:option type="outbillType" />
+                </p:pro>
+            </c:if>
+
+            <c:if test="${appName=='永银ERP(体外)'}">
+                <p:pro field="type" innerString="style='WIDTH: 340px;'">
+                    <p:option type="outbillTypeTw" />
+                </p:pro>
+            </c:if>
 
             <p:pro field="lock" innerString="style='WIDTH: 340px;'">
                <p:option type="billLock" />
