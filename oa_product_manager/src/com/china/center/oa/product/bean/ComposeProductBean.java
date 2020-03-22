@@ -74,6 +74,11 @@ public class ComposeProductBean implements Serializable, ComposeInterface
 
     private double virtualPrice = 0.0d;
 
+    /**
+     * #925 单品码
+     */
+    private String sn;
+
     private String logTime = "";
     
     /**
@@ -536,6 +541,14 @@ public class ComposeProductBean implements Serializable, ComposeInterface
         this.virtualPrice = virtualPrice;
     }
 
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
@@ -558,6 +571,7 @@ public class ComposeProductBean implements Serializable, ComposeInterface
                 ", status=" + status +
                 ", price=" + price +
                 ", virtualPrice=" + virtualPrice +
+                ", sn='" + sn + '\'' +
                 ", logTime='" + logTime + '\'' +
                 ", goldPrice=" + goldPrice +
                 ", silverPrice=" + silverPrice +

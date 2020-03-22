@@ -66,6 +66,11 @@ public class DecomposeProductBean implements Serializable, ComposeInterface
 
 	private double virtualPrice = 0.0d;
 
+	/**
+	 * #925 单品码
+	 */
+	private String sn;
+
     private String logTime = "";
     
     @Ignore
@@ -305,6 +310,14 @@ public class DecomposeProductBean implements Serializable, ComposeInterface
 		return null;
 	}
 
+	public String getSn() {
+		return sn;
+	}
+
+	public void setSn(String sn) {
+		this.sn = sn;
+	}
+
 	@Override
 	public String toString() {
 		return "DecomposeProductBean{" +
@@ -320,6 +333,7 @@ public class DecomposeProductBean implements Serializable, ComposeInterface
 				", status=" + status +
 				", price=" + price +
 				", virtualPrice=" + virtualPrice +
+				", sn='" + sn + '\'' +
 				", logTime='" + logTime + '\'' +
 				", itemList=" + itemList +
 				'}';

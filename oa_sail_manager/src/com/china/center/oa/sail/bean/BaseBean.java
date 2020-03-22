@@ -116,6 +116,11 @@ public class BaseBean implements Serializable, BaseInterface
     private String virtualPriceKey = "";
 
     /**
+     * #925 单品码
+     */
+    private String sn;
+
+    /**
      * 总销售价
      */
     private double value = 0.0d;
@@ -1004,6 +1009,14 @@ public class BaseBean implements Serializable, BaseInterface
 
     public void setVirtualPriceKey(String virtualPriceKey) {
         this.virtualPriceKey = virtualPriceKey;
+    }
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn;
     }
 
     @Override
