@@ -249,6 +249,7 @@ public class BlackManagerImpl implements BlackManager
         //for test only
 //        stafferList.clear();
 //        stafferList.add("8344759");
+//        stafferList.add("3328333");
 
         ConditionParse condition = new ConditionParse();
 
@@ -840,8 +841,10 @@ public class BlackManagerImpl implements BlackManager
             outBean.setDays(each.getDays());
             outBean.setMoney(each.getMoney());
             outBean.setCustomerName(each.getCustomerName());
-            
-            blackOutDAO.saveEntityBean(outBean);
+
+            if (Math.abs(outBean.getMoney())>0){
+                blackOutDAO.saveEntityBean(outBean);
+            }
         }
         
         for (BlackOutWrap each : reDateOutWrapList)
@@ -854,8 +857,10 @@ public class BlackManagerImpl implements BlackManager
             outBean.setDays(each.getDays());
             outBean.setMoney(each.getMoney());
             outBean.setCustomerName(each.getCustomerName());
-            
-            blackOutDAO.saveEntityBean(outBean);
+
+            if (Math.abs(outBean.getMoney())>0){
+                blackOutDAO.saveEntityBean(outBean);
+            }
         }
         
         for (BlackOutWrap each : allOutWrapList)
@@ -868,8 +873,10 @@ public class BlackManagerImpl implements BlackManager
             outBean.setDays(each.getDays());
             outBean.setMoney(each.getMoney());
             outBean.setCustomerName(each.getCustomerName());
-            
-            blackOutDAO.saveEntityBean(outBean);
+
+            if (Math.abs(outBean.getMoney())>0){
+                blackOutDAO.saveEntityBean(outBean);
+            }
         }
     }
     
