@@ -3399,7 +3399,10 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                 item.setBaseId(baseBean.getId());
                                 item.setCostPrice(baseBean.getCostPrice());
 
-                                if(eachb.getProductName().indexOf("+") == -1){
+                                if (eachb.isSplitFlag()){
+                                    //#929 拆分开票直接取开票金额
+                                    item.setMoneys(eachb.getInvoiceMoney());
+                                } else if(eachb.getProductName().indexOf("+") == -1){
                                     item.setMoneys(item.getAmount() * item.getPrice());
                                 } else{
                                     //#863混合商品直接取开票金额
