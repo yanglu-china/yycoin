@@ -67,6 +67,11 @@ public class StorageRelationBean implements Serializable
 
     private String virtualPriceKey = "";
 
+    /**
+     * #925 单品码
+     */
+    private String sn;
+
     private double lastPrice = 0.0d;
     
     /**
@@ -281,6 +286,14 @@ public class StorageRelationBean implements Serializable
 
     public void setVirtualPriceKey(String virtualPriceKey) {
         this.virtualPriceKey = virtualPriceKey;
+    }
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn;
     }
 
     /**

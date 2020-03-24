@@ -57,10 +57,12 @@ public class ProductDAOImpl extends BaseDAO<ProductBean, ProductVO> implements P
 	@Override
 	public int getmaxMidName(String refProductId)
 	{
-		String sql = "select max(midName) from " + BeanTools.getTableName(claz) + " where refProductId = ?";
-		
-		return this.jdbcOperation.queryForInt(sql, refProductId);
+        //#924 后台JOB生成编码时，如果多个产品refProductId是同一个，这时从product表取到的max(midName)都是同一个,因为product表还没生成数据
+        //改为取product_apply表中最大值
+        String sql = "select max(midName) from t_product_apply  where refProductId = ?";
+        return this.jdbcOperation.queryForInt(sql, refProductId);
 	}
+
 
     @Override
     public List<ProductBean> queryBomByProductId(String s) {

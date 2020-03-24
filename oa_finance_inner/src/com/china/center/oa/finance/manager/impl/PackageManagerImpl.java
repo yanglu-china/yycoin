@@ -80,7 +80,9 @@ import com.china.center.tools.TimeTools;
 import com.taobao.api.ApiException;
 import com.taobao.api.DefaultTaobaoClient;
 import com.taobao.api.TaobaoClient;
+import com.taobao.api.request.LogisticsOnlineConfirmRequest;
 import com.taobao.api.request.LogisticsOnlineSendRequest;
+import com.taobao.api.response.LogisticsOnlineConfirmResponse;
 import com.taobao.api.response.LogisticsOnlineSendResponse;
 
 import net.sf.json.JSONObject;
@@ -1579,7 +1581,18 @@ public class PackageManagerImpl implements PackageManager {
 					// 表示成功
 					Object successObj = resultJson.get("logistics_online_send_response");
 					if (successObj != null) {
-						taoBaoTokenDAO.updatePackageStatus(logistics.getId());
+						//调用confirm接口
+						LogisticsOnlineConfirmRequest confirmreq = new LogisticsOnlineConfirmRequest();
+						confirmreq.setTid(Long.valueOf(logistics.getCiticNo().trim()));
+						confirmreq.setOutSid(logistics.getTransportNo().trim());
+						LogisticsOnlineConfirmResponse confirmrsp = client.execute(confirmreq, sessionKey);
+						taobaoLog.info("taobao logistics confirm response:" + confirmrsp.getBody());
+						JSONObject confirmresultJson = JSONObject.fromObject(confirmrsp.getBody());
+						Object confirmerrorObj = confirmresultJson.get("error_response");
+						if (confirmerrorObj == null) {
+							taoBaoTokenDAO.updatePackageStatus(logistics.getId());
+						}
+						
 					}
 				} else {
 					JSONObject resp = JSONObject.fromObject(errorObj);

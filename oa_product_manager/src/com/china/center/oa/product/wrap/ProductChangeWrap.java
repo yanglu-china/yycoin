@@ -46,6 +46,11 @@ public class ProductChangeWrap implements Serializable
     private double virtualPrice = 0.0d;
 
     /**
+     * #925 单品码
+     */
+    private String sn;
+
+    /**
      * 一个操作的
      */
     private String serializeId = "";
@@ -275,6 +280,14 @@ public class ProductChangeWrap implements Serializable
         this.virtualPrice = virtualPrice;
     }
 
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
@@ -289,6 +302,7 @@ public class ProductChangeWrap implements Serializable
                 ", relationId='" + relationId + '\'' +
                 ", price=" + price +
                 ", virtualPrice=" + virtualPrice +
+                ", sn='" + sn + '\'' +
                 ", serializeId='" + serializeId + '\'' +
                 ", description='" + description + '\'' +
                 ", stafferId='" + stafferId + '\'' +
