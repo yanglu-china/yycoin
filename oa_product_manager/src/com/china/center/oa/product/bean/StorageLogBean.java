@@ -127,6 +127,11 @@ public class StorageLogBean implements Serializable
     private double virtualPrice = 0.0d;
 
     /**
+     * #925 单品码
+     */
+    private String sn;
+
+    /**
      * 操作的用户
      */
     private String user = "";
@@ -153,7 +158,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对id进行赋值
+     * @param
      */
     public void setId(String id)
     {
@@ -169,7 +174,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对depotpartId进行赋值
+     * @param
      */
     public void setDepotpartId(String depotpartId)
     {
@@ -185,7 +190,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对description进行赋值
+     * @param
      */
     public void setDescription(String description)
     {
@@ -201,7 +206,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对productId进行赋值
+     * @param
      */
     public void setProductId(String productId)
     {
@@ -217,7 +222,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对type进行赋值
+     * @param
      */
     public void setType(int type)
     {
@@ -233,7 +238,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对preAmount进行赋值
+     * @param
      */
     public void setPreAmount(int preAmount)
     {
@@ -249,7 +254,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对afterAmount进行赋值
+     * @param
      */
     public void setAfterAmount(int afterAmount)
     {
@@ -265,7 +270,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对changeAmount进行赋值
+     * @param
      */
     public void setChangeAmount(int changeAmount)
     {
@@ -281,7 +286,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对storageId进行赋值
+     * @param
      */
     public void setStorageId(String storageId)
     {
@@ -297,7 +302,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对logTime进行赋值
+     * @param
      */
     public void setLogTime(String logTime)
     {
@@ -313,7 +318,7 @@ public class StorageLogBean implements Serializable
     }
 
     /**
-     * @param 对locationId进行赋值
+     * @param
      */
     public void setLocationId(String locationId)
     {
@@ -591,6 +596,14 @@ public class StorageLogBean implements Serializable
         this.virtualPriceKey = virtualPriceKey;
     }
 
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *
@@ -624,6 +637,7 @@ public class StorageLogBean implements Serializable
                 ", refId='" + refId + '\'' +
                 ", price=" + price +
                 ", virtualPrice=" + virtualPrice +
+                ", sn='" + sn + '\'' +
                 ", user='" + user + '\'' +
                 ", description='" + description + '\'' +
                 ", industryId='" + industryId + '\'' +

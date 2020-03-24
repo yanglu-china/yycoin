@@ -50,3 +50,11 @@ kpslid int(20) null
 
 -- #867
 alter table t_center_olout add column virtualStatus varchar(5) default null;
+
+-- #925
+alter table t_center_base add column sn varchar(64) default '';
+alter table T_CENTER_STORAGERALATION add column sn varchar(64) default '';
+alter table T_CENTER_COMPOSE add column sn varchar(64) default '';
+alter table T_CENTER_DECOMPOSE add column sn varchar(64) default '';
+alter table T_CENTER_COMPOSE_ITEM add column sn varchar(64) default '';
+alter table T_CENTER_STORAGELOG add column sn varchar(64) default '';

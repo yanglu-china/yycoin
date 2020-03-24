@@ -4621,15 +4621,16 @@ public class TravelApplyAction extends DispatchAction
                         //已退数量
                         int backAmount = this.outManager.getOutBackAmount(outId, item.getProductName());
                         int canBack = baseAmount-backAmount;
-                        //申请数量必须等于可退数量
-                        if(Integer.valueOf(amount) != canBack)
+                        // #728申请数量必须等于可退数量
+                        //暂不上线
+/*                        if(Integer.valueOf(amount) != canBack)
                         {
                         	builder.append("<font color=red>第[" + currentNumber + "]行错误:")
                             .append("订单号[").append(outId)
                             .append("]").append("可退数量为" + canBack + ";导入的文件数量:" + Integer.valueOf(amount) + ";数量不相等")
                             .append("<br>");
                         	importError = true;
-                        }
+                        }*/
                     }
 
                     //中收/激励金额
