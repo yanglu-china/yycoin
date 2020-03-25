@@ -1169,6 +1169,195 @@ public class FinanceAction extends DispatchAction {
 	}
 
 	/**
+	 * #927 批量回款认领
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 */
+	public ActionForward batchDrawPayment(ActionMapping mapping, ActionForm form,
+									   HttpServletRequest request, HttpServletResponse response)
+			throws ServletException {
+		User user = Helper.getUser(request);
+
+		RequestDataStream rds = new RequestDataStream(request);
+
+		try {
+			rds.parser();
+		} catch (Exception e1) {
+			_logger.error(e1, e1);
+
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+			return mapping.findForward("uploadPayment");
+		}
+
+		StringBuilder builder = new StringBuilder();
+
+		String batchId = SequenceTools.getSequence();
+
+		List<PaymentApplyBean> payList = new LinkedList<>();
+
+		boolean allSuccess = true;
+
+		if (rds.haveStream()) {
+			try {
+				ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+				reader.readFile(rds.getUniqueInputStream());
+
+				while (reader.hasNext()) {
+					String[] obj = (String[]) reader.next();
+
+					// 第一行忽略
+					if (reader.getCurrentLineNumber() == 1) {
+						continue;
+					}
+
+					int currentNumber = reader.getCurrentLineNumber();
+
+					if (obj.length >= 6) {
+						try {
+							this.batchDraw(user,  obj, batchId, payList);
+						} catch (MYException e) {
+							builder.append("第[" + currentNumber + "]错误:")
+									.append(e.getErrorContent()).append("<br>");
+
+							allSuccess = false;
+
+							break;
+						}
+					} else {
+						builder.append("第[" + currentNumber + "]错误:")
+								.append("数据长度不足6格").append("<br>");
+
+						allSuccess = false;
+
+						break;
+					}
+				}
+
+//				if (allSuccess && payList.size() > 0) {
+//					financeFacade.addPaymentBeanList(user.getId(), payList);
+//				}
+			} catch (Exception e) {
+				_logger.error(e, e);
+
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入失败");
+
+				return mapping.findForward("batchDrawPayment");
+			}
+		}
+
+		rds.close();
+
+		StringBuilder result = new StringBuilder();
+
+		if (allSuccess) {
+			result.append("导入成功:").append(payList.size()).append("条<br>");
+		} else {
+			result.append(builder.toString());
+		}
+
+		request.setAttribute(KeyConstant.MESSAGE, result.toString());
+
+		return mapping.findForward("batchDrawPayment");
+	}
+
+
+	private boolean batchDraw(User user, String[] obj,
+								  String batchId, List<PaymentApplyBean> payList) throws MYException {
+		PaymentApplyBean apply = new PaymentApplyBean();
+
+		apply.setType(FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT);
+		apply.setLocationId(user.getLocationId());
+		apply.setLogTime(TimeTools.now());
+
+//		apply.setStafferId(stafferVSCustomer.getStafferId());
+//		apply.setDescription(description);
+//		apply.setOriCustomerId(oriCustomerId);
+//		apply.setOriStafferId(oriStafferId);
+//		apply.setOriBillId(billId);
+
+		boolean allEmpty = true;
+
+		for (int i = 0; i < obj.length; i++) {
+			if (!StringTools.isNullOrNone(obj[i])) {
+				allEmpty = false;
+				break;
+			}
+		}
+
+		if (allEmpty) {
+			return true;
+		}
+
+		//认领类型:销售回款、供应商回款，必填
+		String rllx = obj[0];
+		if (StringTools.isNullOrNone(rllx)) {
+			throw new MYException("认领类型必填");
+		} else{
+			String rlType = rllx.trim();
+			if ("销售回款".equals(rlType) || "供应商回款".equals(rlType)){
+				//TODO
+			}
+		}
+
+		//客户名/供应商名：填写客户或供应商名称，必填
+		String name = obj[1];
+		if (StringTools.isNullOrNone(name)) {
+			throw new MYException("客户或供应商名称必填");
+		} else{
+			//TODO 校验
+
+		}
+
+
+		//回款单号：HK开头的单号，此单状态必须为“未认领”
+		String paymentId = obj[2];
+		if (StringTools.isNullOrNone(paymentId)) {
+			throw new MYException("回款单号必填");
+		} else{
+			PaymentBean paymentBean = this.paymentDAO.find(paymentId.trim());
+			if (paymentBean == null){
+				throw new MYException("回款单号不存在:"+paymentId);
+			} else{
+				apply.setPaymentId(paymentId.trim());
+			}
+		}
+
+		//销售单号：可填，如不填，则对应回款单金额转为客户预收
+		String outId = obj[3];
+		if (!StringTools.isNullOrNone(outId)) {
+			OutBean outBean = this.outDAO.find(outId.trim());
+			if (outBean == null){
+				throw new MYException("销售单不存在:"+outId);
+			} else{
+				//TODO
+			}
+		}
+
+		//金额，必填，对应销售单金额或转预收金额，同一回款单号行记录的金额累计必须等于回款单金额
+		String money = obj[4];
+		if (StringTools.isNullOrNone(money)) {
+			throw new MYException("金额必填");
+		} else{
+			//TODO 校验
+
+		}
+
+		//备注
+		String desription = obj[5];
+		if (!StringTools.isNullOrNone(desription)) {
+			apply.setDescription(desription.trim());
+		}
+
+		return true;
+	}
+
+	/**
 	 * 领取回款(第一次领取回款,可以绑定委托清单)
 	 * 
 	 * @param mapping
