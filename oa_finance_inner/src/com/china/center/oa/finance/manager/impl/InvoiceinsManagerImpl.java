@@ -1715,7 +1715,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     	newBean.setLogTime(TimeTools.now());
     	
     	if(fromBatch){
-    		newBean.setDescription("批量导入退票申请");
+    		newBean.setDescription("批量导入退票申请，原票：" + bean.getId());
     	}else{
     		newBean.setDescription("退票，原票：" + bean.getId());
     	}
