@@ -25,7 +25,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.china.center.oa.finance.constant.FinanceConstantTw;
+import com.china.center.oa.product.bean.ProviderBean;
+import com.china.center.oa.product.dao.ProviderDAO;
 import com.china.center.oa.publics.DefinedCommontUtils;
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.SysConfigConstant;
 import org.apache.commons.logging.Log;
@@ -177,6 +180,8 @@ public class FinanceAction extends DispatchAction {
 	private StafferVSCustomerDAO stafferVSCustomerDAO = null; 
 	
 	private CustomerMainDAO customerMainDAO = null;
+
+    private ProviderDAO providerDAO = null;
 	
 	private InvoiceDAO invoiceDAO = null;
 	
@@ -1218,9 +1223,9 @@ public class FinanceAction extends DispatchAction {
 
 					int currentNumber = reader.getCurrentLineNumber();
 
-					if (obj.length >= 6) {
+					if (obj.length >= 7) {
 						try {
-							this.batchDraw(user,  obj, batchId, payList);
+							this.batchDraw(user,  obj, payList);
 						} catch (MYException e) {
 							builder.append("第[" + currentNumber + "]错误:")
 									.append(e.getErrorContent()).append("<br>");
@@ -1239,9 +1244,9 @@ public class FinanceAction extends DispatchAction {
 					}
 				}
 
-//				if (allSuccess && payList.size() > 0) {
-//					financeFacade.addPaymentBeanList(user.getId(), payList);
-//				}
+				if (allSuccess && payList.size() > 0) {
+					financeFacade.batchDrawPayment(user.getId(), payList);
+				}
 			} catch (Exception e) {
 				_logger.error(e, e);
 
@@ -1268,18 +1273,7 @@ public class FinanceAction extends DispatchAction {
 
 
 	private boolean batchDraw(User user, String[] obj,
-								  String batchId, List<PaymentApplyBean> payList) throws MYException {
-		PaymentApplyBean apply = new PaymentApplyBean();
-
-		apply.setType(FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT);
-		apply.setLocationId(user.getLocationId());
-		apply.setLogTime(TimeTools.now());
-
-//		apply.setStafferId(stafferVSCustomer.getStafferId());
-//		apply.setDescription(description);
-//		apply.setOriCustomerId(oriCustomerId);
-//		apply.setOriStafferId(oriStafferId);
-//		apply.setOriBillId(billId);
+								  List<PaymentApplyBean> payList) throws MYException {
 
 		boolean allEmpty = true;
 
@@ -1294,6 +1288,7 @@ public class FinanceAction extends DispatchAction {
 			return true;
 		}
 
+        PaymentApplyBean apply = new PaymentApplyBean();
 		//认领类型:销售回款、供应商回款，必填
 		String rllx = obj[0];
 		if (StringTools.isNullOrNone(rllx)) {
@@ -1301,8 +1296,10 @@ public class FinanceAction extends DispatchAction {
 		} else{
 			String rlType = rllx.trim();
 			if ("销售回款".equals(rlType) || "供应商回款".equals(rlType)){
-				//TODO
-			}
+                apply.setRllx(rlType);
+			} else{
+                throw new MYException("认领类型只支持：销售回款、供应商回款");
+            }
 		}
 
 		//客户名/供应商名：填写客户或供应商名称，必填
@@ -1310,8 +1307,22 @@ public class FinanceAction extends DispatchAction {
 		if (StringTools.isNullOrNone(name)) {
 			throw new MYException("客户或供应商名称必填");
 		} else{
-			//TODO 校验
-
+            String rlType = apply.getRllx();
+            if ("销售回款".equals(rlType)){
+                List<CustomerBean> cbeans = customerMainDAO.queryByName(name.trim());
+                if (ListTools.isEmptyOrNull(cbeans)){
+                    throw new MYException("客户不存在:"+name);
+                } else{
+                    apply.setCustomerId(cbeans.get(0).getId());
+                }
+            } else if ("供应商回款".equals(rlType)){
+                List<ProviderBean> providerBeans = this.providerDAO.findProviderByName(name.trim());
+                if (ListTools.isEmptyOrNull(providerBeans)){
+                    throw new MYException("供应商不存在:"+name);
+                } else{
+                    apply.setCustomerId(providerBeans.get(0).getId());
+                }
+            }
 		}
 
 
@@ -1324,18 +1335,23 @@ public class FinanceAction extends DispatchAction {
 			if (paymentBean == null){
 				throw new MYException("回款单号不存在:"+paymentId);
 			} else{
-				apply.setPaymentId(paymentId.trim());
+			    if (paymentBean.getStatus() == FinanceConstant.PAYMENT_STATUS_INIT){
+                    apply.setPaymentId(paymentId.trim());
+                } else{
+                    throw new MYException("回款单必须未认领:"+paymentId);
+                }
 			}
 		}
 
 		//销售单号：可填，如不填，则对应回款单金额转为客户预收
 		String outId = obj[3];
+        OutBean outBean = null;
 		if (!StringTools.isNullOrNone(outId)) {
-			OutBean outBean = this.outDAO.find(outId.trim());
+			outBean = this.outDAO.find(outId.trim());
 			if (outBean == null){
 				throw new MYException("销售单不存在:"+outId);
 			} else{
-				//TODO
+                apply.setOutId(outId.trim());
 			}
 		}
 
@@ -1344,16 +1360,33 @@ public class FinanceAction extends DispatchAction {
 		if (StringTools.isNullOrNone(money)) {
 			throw new MYException("金额必填");
 		} else{
-			//TODO 校验
-
+            apply.setMoney(MathTools.parseDouble(money));
+            if (outBean!= null && !NumberUtils.equals(outBean.getTotal(),apply.getMoney(), 0.001)){
+                throw new MYException("金额必须与销售单金额一致:"+apply.getOutId());
+            }
 		}
 
+		//是否勾款
+        String yes = obj[5];
+        if (StringTools.isNullOrNone(yes)) {
+            throw new MYException("是否勾款必填");
+        } else{
+            if ("是".equals(yes.trim())){
+                apply.setGk(true);
+            } else if("否".equals(yes.trim())){
+                apply.setGk(false);
+            } else{
+                throw new MYException("勾款只能'是'或'否'");
+            }
+        }
+
 		//备注
-		String desription = obj[5];
+		String desription = obj[6];
 		if (!StringTools.isNullOrNone(desription)) {
 			apply.setDescription(desription.trim());
 		}
 
+        payList.add(apply);
 		return true;
 	}
 
@@ -4370,5 +4403,9 @@ public class FinanceAction extends DispatchAction {
 
     public void setBankBalanceDAO(BankBalanceDAO bankBalanceDAO) {
         this.bankBalanceDAO = bankBalanceDAO;
+    }
+
+    public void setProviderDAO(ProviderDAO providerDAO) {
+        this.providerDAO = providerDAO;
     }
 }

@@ -83,6 +83,9 @@ public interface FinanceFacade
     boolean addPaymentBeanList(String userId, List<PaymentBean> beanList)
         throws MYException;
 
+    boolean batchDrawPayment(String userId, List<PaymentApplyBean> beanList)
+            throws MYException;
+
     boolean updatePaymentBean(String userId, PaymentBean bean)
         throws MYException;
 

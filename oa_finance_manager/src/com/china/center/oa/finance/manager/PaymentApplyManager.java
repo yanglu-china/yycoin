@@ -154,4 +154,7 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
      * @throws MYException
      */
     void passPaymentApply2Job() throws MYException;
+
+    boolean batchDrawPayment(User user, List<PaymentApplyBean> beanList)
+            throws MYException;
 }

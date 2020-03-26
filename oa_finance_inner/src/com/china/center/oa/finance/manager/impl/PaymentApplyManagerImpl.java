@@ -3025,6 +3025,26 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         System.out.println("***********run passPaymentApply2Job************");
     }
 
+
+    @Transactional(rollbackFor = MYException.class)
+    @Override
+    public boolean batchDrawPayment(User user, List<PaymentApplyBean> beanList) throws MYException {
+        _logger.info("***batchDrawPayment with beans****"+beanList);
+        Map<String,List<PaymentApplyBean>> map = new HashMap<>();
+        //根据paymentId合并
+        for (PaymentApplyBean applyBean: beanList){
+            String paymentId = applyBean.getPaymentId();
+            List<PaymentApplyBean> list = map.get(paymentId);
+            if (list == null){
+                list = new ArrayList<>();
+                list.add(applyBean);
+            } else{
+                list.add(applyBean);
+            }
+        }
+        return true;
+    }
+
     /**
      * @return the paymentApplyDAO
      */

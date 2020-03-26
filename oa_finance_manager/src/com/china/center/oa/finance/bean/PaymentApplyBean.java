@@ -137,6 +137,24 @@ public class PaymentApplyBean implements Serializable
     private boolean drawProvider = false;
 
     /**
+     * #927 认领类型
+     */
+    @Ignore
+    private String rllx = "";
+    /**
+     * 是否勾款
+     */
+    @Ignore
+    private boolean gk = false;
+    /**
+     * 勾款销售单
+     */
+    @Ignore
+    private String outId = "";
+    @Ignore
+    private double money = 0.0d;
+
+    /**
      * default constructor
      */
     public PaymentApplyBean()
@@ -496,6 +514,38 @@ public class PaymentApplyBean implements Serializable
 
     public void setDrawProvider(boolean drawProvider) {
         this.drawProvider = drawProvider;
+    }
+
+    public String getRllx() {
+        return rllx;
+    }
+
+    public void setRllx(String rllx) {
+        this.rllx = rllx;
+    }
+
+    public boolean isGk() {
+        return gk;
+    }
+
+    public void setGk(boolean gk) {
+        this.gk = gk;
+    }
+
+    public String getOutId() {
+        return outId;
+    }
+
+    public void setOutId(String outId) {
+        this.outId = outId;
+    }
+
+    public double getMoney() {
+        return money;
+    }
+
+    public void setMoney(double money) {
+        this.money = money;
     }
 
     /**
