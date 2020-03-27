@@ -1947,12 +1947,22 @@ public class OutAction extends ParentOutAction
                     }
 
                     // 进入待总裁审批
-                    if (statuss == OutConstant.BUY_STATUS_CEO_CHECK)
+                    if (statuss == OutConstant.BUY_STATUS_CEO_CHECK || statuss == OutConstant.BUY_STATUS_CHAIRMA_CHECK)
                     {
+                    	
                         try
                         {
-                            resultStatus = outManager.pass(fullId, user,
-                                OutConstant.STATUS_CEO_CHECK, reason, null, depotpartId);
+                        	if(fullId.startsWith("QT") && statuss == OutConstant.BUY_STATUS_CHAIRMA_CHECK)
+                        	{
+                        		resultStatus = outManager.pass(fullId, user,
+                        				OutConstant.STATUS_PASS, reason, null, depotpartId);
+                        	}
+                        	if(statuss == OutConstant.BUY_STATUS_CEO_CHECK)
+                        	{
+                        		resultStatus = outManager.pass(fullId, user,
+                                        OutConstant.STATUS_CEO_CHECK, reason, null, depotpartId);
+                        	}
+                            
                         }
                         catch (MYException e)
                         {
@@ -1987,8 +1997,11 @@ public class OutAction extends ParentOutAction
                     {
                         try
                         {
-                            resultStatus = outManager.pass(fullId, user,
-                                OutConstant.STATUS_CHAIRMA_CHECK, reason, null, depotpartId);
+                        	if(!fullId.startsWith("QT"))
+                        	{
+                        		resultStatus = outManager.pass(fullId, user,
+                        				OutConstant.STATUS_CHAIRMA_CHECK, reason, null, depotpartId);
+                        	}
                         }
                         catch (MYException e)
                         {
