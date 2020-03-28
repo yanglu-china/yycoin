@@ -4226,6 +4226,11 @@ public class TravelApplyAction extends DispatchAction
         List<TcpShareVO> shareList = new ArrayList<TcpShareVO>();
         List<ProductBean> productBeans = productDAO.listEntityBeans();
 //        List<BudgetBean> budgetBeans = budgetDAO.listEntityBeans();
+        
+        Map<String, TcpShareVO> stafferToShareMap = new HashMap<String, TcpShareVO>();
+        
+        OutBean out = null;
+        
         try
         {
             FileInputStream fs = new FileInputStream(filePath);
@@ -4349,7 +4354,8 @@ public class TravelApplyAction extends DispatchAction
                             importItems.add(outId);
                         }
 
-                        OutBean out = this.outDAO.find(outId);
+                        //OutBean out = this.outDAO.find(outId);
+                        out = this.outDAO.find(outId);
                         if (out == null){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -4636,6 +4642,8 @@ public class TravelApplyAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[5]))
                     {
                         String money = obj[5];
+                        
+                        double itemTotal = 0;
                         //导入时未检查申请金额是否等于系统记录的中收或激励金额，不等应该报错
 //                        ConditionParse con1 = new ConditionParse();
 //                        con1.addWhereStr();
@@ -4646,6 +4654,7 @@ public class TravelApplyAction extends DispatchAction
                         if (type == TcpConstanst.IB_TYPE){
                             item.setIbMoney(MathTools.parseDouble(money));
                             vsOutBean.setIbMoney(MathTools.parseDouble(money));
+                            itemTotal = item.getIbMoney()*item.getAmount();
                             if (customerToIbMap.containsKey(item.getCustomerName())){
                                 customerToIbMap.put(item.getCustomerName(),customerToIbMap.get(item.getCustomerName())+item.getIbMoney()*item.getAmount());
                             } else{
@@ -4654,6 +4663,7 @@ public class TravelApplyAction extends DispatchAction
                         } else if (type == TcpConstanst.MOTIVATION_TYPE || type == TcpConstanst.MOTIVATION_TYPE3){
                             item.setMotivationMoney(MathTools.parseDouble(money));
                             vsOutBean.setMotivationMoney(MathTools.parseDouble(money));
+                            itemTotal = item.getMotivationMoney()*item.getAmount();
                             if(customerToMotivationMap.containsKey(item.getCustomerName())){
                                 customerToMotivationMap.put(item.getCustomerName(),
                                         customerToMotivationMap.get(item.getCustomerName())+item.getMotivationMoney()*item.getAmount());
@@ -4663,6 +4673,7 @@ public class TravelApplyAction extends DispatchAction
                         } else if (type == TcpConstanst.IB_TYPE2){
                             item.setIbMoney2(MathTools.parseDouble(money));
                             vsOutBean.setIbMoney2(MathTools.parseDouble(money));
+                            itemTotal = item.getIbMoney2()*item.getAmount();
                             if (customerToIbMap2.containsKey(item.getCustomerName())){
                                 customerToIbMap2.put(item.getCustomerName(),customerToIbMap2.get(item.getCustomerName())+item.getIbMoney2()*item.getAmount());
                             } else{
@@ -4671,6 +4682,7 @@ public class TravelApplyAction extends DispatchAction
                         }else if (type == TcpConstanst.MOTIVATION_TYPE2){
                             item.setMotivationMoney2(MathTools.parseDouble(money));
                             vsOutBean.setMotivationMoney2(MathTools.parseDouble(money));
+                            itemTotal = item.getMotivationMoney2()*item.getAmount();
                             if(customerToMotivationMap2.containsKey(item.getCustomerName())){
                                 customerToMotivationMap2.put(item.getCustomerName(),
                                         customerToMotivationMap2.get(item.getCustomerName())+item.getMotivationMoney2()*item.getAmount());
@@ -4680,6 +4692,7 @@ public class TravelApplyAction extends DispatchAction
                         } else if (type == TcpConstanst.PLATFORM_TYPE){
                             item.setPlatformFee(MathTools.parseDouble(money));
                             vsOutBean.setPlatformFee(MathTools.parseDouble(money));
+                            itemTotal = item.getPlatformFee()*item.getAmount();
                             if(customerToPlatformMap.containsKey(item.getCustomerName())){
                                 customerToPlatformMap.put(item.getCustomerName(),
                                         customerToPlatformMap.get(item.getCustomerName())+item.getPlatformFee()*item.getAmount());
@@ -4687,6 +4700,21 @@ public class TravelApplyAction extends DispatchAction
                                 customerToPlatformMap.put(item.getCustomerName(),item.getPlatformFee()*item.getAmount());
                             }
                         }
+
+                        TcpShareVO shareVO = stafferToShareMap.get(out.getStafferId());
+                        if(shareVO == null){
+                            shareVO = new TcpShareVO();
+                            shareVO.setBearId(out.getStafferId());
+                            shareVO.setBearName(out.getStafferName());
+                            shareVO.setRealMonery(TCPHelper.doubleToLong2(String.valueOf(itemTotal)));
+                            shareVO.setShowRealMonery(MathTools.longToDoubleStr2(shareVO.getRealMonery()));
+                        }else{
+                            shareVO.setRealMonery(shareVO.getRealMonery() + TCPHelper.doubleToLong2(String.valueOf(itemTotal)));
+                            shareVO.setShowRealMonery(shareVO.getShowRealMonery() + MathTools.longToDoubleStr2(shareVO.getRealMonery()));
+                        }
+
+                        stafferToShareMap.put(out.getStafferId(), shareVO);
+                        
                     } else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -4943,6 +4971,14 @@ public class TravelApplyAction extends DispatchAction
                 }
             } else if (type == TcpConstanst.IB_TYPE && shareList.size()>=1){
                 vo.setShareVOList(shareList.subList(0,1));
+            }
+
+            //#932
+            if(stafferToShareMap.values().size()>0){
+                List<TcpShareVO> tcpShareVOList = new ArrayList<TcpShareVO>();
+                tcpShareVOList.addAll(stafferToShareMap.values());
+                vo.setShareVOList(tcpShareVOList);
+                _logger.debug("setShareVOList, tcpShareVOList.size(): "+tcpShareVOList.size());
             }
 
             double end = System.currentTimeMillis();
