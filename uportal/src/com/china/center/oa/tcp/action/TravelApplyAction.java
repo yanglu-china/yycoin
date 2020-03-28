@@ -4710,7 +4710,7 @@ public class TravelApplyAction extends DispatchAction
                             shareVO.setShowRealMonery(MathTools.longToDoubleStr2(shareVO.getRealMonery()));
                         }else{
                             shareVO.setRealMonery(shareVO.getRealMonery() + TCPHelper.doubleToLong2(String.valueOf(itemTotal)));
-                            shareVO.setShowRealMonery(shareVO.getShowRealMonery() + MathTools.longToDoubleStr2(shareVO.getRealMonery()));
+                            shareVO.setShowRealMonery(MathTools.longToDoubleStr2(shareVO.getRealMonery()));
                         }
 
                         stafferToShareMap.put(out.getStafferId(), shareVO);
