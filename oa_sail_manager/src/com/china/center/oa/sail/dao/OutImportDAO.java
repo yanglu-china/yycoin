@@ -15,4 +15,6 @@ public interface OutImportDAO extends DAO<OutImportBean, OutImportVO>
      * @return
      */
     boolean updatePreUseByFullId(String fullId, int preUse);
+
+    String getCiticNo(String fullId);
 }
