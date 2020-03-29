@@ -1188,29 +1188,22 @@ public class FinanceAction extends DispatchAction {
 		User user = Helper.getUser(request);
 
 		RequestDataStream rds = new RequestDataStream(request);
-
+		final String path = "batchDrawPayment";
 		try {
 			rds.parser();
 		} catch (Exception e1) {
 			_logger.error(e1, e1);
-
 			request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
-
-			return mapping.findForward("uploadPayment");
+			return mapping.findForward(path);
 		}
 
 		StringBuilder builder = new StringBuilder();
-
-		String batchId = SequenceTools.getSequence();
-
+		boolean importError = false;
 		List<PaymentApplyBean> payList = new LinkedList<>();
-
-		boolean allSuccess = true;
 
 		if (rds.haveStream()) {
 			try {
 				ReaderFile reader = ReadeFileFactory.getXLSReader();
-
 				reader.readFile(rds.getUniqueInputStream());
 
 				while (reader.hasNext()) {
@@ -1224,57 +1217,106 @@ public class FinanceAction extends DispatchAction {
 					int currentNumber = reader.getCurrentLineNumber();
 
 					if (obj.length >= 7) {
-						try {
-							this.batchDraw(user,  obj, payList);
-						} catch (MYException e) {
-							builder.append("第[" + currentNumber + "]错误:")
-									.append(e.getErrorContent()).append("<br>");
+						boolean error = this.batchDraw(obj, builder, currentNumber,payList);
 
-							allSuccess = false;
-
-							break;
+						if (!importError)
+						{
+							importError = error;
 						}
 					} else {
 						builder.append("第[" + currentNumber + "]错误:")
 								.append("数据长度不足6格").append("<br>");
-
-						allSuccess = false;
-
 						break;
 					}
 				}
 
-				if (allSuccess && payList.size() > 0) {
-					financeFacade.batchDrawPayment(user.getId(), payList);
-				}
 			} catch (Exception e) {
 				_logger.error(e, e);
+				request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+e.getMessage());
 
-				request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入失败");
+				return mapping.findForward(path);
+			}
+		}
+		rds.close();
 
-				return mapping.findForward("batchDrawPayment");
+		Map<String,PaymentApplyBean> paymentToApply = new HashMap<>();
+		if (!ListTools.isEmptyOrNull(payList)){
+			//根据paymentId合并
+			for (PaymentApplyBean applyBean: payList){
+				String paymentId = applyBean.getPaymentId();
+				PaymentApplyBean paymentApplyBean = paymentToApply.get(paymentId);
+				PaymentVSOutBean paymentVSOutBean = new PaymentVSOutBean();
+				paymentVSOutBean.setOutId(applyBean.getOutId());
+				paymentVSOutBean.setMoneys(applyBean.getMoneys());
+				paymentVSOutBean.setLocationId(user.getLocationId());
+				paymentVSOutBean.setPaymentId(paymentId);
+				paymentVSOutBean.setStafferId(applyBean.getStafferId());
+
+				if (paymentApplyBean == null){
+					List<PaymentVSOutBean> vsList = new ArrayList<>();
+					vsList.add(paymentVSOutBean);
+					applyBean.setVsList(vsList);
+					paymentToApply.put(paymentId, applyBean);
+					_logger.info("***vsList111***"+vsList);
+				} else{
+					List<PaymentVSOutBean> vsList = paymentApplyBean.getVsList();
+					vsList.add(paymentVSOutBean);
+
+					//同一个回款单只能对应同一个认领类型
+					if (!paymentApplyBean.getRllx().equals(applyBean.getRllx())){
+						builder.append(String.format("同一个回款单%s只能对应同一个认领类型", paymentId))
+								.append("<br>");
+						importError = true;
+					}
+				}
+			}
+
+			_logger.info("***merged data***"+paymentToApply);
+			//检查模板中金额必须与回款单一致
+			for (String paymentId: paymentToApply.keySet()){
+				PaymentBean paymentBean = this.paymentDAO.find(paymentId);
+				PaymentApplyBean applyBean = paymentToApply.get(paymentId);
+				//计算同一回款单累计金额
+				List<PaymentVSOutBean> vsList = applyBean.getVsList();
+				_logger.info("***vsList222***"+vsList);
+				double money = 0;
+				for (PaymentVSOutBean vs: vsList){
+					money += vs.getMoneys();
+				}
+				applyBean.setMoneys(money);
+
+				if (!NumberUtils.equals(paymentBean.getMoney(),applyBean.getMoneys(), 0.001)){
+					builder.append(String.format("导入模板中金额累计%.2f与HK单%s金额%.2f不一致", applyBean.getMoneys(),
+							paymentId,paymentBean.getMoney()))
+							.append("<br>");
+					importError = true;
+				}
 			}
 		}
 
-		rds.close();
-
-		StringBuilder result = new StringBuilder();
-
-		if (allSuccess) {
-			result.append("导入成功:").append(payList.size()).append("条<br>");
-		} else {
-			result.append(builder.toString());
+		if (importError || payList.size() ==0){
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+			return mapping.findForward(path);
 		}
 
-		request.setAttribute(KeyConstant.MESSAGE, result.toString());
+		try {
+			if (payList.size() > 0) {
+				financeFacade.batchDrawPayment(user.getId(), paymentToApply);
+			}
+		}catch (MYException e){
+			_logger.error(e,e);
+			request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+			return mapping.findForward(path);
+		}
 
-		return mapping.findForward("batchDrawPayment");
+        request.setAttribute(KeyConstant.ERROR_MESSAGE, "成功导入回款:"+ payList.size());
+		return mapping.findForward(path);
 	}
 
 
-	private boolean batchDraw(User user, String[] obj,
-								  List<PaymentApplyBean> payList) throws MYException {
-
+	private boolean batchDraw(String[] obj,StringBuilder builder,int currentNumber,
+								  List<PaymentApplyBean> payList)  {
+		boolean importError = false;
 		boolean allEmpty = true;
 
 		for (int i = 0; i < obj.length; i++) {
@@ -1292,33 +1334,82 @@ public class FinanceAction extends DispatchAction {
 		//认领类型:销售回款、供应商回款，必填
 		String rllx = obj[0];
 		if (StringTools.isNullOrNone(rllx)) {
-			throw new MYException("认领类型必填");
+			builder
+					.append("第[" + currentNumber + "]错误:")
+					.append("认领类型必填")
+					.append("<br>");
+
+			importError = true;
 		} else{
 			String rlType = rllx.trim();
-			if ("销售回款".equals(rlType) || "供应商回款".equals(rlType)){
+			if (FinanceConstant.RLLX_XSHK.equals(rlType) || FinanceConstant.RLLX_GYSHK.equals(rlType)){
                 apply.setRllx(rlType);
 			} else{
-                throw new MYException("认领类型只支持：销售回款、供应商回款");
+				builder
+						.append("第[" + currentNumber + "]错误:")
+						.append("认领类型只支持：销售回款、供应商回款")
+						.append("<br>");
+				importError = true;
             }
 		}
 
+		//回款单号：HK开头的单号，此单状态必须为“未认领”
+		String paymentId = obj[1];
+		if (StringTools.isNullOrNone(paymentId)) {
+			builder
+					.append("第[" + currentNumber + "]错误:")
+					.append("回款单号必填")
+					.append("<br>");
+			importError = true;
+		} else{
+			PaymentBean paymentBean = this.paymentDAO.find(paymentId.trim());
+			if (paymentBean == null){
+				builder
+						.append("第[" + currentNumber + "]错误:")
+						.append(String.format("回款单号%s不存在",paymentId))
+						.append("<br>");
+				importError = true;
+			} else{
+				apply.setPaymentId(paymentId.trim());
+				if (paymentBean.getStatus() != FinanceConstant.PAYMENT_STATUS_INIT){
+					builder
+							.append("第[" + currentNumber + "]错误:")
+							.append(String.format("回款单%s已认领",paymentId))
+							.append("<br>");
+					importError = true;
+				}
+			}
+		}
+
 		//客户名/供应商名：填写客户或供应商名称，必填
-		String name = obj[1];
+		String name = obj[2];
 		if (StringTools.isNullOrNone(name)) {
-			throw new MYException("客户或供应商名称必填");
+			builder
+					.append("第[" + currentNumber + "]错误:")
+					.append("客户或供应商名称必填")
+					.append("<br>");
+			importError = true;
 		} else{
             String rlType = apply.getRllx();
-            if ("销售回款".equals(rlType)){
+            if (FinanceConstant.RLLX_XSHK.equals(rlType)){
                 List<CustomerBean> cbeans = customerMainDAO.queryByName(name.trim());
                 if (ListTools.isEmptyOrNull(cbeans)){
-                    throw new MYException("客户不存在:"+name);
+					builder
+							.append("第[" + currentNumber + "]错误:")
+							.append(String.format("客户%s不存在",name))
+							.append("<br>");
+					importError = true;
                 } else{
                     apply.setCustomerId(cbeans.get(0).getId());
                 }
-            } else if ("供应商回款".equals(rlType)){
+            } else if (FinanceConstant.RLLX_GYSHK.equals(rlType)){
                 List<ProviderBean> providerBeans = this.providerDAO.findProviderByName(name.trim());
                 if (ListTools.isEmptyOrNull(providerBeans)){
-                    throw new MYException("供应商不存在:"+name);
+					builder
+							.append("第[" + currentNumber + "]错误:")
+							.append(String.format("供应商%s不存在",name))
+							.append("<br>");
+					importError = true;
                 } else{
                     apply.setCustomerId(providerBeans.get(0).getId());
                 }
@@ -1326,30 +1417,17 @@ public class FinanceAction extends DispatchAction {
 		}
 
 
-		//回款单号：HK开头的单号，此单状态必须为“未认领”
-		String paymentId = obj[2];
-		if (StringTools.isNullOrNone(paymentId)) {
-			throw new MYException("回款单号必填");
-		} else{
-			PaymentBean paymentBean = this.paymentDAO.find(paymentId.trim());
-			if (paymentBean == null){
-				throw new MYException("回款单号不存在:"+paymentId);
-			} else{
-			    if (paymentBean.getStatus() == FinanceConstant.PAYMENT_STATUS_INIT){
-                    apply.setPaymentId(paymentId.trim());
-                } else{
-                    throw new MYException("回款单必须未认领:"+paymentId);
-                }
-			}
-		}
-
 		//销售单号：可填，如不填，则对应回款单金额转为客户预收
 		String outId = obj[3];
         OutBean outBean = null;
 		if (!StringTools.isNullOrNone(outId)) {
 			outBean = this.outDAO.find(outId.trim());
 			if (outBean == null){
-				throw new MYException("销售单不存在:"+outId);
+				builder
+						.append("第[" + currentNumber + "]错误:")
+						.append(String.format("勾款单号%s不存在",outId))
+						.append("<br>");
+				importError = true;
 			} else{
                 apply.setOutId(outId.trim());
 			}
@@ -1358,25 +1436,41 @@ public class FinanceAction extends DispatchAction {
 		//金额，必填，对应销售单金额或转预收金额，同一回款单号行记录的金额累计必须等于回款单金额
 		String money = obj[4];
 		if (StringTools.isNullOrNone(money)) {
-			throw new MYException("金额必填");
+			builder
+					.append("第[" + currentNumber + "]错误:")
+					.append("金额必填")
+					.append("<br>");
+			importError = true;
 		} else{
-            apply.setMoney(MathTools.parseDouble(money));
-            if (outBean!= null && !NumberUtils.equals(outBean.getTotal(),apply.getMoney(), 0.001)){
-                throw new MYException("金额必须与销售单金额一致:"+apply.getOutId());
+            apply.setMoneys(MathTools.parseDouble(money));
+            if (outBean!= null && !NumberUtils.equals(outBean.getTotal(),apply.getMoneys(), 0.001)){
+				builder
+						.append("第[" + currentNumber + "]错误:")
+						.append(String.format("金额%.2f必须与销售单%s金额%.2f一致",apply.getMoneys(),apply.getOutId(),outBean.getTotal()))
+						.append("<br>");
+				importError = true;
             }
 		}
 
 		//是否勾款
         String yes = obj[5];
         if (StringTools.isNullOrNone(yes)) {
-            throw new MYException("是否勾款必填");
+			builder
+					.append("第[" + currentNumber + "]错误:")
+					.append("是否勾款必填")
+					.append("<br>");
+			importError = true;
         } else{
             if ("是".equals(yes.trim())){
                 apply.setGk(true);
             } else if("否".equals(yes.trim())){
                 apply.setGk(false);
             } else{
-                throw new MYException("勾款只能'是'或'否'");
+				builder
+						.append("第[" + currentNumber + "]错误:")
+						.append("勾款只能'是'或'否'")
+						.append("<br>");
+				importError = true;
             }
         }
 
@@ -1387,7 +1481,7 @@ public class FinanceAction extends DispatchAction {
 		}
 
         payList.add(apply);
-		return true;
+		return importError;
 	}
 
 	/**

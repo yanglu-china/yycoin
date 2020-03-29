@@ -151,8 +151,7 @@ public class PaymentApplyBean implements Serializable
      */
     @Ignore
     private String outId = "";
-    @Ignore
-    private double money = 0.0d;
+
 
     /**
      * default constructor
@@ -540,13 +539,6 @@ public class PaymentApplyBean implements Serializable
         this.outId = outId;
     }
 
-    public double getMoney() {
-        return money;
-    }
-
-    public void setMoney(double money) {
-        this.money = money;
-    }
 
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
