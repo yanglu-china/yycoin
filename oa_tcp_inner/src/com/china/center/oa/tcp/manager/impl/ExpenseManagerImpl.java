@@ -54,6 +54,7 @@ import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.IDPrefixConstant;
+import com.china.center.oa.publics.constant.OrgConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.StafferConstant;
 import com.china.center.oa.publics.dao.AttachmentDAO;
@@ -2243,8 +2244,14 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             if (apply.getFeedback() != TcpConstanst.TCP_APPLY_FEEDBACK_NO) {
                 throw new MYException("申请[%s]已经被报销过,请确认操作", bean.getRefId());
             }
-
-            if (!apply.getBorrowStafferId().equals(user.getStafferId())) {
+            
+            //#933
+            String stafferName = user.getStafferName();
+            StafferBean staff = stafferDAO.findByUnique(stafferName);
+            final boolean isCOMMERCE_CUSTOMER_DEPT = OrgConstant.COMMERCE_CUSTOMER_DEPT_ID.equals(staff.getPrincipalshipId());
+            if(isCOMMERCE_CUSTOMER_DEPT){
+            	//no check
+            }else if (!!apply.getBorrowStafferId().equals(user.getStafferId())) {
                 throw new MYException("只能关联自己的申请,请确认操作");
             }
 
