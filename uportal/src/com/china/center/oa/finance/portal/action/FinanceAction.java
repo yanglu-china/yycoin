@@ -1244,6 +1244,9 @@ public class FinanceAction extends DispatchAction {
 			//根据paymentId合并
 			for (PaymentApplyBean applyBean: payList){
 				String paymentId = applyBean.getPaymentId();
+				if (StringTools.isNullOrNone(paymentId)){
+				    continue;
+                }
 				PaymentApplyBean paymentApplyBean = paymentToApply.get(paymentId);
 				PaymentVSOutBean paymentVSOutBean = new PaymentVSOutBean();
 				paymentVSOutBean.setOutId(applyBean.getOutId());
