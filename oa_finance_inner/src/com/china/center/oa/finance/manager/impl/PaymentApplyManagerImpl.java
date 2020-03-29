@@ -11,6 +11,7 @@ package com.china.center.oa.finance.manager.impl;
 
 import java.util.*;
 
+import com.china.center.oa.publics.NumberUtils;
 import com.china.center.oa.publics.constant.AuthConstant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -3028,20 +3029,45 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     @Transactional(rollbackFor = MYException.class)
     @Override
-    public boolean batchDrawPayment(User user, List<PaymentApplyBean> beanList) throws MYException {
-        _logger.info("***batchDrawPayment with beans****"+beanList);
-        Map<String,List<PaymentApplyBean>> map = new HashMap<>();
-        //根据paymentId合并
-        for (PaymentApplyBean applyBean: beanList){
-            String paymentId = applyBean.getPaymentId();
-            List<PaymentApplyBean> list = map.get(paymentId);
-            if (list == null){
-                list = new ArrayList<>();
-                list.add(applyBean);
-            } else{
-                list.add(applyBean);
+    public boolean batchDrawPayment(User user, Map<String,PaymentApplyBean> paymentToApply) throws MYException {
+        _logger.info("***batchDrawPayment with beans****"+paymentToApply);
+        for (String paymentId: paymentToApply.keySet()){
+            PaymentApplyBean apply = paymentToApply.get(paymentId);
+
+            //更新回款单状态
+            PaymentBean pay = paymentDAO.find(paymentId);
+            if (pay == null)
+            {
+                throw new MYException("数据错误,请确认操作");
+            }
+            if (pay.getStatus() != FinanceConstant.PAYMENT_STATUS_INIT)
+            {
+                throw new MYException("回款已经被人认领,请确认操作");
+            }
+            if (pay.getCtype() !=FinanceConstant.PAYMENTCTYPE_EXTERNAL)
+            {
+                throw new MYException("回款不是外部资金类型,请确认操作");
+            }
+
+            //认领操作
+            apply.setType(FinanceConstant.PAYAPPLY_TYPE_PAYMENT);
+            apply.setLocationId(user.getLocationId());
+            apply.setLogTime(TimeTools.now());
+            apply.setStafferId(user.getStafferId());
+            apply.setOperator(user.getStafferId());
+            apply.setOperatorName(user.getStafferName());
+
+            if (FinanceConstant.RLLX_XSHK.equals(apply.getRllx())){
+                pay.setStafferId(user.getStafferId());
+                pay.setCustomerId(apply.getCustomerId());
+                pay.setStatus(FinanceConstant.PAYMENT_STATUS_END);
+                paymentDAO.updateEntityBean(pay);
+                this.addPaymentApply(user, apply);
+            } else if (FinanceConstant.RLLX_GYSHK.equals(apply.getRllx())){
+                this.addDrawProviderApply(user, apply);
             }
         }
+
         return true;
     }
 

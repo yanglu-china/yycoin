@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.china.center.oa.sail.bean.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -42,14 +43,6 @@ import com.china.center.oa.publics.dao.CommonDAO;
 import com.china.center.oa.publics.dao.FlowLogDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.vo.StafferVO;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.BaseInterface;
-import com.china.center.oa.sail.bean.OutImportBean;
-import com.china.center.oa.sail.bean.PackageBean;
-import com.china.center.oa.sail.bean.PackageItemBean;
-import com.china.center.oa.sail.bean.PackageVSCustomerBean;
-import com.china.center.oa.sail.bean.PreConsignBean;
-import com.china.center.oa.sail.bean.TwBaseBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.dao.BaseDAO;
@@ -481,6 +474,27 @@ public class PackageManagerImpl implements PackageManager {
 
 		packageVSCustomerDAO.saveEntityBean(vsBean);
 	}
+
+	/**
+	 * OA生成CK单前先到此表中确认有无对应的状态为0外部单号（根据fullid到out_import表取oano对应的CITICNO），
+	 * 如有，则在生成CK单时将快递公司与快递单号带入,并将状态更新为1
+	 * @param packageBean
+	 * @param fullId
+	 */
+	void getPrePackageBean(PackageBean packageBean,String fullId){
+		if (!fullId.startsWith("A")){
+			String citicNo = this.outImportDAO.getCiticNo(fullId);
+			if (!StringTools.isNullOrNone(citicNo)){
+				PrePackageBean prePackageBean = this.packageDAO.queryPrePackage(citicNo, 0);
+				if(prePackageBean!= null){
+					packageBean.setTransport1(prePackageBean.getTransport());
+					packageBean.setTransportNo(prePackageBean.getTransportNo());
+					this.packageDAO.updatePrePackageStatus(citicNo, 1);
+				}
+			}
+		}
+	}
+
 
 	private void addLog(final String packageId, int preStatus, int afterStatus, String description) {
 		FlowLogBean log = new FlowLogBean();

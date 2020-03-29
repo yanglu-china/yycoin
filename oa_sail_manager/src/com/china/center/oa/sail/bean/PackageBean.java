@@ -27,6 +27,11 @@ public class PackageBean implements Serializable
     @Id
     private String id = "";
 
+    /**
+     * 类型:1代表招商银行直邮，2代表京东，3代表天猫，其他后续再更新
+     */
+    private int type = 0;
+
     @Join(tagClass = CustomerBean.class, type = JoinType.LEFT)
     private String customerId = "";
 
@@ -660,6 +665,14 @@ public class PackageBean implements Serializable
 
     public void setItemMap(Map<String, List<PackageItemBean>> itemMap) {
         this.itemMap = itemMap;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     @Override

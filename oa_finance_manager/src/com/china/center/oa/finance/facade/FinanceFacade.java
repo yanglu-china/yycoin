@@ -10,6 +10,7 @@ package com.china.center.oa.finance.facade;
 
 
 import java.util.List;
+import java.util.Map;
 
 import com.china.center.common.MYException;
 import com.china.center.oa.finance.bean.BackPayApplyBean;
@@ -83,7 +84,7 @@ public interface FinanceFacade
     boolean addPaymentBeanList(String userId, List<PaymentBean> beanList)
         throws MYException;
 
-    boolean batchDrawPayment(String userId, List<PaymentApplyBean> beanList)
+    boolean batchDrawPayment(String userId, Map<String,PaymentApplyBean> paymentToApply)
             throws MYException;
 
     boolean updatePaymentBean(String userId, PaymentBean bean)

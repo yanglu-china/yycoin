@@ -6,6 +6,7 @@ import com.china.center.jdbc.inter.DAO;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.sail.bean.PackageBean;
+import com.china.center.oa.sail.bean.PrePackageBean;
 import com.china.center.oa.sail.vo.PackageVO;
 
 public interface PackageDAO extends DAO<PackageBean, PackageVO>
@@ -19,4 +20,8 @@ public interface PackageDAO extends DAO<PackageBean, PackageVO>
 	boolean updateStatus(String packageId, int status);
 	
 	List<PackageBean> queryPackagesByOutId(String outId);
+
+	PrePackageBean queryPrePackage(String citicNo, int status);
+
+	boolean updatePrePackageStatus(String citicNo, int status);
 }
