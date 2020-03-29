@@ -32,6 +32,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.publics.constant.OrgConstant;
 import com.china.center.oa.sail.manager.OutManager;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.lang.StringUtils;
@@ -2078,6 +2079,13 @@ public class TravelApplyAction extends DispatchAction
         String cacheKey = RPTQUERYTRAVELAPPLY;
 
         final User user = Helper.getUser(request);
+        
+        //#933
+        String stafferName = user.getStafferName();
+        final StafferBean staff = stafferDAO.findByUnique(stafferName);
+        final boolean isCOMMERCE_CUSTOMER_DEPT = OrgConstant.COMMERCE_CUSTOMER_DEPT_ID.equals(staff.getPrincipalshipId());
+        
+        _logger.debug("OrgConstant.COMMERCE_CUSTOMER_DEPT_ID:"+OrgConstant.COMMERCE_CUSTOMER_DEPT_ID+", staff.getPrincipalshipId():"+staff.getPrincipalshipId());
 
         List<TravelApplyVO> voList = ActionTools.commonQueryInPageSeparate(cacheKey, request,
             this.travelApplyDAO, new HandleQueryCondition()
@@ -2107,10 +2115,14 @@ public class TravelApplyAction extends DispatchAction
                     {
                         condtion.addIntCondition("TravelApplyBean.stype", "=", stype);
                     }
-
-                    // 查询自己借款的单据
-                    condtion.addCondition("TravelApplyBean.borrowStafferId", "=", user
-                        .getStafferId());
+                
+                    if(isCOMMERCE_CUSTOMER_DEPT){
+                        condtion.addCondition("TravelApplyBean.departmentId", "=", staff.getPrincipalshipId());
+                    }else {
+                    	// 查询自己借款的单据
+                        condtion.addCondition("TravelApplyBean.borrowStafferId", "=", user
+                            .getStafferId());
+                    }
 
                     // 查询结束(申请或借款,到财务支付,流程就算结束)
                     condtion.addIntCondition("TravelApplyBean.status", ">=",
