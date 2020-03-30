@@ -200,7 +200,7 @@ public abstract class OutHelper
 
         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL)
         {
-            if (outBean.getStatus() == OutConstant.OUT_STATUS_SECOND_PASS)
+            if (outBean.getStatus() == OutConstant.OUT_STATUS_SECOND_PASS || outBean.getStatus() == OutConstant.BUY_STATUS_FINANCE_RECORD)
             {
                 return true;
             }
