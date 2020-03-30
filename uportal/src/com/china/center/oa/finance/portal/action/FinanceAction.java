@@ -1236,7 +1236,11 @@ public class FinanceAction extends DispatchAction {
 		}
 		rds.close();
 
+		//用来检查paymentId累计金额一致
 		Map<String,PaymentApplyBean> paymentToApply = new HashMap<>();
+		//用来检查outId累计金额一致
+		Map<String, Double> outToTotal = new HashMap<>();
+
 		if (!ListTools.isEmptyOrNull(payList)){
 			//根据paymentId合并
 			for (PaymentApplyBean applyBean: payList){
@@ -1269,9 +1273,19 @@ public class FinanceAction extends DispatchAction {
 						importError = true;
 					}
 				}
+
+				if (!StringTools.isNullOrNone(applyBean.getOutId())){
+					Double value = outToTotal.get(applyBean.getOutId());
+					if (value == null){
+						outToTotal.put(applyBean.getOutId(), applyBean.getMoneys());
+					} else{
+						outToTotal.put(applyBean.getOutId(), value+applyBean.getMoneys());
+					}
+				}
 			}
 
 			_logger.info("***merged data***"+paymentToApply);
+			_logger.info("***merged out***"+outToTotal);
 			//检查模板中金额必须与回款单一致
 			for (String paymentId: paymentToApply.keySet()){
 				PaymentBean paymentBean = this.paymentDAO.find(paymentId);
@@ -1288,6 +1302,19 @@ public class FinanceAction extends DispatchAction {
 				if (!NumberUtils.equals(paymentBean.getMoney(),applyBean.getMoneys(), 0.001)){
 					builder.append(String.format("导入模板中金额累计%.2f与HK单%s金额%.2f不一致", applyBean.getMoneys(),
 							paymentId,paymentBean.getMoney()))
+							.append("<br>");
+					importError = true;
+				}
+			}
+
+			//检查模板中销售单金额
+			for (String outId: outToTotal.keySet()){
+				OutBean outBean = this.outDAO.find(outId);
+				double value = outToTotal.get(outId);
+				if (outBean!= null
+						&& !NumberUtils.equals(outBean.getTotal(),value, 0.001)){
+					builder.append(String.format("导入模板中销售金额累计%.2f与销售单%s金额%.2f不一致", value,
+							outId,outBean.getTotal()))
 							.append("<br>");
 					importError = true;
 				}
@@ -1443,13 +1470,13 @@ public class FinanceAction extends DispatchAction {
 			importError = true;
 		} else{
             apply.setMoneys(MathTools.parseDouble(money));
-            if (outBean!= null && !NumberUtils.equals(outBean.getTotal(),apply.getMoneys(), 0.001)){
+/*            if (outBean!= null && !NumberUtils.equals(outBean.getTotal(),apply.getMoneys(), 0.001)){
 				builder
 						.append("第[" + currentNumber + "]错误:")
 						.append(String.format("金额%.2f必须与销售单%s金额%.2f一致",apply.getMoneys(),apply.getOutId(),outBean.getTotal()))
 						.append("<br>");
 				importError = true;
-            }
+            }*/
 		}
 
 		//是否勾款
