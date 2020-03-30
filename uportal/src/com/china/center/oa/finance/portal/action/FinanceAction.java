@@ -27,8 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.china.center.oa.finance.constant.FinanceConstantTw;
 import com.china.center.oa.product.bean.ProviderBean;
 import com.china.center.oa.product.dao.ProviderDAO;
-import com.china.center.oa.publics.DefinedCommontUtils;
-import com.china.center.oa.publics.NumberUtils;
+import com.china.center.oa.publics.*;
 import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.SysConfigConstant;
 import org.apache.commons.logging.Log;
@@ -87,8 +86,6 @@ import com.china.center.oa.finance.vo.PaymentApplyVO;
 import com.china.center.oa.finance.vo.PaymentVO;
 import com.china.center.oa.finance.vo.PrePaymentWrap;
 import com.china.center.oa.finance.vs.PaymentVSOutBean;
-import com.china.center.oa.publics.DateTimeUtils;
-import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.constant.AuthConstant;
@@ -1207,7 +1204,7 @@ public class FinanceAction extends DispatchAction {
 				reader.readFile(rds.getUniqueInputStream());
 
 				while (reader.hasNext()) {
-					String[] obj = (String[]) reader.next();
+					String[] obj = StringUtils.fillObj((String[])reader.next(), 10);
 
 					// 第一行忽略
 					if (reader.getCurrentLineNumber() == 1) {
