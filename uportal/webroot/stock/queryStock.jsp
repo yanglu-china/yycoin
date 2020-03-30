@@ -343,7 +343,7 @@ function out(id)
 
 function exports()
 {
-	document.location.href = '../stock/stock.do?method=exportStock';
+	document.location.href = '../stock/stock.do?method=exportStock&ltype=1';
 }
 </script>
 
