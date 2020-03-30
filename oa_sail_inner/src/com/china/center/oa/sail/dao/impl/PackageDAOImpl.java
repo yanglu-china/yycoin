@@ -6,8 +6,10 @@ import com.china.center.jdbc.inter.impl.BaseDAO;
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.jdbc.util.PageSeparate;
 import com.china.center.oa.sail.bean.PackageBean;
+import com.china.center.oa.sail.bean.PrePackageBean;
 import com.china.center.oa.sail.dao.PackageDAO;
 import com.china.center.oa.sail.vo.PackageVO;
+import com.china.center.tools.ListTools;
 import com.china.center.tools.TimeTools;
 
 public class PackageDAOImpl extends BaseDAO<PackageBean, PackageVO> implements PackageDAO
@@ -54,5 +56,26 @@ public class PackageDAOImpl extends BaseDAO<PackageBean, PackageVO> implements P
 				"where PackageBean.id in ( SELECT PackageItemBean.packageId FROM t_center_package_item PackageItemBean " +
 				"WHERE PackageItemBean.packageId = PackageBean.id AND PackageItemBean.outId = ?)";
 		return this.jdbcOperation.queryForListBySql(sql, claz, outId);
+	}
+
+
+	@Override
+	public PrePackageBean queryPrePackage(String citicNo, int status) {
+		String sql = "select * from t_center_prepackage where citicNo = ? and status = ?";
+		List<PrePackageBean> result = this.jdbcOperation.queryForListBySql(sql,PrePackageBean.class,citicNo, status);
+		if (ListTools.isEmptyOrNull(result)){
+			return null;
+		} else{
+			return result.get(0);
+		}
+	}
+
+	@Override
+	public boolean updatePrePackageStatus(String citicNo, int status) {
+		String sql = "update t_center_prepackage set status = ? where citicNo = ?";
+
+		jdbcOperation.update(sql, status, citicNo);
+
+		return true;
 	}
 }

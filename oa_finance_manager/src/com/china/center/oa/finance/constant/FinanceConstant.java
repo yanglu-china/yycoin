@@ -764,4 +764,7 @@ public interface FinanceConstant
      */
     @Defined(key = "paymentCtype", value = "内部")
     int PAYMENTCTYPE_INTERNAL = 1;
+
+    String RLLX_XSHK = "销售回款";
+    String RLLX_GYSHK = "供应商回款";
 }

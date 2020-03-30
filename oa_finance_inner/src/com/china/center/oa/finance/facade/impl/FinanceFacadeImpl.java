@@ -10,6 +10,7 @@ package com.china.center.oa.finance.facade.impl;
 
 
 import java.util.List;
+import java.util.Map;
 
 import com.china.center.oa.publics.bean.AttachmentBean;
 import org.apache.commons.logging.Log;
@@ -183,6 +184,22 @@ public class FinanceFacadeImpl extends AbstarctFacade implements FinanceFacade
         if (containAuth(user, AuthConstant.PAYMENT_OPR))
         {
             return paymentManager.addBeanList(user, beanList);
+        }
+        else
+        {
+            throw noAuth();
+        }
+    }
+
+    @Override
+    public boolean batchDrawPayment(String userId, Map<String,PaymentApplyBean> paymentToApply) throws MYException {
+        User user = userManager.findUser(userId);
+
+        checkUser(user);
+
+        if (containAuth(user, AuthConstant.PAYMENT_OPR))
+        {
+            return paymentApplyManager.batchDrawPayment(user, paymentToApply);
         }
         else
         {

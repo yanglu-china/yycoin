@@ -94,7 +94,7 @@ function drawBean(opr, grid)
         $l(gurl + 'find' + ukey + '&id=' + getRadioValue('checkb'));
     }
     else
-    $error('不能操作');
+    $error('只有外部回款才能认领');
 }
 
 function drawBean2(opr, grid)
@@ -104,7 +104,7 @@ function drawBean2(opr, grid)
         $l(gurl + 'find' + ukey + '&mode=1&id=' + getRadioValue('checkb'));
     }
     else
-    $error('不能操作');
+    $error('只有外部回款才能认领');
 }
 
 function odrawBean(opr, grid)
@@ -115,7 +115,7 @@ function odrawBean(opr, grid)
         	$ajax(gurl + 'drop' + ukey + '&id=' + getRadioValue('checkb'), callBackFun);
     }
     else
-    $error('不能操作');
+    $error('只有外部回款才能认领');
 }
 
 function drawBean3(opr, grid)
@@ -136,7 +136,7 @@ function drawProvideBean(opr, grid)
         $l(gurl + 'find' + ukey + '&mode=4&id=' + getRadioValue('checkb'));
     }
     else
-    $error('不能操作');
+    $error('只有外部回款才能认领');
 }
 
 function doSearch()

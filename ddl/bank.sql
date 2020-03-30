@@ -1,0 +1,1 @@
+INSERT INTO uportal.t_center_oamenuitem (id, MENUITEMNAME, URL, PARENTID, BottomFlag, AUTH, indexPos, description) VALUES ('1656', '批量认款', '../bank/batchDrawPayment.jsp', '16', 1, '1602',99, '批量回款认领');

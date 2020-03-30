@@ -32,6 +32,15 @@ public interface OrgConstant
      * 总部
      */
     String CENTER_LOCATION = "99";
+    
+    
+    /**
+     * 总部
+     */
+    String COMMERCE_CUSTOMER_DEPT_ID = "180301031";
+    
+    
+    
 
     /**
      * 总裁

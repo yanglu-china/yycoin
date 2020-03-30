@@ -2417,11 +2417,11 @@ public class StorageAction extends DispatchAction
         		
         		virtualPriceDel = virtualPriceDel.setScale(2, BigDecimal.ROUND_HALF_UP);
 
-        		//有结算价取结算价，没有取成本价
-        		if(sailPriceDel.intValue() == 0)
-        		{
-        			sailPriceDel = productCostDel;
-        		}
+//        		//有结算价取结算价，没有取成本价
+//        		if(sailPriceDel.doubleValue() == 0)
+//        		{
+//        			sailPriceDel = productCostDel;
+//        		}
                 write.writeLine(now
                                 + ','
                                 + StringTools.getLineString(exportData.getIndustryName())

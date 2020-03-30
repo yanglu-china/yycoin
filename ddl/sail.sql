@@ -58,3 +58,19 @@ alter table T_CENTER_COMPOSE add column sn varchar(64) default '';
 alter table T_CENTER_DECOMPOSE add column sn varchar(64) default '';
 alter table T_CENTER_COMPOSE_ITEM add column sn varchar(64) default '';
 alter table T_CENTER_STORAGELOG add column sn varchar(64) default '';
+
+
+-- #930
+create table T_CENTER_PREPACKAGE
+(
+ID int auto_increment
+primary key,
+type int(8) default 0,
+citicNo varchar(64) null,
+transport int(8) default 0,
+transportNo varchar(64) null,
+status int(8) default 0,
+UNIQUE KEY `IDX_CITIC` (`citicNo`)
+) DEFAULT CHARSET=utf8
+;
+alter table t_center_package add column type int(8) default 0;

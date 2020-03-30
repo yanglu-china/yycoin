@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.china.center.oa.publics.Util;
+import com.china.center.oa.publics.constant.OrgConstant;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -241,11 +242,23 @@ public class ExpenseAction extends DispatchAction
 
         ActionTools.processJSONQueryCondition(QUERYSELFEXPENSE, request, condtion);
 
-        condtion.addCondition("ExpenseApplyBean.stafferId", "=", user.getStafferId());
+        //#933
+        String stafferName = user.getStafferName();
+        StafferBean staff = stafferDAO.findByUnique(stafferName);
+        
+        _logger.debug("OrgConstant.COMMERCE_CUSTOMER_DEPT_ID:"+OrgConstant.COMMERCE_CUSTOMER_DEPT_ID+", staff.getPrincipalshipId():"+staff.getPrincipalshipId());
+        
+        if(OrgConstant.COMMERCE_CUSTOMER_DEPT_ID.equals(staff.getPrincipalshipId())){
+            condtion.addCondition("ExpenseApplyBean.departmentId", "=", staff.getPrincipalshipId());
 
-        String type = request.getParameter("type");
+            condtion.addCondition(" AND ExpenseApplyBean.type in (9, 10, 15, 16)");
+        }else {
+            condtion.addCondition("ExpenseApplyBean.stafferId", "=", user.getStafferId());
 
-        condtion.addIntCondition("ExpenseApplyBean.type", "=", type);
+            String type = request.getParameter("type");
+
+            condtion.addIntCondition("ExpenseApplyBean.type", "=", type);
+        }
 
         condtion.addCondition("order by ExpenseApplyBean.logTime desc");
 
