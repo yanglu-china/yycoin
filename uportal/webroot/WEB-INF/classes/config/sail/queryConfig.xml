@@ -297,6 +297,12 @@
             <opr>=</opr>
             <type>text</type>
         </condtion>
+        <condtion name="type" caption="发货类型">
+            <opr>=</opr>
+            <datatype>1</datatype>
+            <type>select</type>
+            <option>$preShipType</option>
+        </condtion>
         <condtion name="name" caption="包含客户名" pfix="CustomerBean">
             <opr>like</opr>
             <type>text</type>
@@ -316,7 +322,7 @@
             <type>text</type>
             <inner></inner>
         </condtion>
-        <condtion name="outId" caption="销售单或发票号" pfix="PackageItemBean">
+        <condtion name="outId" caption="销售单或发票" pfix="PackageItemBean">
             <opr>like</opr>
             <type>text</type>
             <inner></inner>

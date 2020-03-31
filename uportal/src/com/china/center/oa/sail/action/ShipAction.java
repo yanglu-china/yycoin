@@ -1507,6 +1507,7 @@ public class ShipAction extends DispatchAction
         request.setAttribute("compose", compose);
 
         this.generateQRCode(vo.getId());
+        this.generateBarcodeForPrePackage(request, vo);
         request.setAttribute("qrcode", this.getQrcodeUrl(vo.getId()));
 
         String customerName = vo.getCustomerName();
@@ -1526,10 +1527,12 @@ public class ShipAction extends DispatchAction
         }
         _logger.info("****customerName***"+customerName);
         //#639
-        if (customerName.contains(DGNS)){
+        if (vo.getType()!= ShipConstant.PRE_SHIP_COMMON){
+            return mapping.findForward("printPrePackage");
+        } else if (customerName.contains(DGNS)){
             request.setAttribute("yjzh", this.getYjzh(vo));
             return mapping.findForward("printDgnsPackage");
-        } else{
+        } else {
             return mapping.findForward("printPackage");
         }
     }
@@ -2550,6 +2553,18 @@ public class ShipAction extends DispatchAction
             ZxingUtils.generateBarCode(packagId);
         }catch(Exception e){
             e.printStackTrace();
+        }
+    }
+
+    private void generateBarcodeForPrePackage(HttpServletRequest request,PackageBean packageBean){
+        if (packageBean.getType()!= ShipConstant.PRE_SHIP_COMMON){
+            String transportNo = packageBean.getTransportNo();
+            try{
+                ZxingUtils.generateBarCode(transportNo);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            request.setAttribute("transportNo", this.getQrcodeUrl(transportNo));
         }
     }
 
@@ -5898,6 +5913,12 @@ public class ShipAction extends DispatchAction
 
             return mapping.findForward("queryPickup");
     	}
+    	//#930
+    	else if (packageBean.getType()!= ShipConstant.PRE_SHIP_COMMON){
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, packageId + "CK单已有外部快递单号");
+
+            return mapping.findForward("queryPickup");
+        }
     	
     	
     	ConditionParse cond = new ConditionParse();
@@ -6012,6 +6033,12 @@ public class ShipAction extends DispatchAction
 
             return mapping.findForward("queryPickup");
     	}
+    	//#930
+        else if (packageBean.getType()!= ShipConstant.PRE_SHIP_COMMON){
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, packageId + "CK单已有外部快递单号");
+
+            return mapping.findForward("queryPickup");
+        }
     	//已经存在顺丰单号,提示失败
     	String sfTransport = packageBean.getTransportNo();
     	if(org.apache.commons.lang.StringUtils.isNotEmpty(sfTransport))

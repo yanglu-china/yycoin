@@ -186,6 +186,7 @@
             <forward name="printPickup" path="/transport/printPickup.jsp" />
             <forward name="printBankPickup" path="/transport/printBankPickup.jsp" />
             <forward name="printPackage" path="/transport/printPackage.jsp" />
+            <forward name="printPrePackage" path="/transport/printPrePackage.jsp" />
             <forward name="printDgnsPackage" path="/transport/printDgnsPackage.jsp" />
             <forward name="printBankReceipt" path="/transport/printBankReceipt.jsp" />
             <forward name="printPostReceipt" path="/transport/printPostReceipt.jsp" />
