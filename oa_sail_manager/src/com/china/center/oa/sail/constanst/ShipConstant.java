@@ -143,4 +143,13 @@ public interface ShipConstant
     String GSYH = "甘肃银行";
 	
 	String SHIPPING_ADDRESS = "地址：江苏省南京市江宁区将军大道558号";
+
+	@Defined(key = "preShipType", value = "普通CK单")
+	int PRE_SHIP_COMMON = 0;
+	@Defined(key = "preShipType", value = "招商银行直邮")
+	int PRE_SHIP_ZSYH = 1;
+	@Defined(key = "preShipType", value = "京东")
+	int PRE_SHIP_JD = 2;
+	@Defined(key = "preShipType", value = "天猫")
+	int PRE_SHIP_TMALL = 3;
 }

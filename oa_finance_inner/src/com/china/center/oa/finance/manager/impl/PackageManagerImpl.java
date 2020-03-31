@@ -355,7 +355,8 @@ public class PackageManagerImpl implements PackageManager {
 	}
 
 	private void createNewPackage(OutVOInterface outBean, List<? extends BaseInterface> baseList,
-			DistributionInterface distVO, String fullAddress, String location) {
+			DistributionInterface distVO, String fullAddress, String location,
+								  PrePackageBean prePackageBean) {
 		_logger.info("**************createNewPackage for Out now " + outBean.getFullId());
 		String id = commonDAO.getSquenceString20("CK");
 
@@ -366,7 +367,14 @@ public class PackageManagerImpl implements PackageManager {
 		packBean.setId(id);
 		packBean.setCustomerId(outBean.getCustomerId());
 		packBean.setShipping(distVO.getShipping());
-		packBean.setTransport1(distVO.getTransport1());
+		if (prePackageBean == null){
+			packBean.setTransport1(distVO.getTransport1());
+		} else{
+			packBean.setTransport1(prePackageBean.getTransport());
+			packBean.setTransportNo(prePackageBean.getTransportNo());
+			packBean.setType(prePackageBean.getType());
+		}
+
 		packBean.setExpressPay(distVO.getExpressPay());
 		packBean.setTransport2(distVO.getTransport2());
 		packBean.setTransportPay(distVO.getTransportPay());
@@ -470,6 +478,7 @@ public class PackageManagerImpl implements PackageManager {
 
 		packBean.setPrintInvoiceinsStatus(itemList);
 		this.savePackage(packBean, itemList);
+
 		packageItemDAO.saveAllEntityBeans(itemList);
 
 		packageVSCustomerDAO.saveEntityBean(vsBean);
@@ -481,18 +490,18 @@ public class PackageManagerImpl implements PackageManager {
 	 * @param packageBean
 	 * @param fullId
 	 */
-	void getPrePackageBean(PackageBean packageBean,String fullId){
+	private PrePackageBean getPrePackageBean(PackageBean packageBean,String fullId){
 		if (!fullId.startsWith("A")){
 			String citicNo = this.outImportDAO.getCiticNo(fullId);
 			if (!StringTools.isNullOrNone(citicNo)){
 				PrePackageBean prePackageBean = this.packageDAO.queryPrePackage(citicNo, 0);
 				if(prePackageBean!= null){
-					packageBean.setTransport1(prePackageBean.getTransport());
-					packageBean.setTransportNo(prePackageBean.getTransportNo());
 					this.packageDAO.updatePrePackageStatus(citicNo, 1);
+					return prePackageBean;
 				}
 			}
 		}
+		return null;
 	}
 
 
@@ -657,6 +666,8 @@ public class PackageManagerImpl implements PackageManager {
 			String customerId, String industryName) {
 		int shipping = distVO.getShipping();
 		if (shipping == 0) {
+			//#930 TODO 有预生成快递单号的CK单不与其他订单合并
+			con.addIntCondition("PackageBean.type", "=", 0);
 			// 发货方式也必须一致
 			con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
 
@@ -693,7 +704,8 @@ public class PackageManagerImpl implements PackageManager {
 			} else {
 				con.addCondition("PackageBean.address", "like", "%" + temp);
 			}
-
+			//#930 有预生成快递单号的CK单不与其他订单合并
+			con.addIntCondition("PackageBean.type", "=", 0);
 			con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
 
 			con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
@@ -709,7 +721,8 @@ public class PackageManagerImpl implements PackageManager {
 			// Keep default behavior
 			// con.addCondition("PackageBean.customerId", "=", outBean.getCustomerId());
 			con.addCondition("PackageBean.cityId", "=", distVO.getCityId()); // 借用outId 用于存储城市。生成出库单增加 城市 维度
-
+			//#930 有预生成快递单号的CK单不与其他订单合并
+			con.addIntCondition("PackageBean.type", "=", 0);
 			con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
 
 			con.addIntCondition("PackageBean.transport1", "=", distVO.getTransport1());
@@ -811,18 +824,24 @@ public class PackageManagerImpl implements PackageManager {
 
 		if (ListTools.isEmptyOrNull(packageList)) {
 			_logger.info("****create new package now***" + fullId);
-			createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+			createNewPackage(out, baseList, distVO, fullAddressTrim, location, null);
 		} else {
 			_logger.info(location + "****package already exist***" + fullId);
 			String id = packageList.get(0).getId();
 
 			PackageBean packBean = packageDAO.find(id);
 
+			//#930 检查是否预先分配快递单号
+			PrePackageBean prePackageBean = this.getPrePackageBean(packBean, fullId);
+			if (prePackageBean!= null){
+				_logger.info(fullId + "****is in prePackageBean***"+prePackageBean);
+				createNewPackage(out, baseList, distVO, fullAddressTrim, location,prePackageBean);
+			}
 			// 不存在或已不是初始状态(可能已被拣配)
-			if (null == packBean || (packBean.getStatus() != 0
+			else if (null == packBean || (packBean.getStatus() != 0
 					&& packBean.getStatus() != ShipConstant.SHIP_STATUS_PRINT_INVOICEINS)) {
 				_logger.info(fullId + "****added to new package***");
-				createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+				createNewPackage(out, baseList, distVO, fullAddressTrim, location, null);
 			} else {
 				// #18 2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
 				List<PackageItemBean> currentItems = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
@@ -832,7 +851,7 @@ public class PackageManagerImpl implements PackageManager {
 					PackageItemBean first = currentItems.get(0);
 					if (fullId.contains("DB") && first.getOutId().contains("SO")) {
 						_logger.warn("***not merge with different out type***" + first.getOutId());
-						createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+						createNewPackage(out, baseList, distVO, fullAddressTrim, location, null);
 						// #539
 						return;
 					} else {
@@ -845,7 +864,7 @@ public class PackageManagerImpl implements PackageManager {
 								String msg = first.getOutId() + "****industryId2 is not same****" + out.getFullId();
 								_logger.warn(msg);
 
-								createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+								createNewPackage(out, baseList, distVO, fullAddressTrim, location, null);
 								return;
 							}
 						}
@@ -1014,7 +1033,7 @@ public class PackageManagerImpl implements PackageManager {
 
 		if (ListTools.isEmptyOrNull(packageList)) {
 			_logger.info("****create new package now***" + fullId);
-			createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+			createNewPackage(out, baseList, distVO, fullAddressTrim, location, null);
 		} else {
 			_logger.info("****package already exist***" + fullId);
 			String id = packageList.get(0).getId();
@@ -1025,7 +1044,7 @@ public class PackageManagerImpl implements PackageManager {
 			if (null == packBean || (packBean.getStatus() != 0
 					&& packBean.getStatus() != ShipConstant.SHIP_STATUS_PRINT_INVOICEINS)) {
 				_logger.info(fullId + "****added to new package***");
-				createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+				createNewPackage(out, baseList, distVO, fullAddressTrim, location,null);
 			} else {
 				// #18 2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
 				List<PackageItemBean> currentItems = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
@@ -1035,7 +1054,7 @@ public class PackageManagerImpl implements PackageManager {
 					PackageItemBean first = currentItems.get(0);
 					if (fullId.contains("DB") && first.getOutId().contains("SO")) {
 						_logger.warn("***DB type not merge with SO***" + first.getOutId());
-						createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+						createNewPackage(out, baseList, distVO, fullAddressTrim, location,null);
 					} else {
 						OutVO outBean = outDAO.findVO(first.getOutId());
 						if (outBean != null) {
@@ -1046,7 +1065,7 @@ public class PackageManagerImpl implements PackageManager {
 								String msg = first.getOutId() + "****industryId2 is not same****" + out.getFullId();
 								_logger.warn(msg);
 
-								createNewPackage(out, baseList, distVO, fullAddressTrim, location);
+								createNewPackage(out, baseList, distVO, fullAddressTrim, location,null);
 //								preConsignDAO.deleteEntityBean(pre.getId());
 								return;
 							}

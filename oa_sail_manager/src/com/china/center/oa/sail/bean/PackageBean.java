@@ -30,7 +30,7 @@ public class PackageBean implements Serializable
     /**
      * 类型:1代表招商银行直邮，2代表京东，3代表天猫，其他后续再更新
      */
-    private int type = 0;
+    private int type = ShipConstant.PRE_SHIP_COMMON;
 
     @Join(tagClass = CustomerBean.class, type = JoinType.LEFT)
     private String customerId = "";

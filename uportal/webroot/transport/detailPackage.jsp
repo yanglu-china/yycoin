@@ -102,6 +102,11 @@ function load()
 						<td width="35%">${my:formatNum(bean.total)}</td>
                     </tr>
 
+					<tr class="content2">
+						<td width="15%" align="right" >发货类型：</td>
+						<td width="35%" colspan="3">${my:get('preShipType',bean.type)}</td>
+					</tr>
+
 				</table>
 				</td>
 			</tr>
