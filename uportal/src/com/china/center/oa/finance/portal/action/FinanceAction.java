@@ -3400,7 +3400,7 @@ public class FinanceAction extends DispatchAction {
 
 			write.openFile(out);
 
-			write.writeLine("日期,系统标识,导入标识,导入批次,帐户,类型,状态,核对状态,回款凭证号,认款凭证号,删除凭证号,认领时间,认领人,回款来源,绑定客户,客户编码,回款金额,手续费,POS终端号,回款时间,备注");
+			write.writeLine("日期,系统标识,导入标识,导入批次,帐户,类型,导款类型,状态,核对状态,回款凭证号,认款凭证号,删除凭证号,认领时间,认领人,回款来源,回款账号,绑定客户,客户编码,回款金额,手续费,POS终端号,回款时间,备注");
 
 			ConditionParse condtion = JSONPageSeparateTools.getCondition(
 					request, QUERYPAYMENT);
@@ -3418,6 +3418,14 @@ public class FinanceAction extends DispatchAction {
 				for (PaymentVO each : voList) {
 					String typeName = DefinedCommon.getValue("paymentType",
 							each.getType());
+					String dkType = DefinedCommon.getValue("inbillType",
+							each.getDkType());
+					String appName = this.parameterDAO.getString(SysConfigConstant.APP_NAME);
+					if (AppConstant.APP_NAME_TW.equals(appName)){
+						dkType = DefinedCommon.getValue("inbillTypeTw",
+								each.getDkType());
+					}
+
 					String statusName = DefinedCommon.getValue("paymentStatus",
 							each.getStatus());
 					String checkStatusName = DefinedCommon.getValue(
@@ -3439,6 +3447,8 @@ public class FinanceAction extends DispatchAction {
 							+ ','
 							+ typeName
 							+ ','
+							+ dkType
+							+ ','
 							+ statusName
 							+ ','
 							+ checkStatusName
@@ -3454,6 +3464,8 @@ public class FinanceAction extends DispatchAction {
 							+ StringTools.getExportString(each.getStafferName())
 							+ ','
 							+ StringTools.getExportString(each.getFromer())
+							+ ','
+							+ StringTools.getExportString(each.getFromerNo())
 							+ ','
 							+ StringTools.getExportString(each
 									.getCustomerName())
