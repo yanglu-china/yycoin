@@ -438,6 +438,20 @@ function selectCK(pcId)
                     <input type="text" name="productName" value="${ppmap.productName}" style="width:50%">
                 </td>
             </tr>
+
+			<tr class="content1">
+				<td width="15%" align="center">发货类型</td>
+				<td align="left">
+					<select name="type" class="select_class" style="width:50%" values="${ppmap.type}">
+						<option value="">--</option>
+						<option value="0">普通CK单</option>
+						<option value="1">招商银行直邮</option>
+						<option value="2">京东</option>
+						<option value="3">天猫</option>
+					</select>
+				</td>
+
+			</tr>
 			
 			<tr class="content1">
 				<td colspan="4" align="right"><input type="button"

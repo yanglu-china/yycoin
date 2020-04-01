@@ -33,6 +33,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import com.china.center.oa.finance.manager.InvoiceinsManager;
+import com.china.center.oa.publics.constant.SysConfigConstant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
@@ -708,6 +709,15 @@ public class ShipAction extends DispatchAction
 
             queryOutCondtionMap.put("industryName",industryName);
         }
+
+        // #930发货类型
+        String type = request.getParameter("type");
+        if (!StringTools.isNullOrNone(type)){
+            condtion.addCondition("PackageBean.type", "=", type);
+
+            queryOutCondtionMap.put("type",type);
+        }
+
 
         // 销售单
         String outId = request.getParameter("outId");
@@ -2544,7 +2554,12 @@ public class ShipAction extends DispatchAction
                 e.printStackTrace();
             }
         }
-        return "http://"+ip+":8000/images/"+image+".png";
+
+        int nginxPort = parameterDAO.getInt(SysConfigConstant.NGINX_PORT);
+        if(nginxPort == 0){
+            nginxPort = 8000;
+        }
+        return "http://"+ip+":"+nginxPort+"/images/"+image+".png";
     }
 
     private void generateQRCode(String packagId){
