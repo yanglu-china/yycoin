@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.china.center.oa.finance.bean.InvoiceinsItemBean;
 import com.china.center.oa.sail.bean.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -485,15 +486,23 @@ public class PackageManagerImpl implements PackageManager {
 	}
 
 	/**
-	 * OA生成CK单前先到此表中确认有无对应的状态为0外部单号（根据fullid到out_import表取oano对应的CITICNO），
+	 * OA生成CK单前,先到中间表确认此销售单有无对应的状态为0外部单号（根据fullid到out_import表取oano对应的CITICNO），
 	 * 如有，则在生成CK单时将快递公司与快递单号带入,并将状态更新为1
 	 * @param fullId
 	 */
-	private PrePackageBean getPrePackageBean(String fullId){
+	private PrePackageBean getPrePackageBean(String fullId, boolean ignoreStatus){
 		if (!fullId.startsWith("A")){
 			String citicNo = this.outImportDAO.getCiticNo(fullId);
 			if (!StringTools.isNullOrNone(citicNo)){
-				PrePackageBean prePackageBean = this.packageDAO.queryPrePackage(citicNo, 0);
+				PrePackageBean prePackageBean = null;
+				if (ignoreStatus){
+					//当开票申请查关联销售单的时候忽略状态,因为对应销售单可能已经进入CK单并把中间表状态改掉了
+					prePackageBean = this.packageDAO.queryPrePackageIgnoreStatus(citicNo);
+				} else{
+					//第一次查销售单的时候必须状态是0
+					prePackageBean = this.packageDAO.queryPrePackage(citicNo, 0);
+				}
+
 				if(prePackageBean!= null){
 					this.packageDAO.updatePrePackageStatus(citicNo, 1);
 					return prePackageBean;
@@ -502,6 +511,30 @@ public class PackageManagerImpl implements PackageManager {
 		}
 		return null;
 	}
+
+	/**
+	 * 根据开票申请，查询对应的销售单是否在中间表中
+	 * @param insId
+	 * @return
+	 */
+    private PrePackageBean getPrePackageBeanForIns(String insId){
+        if (insId.startsWith("A")){
+            List<InvoiceinsItemBean> invoiceinsItemBeans = this.invoiceinsItemDAO.queryEntityBeansByFK(insId);
+            if (!ListTools.isEmptyOrNull(invoiceinsItemBeans)){
+            	for (InvoiceinsItemBean item: invoiceinsItemBeans){
+            		//该开票申请关联的销售单,只要有一个存在于中间表中就返回
+            		String outId = item.getOutId();
+            		if (!StringTools.isNullOrNone(outId)){
+						PrePackageBean prePackageBean = this.getPrePackageBean(outId, true);
+						if (prePackageBean!= null){
+							return prePackageBean;
+						}
+					}
+				}
+			}
+        }
+        return null;
+    }
 
 
 	private void addLog(final String packageId, int preStatus, int afterStatus, String description) {
@@ -849,7 +882,7 @@ public class PackageManagerImpl implements PackageManager {
 		con.addWhereStr();
 
         //#930 检查是否预先分配快递单号
-        PrePackageBean prePackageBean = this.getPrePackageBean(fullId);
+        PrePackageBean prePackageBean = this.getPrePackageBean(fullId, false);
         if (prePackageBean == null){
             setInnerCondition(distVO, location, con, out.getCustomerId(), out.getIndustryName());
         } else{
@@ -1257,11 +1290,17 @@ public class PackageManagerImpl implements PackageManager {
 
 		// 此客户是否存在同一个发货包裹,且未拣配
 		ConditionParse con = new ConditionParse();
-
 		con.addWhereStr();
 
-		setInnerCondition(distVO, location, con, ins.getCustomerId(), null);
-		_logger.info("****con****" + con);
+		//#930 检查是否开票申请关联了预先分配快递单号
+		PrePackageBean prePackageBean = this.getPrePackageBeanForIns(insId);
+		if (prePackageBean == null){
+			setInnerCondition(distVO, location, con, ins.getCustomerId(), null);
+		} else{
+			_logger.info(insId + "**** has orders in prePackageBean***"+prePackageBean);
+			setInnerConditionForPre(distVO, location, con, ins.getCustomerId(), null, prePackageBean);
+		}
+
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
 		if (ListTools.isEmptyOrNull(packageList)) {
