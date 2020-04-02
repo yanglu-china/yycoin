@@ -405,12 +405,10 @@ function depotpartChange(obj)
     //end add
 }
 
-function depotChange()
+function depotChange(obj)
 {
 	var newsrcDepot = $$('depot');
 	
-	console.log(newsrcDepot);
-
 	removeAllItem($O('depotpart'));
 	
 	//add new option
@@ -419,15 +417,14 @@ function depotChange()
 		if (dList[j].locationId == newsrcDepot)
 		{
 			setOption($O('depotpart'), dList[j].id, dList[j].name);
+			setOption($O('srcDepotpart'), dList[j].id, dList[j].name);
 		}
 	}
 	
 	depotpartChange($O('depotpart'));
-	
 	//add by zhangxian 2019-06-17
 	//change cascade srcdepotpart item
 	var srcDepots = document.getElementsByName("srcDepot");
-	console.log(srcDepots.length);
    	//add new option
    	for(var j=0;j<srcDepots.length;j++)
    	{
@@ -441,7 +438,31 @@ function depotChange()
 		    }
 		}
    	}
-    //end add
+	
+	if(obj != null)
+	{
+		var newsrcDepot = obj.value;
+		
+	    var selects = document.getElementsByName('srcDepotpart');
+
+	    for (var i = 0 ; i < selects.length; i++)
+	    {
+	        var oo = selects[i];
+	        if (oo.name == 'srcDepotpart')
+	        {
+	        	removeAllItem(oo);
+
+	        	//add new option
+	        	for (var j = 0; j < dList.length; j++)
+	        	{
+	        		if (dList[j].locationId == newsrcDepot)
+	        		{
+	        			setOption(oo, dList[j].id, dList[j].name);
+	        		}
+	        	}
+	        }
+	    }
+	}
 	
 }
 
@@ -569,7 +590,7 @@ function addTr1()
 		<p:table cells="1">
 			<p:tr align="left">
 			成品仓库：
-			<select name="depot" class="select_class" style="width: 15%;" onchange="depotChange()" oncheck="notNone">
+			<select name="depot" class="select_class" style="width: 15%;" onchange="depotChange(this)" oncheck="notNone">
 		         <c:forEach var="item" items="${depotList}">
 		             <option value="${item.id}">${item.name}</option>
 		         </c:forEach>
