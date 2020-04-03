@@ -407,6 +407,7 @@ function depotpartChange(obj)
 
 function depotChange(obj)
 {
+	$O('srcDepot').style.disabled = true;
 	var newsrcDepot = $$('depot');
 	
 	removeAllItem($O('depotpart'));
@@ -680,7 +681,7 @@ function addTr1()
          </select>
          </td>
          <td width="95%" align="center">
-         <select name="srcDepot" id="srcDepot" class="select_class" style="width: 100%;" onchange="srcDepotChange(this)">
+         <select name="srcDepot" id="srcDepot" class="" style="width: 100%;pointer-events: none;" onchange="srcDepotChange(this)">
          <option value="">--</option>
          <c:forEach var="item" items="${depotList}">
              <option value="${item.id}">${item.name}</option>
