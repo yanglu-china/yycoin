@@ -69,6 +69,7 @@ function closesd()
 	type="hidden" value="1" name="load">
 <input type="hidden" value="${selectMode}" name="selectMode"> 
 <input type="hidden" value="${status}" name="status"> 
+<input type="hidden" value="${includeQuit}" name="includeQuit"> 
 
 <p:navigation
 	height="22">
@@ -121,7 +122,7 @@ function closesd()
 					phandphone="${item.handphone}"
 					${vs.index == 0 ? 'checked' : ''}
 					plever="${item.lever}"	pname="${item.name}" pcode="${item.code}" value="${item.id}"/></td>
-					<td align="center" onclick="hrefAndSelect(this)">${item.name}</td>
+					<td align="center" onclick="hrefAndSelect(this)">${item.name}<c:if test="${item.zzzt eq '停用' or item.zzzt eq '离职'}">*${item.zzzt}*</c:if></td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.code}</td>
 					<td align="center" onclick="hrefAndSelect(this)">${item.departmentFullName}</td>
 				</tr>

@@ -142,6 +142,11 @@ public class PopQueryAction extends DispatchAction
         //不含离职的
         String excludeQuit = request.getParameter("excludeQuit");
         
+        //不排除已离职的
+        String includeQuit = request.getParameter("includeQuit");
+        
+        _logger.debug("**includeQuit:**"+includeQuit);
+        
         if (StringTools.isNullOrNone(excludeQuit))
         	excludeQuit = "";
 
@@ -157,10 +162,15 @@ public class PopQueryAction extends DispatchAction
 
             if ( !"99".equals(status))
             {
-                // 过滤废弃的
-                condtion.addIntCondition("StafferBean.status", "=", StafferConstant.STATUS_COMMON);
-                //#508 “在职状态”为“废弃、离职”的过滤掉
-                condtion.addCondition(" and StafferBean.zzzt not in('废弃','离职')");
+            	 if ("1".equals(includeQuit)){
+            		 //no filter
+            	 }else{
+                     // 过滤废弃的
+                     condtion.addIntCondition("StafferBean.status", "=", StafferConstant.STATUS_COMMON);
+                     //#508 “在职状态”为“废弃、离职”的过滤掉
+                     condtion.addCondition(" and StafferBean.zzzt not in('废弃','离职')");            		 
+            	 }
+            
             }
             else
             {

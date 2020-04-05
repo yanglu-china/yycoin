@@ -69,7 +69,7 @@ function getTax(oos)
 
 function selectStaffer()
 {
-    window.common.modal('../admin/pop.do?method=rptQueryStaffer&load=1&selectMode=1');
+    window.common.modal('../admin/pop.do?method=rptQueryStaffer&load=1&selectMode=1&includeQuit=1');
 }
 
 
