@@ -195,7 +195,7 @@ function opens(obj)
 					</tr>
 					
 					<tr class="content1" id = "staffer_tr">
-						<td align="right" id="outd">业务员/职员：</td>
+						<td align="right" id="outd"><div id="staffer_tr_title" name="staffer_tr_title">业务员/职员：</div></td>
 						<td colspan="3">
 						<input type="text" name="stafferName1" maxlength="14"  readonly=true value="${bean.stafferName1}"  size="20" 
                             onclick="selectStaffer()" style="cursor: pointer;"
