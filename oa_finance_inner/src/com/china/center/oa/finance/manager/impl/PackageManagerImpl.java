@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.china.center.oa.finance.bean.InvoiceinsItemBean;
 import com.china.center.oa.sail.bean.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -485,16 +486,23 @@ public class PackageManagerImpl implements PackageManager {
 	}
 
 	/**
-	 * OA生成CK单前先到此表中确认有无对应的状态为0外部单号（根据fullid到out_import表取oano对应的CITICNO），
+	 * OA生成CK单前,先到中间表确认此销售单有无对应的状态为0外部单号（根据fullid到out_import表取oano对应的CITICNO），
 	 * 如有，则在生成CK单时将快递公司与快递单号带入,并将状态更新为1
-	 * @param packageBean
 	 * @param fullId
 	 */
-	private PrePackageBean getPrePackageBean(PackageBean packageBean,String fullId){
+	private PrePackageBean getPrePackageBean(String fullId, boolean ignoreStatus){
 		if (!fullId.startsWith("A")){
 			String citicNo = this.outImportDAO.getCiticNo(fullId);
 			if (!StringTools.isNullOrNone(citicNo)){
-				PrePackageBean prePackageBean = this.packageDAO.queryPrePackage(citicNo, 0);
+				PrePackageBean prePackageBean = null;
+				if (ignoreStatus){
+					//当开票申请查关联销售单的时候忽略状态,因为对应销售单可能已经进入CK单并把中间表状态改掉了
+					prePackageBean = this.packageDAO.queryPrePackageIgnoreStatus(citicNo);
+				} else{
+					//第一次查销售单的时候必须状态是0
+					prePackageBean = this.packageDAO.queryPrePackage(citicNo, 0);
+				}
+
 				if(prePackageBean!= null){
 					this.packageDAO.updatePrePackageStatus(citicNo, 1);
 					return prePackageBean;
@@ -503,6 +511,30 @@ public class PackageManagerImpl implements PackageManager {
 		}
 		return null;
 	}
+
+	/**
+	 * 根据开票申请，查询对应的销售单是否在中间表中
+	 * @param insId
+	 * @return
+	 */
+    private PrePackageBean getPrePackageBeanForIns(String insId){
+        if (insId.startsWith("A")){
+            List<InvoiceinsItemBean> invoiceinsItemBeans = this.invoiceinsItemDAO.queryEntityBeansByFK(insId);
+            if (!ListTools.isEmptyOrNull(invoiceinsItemBeans)){
+            	for (InvoiceinsItemBean item: invoiceinsItemBeans){
+            		//该开票申请关联的销售单,只要有一个存在于中间表中就返回
+            		String outId = item.getOutId();
+            		if (!StringTools.isNullOrNone(outId)){
+						PrePackageBean prePackageBean = this.getPrePackageBean(outId, true);
+						if (prePackageBean!= null){
+							return prePackageBean;
+						}
+					}
+				}
+			}
+        }
+        return null;
+    }
 
 
 	private void addLog(final String packageId, int preStatus, int afterStatus, String description) {
@@ -666,8 +698,6 @@ public class PackageManagerImpl implements PackageManager {
 			String customerId, String industryName) {
 		int shipping = distVO.getShipping();
 		if (shipping == 0) {
-			//#930 TODO 有预生成快递单号的CK单不与其他订单合并
-			con.addIntCondition("PackageBean.type", "=", 0);
 			// 发货方式也必须一致
 			con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
 
@@ -704,8 +734,6 @@ public class PackageManagerImpl implements PackageManager {
 			} else {
 				con.addCondition("PackageBean.address", "like", "%" + temp);
 			}
-			//#930 有预生成快递单号的CK单不与其他订单合并
-			con.addIntCondition("PackageBean.type", "=", 0);
 			con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
 
 			con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
@@ -721,8 +749,6 @@ public class PackageManagerImpl implements PackageManager {
 			// Keep default behavior
 			// con.addCondition("PackageBean.customerId", "=", outBean.getCustomerId());
 			con.addCondition("PackageBean.cityId", "=", distVO.getCityId()); // 借用outId 用于存储城市。生成出库单增加 城市 维度
-			//#930 有预生成快递单号的CK单不与其他订单合并
-			con.addIntCondition("PackageBean.type", "=", 0);
 			con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
 
 			con.addIntCondition("PackageBean.transport1", "=", distVO.getTransport1());
@@ -745,6 +771,43 @@ public class PackageManagerImpl implements PackageManager {
 			con.addCondition(" and PackageBean.status in(0,5)");
 		}
 	}
+
+    private void setInnerConditionForPre(DistributionVOInterface distVO, String location, ConditionParse con,
+                                   String customerId, String industryName, PrePackageBean prePackageBean) {
+        // 第三方快递：地址、收货人、电话完全一致，才合并.能不能判断地址后6个字符一致，电话，收货人一致，就合并
+        String fullAddress = distVO.getProvinceName() + distVO.getCityName() + distVO.getAddress();
+        String temp = fullAddress.trim();
+
+        // #25 包含特殊字符\,过滤掉
+        if (temp.contains("\\")) {
+            String[] arrays = temp.split("\\\\");
+            _logger.info(arrays);
+            int length = arrays.length;
+            if (length == 1) {
+                String temp2 = arrays[0];
+                con.addCondition("PackageBean.address", "like", "%" + temp2 + "%");
+            } else {
+                String temp2 = arrays[length - 1];
+                con.addCondition("PackageBean.address", "like", "%" + temp2 + "%");
+            }
+        } else if (temp.length() >= 6) {
+            con.addCondition("PackageBean.address", "like", "%" + temp.substring(temp.length() - 6));
+        } else {
+            con.addCondition("PackageBean.address", "like", "%" + temp);
+        }
+        con.addIntCondition("PackageBean.type", "=", prePackageBean.getType());
+        con.addCondition("PackageBean.transportNo", "=", prePackageBean.getTransportNo());
+
+        con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
+        con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
+
+        con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
+        // #225
+        con.addCondition("PackageBean.locationId", "=", location);
+        this.addIndustryCondition(industryName, customerId, con);
+        con.addCondition(" and (PackageBean.pickupId ='' or PackageBean.pickupId IS NULL)");
+        con.addCondition(" and PackageBean.status in(0,5)");
+    }
 
 	private void addIndustryCondition(String industryName, String customerId, ConditionParse con){
 		_logger.info("***industryName***"+industryName);
@@ -818,27 +881,27 @@ public class PackageManagerImpl implements PackageManager {
 
 		con.addWhereStr();
 
-		setInnerCondition(distVO, location, con, out.getCustomerId(), out.getIndustryName());
-
+        //#930 检查是否预先分配快递单号
+        PrePackageBean prePackageBean = this.getPrePackageBean(fullId, false);
+        if (prePackageBean == null){
+            setInnerCondition(distVO, location, con, out.getCustomerId(), out.getIndustryName());
+        } else{
+			_logger.info(fullId + "****is in prePackageBean***"+prePackageBean);
+            setInnerConditionForPre(distVO, location, con, out.getCustomerId(), out.getIndustryName(),prePackageBean);
+        }
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
 		if (ListTools.isEmptyOrNull(packageList)) {
 			_logger.info("****create new package now***" + fullId);
-			createNewPackage(out, baseList, distVO, fullAddressTrim, location, null);
+			createNewPackage(out, baseList, distVO, fullAddressTrim, location, prePackageBean);
 		} else {
 			_logger.info(location + "****package already exist***" + fullId);
 			String id = packageList.get(0).getId();
 
 			PackageBean packBean = packageDAO.find(id);
 
-			//#930 检查是否预先分配快递单号
-			PrePackageBean prePackageBean = this.getPrePackageBean(packBean, fullId);
-			if (prePackageBean!= null){
-				_logger.info(fullId + "****is in prePackageBean***"+prePackageBean);
-				createNewPackage(out, baseList, distVO, fullAddressTrim, location,prePackageBean);
-			}
 			// 不存在或已不是初始状态(可能已被拣配)
-			else if (null == packBean || (packBean.getStatus() != 0
+			if (null == packBean || (packBean.getStatus() != 0
 					&& packBean.getStatus() != ShipConstant.SHIP_STATUS_PRINT_INVOICEINS)) {
 				_logger.info(fullId + "****added to new package***");
 				createNewPackage(out, baseList, distVO, fullAddressTrim, location, null);
@@ -1227,11 +1290,17 @@ public class PackageManagerImpl implements PackageManager {
 
 		// 此客户是否存在同一个发货包裹,且未拣配
 		ConditionParse con = new ConditionParse();
-
 		con.addWhereStr();
 
-		setInnerCondition(distVO, location, con, ins.getCustomerId(), null);
-		_logger.info("****con****" + con);
+		//#930 检查是否开票申请关联了预先分配快递单号
+		PrePackageBean prePackageBean = this.getPrePackageBeanForIns(insId);
+		if (prePackageBean == null){
+			setInnerCondition(distVO, location, con, ins.getCustomerId(), null);
+		} else{
+			_logger.info(insId + "**** has orders in prePackageBean***"+prePackageBean);
+			setInnerConditionForPre(distVO, location, con, ins.getCustomerId(), null, prePackageBean);
+		}
+
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
 		if (ListTools.isEmptyOrNull(packageList)) {
