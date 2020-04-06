@@ -3494,6 +3494,21 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             item.setPrice(base.getPrice());
                             //销售退库
                             if (out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK) {
+                                //如果原单未申请过,XT单不用统计
+                                String originalOutId = out.getRefOutFullId();
+                                if (!StringTools.isNullOrNone(originalOutId)){
+                                    OutBean originalOut = this.outDAO.find(originalOutId);
+                                    if (originalOut!= null && originalOut.getIbFlag() == 0
+                                            && originalOut.getIbFlag2() == 0
+                                            && originalOut.getMotivationFlag() == 0
+                                            && originalOut.getMotivationFlag2() == 0
+                                            && originalOut.getPlatformFlag() == 0){
+                                        _logger.info(out.getFullId()+"***originalOut not applied "+originalOutId);
+                                        continue;
+                                    }
+                                }
+
+
 //                                item.setIbMoney(this.roundDouble(-base.getAmount()*base.getIbMoney()));
 //                                ibTotal -= base.getAmount()*base.getIbMoney();
 //                                item.setMotivationMoney(this.roundDouble(-base.getAmount()*base.getMotivationMoney()));
