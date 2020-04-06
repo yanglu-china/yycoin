@@ -864,9 +864,10 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             throw new MYException("数据错误,请确认操作");
         }
 
-        if (!payment.getStafferId().equals(user.getStafferId())) {
+        //#941 批量勾款时操作人和认领人可能不一样
+/*        if (!payment.getStafferId().equals(user.getStafferId())) {
             throw new MYException("只能操作自己的回款单,请确认操作");
-        }
+        }*/
 
         if (payment.getUseall() == FinanceConstant.PAYMENT_USEALL_END) {
             throw new MYException("回款单已经全部被使用,请确认操作");
@@ -2790,6 +2791,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                         throw new MYException("职员[%s]不存在", stafferId);
                     } else {
                         pay.setStafferId(stafferId);
+                        apply.setStafferId(stafferId);
                         _logger.info("***find staffer***" + stafferId);
                     }
                 }
