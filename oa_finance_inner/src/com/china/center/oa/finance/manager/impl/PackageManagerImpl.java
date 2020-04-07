@@ -504,7 +504,10 @@ public class PackageManagerImpl implements PackageManager {
 				}
 
 				if(prePackageBean!= null){
-					this.packageDAO.updatePrePackageStatus(citicNo, 1);
+				    // 如果发票先进入CK单时不更新状态
+				    if (!ignoreStatus){
+                        this.packageDAO.updatePrePackageStatus(citicNo, 1);
+                    }
 					return prePackageBean;
 				}
 			}
@@ -561,7 +564,7 @@ public class PackageManagerImpl implements PackageManager {
 	 * @param location
 	 */
 	private void createNewInsPackage(InvoiceinsVO ins, List<InsVSInvoiceNumBean> numList, DistributionVO distVO,
-			String fullAddress, String location) {
+			String fullAddress, String location, PrePackageBean prePackageBean) {
 		_logger.info("****createNewInsPackage now****");
 		String id = commonDAO.getSquenceString20("CK");
 
@@ -572,7 +575,15 @@ public class PackageManagerImpl implements PackageManager {
 		packBean.setId(id);
 		packBean.setCustomerId(ins.getCustomerId());
 		packBean.setShipping(distVO.getShipping());
-		packBean.setTransport1(distVO.getTransport1());
+
+        if (prePackageBean == null){
+            packBean.setTransport1(distVO.getTransport1());
+        } else{
+            packBean.setTransport1(prePackageBean.getTransport());
+            packBean.setTransportNo(prePackageBean.getTransportNo());
+            packBean.setType(prePackageBean.getType());
+        }
+
 		packBean.setExpressPay(distVO.getExpressPay());
 		packBean.setTransport2(distVO.getTransport2());
 		packBean.setTransportPay(distVO.getTransportPay());
@@ -1304,7 +1315,7 @@ public class PackageManagerImpl implements PackageManager {
 		List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
 
 		if (ListTools.isEmptyOrNull(packageList)) {
-			createNewInsPackage(ins, numList, distVO, fullAddress, location);
+			createNewInsPackage(ins, numList, distVO, fullAddress, location, prePackageBean);
 		} else {
 			String id = packageList.get(0).getId();
 
@@ -1313,7 +1324,7 @@ public class PackageManagerImpl implements PackageManager {
 			// 不存在或已不是初始状态(可能已被拣配)
 			if (null == packBean || (packBean.getStatus() != 0
 					&& packBean.getStatus() != ShipConstant.SHIP_STATUS_PRINT_INVOICEINS)) {
-				createNewInsPackage(ins, numList, distVO, fullAddress, location);
+				createNewInsPackage(ins, numList, distVO, fullAddress, location, null);
 			} else {
 				_logger.info("***package already exists***" + id);
 				// #200 合并入现有CK单时检查是否有重复outId
