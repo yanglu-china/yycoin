@@ -225,7 +225,7 @@ function getProductBom(oos)
                 var stype = getEle(trow.getElementsByTagName('select'), "stype");
                 setSelect(stype, "0");
                 var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
-                setSelect(srcDe1, "A1201606211663545335");
+                setSelect(srcDe1, $O("depot").value);
                 setInputValueInTr(trow, 'srcProductName', item.productName);
                 setInputValueInTr(trow, 'srcProductId', item.productId);
                 //成品数量*配件装配率
