@@ -347,6 +347,8 @@ function managerChange()
     showTr('dropType_tr', false);
     showTr('attach_tr', false);
     showTr('tr_att_more', false);
+    
+    $O('staffer_tr_title').innerHTML = "业务员/职员：";
         
     g_url_query = 0;
     
@@ -460,6 +462,9 @@ function managerChange()
 	    {
 	    	titleChange2();
 	    	showTr('staffer_tr', true);
+	    	
+	    	$O('staffer_tr_title').innerHTML = "承担人：";
+	    	
 	    	showTr('forceBuy_tr',true);
 	    	
 	    	showTr('table_tr', true);
@@ -601,6 +606,7 @@ function forceBuyTypeChange()
 	        
 	        showTr('refOutFullId_tr', false);
 	        showTr('staffer_tr', true);
+	        
 	        showTr('customer_tr', true);
 	        $O('refOutFullId').value = '';
 	        

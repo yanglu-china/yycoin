@@ -10,9 +10,8 @@ package com.china.center.oa.finance.manager.impl;
 
 
 import java.util.*;
-
-import com.china.center.oa.publics.NumberUtils;
-import com.china.center.oa.publics.constant.AuthConstant;
+import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.dao.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -54,10 +53,6 @@ import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.constant.IDPrefixConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.SysConfigConstant;
-import com.china.center.oa.publics.dao.CommonDAO;
-import com.china.center.oa.publics.dao.DutyDAO;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.dao.ParameterDAO;
 import com.china.center.oa.publics.helper.LockHelper;
 import com.china.center.oa.publics.helper.OATools;
 import com.china.center.oa.publics.wrap.ResultBean;
@@ -87,8 +82,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @since 3.0
  */
 @Exceptional
-public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentApplyListener> implements PaymentApplyManager
-{
+public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentApplyListener> implements PaymentApplyManager {
     private final Log _logger = LogFactory.getLog(getClass());
 
     private final Log operationLog = LogFactory.getLog("opr");
@@ -118,37 +112,36 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     private OutBalanceDAO outBalanceDAO = null;
 
     private AutoPayMonitorDAO autoPayMonitorDAO = null;
-    
+
     private CustomerBankDAO customerBankDAO = null;
-    
+
     private StafferVSCustomerDAO stafferVSCustomerDAO = null;
-    
+
     private DutyDAO dutyDAO = null;
-    
+
     private OutBillDAO outBillDAO = null;
+
+    private StafferDAO stafferDAO = null;
 
     private Object PAYMENT_APPLY_LOCK = new Object();
 
     private PlatformTransactionManager transactionManager = null;
-    
+
     /**
      * default constructor
      */
-    public PaymentApplyManagerImpl()
-    {
+    public PaymentApplyManagerImpl() {
     }
 
     @Transactional(rollbackFor = MYException.class)
     public boolean addPaymentApply(User user, PaymentApplyBean bean)
-        throws MYException
-    {
+            throws MYException {
         return addPaymentApplyWithoutTrans(user, bean);
     }
 
-	private boolean addPaymentApplyWithoutTrans(User user, PaymentApplyBean bean)
-			throws MYException
-	{
-		JudgeTools.judgeParameterIsNull(user, bean, bean.getVsList());
+    private boolean addPaymentApplyWithoutTrans(User user, PaymentApplyBean bean)
+            throws MYException {
+        JudgeTools.judgeParameterIsNull(user, bean, bean.getVsList());
 
         checkAdd(user, bean);
 
@@ -159,18 +152,16 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         bean.setStatus(FinanceConstant.PAYAPPLY_STATUS_INIT);
 
         double promValue = 0.0d;
-        
-        if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_AUTO)
-        {
+
+        if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_AUTO) {
             promValue = bean.getBadMoney();
             bean.setBadMoney(0);
         }
-        
+
         List<PaymentVSOutBean> vsList = bean.getVsList();
 
         // 校验是否是特殊单据
-        for (PaymentVSOutBean vsItem : vsList)
-        {
+        for (PaymentVSOutBean vsItem : vsList) {
             vsItem.setId(commonDAO.getSquenceString20());
 
             vsItem.setParentId(bean.getId());
@@ -185,21 +176,17 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         int oldType = bean.getType();
 
         if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_TEMP
-                || bean.getType() == FinanceConstant.PAYAPPLY_TYPE_AUTO)
-        {
+                || bean.getType() == FinanceConstant.PAYAPPLY_TYPE_AUTO) {
             bean.setType(FinanceConstant.PAYAPPLY_TYPE_BING);
         }
 
         // 销售单绑定(销售与收款单直接关联)
-        if (oldType == FinanceConstant.PAYAPPLY_TYPE_BING)
-        {
-            for (PaymentVSOutBean vsItem : vsList)
-            {
+        if (oldType == FinanceConstant.PAYAPPLY_TYPE_BING) {
+            for (PaymentVSOutBean vsItem : vsList) {
                 // 校验是否一个销售单被多次绑定
                 int count = paymentApplyDAO.countApplyByOutId(vsItem.getOutId());
 
-                if (count > 0)
-                {
+                if (count > 0) {
                     throw new MYException("单据[%s]已经申请付款,请审批付款后再提交新的申请", vsItem.getOutId());
                 }
 
@@ -208,66 +195,55 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 // 更新预付金额
                 InBillVO bill = inBillDAO.findVO(vsItem.getBillId());
 
-                if (bill == null)
-                {
+                if (bill == null) {
                     throw new MYException("数据错误,请确认操作");
                 }
 
                 // 2012后
-                if (OATools.getManagerFlag() && out.getOutTime().compareTo("2012-01-01") >= 0)
-                {
-                    if ( !out.getDutyId().equals(bill.getDutyId()))
-                    {
+                if (OATools.getManagerFlag() && out.getOutTime().compareTo("2012-01-01") >= 0) {
+                    if (!out.getDutyId().equals(bill.getDutyId())) {
                         throw new MYException("勾款认领时不可跨纳税实体扣款,请确认操作");
                     }
                 }
 
-                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_NOREF)
-                {
+                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_NOREF) {
                     throw new MYException("关联的收款单必须是预收,请确认操作");
                 }
 
                 bill.setStatus(FinanceConstant.INBILL_STATUS_PREPAYMENTS);
 
                 inBillDAO.updateEntityBean(bill);
-                
+
                 // 票款一致标记未打的
                 updatePayInvoiceData(bill.getDutyId(), bill.getMtype(), vsItem.getOutId(), vsItem.getOutBalanceId(), OutConstant.OUT_PAYINS_STATUS_APPROVE);
             }
         }
 
         // 界面上直接回款绑定销售和预收
-        if (oldType == FinanceConstant.PAYAPPLY_TYPE_PAYMENT)
-        {
+        if (oldType == FinanceConstant.PAYAPPLY_TYPE_PAYMENT) {
             PaymentVO payment = paymentDAO.findVO(bean.getPaymentId());
 
-            if (payment == null)
-            {
+            if (payment == null) {
                 throw new MYException("数据错误,请确认操作");
             }
 
             // 指定认领的操作检查
-            if ( !"0".equals(payment.getDestStafferId())
-                && !StringTools.isNullOrNone(payment.getDestStafferId()))
-            {
-                if ( !user.getStafferId().equals(payment.getDestStafferId()))
-                {
+            if (!"0".equals(payment.getDestStafferId())
+                    && !StringTools.isNullOrNone(payment.getDestStafferId())) {
+                if (!user.getStafferId().equals(payment.getDestStafferId())) {
                     throw new MYException("此回款只能[%s]认领,请确认操作", user.getStafferName());
                 }
             }
 
-            for (PaymentVSOutBean vsItem : vsList)
-            {
-                if ( !StringTools.isNullOrNone(vsItem.getOutId()))
-                {
+            for (PaymentVSOutBean vsItem : vsList) {
+                if (!StringTools.isNullOrNone(vsItem.getOutId())) {
                     // 校验是否一个销售单被多次绑定(因为委托单里面也是关联销售单的)
                     int count = paymentApplyDAO.countApplyByOutId(vsItem.getOutId());
 
-                    if (count > 0)
-                    {
+                    if (count > 0) {
                         throw new MYException("单据[%s]已经申请付款,请审批付款后再提交新的申请", vsItem.getOutId());
                     }
-                    
+
                     // 票款一致标记未打的
                     updatePayInvoiceData(payment.getDutyId(), payment.getMtype(), vsItem.getOutId(), vsItem.getOutBalanceId(), OutConstant.OUT_PAYINS_STATUS_APPROVE);
                 }
@@ -278,23 +254,20 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         // 业务员勾款(销售单界面勾款)
         if (oldType == FinanceConstant.PAYAPPLY_TYPE_TEMP
-                || oldType == FinanceConstant.PAYAPPLY_TYPE_AUTO)
-        {
+                || oldType == FinanceConstant.PAYAPPLY_TYPE_AUTO) {
             // 只有一个销售单
             String outId = vsList.get(0).getOutId();
 
             // 校验是否一个销售单被多次申请付款
             int count = paymentApplyDAO.countApplyByOutId(outId);
 
-            if (count > 0)
-            {
+            if (count > 0) {
                 throw new MYException("单据[%s]已经申请付款,请审批付款后再提交新的申请", outId);
             }
 
             OutBean out = outDAO.find(outId);
 
-            if (out == null)
-            {
+            if (out == null) {
                 throw new MYException("数据错误,请确认操作");
             }
 
@@ -305,57 +278,48 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             double lastMoney = 0.0d;
 
             int type = 0;
-            
+
             // 600
-            if (StringTools.isNullOrNone(outBalanceId))
-            {
+            if (StringTools.isNullOrNone(outBalanceId)) {
                 lastMoney = outManager.outNeedPayMoney(user, outId);
-                
-                if (oldType == FinanceConstant.PAYAPPLY_TYPE_AUTO)
-                {
+
+                if (oldType == FinanceConstant.PAYAPPLY_TYPE_AUTO) {
                     lastMoney = promValue;
                 }
-                
+
                 // 票款一致标记已打 
-                if (!StringTools.isNullOrNone(out.getPiDutyId()))
-                {
-                	type = 1;
+                if (!StringTools.isNullOrNone(out.getPiDutyId())) {
+                    type = 1;
                 }
-            }
-            else
-            {
+            } else {
                 // 看结算单的钱
                 OutBalanceBean outBal = outBalanceDAO.find(outBalanceId);
 
-                if (outBal == null)
-                {
+                if (outBal == null) {
                     throw new MYException("数据错误,请确认操作");
                 }
 
-        		// 减去结算单退货部分
-            	double refTotal = outBalanceDAO.sumByOutBalanceId(outBalanceId);
-                
+                // 减去结算单退货部分
+                double refTotal = outBalanceDAO.sumByOutBalanceId(outBalanceId);
+
                 lastMoney = outBal.getTotal() - outBal.getPayMoney() - refTotal;
-                
+
                 // 票款一致标记已打
-                if (!StringTools.isNullOrNone(outBal.getPiDutyId()))
-                {
-                	type = 1;
+                if (!StringTools.isNullOrNone(outBal.getPiDutyId())) {
+                    type = 1;
                 }
             }
 
             double total = 0.0d;
 
             boolean remove = false;
-            
+
             List<String> dutyList = new ArrayList<String>();
 
-            for (Iterator iterator = vsList.iterator(); iterator.hasNext();)
-            {
-                PaymentVSOutBean vsItem = (PaymentVSOutBean)iterator.next();
+            for (Iterator iterator = vsList.iterator(); iterator.hasNext(); ) {
+                PaymentVSOutBean vsItem = (PaymentVSOutBean) iterator.next();
 
-                if (remove)
-                {
+                if (remove) {
                     iterator.remove();
                 }
 
@@ -363,11 +327,10 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 total += vsItem.getMoneys();
 
                 // 保证金额不超出
-                if (MathTools.compare(total, lastMoney) > 0)
-                {
+                if (MathTools.compare(total, lastMoney) > 0) {
                     // 拆分此单
                     billManager.splitInBillBeanWithoutTransactional(user, vsItem.getBillId(),
-                        (total - lastMoney));
+                            (total - lastMoney));
 
                     remove = true;
                 }
@@ -375,17 +338,14 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 // 更新预付金额
                 InBillVO bill = inBillDAO.findVO(vsItem.getBillId());
 
-                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_NOREF)
-                {
+                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_NOREF) {
                     throw new MYException("关联的收款单必须是预收,请确认操作");
                 }
 
                 // 2012后
                 if (OATools.getManagerFlag() && out.getOutTime().compareTo("2012-01-01") >= 0
-                    && false)
-                {
-                    if ( !out.getDutyId().equals(bill.getDutyId()))
-                    {
+                        && false) {
+                    if (!out.getDutyId().equals(bill.getDutyId())) {
                         throw new MYException("勾款认领时不可跨纳税实体扣款,请确认操作");
                     }
                 }
@@ -397,21 +357,19 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 inBillDAO.updateEntityBean(bill);
 
                 tt += bill.getMoneys();
-                
+
                 // reFor 确定用到预收的类型,进而确认对开票的限制 
                 dutyList.add(bill.getDutyId());
             }
-            
+
             // 票款标记未打的,要处理
-            if (type == 0)
-            {
-            	processPayInvoice(outId, outBalanceId, dutyList, 0);
+            if (type == 0) {
+                processPayInvoice(outId, outBalanceId, dutyList, 0);
             }
         }
 
         // 预收转费用
-        if (oldType == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE)
-        {
+        if (oldType == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE) {
             String billId = bean.getVsList().get(0).getBillId();
 
             checkHaveBackPay(billId);
@@ -419,13 +377,11 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             // 更新预付金额
             InBillBean bill = inBillDAO.find(billId);
 
-            if (bill.getStatus() != FinanceConstant.INBILL_STATUS_NOREF)
-            {
+            if (bill.getStatus() != FinanceConstant.INBILL_STATUS_NOREF) {
                 throw new MYException("预收转费用必须是预收,请确认操作");
             }
 
-            if ( !bill.getOwnerId().equals(user.getStafferId()))
-            {
+            if (!bill.getOwnerId().equals(user.getStafferId())) {
                 throw new MYException("只能操作自己的单据,请确认操作");
             }
 
@@ -435,15 +391,13 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         }
 
         // 预收拆分,一分为二
-        if (oldType == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
-        {
+        if (oldType == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT) {
             String billId = bean.getVsList().get(0).getBillId();
 
             // 更新预付金额
             InBillBean bill = inBillDAO.find(billId);
 
-            if (bill.getStatus() != FinanceConstant.INBILL_STATUS_NOREF)
-            {
+            if (bill.getStatus() != FinanceConstant.INBILL_STATUS_NOREF) {
                 throw new MYException("预收拆分必须是预收,请确认操作");
             }
 
@@ -451,198 +405,176 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
             inBillDAO.updateEntityBean(bill);
         }
-        
+
         bean.setMoneys(tt);
-        
+
         paymentApplyDAO.saveEntityBean(bean);
 
         paymentVSOutDAO.saveAllEntityBeans(vsList);
-        
+
         saveFlowlog(user, bean);
 
         return true;
-	}
+    }
 
-	/**
-	 * processPayInvoice
-	 * @param outId
-	 * @param dutyList
-	 * @throws MYException
-	 */
-	public void processPayInvoice(String outId, String outBalanceId,
-			List<String> dutyList, int status) throws MYException
-	{
-		String piDutyId = PublicConstant.DEFAULR_DUTY_ID;
-		int piMtype = PublicConstant.MANAGER_TYPE_COMMON;
-		
-		List<String> tempList = new ArrayList<String>();
-		
-		for (String dutyId : dutyList)
-		{
-			DutyBean duty = dutyDAO.find(dutyId);
-			
-			if (null != duty)
-			{
-				if (duty.getMtype() == PublicConstant.MANAGER_TYPE_MANAGER)
-				{
-					piDutyId = "MANAGE";
-					piMtype = PublicConstant.MANAGER_TYPE_MANAGER;
-					
-					break;
-				}else{
-					
-					if (!duty.getId().equals(PublicConstant.DEFAULR_DUTY_ID))
-					{
-						if (!tempList.contains(duty.getId()))
-						{
-							tempList.add(duty.getId());
-						}
-					}
-				}
-			}
-		}
-		
-		// 只有一种非永银文化的普通类
-		if (piMtype == PublicConstant.MANAGER_TYPE_COMMON)
-		{
-			 if (tempList.size() > 0)
-		     {
-		     	if (tempList.size() == 1)
-		     	{
-		     		piDutyId = tempList.get(0);
-		     	}else{
-		     		piDutyId = PublicConstant.DEFAULR_DUTY_ID;
-		     	}
-		     }else
-		     {
-		    	 piDutyId = "COMMON";
-		     }
-		}
+    /**
+     * processPayInvoice
+     *
+     * @param outId
+     * @param dutyList
+     * @throws MYException
+     */
+    public void processPayInvoice(String outId, String outBalanceId,
+                                  List<String> dutyList, int status) throws MYException {
+        String piDutyId = PublicConstant.DEFAULR_DUTY_ID;
+        int piMtype = PublicConstant.MANAGER_TYPE_COMMON;
 
-		updatePayInvoiceData(piDutyId, piMtype, outId, outBalanceId, status);
-	}
+        List<String> tempList = new ArrayList<String>();
 
-	/**
-	 * 票款一致标记未打的
-	 * @param dutyId
-	 * @param mtype
-	 * @param outId
-	 * @param outBalanceId
-	 * @param status
-	 * @throws MYException
-	 */
-	private void updatePayInvoiceData(final String dutyId, final int mtype, final String outId, final String outBalanceId, final int status)
-			throws MYException
-	{
-		OutBean out = outDAO.find(outId);
+        for (String dutyId : dutyList) {
+            DutyBean duty = dutyDAO.find(dutyId);
 
-		// 票款一致标记未打的
-		if (!StringTools.isNullOrNone(outBalanceId))
-		{
-			OutBalanceBean balanceBean = outBalanceDAO.find(outBalanceId);
-			
-			// 勾款时，发现还没有开票，销售单中打上勾过款的标记
-			if (StringTools.isNullOrNone(balanceBean.getPiDutyId()))
-		    {
-		        // 管理
-		        if (mtype == PublicConstant.MANAGER_TYPE_MANAGER)
-		        {
-		        	outBalanceDAO.updatePayInvoiceData(balanceBean.getId(), 
-		        			OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_MANAGER, 
-		        			dutyId, status); // OutConstant.OUT_PAYINS_STATUS_APPROVE
-		        }
-		        else if (dutyId.equals(PublicConstant.DEFAULR_DUTY_ID)) // 永银文化
-		        {
-		        	outBalanceDAO.updatePayInvoiceData(balanceBean.getId(), 
-		        			OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_COMMON, 
-		        			dutyId, status);
-		        }else{ // 非永银文化的普通
-		        	outBalanceDAO.updatePayInvoiceData(balanceBean.getId(), 
-		        			OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_COMMON, 
-		        			dutyId, status);
-		        }
-		    }
-			
-		}else{
-			if (StringTools.isNullOrNone(out.getPiDutyId()))
-		    {
-		        // 管理
-		        if (mtype == PublicConstant.MANAGER_TYPE_MANAGER)
-		        {
-		        	outDAO.updatePayInvoiceData(out.getFullId(), 
-		        			OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_MANAGER, 
-		        			dutyId, status);
-		        }
-		        else if (dutyId.equals(PublicConstant.DEFAULR_DUTY_ID)) // 永银文化
-		        {
-		        	outDAO.updatePayInvoiceData(out.getFullId(), 
-		        			OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_COMMON, 
-		        			dutyId, status);
-		        }else{ // 非永银文化的普通
-		        	outDAO.updatePayInvoiceData(out.getFullId(), 
-		        			OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_COMMON, 
-		        			dutyId, status);
-		        }
-		    }
-		}
-	}
-    
+            if (null != duty) {
+                if (duty.getMtype() == PublicConstant.MANAGER_TYPE_MANAGER) {
+                    piDutyId = "MANAGE";
+                    piMtype = PublicConstant.MANAGER_TYPE_MANAGER;
+
+                    break;
+                } else {
+
+                    if (!duty.getId().equals(PublicConstant.DEFAULR_DUTY_ID)) {
+                        if (!tempList.contains(duty.getId())) {
+                            tempList.add(duty.getId());
+                        }
+                    }
+                }
+            }
+        }
+
+        // 只有一种非永银文化的普通类
+        if (piMtype == PublicConstant.MANAGER_TYPE_COMMON) {
+            if (tempList.size() > 0) {
+                if (tempList.size() == 1) {
+                    piDutyId = tempList.get(0);
+                } else {
+                    piDutyId = PublicConstant.DEFAULR_DUTY_ID;
+                }
+            } else {
+                piDutyId = "COMMON";
+            }
+        }
+
+        updatePayInvoiceData(piDutyId, piMtype, outId, outBalanceId, status);
+    }
+
+    /**
+     * 票款一致标记未打的
+     *
+     * @param dutyId
+     * @param mtype
+     * @param outId
+     * @param outBalanceId
+     * @param status
+     * @throws MYException
+     */
+    private void updatePayInvoiceData(final String dutyId, final int mtype, final String outId, final String outBalanceId, final int status)
+            throws MYException {
+        OutBean out = outDAO.find(outId);
+
+        // 票款一致标记未打的
+        if (!StringTools.isNullOrNone(outBalanceId)) {
+            OutBalanceBean balanceBean = outBalanceDAO.find(outBalanceId);
+
+            // 勾款时，发现还没有开票，销售单中打上勾过款的标记
+            if (StringTools.isNullOrNone(balanceBean.getPiDutyId())) {
+                // 管理
+                if (mtype == PublicConstant.MANAGER_TYPE_MANAGER) {
+                    outBalanceDAO.updatePayInvoiceData(balanceBean.getId(),
+                            OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_MANAGER,
+                            dutyId, status); // OutConstant.OUT_PAYINS_STATUS_APPROVE
+                } else if (dutyId.equals(PublicConstant.DEFAULR_DUTY_ID)) // 永银文化
+                {
+                    outBalanceDAO.updatePayInvoiceData(balanceBean.getId(),
+                            OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_COMMON,
+                            dutyId, status);
+                } else { // 非永银文化的普通
+                    outBalanceDAO.updatePayInvoiceData(balanceBean.getId(),
+                            OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_COMMON,
+                            dutyId, status);
+                }
+            }
+
+        } else {
+            if (StringTools.isNullOrNone(out.getPiDutyId())) {
+                // 管理
+                if (mtype == PublicConstant.MANAGER_TYPE_MANAGER) {
+                    outDAO.updatePayInvoiceData(out.getFullId(),
+                            OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_MANAGER,
+                            dutyId, status);
+                } else if (dutyId.equals(PublicConstant.DEFAULR_DUTY_ID)) // 永银文化
+                {
+                    outDAO.updatePayInvoiceData(out.getFullId(),
+                            OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_COMMON,
+                            dutyId, status);
+                } else { // 非永银文化的普通
+                    outDAO.updatePayInvoiceData(out.getFullId(),
+                            OutConstant.OUT_PAYINS_TYPE_PAY, PublicConstant.MANAGER_TYPE_COMMON,
+                            dutyId, status);
+                }
+            }
+        }
+    }
+
     /**
      * addPaymentApply5
      */
-	@Transactional(rollbackFor = MYException.class)
+    @Transactional(rollbackFor = MYException.class)
     public boolean addPaymentApply5(User user, PaymentApplyBean bean)
-    throws MYException
-	{
-	    JudgeTools.judgeParameterIsNull(user, bean, bean.getVsList());
-	    
-	    // 预收拆分
-		String newBillId = billManager.splitInBillBeanToOtherCustomer(user, bean.getOriBillId(), bean.getCustomerId(), bean.getStafferId(), bean.getMoneys());
-	    
-		bean.getVsList().get(0).setBillId(newBillId);
-		
-	    return addPaymentApplyWithoutTrans(user, bean);
-	}
-	
-	/**
-	 * addPaymentApply6 
-	 * 批量勾款  多个预收  <-> 应收
-	 */
-	@Transactional(rollbackFor = MYException.class)
-    public boolean addPaymentApply6(User user, PaymentApplyBean bean)
-    throws MYException
-	{
-	    JudgeTools.judgeParameterIsNull(user, bean, bean.getVsList());
-	    
-	    // 获取客户所有的预收，再次检查金额是否满足
-	    ConditionParse condtion = setCondition(bean);
+            throws MYException {
+        JudgeTools.judgeParameterIsNull(user, bean, bean.getVsList());
 
-		List<InBillBean> billList = inBillDAO.queryEntityBeansByCondition(condtion);
-	    
-	    if (ListTools.isEmptyOrNull(billList))
-	    {
-	    	throw new MYException("没有满足的预收，请确认");
-	    }
-	    
-	    List<PaymentVSOutBean> vsList = bean.getVsList();
-	    
-	    for (PaymentVSOutBean each : vsList)
-	    {
+        // 预收拆分
+        String newBillId = billManager.splitInBillBeanToOtherCustomer(user, bean.getOriBillId(), bean.getCustomerId(), bean.getStafferId(), bean.getMoneys());
+
+        bean.getVsList().get(0).setBillId(newBillId);
+
+        return addPaymentApplyWithoutTrans(user, bean);
+    }
+
+    /**
+     * addPaymentApply6
+     * 批量勾款  多个预收  <-> 应收
+     */
+    @Transactional(rollbackFor = MYException.class)
+    public boolean addPaymentApply6(User user, PaymentApplyBean bean)
+            throws MYException {
+        JudgeTools.judgeParameterIsNull(user, bean, bean.getVsList());
+
+        // 获取客户所有的预收，再次检查金额是否满足
+        ConditionParse condtion = setCondition(bean);
+
+        List<InBillBean> billList = inBillDAO.queryEntityBeansByCondition(condtion);
+
+        if (ListTools.isEmptyOrNull(billList)) {
+            throw new MYException("没有满足的预收，请确认");
+        }
+
+        List<PaymentVSOutBean> vsList = bean.getVsList();
+
+        for (PaymentVSOutBean each : vsList) {
             // 一个销售单 对应多预收
             String outId = each.getOutId();
 
             // 校验是否一个销售单被多次申请付款
             int count = paymentApplyDAO.countApplyByOutId(outId);
 
-            if (count > 0)
-            {
+            if (count > 0) {
                 throw new MYException("单据[%s]已经申请付款,请审批付款后再提交新的申请", outId);
             }
 
             OutBean out = outDAO.find(outId);
 
-            if (out == null)
-            {
+            if (out == null) {
                 throw new MYException("数据错误,请确认操作");
             }
 
@@ -652,114 +584,104 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             double moneys = 0.0d;
 
             // 600
-            if (StringTools.isNullOrNone(outBalanceId))
-            {
+            if (StringTools.isNullOrNone(outBalanceId)) {
                 lastMoney = outManager.outNeedPayMoney(user, outId);
-            }
-            else
-            {
+            } else {
                 // 看结算单的钱
                 OutBalanceBean outBal = outBalanceDAO.find(outBalanceId);
 
-                if (outBal == null)
-                {
+                if (outBal == null) {
                     throw new MYException("数据错误,请确认操作");
                 }
 
-        		// 减去结算单退货部分
-            	double refTotal = outBalanceDAO.sumByOutBalanceId(outBalanceId);
-                
+                // 减去结算单退货部分
+                double refTotal = outBalanceDAO.sumByOutBalanceId(outBalanceId);
+
                 lastMoney = outBal.getTotal() - outBal.getPayMoney() - refTotal;
             }
-            
+
             moneys = lastMoney;
 
             List<PaymentVSOutBean> vs = new ArrayList<PaymentVSOutBean>();
-            
+
             // 销售单一个一个的勾
-        	for (Iterator<InBillBean> iterator = billList.iterator(); iterator.hasNext();)
-            {
-        		InBillBean bill = iterator.next();
-        		
-        		if (out.getMtype() == PublicConstant.MANAGER_TYPE_MANAGER 
-        				&& bill.getMtype() != PublicConstant.MANAGER_TYPE_MANAGER)
-        		{
-        			continue;
-        		}
-        		
-        		if (MathTools.compare(bill.getMoneys(), lastMoney) > 0)
-                {
+            for (Iterator<InBillBean> iterator = billList.iterator(); iterator.hasNext(); ) {
+                InBillBean bill = iterator.next();
+
+                if (out.getMtype() == PublicConstant.MANAGER_TYPE_MANAGER
+                        && bill.getMtype() != PublicConstant.MANAGER_TYPE_MANAGER) {
+                    continue;
+                }
+
+                if (MathTools.compare(bill.getMoneys(), lastMoney) > 0) {
                     // 拆分此单  移交lastMoney出去使用
                     String newId = billManager.splitInBillBeanWithoutTransactional(user, bill.getId(), lastMoney);
 
                     bill.setMoneys(bill.getMoneys() - lastMoney);
-                    
+
                     InBillBean newBill = inBillDAO.find(newId);
-                    
+
                     newBill.setStatus(FinanceConstant.INBILL_STATUS_PREPAYMENTS);
-                    
+
                     inBillDAO.updateEntityBean(newBill);
-                    
+
                     each.setPaymentId(bill.getPaymentId());
                     each.setMoneys(lastMoney);
                     each.setBillId(newId);
-                    
+
                     vs.add(each);
-                    
+
                     lastMoney = 0.0d;
-                    
+
                     break;
-                    
-                }else{
-                	 // 原预收 状态置为 关联销售
+
+                } else {
+                    // 原预收 状态置为 关联销售
                     bill.setStatus(FinanceConstant.INBILL_STATUS_PREPAYMENTS);
-                    
+
                     inBillDAO.updateEntityBean(bill);
-                    
+
                     iterator.remove();
-                    
+
                     lastMoney -= bill.getMoneys();
-                    
+
                     each.setPaymentId(bill.getPaymentId());
                     each.setMoneys(bill.getMoneys());
                     each.setBillId(bill.getId());
-                    
+
                     vs.add(each);
-                    
-                    if (lastMoney == 0.0d)
-                    {
-                    	break;
+
+                    if (lastMoney == 0.0d) {
+                        break;
                     }
                 }
             }
-        
-        	// 预收不够
-        	if (lastMoney > 0)
-        	{
-        		throw new MYException("销售单[%s]勾款时发现预收不足，请检查", out.getFullId());
-        	}else{
-        		 // 生成收款申请数据 PaymentApplyBean
+
+            // 预收不够
+            if (lastMoney > 0) {
+                throw new MYException("销售单[%s]勾款时发现预收不足，请检查", out.getFullId());
+            } else {
+                // 生成收款申请数据 PaymentApplyBean
                 PaymentApplyBean apply = new PaymentApplyBean();
-                
+
                 BeanUtil.copyProperties(apply, bean);
-                
+
                 apply.setPaymentId("");
                 apply.setLogTime(TimeTools.now());
                 apply.setMoneys(moneys);
-                
+
                 apply.setVsList(vs);
-                
+
                 // save
                 savePaymentApplyInner(user, apply);
-        	}
+            }
         }
-	    
-	    return true;
-	}
-	
-	private void savePaymentApplyInner(User user, PaymentApplyBean bean)
-	{
-		bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_PAYMENTAPPLY_PREFIX));
+
+        return true;
+    }
+
+    private void savePaymentApplyInner(User user, PaymentApplyBean bean) {
+        bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_PAYMENTAPPLY_PREFIX));
 
         bean.setLogTime(TimeTools.now());
 
@@ -768,8 +690,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         List<PaymentVSOutBean> vsList = bean.getVsList();
 
         // 校验是否是特殊单据
-        for (PaymentVSOutBean vsItem : vsList)
-        {
+        for (PaymentVSOutBean vsItem : vsList) {
             vsItem.setId(commonDAO.getSquenceString20());
 
             vsItem.setParentId(bean.getId());
@@ -781,46 +702,42 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         }
 
         if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_TEMP
-                || bean.getType() == FinanceConstant.PAYAPPLY_TYPE_AUTO)
-        {
+                || bean.getType() == FinanceConstant.PAYAPPLY_TYPE_AUTO) {
             bean.setType(FinanceConstant.PAYAPPLY_TYPE_BING);
         }
-        
+
         paymentApplyDAO.saveEntityBean(bean);
 
         paymentVSOutDAO.saveAllEntityBeans(vsList);
 
         saveFlowlog(user, bean);
-	}
+    }
 
-	private ConditionParse setCondition(PaymentApplyBean bean)
-	{
-		ConditionParse condtion = new ConditionParse();
+    private ConditionParse setCondition(PaymentApplyBean bean) {
+        ConditionParse condtion = new ConditionParse();
 
-		condtion.addWhereStr();
+        condtion.addWhereStr();
 
-		condtion.addCondition("InBillBean.ownerId", "=", bean.getStafferId());
+        condtion.addCondition("InBillBean.ownerId", "=", bean.getStafferId());
 
-		condtion.addCondition("InBillBean.customerId", "=", bean.getCustomerId());
+        condtion.addCondition("InBillBean.customerId", "=", bean.getCustomerId());
 
-		condtion.addIntCondition("InBillBean.status", "=", FinanceConstant.INBILL_STATUS_NOREF);
-		
-		condtion.addCondition(" and InBillBean.moneys >= 0.01");
-		
-		condtion.addCondition("order by InBillBean.logTime desc");
-		return condtion;
-	}
-	
+        condtion.addIntCondition("InBillBean.status", "=", FinanceConstant.INBILL_STATUS_NOREF);
+
+        condtion.addCondition(" and InBillBean.moneys >= 0.01");
+
+        condtion.addCondition("order by InBillBean.logTime desc");
+        return condtion;
+    }
+
     /**
      * 处理每个节点
-     * 
+     *
      * @param bean
      * @param vsItem
      */
-    private void fillEachItem(PaymentApplyBean bean, PaymentVSOutBean vsItem)
-    {
-        if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE)
-        {
+    private void fillEachItem(PaymentApplyBean bean, PaymentVSOutBean vsItem) {
+        if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE) {
             return;
         }
 
@@ -828,60 +745,49 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         String bdutyId = "";
 
-        if ( !StringTools.isNullOrNone(vsItem.getOutId()))
-        {
+        if (!StringTools.isNullOrNone(vsItem.getOutId())) {
             OutBean out = outDAO.find(vsItem.getOutId());
 
-            if (out != null)
-            {
+            if (out != null) {
                 dutyId = out.getDutyId();
             }
         }
 
-        if ( !StringTools.isNullOrNone(vsItem.getOutBalanceId()))
-        {
+        if (!StringTools.isNullOrNone(vsItem.getOutBalanceId())) {
             OutBalanceBean outBalanceBean = outBalanceDAO.find(vsItem.getOutBalanceId());
 
-            if (outBalanceBean != null)
-            {
+            if (outBalanceBean != null) {
                 OutBean out = outDAO.find(outBalanceBean.getOutId());
 
-                if (out != null)
-                {
+                if (out != null) {
                     dutyId = out.getDutyId();
                 }
             }
         }
 
         // 客户预收直接返回(没有任何关联)
-        if (StringTools.isNullOrNone(dutyId))
-        {
+        if (StringTools.isNullOrNone(dutyId)) {
             return;
         }
 
-        if ( !StringTools.isNullOrNone(vsItem.getBillId()))
-        {
+        if (!StringTools.isNullOrNone(vsItem.getBillId())) {
             InBillVO inbill = inBillDAO.findVO(vsItem.getBillId());
 
-            if (inbill != null)
-            {
+            if (inbill != null) {
                 bdutyId = inbill.getDutyId();
             }
         }
 
-        if ( !StringTools.isNullOrNone(vsItem.getPaymentId()))
-        {
+        if (!StringTools.isNullOrNone(vsItem.getPaymentId())) {
             PaymentVO paymentBean = paymentDAO.findVO(vsItem.getPaymentId());
 
-            if (paymentBean != null)
-            {
+            if (paymentBean != null) {
                 bdutyId = paymentBean.getDutyId();
             }
         }
 
         // 关注单据
-        if ( !dutyId.equals(bdutyId))
-        {
+        if (!dutyId.equals(bdutyId)) {
             bean.setVtype(PublicConstant.VTYPE_SPECIAL);
 
             bean.setStatus(FinanceConstant.PAYAPPLY_STATUS_CHECK);
@@ -890,13 +796,12 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     /**
      * 是否存在退款申请
-     * 
+     *
      * @param billId
      * @throws MYException
      */
     private void checkHaveBackPay(String billId)
-        throws MYException
-    {
+            throws MYException {
         // 一个单子只能存在一个申请
         ConditionParse condition = new ConditionParse();
 
@@ -905,18 +810,16 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         condition.addCondition("BackPayApplyBean.billId", "=", billId);
 
         condition.addIntCondition("BackPayApplyBean.status", "<",
-            BackPayApplyConstant.STATUS_REJECT);
+                BackPayApplyConstant.STATUS_REJECT);
 
         int countByCondition = backPayApplyDAO.countByCondition(condition.toString());
 
-        if (countByCondition > 0)
-        {
+        if (countByCondition > 0) {
             throw new MYException("此预收存在未结束的退款申请,请确认操作");
         }
     }
 
-    private void saveFlowlog(User user, PaymentApplyBean bean)
-    {
+    private void saveFlowlog(User user, PaymentApplyBean bean) {
         FlowLogBean log = new FlowLogBean();
 
         log.setFullId(bean.getId());
@@ -937,43 +840,36 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     }
 
     private void checkAdd(User user, PaymentApplyBean bean)
-        throws MYException
-    {
-        if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_BING)
-        {
+            throws MYException {
+        if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_BING) {
             return;
         }
 
         if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_TEMP
-                || bean.getType() == FinanceConstant.PAYAPPLY_TYPE_AUTO)
-        {
+                || bean.getType() == FinanceConstant.PAYAPPLY_TYPE_AUTO) {
             return;
         }
 
-        if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE)
-        {
+        if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE) {
             return;
         }
-        
-        if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
-        {
+
+        if (bean.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT) {
             return;
         }
 
         PaymentBean payment = paymentDAO.find(bean.getPaymentId());
 
-        if (payment == null)
-        {            
+        if (payment == null) {
             throw new MYException("数据错误,请确认操作");
         }
 
-        if ( !payment.getStafferId().equals(user.getStafferId()))
-        {
+        //#941 批量勾款时操作人和认领人可能不一样
+/*        if (!payment.getStafferId().equals(user.getStafferId())) {
             throw new MYException("只能操作自己的回款单,请确认操作");
-        }
+        }*/
 
-        if (payment.getUseall() == FinanceConstant.PAYMENT_USEALL_END)
-        {
+        if (payment.getUseall() == FinanceConstant.PAYMENT_USEALL_END) {
             throw new MYException("回款单已经全部被使用,请确认操作");
         }
 
@@ -981,8 +877,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         double total = 0.0d;
 
-        for (PaymentVSOutBean vsItem : vsList)
-        {
+        for (PaymentVSOutBean vsItem : vsList) {
             total += vsItem.getMoneys();
         }
 
@@ -990,62 +885,52 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         double hasUsed = inBillDAO.sumByPaymentId(bean.getPaymentId());
 
-        if (hasUsed + bean.getMoneys() > payment.getMoney())
-        {
+        if (hasUsed + bean.getMoneys() > payment.getMoney()) {
             throw new MYException("回款使用金额溢出,总金额[%.2f],已使用金额[%.2f],本次申请金额[%.2f],请确认操作", payment
-                .getMoney(), hasUsed, bean.getMoneys());
+                    .getMoney(), hasUsed, bean.getMoneys());
         }
     }
 
     private void checkUpdate(PaymentApplyBean bean)
-        throws MYException
-    {
+            throws MYException {
         PaymentBean payment = paymentDAO.find(bean.getPaymentId());
 
-        if (payment == null)
-        {
+        if (payment == null) {
             throw new MYException("数据错误,请确认操作");
         }
 
-        if ( !payment.getStafferId().equals(bean.getStafferId()))
-        {
+        if (!payment.getStafferId().equals(bean.getStafferId())) {
             throw new MYException("只能操作自己的回款单,请确认操作");
         }
 
-        if (payment.getUseall() == FinanceConstant.PAYMENT_USEALL_END)
-        {
+        if (payment.getUseall() == FinanceConstant.PAYMENT_USEALL_END) {
             throw new MYException("回款单已经使用结束,请确认操作");
         }
 
-        if (bean.getStatus() != FinanceConstant.PAYAPPLY_STATUS_REJECT)
-        {
+        if (bean.getStatus() != FinanceConstant.PAYAPPLY_STATUS_REJECT) {
             throw new MYException("只有驳回才可以被修改,请确认操作");
         }
 
         double hasUsed = inBillDAO.sumByPaymentId(bean.getPaymentId());
 
-        if (MathTools.compare(hasUsed + bean.getMoneys(), payment.getMoney()) > 0)
-        {
+        if (MathTools.compare(hasUsed + bean.getMoneys(), payment.getMoney()) > 0) {
             throw new MYException("回款使用金额溢出,总金额[%.2f],已使用金额[%.2f],本次申请金额[%.2f],请确认操作", payment
-                .getMoney(), hasUsed, bean.getMoneys());
+                    .getMoney(), hasUsed, bean.getMoneys());
         }
     }
 
     @Transactional(rollbackFor = MYException.class)
     public boolean deletePaymentApply(User user, String id)
-        throws MYException
-    {
+            throws MYException {
         JudgeTools.judgeParameterIsNull(user, id);
 
         PaymentApplyBean payment = paymentApplyDAO.find(id);
 
-        if (payment == null)
-        {
+        if (payment == null) {
             throw new MYException("数据错误,请确认操作");
         }
 
-        if (payment.getStatus() != FinanceConstant.PAYAPPLY_STATUS_REJECT)
-        {
+        if (payment.getStatus() != FinanceConstant.PAYAPPLY_STATUS_REJECT) {
             throw new MYException("数据错误,请确认操作");
         }
 
@@ -1064,10 +949,9 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
      * CORE 回款认领等的审核通过(回款转预收/销售单绑定(预收转应收)/预收转费用)
      */
     @Transactional(rollbackFor = MYException.class)
-    public boolean passPaymentApply(User user, String id, String reason,String description)
-        throws MYException
-    {
-        _logger.info("*************passPaymentApply step1********"+id);
+    public boolean passPaymentApply(User user, String id, String reason, String description)
+            throws MYException {
+        _logger.info("*************passPaymentApply step1********" + id);
         JudgeTools.judgeParameterIsNull(user, id);
         PaymentApplyBean apply = checkPass(id);
         apply.setStatus(FinanceConstant.PAYAPPLY_STATUS_PASS);
@@ -1075,41 +959,38 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         paymentApplyDAO.updateEntityBean(apply);
         PaymentBean payment = paymentDAO.find(apply.getPaymentId());
         // CORE 生成收款单,更新销售单和委托清单付款状态/或者转成费用
-        createInbill(user, apply, payment, reason,description);
+        createInbill(user, apply, payment, reason, description);
         // 更新回款单的状态和使用金额
         updatePayment(apply);
         // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用 通过
         Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
 
-        for (PaymentApplyListener listener : listenerMapValues)
-        {
+        for (PaymentApplyListener listener : listenerMapValues) {
             listener.onPassBean(user, apply);
         }
-        _logger.info("*************passPaymentApply finished********"+id);
+        _logger.info("*************passPaymentApply finished********" + id);
         savePassLog(user, FinanceConstant.PAYAPPLY_STATUS_INIT, apply, reason);
-        
+
         return true;
     }
 
     @Transactional(rollbackFor = MYException.class)
     public boolean passCheck(User user, String id, String reason)
-        throws MYException
-    {
+            throws MYException {
         JudgeTools.judgeParameterIsNull(user, id);
 
         PaymentApplyBean apply = paymentApplyDAO.find(id);
 
-        if (apply == null)
-        {
+        if (apply == null) {
             throw new MYException("数据错误,请确认操作");
         }
 
         //此处防止多人操作时，有人操作界面中缓存数据
-        if (apply.getStatus() != FinanceConstant.PAYAPPLY_STATUS_CHECK){
-            
+        if (apply.getStatus() != FinanceConstant.PAYAPPLY_STATUS_CHECK) {
+
             throw new MYException("该收款单已被其他人处理过");
         }
-        
+
         apply.setStatus(FinanceConstant.PAYAPPLY_STATUS_INIT);
 
         paymentApplyDAO.updateEntityBean(apply);
@@ -1121,41 +1002,35 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     /**
      * createInbill
-     * 
+     *
      * @param user
      * @param apply
      * @param payment
      * @throws MYException
      */
-    private void createInbill(User user, PaymentApplyBean apply, PaymentBean payment, String reason,String description)
-        throws MYException
-    {
+    private void createInbill(User user, PaymentApplyBean apply, PaymentBean payment, String reason, String description)
+            throws MYException {
         List<PaymentVSOutBean> vsList = apply.getVsList();
-        
-        for (PaymentVSOutBean item : vsList)
-        {
-            if (item.getMoneys() == 0.0d)
-            {
+
+        for (PaymentVSOutBean item : vsList) {
+            if (item.getMoneys() == 0.0d) {
                 continue;
             }
 
             // 生成收款单(回款转预收)
-            if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT)
-            {
+            if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT) {
                 // 回款转收款通过,增加收款单
-                saveBillInner(user, apply, payment, item, reason,description);
+                saveBillInner(user, apply, payment, item, reason, description);
             }
             // 预收转费用
-            else if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE)
-            {
+            else if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE) {
                 // 把预收转成费用,且新生成的需要核对
                 String billId = item.getBillId();
 
                 // 更新预付金额
                 InBillBean bill = inBillDAO.find(billId);
 
-                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS)
-                {
+                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS) {
                     throw new MYException("预收转费用必须是关联申请态,请确认操作");
                 }
 
@@ -1176,16 +1051,14 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 inBillDAO.updateEntityBean(bill);
             }
             // 预收拆分
-            else if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
-            {
+            else if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT) {
                 // 把预收转成费用,且新生成的需要核对
                 String billId = item.getBillId();
 
                 // 更新预付金额
                 InBillBean bill = inBillDAO.find(billId);
 
-                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS)
-                {
+                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS) {
                     throw new MYException("预收拆分必须是关联申请态,请确认操作");
                 }
 
@@ -1204,58 +1077,46 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 bill.setDescription(bill.getDescription() + " " + apply.getDescription());
 
                 inBillDAO.updateEntityBean(bill);
-            }
-            else
-            {
+            } else {
                 // 绑定销售单(回款转预收&&预收转应收)
                 InBillBean bill = inBillDAO.find(item.getBillId());
 
-                if (bill == null)
-                {
+                if (bill == null) {
                     throw new MYException("数据错误,请确认操作");
                 }
 
-                if (bill.getStatus() == FinanceConstant.INBILL_STATUS_PAYMENTS)
-                {
+                if (bill.getStatus() == FinanceConstant.INBILL_STATUS_PAYMENTS) {
                     throw new MYException("收款单状态错误,请确认操作");
                 }
 
                 // 这里防止并行对销售单操作
-                synchronized (LockHelper.getLock(item.getOutId()))
-                {
+                synchronized (LockHelper.getLock(item.getOutId())) {
                     OutBean outBean = outDAO.find(item.getOutId());
 
-                    if (outBean == null)
-                    {
+                    if (outBean == null) {
                         throw new MYException("数据错误,请确认操作");
                     }
 
-                    if ( !OutHelper.canFeeOpration(outBean))
-                    {
+                    if (!OutHelper.canFeeOpration(outBean)) {
                         throw new MYException("销售单状态错误,请确认操作");
                     }
 
-                    if ( !StringTools.isNullOrNone(outBean.getChecks()))
-                    {
+                    if (!StringTools.isNullOrNone(outBean.getChecks())) {
                         bill.setDescription(bill.getDescription() + "<br>销售单核对信息:"
-                                            + outBean.getChecks() + "<br>审批意见(" + item.getOutId()
-                                            + "):" + reason  + " " + description);
+                                + outBean.getChecks() + "<br>审批意见(" + item.getOutId()
+                                + "):" + reason + " " + description);
                     }
 
-                    if (bill.getCheckStatus() == PublicConstant.CHECK_STATUS_END)
-                    {
+                    if (bill.getCheckStatus() == PublicConstant.CHECK_STATUS_END) {
                         bill.setDescription(bill.getDescription() + "<br>与销售单关联付款所以重置核对状态,原核对信息:"
-                                            + bill.getChecks() + "<br>审批意见(" + item.getOutId()
-                                            + "):" + reason  + " " + description);
-                    }
-                    else
-                    {
+                                + bill.getChecks() + "<br>审批意见(" + item.getOutId()
+                                + "):" + reason + " " + description);
+                    } else {
                         bill.setDescription(bill.getDescription() + "<br>审批意见(" + item.getOutId()
-                                            + "):" + reason  + " " + description);
+                                + "):" + reason + " " + description);
                     }
 
-                    if (BillHelper.isPreInBill(bill))
-                    {
+                    if (BillHelper.isPreInBill(bill)) {
                         // 这里需要把收款单的状态变成未核对
                         BillHelper.initInBillCheckStatus(bill);
                     }
@@ -1270,22 +1131,21 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                     bill.setStafferId(user.getStafferId());
 
                     // 用坏账勾款 标记  借用createType add by f 2012-8-2
-                    if (bill.getType()== FinanceConstant.INBILL_TYPE_BADOUT){
-                        
+                    if (bill.getType() == FinanceConstant.INBILL_TYPE_BADOUT) {
+
                         bill.setCreateType(FinanceConstant.BILL_CREATETYPE_HANDBADOUT);
                     }
-                    
+
                     inBillDAO.updateEntityBean(bill);
                 }
             }
         }
-	        
+
         // 更新收款单ID到申请里面
         paymentVSOutDAO.updateAllEntityBeans(vsList);
 
         // 销售单绑定
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING)
-        {
+        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING) {
             String outId = vsList.get(0).getOutId();
 
             String outBalanceId = vsList.get(0).getOutBalanceId();
@@ -1295,33 +1155,28 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         }
 
         // 里面存在多个销售单或者委托清单(回款转收款 )/这里没有坏账
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT)
-        {
+        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT) {
             // 指定认领的操作检查
-            if ( !"0".equals(payment.getDestStafferId())
-                && !StringTools.isNullOrNone(payment.getDestStafferId()))
-            {
-                if ( !apply.getStafferId().equals(payment.getDestStafferId()))
-                {
+            if (!"0".equals(payment.getDestStafferId())
+                    && !StringTools.isNullOrNone(payment.getDestStafferId())) {
+                if (!apply.getStafferId().equals(payment.getDestStafferId())) {
                     throw new MYException("此回款只能[%s]认领,请确认操作", user.getStafferName());
                 }
             }
 
             // 手续费
-            if (payment.getHandling() > 0)
-            {
+            if (payment.getHandling() > 0) {
                 int maxFee = parameterDAO.getInt(SysConfigConstant.MAX_RECVIVE_FEE);
 
                 OutBillBean out = new OutBillBean();
 
                 out.setBankId(payment.getBankId());
                 out.setDescription("回款转收款自动生成手续费:" + payment.getId() + ".回款金额:"
-                                   + MathTools.formatNum(payment.getMoney()));
+                        + MathTools.formatNum(payment.getMoney()));
                 out.setLocationId(user.getLocationId());
                 out.setMoneys(payment.getHandling());
 
-                if (payment.getMoney() < maxFee)
-                {
+                if (payment.getMoney() < maxFee) {
                     // 个人承担这个费用
                     out.setOwnerId(apply.getStafferId());
                 }
@@ -1339,10 +1194,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             }
 
             // 处理销售的回款和付款绑定的核心
-            for (PaymentVSOutBean item : vsList)
-            {
-                if (StringTools.isNullOrNone(item.getOutId()))
-                {
+            for (PaymentVSOutBean item : vsList) {
+                if (StringTools.isNullOrNone(item.getOutId())) {
                     continue;
                 }
 
@@ -1358,9 +1211,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     }
 
     private void saveBillInner(User user, PaymentApplyBean apply, PaymentBean payment,
-                               PaymentVSOutBean item, String reason,String description)
-        throws MYException
-    {
+                               PaymentVSOutBean item, String reason, String description)
+            throws MYException {
         InBillBean inBean = new InBillBean();
 
         inBean.setBankId(payment.getBankId());
@@ -1374,27 +1226,23 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         inBean.setMoneys(item.getMoneys());
 
         inBean.setSrcMoneys(item.getMoneys());
-        
-        if (StringTools.isNullOrNone(item.getOutId()))
-        {
+
+        if (StringTools.isNullOrNone(item.getOutId())) {
             inBean.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
 
             inBean.setDescription("自动生成预收收款单,从回款单:" + payment.getId() + ",未关联销售单.审批意见:" + reason + " " + description);
-        }
-        else
-        {
-        	// 控制如果销售单正在对账,则不能操作
-        	OutBean out = outDAO.find(item.getOutId());
-        	
-        	if (out.getFeedBackCheck() == 1)
-        	{
-        		throw new MYException("销售单[%s]正在对账中，不能勾款", item.getOutId());
-        	}
-        	
+        } else {
+            // 控制如果销售单正在对账,则不能操作
+            OutBean out = outDAO.find(item.getOutId());
+
+            if (out.getFeedBackCheck() == 1) {
+                throw new MYException("销售单[%s]正在对账中，不能勾款", item.getOutId());
+            }
+
             inBean.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
 
             inBean.setDescription("自动生成收款单,从回款单:" + payment.getId() + ",关联的销售单:" + item.getOutId()
-                                  + ".审批意见:" + reason + " " + description);
+                    + ".审批意见:" + reason + " " + description);
         }
 
         inBean.setOutId(item.getOutId());
@@ -1415,17 +1263,17 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     }
 
     public void processOut(User user, String outId, String outBalanceId)
-    throws MYException
-	{
-    	PaymentApplyBean apply = new PaymentApplyBean();
-    	
-    	apply.setBadMoney(0);
-    	
-    	processOut(user, apply, outId, outBalanceId);
-	}
+            throws MYException {
+        PaymentApplyBean apply = new PaymentApplyBean();
+
+        apply.setBadMoney(0);
+
+        processOut(user, apply, outId, outBalanceId);
+    }
+
     /**
      * CORE 处理销售的回款和付款绑定的核心(关联多个就是多次)
-     * 
+     *
      * @param user
      * @param apply
      * @param outId
@@ -1433,19 +1281,15 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
      * @throws MYException
      */
     private void processOut(User user, PaymentApplyBean apply, String outId, String outBalanceId)
-        throws MYException
-    {
-        synchronized (LockHelper.getLock(outId))
-        {
+            throws MYException {
+        synchronized (LockHelper.getLock(outId)) {
             OutBean out = outDAO.find(outId);
-            
-            if (out == null)
-            {
+
+            if (out == null) {
                 throw new MYException("数据错误,请确认操作");
             }
 
-            if ( !OutHelper.canFeeOpration(out))
-            {
+            if (!OutHelper.canFeeOpration(out)) {
                 throw new MYException("销售单状态错误,请确认操作");
             }
 
@@ -1453,8 +1297,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             double hasPay = inBillDAO.sumByOutId(outId);
 
             // 有坏账的存在
-            if (apply.getBadMoney() != 0)
-            {
+            if (apply.getBadMoney() != 0) {
                 out.setBadDebts(apply.getBadMoney());
 
                 outDAO.modifyBadDebts(outId, apply.getBadMoney());
@@ -1466,8 +1309,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             outDAO.updateHadPay(outId, hasPay);
 
             // 先把委托代销的全部搞定
-            if ( !StringTools.isNullOrNone(outBalanceId))
-            {
+            if (!StringTools.isNullOrNone(outBalanceId)) {
                 // 更新委托清单
                 OutBalanceBean outBal = outBalanceDAO.find(outBalanceId);
 
@@ -1475,32 +1317,30 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 double hasOutBalancePay = inBillDAO.sumByOutBalanceId(outBal.getId());
 
                 // 发现支付的金额过多
-                if (MathTools.compare(hasOutBalancePay, outBal.getTotal()) > 0)
-                {
+                if (MathTools.compare(hasOutBalancePay, outBal.getTotal()) > 0) {
                     throw new MYException("委托清单[%s]的总金额[%.2f],当前已付金额[%.2f]付款金额超出销售金额", outBal
-                        .getId(), outBal.getTotal(), hasOutBalancePay);
+                            .getId(), outBal.getTotal(), hasOutBalancePay);
                 }
 
                 outBalanceDAO.updateHadPay(outBal.getId(), hasOutBalancePay);
 
                 // 如果全部支付就自动表示收款
-                if (MathTools.equal2(outBal.getTotal(), hasOutBalancePay))
-                {
+                if (MathTools.equal2(outBal.getTotal(), hasOutBalancePay)) {
                     outBalanceDAO.updateHadPay(outId, OutConstant.PAY_YES);
                 }
-                
+
                 // 票款一致状态变化更新
                 if (outBal.getPiType() == OutConstant.OUT_PAYINS_TYPE_PAY && outBal.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
-                	outBalanceDAO.updatePayInvoiceStatus(outBal.getId(), OutConstant.OUT_PAYINS_STATUS_FINISH);
-                
-            }else{ // 增加票款一致状态变化更新
-            	if (out.getPiType() == OutConstant.OUT_PAYINS_TYPE_PAY && out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
-            		outDAO.updatePayInvoiceStatus(outId, OutConstant.OUT_PAYINS_STATUS_FINISH);
+                    outBalanceDAO.updatePayInvoiceStatus(outBal.getId(), OutConstant.OUT_PAYINS_STATUS_FINISH);
+
+            } else { // 增加票款一致状态变化更新
+                if (out.getPiType() == OutConstant.OUT_PAYINS_TYPE_PAY && out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
+                    outDAO.updatePayInvoiceStatus(outId, OutConstant.OUT_PAYINS_STATUS_FINISH);
             }
 
-            if (user ==  null){
+            if (user == null) {
                 this.tryUpdateOutPayStatus2(out);
-            } else{
+            } else {
                 tryUpdateOutPayStatus(user, out);
             }
         }
@@ -1508,138 +1348,123 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     /**
      * 尝试更新销售单的付款状态 *
-     * 
+     *
      * @param user
      * @param out
      * @throws MYException
      */
     private void tryUpdateOutPayStatus(User user, OutBean out)
-        throws MYException
-    {
+            throws MYException {
         // 看看销售单是否可以结帐
         ResultBean result = outManager.checkOutPayStatus(user, out);
 
         // 如果全部支付就自动表示收款
-        if (result.getResult() == 0)
-        {
-        	// 尝试全部付款
+        if (result.getResult() == 0) {
+            // 尝试全部付款
             outManager.payOutWithoutTransactional(user, out.getFullId(), "付款申请通过", OutConstant.SJSKWC);
         }
 
         // 回款超出了限制(非法)
-        if (result.getResult() == -1)
-        {
+        if (result.getResult() == -1) {
             throw new MYException(result.getMessage());
         }
 
         // 付款未完全,逻辑是正常的
-        if (result.getResult() == 1)
-        {
+        if (result.getResult() == 1) {
             _logger.info(result.getMessage());
         }
     }
 
-    /** 2015/1/4
+    /**
+     * 2015/1/4
      * 尝试更新销售单的付款状态 *
      *
      * @param out
      * @throws MYException
      */
     private void tryUpdateOutPayStatus2(OutBean out)
-            throws MYException
-    {
+            throws MYException {
         // 看看销售单是否可以结帐
         ResultBean result = outManager.checkOutPayStatus(null, out);
 
         // 如果全部支付就自动表示收款
-        if (result.getResult() == 0)
-        {
+        if (result.getResult() == 0) {
             // 尝试全部付款
             outManager.payOutWithoutTransactional(null, out.getFullId(), "付款申请通过", OutConstant.SJSKWC);
         }
 
         // 回款超出了限制(非法)
-        if (result.getResult() == -1)
-        {
+        if (result.getResult() == -1) {
             throw new MYException(result.getMessage());
         }
 
         // 付款未完全,逻辑是正常的
-        if (result.getResult() == 1)
-        {
+        if (result.getResult() == 1) {
             _logger.info(result.getMessage());
         }
     }
 
-    private void updatePayment(PaymentApplyBean apply)
-    {
-        _logger.info("updatePayment *****"+apply);
+    private void updatePayment(PaymentApplyBean apply) {
+        _logger.info("updatePayment *****" + apply);
         if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING
                 || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE
-                || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
-        {
+                || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT) {
             return;
         }
 
         PaymentBean payment = paymentDAO.find(apply.getPaymentId());
         double hasUsed = inBillDAO.sumByPaymentId(apply.getPaymentId());
         payment.setUseMoney(hasUsed);
-        if (MathTools.compare(hasUsed, payment.getMoney()) >= 0)
-        {
+        if (MathTools.compare(hasUsed, payment.getMoney()) >= 0) {
             payment.setUseall(FinanceConstant.PAYMENT_USEALL_END);
             payment.setUpdateTime(TimeTools.now());
-        }
-        else
-        {
+        } else {
             payment.setUseall(FinanceConstant.PAYMENT_USEALL_INIT);
         }
 
         paymentDAO.updateEntityBean(payment);
-        _logger.info("updatePayment use money*****"+payment);
+        _logger.info("updatePayment use money*****" + payment);
         // 认领通过时,增加回款来源信息记录
         String fromer = payment.getFromer();
         String fromerNo = payment.getFromerNo();
-        
-        if (!StringTools.isNullOrNone(fromer) && !StringTools.isNullOrNone(fromerNo))
-        {    _logger.info(fromer+" updatePayment step11*****"+fromerNo);
-        	CustomerBankBean custBank = customerBankDAO.findByUnique(fromer, fromerNo);
-            
-            if (null == custBank)
-            {    _logger.info("updatePayment step12*****");
-            	CustomerBankBean cbBean = new CustomerBankBean();
-            	
-            	cbBean.setCustomerId(payment.getCustomerId());
-            	cbBean.setAccountName(fromer);
-            	cbBean.setAccountNO(fromerNo);
-            	
-            	customerBankDAO.saveEntityBean(cbBean);
-            	
-            }else{
-                _logger.info("updatePayment step13*****"+custBank.getCustomerId()+"***"+payment.getCustomerId());
-            	if (!custBank.getCustomerId().equals(payment.getCustomerId()))
-            	{   _logger.info("updatePayment step14*****");
-            		custBank.setCustomerId(payment.getCustomerId());
-            		
-            		customerBankDAO.updateEntityBean(custBank);
-            	}
+
+        if (!StringTools.isNullOrNone(fromer) && !StringTools.isNullOrNone(fromerNo)) {
+            _logger.info(fromer + " updatePayment step11*****" + fromerNo);
+            CustomerBankBean custBank = customerBankDAO.findByUnique(fromer, fromerNo);
+
+            if (null == custBank) {
+                _logger.info("updatePayment step12*****");
+                CustomerBankBean cbBean = new CustomerBankBean();
+
+                cbBean.setCustomerId(payment.getCustomerId());
+                cbBean.setAccountName(fromer);
+                cbBean.setAccountNO(fromerNo);
+
+                customerBankDAO.saveEntityBean(cbBean);
+
+            } else {
+                _logger.info("updatePayment step13*****" + custBank.getCustomerId() + "***" + payment.getCustomerId());
+                if (!custBank.getCustomerId().equals(payment.getCustomerId())) {
+                    _logger.info("updatePayment step14*****");
+                    custBank.setCustomerId(payment.getCustomerId());
+
+                    customerBankDAO.updateEntityBean(custBank);
+                }
             }
         }
     }
 
     private PaymentApplyBean checkPass(String id)
-        throws MYException
-    {
-        _logger.info("***checkPass id****"+id);
+            throws MYException {
+        _logger.info("***checkPass id****" + id);
         PaymentApplyBean apply = paymentApplyDAO.find(id);
 
-        if (apply == null)
-        {
+        if (apply == null) {
             throw new MYException("数据错误,请确认操作");
         }
 
-        if (apply.getStatus() == FinanceConstant.PAYAPPLY_STATUS_PASS)
-        {
-            _logger.error("status is incorrect***"+id);
+        if (apply.getStatus() == FinanceConstant.PAYAPPLY_STATUS_PASS) {
+            _logger.error("status is incorrect***" + id);
             throw new MYException("状态不正确,请确认操作");
         }
 
@@ -1648,8 +1473,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         List<PaymentVSOutBean> vsList = this.ignoredDuplicate(vsList2);
         double total = 0.0d;
 
-        for (PaymentVSOutBean vsItem : vsList)
-        {
+        for (PaymentVSOutBean vsItem : vsList) {
             total += vsItem.getMoneys();
         }
 
@@ -1662,28 +1486,25 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 //预收转费用
                 || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE
                 //拆预收转客户
-                || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
-        {
+                || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT) {
             return apply;
         }
 
-        
+
         // 检查是否溢出
         PaymentBean payment = paymentDAO.find(apply.getPaymentId());
 
-        if (payment == null)
-        {
+        if (payment == null) {
             throw new MYException("数据错误,请确认操作");
         }
 
         double hasUsed = inBillDAO.sumByPaymentId(apply.getPaymentId());
 
-        if (MathTools.compare(hasUsed + apply.getMoneys(), payment.getMoney()) > 0)
-        {
+        if (MathTools.compare(hasUsed + apply.getMoneys(), payment.getMoney()) > 0) {
             _logger.error(String.format("回款[%s]使用金额溢出,总金额[%.2f],已使用金额[%.2f],本次申请金额[%.2f],请确认操作",
                     apply.getPaymentId(), payment.getMoney(), hasUsed, apply.getMoneys()));
             throw new MYException("回款使用金额溢出,总金额[%.2f],已使用金额[%.2f],本次申请金额[%.2f],请确认操作", payment
-                .getMoney(), hasUsed, apply.getMoneys());
+                    .getMoney(), hasUsed, apply.getMoneys());
         }
 
         return apply;
@@ -1691,26 +1512,26 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     /**
      * #481 过滤掉重复的T_CENTER_VS_OUTPAY记录
+     *
      * @param vsList
      * @return
      */
-    private List<PaymentVSOutBean> ignoredDuplicate(List<PaymentVSOutBean> vsList){
+    private List<PaymentVSOutBean> ignoredDuplicate(List<PaymentVSOutBean> vsList) {
         List<PaymentVSOutBean> result = new ArrayList<>();
-        for (PaymentVSOutBean bean : vsList){
-            if(!result.contains(bean)){
+        for (PaymentVSOutBean bean : vsList) {
+            if (!result.contains(bean)) {
                 result.add(bean);
             }
         }
         return result;
     }
 
-    private void savePassLog(User user, int oldStatus, PaymentApplyBean apply, String reason)
-    {
+    private void savePassLog(User user, int oldStatus, PaymentApplyBean apply, String reason) {
         FlowLogBean log = new FlowLogBean();
 
         log.setFullId(apply.getId());
 
-        if (user == null){
+        if (user == null) {
             log.setActor("自动审批Job");
         } else {
             log.setActor(user.getStafferName());
@@ -1731,149 +1552,128 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     @Transactional(rollbackFor = MYException.class)
     public boolean rejectPaymentApply(User user, String id, String reason)
-        throws MYException
-    {
+            throws MYException {
         JudgeTools.judgeParameterIsNull(user, id);
 
         PaymentApplyBean apply = paymentApplyDAO.find(id);
-        
-        if (apply == null)
-        {
+
+        if (apply == null) {
             throw new MYException("数据错误,请确认操作");
         }
 
-        if (apply.getStatus() == FinanceConstant.PAYAPPLY_STATUS_PASS)
-        {
+        if (apply.getStatus() == FinanceConstant.PAYAPPLY_STATUS_PASS) {
             throw new MYException("状态错误,请确认操作");
         }
 
         // 增加促销退货产生的勾款申请, 强制通过.
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING)
-        {
-        	String desc = apply.getDescription();
-        	
-        	if (desc.indexOf("参与了促销活动") != -1)
-        	{
-        		throw new MYException("促销单退货自动生成的勾款申请,不允许驳回,请通过");
-        	}
+        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING) {
+            String desc = apply.getDescription();
+
+            if (desc.indexOf("参与了促销活动") != -1) {
+                throw new MYException("促销单退货自动生成的勾款申请,不允许驳回,请通过");
+            }
         }
-        
+
         apply.setStatus(FinanceConstant.PAYAPPLY_STATUS_REJECT);
 
         paymentApplyDAO.updateEntityBean(apply);
-        
+
         List<PaymentVSOutBean> vsList = paymentVSOutDAO.queryEntityBeansByFK(id);
 
-        if(null != vsList)
-        {
-	        for (PaymentVSOutBean item : vsList)
-	        {
-	            // 如果是关联收款单则取消/预收转费用
-	            if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING
-	                || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE)
-	            {
-	                InBillBean bill = inBillDAO.find(item.getBillId());
-	
-	                if (bill != null)
-	                {
-	                	if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS)
-	                	{
-	                		continue;
-	                	}
-	                	
-	                    bill.setOutId("");
-	
-	                    bill.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
-	
-	                    bill.setDescription(bill.getDescription() + "<br>驳回[" + apply.getId()
-	                                        + "]状态重置到预收");
-	
-	                    inBillDAO.updateEntityBean(bill);
-	                }
-	            }
-	            
-	            // 当勾款驳回时,对于自己打的标记,要初始为原值
-	            if (!StringTools.isNullOrNone(item.getOutId()))
-	            {
-	            	OutBean out = outDAO.find(item.getOutId());
-	            	
-	            	if (out == null)
-	                {
-	                    throw new MYException("数据错误,请确认操作");
-	                }
-	            	
-	            	// 委托结算
-	            	if (!StringTools.isNullOrNone(item.getOutBalanceId()))
-	            	{
-	            		OutBalanceBean balance = outBalanceDAO.find(item.getOutBalanceId());
-	            		
-	            		if (null == balance){
-	            			throw new MYException("数据错误,请确认操作");
-	            		}
-	            		
-	            		if (balance.getPiType() == OutConstant.OUT_PAYINS_TYPE_PAY && balance.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
-	            		{
-	            			outBalanceDAO.initPayInvoiceData(balance.getId());
-	            		}
-	            		
-	            	}else{
-	            		if (out.getPiType() == OutConstant.OUT_PAYINS_TYPE_PAY && out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE)
-	            		{
-	            			outDAO.initPayInvoiceData(out.getFullId());
-	            		}
-	            	}
-	            }
-	        }
-	        
-	        // 拆分驳回
-	        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
-	        {
-	        	// 把新产生的（状态为关联申请）的收款单置为原来客户与业务员，且为预收
-	        	String newBillId = vsList.get(0).getBillId();
-	        	
-	        	String oriBillId = apply.getOriBillId();
-	        	
-	        	InBillBean bill = inBillDAO.find(newBillId);
-	        	
-	            if (bill != null)
-	            {
-	            	if (bill.getStatus() == FinanceConstant.INBILL_STATUS_PREPAYMENTS)
-                	{
-	            		bill.setOutId("");
+        if (null != vsList) {
+            for (PaymentVSOutBean item : vsList) {
+                // 如果是关联收款单则取消/预收转费用
+                if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING
+                        || apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE) {
+                    InBillBean bill = inBillDAO.find(item.getBillId());
 
-	 	                bill.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
-	 	                
-	 	                bill.setCustomerId(apply.getOriCustomerId());
-	 	                
-	 	                bill.setOwnerId(apply.getOriStafferId());
+                    if (bill != null) {
+                        if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS) {
+                            continue;
+                        }
 
-	 	                bill.setDescription(bill.getDescription() + "<br>预收拆分驳回[" + apply.getId()
-	 	                                    + "]状态重置到原客户预收");
+                        bill.setOutId("");
 
-	 	                inBillDAO.updateEntityBean(bill);
-                	}
-	            }
-	            
-	            bill = inBillDAO.find(oriBillId);
-	            
-	            if (bill != null)
-	            {
-	            	bill.setDescription(bill.getDescription() + "<br>预收拆分驳回[" + apply.getId()
-	                        + "]状态重置到预收");
+                        bill.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
 
-	            	inBillDAO.updateEntityBean(bill);
-	            }
-	        }
-	        
-        }       
-        
+                        bill.setDescription(bill.getDescription() + "<br>驳回[" + apply.getId()
+                                + "]状态重置到预收");
+
+                        inBillDAO.updateEntityBean(bill);
+                    }
+                }
+
+                // 当勾款驳回时,对于自己打的标记,要初始为原值
+                if (!StringTools.isNullOrNone(item.getOutId())) {
+                    OutBean out = outDAO.find(item.getOutId());
+
+                    if (out == null) {
+                        throw new MYException("数据错误,请确认操作");
+                    }
+
+                    // 委托结算
+                    if (!StringTools.isNullOrNone(item.getOutBalanceId())) {
+                        OutBalanceBean balance = outBalanceDAO.find(item.getOutBalanceId());
+
+                        if (null == balance) {
+                            throw new MYException("数据错误,请确认操作");
+                        }
+
+                        if (balance.getPiType() == OutConstant.OUT_PAYINS_TYPE_PAY && balance.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE) {
+                            outBalanceDAO.initPayInvoiceData(balance.getId());
+                        }
+
+                    } else {
+                        if (out.getPiType() == OutConstant.OUT_PAYINS_TYPE_PAY && out.getPiStatus() == OutConstant.OUT_PAYINS_STATUS_APPROVE) {
+                            outDAO.initPayInvoiceData(out.getFullId());
+                        }
+                    }
+                }
+            }
+
+            // 拆分驳回
+            if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT) {
+                // 把新产生的（状态为关联申请）的收款单置为原来客户与业务员，且为预收
+                String newBillId = vsList.get(0).getBillId();
+
+                String oriBillId = apply.getOriBillId();
+
+                InBillBean bill = inBillDAO.find(newBillId);
+
+                if (bill != null) {
+                    if (bill.getStatus() == FinanceConstant.INBILL_STATUS_PREPAYMENTS) {
+                        bill.setOutId("");
+
+                        bill.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
+
+                        bill.setCustomerId(apply.getOriCustomerId());
+
+                        bill.setOwnerId(apply.getOriStafferId());
+
+                        bill.setDescription(bill.getDescription() + "<br>预收拆分驳回[" + apply.getId()
+                                + "]状态重置到原客户预收");
+
+                        inBillDAO.updateEntityBean(bill);
+                    }
+                }
+
+                bill = inBillDAO.find(oriBillId);
+
+                if (bill != null) {
+                    bill.setDescription(bill.getDescription() + "<br>预收拆分驳回[" + apply.getId()
+                            + "]状态重置到预收");
+
+                    inBillDAO.updateEntityBean(bill);
+                }
+            }
+
+        }
+
         // 这里驳回需要单据复原
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT)
-        {
+        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT) {
             PaymentBean pay = paymentDAO.find(apply.getPaymentId());
 
-            if (pay != null && pay.getUseall() == FinanceConstant.PAYMENT_USEALL_INIT)
-            {
+            if (pay != null && pay.getUseall() == FinanceConstant.PAYMENT_USEALL_INIT) {
                 pay.setStafferId("");
 
                 pay.setCustomerId("");
@@ -1893,14 +1693,12 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     @Transactional(rollbackFor = MYException.class)
     public boolean checkPaymentApply(User user, String id, String checks, String refId)
-        throws MYException
-    {
+            throws MYException {
         JudgeTools.judgeParameterIsNull(user, id);
 
         PaymentApplyBean apply = paymentApplyDAO.find(id);
 
-        if (apply == null)
-        {
+        if (apply == null) {
             throw new MYException("数据错误,请确认操作");
         }
 
@@ -1913,8 +1711,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         return true;
     }
 
-    private void saveRejectLog(User user, PaymentApplyBean apply, String reason)
-    {
+    private void saveRejectLog(User user, PaymentApplyBean apply, String reason) {
         FlowLogBean log = new FlowLogBean();
 
         log.setFullId(apply.getId());
@@ -1936,8 +1733,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     @Transactional(rollbackFor = MYException.class)
     public boolean updatePaymentApply(User user, PaymentApplyBean bean)
-        throws MYException
-    {
+            throws MYException {
         JudgeTools.judgeParameterIsNull(user, bean, bean.getVsList());
 
         checkUpdate(bean);
@@ -1948,8 +1744,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         List<PaymentVSOutBean> vsList = bean.getVsList();
 
-        for (PaymentVSOutBean vsItem : vsList)
-        {
+        for (PaymentVSOutBean vsItem : vsList) {
             vsItem.setId(commonDAO.getSquenceString20());
 
             vsItem.setParentId(bean.getId());
@@ -1972,12 +1767,11 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     /**
      * saveUpdateFlowlog
-     * 
+     *
      * @param user
      * @param bean
      */
-    private void saveUpdateFlowlog(User user, PaymentApplyBean bean)
-    {
+    private void saveUpdateFlowlog(User user, PaymentApplyBean bean) {
         FlowLogBean log = new FlowLogBean();
 
         log.setFullId(bean.getId());
@@ -1999,80 +1793,71 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     @Override
     @Transactional(rollbackFor = MYException.class)
-	public boolean batchSplitInBill(User user, String billId, List<BatchSplitInBillWrap> list)
-			throws MYException
-	{
-    	JudgeTools.judgeParameterIsNull(billId, list);
-    	
-    	InBillBean bean = inBillDAO.find(billId);
-    	
-    	if (null == bean)
-    	{
-    		throw new MYException("预收[%s]不存在", billId);
-    	}
-    	
-    	if (bean.getStatus() != FinanceConstant.INBILL_STATUS_NOREF)
-    	{
-    		throw new MYException("[%s]不是预收态", billId);
-    	}
-    	
-    	double total = 0.0d;
-    	
-    	for (BatchSplitInBillWrap each : list)
-    	{
-    		total += each.getMoney();
-    	}
-    	
-    	if (bean.getMoneys() < total)
-    	{
-    		throw new MYException("拆分的预收总金额不能大于被拆分预收");
-    	}
-    	
-    	// merge 将 同一客户 ,且不为勾款的合并; 同一客户,且为勾款的,同一销售单 合并; 同一客户,且为勾款的,同一结算单合并
-    	Map<String, BatchSplitInBillWrap> map = new HashMap<String, BatchSplitInBillWrap>();
-    	
-    	for (BatchSplitInBillWrap each : list)
-    	{
-    		String key = each.getCustomerId() + "-" + each.getType() + "-" + each.getOutId() + "-" + each.getBalanceId();
-    		
-    		if (!map.containsKey(key))
-    		{
-    			map.put(key, each);
-    			
-    		}else{
-    			BatchSplitInBillWrap wrap = map.get(key);
-    			
-    			wrap.setMoney(wrap.getMoney() + each.getMoney());
-    		}
-    	}
-    	
-    	// 一个一个处理
-    	for (BatchSplitInBillWrap each : map.values())
-    	{
-    		StafferVSCustomerBean stafferVSCustomer = stafferVSCustomerDAO.findByUnique(each.getCustomerId());
-    		
-    		if (null == stafferVSCustomer)
-    		{
-    			throw new MYException("转入的客户没有挂靠关系，对应的销售单[%s]", each.getOutId());
-    		}
-    		
-    		// 2.对勾款的类型，拆分的预收置为关联申请，且生成收款申请单
-    		if (each.getType() == 0)
-    		{
-    			processBatchSplitRefOut(user, billId, bean, each, stafferVSCustomer);
-    			
-    		}else{
-    			processBatchSplit(user, billId, bean, each, stafferVSCustomer);
-    		}
-    	}
-    	
-		return true;
-	}
+    public boolean batchSplitInBill(User user, String billId, List<BatchSplitInBillWrap> list)
+            throws MYException {
+        JudgeTools.judgeParameterIsNull(billId, list);
+
+        InBillBean bean = inBillDAO.find(billId);
+
+        if (null == bean) {
+            throw new MYException("预收[%s]不存在", billId);
+        }
+
+        if (bean.getStatus() != FinanceConstant.INBILL_STATUS_NOREF) {
+            throw new MYException("[%s]不是预收态", billId);
+        }
+
+        double total = 0.0d;
+
+        for (BatchSplitInBillWrap each : list) {
+            total += each.getMoney();
+        }
+
+        if (bean.getMoneys() < total) {
+            throw new MYException("拆分的预收总金额不能大于被拆分预收");
+        }
+
+        // merge 将 同一客户 ,且不为勾款的合并; 同一客户,且为勾款的,同一销售单 合并; 同一客户,且为勾款的,同一结算单合并
+        Map<String, BatchSplitInBillWrap> map = new HashMap<String, BatchSplitInBillWrap>();
+
+        for (BatchSplitInBillWrap each : list) {
+            String key = each.getCustomerId() + "-" + each.getType() + "-" + each.getOutId() + "-" + each.getBalanceId();
+
+            if (!map.containsKey(key)) {
+                map.put(key, each);
+
+            } else {
+                BatchSplitInBillWrap wrap = map.get(key);
+
+                wrap.setMoney(wrap.getMoney() + each.getMoney());
+            }
+        }
+
+        // 一个一个处理
+        for (BatchSplitInBillWrap each : map.values()) {
+            StafferVSCustomerBean stafferVSCustomer = stafferVSCustomerDAO.findByUnique(each.getCustomerId());
+
+            if (null == stafferVSCustomer) {
+                throw new MYException("转入的客户没有挂靠关系，对应的销售单[%s]", each.getOutId());
+            }
+
+            // 2.对勾款的类型，拆分的预收置为关联申请，且生成收款申请单
+            if (each.getType() == 0) {
+                processBatchSplitRefOut(user, billId, bean, each, stafferVSCustomer);
+
+            } else {
+                processBatchSplit(user, billId, bean, each, stafferVSCustomer);
+            }
+        }
+
+        return true;
+    }
 
     /**
-     * processBatchSplit 
-     *  批量拆分预收
-     *   不用审批，生成凭证直接结束
+     * processBatchSplit
+     * 批量拆分预收
+     * 不用审批，生成凭证直接结束
+     *
      * @param user
      * @param billId
      * @param bean
@@ -2080,228 +1865,213 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
      * @param stafferVSCustomer
      * @throws MYException
      */
-	private void processBatchSplit(User user, String billId, InBillBean bean,
-			BatchSplitInBillWrap each, StafferVSCustomerBean stafferVSCustomer)
-			throws MYException
-	{
-		String newId = billManager.splitInBillBeanToOtherCustomer(user, billId, each.getCustomerId(), stafferVSCustomer.getStafferId(), each.getMoney());
-		
-		InBillBean newInBill = inBillDAO.find(newId);
-		
-		if (newInBill == null)
-		{
-		    throw new MYException("数据错误,请确认操作");
-		}
-		
-		newInBill.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
-		
-		inBillDAO.updateEntityBean(newInBill);
-		
-		PaymentApplyBean apply = new PaymentApplyBean();
+    private void processBatchSplit(User user, String billId, InBillBean bean,
+                                   BatchSplitInBillWrap each, StafferVSCustomerBean stafferVSCustomer)
+            throws MYException {
+        String newId = billManager.splitInBillBeanToOtherCustomer(user, billId, each.getCustomerId(), stafferVSCustomer.getStafferId(), each.getMoney());
 
-		apply.setType(FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT);
-		apply.setCustomerId(each.getCustomerId());
-		apply.setLocationId(user.getLocationId());
-		apply.setLogTime(TimeTools.now());
-		apply.setPaymentId(newInBill.getPaymentId());
-		apply.setStafferId(stafferVSCustomer.getStafferId());
-		apply.setDescription("批量拆分预收");
-		
-		apply.setOriCustomerId(bean.getCustomerId());
-		apply.setOriStafferId(bean.getOwnerId());
-		apply.setOriBillId(billId);
+        InBillBean newInBill = inBillDAO.find(newId);
 
-		List<PaymentVSOutBean> vsList = new ArrayList<PaymentVSOutBean>();
+        if (newInBill == null) {
+            throw new MYException("数据错误,请确认操作");
+        }
 
-		apply.setVsList(vsList);
+        newInBill.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
 
-		PaymentVSOutBean vs = new PaymentVSOutBean();
+        inBillDAO.updateEntityBean(newInBill);
 
-		vs.setLocationId(user.getLocationId());
+        PaymentApplyBean apply = new PaymentApplyBean();
 
-		vs.setMoneys(newInBill.getMoneys());
+        apply.setType(FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT);
+        apply.setCustomerId(each.getCustomerId());
+        apply.setLocationId(user.getLocationId());
+        apply.setLogTime(TimeTools.now());
+        apply.setPaymentId(newInBill.getPaymentId());
+        apply.setStafferId(stafferVSCustomer.getStafferId());
+        apply.setDescription("批量拆分预收");
 
-		vs.setOutId("");
+        apply.setOriCustomerId(bean.getCustomerId());
+        apply.setOriStafferId(bean.getOwnerId());
+        apply.setOriBillId(billId);
 
-		vs.setPaymentId(newInBill.getPaymentId());
+        List<PaymentVSOutBean> vsList = new ArrayList<PaymentVSOutBean>();
 
-		vs.setBillId(newInBill.getId());
-		
-		vs.setStafferId(stafferVSCustomer.getStafferId());
+        apply.setVsList(vsList);
 
-		vsList.add(vs);
-		// -- end --
+        PaymentVSOutBean vs = new PaymentVSOutBean();
 
-		apply.setMoneys(newInBill.getMoneys());
-		
-		// TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用/预收拆分
-		Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
+        vs.setLocationId(user.getLocationId());
 
-		for (PaymentApplyListener listener : listenerMapValues)
-		{
-		    listener.onPassBean(user, apply);
-		}
-	}
+        vs.setMoneys(newInBill.getMoneys());
 
-	/**
-	 * processBatchSplitRefOut
-	 *  批量拆分且勾销售单（销售出库、结算单）要求一次勾清
-	 * @param user
-	 * @param billId
-	 * @param each
-	 * @param stafferVSCustomer
-	 * @throws MYException
-	 */
-	private void processBatchSplitRefOut(User user, String billId, InBillBean bean,
-			BatchSplitInBillWrap each, StafferVSCustomerBean stafferVSCustomer)
-			throws MYException
-	{
-		double needPayMoney = 0.0d;
-		
-		OutBean out = null;
-		
-		if (StringTools.isNullOrNone(each.getBalanceId()))
-		{
-			// 销售单
-			out = outDAO.find(each.getOutId());
-			
-			if (null == out)
-			{
-				throw new MYException("数据错误");
-			}
-			
-			needPayMoney = outManager.outNeedPayMoney(null, each.getOutId());
-		}else{
-			// 结算单
-			OutBalanceBean outBalance = outBalanceDAO.find(each.getBalanceId());
-			
-			if (null == outBalance)
-			{
-				throw new MYException("数据错误1");
-			}
-			
-			out = outDAO.find(outBalance.getOutId());
-			
-			if (null == out)
-			{
-				throw new MYException("数据错误2");
-			}
-			
-			double refTotal = outBalanceDAO.sumByOutBalanceId(outBalance.getId());
-		    
-			needPayMoney = outBalance.getTotal() - outBalance.getPayMoney() - refTotal;
-		}
-		
-		if (MathTools.compare(each.getMoney(), needPayMoney) != 0)
-		{
-		    throw new MYException("销售单需付款为[%.2f],但导入中金额为[%.2f],两个金额须一致,请确认操作", needPayMoney, each.getMoney());
-		}
-		
-		// 正在对账
-		if (out.getFeedBackCheck() == 1)
-		{
-			throw new MYException("此销售单[%s]正在对账，不允许勾款:", out.getFullId());
-		}
-		
-		String newId = billManager.splitInBillBeanToOtherCustomer(user, billId, each.getCustomerId(), stafferVSCustomer.getStafferId(), each.getMoney());
-		
-		InBillBean newInBill = inBillDAO.find(newId);
-		
-		if (newInBill == null)
-		{
-		    throw new MYException("数据错误,请确认操作");
-		}
-		
-		newInBill.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
-		
-		inBillDAO.updateEntityBean(newInBill);
-		
-		// 勾款
-		PaymentApplyBean apply = new PaymentApplyBean();
+        vs.setOutId("");
 
-		apply.setType(FinanceConstant.PAYAPPLY_TYPE_TEMP);
-		apply.setCustomerId(each.getCustomerId());
-		apply.setLocationId(user.getLocationId());
-		apply.setLogTime(TimeTools.now());
-		apply.setStafferId(stafferVSCustomer.getStafferId());
-		apply.setBadMoney(0);
-		apply.setDescription("批量拆分勾款");
-		apply.setOperator(user.getStafferId());
-		apply.setOperatorName(user.getStafferName());
-		
-		apply.setOriCustomerId(bean.getCustomerId());
-		apply.setOriStafferId(bean.getOwnerId());
-		apply.setOriBillId(billId);
-		
-		apply.setMoneys(newInBill.getMoneys());
+        vs.setPaymentId(newInBill.getPaymentId());
 
-		List<PaymentVSOutBean> vsList = new ArrayList<PaymentVSOutBean>();
+        vs.setBillId(newInBill.getId());
 
-		PaymentVSOutBean vs = new PaymentVSOutBean();
+        vs.setStafferId(stafferVSCustomer.getStafferId());
 
-		vs.setLocationId(user.getLocationId());
+        vsList.add(vs);
+        // -- end --
 
-		vs.setMoneys(newInBill.getMoneys());
-		
-		vs.setOutId(each.getOutId());
-		vs.setOutBalanceId(each.getBalanceId());
+        apply.setMoneys(newInBill.getMoneys());
 
-		vs.setBillId(newId);
+        // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用/预收拆分
+        Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
 
-		vs.setPaymentId(newInBill.getPaymentId());
+        for (PaymentApplyListener listener : listenerMapValues) {
+            listener.onPassBean(user, apply);
+        }
+    }
 
-		vs.setStafferId(apply.getStafferId());
+    /**
+     * processBatchSplitRefOut
+     * 批量拆分且勾销售单（销售出库、结算单）要求一次勾清
+     *
+     * @param user
+     * @param billId
+     * @param each
+     * @param stafferVSCustomer
+     * @throws MYException
+     */
+    private void processBatchSplitRefOut(User user, String billId, InBillBean bean,
+                                         BatchSplitInBillWrap each, StafferVSCustomerBean stafferVSCustomer)
+            throws MYException {
+        double needPayMoney = 0.0d;
 
-		vsList.add(vs);
+        OutBean out = null;
 
-		apply.setVsList(vsList);
+        if (StringTools.isNullOrNone(each.getBalanceId())) {
+            // 销售单
+            out = outDAO.find(each.getOutId());
 
-		// 生成勾款申请
-		addPaymentApplyWithoutTrans(user, apply);
-		
-		// 批量拆分的款马上生成凭证
-		apply.setType(FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT);
-		apply.setDescription("批量拆分预收");
-		
-		// TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用/预收拆分
-		Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
+            if (null == out) {
+                throw new MYException("数据错误");
+            }
 
-		for (PaymentApplyListener listener : listenerMapValues)
-		{
-		    listener.onPassBean(user, apply);
-		}
-	}
-    
-	@Transactional(rollbackFor = MYException.class)
+            needPayMoney = outManager.outNeedPayMoney(null, each.getOutId());
+        } else {
+            // 结算单
+            OutBalanceBean outBalance = outBalanceDAO.find(each.getBalanceId());
+
+            if (null == outBalance) {
+                throw new MYException("数据错误1");
+            }
+
+            out = outDAO.find(outBalance.getOutId());
+
+            if (null == out) {
+                throw new MYException("数据错误2");
+            }
+
+            double refTotal = outBalanceDAO.sumByOutBalanceId(outBalance.getId());
+
+            needPayMoney = outBalance.getTotal() - outBalance.getPayMoney() - refTotal;
+        }
+
+        if (MathTools.compare(each.getMoney(), needPayMoney) != 0) {
+            throw new MYException("销售单需付款为[%.2f],但导入中金额为[%.2f],两个金额须一致,请确认操作", needPayMoney, each.getMoney());
+        }
+
+        // 正在对账
+        if (out.getFeedBackCheck() == 1) {
+            throw new MYException("此销售单[%s]正在对账，不允许勾款:", out.getFullId());
+        }
+
+        String newId = billManager.splitInBillBeanToOtherCustomer(user, billId, each.getCustomerId(), stafferVSCustomer.getStafferId(), each.getMoney());
+
+        InBillBean newInBill = inBillDAO.find(newId);
+
+        if (newInBill == null) {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        newInBill.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
+
+        inBillDAO.updateEntityBean(newInBill);
+
+        // 勾款
+        PaymentApplyBean apply = new PaymentApplyBean();
+
+        apply.setType(FinanceConstant.PAYAPPLY_TYPE_TEMP);
+        apply.setCustomerId(each.getCustomerId());
+        apply.setLocationId(user.getLocationId());
+        apply.setLogTime(TimeTools.now());
+        apply.setStafferId(stafferVSCustomer.getStafferId());
+        apply.setBadMoney(0);
+        apply.setDescription("批量拆分勾款");
+        apply.setOperator(user.getStafferId());
+        apply.setOperatorName(user.getStafferName());
+
+        apply.setOriCustomerId(bean.getCustomerId());
+        apply.setOriStafferId(bean.getOwnerId());
+        apply.setOriBillId(billId);
+
+        apply.setMoneys(newInBill.getMoneys());
+
+        List<PaymentVSOutBean> vsList = new ArrayList<PaymentVSOutBean>();
+
+        PaymentVSOutBean vs = new PaymentVSOutBean();
+
+        vs.setLocationId(user.getLocationId());
+
+        vs.setMoneys(newInBill.getMoneys());
+
+        vs.setOutId(each.getOutId());
+        vs.setOutBalanceId(each.getBalanceId());
+
+        vs.setBillId(newId);
+
+        vs.setPaymentId(newInBill.getPaymentId());
+
+        vs.setStafferId(apply.getStafferId());
+
+        vsList.add(vs);
+
+        apply.setVsList(vsList);
+
+        // 生成勾款申请
+        addPaymentApplyWithoutTrans(user, apply);
+
+        // 批量拆分的款马上生成凭证
+        apply.setType(FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT);
+        apply.setDescription("批量拆分预收");
+
+        // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用/预收拆分
+        Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
+
+        for (PaymentApplyListener listener : listenerMapValues) {
+            listener.onPassBean(user, apply);
+        }
+    }
+
+    @Transactional(rollbackFor = MYException.class)
     public boolean addTransferApply(User user, PaymentApplyBean bean)
-        throws MYException
-    {
-		JudgeTools.judgeParameterIsNull(user, bean, bean.getVsList());
-		
-		List<PaymentVSOutBean> vsList = bean.getVsList();
+            throws MYException {
+        JudgeTools.judgeParameterIsNull(user, bean, bean.getVsList());
+
+        List<PaymentVSOutBean> vsList = bean.getVsList();
 
         //check
-		String paymentId = bean.getPaymentId();
-		
-		PaymentBean payment = paymentDAO.find(paymentId);
-		
-		if (null == payment)
-		{
-			throw new MYException("数据错误,请确认操作");
-		}
-		
-		if (payment.getCtype() !=FinanceConstant.PAYMENTCTYPE_INTERNAL)
-		{
-			throw new MYException("回款不是内部资金类型,请确认操作");
-		}
-		
-		if (payment.getStatus() != FinanceConstant.PAYMENT_STATUS_INIT)
-        {
+        String paymentId = bean.getPaymentId();
+
+        PaymentBean payment = paymentDAO.find(paymentId);
+
+        if (null == payment) {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        if (payment.getCtype() != FinanceConstant.PAYMENTCTYPE_INTERNAL) {
+            throw new MYException("回款不是内部资金类型,请确认操作");
+        }
+
+        if (payment.getStatus() != FinanceConstant.PAYMENT_STATUS_INIT) {
             throw new MYException("回款已经被人认领,请确认操作");
         }
 
-		PaymentVSOutBean vs = vsList.get(0);
-		
+        PaymentVSOutBean vs = vsList.get(0);
+
 //		OutBillBean outBill = outBillDAO.find(vs.getOutId());
 //
 //		if (null == outBill)
@@ -2318,13 +2088,13 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 //		{
 //			throw new MYException("转账付款单金额[%.2f]与回款金额[%.2f]不一致,请确认操作", outBill.getMoneys(), payment.getMoney());
 //		}
-		
-		payment.setStafferId(user.getStafferId());
 
-		payment.setCustomerId("");
+        payment.setStafferId(user.getStafferId());
 
-		payment.setStatus(FinanceConstant.PAYMENT_STATUS_END);
-        
+        payment.setCustomerId("");
+
+        payment.setStatus(FinanceConstant.PAYMENT_STATUS_END);
+
         paymentDAO.updateEntityBean(payment);
 
         //#900
@@ -2343,13 +2113,13 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         inBillBean.setPaymentId(paymentId);
         //不要直接dao保存会有些字段未设置全
         billManager.addInBillBeanWithoutTransaction(user, inBillBean);
-        
+
 //        outBill.setStatus(FinanceConstant.OUTBILL_STATUS_END);
 //
 //        outBill.setDescription(outBill.getDescription() + ", 内部资金勾款:" + paymentId);
 //
 //        outBillDAO.updateEntityBean(outBill);
-		
+
         bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_PAYMENTAPPLY_PREFIX));
 
         bean.setLogTime(TimeTools.now());
@@ -2357,8 +2127,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         bean.setStatus(FinanceConstant.PAYAPPLY_STATUS_INIT);
 
         // 校验是否是特殊单据
-        for (PaymentVSOutBean vsItem : vsList)
-        {
+        for (PaymentVSOutBean vsItem : vsList) {
             vsItem.setId(commonDAO.getSquenceString20());
 
             vsItem.setParentId(bean.getId());
@@ -2369,49 +2138,44 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         paymentApplyDAO.saveEntityBean(bean);
 
         paymentVSOutDAO.saveAllEntityBeans(vsList);
-        
+
         saveFlowlog(user, bean);
-        
+
         // TAX_ADD
         Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
 
-		for (PaymentApplyListener listener : listenerMapValues)
-		{
-		    listener.onDrawTransfer(user, payment, inBillBean.getId());
-		}
+        for (PaymentApplyListener listener : listenerMapValues) {
+            listener.onDrawTransfer(user, payment, inBillBean.getId());
+        }
 
         return true;
-	}
-	
-	/**
-	 * @id 回款单HK
-	 * @customerId 供应商
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(rollbackFor = MYException.class)
-	public boolean addDrawProviderApply(User user, PaymentApplyBean bean) throws MYException
-	{
-		JudgeTools.judgeParameterIsNull(user, bean);
-		
-		// 检查HK是存在且未认领
-		PaymentBean payment = paymentDAO.find(bean.getPaymentId());
-		
-		if (null == payment)
-		{
-			throw new MYException("数据错误,请确认操作");
-		}
-		
-		if (payment.getCtype() !=FinanceConstant.PAYMENTCTYPE_EXTERNAL)
-		{
-			throw new MYException("回款不是外部资金类型,请确认操作");
-		}
-		
-		if (payment.getStatus() != FinanceConstant.PAYMENT_STATUS_INIT)
-        {
+    }
+
+    /**
+     * @id 回款单HK
+     * @customerId 供应商
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean addDrawProviderApply(User user, PaymentApplyBean bean) throws MYException {
+        JudgeTools.judgeParameterIsNull(user, bean);
+
+        // 检查HK是存在且未认领
+        PaymentBean payment = paymentDAO.find(bean.getPaymentId());
+
+        if (null == payment) {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        if (payment.getCtype() != FinanceConstant.PAYMENTCTYPE_EXTERNAL) {
+            throw new MYException("回款不是外部资金类型,请确认操作");
+        }
+
+        if (payment.getStatus() != FinanceConstant.PAYMENT_STATUS_INIT) {
             throw new MYException("回款已经被人认领,请确认操作");
         }
-		
+
         InBillBean inBean = new InBillBean();
 
         inBean.setBankId(payment.getBankId());
@@ -2425,7 +2189,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         inBean.setMoneys(payment.getMoney());
 
         inBean.setSrcMoneys(payment.getMoney());
-        
+
         inBean.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
 
         inBean.setDescription("自动生成预收收款单(供应商),从回款单:" + payment.getId() + "," + bean.getDescription());
@@ -2451,226 +2215,217 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         payment.setUpdateTime(TimeTools.now());
 
         paymentDAO.updateEntityBean(payment);
-        
+
         bean.setType(FinanceConstant.PAYAPPLY_TYPE_PAYMENT);
         bean.setDrawProvider(true);
-        
+
         // 回款认领凭证 1.银行-暂记户  2.暂记户-预收
         // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用 通过
         Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
 
-        for (PaymentApplyListener listener : listenerMapValues)
-        {
+        for (PaymentApplyListener listener : listenerMapValues) {
             listener.onPassBean(user, bean);
         }
-        
+
         return true;
     }
-	
-	@Transactional(rollbackFor = MYException.class)
-	public boolean refPurchaseBack(User user, String customerId, String ids) throws MYException
-	{
-		JudgeTools.judgeParameterIsNull(user, customerId, ids);
-		
-		// 根据供应商找到对应的预收
-		ConditionParse con = setCondition(user, customerId);
-		
-		List<InBillBean> billList = inBillDAO.queryEntityBeansByCondition(con);
-		
-		if (ListTools.isEmptyOrNull(billList))
-		{
-			throw new MYException("没有可用的供应商预收");
-		}
-		
-		// 预收与采购退货 是 多对多关系， 在此采用由采购退单 找可用的预收
-		List<PaymentApplyBean> applyList = new ArrayList<PaymentApplyBean>();
-		
-		String fullIds [] = ids.split("~");
-		
-		for (String fullId : fullIds)
-		{
-			if (StringTools.isNullOrNone(fullId))
-				continue;
-			
-			OutBean out = outDAO.find(fullId);
-			
-			if (null == out)
-				continue;
-			
-			if (out.getType() != OutConstant.OUT_TYPE_INBILL && out.getOutType() != OutConstant.OUTTYPE_IN_STOCK)
-			{
-				continue;
-			}
-			
-			if (out.getHadPay() != 0)
-				continue;
-			
-			// 勾预收 - 需勾金额总额
-			double lastMoney = -out.getTotal();
-			double moneys = lastMoney;
-			
-			List<PaymentVSOutBean> vs = new ArrayList<PaymentVSOutBean>();
-            
+
+    @Transactional(rollbackFor = MYException.class)
+    public boolean refPurchaseBack(User user, String customerId, String ids) throws MYException {
+        JudgeTools.judgeParameterIsNull(user, customerId, ids);
+
+        // 根据供应商找到对应的预收
+        ConditionParse con = setCondition(user, customerId);
+
+        List<InBillBean> billList = inBillDAO.queryEntityBeansByCondition(con);
+
+        if (ListTools.isEmptyOrNull(billList)) {
+            throw new MYException("没有可用的供应商预收");
+        }
+
+        // 预收与采购退货 是 多对多关系， 在此采用由采购退单 找可用的预收
+        List<PaymentApplyBean> applyList = new ArrayList<PaymentApplyBean>();
+
+        String fullIds[] = ids.split("~");
+
+        for (String fullId : fullIds) {
+            if (StringTools.isNullOrNone(fullId))
+                continue;
+
+            OutBean out = outDAO.find(fullId);
+
+            if (null == out)
+                continue;
+
+            if (out.getType() != OutConstant.OUT_TYPE_INBILL && out.getOutType() != OutConstant.OUTTYPE_IN_STOCK) {
+                continue;
+            }
+
+            if (out.getHadPay() != 0)
+                continue;
+
+            // 勾预收 - 需勾金额总额
+            double lastMoney = -out.getTotal();
+            double moneys = lastMoney;
+
+            List<PaymentVSOutBean> vs = new ArrayList<PaymentVSOutBean>();
+
             // 销售单一个一个的勾
-        	for (Iterator<InBillBean> iterator = billList.iterator(); iterator.hasNext();)
-            {
-        		InBillBean bill = iterator.next();
-        		
-        		if (MathTools.compare(bill.getMoneys(), lastMoney) > 0)
-                {
+            for (Iterator<InBillBean> iterator = billList.iterator(); iterator.hasNext(); ) {
+                InBillBean bill = iterator.next();
+
+                if (MathTools.compare(bill.getMoneys(), lastMoney) > 0) {
                     // 拆分此单  移交lastMoney出去使用
                     String newId = billManager.splitInBillBeanWithoutTransactional(user, bill.getId(), lastMoney);
 
                     bill.setMoneys(bill.getMoneys() - lastMoney);
-                    
+
                     InBillBean newBill = inBillDAO.find(newId);
-                    
+
                     newBill.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
                     newBill.setOutId(out.getFullId());
-                    
+
                     inBillDAO.updateEntityBean(newBill);
-                    
+
                     PaymentVSOutBean each = new PaymentVSOutBean();
-                    
+
                     each.setPaymentId(bill.getPaymentId());
                     each.setMoneys(lastMoney);
                     each.setBillId(newId);
                     each.setOutId(out.getFullId());
-                    
+
                     vs.add(each);
-                    
+
                     lastMoney = 0.0d;
-                    
+
                     break;
-                    
-                }else{
-                	 // 原预收 状态置为 关联销售
+
+                } else {
+                    // 原预收 状态置为 关联销售
                     bill.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
                     bill.setOutId(out.getFullId());
-                    
+
                     inBillDAO.updateEntityBean(bill);
-                    
+
                     iterator.remove();
-                    
+
                     lastMoney -= bill.getMoneys();
-                    
+
                     PaymentVSOutBean each = new PaymentVSOutBean();
-                    
+
                     each.setPaymentId(bill.getPaymentId());
                     each.setMoneys(bill.getMoneys());
                     each.setBillId(bill.getId());
                     each.setOutId(out.getFullId());
-                    
+
                     vs.add(each);
-                    
-                    if (lastMoney == 0.0d)
-                    {
-                    	break;
+
+                    if (lastMoney == 0.0d) {
+                        break;
                     }
                 }
             }
-        
-        	// 预收不够
-        	if (lastMoney > 0)
-        	{
-        		throw new MYException("采购退单[%s]勾款时发现预收不足，请检查", out.getFullId());
-        	}else{
-        		 // 生成收款申请数据 PaymentApplyBean
+
+            // 预收不够
+            if (lastMoney > 0) {
+                throw new MYException("采购退单[%s]勾款时发现预收不足，请检查", out.getFullId());
+            } else {
+                // 生成收款申请数据 PaymentApplyBean
                 PaymentApplyBean apply = new PaymentApplyBean();
-                
+
                 apply.setStafferId(user.getStafferId());
                 apply.setPaymentId("");
                 apply.setLogTime(TimeTools.now());
                 apply.setMoneys(moneys);
-                
+
                 apply.setVsList(vs);
-                
+
                 applyList.add(apply);
-        	}
-			
-			// 更新采购退货单 hadpay
-			outDAO.modifyOutHadPay(fullId, out.getTotal());
-		}
-		
-		// TAX_ADD 供应商预收(预收账款(客户/职员/部门)) /采购退货  (应付账款-货款(单位)) 通过
+            }
+
+            // 更新采购退货单 hadpay
+            outDAO.modifyOutHadPay(fullId, out.getTotal());
+        }
+
+        // TAX_ADD 供应商预收(预收账款(客户/职员/部门)) /采购退货  (应付账款-货款(单位)) 通过
         Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
 
-        for (PaymentApplyListener listener : listenerMapValues)
-        {
+        for (PaymentApplyListener listener : listenerMapValues) {
             listener.onStockBack(user, applyList);
         }
-		
-		return true;
-	}
 
-	private ConditionParse setCondition(User user, String customerId)
-	{
-		ConditionParse condtion = new ConditionParse();
-		
-		condtion.addWhereStr();
-		
-		condtion.addCondition("InBillBean.customerId", "=", customerId);
-        
+        return true;
+    }
+
+    private ConditionParse setCondition(User user, String customerId) {
+        ConditionParse condtion = new ConditionParse();
+
+        condtion.addWhereStr();
+
+        condtion.addCondition("InBillBean.customerId", "=", customerId);
+
         condtion.addCondition("InBillBean.ownerId", "=", user.getStafferId());
-        
+
         condtion.addIntCondition("InBillBean.type", "=", FinanceConstant.INBILL_TYPE_PURCHASEBACK);
 
         condtion.addIntCondition("InBillBean.status", "=", FinanceConstant.INBILL_STATUS_NOREF);
-        
+
         condtion.addCondition(" and InBillBean.moneys >= 0.01");//此处过滤金额为0
-        
+
         condtion.addCondition("InBillBean.moneys", "<>", FinanceConstant.BILL_ZERO_DOUBLE);//此处过滤金额为0
 
         condtion.addCondition("order by InBillBean.logTime desc");
-        
+
         return condtion;
-	}
+    }
 
     /**
      * #9 资金管理-收款稽核 每10分钟运行一次，只要申请中的“坏帐金额”为0的申请，均自动审批通过
+     *
      * @throws MYException
      */
     @Override
     public void passPaymentApplyJob() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
-            _logger.info("**************run passPaymentApplyJob****************");
+        _logger.info("**************run passPaymentApplyJob****************");
 
         //后台Job必须以显示的Transaction方式操作，否则数据库操作有问题：写入后无法查询得到数据。
-            TransactionTemplate tran = new TransactionTemplate(transactionManager);
+        TransactionTemplate tran = new TransactionTemplate(transactionManager);
 
-            tran.execute(new TransactionCallback() {
-                public Object doInTransaction(TransactionStatus arg0) {
-                    try {
-                        ConditionParse condtion = new ConditionParse();
+        tran.execute(new TransactionCallback() {
+            public Object doInTransaction(TransactionStatus arg0) {
+                try {
+                    ConditionParse condtion = new ConditionParse();
 
-                        condtion.addWhereStr();
-                        //29 待审核、待稽核同一个审批入口
-                        condtion.addCondition(" and PaymentApplyBean.status in (0,3)");
-                        List<PaymentApplyBean> beans = paymentApplyDAO.queryEntityBeansByCondition(condtion);
-                        if (!ListTools.isEmptyOrNull(beans)) {
-                            _logger.info("***passPaymentApplyJob with PaymentApplyBean size****" + beans.size());
-                            for (PaymentApplyBean bean : beans) {
-                                synchronized (PAYMENT_APPLY_LOCK) {
-                                    try {
-                                        passPaymentApplyForJob(null, bean.getId(), "", "");
-                                    } catch (Exception e) {
-                                        _logger.error(bean.getId()+" Fail to passPaymentApplyForJob ",e);
-                                    }
+                    condtion.addWhereStr();
+                    //29 待审核、待稽核同一个审批入口
+                    condtion.addCondition(" and PaymentApplyBean.status in (0,3)");
+                    List<PaymentApplyBean> beans = paymentApplyDAO.queryEntityBeansByCondition(condtion);
+                    if (!ListTools.isEmptyOrNull(beans)) {
+                        _logger.info("***passPaymentApplyJob with PaymentApplyBean size****" + beans.size());
+                        for (PaymentApplyBean bean : beans) {
+                            synchronized (PAYMENT_APPLY_LOCK) {
+                                try {
+                                    passPaymentApplyForJob(null, bean.getId(), "", "");
+                                } catch (Exception e) {
+                                    _logger.error(bean.getId() + " Fail to passPaymentApplyForJob ", e);
                                 }
                             }
                         }
-                    } catch (Exception e) {
-                        _logger.error(e, e);
                     }
-
-                    return Boolean.TRUE;
+                } catch (Exception e) {
+                    _logger.error(e, e);
                 }
-            });
+
+                return Boolean.TRUE;
+            }
+        });
         _logger.info("**************finished passPaymentApplyJob****************");
     }
 
     /**
      * 2014/12/22 add for 后台job
+     *
      * @param user
      * @param id
      * @param reason
@@ -2680,9 +2435,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
      */
     @Override
 //    @Transactional(rollbackFor = MYException.class)
-    public boolean passPaymentApplyForJob(User user, String id, String reason,String description)
-            throws MYException
-    {
+    public boolean passPaymentApplyForJob(User user, String id, String reason, String description)
+            throws MYException {
 //        JudgeTools.judgeParameterIsNull(user, id);
 
         PaymentApplyBean apply = checkPass(id);
@@ -2697,15 +2451,14 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         apply.setAutoPayFlag(true);
 
         // 生成收款单,更新销售单和委托清单付款状态/或者转成费用
-        createInbillForJob(apply, payment, reason,description);
+        createInbillForJob(apply, payment, reason, description);
 
         // 更新回款单的状态和使用金额
         updatePayment(apply);
 
         // 凭证:回款转预收/销售单绑定(预收转应收)/预收转费用 通过
         Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
-        for (PaymentApplyListener listener : listenerMapValues)
-        {
+        for (PaymentApplyListener listener : listenerMapValues) {
             listener.onPassBean(user, apply);
         }
 
@@ -2714,42 +2467,37 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         return true;
     }
 
-    /** 2014/12/22 add for job
+    /**
+     * 2014/12/22 add for job
      * createInbillForJob
      *
      * @param apply
      * @param payment
      * @throws MYException
      */
-    private void createInbillForJob(PaymentApplyBean apply, PaymentBean payment, String reason,String description)
-            throws MYException
-    {
+    private void createInbillForJob(PaymentApplyBean apply, PaymentBean payment, String reason, String description)
+            throws MYException {
         List<PaymentVSOutBean> vsList2 = apply.getVsList();
         List<PaymentVSOutBean> vsList = this.ignoredDuplicate(vsList2);
 
-        for (PaymentVSOutBean item : vsList)
-        {
-            if (item.getMoneys() == 0.0d)
-            {
+        for (PaymentVSOutBean item : vsList) {
+            if (item.getMoneys() == 0.0d) {
                 continue;
             }
             // 生成收款单(回款转预收)
-            if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT)
-            {
+            if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT) {
                 // 回款转收款通过,增加收款单
-                saveBillInnerForJob(apply, payment, item, reason,description);
+                saveBillInnerForJob(apply, payment, item, reason, description);
             }
             // 预收转费用
-            else if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE)
-            {
+            else if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE) {
                 // 把预收转成费用,且新生成的需要核对
                 String billId = item.getBillId();
 
                 // 更新预付金额
                 InBillBean bill = inBillDAO.find(billId);
 
-                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS)
-                {
+                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS) {
                     throw new MYException("预收转费用必须是关联申请态,请确认操作");
                 }
 
@@ -2770,16 +2518,14 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 inBillDAO.updateEntityBean(bill);
             }
             // 预收拆分
-            else if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
-            {
+            else if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT) {
                 // 把预收转成费用,且新生成的需要核对
                 String billId = item.getBillId();
 
                 // 更新预付金额
                 InBillBean bill = inBillDAO.find(billId);
 
-                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS)
-                {
+                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS) {
                     throw new MYException("预收拆分必须是关联申请态,请确认操作");
                 }
 
@@ -2798,58 +2544,46 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 bill.setDescription(bill.getDescription() + " " + apply.getDescription());
 
                 inBillDAO.updateEntityBean(bill);
-            }
-            else
-            {
+            } else {
                 // 绑定销售单(回款转预收&&预收转应收)
                 InBillBean bill = inBillDAO.find(item.getBillId());
 
-                if (bill == null)
-                {
+                if (bill == null) {
                     throw new MYException("数据错误,请确认操作");
                 }
 
-                if (bill.getStatus() == FinanceConstant.INBILL_STATUS_PAYMENTS)
-                {
+                if (bill.getStatus() == FinanceConstant.INBILL_STATUS_PAYMENTS) {
                     throw new MYException("收款单状态错误,请确认操作");
                 }
 
                 // 这里防止并行对销售单操作
-                synchronized (LockHelper.getLock(item.getOutId()))
-                {
+                synchronized (LockHelper.getLock(item.getOutId())) {
                     OutBean outBean = outDAO.find(item.getOutId());
 
-                    if (outBean == null)
-                    {
+                    if (outBean == null) {
                         throw new MYException("数据错误,请确认操作");
                     }
 
-                    if ( !OutHelper.canFeeOpration(outBean))
-                    {
+                    if (!OutHelper.canFeeOpration(outBean)) {
                         throw new MYException("销售单状态错误,请确认操作");
                     }
 
-                    if ( !StringTools.isNullOrNone(outBean.getChecks()))
-                    {
+                    if (!StringTools.isNullOrNone(outBean.getChecks())) {
                         bill.setDescription(bill.getDescription() + "<br>销售单核对信息:"
                                 + outBean.getChecks() + "<br>审批意见(" + item.getOutId()
-                                + "):" + reason  + " " + description);
+                                + "):" + reason + " " + description);
                     }
 
-                    if (bill.getCheckStatus() == PublicConstant.CHECK_STATUS_END)
-                    {
+                    if (bill.getCheckStatus() == PublicConstant.CHECK_STATUS_END) {
                         bill.setDescription(bill.getDescription() + "<br>与销售单关联付款所以重置核对状态,原核对信息:"
                                 + bill.getChecks() + "<br>审批意见(" + item.getOutId()
-                                + "):" + reason  + " " + description);
-                    }
-                    else
-                    {
+                                + "):" + reason + " " + description);
+                    } else {
                         bill.setDescription(bill.getDescription() + "<br>审批意见(" + item.getOutId()
-                                + "):" + reason  + " " + description);
+                                + "):" + reason + " " + description);
                     }
 
-                    if (BillHelper.isPreInBill(bill))
-                    {
+                    if (BillHelper.isPreInBill(bill)) {
                         // 这里需要把收款单的状态变成未核对
                         BillHelper.initInBillCheckStatus(bill);
                     }
@@ -2864,7 +2598,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 //                    bill.setStafferId(user.getStafferId());
 
                     // 用坏账勾款 标记  借用createType add by f 2012-8-2
-                    if (bill.getType()== FinanceConstant.INBILL_TYPE_BADOUT){
+                    if (bill.getType() == FinanceConstant.INBILL_TYPE_BADOUT) {
 
                         bill.setCreateType(FinanceConstant.BILL_CREATETYPE_HANDBADOUT);
                     }
@@ -2878,8 +2612,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         paymentVSOutDAO.updateAllEntityBeans(vsList);
 
         // 销售单绑定
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING)
-        {
+        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING) {
             String outId = vsList.get(0).getOutId();
 
             String outBalanceId = vsList.get(0).getOutBalanceId();
@@ -2890,21 +2623,17 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         }
 
         // 里面存在多个销售单或者委托清单(回款转收款 )/这里没有坏账
-        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT)
-        {
+        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT) {
             // 指定认领的操作检查
-            if ( !"0".equals(payment.getDestStafferId())
-                    && !StringTools.isNullOrNone(payment.getDestStafferId()))
-            {
-                if ( !apply.getStafferId().equals(payment.getDestStafferId()))
-                {
+            if (!"0".equals(payment.getDestStafferId())
+                    && !StringTools.isNullOrNone(payment.getDestStafferId())) {
+                if (!apply.getStafferId().equals(payment.getDestStafferId())) {
                     throw new MYException("此回款只能[%s]认领,请确认操作", "Nobody");
                 }
             }
 
             // 手续费
-            if (payment.getHandling() > 0)
-            {
+            if (payment.getHandling() > 0) {
                 int maxFee = parameterDAO.getInt(SysConfigConstant.MAX_RECVIVE_FEE);
 
                 OutBillBean out = new OutBillBean();
@@ -2915,8 +2644,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 //                out.setLocationId(user.getLocationId());
                 out.setMoneys(payment.getHandling());
 
-                if (payment.getMoney() < maxFee)
-                {
+                if (payment.getMoney() < maxFee) {
                     // 个人承担这个费用
                     out.setOwnerId(apply.getStafferId());
                 }
@@ -2934,10 +2662,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             }
 
             // 处理销售的回款和付款绑定的核心
-            for (PaymentVSOutBean item : vsList)
-            {
-                if (StringTools.isNullOrNone(item.getOutId()))
-                {
+            for (PaymentVSOutBean item : vsList) {
+                if (StringTools.isNullOrNone(item.getOutId())) {
                     continue;
                 }
 
@@ -2955,6 +2681,7 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     /**
      * 2014/12/22 add for job
+     *
      * @param apply
      * @param payment
      * @param item
@@ -2963,9 +2690,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
      * @throws MYException
      */
     private void saveBillInnerForJob(PaymentApplyBean apply, PaymentBean payment,
-                               PaymentVSOutBean item, String reason,String description)
-            throws MYException
-    {
+                                     PaymentVSOutBean item, String reason, String description)
+            throws MYException {
         InBillBean inBean = new InBillBean();
 
         inBean.setBankId(payment.getBankId());
@@ -2981,19 +2707,15 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         inBean.setSrcMoneys(item.getMoneys());
 
-        if (StringTools.isNullOrNone(item.getOutId()))
-        {
+        if (StringTools.isNullOrNone(item.getOutId())) {
             inBean.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
 
             inBean.setDescription("系统生成预收收款单,从回款单:" + payment.getId() + ",未关联销售单.审批意见:" + reason + " " + description);
-        }
-        else
-        {
+        } else {
             // 控制如果销售单正在对账,则不能操作
             OutBean out = outDAO.find(item.getOutId());
 
-            if (out.getFeedBackCheck() == 1)
-            {
+            if (out.getFeedBackCheck() == 1) {
                 throw new MYException("销售单[%s]正在对账中，不能勾款", item.getOutId());
             }
 
@@ -3029,23 +2751,20 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     @Transactional(rollbackFor = MYException.class)
     @Override
-    public boolean batchDrawPayment(User user, Map<String,PaymentApplyBean> paymentToApply) throws MYException {
-        _logger.info("***batchDrawPayment with beans****"+paymentToApply);
-        for (String paymentId: paymentToApply.keySet()){
+    public boolean batchDrawPayment(User user, Map<String, PaymentApplyBean> paymentToApply) throws MYException {
+        _logger.info("***batchDrawPayment with beans****" + paymentToApply);
+        for (String paymentId : paymentToApply.keySet()) {
             PaymentApplyBean apply = paymentToApply.get(paymentId);
 
             //更新回款单状态
             PaymentBean pay = paymentDAO.find(paymentId);
-            if (pay == null)
-            {
+            if (pay == null) {
                 throw new MYException("数据错误,请确认操作");
             }
-            if (pay.getStatus() != FinanceConstant.PAYMENT_STATUS_INIT)
-            {
+            if (pay.getStatus() != FinanceConstant.PAYMENT_STATUS_INIT) {
                 throw new MYException("回款已经被人认领,请确认操作");
             }
-            if (pay.getCtype() !=FinanceConstant.PAYMENTCTYPE_EXTERNAL)
-            {
+            if (pay.getCtype() != FinanceConstant.PAYMENTCTYPE_EXTERNAL) {
                 throw new MYException("回款不是外部资金类型,请确认操作");
             }
 
@@ -3057,13 +2776,30 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             apply.setOperator(user.getStafferId());
             apply.setOperatorName(user.getStafferName());
 
-            if (FinanceConstant.RLLX_XSHK.equals(apply.getRllx())){
-                pay.setStafferId(user.getStafferId());
+            if (FinanceConstant.RLLX_XSHK.equals(apply.getRllx())) {
+//                pay.setStafferId(user.getStafferId());
+                //#941 设为客户对应的职员
+                String customerId = apply.getCustomerId();
+                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(customerId);
+
+                if (null == vsBean) {
+                    throw new MYException("客户[%s]没有挂靠业务员", customerId);
+                } else {
+                    String stafferId = vsBean.getStafferId();
+                    StafferBean stafferBean = this.stafferDAO.find(stafferId);
+                    if (stafferBean == null) {
+                        throw new MYException("职员[%s]不存在", stafferId);
+                    } else {
+                        pay.setStafferId(stafferId);
+                        apply.setStafferId(stafferId);
+                        _logger.info("***find staffer***" + stafferId);
+                    }
+                }
                 pay.setCustomerId(apply.getCustomerId());
                 pay.setStatus(FinanceConstant.PAYMENT_STATUS_END);
                 paymentDAO.updateEntityBean(pay);
                 this.addPaymentApply(user, apply);
-            } else if (FinanceConstant.RLLX_GYSHK.equals(apply.getRllx())){
+            } else if (FinanceConstant.RLLX_GYSHK.equals(apply.getRllx())) {
                 this.addDrawProviderApply(user, apply);
             }
         }
@@ -3074,286 +2810,244 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     /**
      * @return the paymentApplyDAO
      */
-    public PaymentApplyDAO getPaymentApplyDAO()
-    {
+    public PaymentApplyDAO getPaymentApplyDAO() {
         return paymentApplyDAO;
     }
 
     /**
-     * @param paymentApplyDAO
-     *            the paymentApplyDAO to set
+     * @param paymentApplyDAO the paymentApplyDAO to set
      */
-    public void setPaymentApplyDAO(PaymentApplyDAO paymentApplyDAO)
-    {
+    public void setPaymentApplyDAO(PaymentApplyDAO paymentApplyDAO) {
         this.paymentApplyDAO = paymentApplyDAO;
     }
 
     /**
      * @return the paymentVSOutDAO
      */
-    public PaymentVSOutDAO getPaymentVSOutDAO()
-    {
+    public PaymentVSOutDAO getPaymentVSOutDAO() {
         return paymentVSOutDAO;
     }
 
     /**
-     * @param paymentVSOutDAO
-     *            the paymentVSOutDAO to set
+     * @param paymentVSOutDAO the paymentVSOutDAO to set
      */
-    public void setPaymentVSOutDAO(PaymentVSOutDAO paymentVSOutDAO)
-    {
+    public void setPaymentVSOutDAO(PaymentVSOutDAO paymentVSOutDAO) {
         this.paymentVSOutDAO = paymentVSOutDAO;
     }
 
     /**
      * @return the commonDAO
      */
-    public CommonDAO getCommonDAO()
-    {
+    public CommonDAO getCommonDAO() {
         return commonDAO;
     }
 
     /**
-     * @param commonDAO
-     *            the commonDAO to set
+     * @param commonDAO the commonDAO to set
      */
-    public void setCommonDAO(CommonDAO commonDAO)
-    {
+    public void setCommonDAO(CommonDAO commonDAO) {
         this.commonDAO = commonDAO;
     }
 
     /**
      * @return the inBillDAO
      */
-    public InBillDAO getInBillDAO()
-    {
+    public InBillDAO getInBillDAO() {
         return inBillDAO;
     }
 
     /**
-     * @param inBillDAO
-     *            the inBillDAO to set
+     * @param inBillDAO the inBillDAO to set
      */
-    public void setInBillDAO(InBillDAO inBillDAO)
-    {
+    public void setInBillDAO(InBillDAO inBillDAO) {
         this.inBillDAO = inBillDAO;
     }
 
     /**
      * @return the paymentDAO
      */
-    public PaymentDAO getPaymentDAO()
-    {
+    public PaymentDAO getPaymentDAO() {
         return paymentDAO;
     }
 
     /**
-     * @param paymentDAO
-     *            the paymentDAO to set
+     * @param paymentDAO the paymentDAO to set
      */
-    public void setPaymentDAO(PaymentDAO paymentDAO)
-    {
+    public void setPaymentDAO(PaymentDAO paymentDAO) {
         this.paymentDAO = paymentDAO;
     }
 
     /**
      * @return the flowLogDAO
      */
-    public FlowLogDAO getFlowLogDAO()
-    {
+    public FlowLogDAO getFlowLogDAO() {
         return flowLogDAO;
     }
 
     /**
-     * @param flowLogDAO
-     *            the flowLogDAO to set
+     * @param flowLogDAO the flowLogDAO to set
      */
-    public void setFlowLogDAO(FlowLogDAO flowLogDAO)
-    {
+    public void setFlowLogDAO(FlowLogDAO flowLogDAO) {
         this.flowLogDAO = flowLogDAO;
     }
 
     /**
      * @return the outDAO
      */
-    public OutDAO getOutDAO()
-    {
+    public OutDAO getOutDAO() {
         return outDAO;
     }
 
     /**
-     * @param outDAO
-     *            the outDAO to set
+     * @param outDAO the outDAO to set
      */
-    public void setOutDAO(OutDAO outDAO)
-    {
+    public void setOutDAO(OutDAO outDAO) {
         this.outDAO = outDAO;
     }
 
     /**
      * @return the billManager
      */
-    public BillManager getBillManager()
-    {
+    public BillManager getBillManager() {
         return billManager;
     }
 
     /**
-     * @param billManager
-     *            the billManager to set
+     * @param billManager the billManager to set
      */
-    public void setBillManager(BillManager billManager)
-    {
+    public void setBillManager(BillManager billManager) {
         this.billManager = billManager;
     }
 
     /**
      * @return the outBalanceDAO
      */
-    public OutBalanceDAO getOutBalanceDAO()
-    {
+    public OutBalanceDAO getOutBalanceDAO() {
         return outBalanceDAO;
     }
 
     /**
-     * @param outBalanceDAO
-     *            the outBalanceDAO to set
+     * @param outBalanceDAO the outBalanceDAO to set
      */
-    public void setOutBalanceDAO(OutBalanceDAO outBalanceDAO)
-    {
+    public void setOutBalanceDAO(OutBalanceDAO outBalanceDAO) {
         this.outBalanceDAO = outBalanceDAO;
     }
 
     /**
      * @return the outManager
      */
-    public OutManager getOutManager()
-    {
+    public OutManager getOutManager() {
         return outManager;
     }
 
     /**
-     * @param outManager
-     *            the outManager to set
+     * @param outManager the outManager to set
      */
-    public void setOutManager(OutManager outManager)
-    {
+    public void setOutManager(OutManager outManager) {
         this.outManager = outManager;
     }
 
     /**
      * @return the parameterDAO
      */
-    public ParameterDAO getParameterDAO()
-    {
+    public ParameterDAO getParameterDAO() {
         return parameterDAO;
     }
 
     /**
-     * @param parameterDAO
-     *            the parameterDAO to set
+     * @param parameterDAO the parameterDAO to set
      */
-    public void setParameterDAO(ParameterDAO parameterDAO)
-    {
+    public void setParameterDAO(ParameterDAO parameterDAO) {
         this.parameterDAO = parameterDAO;
     }
 
     /**
      * @return the backPayApplyDAO
      */
-    public BackPayApplyDAO getBackPayApplyDAO()
-    {
+    public BackPayApplyDAO getBackPayApplyDAO() {
         return backPayApplyDAO;
     }
 
     /**
-     * @param backPayApplyDAO
-     *            the backPayApplyDAO to set
+     * @param backPayApplyDAO the backPayApplyDAO to set
      */
-    public void setBackPayApplyDAO(BackPayApplyDAO backPayApplyDAO)
-    {
+    public void setBackPayApplyDAO(BackPayApplyDAO backPayApplyDAO) {
         this.backPayApplyDAO = backPayApplyDAO;
     }
 
-	/**
-	 * @return the autoPayMonitorDAO
-	 */
-	public AutoPayMonitorDAO getAutoPayMonitorDAO()
-	{
-		return autoPayMonitorDAO;
-	}
+    /**
+     * @return the autoPayMonitorDAO
+     */
+    public AutoPayMonitorDAO getAutoPayMonitorDAO() {
+        return autoPayMonitorDAO;
+    }
 
-	/**
-	 * @param autoPayMonitorDAO the autoPayMonitorDAO to set
-	 */
-	public void setAutoPayMonitorDAO(AutoPayMonitorDAO autoPayMonitorDAO)
-	{
-		this.autoPayMonitorDAO = autoPayMonitorDAO;
-	}
+    /**
+     * @param autoPayMonitorDAO the autoPayMonitorDAO to set
+     */
+    public void setAutoPayMonitorDAO(AutoPayMonitorDAO autoPayMonitorDAO) {
+        this.autoPayMonitorDAO = autoPayMonitorDAO;
+    }
 
-	/**
-	 * @return the customerBankDAO
-	 */
-	public CustomerBankDAO getCustomerBankDAO()
-	{
-		return customerBankDAO;
-	}
+    /**
+     * @return the customerBankDAO
+     */
+    public CustomerBankDAO getCustomerBankDAO() {
+        return customerBankDAO;
+    }
 
-	/**
-	 * @param customerBankDAO the customerBankDAO to set
-	 */
-	public void setCustomerBankDAO(CustomerBankDAO customerBankDAO)
-	{
-		this.customerBankDAO = customerBankDAO;
-	}
+    /**
+     * @param customerBankDAO the customerBankDAO to set
+     */
+    public void setCustomerBankDAO(CustomerBankDAO customerBankDAO) {
+        this.customerBankDAO = customerBankDAO;
+    }
 
-	/**
-	 * @return the stafferVSCustomerDAO
-	 */
-	public StafferVSCustomerDAO getStafferVSCustomerDAO()
-	{
-		return stafferVSCustomerDAO;
-	}
+    /**
+     * @return the stafferVSCustomerDAO
+     */
+    public StafferVSCustomerDAO getStafferVSCustomerDAO() {
+        return stafferVSCustomerDAO;
+    }
 
-	/**
-	 * @param stafferVSCustomerDAO the stafferVSCustomerDAO to set
-	 */
-	public void setStafferVSCustomerDAO(StafferVSCustomerDAO stafferVSCustomerDAO)
-	{
-		this.stafferVSCustomerDAO = stafferVSCustomerDAO;
-	}
+    /**
+     * @param stafferVSCustomerDAO the stafferVSCustomerDAO to set
+     */
+    public void setStafferVSCustomerDAO(StafferVSCustomerDAO stafferVSCustomerDAO) {
+        this.stafferVSCustomerDAO = stafferVSCustomerDAO;
+    }
 
-	/**
-	 * @return the dutyDAO
-	 */
-	public DutyDAO getDutyDAO()
-	{
-		return dutyDAO;
-	}
+    /**
+     * @return the dutyDAO
+     */
+    public DutyDAO getDutyDAO() {
+        return dutyDAO;
+    }
 
-	/**
-	 * @param dutyDAO the dutyDAO to set
-	 */
-	public void setDutyDAO(DutyDAO dutyDAO)
-	{
-		this.dutyDAO = dutyDAO;
-	}
+    /**
+     * @param dutyDAO the dutyDAO to set
+     */
+    public void setDutyDAO(DutyDAO dutyDAO) {
+        this.dutyDAO = dutyDAO;
+    }
 
-	/**
-	 * @return the outBillDAO
-	 */
-	public OutBillDAO getOutBillDAO()
-	{
-		return outBillDAO;
-	}
+    /**
+     * @return the outBillDAO
+     */
+    public OutBillDAO getOutBillDAO() {
+        return outBillDAO;
+    }
 
-	/**
-	 * @param outBillDAO the outBillDAO to set
-	 */
-	public void setOutBillDAO(OutBillDAO outBillDAO)
-	{
-		this.outBillDAO = outBillDAO;
-	}
+    /**
+     * @param outBillDAO the outBillDAO to set
+     */
+    public void setOutBillDAO(OutBillDAO outBillDAO) {
+        this.outBillDAO = outBillDAO;
+    }
+
+    public void setStafferDAO(StafferDAO stafferDAO) {
+        this.stafferDAO = stafferDAO;
+    }
 
     public PlatformTransactionManager getTransactionManager() {
         return transactionManager;
@@ -3362,4 +3056,5 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     public void setTransactionManager(PlatformTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
     }
+
 }

@@ -14361,7 +14361,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         if (AppConstant.APP_NAME_TW.equals(appName)){
             //体外
-            conditionParse.addCondition(" and item in('体外','全部')");
+            conditionParse.addCondition(" and item in('TW','全部')");
         } else {
             conditionParse.addCondition(" and item in('体内','全部')");
         }

@@ -155,4 +155,6 @@ public interface SysConfigConstant
 
     String APP_NAME = "APP_NAME";
 
+    String NGINX_PORT = "nginx_port";
+
 }

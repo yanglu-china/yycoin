@@ -23,5 +23,7 @@ public interface PackageDAO extends DAO<PackageBean, PackageVO>
 
 	PrePackageBean queryPrePackage(String citicNo, int status);
 
+	PrePackageBean queryPrePackageIgnoreStatus(String citicNo);
+
 	boolean updatePrePackageStatus(String citicNo, int status);
 }

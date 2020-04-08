@@ -758,7 +758,17 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
             FinanceHelper.copyFinanceItem(financeBean, itemIn);
 
             // 其他应收款_备用金(部门/职员)
-            TaxBean inTax = taxDAO.findByUnique(TaxItemConstanst.OTHER_RECEIVE_BORROW);
+            TaxBean inTax = null;
+            //add by zhangxian 2020-4-2
+            //对公支付 1151 PREPAID_ACCOUNTS
+            if("对公报销".equalsIgnoreCase(bean.getRemark()))
+            {
+            	inTax = taxDAO.findByUnique(TaxItemConstanst.PREPAID_ACCOUNTS);
+            }
+            else
+            {
+            	inTax = taxDAO.findByUnique(TaxItemConstanst.OTHER_RECEIVE_BORROW);
+            }
 
             if (inTax == null)
             {

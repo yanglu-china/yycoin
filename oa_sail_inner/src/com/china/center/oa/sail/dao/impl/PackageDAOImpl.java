@@ -71,6 +71,17 @@ public class PackageDAOImpl extends BaseDAO<PackageBean, PackageVO> implements P
 	}
 
 	@Override
+	public PrePackageBean queryPrePackageIgnoreStatus(String citicNo) {
+		String sql = "select * from t_center_prepackage where citicNo = ?";
+		List<PrePackageBean> result = this.jdbcOperation.queryForListBySql(sql,PrePackageBean.class,citicNo);
+		if (ListTools.isEmptyOrNull(result)){
+			return null;
+		} else{
+			return result.get(0);
+		}
+	}
+
+	@Override
 	public boolean updatePrePackageStatus(String citicNo, int status) {
 		String sql = "update t_center_prepackage set status = ? where citicNo = ?";
 
