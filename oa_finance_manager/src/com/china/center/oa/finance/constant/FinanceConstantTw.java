@@ -295,7 +295,7 @@ public interface FinanceConstantTw
     /**
      * 特殊订单款
      */
-//    @Defined(key = "outbillTypeTw", value = "特殊订单款")
+    @Defined(key = "outbillTypeTw", value = "特殊订单款")
     int OUTBILL_TYPE_SPECIAL = 23;
 
 
