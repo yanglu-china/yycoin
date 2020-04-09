@@ -1236,8 +1236,8 @@ public class FinanceAction extends DispatchAction {
 		}
 		rds.close();
 
-		//用来检查paymentId累计金额一致
-		Map<String,PaymentApplyBean> paymentToApply = new HashMap<>();
+		//用来检查paymentId累计金额一致,一个HK单可对应多个不同客户勾款多个SO
+		Map<String,List<PaymentApplyBean>> paymentToApply = new HashMap<>();
 		//用来检查outId累计金额一致
 		Map<String, Double> outToTotal = new HashMap<>();
 
@@ -1248,26 +1248,26 @@ public class FinanceAction extends DispatchAction {
 				if (StringTools.isNullOrNone(paymentId)){
 				    continue;
                 }
-				PaymentApplyBean paymentApplyBean = paymentToApply.get(paymentId);
+				List<PaymentApplyBean> paymentApplyBeans = paymentToApply.get(paymentId);
 				PaymentVSOutBean paymentVSOutBean = new PaymentVSOutBean();
 				paymentVSOutBean.setOutId(applyBean.getOutId());
 				paymentVSOutBean.setMoneys(applyBean.getMoneys());
 				paymentVSOutBean.setLocationId(user.getLocationId());
 				paymentVSOutBean.setPaymentId(paymentId);
 				paymentVSOutBean.setStafferId(applyBean.getStafferId());
+				List<PaymentVSOutBean> vsList = new ArrayList<>();
+				vsList.add(paymentVSOutBean);
+				applyBean.setVsList(vsList);
 
-				if (paymentApplyBean == null){
-					List<PaymentVSOutBean> vsList = new ArrayList<>();
-					vsList.add(paymentVSOutBean);
-					applyBean.setVsList(vsList);
-					paymentToApply.put(paymentId, applyBean);
-					_logger.info("***vsList111***"+vsList);
+				if (paymentApplyBeans == null){
+					paymentApplyBeans = new ArrayList<>();
+					paymentApplyBeans.add(applyBean);
+					paymentToApply.put(paymentId, paymentApplyBeans);
 				} else{
-					List<PaymentVSOutBean> vsList = paymentApplyBean.getVsList();
-					vsList.add(paymentVSOutBean);
+					paymentApplyBeans.add(applyBean);
 
 					//同一个回款单只能对应同一个认领类型
-					if (!paymentApplyBean.getRllx().equals(applyBean.getRllx())){
+					if (!paymentApplyBeans.get(0).getRllx().equals(applyBean.getRllx())){
 						builder.append(String.format("同一个回款单%s只能对应同一个认领类型", paymentId))
 								.append("<br>");
 						importError = true;
@@ -1286,21 +1286,26 @@ public class FinanceAction extends DispatchAction {
 
 			_logger.info("***merged data***"+paymentToApply);
 			_logger.info("***merged out***"+outToTotal);
-			//检查模板中金额必须与回款单一致
+			//检查模板中同一HK单累计金额必须与回款单一致
 			for (String paymentId: paymentToApply.keySet()){
 				PaymentBean paymentBean = this.paymentDAO.find(paymentId);
-				PaymentApplyBean applyBean = paymentToApply.get(paymentId);
-				//计算同一回款单累计金额
-				List<PaymentVSOutBean> vsList = applyBean.getVsList();
-				_logger.info("***vsList222***"+vsList);
-				double money = 0;
-				for (PaymentVSOutBean vs: vsList){
-					money += vs.getMoneys();
-				}
-				applyBean.setMoneys(money);
+				List<PaymentApplyBean> applyBeans = paymentToApply.get(paymentId);
 
-				if (!NumberUtils.equals(paymentBean.getMoney(),applyBean.getMoneys(), 0.001)){
-					builder.append(String.format("导入模板中金额累计%.2f与HK单%s金额%.2f不一致", applyBean.getMoneys(),
+				//计算同一回款单累计金额
+				double total = 0;
+				for (PaymentApplyBean applyBean: applyBeans){
+					List<PaymentVSOutBean> vsList = applyBean.getVsList();
+					_logger.info("***vsList222***"+vsList);
+					double money = 0;
+					for (PaymentVSOutBean vs: vsList){
+						money += vs.getMoneys();
+					}
+					applyBean.setMoneys(money);
+					total += money;
+				}
+
+				if (!NumberUtils.equals(paymentBean.getMoney(),total, 0.001)){
+					builder.append(String.format("导入模板中金额累计%.2f与HK单%s金额%.2f不一致", total,
 							paymentId,paymentBean.getMoney()))
 							.append("<br>");
 					importError = true;

@@ -192,7 +192,7 @@ public class FinanceFacadeImpl extends AbstarctFacade implements FinanceFacade
     }
 
     @Override
-    public boolean batchDrawPayment(String userId, Map<String,PaymentApplyBean> paymentToApply) throws MYException {
+    public boolean batchDrawPayment(String userId, Map<String,List<PaymentApplyBean>> paymentToApply) throws MYException {
         User user = userManager.findUser(userId);
 
         checkUser(user);

@@ -2751,10 +2751,10 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
     @Transactional(rollbackFor = MYException.class)
     @Override
-    public boolean batchDrawPayment(User user, Map<String, PaymentApplyBean> paymentToApply) throws MYException {
+    public boolean batchDrawPayment(User user, Map<String, List<PaymentApplyBean>> paymentToApply) throws MYException {
         _logger.info("***batchDrawPayment with beans****" + paymentToApply);
         for (String paymentId : paymentToApply.keySet()) {
-            PaymentApplyBean apply = paymentToApply.get(paymentId);
+            List<PaymentApplyBean> applyBeans = paymentToApply.get(paymentId);
 
             //更新回款单状态
             PaymentBean pay = paymentDAO.find(paymentId);
@@ -2768,39 +2768,41 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                 throw new MYException("回款不是外部资金类型,请确认操作");
             }
 
-            //认领操作
-            apply.setType(FinanceConstant.PAYAPPLY_TYPE_PAYMENT);
-            apply.setLocationId(user.getLocationId());
-            apply.setLogTime(TimeTools.now());
-            apply.setStafferId(user.getStafferId());
-            apply.setOperator(user.getStafferId());
-            apply.setOperatorName(user.getStafferName());
+            for (PaymentApplyBean apply :applyBeans){
+                //认领操作
+                apply.setType(FinanceConstant.PAYAPPLY_TYPE_PAYMENT);
+                apply.setLocationId(user.getLocationId());
+                apply.setLogTime(TimeTools.now());
+                apply.setStafferId(user.getStafferId());
+                apply.setOperator(user.getStafferId());
+                apply.setOperatorName(user.getStafferName());
 
-            if (FinanceConstant.RLLX_XSHK.equals(apply.getRllx())) {
+                if (FinanceConstant.RLLX_XSHK.equals(apply.getRllx())) {
 //                pay.setStafferId(user.getStafferId());
-                //#941 设为客户对应的职员
-                String customerId = apply.getCustomerId();
-                StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(customerId);
+                    //#941 设为客户对应的职员
+                    String customerId = apply.getCustomerId();
+                    StafferVSCustomerBean vsBean = stafferVSCustomerDAO.findByUnique(customerId);
 
-                if (null == vsBean) {
-                    throw new MYException("客户[%s]没有挂靠业务员", customerId);
-                } else {
-                    String stafferId = vsBean.getStafferId();
-                    StafferBean stafferBean = this.stafferDAO.find(stafferId);
-                    if (stafferBean == null) {
-                        throw new MYException("职员[%s]不存在", stafferId);
+                    if (null == vsBean) {
+                        throw new MYException("客户[%s]没有挂靠业务员", customerId);
                     } else {
-                        pay.setStafferId(stafferId);
-                        apply.setStafferId(stafferId);
-                        _logger.info("***find staffer***" + stafferId);
+                        String stafferId = vsBean.getStafferId();
+                        StafferBean stafferBean = this.stafferDAO.find(stafferId);
+                        if (stafferBean == null) {
+                            throw new MYException("职员[%s]不存在", stafferId);
+                        } else {
+                            pay.setStafferId(stafferId);
+                            apply.setStafferId(stafferId);
+                            _logger.info("***find staffer***" + stafferId);
+                        }
                     }
+                    pay.setCustomerId(apply.getCustomerId());
+                    pay.setStatus(FinanceConstant.PAYMENT_STATUS_END);
+                    paymentDAO.updateEntityBean(pay);
+                    this.addPaymentApply(user, apply);
+                } else if (FinanceConstant.RLLX_GYSHK.equals(apply.getRllx())) {
+                    this.addDrawProviderApply(user, apply);
                 }
-                pay.setCustomerId(apply.getCustomerId());
-                pay.setStatus(FinanceConstant.PAYMENT_STATUS_END);
-                paymentDAO.updateEntityBean(pay);
-                this.addPaymentApply(user, apply);
-            } else if (FinanceConstant.RLLX_GYSHK.equals(apply.getRllx())) {
-                this.addDrawProviderApply(user, apply);
             }
         }
 

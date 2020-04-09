@@ -163,6 +163,6 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
      * @return
      * @throws MYException
      */
-    boolean batchDrawPayment(User user, Map<String,PaymentApplyBean> paymentToApply)
+    boolean batchDrawPayment(User user, Map<String,List<PaymentApplyBean>> paymentToApply)
             throws MYException;
 }
