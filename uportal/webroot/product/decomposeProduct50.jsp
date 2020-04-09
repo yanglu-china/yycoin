@@ -225,7 +225,7 @@ function getProductBom(oos)
                 var stype = getEle(trow.getElementsByTagName('select'), "stype");
                 setSelect(stype, "0");
                 var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepot");
-                setSelect(srcDe1, $O("depot").value);
+                setSelect(srcDe1, "A1201606211663545335");
                 setInputValueInTr(trow, 'srcProductName', item.productName);
                 setInputValueInTr(trow, 'srcProductId', item.productId);
                 //成品数量*配件装配率
@@ -291,14 +291,14 @@ function getEle(eles, name)
 			return eles[i];
 		}
 	}
-	
+
 	return null;
 }
 
 function getProductRelation(oos)
 {
 	var oo = oos[0];
-	
+
 	$O('depotpart').value = oo.pdepotpartid;
 	$O('productName').value = oo.pname;
 	$O('productId').value = oo.ppid;
@@ -310,13 +310,13 @@ function getProductRelation(oos)
 function selectDepotpartProduct(obj)
 {
     current = obj;
-    
+
     if ($$("productName") == '')
     {
         alert("请选择拆分产品");
         return;
     }
-    
+
  	//查询配件产品列表
    //window.common.modal(RPT_PRODUCT);
    window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1&abstractType=0&status=0');
@@ -325,15 +325,15 @@ function selectDepotpartProduct(obj)
 function getProduct(oos)
 {
 	var oo = oos[0];
-	
+
 	current.value = oo.pname;
-	
+
 	var tr = getTrObject(current);
-	
+
 	var eles = tr.getElementsByTagName('input');
-    
+
     var hobj = getEle(eles, "srcProductId");
-    
+
     hobj.value = oo.value;
 }
 
@@ -354,7 +354,7 @@ var dList = JSON.parse('${depotpartListStr}');
 function getDepartmentId(obj)
 {
     var tr = getTrObject(obj);
-    
+
     if (tr != null)
     {
     	return tr.getElementsByTagName('select')[2];
@@ -364,7 +364,7 @@ function getDepartmentId(obj)
 function getDepotId(obj)
 {
     var tr = getTrObject(obj);
-    
+
     if (tr != null)
     {
     	return tr.getElementsByTagName('select')[1];
@@ -374,9 +374,9 @@ function getDepotId(obj)
 function depotpartChange(obj)
 {
     var tr = getTrObject(obj);
-    
+
     var inputs = tr.getElementsByTagName('input');
-    
+
     for (var i = 0 ; i < inputs.length; i++)
     {
         var oo = inputs[i];
@@ -405,27 +405,29 @@ function depotpartChange(obj)
     //end add
 }
 
-function depotChange(obj)
+function depotChange()
 {
-	$O('srcDepot').style.disabled = true;
 	var newsrcDepot = $$('depot');
-	
+
+	console.log(newsrcDepot);
+
 	removeAllItem($O('depotpart'));
-	
+
 	//add new option
 	for (var j = 0; j < dList.length; j++)
 	{
 		if (dList[j].locationId == newsrcDepot)
 		{
 			setOption($O('depotpart'), dList[j].id, dList[j].name);
-			setOption($O('srcDepotpart'), dList[j].id, dList[j].name);
 		}
 	}
-	
+
 	depotpartChange($O('depotpart'));
+
 	//add by zhangxian 2019-06-17
 	//change cascade srcdepotpart item
 	var srcDepots = document.getElementsByName("srcDepot");
+	console.log(srcDepots.length);
    	//add new option
    	for(var j=0;j<srcDepots.length;j++)
    	{
@@ -439,40 +441,16 @@ function depotChange(obj)
 		    }
 		}
    	}
-	
-	if(obj != null)
-	{
-		var newsrcDepot = obj.value;
-		
-	    var selects = document.getElementsByName('srcDepotpart');
+    //end add
 
-	    for (var i = 0 ; i < selects.length; i++)
-	    {
-	        var oo = selects[i];
-	        if (oo.name == 'srcDepotpart')
-	        {
-	        	removeAllItem(oo);
-
-	        	//add new option
-	        	for (var j = 0; j < dList.length; j++)
-	        	{
-	        		if (dList[j].locationId == newsrcDepot)
-	        		{
-	        			setOption(oo, dList[j].id, dList[j].name);
-	        		}
-	        	}
-	        }
-	    }
-	}
-	
 }
 
 function srcDepotChange(obj)
 {
 	var newsrcDepot = obj.value;
-	
+
 	var tr = getTrObject(obj);
-    
+
     var selects = tr.getElementsByTagName('select');
 
     for (var i = 0 ; i < selects.length; i++)
@@ -509,7 +487,7 @@ function selectSrcProduct()
 		return;
 	}
 
-	// 
+	//
 	window.common.modal('../product/product.do?method=rptQueryComposeProduct&load=1&selectMode=0&productId=' + productId);
 }
 
@@ -518,7 +496,7 @@ function getComposeProduct(oos)
 	for(var i = 0; i < oos.length; i++)
 	{
 		var trow = addTrInner();
-		
+
 		setInputValueInTr(trow, 'srcProductId', oos[i].value);
 		setInputValueInTr(trow, 'srcProductName', oos[i].pname);
 	}
@@ -527,7 +505,7 @@ function getComposeProduct(oos)
 function load()
 {
 	addTr1();
-	
+
 	depotChange();
 }
 
@@ -569,7 +547,7 @@ function addTr1()
 </head>
 <body class="body_class" onload="load()">
 <form name="formEntry" action="../product/product.do" method="post"><input
-	type="hidden" name="method" value="deComposeProduct"> 
+	type="hidden" name="method" value="deComposeProduct">
 
 <p:navigation height="22">
 	<td width="550" class="navigation"><span style="cursor: pointer;"
@@ -591,7 +569,7 @@ function addTr1()
 		<p:table cells="1">
 			<p:tr align="left">
 			成品仓库：
-			<select name="depot" class="select_class" style="width: 15%;" onchange="depotChange(this)" oncheck="notNone">
+			<select name="depot" class="select_class" style="width: 15%;" onchange="depotChange()" oncheck="notNone">
 		         <c:forEach var="item" items="${depotList}">
 		             <option value="${item.id}">${item.name}</option>
 		         </c:forEach>
@@ -618,7 +596,7 @@ function addTr1()
             <%--</p:tr>--%>
 		</p:table>
 	</p:subBody>
-	
+
 	<p:title>
         <td class="caption">
          <strong>配件产品</strong>
@@ -630,7 +608,7 @@ function addTr1()
             <div id="composePrice"></div>
         </td>
     </p:title>
-	
+
 	<tr>
         <td colspan='2' align='center'>
         <table width="98%" border="0" cellpadding="0" cellspacing="0"
@@ -667,7 +645,7 @@ function addTr1()
             value="&nbsp;&nbsp;提 交&nbsp;&nbsp;" onclick="addBean()">
         </div>
 	</p:button>
-	
+
 	<p:message2/>
 </p:body>
 </form>
@@ -681,7 +659,7 @@ function addTr1()
          </select>
          </td>
          <td width="95%" align="center">
-         <select name="srcDepot" id="srcDepot" class="" style="width: 100%;pointer-events: none;" onchange="srcDepotChange(this)">
+         <select name="srcDepot" id="srcDepot" class="select_class" style="width: 100%;" onchange="srcDepotChange(this)">
          <option value="">--</option>
          <c:forEach var="item" items="${depotList}">
              <option value="${item.id}">${item.name}</option>
