@@ -1806,29 +1806,35 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         List<FinanceItemBean> itemList = new ArrayList<>();
 
+        String itemInName = "暂记户:"+name;
         if (bean.getDkType() == FinanceConstant.INBILL_TYPE_DKBJ){
             //贷款-本金
-            this.financeManager.createFinanceItem(user, bean, "", "",
+            String itemOutName = bank.getName()+name;
+            this.financeManager.createFinanceItem(user, bean, itemInName, itemOutName,
                     this.getBankTaxId(bank), this.financeManager.getDkbjTaxId(bank.getName()),
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCBJ){
             //理财-本金
-            this.financeManager.createFinanceItem(user, bean,  "", "",
+            String itemOutName = "其他货币资金-基金:"+name;
+            this.financeManager.createFinanceItem(user, bean,  itemInName, itemOutName,
                     this.getBankTaxId(bank), TaxItemConstanst.QTHBZJ_JJ,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_LCSY){
             //理财-收益
-            this.financeManager.createFinanceItem(user, bean,  "", "",
+            String itemOutName = "投资收益:"+name;
+            this.financeManager.createFinanceItem(user, bean,  itemInName, itemOutName,
                     this.getBankTaxId(bank), TaxItemConstanst.TZSY,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_UNBORROW){
             //个人还款
-            this.financeManager.createFinanceItem(user, bean,  "", "",
+            String itemOutName = "其他应收款_备用金:"+name;
+            this.financeManager.createFinanceItem(user, bean,  itemInName, itemOutName,
                     this.getBankTaxId(bank), TaxItemConstanst.OTHER_RECEIVE_BORROW,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_YHKLXSR){
             //银行卡利息收入
-            this.financeManager.createFinanceItem(user, bean,  "", "",
+            String itemOutName = "银行手续费:"+name;
+            this.financeManager.createFinanceItem(user, bean,  itemInName, itemOutName,
                     this.getBankTaxId(bank), TaxItemConstanst.YHSXF,
                     financeBean, itemList);
         } else if (bean.notCreatePz()){
@@ -1839,22 +1845,26 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         //体外凭证
         else if (bean.getDkType() == FinanceConstantTw.INBILL_TYPE_JYLLK){
             //金银料来款
-            this.financeManager.createFinanceItem(user, bean,  "", "",
+            String itemOutName = "其他应付款-金银料:"+name;
+            this.financeManager.createFinanceItem(user, bean,  itemInName, itemOutName,
                     this.getBankTaxId(bank), TaxItemConstanst.OTHER_JYL,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstantTw.INBILL_TYPE_YHFK){
             //永银付款
-            this.financeManager.createFinanceItem(user, bean,  "", "",
+            String itemOutName = "其他应付款-永银付款:"+name;
+            this.financeManager.createFinanceItem(user, bean,  itemInName, itemOutName,
                     this.getBankTaxId(bank), TaxItemConstanst.OTHER_YYFK,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstantTw.INBILL_TYPE_CGGZ){
             //采购过账
-            this.financeManager.createFinanceItem(user, bean,  "", "",
+            String itemOutName = "其他应付款-生产部:"+name;
+            this.financeManager.createFinanceItem(user, bean,  itemInName, itemOutName,
                     this.getBankTaxId(bank), TaxItemConstanst.CGGZ,
                     financeBean, itemList);
         } else if (bean.getDkType() == FinanceConstantTw.INBILL_TYPE_TYHK){
             //体育还款
-            this.financeManager.createFinanceItem(user, bean,  "", "",
+            String itemOutName = "其他应收款-永银体育:"+name;
+            this.financeManager.createFinanceItem(user, bean,  itemInName, itemOutName,
                     this.getBankTaxId(bank), TaxItemConstanst.OTHER_YYTY,
                     financeBean, itemList);
         }
