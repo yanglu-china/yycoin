@@ -74,3 +74,6 @@ UNIQUE KEY `IDX_CITIC` (`citicNo`)
 ) DEFAULT CHARSET=utf8
 ;
 alter table t_center_package add column type int(8) default 0;
+
+-- #931
+INSERT INTO t_center_schedule_job (id, createTime, updateTime, jobName, jobGroup, jobStatus, cronExpression, description, beanClass, isConcurrent, springId, methodName, type) VALUES (568, sysdate(), sysdate(), 'statsBlackOutJob', 'Default', '0', '0 0/1 * * * ?', '黑名单统计', 'com.china.center.oa.commission.manager.impl.BlackManagerImpl', '0', 'blackManager', 'statsBlackOutJob', 0);

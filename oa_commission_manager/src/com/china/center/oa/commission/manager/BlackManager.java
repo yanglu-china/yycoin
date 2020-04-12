@@ -36,6 +36,11 @@ public interface BlackManager
     void statsBlackOutDetail();
 
     /**
+     * #931合并黑名单统计的两个JOB
+     */
+    void statsBlackOutJob();
+
+    /**
      * #500 应收金额
      * @param outId
      * @return

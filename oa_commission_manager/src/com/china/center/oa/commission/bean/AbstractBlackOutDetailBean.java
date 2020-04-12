@@ -139,4 +139,17 @@ public abstract class AbstractBlackOutDetailBean implements Serializable
 	{
 		this.costPrice = costPrice;
 	}
+
+	@Override
+	public String toString() {
+		return "AbstractBlackOutDetailBean{" +
+				"id='" + id + '\'' +
+				", outId='" + outId + '\'' +
+				", outBalanceId='" + outBalanceId + '\'' +
+				", productId='" + productId + '\'' +
+				", amount=" + amount +
+				", price=" + price +
+				", costPrice=" + costPrice +
+				'}';
+	}
 }

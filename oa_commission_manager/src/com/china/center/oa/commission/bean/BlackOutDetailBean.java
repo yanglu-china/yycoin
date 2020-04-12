@@ -28,6 +28,6 @@ public class BlackOutDetailBean extends AbstractBlackOutDetailBean
 	public String toString() {
 		return "BlackOutDetailBean{" +
 				"baseId='" + baseId + '\'' +
-				'}';
+				"} " + super.toString();
 	}
 }
