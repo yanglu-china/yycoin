@@ -37,7 +37,12 @@ public interface FechProductListener extends ParentListener
      * @throws MYException
      */
     void onFechProduct(final User user, final StockBean bean, final StockItemBean each,
-                       final OutBean out)
-        throws MYException;
+                       final OutBean out) throws MYException;
+    
+    
+    int onFechProductzysc(final String fullId, final User user, final int nextStatus, final String reason,
+            final String customerDescription,
+            final String depotpartId, final StockBean bean, final StockItemBean each,
+            final OutBean out) throws MYException; 
 
 }

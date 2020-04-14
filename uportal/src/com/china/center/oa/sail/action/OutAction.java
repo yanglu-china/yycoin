@@ -170,8 +170,10 @@ import com.china.center.oa.sail.vo.SailConfigVO;
 import com.china.center.oa.sail.vo.TwOutVO;
 import com.china.center.oa.sail.wrap.ConfirmInsWrap;
 import com.china.center.oa.sail.wrap.CreditWrap;
+import com.china.center.oa.stock.bean.StockBean;
 import com.china.center.oa.stock.bean.StockItemBean;
 import com.china.center.oa.stock.dao.StockItemDAO;
+import com.china.center.oa.stockvssail.listener.FechProductListener;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.bean.FinanceItemBean;
 import com.china.center.oa.tax.bean.TaxBean;
@@ -213,6 +215,8 @@ public class OutAction extends ParentOutAction
     private BackPrePayApplyDAO backPrePayApplyDAO = null;
     
     private FinanceManager financeManager = null;
+    
+    private FechProductListener fechProductListenerTaxGlueImpl =null;
     
 	/**
      * rejectBack
@@ -1746,7 +1750,7 @@ public class OutAction extends ParentOutAction
 
                     return mapping.findForward("error");
                 }
-
+                
                 // 入库单的提交(调拨)
                 if (out.getType() == OutConstant.OUT_TYPE_INBILL
                     && statuss == OutConstant.STATUS_SUBMIT
@@ -1904,12 +1908,38 @@ public class OutAction extends ParentOutAction
                 else if (out.getType() == OutConstant.OUT_TYPE_INBILL
                          && statuss != OutConstant.STATUS_SUBMIT)
                 {
-                    if (out.getOutType() == OutConstant.OUTTYPE_IN_COMMON
-                        || out.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+                    if (out.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
                     {
                         request.setAttribute(KeyConstant.ERROR_MESSAGE, "采购入库和调拨没有此操作");
 
                         return mapping.findForward("error");
+                    }
+                    //采购入库--待库管处理的审批
+                    if (out.getType() == OutConstant.OUT_TYPE_INBILL
+                            && statuss == 3 && ioldStatus==1) 
+                    {
+                    	try {
+                    		StockBean stockBean = new StockBean();
+                    		StockItemBean stockItemBean = new StockItemBean();
+                    		stockItemBean.setDutyId("90201008080000000001");
+                    		stockItemBean.setProviderId(out.getCustomerId());
+                    		List<BaseBean> baseList= baseDAO.queryEntityBeansByFK(fullId);
+                    		if(baseList.size() > 0)
+                    		{
+                    			stockItemBean.setProductId(baseList.get(0).getProductId());
+                    			stockItemBean.setAmount(baseList.get(0).getAmount());
+                    			stockItemBean.setPrice(baseList.get(0).getPrice());
+                    		}
+                    		resultStatus = fechProductListenerTaxGlueImpl.onFechProductzysc(fullId, user,
+                    				OutConstant.STATUS_PASS, reason, null, depotpartId, stockBean, stockItemBean, out);
+    					} catch (MYException e) {
+    						_logger.error(e, e);
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, "处理异常："
+                                                                            + e.getErrorContent());
+                            return mapping.findForward("error");
+    					}
+                    	request.setAttribute(KeyConstant.MESSAGE, "审核通过");
+                    	return queryBuy(mapping, form, request, reponse);
                     }
                     
                     // 报废处理  提交--【入库-总裁审批】--【入库-财务审批】--结束
@@ -7199,7 +7229,19 @@ public class OutAction extends ParentOutAction
     }
 
     
-    /**
+    public FechProductListener getFechProductListenerTaxGlueImpl() {
+		return fechProductListenerTaxGlueImpl;
+	}
+
+	public void setFechProductListenerTaxGlueImpl(FechProductListener fechProductListenerTaxGlueImpl) {
+		this.fechProductListenerTaxGlueImpl = fechProductListenerTaxGlueImpl;
+	}
+
+	public BackPrePayApplyDAO getBackPrePayApplyDAO() {
+		return backPrePayApplyDAO;
+	}
+
+	/**
      * @return the userDAO
      */
     public UserDAO getUserDAO()
