@@ -7684,6 +7684,7 @@ import com.china.center.tools.WriteFileBuffer;
                  bean.setProductId(prod.getId());
                  bean.setUnitId(unitBean.getId());
                  bean.setUnitName(unitBean.getName());
+                 bean.setRemark(obj[6]);
                  beanList.add(bean);
              }
              
@@ -7740,6 +7741,7 @@ import com.china.center.tools.WriteFileBuffer;
 	            out.setOutTime(TimeTools.now_short());
 
 	            out.setDepartment("采购部");
+	            out.setDescription(item.getRemark());
 
 	            // 所在区域
 	            out.setLocationId(user.getLocationId());

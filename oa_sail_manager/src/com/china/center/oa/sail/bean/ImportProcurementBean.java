@@ -25,6 +25,16 @@ public class ImportProcurementBean {
 	private String unitId;
 	
 	private String unitName;
+	
+	private String remark;
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 
 	public String getUnitId() {
 		return unitId;
