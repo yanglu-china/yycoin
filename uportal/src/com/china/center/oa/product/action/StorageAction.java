@@ -33,6 +33,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
@@ -95,6 +96,7 @@ import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.bean.InvoiceBean;
 import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.dao.DutyDAO;
 import com.china.center.oa.publics.dao.FlowLogDAO;
@@ -1785,7 +1787,7 @@ public class StorageAction extends DispatchAction
         String init = request.getParameter("init");
         
         String queryType = request.getParameter("queryType");
-        
+        String appName = ConfigLoader.getProperty("appName");
         // 查询仓库下的良品仓
 //        List<DepotpartBean> depotparList = depotpartDAO.queryOkDepotpartInDepot(depotId);
 
@@ -1904,6 +1906,13 @@ public class StorageAction extends DispatchAction
                     	vo.setInputPrice(priceConfigBean.getMinPrice());
                     }
 
+                    if(appName.equals(AppConstant.APP_NAME_ZYSC))
+                    {
+                    	if(sailPrice == 0)
+                    	{
+                    		sailPrice = vo.getPrice();
+                    	}
+                    }
                     // 最新的成本(一致的)
                     vo
                         .setAddPrice(sailPrice
