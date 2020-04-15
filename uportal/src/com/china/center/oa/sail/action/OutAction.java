@@ -74,7 +74,9 @@ import com.china.center.oa.product.dao.DepotpartDAO;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProviderDAO;
 import com.china.center.oa.product.dao.StorageDAO;
+import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.manager.StorageRelationManager;
+import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.DutyBean;
@@ -219,6 +221,8 @@ public class OutAction extends ParentOutAction
     private FinanceManager financeManager = null;
     
     private FechProductListener fechProductListenerTaxGlueImpl =null;
+    
+    private StorageRelationDAO storageRelationDAO;
     
 	/**
      * rejectBack
@@ -1680,6 +1684,8 @@ public class OutAction extends ParentOutAction
         long begin = System.currentTimeMillis();
 
         String fullId = request.getParameter("outId");
+        
+        String appName = ConfigLoader.getProperty("appName");
 
         // 动态锁
         synchronized (LockHelper.getLock(fullId))
@@ -1917,7 +1923,6 @@ public class OutAction extends ParentOutAction
                         return mapping.findForward("error");
                     }
                     //采购入库--待库管处理的审批
-                    String appName = ConfigLoader.getProperty("appName");
                     if (out.getType() == OutConstant.OUT_TYPE_INBILL
                             && statuss == 3 && ioldStatus==1 && appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC)) 
                     {
@@ -2128,7 +2133,6 @@ public class OutAction extends ParentOutAction
                             return mapping.findForward("error");
                         }
                     }
-
                     // 结算中心通过 物流管理员 库管通过 总裁通过
                     if (statuss == OutConstant.STATUS_MANAGER_PASS
                         || statuss == OutConstant.STATUS_FLOW_PASS
@@ -2161,7 +2165,7 @@ public class OutAction extends ParentOutAction
                                     double sailPrice = product.getSailPrice();
 
                                     // 根据配置获取结算价
-                                    List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+                                     List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
 
                                     if (!ListTools.isEmptyOrNull(pcblist))
                                     {
@@ -2169,7 +2173,28 @@ public class OutAction extends ParentOutAction
 
                                         sailPrice = cb.getSailPrice();
                                     }
-
+                                    if(sailPrice == 0)
+                                    {
+                                    	if(appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
+                                        {
+	                                       	 //没有结算价取成本价
+	                                       	 String locationId= base.getLocationId();
+	                                       	 String productId = base.getProductId();
+	                                       	 String depotpartid = base.getDepotpartId();
+	                                       	 ConditionParse condparse = new ConditionParse();
+	                                       	 condparse.addWhereStr();
+	                                       	 condparse.addCondition("locationid", "=", locationId);
+	                                       	 condparse.addCondition("productId", "=", productId);
+	                                       	 condparse.addCondition("depotpartid", "=", depotpartid);
+	                                       	 List<StorageRelationBean> srBeanList = storageRelationDAO.queryEntityBeansByCondition(condparse);
+	                                       	 if(srBeanList.size() > 0)
+	                                       	 {
+	                                       		 sailPrice = srBeanList.get(0).getPrice();
+	                                       	 }
+                                        }
+                                    }
+                                   
+                                    //end add
                                     String stafferId = "";
                                     if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
                                     {
@@ -8115,4 +8140,13 @@ public class OutAction extends ParentOutAction
     public void setBackPrePayApplyDAO(BackPrePayApplyDAO backPrePayApplyDAO) {
         this.backPrePayApplyDAO = backPrePayApplyDAO;
     }
+
+	public StorageRelationDAO getStorageRelationDAO() {
+		return storageRelationDAO;
+	}
+
+	public void setStorageRelationDAO(StorageRelationDAO storageRelationDAO) {
+		this.storageRelationDAO = storageRelationDAO;
+	}
+    
 }

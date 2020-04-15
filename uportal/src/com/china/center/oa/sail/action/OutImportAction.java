@@ -4466,7 +4466,7 @@ import com.china.center.tools.WriteFileBuffer;
                                  sailPrice = cb.getSailPrice();
                              }
                              //2020-4-15 add 专业市场把检查结算价大于0的校验去掉，默认结算价等于成本价,有结算价就取结算价，没有结算价就取成本价
-                             else
+                             if(sailPrice == 0)
                              {
                             	 if(appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
                                  {
@@ -4475,9 +4475,10 @@ import com.china.center.tools.WriteFileBuffer;
                                 	 String productId = base.getProductId();
                                 	 String depotpartid = base.getDepotpartId();
                                 	 ConditionParse condparse = new ConditionParse();
-                                	 condparse.addCondition("locationid", "", locationId);
-                                	 condparse.addCondition("productId", "", productId);
-                                	 condparse.addCondition("depotpartid", "", depotpartid);
+                                	 condparse.addWhereStr();
+                                	 condparse.addCondition("locationid", "=", locationId);
+                                	 condparse.addCondition("productId", "=", productId);
+                                	 condparse.addCondition("depotpartid", "=", depotpartid);
                                 	 List<StorageRelationBean> srBeanList = storageRelationDAO.queryEntityBeansByCondition(condparse);
                                 	 if(srBeanList.size() > 0)
                                 	 {
