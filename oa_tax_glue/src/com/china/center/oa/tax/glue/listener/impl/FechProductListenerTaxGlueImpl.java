@@ -12,6 +12,8 @@ package com.china.center.oa.tax.glue.listener.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.oa.product.bean.ProviderBean;
@@ -26,6 +28,8 @@ import com.china.center.oa.publics.dao.DepartmentDAO;
 import com.china.center.oa.publics.dao.DutyDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.stock.bean.StockBean;
 import com.china.center.oa.stock.bean.StockItemArrivalBean;
 import com.china.center.oa.stock.bean.StockItemBean;
@@ -69,6 +73,8 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
     private FinanceManager financeManager = null;
     
     private FinanceTagManager financeTagManager = null;
+    
+    private OutManager outManager = null; 
 
     /**
      * default constructor
@@ -146,6 +152,80 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
         // 采购入库 财务打标记
         processFetchProductTag(user, out);
     }
+    
+    @Override
+    @Transactional(rollbackFor = {MYException.class})
+	public int onFechProductzysc(String fullId, User user, int nextStatus, String reason,String customerDescription,
+            String depotpartId, StockBean stock, StockItemBean each,OutBean out) throws MYException {
+    	
+    	int state = outManager.pass(fullId, user,OutConstant.STATUS_PASS, reason, null, depotpartId);
+
+        // 借:1.库存商品(1243) 2.主营业务税金即附加(5402)（供应商税点*库存商品价值）（只有一般纳税人才会有主营业务税金，其他的没有此项）(5402)
+        // 贷:1.应付账款-货款(2122-01) 2.应付账款-货款（税点应付）
+        FinanceBean financeBean = new FinanceBean();
+
+        String name = user.getStafferName() + ".拿货:" + stock.getId() + '/' + each.getId() + '.';
+
+        financeBean.setName(name);
+
+        financeBean.setType(TaxConstanst.FINANCE_TYPE_MANAGER);
+
+        financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_STOCK_IN);
+
+        financeBean.setRefId(stock.getId());
+
+        financeBean.setRefOut(out.getFullId());
+
+        financeBean.setRefStock(stock.getId());
+
+        financeBean.setDutyId(each.getDutyId());
+
+        financeBean.setCreaterId(StafferConstant.SUPER_STAFFER);
+
+        financeBean.setDescription(financeBean.getName());
+
+        financeBean.setFinanceDate(TimeTools.now_short());
+
+        financeBean.setLogTime(TimeTools.now());
+
+        List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
+
+        // 借:库存商品 贷:应付账款-供应商
+        createItem1(user, stock, each, out, financeBean, itemList);
+
+        DutyBean duty = dutyDAO.find(each.getDutyId());
+
+        if (duty == null)
+        {
+            throw new MYException("纳税实体不存在,请确认操作");
+        }
+
+        ProviderBean provider = providerDAO.find(each.getProviderId());
+
+        if (StringTools.isNullOrNone(each.getProviderId())){
+            throw new MYException("T_CENTER_STOCKITEM表供应商栏位providerId不能为空："+each.getId());
+        } else if (provider == null)
+        {
+            throw new MYException("T_CENTER_STOCKITEM表供应商providerId不存在："+each.getProviderId());
+        }
+
+        // 一般纳税人
+        if (duty.getType() == DutyConstant.DUTY_TYPE_COMMON && provider.getDues() > 0)
+        {
+            // 借:主营业务税金即附加 贷:应付账款-供应商
+            createItem2(user, stock, each, out, financeBean, itemList, provider);
+        }
+
+        financeBean.setItemList(itemList);
+
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+        
+        // 采购入库 财务打标记
+        processFetchProductTag(user, out);
+        
+        return state;
+		
+	}
 
     /**
      * 借:库存商品 贷:应付账款-供应商
@@ -561,4 +641,13 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
 	{
 		this.financeTagManager = financeTagManager;
 	}
+
+	public OutManager getOutManager() {
+		return outManager;
+	}
+
+	public void setOutManager(OutManager outManager) {
+		this.outManager = outManager;
+	}
+
 }

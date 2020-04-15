@@ -53,5 +53,14 @@ public class BlackOutWrap implements Serializable
 	{
 		this.customerName = customerName;
 	}
-    
+
+    @Override
+    public String toString() {
+        return "BlackOutWrap{" +
+                "outId='" + outId + '\'' +
+                ", money=" + money +
+                ", days=" + days +
+                ", customerName='" + customerName + '\'' +
+                '}';
+    }
 }

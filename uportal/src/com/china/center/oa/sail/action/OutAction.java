@@ -25,6 +25,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
@@ -73,7 +74,9 @@ import com.china.center.oa.product.dao.DepotpartDAO;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProviderDAO;
 import com.china.center.oa.product.dao.StorageDAO;
+import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.manager.StorageRelationManager;
+import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.DutyBean;
@@ -82,6 +85,7 @@ import com.china.center.oa.publics.bean.InvoiceBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.ShowBean;
 import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.InvoiceConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
@@ -170,8 +174,10 @@ import com.china.center.oa.sail.vo.SailConfigVO;
 import com.china.center.oa.sail.vo.TwOutVO;
 import com.china.center.oa.sail.wrap.ConfirmInsWrap;
 import com.china.center.oa.sail.wrap.CreditWrap;
+import com.china.center.oa.stock.bean.StockBean;
 import com.china.center.oa.stock.bean.StockItemBean;
 import com.china.center.oa.stock.dao.StockItemDAO;
+import com.china.center.oa.stockvssail.listener.FechProductListener;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.bean.FinanceItemBean;
 import com.china.center.oa.tax.bean.TaxBean;
@@ -213,6 +219,10 @@ public class OutAction extends ParentOutAction
     private BackPrePayApplyDAO backPrePayApplyDAO = null;
     
     private FinanceManager financeManager = null;
+    
+    private FechProductListener fechProductListenerTaxGlueImpl =null;
+    
+    private StorageRelationDAO storageRelationDAO;
     
 	/**
      * rejectBack
@@ -1674,6 +1684,8 @@ public class OutAction extends ParentOutAction
         long begin = System.currentTimeMillis();
 
         String fullId = request.getParameter("outId");
+        
+        String appName = ConfigLoader.getProperty("appName");
 
         // 动态锁
         synchronized (LockHelper.getLock(fullId))
@@ -1746,7 +1758,7 @@ public class OutAction extends ParentOutAction
 
                     return mapping.findForward("error");
                 }
-
+                
                 // 入库单的提交(调拨)
                 if (out.getType() == OutConstant.OUT_TYPE_INBILL
                     && statuss == OutConstant.STATUS_SUBMIT
@@ -1904,12 +1916,38 @@ public class OutAction extends ParentOutAction
                 else if (out.getType() == OutConstant.OUT_TYPE_INBILL
                          && statuss != OutConstant.STATUS_SUBMIT)
                 {
-                    if (out.getOutType() == OutConstant.OUTTYPE_IN_COMMON
-                        || out.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
+                    if (out.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT)
                     {
                         request.setAttribute(KeyConstant.ERROR_MESSAGE, "采购入库和调拨没有此操作");
 
                         return mapping.findForward("error");
+                    }
+                    //采购入库--待库管处理的审批
+                    if (out.getType() == OutConstant.OUT_TYPE_INBILL
+                            && statuss == 3 && ioldStatus==1 && appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC)) 
+                    {
+                    	try {
+                    		StockBean stockBean = new StockBean();
+                    		StockItemBean stockItemBean = new StockItemBean();
+                    		stockItemBean.setDutyId("90201008080000000001");
+                    		stockItemBean.setProviderId(out.getCustomerId());
+                    		List<BaseBean> baseList= baseDAO.queryEntityBeansByFK(fullId);
+                    		if(baseList.size() > 0)
+                    		{
+                    			stockItemBean.setProductId(baseList.get(0).getProductId());
+                    			stockItemBean.setAmount(baseList.get(0).getAmount());
+                    			stockItemBean.setPrice(baseList.get(0).getPrice());
+                    		}
+                    		resultStatus = fechProductListenerTaxGlueImpl.onFechProductzysc(fullId, user,
+                    				OutConstant.STATUS_PASS, reason, null, depotpartId, stockBean, stockItemBean, out);
+    					} catch (MYException e) {
+    						_logger.error(e, e);
+                            request.setAttribute(KeyConstant.ERROR_MESSAGE, "处理异常："
+                                                                            + e.getErrorContent());
+                            return mapping.findForward("error");
+    					}
+                    	request.setAttribute(KeyConstant.MESSAGE, "审核通过");
+                    	return queryBuy(mapping, form, request, reponse);
                     }
                     
                     // 报废处理  提交--【入库-总裁审批】--【入库-财务审批】--结束
@@ -2095,7 +2133,6 @@ public class OutAction extends ParentOutAction
                             return mapping.findForward("error");
                         }
                     }
-
                     // 结算中心通过 物流管理员 库管通过 总裁通过
                     if (statuss == OutConstant.STATUS_MANAGER_PASS
                         || statuss == OutConstant.STATUS_FLOW_PASS
@@ -2128,7 +2165,7 @@ public class OutAction extends ParentOutAction
                                     double sailPrice = product.getSailPrice();
 
                                     // 根据配置获取结算价
-                                    List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+                                     List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
 
                                     if (!ListTools.isEmptyOrNull(pcblist))
                                     {
@@ -2136,7 +2173,28 @@ public class OutAction extends ParentOutAction
 
                                         sailPrice = cb.getSailPrice();
                                     }
-
+                                    if(sailPrice == 0)
+                                    {
+                                    	if(appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
+                                        {
+	                                       	 //没有结算价取成本价
+	                                       	 String locationId= base.getLocationId();
+	                                       	 String productId = base.getProductId();
+	                                       	 String depotpartid = base.getDepotpartId();
+	                                       	 ConditionParse condparse = new ConditionParse();
+	                                       	 condparse.addWhereStr();
+	                                       	 condparse.addCondition("locationid", "=", locationId);
+	                                       	 condparse.addCondition("productId", "=", productId);
+	                                       	 condparse.addCondition("depotpartid", "=", depotpartid);
+	                                       	 List<StorageRelationBean> srBeanList = storageRelationDAO.queryEntityBeansByCondition(condparse);
+	                                       	 if(srBeanList.size() > 0)
+	                                       	 {
+	                                       		 sailPrice = srBeanList.get(0).getPrice();
+	                                       	 }
+                                        }
+                                    }
+                                   
+                                    //end add
                                     String stafferId = "";
                                     if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
                                     {
@@ -2183,6 +2241,12 @@ public class OutAction extends ParentOutAction
                                     //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
                                     _logger.info(sailConf+"***getInputPrice***"+iprice);
 
+                                    if(appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
+                                    {
+                                    	base.setPprice(sailPrice);
+                                    	base.setIprice(sailPrice);
+                                    	base.setInputPrice(sailPrice);
+                                    }
                                     if (base.getInputPrice() == 0)
                                     {
                                         String msg = base.getProductName() + " 业务员结算价不能为0";
@@ -7199,7 +7263,19 @@ public class OutAction extends ParentOutAction
     }
 
     
-    /**
+    public FechProductListener getFechProductListenerTaxGlueImpl() {
+		return fechProductListenerTaxGlueImpl;
+	}
+
+	public void setFechProductListenerTaxGlueImpl(FechProductListener fechProductListenerTaxGlueImpl) {
+		this.fechProductListenerTaxGlueImpl = fechProductListenerTaxGlueImpl;
+	}
+
+	public BackPrePayApplyDAO getBackPrePayApplyDAO() {
+		return backPrePayApplyDAO;
+	}
+
+	/**
      * @return the userDAO
      */
     public UserDAO getUserDAO()
@@ -8070,4 +8146,13 @@ public class OutAction extends ParentOutAction
     public void setBackPrePayApplyDAO(BackPrePayApplyDAO backPrePayApplyDAO) {
         this.backPrePayApplyDAO = backPrePayApplyDAO;
     }
+
+	public StorageRelationDAO getStorageRelationDAO() {
+		return storageRelationDAO;
+	}
+
+	public void setStorageRelationDAO(StorageRelationDAO storageRelationDAO) {
+		this.storageRelationDAO = storageRelationDAO;
+	}
+    
 }

@@ -1135,11 +1135,15 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         	
                         	if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
                             {
-                                // 发现一些异常,这里保护一下
-                                if (base.getInputPrice() == 0)
-                                {
-                                    throw new RuntimeException("业务员结算价不能为0");
-                                }
+                        		String appName = ConfigLoader.getProperty("appName");
+                        		if(!appName.equals(AppConstant.APP_NAME_ZYSC))
+                        		{
+                        			// 发现一些异常,这里保护一下
+                        			if (base.getInputPrice() == 0)
+                        			{
+                        				throw new RuntimeException("业务员结算价不能为0");
+                        			}
+                        		}
                             }
                         }
                         else
@@ -1844,6 +1848,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 对外开放(锁和事务由调用的方法保证)
      */
+    @Exceptional
+    @Transactional(rollbackFor = {MYException.class})
     public String coloneOutAndSubmitWithOutAffair(OutBean outBean, User user, int type)
         throws MYException
     {
@@ -1931,7 +1937,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
                 && (outBean.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
                 || outBean.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
-                || outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT)){
+                || outBean.getOutType() == OutConstant.OUTTYPE_IN_PRESENT
+                || outBean.getOutType() == OutConstant.OUTTYPE_IN_COMMON)){
             outBean.setStatus(OutConstant.BUY_STATUS_SUBMIT);
         } else{
             outBean.setStatus(OutConstant.STATUS_SAVE);
@@ -2179,7 +2186,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 暂时没有对外开放
      */
-    private int submitWithOutAffair(final String fullId, final User user, int type)
+    public int submitWithOutAffair(final String fullId, final User user, int type)
         throws MYException
     {
         _logger.info("***submitWithOutAffair fullId***"+fullId);

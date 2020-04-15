@@ -3470,7 +3470,7 @@ public class FinanceAction extends DispatchAction {
 							+ ','
 							+ StringTools.getExportString(each.getFromer())
 							+ ','
-							+ StringTools.getExportString(each.getFromerNo())
+							+ this.getFromNo(each.getFromerNo())
 							+ ','
 							+ StringTools.getExportString(each
 									.getCustomerName())
@@ -3514,6 +3514,15 @@ public class FinanceAction extends DispatchAction {
 		}
 
 		return null;
+	}
+
+	private String getFromNo(String fromerNo){
+		if (StringTools.isNullOrNone(fromerNo)){
+			return "";
+		} else{
+			//加入\t后导出的csv用excel打开不会把长字符串转换为科学计数显示
+			return StringTools.getExportString(fromerNo)+'\t';
+		}
 	}
 
 	/**
