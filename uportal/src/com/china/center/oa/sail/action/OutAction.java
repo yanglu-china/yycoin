@@ -25,6 +25,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.writer.WriteFile;
 import com.center.china.osgi.publics.file.writer.WriteFileFactory;
@@ -82,6 +83,7 @@ import com.china.center.oa.publics.bean.InvoiceBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.ShowBean;
 import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.constant.InvoiceConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
@@ -1915,8 +1917,9 @@ public class OutAction extends ParentOutAction
                         return mapping.findForward("error");
                     }
                     //采购入库--待库管处理的审批
+                    String appName = ConfigLoader.getProperty("appName");
                     if (out.getType() == OutConstant.OUT_TYPE_INBILL
-                            && statuss == 3 && ioldStatus==1) 
+                            && statuss == 3 && ioldStatus==1 && appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC)) 
                     {
                     	try {
                     		StockBean stockBean = new StockBean();

@@ -25,6 +25,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
@@ -76,6 +77,7 @@ import com.china.center.oa.publics.bean.DutyBean;
 import com.china.center.oa.publics.bean.EnumBean;
 import com.china.center.oa.publics.bean.ProvinceBean;
 import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.AppConstant;
 import com.china.center.oa.publics.dao.AreaDAO;
 import com.china.center.oa.publics.dao.CityDAO;
 import com.china.center.oa.publics.dao.DutyDAO;
@@ -4440,6 +4442,7 @@ import com.china.center.tools.WriteFileBuffer;
 
                      //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
                      List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(bean.getOutId());
+                     String appName = ConfigLoader.getProperty("appName");
                      if (!ListTools.isEmptyOrNull(baseBeans)){
                          _logger.info(bean.getOutId()+"**************baseBeans size ************"+baseBeans.size());
                          for (BaseBean base : baseBeans){
@@ -4462,7 +4465,30 @@ import com.china.center.tools.WriteFileBuffer;
 
                                  sailPrice = cb.getSailPrice();
                              }
+                             //2020-4-15 add 专业市场把检查结算价大于0的校验去掉，默认结算价等于成本价,有结算价就取结算价，没有结算价就取成本价
+                             else
+                             {
+                            	 if(appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
+                                 {
+                                	 //没有结算价取成本价
+                                	 String locationId= base.getLocationId();
+                                	 String productId = base.getProductId();
+                                	 String depotpartid = base.getDepotpartId();
+                                	 ConditionParse condparse = new ConditionParse();
+                                	 condparse.addCondition("locationid", "", locationId);
+                                	 condparse.addCondition("productId", "", productId);
+                                	 condparse.addCondition("depotpartid", "", depotpartid);
+                                	 List<StorageRelationBean> srBeanList = storageRelationDAO.queryEntityBeansByCondition(condparse);
+                                	 if(srBeanList.size() > 0)
+                                	 {
+                                		 sailPrice = srBeanList.get(0).getPrice();
+                                	 }
+                                	 
+                                 }
+                             }
+                             //end add
 
+                             
                              String stafferId = "";
                              OutBean out = this.outDAO.find(bean.getOutId());
                              if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
@@ -4500,19 +4526,22 @@ import com.china.center.tools.WriteFileBuffer;
                              base.setInputPrice(base.getIprice());
 
                              //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
-                             _logger.info(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
-                             if (base.getInputPrice() == 0)
+                             if(!appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
                              {
-                                 String msg = bean.getOutId()+ "结算价不能为0:"+base.getProductName() ;
-                                 _logger.warn(msg);
-                                 request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
-                                 throw new MYException(msg);
-                             }  else{
-                                 _logger.debug(base.getProductName()+"更新结算价");
-                                 try{
-                                     this.outManager.updateBase(base);
-                                 }catch(Exception e){
-                                     e.printStackTrace();
+                            	 _logger.info(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
+                                 if (base.getInputPrice() == 0)
+                                 {
+                                     String msg = bean.getOutId()+ "结算价不能为0:"+base.getProductName() ;
+                                     _logger.warn(msg);
+                                     request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
+                                     throw new MYException(msg);
+                                 }  else{
+                                     _logger.debug(base.getProductName()+"更新结算价");
+                                     try{
+                                         this.outManager.updateBase(base);
+                                     }catch(Exception e){
+                                         e.printStackTrace();
+                                     }
                                  }
                              }
                          }
