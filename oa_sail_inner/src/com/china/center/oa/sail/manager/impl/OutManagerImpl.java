@@ -1135,11 +1135,15 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         	
                         	if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
                             {
-                                // 发现一些异常,这里保护一下
-                                if (base.getInputPrice() == 0)
-                                {
-                                    throw new RuntimeException("业务员结算价不能为0");
-                                }
+                        		String appName = ConfigLoader.getProperty("appName");
+                        		if(!appName.equals(AppConstant.APP_NAME_ZYSC))
+                        		{
+                        			// 发现一些异常,这里保护一下
+                        			if (base.getInputPrice() == 0)
+                        			{
+                        				throw new RuntimeException("业务员结算价不能为0");
+                        			}
+                        		}
                             }
                         }
                         else
