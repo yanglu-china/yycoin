@@ -2241,6 +2241,12 @@ public class OutAction extends ParentOutAction
                                     //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
                                     _logger.info(sailConf+"***getInputPrice***"+iprice);
 
+                                    if(appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
+                                    {
+                                    	base.setPprice(sailPrice);
+                                    	base.setIprice(sailPrice);
+                                    	base.setInputPrice(sailPrice);
+                                    }
                                     if (base.getInputPrice() == 0)
                                     {
                                         String msg = base.getProductName() + " 业务员结算价不能为0";
