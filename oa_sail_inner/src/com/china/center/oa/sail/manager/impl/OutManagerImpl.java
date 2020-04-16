@@ -13695,7 +13695,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (AppConstant.APP_NAME.equals(appName)){
             conditionParse.addCondition("sys","=","体内");
         } else if (AppConstant.APP_NAME_TW.equals(appName)){
-            conditionParse.addCondition("sys","=","体外");
+            conditionParse.addCondition("sys","=","TW");
         }
 
         List<FrDbBean> frDbBeans = this.frDbDAO.queryEntityBeansByCondition(conditionParse);
