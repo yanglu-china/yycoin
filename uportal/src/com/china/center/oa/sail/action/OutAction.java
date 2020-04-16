@@ -76,7 +76,6 @@ import com.china.center.oa.product.dao.ProviderDAO;
 import com.china.center.oa.product.dao.StorageDAO;
 import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.manager.StorageRelationManager;
-import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.AttachmentBean;
 import com.china.center.oa.publics.bean.DutyBean;
@@ -2177,20 +2176,7 @@ public class OutAction extends ParentOutAction
                                     {
                                     	if(appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
                                         {
-	                                       	 //没有结算价取成本价
-	                                       	 String locationId= base.getLocationId();
-	                                       	 String productId = base.getProductId();
-	                                       	 String depotpartid = base.getDepotpartId();
-	                                       	 ConditionParse condparse = new ConditionParse();
-	                                       	 condparse.addWhereStr();
-	                                       	 condparse.addCondition("locationid", "=", locationId);
-	                                       	 condparse.addCondition("productId", "=", productId);
-	                                       	 condparse.addCondition("depotpartid", "=", depotpartid);
-	                                       	 List<StorageRelationBean> srBeanList = storageRelationDAO.queryEntityBeansByCondition(condparse);
-	                                       	 if(srBeanList.size() > 0)
-	                                       	 {
-	                                       		 sailPrice = srBeanList.get(0).getPrice();
-	                                       	 }
+                                       		 sailPrice = base.getPrice();
                                         }
                                     }
                                    
@@ -2253,14 +2239,14 @@ public class OutAction extends ParentOutAction
                                         _logger.warn(msg);
                                         request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
                                         return mapping.findForward("error");
-                                    } else{
-                                        _logger.info("update base bean "+base);
-                                        try{
-                                            this.outManager.updateBase(base);
-                                        }catch(Exception e){
-                                            e.printStackTrace();
-                                        }
+                                    } 
+                                    _logger.info("update base bean "+base);
+                                    try{
+                                        this.outManager.updateBase(base);
+                                    }catch(Exception e){
+                                        e.printStackTrace();
                                     }
+                                    
                                 }
                             } else{
                                 _logger.warn("**************check price not found************");
