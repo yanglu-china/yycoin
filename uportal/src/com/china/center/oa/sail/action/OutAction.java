@@ -2176,7 +2176,7 @@ public class OutAction extends ParentOutAction
                                     {
                                     	if(appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
                                         {
-                                       		 sailPrice = base.getPrice();
+                                       		 sailPrice = base.getCostPrice();
                                         }
                                     }
                                    
