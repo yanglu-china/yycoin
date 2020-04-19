@@ -2138,7 +2138,9 @@ public class OutAction extends ParentOutAction
                         || statuss == OutConstant.STATUS_PASS)
                     {
                          //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
-                        if (statuss == OutConstant.STATUS_MANAGER_PASS){
+                        if (statuss == OutConstant.STATUS_MANAGER_PASS
+                                //#953 服务订单不需要更新结算价
+                                && !out.isServiceOrder()){
                             _logger.info("***销售商务审批时检查结算价是否为0***");
                             List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
                             if (!ListTools.isEmptyOrNull(baseBeans)){
