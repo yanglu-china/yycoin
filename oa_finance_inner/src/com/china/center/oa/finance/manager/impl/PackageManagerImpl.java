@@ -887,9 +887,19 @@ public class PackageManagerImpl implements PackageManager {
 
 		String fullAddress = distVO.getProvinceName() + distVO.getCityName() + distVO.getAddress();
 		String fullAddressTrim = fullAddress.trim();
+
+		//#942
+		boolean needNotMerge = this.needNotMerge(out.getCustomerName());
+		_logger.info(out.getCustomerName()+"***"+needNotMerge);
+		if (needNotMerge){
+			_logger.info("***need not merge***"+fullId);
+			createNewPackage(out, baseList, distVO, fullAddressTrim, location, null);
+			preConsignDAO.deleteEntityBean(pre.getId());
+			return;
+		}
+
 		// 此客户是否存在同一个发货包裹,且未拣配
 		ConditionParse con = new ConditionParse();
-
 		con.addWhereStr();
 
         //#930 检查是否预先分配快递单号
@@ -1034,6 +1044,22 @@ public class PackageManagerImpl implements PackageManager {
 		}
 
 		preConsignDAO.deleteEntityBean(pre.getId());
+	}
+
+	/**
+	 * 以下客户的销售单不需要合并CK单 #942
+	 * @param customerName
+	 * @return
+	 */
+	private boolean needNotMerge(String customerName){
+		return "拍卖客户".equals(customerName)
+				|| "国华拍卖".equals(customerName)
+				|| "永银天猫旗舰店-有赞".equals(customerName)
+				|| "国华天猫旗舰店-有赞".equals(customerName)
+				|| "国华天猫旗舰店-零售".equals(customerName)
+				|| "永银京东旗舰店-零售".equals(customerName)
+				|| "永银京东旗舰店-线上".equals(customerName)
+				|| "国华京东旗舰店-线上".equals(customerName);
 	}
 
 	private boolean isDirectShipped(List<PackageItemBean> items) {
@@ -1328,7 +1354,7 @@ public class PackageManagerImpl implements PackageManager {
 			} else {
 				_logger.info("***package already exists***" + id);
 				// #200 合并入现有CK单时检查是否有重复outId
-				List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
+				List<PackageItemBean> itemList = new ArrayList<>();
 
 				int allAmount = 0;
 				double total = 0;

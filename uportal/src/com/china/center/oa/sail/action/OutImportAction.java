@@ -1,77 +1,143 @@
  package com.china.center.oa.sail.action;
 
- import com.center.china.osgi.publics.User;
- import com.center.china.osgi.publics.file.read.ReadeFileFactory;
- import com.center.china.osgi.publics.file.read.ReaderFile;
- import com.center.china.osgi.publics.file.writer.WriteFile;
- import com.center.china.osgi.publics.file.writer.WriteFileFactory;
- import com.china.center.actionhelper.common.ActionTools;
- import com.china.center.actionhelper.common.JSONPageSeparateTools;
- import com.china.center.actionhelper.common.JSONTools;
- import com.china.center.actionhelper.common.KeyConstant;
- import com.china.center.actionhelper.json.AjaxResult;
- import com.china.center.common.MYException;
- import com.china.center.common.taglib.DefinedCommon;
- import com.china.center.jdbc.util.ConditionParse;
- import com.china.center.jdbc.util.PageSeparate;
- import com.china.center.oa.client.bean.CiticBranchBean;
- import com.china.center.oa.client.bean.CiticVSStafferBean;
- import com.china.center.oa.client.bean.CustomerBean;
- import com.china.center.oa.client.dao.CiticBranchDAO;
- import com.china.center.oa.client.dao.CiticVSStafferDAO;
- import com.china.center.oa.client.dao.CustomerMainDAO;
- import com.china.center.oa.client.dao.StafferVSCustomerDAO;
- import com.china.center.oa.client.vo.StafferVSCustomerVO;
- import com.china.center.oa.client.vs.StafferVSCustomerBean;
- import com.china.center.oa.finance.bean.InvoiceinsBean;
- import com.china.center.oa.finance.dao.InvoiceinsDAO;
- import com.china.center.oa.product.bean.*;
- import com.china.center.oa.product.constant.DepotConstant;
- import com.china.center.oa.product.dao.*;
- import com.china.center.oa.product.helper.StorageRelationHelper;
- import com.china.center.oa.product.manager.PriceConfigManager;
- import com.china.center.oa.product.manager.StorageRelationManager;
- import com.china.center.oa.product.vs.StorageRelationBean;
- import com.china.center.oa.publics.Helper;
- import com.china.center.oa.publics.StringUtils;
- import com.china.center.oa.publics.bean.*;
- import com.china.center.oa.publics.dao.*;
- import com.china.center.oa.publics.vo.StafferVO;
- import com.china.center.oa.publics.vo.UserVO;
- import com.china.center.oa.sail.bean.*;
- import com.china.center.oa.sail.bean.BaseBean;
- import com.china.center.oa.sail.constanst.OutConstant;
- import com.china.center.oa.sail.constanst.OutImportConstant;
- import com.china.center.oa.sail.constanst.ShipConstant;
- import com.china.center.oa.sail.dao.*;
- import com.china.center.oa.sail.helper.OutImportHelper;
- import com.china.center.oa.sail.manager.OutImportManager;
- import com.china.center.oa.sail.manager.OutManager;
- import com.china.center.oa.sail.manager.SailConfigManager;
- import com.china.center.oa.sail.vo.BaseVO;
- import com.china.center.oa.sail.vo.OutImportVO;
- import com.china.center.tools.*;
- import org.apache.commons.lang.time.DateUtils;
- import org.apache.commons.logging.Log;
- import org.apache.commons.logging.LogFactory;
- import org.apache.struts.action.ActionForm;
- import org.apache.struts.action.ActionForward;
- import org.apache.struts.action.ActionMapping;
- import org.apache.struts.actions.DispatchAction;
- import org.joda.time.DateTime;
- import org.joda.time.Days;
-
- import javax.servlet.ServletException;
- import javax.servlet.http.HttpServletRequest;
- import javax.servlet.http.HttpServletResponse;
  import java.io.IOException;
- import java.io.OutputStream;
- import java.math.BigDecimal;
- import java.text.ParseException;
- import java.text.SimpleDateFormat;
- import java.util.*;
- import java.util.regex.Matcher;
- import java.util.regex.Pattern;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.actions.DispatchAction;
+
+import com.center.china.osgi.config.ConfigLoader;
+import com.center.china.osgi.publics.User;
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.center.china.osgi.publics.file.writer.WriteFile;
+import com.center.china.osgi.publics.file.writer.WriteFileFactory;
+import com.china.center.actionhelper.common.ActionTools;
+import com.china.center.actionhelper.common.JSONPageSeparateTools;
+import com.china.center.actionhelper.common.JSONTools;
+import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.actionhelper.json.AjaxResult;
+import com.china.center.common.MYException;
+import com.china.center.common.taglib.DefinedCommon;
+import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.jdbc.util.PageSeparate;
+import com.china.center.oa.client.bean.CiticBranchBean;
+import com.china.center.oa.client.bean.CiticVSStafferBean;
+import com.china.center.oa.client.bean.CustomerBean;
+import com.china.center.oa.client.dao.CiticBranchDAO;
+import com.china.center.oa.client.dao.CiticVSStafferDAO;
+import com.china.center.oa.client.dao.CustomerMainDAO;
+import com.china.center.oa.client.dao.StafferVSCustomerDAO;
+import com.china.center.oa.client.vo.StafferVSCustomerVO;
+import com.china.center.oa.client.vs.StafferVSCustomerBean;
+import com.china.center.oa.finance.bean.InvoiceinsBean;
+import com.china.center.oa.finance.dao.InvoiceinsDAO;
+import com.china.center.oa.product.bean.DepotBean;
+import com.china.center.oa.product.bean.DepotpartBean;
+import com.china.center.oa.product.bean.PriceConfigBean;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProductImportBean;
+import com.china.center.oa.product.bean.StorageBean;
+import com.china.center.oa.product.constant.DepotConstant;
+import com.china.center.oa.product.constant.StorageConstant;
+import com.china.center.oa.product.dao.DepotDAO;
+import com.china.center.oa.product.dao.DepotpartDAO;
+import com.china.center.oa.product.dao.PriceConfigDAO;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProductImportDAO;
+import com.china.center.oa.product.dao.StorageDAO;
+import com.china.center.oa.product.dao.StorageRelationDAO;
+import com.china.center.oa.product.helper.StorageRelationHelper;
+import com.china.center.oa.product.manager.PriceConfigManager;
+import com.china.center.oa.product.manager.StorageRelationManager;
+import com.china.center.oa.product.vs.StorageRelationBean;
+import com.china.center.oa.publics.Helper;
+import com.china.center.oa.publics.StringUtils;
+import com.china.center.oa.publics.bean.CityBean;
+import com.china.center.oa.publics.bean.DutyBean;
+import com.china.center.oa.publics.bean.EnumBean;
+import com.china.center.oa.publics.bean.ProvinceBean;
+import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.AppConstant;
+import com.china.center.oa.publics.dao.AreaDAO;
+import com.china.center.oa.publics.dao.CityDAO;
+import com.china.center.oa.publics.dao.DutyDAO;
+import com.china.center.oa.publics.dao.EnumDAO;
+import com.china.center.oa.publics.dao.ProvinceDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.dao.UserDAO;
+import com.china.center.oa.publics.vo.StafferVO;
+import com.china.center.oa.publics.vo.UserVO;
+import com.china.center.oa.sail.bean.AutoApproveBean;
+import com.china.center.oa.sail.bean.BankSailBean;
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.BatchApproveBean;
+import com.china.center.oa.sail.bean.BatchDropBean;
+import com.china.center.oa.sail.bean.BatchSwatchBean;
+import com.china.center.oa.sail.bean.ConsignBean;
+import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.bean.EstimateProfitBean;
+import com.china.center.oa.sail.bean.ExpressBean;
+import com.china.center.oa.sail.bean.ImportProcurementBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.OutImportBean;
+import com.china.center.oa.sail.bean.OutImportLogBean;
+import com.china.center.oa.sail.bean.PresentFlagBean;
+import com.china.center.oa.sail.bean.ReplenishmentBean;
+import com.china.center.oa.sail.bean.SailConfBean;
+import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.oa.sail.constanst.OutImportConstant;
+import com.china.center.oa.sail.dao.BankSailDAO;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.BatchApproveDAO;
+import com.china.center.oa.sail.dao.BatchSwatchDAO;
+import com.china.center.oa.sail.dao.ConsignDAO;
+import com.china.center.oa.sail.dao.EstimateProfitDAO;
+import com.china.center.oa.sail.dao.ExpressDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.dao.OutImportDAO;
+import com.china.center.oa.sail.dao.OutImportLogDAO;
+import com.china.center.oa.sail.dao.OutImportResultDAO;
+import com.china.center.oa.sail.dao.PresentFlagDAO;
+import com.china.center.oa.sail.dao.ReplenishmentDAO;
+import com.china.center.oa.sail.helper.OutImportHelper;
+import com.china.center.oa.sail.manager.OutImportManager;
+import com.china.center.oa.sail.manager.OutManager;
+import com.china.center.oa.sail.manager.SailConfigManager;
+import com.china.center.oa.sail.vo.BaseVO;
+import com.china.center.oa.sail.vo.OutImportVO;
+import com.china.center.oa.stock.constant.StockConstant;
+import com.china.center.oa.stock.manager.StockManager;
+import com.china.center.oa.stockvssail.listener.FechProductListener;
+import com.china.center.oa.tax.bean.UnitBean;
+import com.china.center.oa.tax.dao.UnitDAO;
+import com.china.center.tools.CommonTools;
+import com.china.center.tools.ListTools;
+import com.china.center.tools.MathTools;
+import com.china.center.tools.RequestDataStream;
+import com.china.center.tools.RequestTools;
+import com.china.center.tools.StringTools;
+import com.china.center.tools.TimeTools;
+import com.china.center.tools.WriteFileBuffer;
 
  /**
   *
@@ -156,6 +222,12 @@
      private ProductImportDAO productImportDAO = null;
 
      private PresentFlagDAO presentFlagDAO = null;
+     
+     private StockManager stockManager = null;
+     
+     private FechProductListener fechProductListenerTaxGlueImpl =null;
+     
+     private UnitDAO unitDAO;
 
      private static String QUERYOUTIMPORT = "queryOutImport";
 
@@ -4370,6 +4442,7 @@
 
                      //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
                      List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(bean.getOutId());
+                     String appName = ConfigLoader.getProperty("appName");
                      if (!ListTools.isEmptyOrNull(baseBeans)){
                          _logger.info(bean.getOutId()+"**************baseBeans size ************"+baseBeans.size());
                          for (BaseBean base : baseBeans){
@@ -4392,7 +4465,31 @@
 
                                  sailPrice = cb.getSailPrice();
                              }
+                             //2020-4-15 add 专业市场把检查结算价大于0的校验去掉，默认结算价等于成本价,有结算价就取结算价，没有结算价就取成本价
+                             if(sailPrice == 0)
+                             {
+                            	 if(appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
+                                 {
+                                	 //没有结算价取成本价
+                                	 String locationId= base.getLocationId();
+                                	 String productId = base.getProductId();
+                                	 String depotpartid = base.getDepotpartId();
+                                	 ConditionParse condparse = new ConditionParse();
+                                	 condparse.addWhereStr();
+                                	 condparse.addCondition("locationid", "=", locationId);
+                                	 condparse.addCondition("productId", "=", productId);
+                                	 condparse.addCondition("depotpartid", "=", depotpartid);
+                                	 List<StorageRelationBean> srBeanList = storageRelationDAO.queryEntityBeansByCondition(condparse);
+                                	 if(srBeanList.size() > 0)
+                                	 {
+                                		 sailPrice = srBeanList.get(0).getPrice();
+                                	 }
+                                	 
+                                 }
+                             }
+                             //end add
 
+                             
                              String stafferId = "";
                              OutBean out = this.outDAO.find(bean.getOutId());
                              if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
@@ -4430,19 +4527,22 @@
                              base.setInputPrice(base.getIprice());
 
                              //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
-                             _logger.info(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
-                             if (base.getInputPrice() == 0)
+                             if(!appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
                              {
-                                 String msg = bean.getOutId()+ "结算价不能为0:"+base.getProductName() ;
-                                 _logger.warn(msg);
-                                 request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
-                                 throw new MYException(msg);
-                             }  else{
-                                 _logger.debug(base.getProductName()+"更新结算价");
-                                 try{
-                                     this.outManager.updateBase(base);
-                                 }catch(Exception e){
-                                     e.printStackTrace();
+                            	 _logger.info(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
+                                 if (base.getInputPrice() == 0)
+                                 {
+                                     String msg = bean.getOutId()+ "结算价不能为0:"+base.getProductName() ;
+                                     _logger.warn(msg);
+                                     request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
+                                     throw new MYException(msg);
+                                 }  else{
+                                     _logger.debug(base.getProductName()+"更新结算价");
+                                     try{
+                                         this.outManager.updateBase(base);
+                                     }catch(Exception e){
+                                         e.printStackTrace();
+                                     }
                                  }
                              }
                          }
@@ -7475,8 +7575,314 @@
 
          return JSONTools.writeResponse(response, ajax);
      }
+     
+     /**
+      * 批量导入采购订单
+      * @param mapping
+      * @param form
+      * @param request
+      * @param response
+      */
+     public ActionForward importProcurement(ActionMapping mapping, ActionForm form,
+             HttpServletRequest request, HttpServletResponse response)
+     {
 
-     public CustomerMainDAO getCustomerMainDAO() {
+         User user = Helper.getUser(request);
+
+         RequestDataStream rds = new RequestDataStream(request);
+
+         StringBuilder builder = new StringBuilder();
+
+         try
+         {
+             rds.parser();
+             if (!rds.haveStream())
+             {
+            	 request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+                 return mapping.findForward("importProcurement");
+             }
+         }
+         catch (Exception e1)
+         {
+             _logger.error(e1, e1);
+
+             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+             return mapping.findForward("importProcurement");
+         }
+
+         ReaderFile reader = ReadeFileFactory.getXLSReader();
+         List<ImportProcurementBean> beanList = new ArrayList<ImportProcurementBean>();
+
+         try
+         {
+             reader.readFile(rds.getUniqueInputStream());
+
+             while (reader.hasNext())
+             {
+                 // 第一行忽略
+                 if (reader.getCurrentLineNumber() == 1)
+                 {
+                     continue;
+                 }
+
+                 String[] obj = fillObj((String[])reader.next());
+                 int currentNumber = reader.getCurrentLineNumber();
+
+                 ImportProcurementBean bean = new ImportProcurementBean();
+
+                 // 产品
+                 if (StringTools.isNullOrNone(obj[0]))
+                 {
+                	 builder.append("第[" + currentNumber + "]行错误:").append("产品不能为空");
+                	 break;
+
+                 }
+                 String productName = obj[0].trim();
+                 List<ProductBean> productList = productDAO.queryEntityBeansByCondition(" where name=?", productName);
+                 if(productList.size() == 0)
+                 {
+                	 builder.append("第[" + currentNumber + "]行错误:").append("产品:" + productName + "不存在");
+                	 break;
+                 }
+                 ProductBean prod = productList.get(0);
+                 if (StringTools.isNullOrNone(obj[1]))
+                 {
+                	 builder.append("第[" + currentNumber + "]行错误:").append("数量不能为空");
+                	 break;
+                 }
+                 int productNum = MathTools.parseInt(obj[1].trim());
+
+                 if (productNum <= 0) {
+                     builder.append("第[" + currentNumber + "]行错误:").append("数量不能小于0");
+
+                 }
+                 if (StringTools.isNullOrNone(obj[2]))
+                 {
+                	 builder.append("第[" + currentNumber + "]行错误:").append("成本不能为空");
+                	 break;
+                 }
+                 double productCost = MathTools.parseDouble(obj[2].trim());
+                 if (productCost <= 0) {
+                     builder.append("第[" + currentNumber + "]行错误:").append("成本不能小于0");
+                     break;
+                 }
+                 if (StringTools.isNullOrNone(obj[3]))
+                 {
+                	 builder.append("第[" + currentNumber + "]行错误:").append("入库仓库不能为空");
+                	 break;
+                 }
+                 List<DepotBean> depotBeanList = depotDAO.queryEntityBeansByCondition(" where name=?", obj[3].trim());
+                 if(depotBeanList.size() == 0)
+                 {
+                	 builder.append("第[" + currentNumber + "]行错误:").append("入库仓库:" +  obj[3].trim() +"不存在");
+                	 break;
+                 }
+                 DepotBean depot = depotBeanList.get(0);
+                 if (StringTools.isNullOrNone(obj[4]))
+                 {
+                	 builder.append("第[" + currentNumber + "]行错误:").append("入库仓区不能为空");
+                	 break;
+                 }
+                 List<DepotpartBean> depotpartBeanList = depotpartDAO.queryEntityBeansByCondition(" where name=?", obj[4].trim());
+                 if(depotpartBeanList.size() == 0)
+                 {
+                	 builder.append("第[" + currentNumber + "]行错误:").append("入库仓区" + obj[4].trim() +"不存在");
+                	 break;
+                 }
+                 if (StringTools.isNullOrNone(obj[5]))
+                 {
+                	 builder.append("第[" + currentNumber + "]行错误:").append("供应商不能为空");
+                	 break;
+                 }
+                 List<UnitBean> unitBeanList = unitDAO.queryEntityBeansByCondition(" where name=?", obj[5].trim());
+                 if(unitBeanList.size() == 0)
+                 {
+                	 builder.append("第[" + currentNumber + "]行错误:").append("供应商:" + obj[5].trim() +"不存在");
+                	 break;
+                 }
+                 DepotpartBean depotpart = depotpartBeanList.get(0);
+                 UnitBean unitBean = unitBeanList.get(0);
+                 bean.setProductName(productName);
+                 bean.setProductNum(productNum);
+                 bean.setProductCost(new BigDecimal(productCost));
+                 bean.setDepotName(obj[3].trim());
+                 bean.setDepotpartName(obj[4].trim());
+                 bean.setDepotId(depot.getId());
+                 bean.setDepotpartId(depotpart.getId());
+                 bean.setLocationId(depotpart.getLocationId());
+                 bean.setProductId(prod.getId());
+                 bean.setUnitId(unitBean.getId());
+                 bean.setUnitName(unitBean.getName());
+                 bean.setRemark(obj[6]);
+                 beanList.add(bean);
+             }
+             
+             if (builder.length() > 0){
+                 request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+                 return mapping.findForward("importProcurement");
+             }
+        	 autoToOut(user,beanList);
+
+         }catch (Exception e)
+         {
+        	 e.printStackTrace();
+             _logger.error(e, e);
+             request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+             return mapping.findForward("importProcurement");
+         }
+         finally
+         {
+             try
+             {
+                 reader.close();
+                 rds.close();
+             }
+             catch (IOException e)
+             {
+                 _logger.error(e, e);
+             }
+         }
+         request.setAttribute(KeyConstant.MESSAGE, "导入成功");
+         return mapping.findForward("importProcurement");
+     
+     }
+     
+     private void autoToOut(final User user, List<ImportProcurementBean> beanList)
+    	        throws MYException
+     {
+    	 
+	        for (ImportProcurementBean item : beanList)
+	        {
+	            List<BaseBean> baseList = new ArrayList<BaseBean>();
+
+	            OutBean out = new OutBean();
+
+	            out.setStatus(OutConstant.STATUS_SAVE);
+
+	            out.setStafferName(user.getStafferName());
+
+	            out.setStafferId(user.getStafferId());
+
+	            out.setType(OutConstant.OUT_TYPE_INBILL);
+
+	            out.setOutType(OutConstant.OUTTYPE_IN_COMMON);
+
+	            out.setOutTime(TimeTools.now_short());
+
+	            out.setDepartment("采购部");
+	            out.setDescription(item.getRemark());
+
+	            // 所在区域
+	            out.setLocationId(user.getLocationId());
+
+	            out.setCustomerName(item.getUnitName());
+	            out.setCustomerId(item.getUnitId());
+	            // 目的仓库通过仓区自动获取
+	            out.setLocation(item.getLocationId());
+
+	          //2014/12/16 根据实际入库数量计算金额
+	            BigDecimal valDel = new BigDecimal("0.00");
+	            valDel = new BigDecimal(item.getProductNum()).multiply(item.getProductCost());
+	            valDel = valDel.setScale(2, BigDecimal.ROUND_HALF_UP);
+	            out.setTotal(valDel.doubleValue());
+
+	            out.setInway(OutConstant.IN_WAY_NO);
+
+//	            out.setDutyId(each.getDutyId());
+
+	            // 管理类型
+	            out.setMtype(StockConstant.MANAGER_TYPE_COMMON);
+	            out.setOutType(OutConstant.OUTTYPE_IN_COMMON);
+
+	            out.setHasConfirm(1);
+	            
+	            BaseBean baseBean = new BaseBean();
+
+//	            baseBean.setValue(item.getTotal());
+	            baseBean.setLocationId(out.getLocation());
+
+	            //2014/12/14 入库单根据实际入库数量分批次生成
+	            baseBean.setAmount(item.getProductNum());
+//	            baseBean.setAmount(item.getAmount());
+
+	            baseBean.setProductName(item.getProductName());
+	            baseBean.setUnit("套");
+	            baseBean.setPrice(item.getProductCost().doubleValue());
+//	            baseBean.setValue(item.getTotal()); 
+	            
+	            baseBean.setValue(valDel.doubleValue());
+
+//	            baseBean.setShowId(item.getShowId());
+
+	            baseBean.setCostPrice(item.getProductCost().doubleValue());
+
+	            baseBean.setMtype(StockConstant.MANAGER_TYPE_COMMON);
+
+	            baseBean.setProductId(item.getProductId());
+//	            baseBean.setCostPriceKey(StorageRelationHelper.getPriceKey(item.getPrice()));
+
+	            //#545
+//	            if (this.isVirtualProduct(item.getProductId())){
+//	                baseBean.setVirtualPrice(item.getPrice());
+//	                baseBean.setVirtualPriceKey(StorageRelationHelper.getPriceKey(baseBean
+//	                        .getVirtualPrice()));
+//	            } else{
+//	                baseBean.setVirtualPrice(0);
+//	                baseBean.setVirtualPriceKey(StorageRelationHelper.getPriceKey(baseBean
+//	                        .getVirtualPrice()));
+//	            }
+
+                baseBean.setOwnerName("公共");
+                baseBean.setOwner("0");
+	                
+//	                if(product.getSailType()==ProductConstant.SAILTYPE_REPLACE)
+//	                {
+//	                	product.setSailPrice(each.getPrice());//采购商品的结算价更新为此张采购单的成本价
+////	                	each.setPrice(productVo.getSailPrice());
+//	                	productDAO.updateEntityBean(product);
+//	                }
+//	                stockItemDAO.saveEntityBean(each);
+
+	            // 来源于入库的仓区
+	            baseBean.setDepotpartId(item.getDepotpartId());
+	            baseBean.setDepotpartName(item.getDepotpartName());
+
+	            // 成本
+//	            baseBean.setDescription(String.valueOf(item.getPrice()));
+	            
+	            baseBean.setInputRate(0.0d);
+	            
+	            baseList.add(baseBean);
+
+	            out.setBaseList(baseList);
+
+	            // CORE 采购单生成入库单
+	            String fullId = outManager.coloneOutWithAffair(out, user,
+	                StorageConstant.OPR_STORAGE_OUTBILLIN);
+	            System.out.println(fullId);
+//	            fechProductListenerTaxGlueImpl.onFechProduct(user, bean, each, out);
+	        
+	        }
+     }
+
+     public UnitDAO getUnitDAO() {
+		return unitDAO;
+	}
+
+	public void setUnitDAO(UnitDAO unitDAO) {
+		this.unitDAO = unitDAO;
+	}
+
+	public FechProductListener getFechProductListenerTaxGlueImpl() {
+		return fechProductListenerTaxGlueImpl;
+	}
+
+	public void setFechProductListenerTaxGlueImpl(FechProductListener fechProductListenerTaxGlueImpl) {
+		this.fechProductListenerTaxGlueImpl = fechProductListenerTaxGlueImpl;
+	}
+
+	public CustomerMainDAO getCustomerMainDAO() {
          return customerMainDAO;
      }
 
@@ -7862,4 +8268,13 @@
      public void setPresentFlagDAO(PresentFlagDAO presentFlagDAO) {
          this.presentFlagDAO = presentFlagDAO;
      }
+
+	public StockManager getStockManager() {
+		return stockManager;
+	}
+
+	public void setStockManager(StockManager stockManager) {
+		this.stockManager = stockManager;
+	}
+     
  }

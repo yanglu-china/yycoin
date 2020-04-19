@@ -11443,7 +11443,19 @@ public class ParentOutAction extends DispatchAction
 
 			queryOutCondtionMap.put("status",
 					String.valueOf(OutConstant.BUY_STATUS_FINANCE_RECORD));
-		}		
+		}
+		else if ("12".equals(queryType))
+		{
+			condtion.addIntCondition("OutBean.status", "=",
+					OutConstant.BUY_STATUS_SUBMIT);
+			
+			condtion.addIntCondition("OutBean.outtype", "=",0);
+
+			request.setAttribute("status", OutConstant.BUY_STATUS_SUBMIT);
+
+			queryOutCondtionMap.put("status",
+					String.valueOf(OutConstant.BUY_STATUS_SUBMIT));
+		}
 		// 未知的则什么都没有
 		else
 		{

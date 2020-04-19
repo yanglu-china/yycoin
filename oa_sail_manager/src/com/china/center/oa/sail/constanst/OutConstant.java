@@ -239,6 +239,9 @@ public interface OutConstant
     @Defined(key = "outType_out", value = "银行领样")
     int OUTTYPE_OUT_BANK_SWATCH = 7;
 
+    @Defined(key = "outType_out", value = "服务订单")
+    int OUTTYPE_OUT_SERVICE= 8;
+
     @Defined(key = "outType_out", value = "发票")
     int OUTTYPE_INVOICE = 99;
 

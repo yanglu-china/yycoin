@@ -2390,6 +2390,11 @@ public class OutBean implements Serializable, OutInterface
         this.backPay = backPay;
     }
 
+    public boolean isServiceOrder(){
+        return this.type == OutConstant.OUT_TYPE_OUTBILL
+                && this.outType == OutConstant.OUTTYPE_OUT_SERVICE;
+    }
+
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      *

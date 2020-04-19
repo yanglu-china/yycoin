@@ -137,6 +137,7 @@ public interface ShipConstant
 	String YYWH = "永银文化";
 	String ZJNS = "紫金农商";
 	String GDNX = "广东农信";
+	String GH = "国华";
 	
 	String NYYH = "农业银行";
 	String XMPY = "永银文创博物馆店-小米有品";

@@ -857,69 +857,76 @@ public class OutImportManagerImpl implements OutImportManager
 
 			//#359
 //			this.setGrossProfitAndCash(newOutBean,customerBean, base);
-			
-			// 业务员结算价，总部结算价
-			ProductBean product = productDAO.find(base.getProductId());
-			
-			if (null == product)
-			{
-				throw new RuntimeException("产品不存在");
-			}
-			
-			mtype = MathTools.parseInt(product.getReserve4());
-			
-			if (mtype == PublicConstant.MANAGER_TYPE_COMMON)
-			{
-				dutyId = PublicConstant.DEFAULR_DUTY_ID;
-				
-				if (product.getConsumeInDay() == ProductConstant.PRODUCT_OLDGOOD) {
-					base.setTaxrate(0.02);
-				} else if (product.getConsumeInDay() == ProductConstant.PRODUCT_OLDGOOD_YES) {
-					base.setTaxrate(0.17);
-				} else {
-					base.setTaxrate(0);
-				}
-			}
-			else
-			{
-				dutyId = PublicConstant.MANAGER2_DUTY_ID;
-				
-				base.setTaxrate(0);
-			}
-			
-			double sailPrice = product.getSailPrice();
-			
-        	// 根据配置获取结算价
-        	List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
-        	
-        	if (!ListTools.isEmptyOrNull(pcblist))
-        	{
-        		PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
-        		
-        		sailPrice = cb.getSailPrice();
-        	}
-			
-			// 获取销售配置
-            SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
-                product);
-
-            // 总部结算价(产品结算价 * (1 + 总部结算率))
-            base.setPprice(sailPrice
-                    * (1 + sailConf.getPratio() / 1000.0d));
-
-            //#647
-            if(sailConf.getIprice() > 0) {
-                base.setIprice(sailConf.getIprice());
-            }else{
-                // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-                base.setIprice(sailPrice
-                        * (1 + sailConf.getIratio() / 1000.0d + sailConf
-                        .getPratio() / 1000.0d));
+            ProductBean product = productDAO.find(base.getProductId());
+            if (null == product)
+            {
+                throw new RuntimeException("产品不存在:"+base.getProductId());
             }
 
+            mtype = MathTools.parseInt(product.getReserve4());
 
-            // 业务员结算价就是事业部结算价
-            base.setInputPrice(base.getIprice());
+            if (mtype == PublicConstant.MANAGER_TYPE_COMMON)
+            {
+                dutyId = PublicConstant.DEFAULR_DUTY_ID;
+
+                if (product.getConsumeInDay() == ProductConstant.PRODUCT_OLDGOOD) {
+                    base.setTaxrate(0.02);
+                } else if (product.getConsumeInDay() == ProductConstant.PRODUCT_OLDGOOD_YES) {
+                    base.setTaxrate(0.17);
+                } else {
+                    base.setTaxrate(0);
+                }
+            }
+            else
+            {
+                dutyId = PublicConstant.MANAGER2_DUTY_ID;
+
+                base.setTaxrate(0);
+            }
+
+            if (newOutBean.isServiceOrder()){
+                base.setCostPrice(each.getPrice());
+                base.setCostPriceKey(StorageRelationHelper.getPriceKey(each.getPrice()));
+                base.setIprice(each.getPrice());
+                base.setInputPrice(each.getPrice());
+                base.setPprice(each.getPrice());
+            } else{
+                // 业务员结算价，总部结算价
+                double sailPrice = product.getSailPrice();
+
+                // 根据配置获取结算价
+                List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+
+                if (!ListTools.isEmptyOrNull(pcblist))
+                {
+                    PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+                    sailPrice = cb.getSailPrice();
+                }
+
+                // 获取销售配置
+                SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+                        product);
+
+                // 总部结算价(产品结算价 * (1 + 总部结算率))
+                base.setPprice(sailPrice
+                        * (1 + sailConf.getPratio() / 1000.0d));
+
+                //#647
+                if(sailConf.getIprice() > 0) {
+                    base.setIprice(sailConf.getIprice());
+                }else{
+                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                    base.setIprice(sailPrice
+                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                            .getPratio() / 1000.0d));
+                }
+
+
+                // 业务员结算价就是事业部结算价
+                base.setInputPrice(base.getIprice());
+            }
+
             //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
 			//#669 回滚
 			// 后台线程抛异常会导致整个导入失败，改为到前台导入时报错 #

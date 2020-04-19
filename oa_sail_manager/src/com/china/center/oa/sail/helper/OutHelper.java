@@ -173,7 +173,8 @@ public abstract class OutHelper
     {
         if (outBean.getStatus() != OutConstant.STATUS_SAVE
             && outBean.getStatus() != OutConstant.STATUS_REJECT
-            && outBean.getStatus() != OutConstant.STATUS_LOCATION_MANAGER_CHECK)
+            && outBean.getStatus() != OutConstant.STATUS_LOCATION_MANAGER_CHECK
+            && outBean.getStatus() != OutConstant.STATUS_SUBMIT)
         {
             return false;
         }
