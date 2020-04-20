@@ -1059,7 +1059,15 @@ public class PackageManagerImpl implements PackageManager {
 				|| "国华天猫旗舰店-零售".equals(customerName)
 				|| "永银京东旗舰店-零售".equals(customerName)
 				|| "永银京东旗舰店-线上".equals(customerName)
-				|| "国华京东旗舰店-线上".equals(customerName);
+				|| "国华京东旗舰店-线上".equals(customerName)
+				|| "中金国华-京东".equals(customerName)
+				|| "中金国华-天猫".equals(customerName)
+				|| "永银天猫旗舰店-线上".equals(customerName)
+				|| "永银京东旗舰店-有赞".equals(customerName)
+				|| "钱币交易部-京东".equals(customerName)
+				|| "国华天猫旗舰店-线上".equals(customerName)
+				|| "国华京东旗舰店-有赞".equals(customerName)
+				|| "国华京东旗舰店-零售".equals(customerName);
 	}
 
 	private boolean isDirectShipped(List<PackageItemBean> items) {
