@@ -824,6 +824,15 @@ public class PackageManagerImpl implements PackageManager {
 		_logger.info("***industryName***"+industryName);
 		//#320 中金国华
 		if ("575852694".equals(customerId) ||
+        //#942
+                "241188116".equals(customerId) || "588695925".equals(customerId) ||
+                "588695927".equals(customerId) || "607296916".equals(customerId) ||
+                "651826185".equals(customerId) || "651826187".equals(customerId) ||
+                "651826189".equals(customerId) || "651826191".equals(customerId) ||
+                "651826193".equals(customerId) || "651826195".equals(customerId) ||
+                "651826197".equals(customerId) || "651827562".equals(customerId) ||
+                "651827564".equals(customerId) || "651827566".equals(customerId) ||
+                "651827568".equals(customerId) || "690271628".equals(customerId) ||
 		//#713 钱币事业部
 		(!StringTools.isNullOrNone(industryName) && industryName.contains("钱币事业部"))){
 			con.addCondition("PackageBean.customerId", "=", customerId);
@@ -888,15 +897,15 @@ public class PackageManagerImpl implements PackageManager {
 		String fullAddress = distVO.getProvinceName() + distVO.getCityName() + distVO.getAddress();
 		String fullAddressTrim = fullAddress.trim();
 
-		//#942
-		boolean needNotMerge = this.needNotMerge(out.getCustomerName());
-		_logger.info(out.getCustomerName()+"***"+needNotMerge);
-		if (needNotMerge){
-			_logger.info("***need not merge***"+fullId);
-			createNewPackage(out, baseList, distVO, fullAddressTrim, location, null);
-			preConsignDAO.deleteEntityBean(pre.getId());
-			return;
-		}
+//		//#942
+//		boolean needNotMerge = this.needNotMerge(out.getCustomerName());
+//		_logger.info(out.getCustomerName()+"***"+needNotMerge);
+//		if (needNotMerge){
+//			_logger.info("***need not merge***"+fullId);
+//			createNewPackage(out, baseList, distVO, fullAddressTrim, location, null);
+//			preConsignDAO.deleteEntityBean(pre.getId());
+//			return;
+//		}
 
 		// 此客户是否存在同一个发货包裹,且未拣配
 		ConditionParse con = new ConditionParse();
