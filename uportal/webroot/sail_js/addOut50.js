@@ -561,6 +561,8 @@ function getProductRelation(ox)
         		inps[6].value = '0';
         	}
     	}
+
+        inps[10].value = ox[i].pvirtualprice;
     }
 }
 

@@ -122,6 +122,7 @@ function adjustPrice(){
     price0.value = _.round(price, 6);
 
     //自动调整虚料金额
+    //TODO 需要自动调整到虚拟产品上
     var vPriceTotal = prices[2];
     var finishedProductVirtualTotal = prices[3];
     var diff2 = finishedProductVirtualTotal-vPriceTotal;
@@ -184,7 +185,7 @@ function getProductBom(oos)
 
         // console.log(oos);
         var oo = oos[0];
-        // console.log(oo);
+        console.log(oo);
         $O('productName').value = oo.pname;
         $O('productId').value = oo.value;
 
@@ -231,6 +232,8 @@ function getProductBom(oos)
                 //成品数量*配件装配率
                setInputValueInTr(trow, 'srcAmount', Math.round(parseInt(amount)*parseFloat(item.assemblyRate)));
                setInputValueInTr(trow, 'srcPrice', item.price);
+               //#956 读取虚料金额XL
+               setInputValueInTr(trow, 'vPrice', item.virtualPrice);
                 //配件使用率
 //            rateList.push(item.amount / amount);
                 rateList.push(item.assemblyRate);
