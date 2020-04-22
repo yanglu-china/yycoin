@@ -2323,6 +2323,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                 	//update status 已拿货
                     if(this.needChangeStatus(amount, fetchAmount, returnAmount1, returnAmount2, totalWarehouseNum)){
                     	stockItemBean.setFechProduct(StockConstant.STOCK_ITEM_FECH_YES);
+                    	stockItemBean.setHasRef(StockConstant.STOCK_ITEM_HASREF_YES);
                     	this.stockItemDAO.updateEntityBean(stockItemBean);
                     	sfLog.info("update stock item to 已拿货 "+stockItemBean.toString());
                     }else{
