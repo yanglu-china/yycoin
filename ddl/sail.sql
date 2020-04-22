@@ -77,3 +77,6 @@ alter table t_center_package add column type int(8) default 0;
 
 -- #931
 INSERT INTO t_center_schedule_job (id, createTime, updateTime, jobName, jobGroup, jobStatus, cronExpression, description, beanClass, isConcurrent, springId, methodName, type) VALUES (568, sysdate(), sysdate(), 'statsBlackOutJob', 'Default', '0', '0 0/1 * * * ?', '黑名单统计', 'com.china.center.oa.commission.manager.impl.BlackManagerImpl', '0', 'blackManager', 'statsBlackOutJob', 0);
+
+-- #950
+alter table T_CENTER_VS_GIFT add column mzje decimal(10,2) default 0,add column giftProductId4 varchar(32) default null,add column amount4 int(11) default 0;

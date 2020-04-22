@@ -1297,12 +1297,9 @@ public class OutImportManagerImpl implements OutImportManager
         _logger.info("create gift out for out:" + out);
     	// 判断产品是否有对应赠品关系 - 中信订单一个订单一个产品
     	BaseBean base = out.getBaseList().get(0);
-    	
     	String productId = base.getProductId();
-    	
     	List<ProductVSGiftVO> giftList = productVSGiftDAO.queryEntityVOsByFK(productId);
 
-//        List<ProductVSGiftVO> qualifiedGiftList = new ArrayList<ProductVSGiftVO>();
         int priority = -1;
         ProductVSGiftVO giftVO = null;
     	
@@ -1418,6 +1415,27 @@ public class OutImportManagerImpl implements OutImportManager
 				newBaseBean3.setOutId(newOutId);
 
 				baseDAO.saveEntityBean(newBaseBean3);
+			}
+
+			//#950 TODO 订单金额满增
+			int i=giftVO.getMzje().compareTo(new BigDecimal(out.getTotal())); //i==1表示大于订单金额
+			if (i ==1 && !StringTools.isNullOrNone(giftVO.getGiftProductId4())
+					&& giftVO.getAmount4()>0){
+				_logger.info("***create extra base bean for gift4***");
+				BaseBean newBaseBean4 = new BaseBean();
+				BeanUtil.copyProperties(newBaseBean4, base);
+
+				newBaseBean4.setId(commonDAO.getSquenceString());
+				newBaseBean4.setAmount(giftVO.getAmount4());
+				newBaseBean4.setProductId(giftVO.getGiftProductId4());
+				newBaseBean4.setProductName(giftVO.getGiftProductName4());
+				newBaseBean4.setPrice(0);
+				newBaseBean4.setValue(0);
+				newBaseBean4.setProfit(0);
+				newBaseBean4.setProfitRatio(0);
+				newBaseBean4.setOutId(newOutId);
+
+				baseDAO.saveEntityBean(newBaseBean4);
 			}
 
 
@@ -1775,7 +1793,7 @@ public class OutImportManagerImpl implements OutImportManager
 				}
 			}
 
-			//城市
+			//不包含城市
 			String excludeCity = gift.getExcludeCity();
 			if (!StringTools.isNullOrNone(excludeCity)){
 				//城市取客户信息表中的城市信息
