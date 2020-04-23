@@ -246,7 +246,7 @@ function load()
                        class="button_class" onclick="clears(4)">&nbsp;&nbsp;
             </p:pro>
 
-            <p:pro field="amount4" value="${bean.amount3}" innerString="oncheck='isMathNumber'"/>
+            <p:pro field="amount4" value="${bean.amount4}" innerString="oncheck='isMathNumber'"/>
 
             <p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 

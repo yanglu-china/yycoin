@@ -1349,29 +1349,31 @@ public class OutImportManagerImpl implements OutImportManager
             //2015/9/29 自动导入生成赠品订单时关联refOutFullId
             newOutBean.setRefOutFullId(fullId);
 
-            outDAO.saveEntityBean(newOutBean);
+//            outDAO.saveEntityBean(newOutBean);
 
+            boolean createdFlag = false;
             //2016/1/6 多个赠送活动满足条件，只允许参加一个
+            if (!StringTools.isNullOrNone(giftVO.getGiftProductId()) && giftVO.getAmount() > 0 ){
+                BaseBean newBaseBean = new BaseBean();
 
-            BaseBean newBaseBean = new BaseBean();
+                BeanUtil.copyProperties(newBaseBean, base);
+                newBaseBean.setId(commonDAO.getSquenceString());
 
-            BeanUtil.copyProperties(newBaseBean, base);
+                //2015/6/14 检查销售数量与赠品数量
+                double giftPercentage = ((double)giftVO.getAmount())/giftVO.getSailAmount();
+                newBaseBean.setAmount((int)(giftPercentage*base.getAmount()));
 
-            newBaseBean.setId(commonDAO.getSquenceString());
+                newBaseBean.setProductId(giftVO.getGiftProductId());
+                newBaseBean.setProductName(giftVO.getGiftProductName());
+                newBaseBean.setPrice(0);
+                newBaseBean.setValue(0);
+                newBaseBean.setProfit(0);
+                newBaseBean.setProfitRatio(0);
+                newBaseBean.setOutId(newOutId);
 
-            //2015/6/14 检查销售数量与赠品数量
-            double giftPercentage = ((double)giftVO.getAmount())/giftVO.getSailAmount();
-            newBaseBean.setAmount((int)(giftPercentage*base.getAmount()));
-
-            newBaseBean.setProductId(giftVO.getGiftProductId());
-            newBaseBean.setProductName(giftVO.getGiftProductName());
-            newBaseBean.setPrice(0);
-            newBaseBean.setValue(0);
-            newBaseBean.setProfit(0);
-            newBaseBean.setProfitRatio(0);
-            newBaseBean.setOutId(newOutId);
-
-            baseDAO.saveEntityBean(newBaseBean);
+                baseDAO.saveEntityBean(newBaseBean);
+                createdFlag = true;
+            }
 
 			_logger.info("***giftVO product2**"+giftVO.getGiftProductId2()+"**prod3***"+ giftVO.getGiftProductId3());
 			//2015/1/21 买赠可多个商品
@@ -1394,6 +1396,7 @@ public class OutImportManagerImpl implements OutImportManager
 				newBaseBean2.setOutId(newOutId);
 
 				baseDAO.saveEntityBean(newBaseBean2);
+                createdFlag = true;
 			}
 
 			if (!StringTools.isNullOrNone(giftVO.getGiftProductId3())
@@ -1415,13 +1418,14 @@ public class OutImportManagerImpl implements OutImportManager
 				newBaseBean3.setOutId(newOutId);
 
 				baseDAO.saveEntityBean(newBaseBean3);
+                createdFlag = true;
 			}
 
-			//#950 TODO 订单金额满增
-			int i=giftVO.getMzje().compareTo(new BigDecimal(out.getTotal())); //i==1表示大于订单金额
+			//#950 订单金额满增
+			int i=new BigDecimal(out.getTotal()).compareTo(giftVO.getMzje()); //i==1表示订单金额大于满增金额金额
+            _logger.info(i+"*****mzje***"+giftVO.getMzje()+"****total***"+out.getTotal());
 			if (i ==1 && !StringTools.isNullOrNone(giftVO.getGiftProductId4())
 					&& giftVO.getAmount4()>0){
-				_logger.info("***create extra base bean for gift4***");
 				BaseBean newBaseBean4 = new BaseBean();
 				BeanUtil.copyProperties(newBaseBean4, base);
 
@@ -1436,44 +1440,47 @@ public class OutImportManagerImpl implements OutImportManager
 				newBaseBean4.setOutId(newOutId);
 
 				baseDAO.saveEntityBean(newBaseBean4);
+                createdFlag = true;
+                _logger.info("***create extra base bean for gift4***"+newBaseBean4);
 			}
 
+			if (createdFlag){
+                outDAO.saveEntityBean(newOutBean);
 
-            // 配送
-            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(out.getFullId());
+                // 配送
+                List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(out.getFullId());
 
-            for(DistributionBean each : distList)
-            {
-                String distId = each.getId();
+                for(DistributionBean each : distList)
+                {
+                    DistributionBean newDist = new DistributionBean();
 
-                DistributionBean newDist = new DistributionBean();
+                    String newDistId = commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX);
 
-                String newDistId = commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX);
+                    BeanUtil.copyProperties(newDist, each);
 
-                BeanUtil.copyProperties(newDist, each);
+                    newDist.setId(newDistId);
+                    newDist.setOutId(newOutId);
 
-                newDist.setId(newDistId);
-                newDist.setOutId(newOutId);
+                    distributionDAO.saveEntityBean(newDist);
+                    _logger.info("save saveEntityBean***"+newDist);
+                }
 
-                distributionDAO.saveEntityBean(newDist);
-				_logger.info("save saveEntityBean***"+newDist);
+                // 记录退货审批日志 操作人系统，自动审批
+                FlowLogBean log = new FlowLogBean();
+
+                log.setActor("系统");
+
+                log.setDescription("银行数据导入系统[赠品]自动审批");
+                log.setFullId(newOutBean.getFullId());
+                log.setOprMode(PublicConstant.OPRMODE_PASS);
+                log.setLogTime(TimeTools.now());
+
+                log.setPreStatus(OutConstant.STATUS_SAVE);
+
+                log.setAfterStatus(newOutBean.getStatus());
+
+                flowLogDAO.saveEntityBean(log);
             }
-
-            // 记录退货审批日志 操作人系统，自动审批
-            FlowLogBean log = new FlowLogBean();
-
-            log.setActor("系统");
-
-            log.setDescription("银行数据导入系统[赠品]自动审批");
-            log.setFullId(newOutBean.getFullId());
-            log.setOprMode(PublicConstant.OPRMODE_PASS);
-            log.setLogTime(TimeTools.now());
-
-            log.setPreStatus(OutConstant.STATUS_SAVE);
-
-            log.setAfterStatus(newOutBean.getStatus());
-
-            flowLogDAO.saveEntityBean(log);
         }
     }
 
@@ -1532,7 +1539,7 @@ public class OutImportManagerImpl implements OutImportManager
 			return -1;
 		}
 
-		//如果所有条件都不设置，默认都参加活动
+		//如果赠品配置所有条件都不设置，默认所有订单都参加该活动
 		if (StringTools.isNullOrNone(gift.getStafferName()) &&
 				StringTools.isNullOrNone(gift.getExcludeStafferName()) &&
 				StringTools.isNullOrNone(gift.getProvince()) &&
@@ -1552,11 +1559,12 @@ public class OutImportManagerImpl implements OutImportManager
 				StringTools.isNullOrNone(gift.getBranchName()) &&
 				StringTools.isNullOrNone(gift.getExcludeBranchName()) &&
 				StringTools.isNullOrNone(gift.getChannel()) &&
-				StringTools.isNullOrNone(gift.getExcludeChannel())
+				StringTools.isNullOrNone(gift.getExcludeChannel()) &&
+                //#950
+                StringTools.isNullOrNone(gift.getGiftProductId4())
 				){
 			_logger.info("gift satisfy default rule ***"+gift);
 			return 100;
-
 		}
 
 		//渠道
