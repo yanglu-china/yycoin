@@ -7728,13 +7728,9 @@ import com.china.center.tools.WriteFileBuffer;
              for(ImportProcurementBean bean : beanList)
              {
             	 StringBuffer sb= new StringBuffer();
-            	 String productName = bean.getProductName();
-            	 double productCost = bean.getProductCost().doubleValue();
             	 String depotName = bean.getDepotName();
             	 String depotpart = bean.getDepotpartName();
             	 String unitName = bean.getUnitName();
-            	 sb.append(productName);
-            	 sb.append(productCost);
             	 sb.append(depotName);
             	 sb.append(depotpart);
             	 sb.append(unitName);
@@ -7742,13 +7738,14 @@ import com.china.center.tools.WriteFileBuffer;
             	 if(keyMap.containsKey(key))
             	 {
             		 ImportProcurementBean mapObj = keyMap.get(key);
-            		 int pnum = mapObj.getProductNum();
+            		 mapObj.getIpList().add(bean);
             		 
-            		 pnum = pnum + bean.getProductNum();
-            		 mapObj.setProductNum(pnum);
             	 }
             	 else
             	 {
+            		 ArrayList<ImportProcurementBean> ll = new ArrayList<ImportProcurementBean>();
+            		 ll.add(bean);
+            		 bean.setIpList(ll);
             		 keyMap.put(key, bean);
             	 }
              }
@@ -7814,9 +7811,6 @@ import com.china.center.tools.WriteFileBuffer;
 
 	          //2014/12/16 根据实际入库数量计算金额
 	            BigDecimal valDel = new BigDecimal("0.00");
-	            valDel = new BigDecimal(item.getProductNum()).multiply(item.getProductCost());
-	            valDel = valDel.setScale(2, BigDecimal.ROUND_HALF_UP);
-	            out.setTotal(valDel.doubleValue());
 
 	            out.setInway(OutConstant.IN_WAY_NO);
 
@@ -7828,66 +7822,63 @@ import com.china.center.tools.WriteFileBuffer;
 
 	            out.setHasConfirm(1);
 	            
-	            BaseBean baseBean = new BaseBean();
+	            for(ImportProcurementBean bbb :item.getIpList())
+	            {
+	            	BaseBean baseBean = new BaseBean();
 
-//	            baseBean.setValue(item.getTotal());
-	            baseBean.setLocationId(out.getLocation());
+//		            baseBean.setValue(item.getTotal());
+		            baseBean.setLocationId(out.getLocation());
 
-	            //2014/12/14 入库单根据实际入库数量分批次生成
-	            baseBean.setAmount(item.getProductNum());
-//	            baseBean.setAmount(item.getAmount());
+		            //2014/12/14 入库单根据实际入库数量分批次生成
+		            baseBean.setAmount(bbb.getProductNum());
+//		            baseBean.setAmount(item.getAmount());
 
-	            baseBean.setProductName(item.getProductName());
-	            baseBean.setUnit("套");
-	            baseBean.setPrice(item.getProductCost().doubleValue());
-//	            baseBean.setValue(item.getTotal()); 
+		            baseBean.setProductName(bbb.getProductName());
+		            baseBean.setUnit("套");
+		            baseBean.setPrice(bbb.getProductCost().doubleValue());
+		            
+		            
+
+//		            baseBean.setShowId(item.getShowId());
+
+		            baseBean.setCostPrice(bbb.getProductCost().doubleValue());
+		            baseBean.setCostPriceKey(String.valueOf(bbb.getProductCost().multiply(new BigDecimal(100)).longValue()));
+
+		            baseBean.setMtype(StockConstant.MANAGER_TYPE_COMMON);
+
+		            baseBean.setProductId(bbb.getProductId());
+
+	                baseBean.setOwnerName("公共");
+	                baseBean.setOwner("0");
+		                
+//		                if(product.getSailType()==ProductConstant.SAILTYPE_REPLACE)
+//		                {
+//		                	product.setSailPrice(each.getPrice());//采购商品的结算价更新为此张采购单的成本价
+////		                	each.setPrice(productVo.getSailPrice());
+//		                	productDAO.updateEntityBean(product);
+//		                }
+//		                stockItemDAO.saveEntityBean(each);
+
+		            // 来源于入库的仓区
+		            baseBean.setDepotpartId(bbb.getDepotpartId());
+		            baseBean.setDepotpartName(bbb.getDepotpartName());
+
+		            // 成本
+//		            baseBean.setDescription(String.valueOf(item.getPrice()));
+		            
+		            baseBean.setInputRate(0.0d);
+		            
+		            baseList.add(baseBean);
+		            
+		            BigDecimal itemValue = new BigDecimal(bbb.getProductNum()).multiply(bbb.getProductCost());
+		            itemValue = itemValue.setScale(2, BigDecimal.ROUND_HALF_UP);
+		            baseBean.setValue(itemValue.doubleValue());
+		            valDel = valDel.add(itemValue);
+
+	            }
 	            
-	            baseBean.setValue(valDel.doubleValue());
-
-//	            baseBean.setShowId(item.getShowId());
-
-	            baseBean.setCostPrice(item.getProductCost().doubleValue());
-
-	            baseBean.setMtype(StockConstant.MANAGER_TYPE_COMMON);
-
-	            baseBean.setProductId(item.getProductId());
-//	            baseBean.setCostPriceKey(StorageRelationHelper.getPriceKey(item.getPrice()));
-
-	            //#545
-//	            if (this.isVirtualProduct(item.getProductId())){
-//	                baseBean.setVirtualPrice(item.getPrice());
-//	                baseBean.setVirtualPriceKey(StorageRelationHelper.getPriceKey(baseBean
-//	                        .getVirtualPrice()));
-//	            } else{
-//	                baseBean.setVirtualPrice(0);
-//	                baseBean.setVirtualPriceKey(StorageRelationHelper.getPriceKey(baseBean
-//	                        .getVirtualPrice()));
-//	            }
-
-                baseBean.setOwnerName("公共");
-                baseBean.setOwner("0");
-	                
-//	                if(product.getSailType()==ProductConstant.SAILTYPE_REPLACE)
-//	                {
-//	                	product.setSailPrice(each.getPrice());//采购商品的结算价更新为此张采购单的成本价
-////	                	each.setPrice(productVo.getSailPrice());
-//	                	productDAO.updateEntityBean(product);
-//	                }
-//	                stockItemDAO.saveEntityBean(each);
-
-	            // 来源于入库的仓区
-	            baseBean.setDepotpartId(item.getDepotpartId());
-	            baseBean.setDepotpartName(item.getDepotpartName());
-
-	            // 成本
-//	            baseBean.setDescription(String.valueOf(item.getPrice()));
-	            
-	            baseBean.setInputRate(0.0d);
-	            
-	            baseList.add(baseBean);
-
+	            out.setTotal(valDel.doubleValue());
 	            out.setBaseList(baseList);
-
 	            // CORE 采购单生成入库单
 	            String fullId = outManager.coloneOutWithAffair(out, user,
 	                StorageConstant.OPR_STORAGE_OUTBILLIN);
