@@ -7722,7 +7722,38 @@ import com.china.center.tools.WriteFileBuffer;
                  request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
                  return mapping.findForward("importProcurement");
              }
-        	 autoToOut(user,beanList);
+             //合并bean
+             List<ImportProcurementBean> resultBeanList = new ArrayList<ImportProcurementBean>();
+             Map<String,ImportProcurementBean> keyMap = new HashMap<String, ImportProcurementBean>();
+             for(ImportProcurementBean bean : beanList)
+             {
+            	 StringBuffer sb= new StringBuffer();
+            	 String productName = bean.getProductName();
+            	 double productCost = bean.getProductCost().doubleValue();
+            	 String depotName = bean.getDepotName();
+            	 String depotpart = bean.getDepotpartName();
+            	 String unitName = bean.getUnitName();
+            	 sb.append(productName);
+            	 sb.append(productCost);
+            	 sb.append(depotName);
+            	 sb.append(depotpart);
+            	 sb.append(unitName);
+            	 String key = sb.toString();
+            	 if(keyMap.containsKey(key))
+            	 {
+            		 ImportProcurementBean mapObj = keyMap.get(key);
+            		 int pnum = mapObj.getProductNum();
+            		 
+            		 pnum = pnum + bean.getProductNum();
+            		 mapObj.setProductNum(pnum);
+            	 }
+            	 else
+            	 {
+            		 keyMap.put(key, bean);
+            	 }
+             }
+             resultBeanList = new ArrayList<ImportProcurementBean>(keyMap.values());
+        	 autoToOut(user,resultBeanList);
 
          }catch (Exception e)
          {
