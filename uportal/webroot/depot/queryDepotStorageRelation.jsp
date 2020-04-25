@@ -16,26 +16,42 @@ var ukey = 'DepotStorageRelation';
 var allDef = window.top.topFrame.allDef;
 var guidMap;
 var thisObj;
+
+var priceDisplay = containInList($auth(), '1419');
+
 function load()
 {
      preload();
      
+     var myColModel = [
+                       {display: '选择', name : 'check', content : 
+                       '<input type=radio name=checkb value={id} lamount={amount} ldepotpartId={depotpartId} lproductId={productId} llocationId={locationId} lpriceKey={priceKey}>', 
+                       		width : 40, align: 'center'},
+                       {display: '产品', name : 'productName', width : '15%', cname: 'StorageRelationBean.productId', sortable : true},
+                       {display: '编码', name : 'productCode', width : '15%'},
+                       {display: '实际/预占/在途', name : 'amount', width : '15%', content: '{amount}/{preassignAmount}/{inwayAmount}', sortable : true}
+                           ];
+     
+     var myColModel1 = [
+                       {display: '价格', name : 'price', toFixed: 2, sortable : true, width : '10%'}
+                           ];
+     
+     var myColModel2 = [
+                        {display: '储位', name : 'storageName', width : '10%'},
+                        {display: '仓区', name : 'depotpartName', width : '10%'},
+                        {display: '仓库', name : 'locationName', width : '10%'},
+                        {display: '职员', name : 'stafferName', width : 'auto'}
+                           ];
+     if(priceDisplay){
+    	 myColModel = myColModel.concat(myColModel1);
+     }
+     
+     myColModel = myColModel.concat(myColModel2);
+     
      guidMap = {
          title: '库存列表',
          url: gurl + 'query' + ukey + '&depotId=${param.depotId}',
-         colModel : [
-             {display: '选择', name : 'check', content : 
-             '<input type=radio name=checkb value={id} lamount={amount} ldepotpartId={depotpartId} lproductId={productId} llocationId={locationId} lpriceKey={priceKey}>', 
-             		width : 40, align: 'center'},
-             {display: '产品', name : 'productName', width : '15%', cname: 'StorageRelationBean.productId', sortable : true},
-             {display: '编码', name : 'productCode', width : '15%'},
-             {display: '实际/预占/在途', name : 'amount', width : '15%', content: '{amount}/{preassignAmount}/{inwayAmount}', sortable : true},
-             {display: '价格', name : 'price', toFixed: 2, sortable : true, width : '10%'},
-             {display: '储位', name : 'storageName', width : '10%'},
-             {display: '仓区', name : 'depotpartName', width : '10%'},
-             {display: '仓库', name : 'locationName', width : '10%'},
-             {display: '职员', name : 'stafferName', width : 'auto'}
-             ],
+         colModel : myColModel,
          extAtt: {
              //name : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}>', end : '</a>'}
          },
@@ -173,6 +189,7 @@ function doSearch()
 </script>
 </head>
 <body onload="load()" class="body_class">
+priceVisible:${priceVisible}
 <form name="mainForm" method="post">
 <p:cache></p:cache>
 </form>
