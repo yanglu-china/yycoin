@@ -86,6 +86,8 @@ public class BaseBean implements Serializable, BaseInterface
      */
     private double price = 0.0d;
 
+    private double price2 = 0.0d;
+
     /**
      * 总部结算价格
      */
@@ -1019,6 +1021,14 @@ public class BaseBean implements Serializable, BaseInterface
         this.sn = sn;
     }
 
+    public double getPrice2() {
+        return price2;
+    }
+
+    public void setPrice2(double price2) {
+        this.price2 = price2;
+    }
+
     @Override
     public String toString() {
         return "BaseBean{" +
@@ -1039,6 +1049,7 @@ public class BaseBean implements Serializable, BaseInterface
                 ", owner='" + owner + '\'' +
                 ", ownerName='" + ownerName + '\'' +
                 ", price=" + price +
+                ", price2=" + price2 +
                 ", pprice=" + pprice +
                 ", iprice=" + iprice +
                 ", inputPrice=" + inputPrice +
@@ -1046,6 +1057,7 @@ public class BaseBean implements Serializable, BaseInterface
                 ", costPriceKey='" + costPriceKey + '\'' +
                 ", virtualPrice=" + virtualPrice +
                 ", virtualPriceKey='" + virtualPriceKey + '\'' +
+                ", sn='" + sn + '\'' +
                 ", value=" + value +
                 ", invoiceMoney=" + invoiceMoney +
                 ", description='" + description + '\'' +

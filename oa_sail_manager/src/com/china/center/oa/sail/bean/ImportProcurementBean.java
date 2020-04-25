@@ -1,6 +1,7 @@
 package com.china.center.oa.sail.bean;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class ImportProcurementBean {
 	
@@ -27,6 +28,8 @@ public class ImportProcurementBean {
 	private String unitName;
 	
 	private String remark;
+	
+	List<ImportProcurementBean> ipList;
 
 	public String getRemark() {
 		return remark;
@@ -122,6 +125,14 @@ public class ImportProcurementBean {
 
 	public void setProductId(String productId) {
 		this.productId = productId;
+	}
+
+	public List<ImportProcurementBean> getIpList() {
+		return ipList;
+	}
+
+	public void setIpList(List<ImportProcurementBean> ipList) {
+		this.ipList = ipList;
 	}
 
 }

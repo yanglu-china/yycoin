@@ -68,6 +68,11 @@ public class OutImportBean implements Serializable
 	private int amount = 0;
 	
 	private double price = 0.0d;
+
+	/**
+	 * #961 销售单价2
+	 */
+	private double price2 = 0.0d;
 	
 	private String style = "";
 	
@@ -1126,6 +1131,14 @@ public class OutImportBean implements Serializable
 		this.gfdz = gfdz;
 	}
 
+	public double getPrice2() {
+		return price2;
+	}
+
+	public void setPrice2(double price2) {
+		this.price2 = price2;
+	}
+
 	@Override
 	public String toString() {
 		return "OutImportBean{" +
@@ -1146,6 +1159,7 @@ public class OutImportBean implements Serializable
 				", firstName='" + firstName + '\'' +
 				", amount=" + amount +
 				", price=" + price +
+				", price2=" + price2 +
 				", style='" + style + '\'' +
 				", value=" + value +
 				", midValue=" + midValue +

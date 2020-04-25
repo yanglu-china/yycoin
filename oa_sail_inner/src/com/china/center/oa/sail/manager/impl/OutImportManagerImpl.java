@@ -826,7 +826,8 @@ public class OutImportManagerImpl implements OutImportManager
 			base.setAmount(each.getAmount());
 			
 			base.setPrice(each.getPrice());
-			
+			base.setPrice2(each.getPrice2());
+
 			base.setValue(each.getValue());
 			
 			base.setLocationId(newOutBean.getLocation());
@@ -1297,12 +1298,9 @@ public class OutImportManagerImpl implements OutImportManager
         _logger.info("create gift out for out:" + out);
     	// 判断产品是否有对应赠品关系 - 中信订单一个订单一个产品
     	BaseBean base = out.getBaseList().get(0);
-    	
     	String productId = base.getProductId();
-    	
     	List<ProductVSGiftVO> giftList = productVSGiftDAO.queryEntityVOsByFK(productId);
 
-//        List<ProductVSGiftVO> qualifiedGiftList = new ArrayList<ProductVSGiftVO>();
         int priority = -1;
         ProductVSGiftVO giftVO = null;
     	
@@ -1352,29 +1350,31 @@ public class OutImportManagerImpl implements OutImportManager
             //2015/9/29 自动导入生成赠品订单时关联refOutFullId
             newOutBean.setRefOutFullId(fullId);
 
-            outDAO.saveEntityBean(newOutBean);
+//            outDAO.saveEntityBean(newOutBean);
 
+            boolean createdFlag = false;
             //2016/1/6 多个赠送活动满足条件，只允许参加一个
+            if (!StringTools.isNullOrNone(giftVO.getGiftProductId()) && giftVO.getAmount() > 0 ){
+                BaseBean newBaseBean = new BaseBean();
 
-            BaseBean newBaseBean = new BaseBean();
+                BeanUtil.copyProperties(newBaseBean, base);
+                newBaseBean.setId(commonDAO.getSquenceString());
 
-            BeanUtil.copyProperties(newBaseBean, base);
+                //2015/6/14 检查销售数量与赠品数量
+                double giftPercentage = ((double)giftVO.getAmount())/giftVO.getSailAmount();
+                newBaseBean.setAmount((int)(giftPercentage*base.getAmount()));
 
-            newBaseBean.setId(commonDAO.getSquenceString());
+                newBaseBean.setProductId(giftVO.getGiftProductId());
+                newBaseBean.setProductName(giftVO.getGiftProductName());
+                newBaseBean.setPrice(0);
+                newBaseBean.setValue(0);
+                newBaseBean.setProfit(0);
+                newBaseBean.setProfitRatio(0);
+                newBaseBean.setOutId(newOutId);
 
-            //2015/6/14 检查销售数量与赠品数量
-            double giftPercentage = ((double)giftVO.getAmount())/giftVO.getSailAmount();
-            newBaseBean.setAmount((int)(giftPercentage*base.getAmount()));
-
-            newBaseBean.setProductId(giftVO.getGiftProductId());
-            newBaseBean.setProductName(giftVO.getGiftProductName());
-            newBaseBean.setPrice(0);
-            newBaseBean.setValue(0);
-            newBaseBean.setProfit(0);
-            newBaseBean.setProfitRatio(0);
-            newBaseBean.setOutId(newOutId);
-
-            baseDAO.saveEntityBean(newBaseBean);
+                baseDAO.saveEntityBean(newBaseBean);
+                createdFlag = true;
+            }
 
 			_logger.info("***giftVO product2**"+giftVO.getGiftProductId2()+"**prod3***"+ giftVO.getGiftProductId3());
 			//2015/1/21 买赠可多个商品
@@ -1397,6 +1397,7 @@ public class OutImportManagerImpl implements OutImportManager
 				newBaseBean2.setOutId(newOutId);
 
 				baseDAO.saveEntityBean(newBaseBean2);
+                createdFlag = true;
 			}
 
 			if (!StringTools.isNullOrNone(giftVO.getGiftProductId3())
@@ -1418,44 +1419,69 @@ public class OutImportManagerImpl implements OutImportManager
 				newBaseBean3.setOutId(newOutId);
 
 				baseDAO.saveEntityBean(newBaseBean3);
+                createdFlag = true;
 			}
 
+			//#950 订单金额满增
+			int i=new BigDecimal(out.getTotal()).compareTo(giftVO.getMzje()); //i==1表示订单金额大于满增金额金额
+            _logger.info(i+"*****mzje***"+giftVO.getMzje()+"****total***"+out.getTotal());
+			if (i ==1 && !StringTools.isNullOrNone(giftVO.getGiftProductId4())
+					&& giftVO.getAmount4()>0){
+				BaseBean newBaseBean4 = new BaseBean();
+				BeanUtil.copyProperties(newBaseBean4, base);
 
-            // 配送
-            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(out.getFullId());
+				newBaseBean4.setId(commonDAO.getSquenceString());
+				newBaseBean4.setAmount(giftVO.getAmount4());
+				newBaseBean4.setProductId(giftVO.getGiftProductId4());
+				newBaseBean4.setProductName(giftVO.getGiftProductName4());
+				newBaseBean4.setPrice(0);
+				newBaseBean4.setValue(0);
+				newBaseBean4.setProfit(0);
+				newBaseBean4.setProfitRatio(0);
+				newBaseBean4.setOutId(newOutId);
 
-            for(DistributionBean each : distList)
-            {
-                String distId = each.getId();
+				baseDAO.saveEntityBean(newBaseBean4);
+                createdFlag = true;
+                _logger.info("***create extra base bean for gift4***"+newBaseBean4);
+			}
 
-                DistributionBean newDist = new DistributionBean();
+			if (createdFlag){
+                outDAO.saveEntityBean(newOutBean);
 
-                String newDistId = commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX);
+                // 配送
+                List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(out.getFullId());
 
-                BeanUtil.copyProperties(newDist, each);
+                for(DistributionBean each : distList)
+                {
+                    DistributionBean newDist = new DistributionBean();
 
-                newDist.setId(newDistId);
-                newDist.setOutId(newOutId);
+                    String newDistId = commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX);
 
-                distributionDAO.saveEntityBean(newDist);
-				_logger.info("save saveEntityBean***"+newDist);
+                    BeanUtil.copyProperties(newDist, each);
+
+                    newDist.setId(newDistId);
+                    newDist.setOutId(newOutId);
+
+                    distributionDAO.saveEntityBean(newDist);
+                    _logger.info("save saveEntityBean***"+newDist);
+                }
+
+                // 记录退货审批日志 操作人系统，自动审批
+                FlowLogBean log = new FlowLogBean();
+
+                log.setActor("系统");
+
+                log.setDescription("银行数据导入系统[赠品]自动审批");
+                log.setFullId(newOutBean.getFullId());
+                log.setOprMode(PublicConstant.OPRMODE_PASS);
+                log.setLogTime(TimeTools.now());
+
+                log.setPreStatus(OutConstant.STATUS_SAVE);
+
+                log.setAfterStatus(newOutBean.getStatus());
+
+                flowLogDAO.saveEntityBean(log);
             }
-
-            // 记录退货审批日志 操作人系统，自动审批
-            FlowLogBean log = new FlowLogBean();
-
-            log.setActor("系统");
-
-            log.setDescription("银行数据导入系统[赠品]自动审批");
-            log.setFullId(newOutBean.getFullId());
-            log.setOprMode(PublicConstant.OPRMODE_PASS);
-            log.setLogTime(TimeTools.now());
-
-            log.setPreStatus(OutConstant.STATUS_SAVE);
-
-            log.setAfterStatus(newOutBean.getStatus());
-
-            flowLogDAO.saveEntityBean(log);
         }
     }
 
@@ -1514,7 +1540,7 @@ public class OutImportManagerImpl implements OutImportManager
 			return -1;
 		}
 
-		//如果所有条件都不设置，默认都参加活动
+		//如果赠品配置所有条件都不设置，默认所有订单都参加该活动
 		if (StringTools.isNullOrNone(gift.getStafferName()) &&
 				StringTools.isNullOrNone(gift.getExcludeStafferName()) &&
 				StringTools.isNullOrNone(gift.getProvince()) &&
@@ -1534,11 +1560,12 @@ public class OutImportManagerImpl implements OutImportManager
 				StringTools.isNullOrNone(gift.getBranchName()) &&
 				StringTools.isNullOrNone(gift.getExcludeBranchName()) &&
 				StringTools.isNullOrNone(gift.getChannel()) &&
-				StringTools.isNullOrNone(gift.getExcludeChannel())
+				StringTools.isNullOrNone(gift.getExcludeChannel()) &&
+                //#950
+                StringTools.isNullOrNone(gift.getGiftProductId4())
 				){
 			_logger.info("gift satisfy default rule ***"+gift);
 			return 100;
-
 		}
 
 		//渠道
@@ -1775,7 +1802,7 @@ public class OutImportManagerImpl implements OutImportManager
 				}
 			}
 
-			//城市
+			//不包含城市
 			String excludeCity = gift.getExcludeCity();
 			if (!StringTools.isNullOrNone(excludeCity)){
 				//城市取客户信息表中的城市信息

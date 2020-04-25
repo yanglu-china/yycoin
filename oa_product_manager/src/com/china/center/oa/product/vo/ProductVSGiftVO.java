@@ -20,6 +20,9 @@ public class ProductVSGiftVO extends ProductVSGiftBean
 	@Relationship(relationField = "giftProductId3")
 	private String giftProductName3 = "";
 
+	@Relationship(relationField = "giftProductId4")
+	private String giftProductName4 = "";
+
 	public ProductVSGiftVO()
 	{
 	}
@@ -58,5 +61,13 @@ public class ProductVSGiftVO extends ProductVSGiftBean
 
 	public void setGiftProductName3(String giftProductName3) {
 		this.giftProductName3 = giftProductName3;
+	}
+
+	public String getGiftProductName4() {
+		return giftProductName4;
+	}
+
+	public void setGiftProductName4(String giftProductName4) {
+		this.giftProductName4 = giftProductName4;
 	}
 }

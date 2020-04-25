@@ -40,6 +40,9 @@ function getProduct(oos)
     }   else if (index === 3){
         $O('giftProductName3').value = obj.pname;
         $O('giftProductId3').value = obj.value;
+    } else if (index === 4){
+        $O('giftProductName4').value = obj.pname;
+        $O('giftProductId4').value = obj.value;
     }
 }
 
@@ -57,7 +60,8 @@ function load()
 <input type="hidden" name="giftProductId" value="${bean.giftProductId}">
 <input type="hidden" name="giftProductId2" value="${bean.giftProductId2}">
 <input type="hidden" name="giftProductId3" value="${bean.giftProductId3}">
-<input type="hidden" name="id" value="${bean.id}">
+    <input type="hidden" name="giftProductId4" value="${bean.giftProductId4}">
+    <input type="hidden" name="id" value="${bean.id}">
 
 <p:navigation
     height="22">
@@ -232,6 +236,17 @@ function load()
             </p:pro>
 
             <p:pro field="amount3" value="${bean.amount3}" innerString="size=60 oncheck='isMathNumber'"/>
+
+            <p:pro field="mzje" value="${bean.mzje}" innerString="oncheck='isFloat'"/>
+
+            <p:pro field="giftProductId4" value="${bean.giftProductName4}" innerString="size=60">
+                <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
+                       class="button_class" onclick="selectProduct(4)">&nbsp;
+                <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
+                       class="button_class" onclick="clears(4)">&nbsp;&nbsp;
+            </p:pro>
+
+            <p:pro field="amount4" value="${bean.amount4}" innerString="oncheck='isMathNumber'"/>
 
             <p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 
