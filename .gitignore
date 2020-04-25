@@ -27,3 +27,4 @@ dump*
 oa_budget_inner/.classpath
 oa_commission_inner/.classpath
 oa_customer_inner/.classpath
+/uportal/.gitignore

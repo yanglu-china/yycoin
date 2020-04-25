@@ -29,7 +29,8 @@ stopKey = "stopKey"
 war.archiveName war_context+".war"
 
 repositories {
-    mavenCentral()
+    //mavenCentral()
+    maven { url "http://repo.maven.apache.org/maven2" }
 }
 
 dependencies {

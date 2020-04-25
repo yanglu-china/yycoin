@@ -1,4 +1,3 @@
-#Wed Apr 23 11:41:21 CST 2014
 eclipse.preferences.version=1
 encoding//webroot/admin=UTF-8
 encoding//webroot/admin/addOrUpdateDepartment.jsp=UTF-8
@@ -35,4 +34,5 @@ encoding//webroot/js/autosuggest_debug.js=UTF-8
 encoding//webroot/js/cnchina.js=UTF-8
 encoding//webroot/js/cnchina_debug.js=UTF-8
 encoding//webroot/js/tree_debug.js=UTF-8
+encoding//webroot/stock_js/addStockBackJs.jsp=UTF-8
 encoding/<project>=UTF-8

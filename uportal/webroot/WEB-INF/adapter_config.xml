@@ -6,7 +6,7 @@
 	<entry key="jdbc.driverClassName">com.mysql.jdbc.Driver</entry>
 	<entry key="jdbc.url">jdbc:mysql://localhost:3306/uportal?useUnicode=true&amp;characterEncoding=utf8</entry>
 	<entry key="jdbc.username">root</entry>
-	<entry key="jdbc.password">lazio_2000</entry>
+	<entry key="jdbc.password">root</entry>
 	<entry key="sqlMap">config/sql-map-config.xml</entry>
 	<entry key="databaseEncoding">UTF-8</entry>
 	<entry key="systemEncoding">UTF-8</entry>
