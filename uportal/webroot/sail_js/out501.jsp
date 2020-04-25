@@ -223,6 +223,8 @@ function check(isAdd)
     var amounts = document.getElementsByName('amount');
 
     var prices = document.getElementsByName('price');
+   //#961
+    var prices2 = document.getElementsByName('price2');
     
     var taxrates = document.getElementsByName('taxrate');
     
@@ -367,6 +369,19 @@ function check(isAdd)
 
         $O('priceList').value = $O('priceList').value + prices[i].value + '~';
                 
+    }
+
+    for (var i = 1; i < prices2.length; i++)
+    {
+        if (!isFloat(prices2[i].value))
+        {
+            alert('数据错误,产品输入价格2只能是浮点数!');
+            prices2[i].focus();
+            return false;
+        }
+
+        $O('priceList2').value = $O('priceList2').value + prices2[i].value + '~';
+
     }
 
     for (var i = 1; i < taxrates.length; i++)

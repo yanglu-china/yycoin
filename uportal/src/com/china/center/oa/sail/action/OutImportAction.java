@@ -235,6 +235,7 @@ import com.china.center.tools.WriteFileBuffer;
 
      private static String QUERYBANKSAIL = "queryBankSail";
 
+     private static int OUT_FIELD_NUM = 51;
 
 
      public OutImportAction()
@@ -293,7 +294,7 @@ import com.china.center.tools.WriteFileBuffer;
              reader.readFile(rds.getUniqueInputStream());
              while (reader.hasNext())
              {
-                 String[] obj = StringUtils.fillObj((String[])reader.next(), 50);
+                 String[] obj = StringUtils.fillObj((String[])reader.next(), OUT_FIELD_NUM);
 
                  // 第一行忽略
                  if (reader.getCurrentLineNumber() == 1)
@@ -675,15 +676,23 @@ import com.china.center.tools.WriteFileBuffer;
              importError = true;
          }
 
+         // 单价2
+         String p2 = obj[8];
+         if ( !StringTools.isNullOrNone(p2))
+         {
+             double price2 = MathTools.parseDouble(p2.trim());
+             bean.setPrice2(price2);
+         }
+
          // 规格
-         String style = obj[8];
+         String style = obj[9];
          if ( !StringTools.isNullOrNone(style))
          {
              bean.setStyle(style.trim());
          }
 
          // 金额
-         String v = obj[9];
+         String v = obj[10];
          if ( !StringTools.isNullOrNone(v))
          {
              double value = MathTools.parseDouble(v.trim());
@@ -700,7 +709,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          //  中收金额
-         String mid = obj[10];
+         String mid = obj[11];
          if ( !StringTools.isNullOrNone(mid))
          {
              String value = mid.trim();
@@ -725,14 +734,14 @@ import com.china.center.tools.WriteFileBuffer;
 
 
          // 计划交付日期
-         String arriveDate = obj[11];
+         String arriveDate = obj[12];
          if ( !StringTools.isNullOrNone(arriveDate))
          {
              bean.setArriveDate(arriveDate.trim());
          }
 
          // 库存类型
-         String st = obj[12];
+         String st = obj[13];
          if ( !StringTools.isNullOrNone(st))
          {
              int storageType = OutImportHelper.getStorageType(st.trim());
@@ -740,7 +749,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 中信订单号
-         String citicNo = obj[13];
+         String citicNo = obj[14];
          if ( !StringTools.isNullOrNone(citicNo))
          {
              bean.setCiticNo(citicNo);
@@ -756,7 +765,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 开票性质
-         String in = obj[14];
+         String in = obj[15];
          if ( !StringTools.isNullOrNone(in))
          {
              int invoiceNature = OutImportHelper.getInvoiceNature(in.trim());
@@ -773,7 +782,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 开票抬头
-         String ih = obj[15];
+         String ih = obj[16];
          if ( !StringTools.isNullOrNone(ih))
          {
              bean.setInvoiceHead(ih.trim());
@@ -781,56 +790,56 @@ import com.china.center.tools.WriteFileBuffer;
 
          //#770 增值税--购方名称、增值税--购方税号、增值税--银行信息、增值税--购方地址电话
          //增值税--购方名称
-         String gfmc = obj[16];
+         String gfmc = obj[17];
          if (!StringTools.isNullOrNone(gfmc)){
              bean.setGfmc(gfmc.trim());
          }
 
-         String gfsh = obj[17];
+         String gfsh = obj[18];
          if (!StringTools.isNullOrNone(gfsh)){
              bean.setGfsh(gfsh.trim());
          }
 
-         String gfyh = obj[18];
+         String gfyh = obj[19];
          if (!StringTools.isNullOrNone(gfyh)){
              bean.setGfyh(gfyh.trim());
          }
 
-         String gfdz = obj[19];
+         String gfdz = obj[20];
          if (!StringTools.isNullOrNone(gfdz)){
              bean.setGfdz(gfdz.trim());
          }
 
          // 绑定单号
-         String bindNo = obj[20];
+         String bindNo = obj[21];
          if ( !StringTools.isNullOrNone(bindNo))
          {
              bean.setBindNo(bindNo.trim());
          }
 
          // 开票类型
-         String invoiceType = obj[21];
+         String invoiceType = obj[22];
          if ( !StringTools.isNullOrNone(invoiceType))
          {
                bean.setInvoiceType(OutImportHelper.getInvoiceType(invoiceType.trim()));
          }
 
          // 开票品名
-         String invoiceName = obj[22];
+         String invoiceName = obj[23];
          if ( !StringTools.isNullOrNone(invoiceName))
          {
              bean.setInvoiceName(invoiceName.trim());
          }
 
          // 开票金额
-         String invoiceMoney = obj[23];
+         String invoiceMoney = obj[24];
          if ( !StringTools.isNullOrNone(invoiceMoney))
          {
              bean.setInvoiceMoney(MathTools.parseDouble(invoiceMoney.trim()));
          }
 
          // 省
-         String provinceName = obj[24];
+         String provinceName = obj[25];
          if ( !StringTools.isNullOrNone(provinceName))
          {
              ProvinceBean province = provinceDAO.findByUnique(provinceName.trim());
@@ -840,7 +849,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 市
-         String cityName = obj[25];
+         String cityName = obj[26];
          if ( !StringTools.isNullOrNone(cityName))
          {
              CityBean city = cityDAO.findByUnique(cityName.trim());
@@ -859,28 +868,28 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 详细地址
-         String address = obj[26];
+         String address = obj[27];
          if ( !StringTools.isNullOrNone(address))
          {
              bean.setAddress(address.trim());
          }
 
          // 收货人
-         String receiver = obj[27];
+         String receiver = obj[28];
          if ( !StringTools.isNullOrNone(receiver))
          {
              bean.setReceiver(receiver.trim());
          }
 
          // 收货人手机
-         String phone = obj[28];
+         String phone = obj[29];
          if ( !StringTools.isNullOrNone(phone))
          {
              bean.setHandPhone(phone.trim());
          }
 
          // 姓氏
-         String firstName = obj[29];
+         String firstName = obj[30];
          if ( !StringTools.isNullOrNone(firstName))
          {
              bean.setFirstName(firstName.trim());
@@ -889,7 +898,7 @@ import com.china.center.tools.WriteFileBuffer;
              bean.setFirstName("N/A");
 
          // 银行订单日期
-         String citicDate = obj[30];
+         String citicDate = obj[31];
          if ( !StringTools.isNullOrNone(citicDate))
          {
              String date = citicDate.trim();
@@ -937,7 +946,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 仓库
-         String depotName = obj[31];
+         String depotName = obj[32];
          if ( !StringTools.isNullOrNone(ot))
          {
              DepotBean depot = depotDAO.findByUnique(depotName.trim());
@@ -964,7 +973,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 仓区
-         String depotpartName = obj[32];
+         String depotpartName = obj[33];
          if ( !StringTools.isNullOrNone(depotpartName))
          {
              DepotpartBean depotpart = depotpartDAO.findByUnique(depotpartName.trim());
@@ -1003,7 +1012,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 职员 - 领样类型时 必须
-         String stafferName = obj[33];
+         String stafferName = obj[34];
          if ( !StringTools.isNullOrNone(stafferName))
          {
              StafferBean staffer = stafferDAO.findByUnique(stafferName.trim());
@@ -1033,14 +1042,14 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 备注
-         String description = obj[34];
+         String description = obj[35];
          if ( !StringTools.isNullOrNone(description))
          {
              bean.setDescription(description.trim());
          }
 
          // 发货方式
-         String ship = obj[35];
+         String ship = obj[36];
          if ( !StringTools.isNullOrNone(ship))
          {
              boolean has = false;
@@ -1151,7 +1160,7 @@ import com.china.center.tools.WriteFileBuffer;
                  || bean.getShipping() == OutConstant.OUT_SHIPPING_PROXY)
          {
              // 如果发货方式是快递或快递+货运 ,则快递须为必填
-             String t1 = obj[36];
+             String t1 = obj[37];
              if ( !StringTools.isNullOrNone(t1))
              {
                  String transport1 = t1.trim();
@@ -1179,7 +1188,7 @@ import com.china.center.tools.WriteFileBuffer;
              }
 
              // 快递支付方式也不能为空
-             String ep = obj[37];
+             String ep = obj[38];
              if ( !StringTools.isNullOrNone(ep))
              {
                  String expressPay = ep.trim();
@@ -1222,7 +1231,7 @@ import com.china.center.tools.WriteFileBuffer;
          if (bean.getShipping() == OutConstant.OUT_SHIPPING_TRANSPORT || bean.getShipping() ==  OutConstant.OUT_SHIPPING_3PLANDDTRANSPORT)
          {
              // 如果发货方式是快递或快递+货运 ,则快递须为必填
-             String t2 = obj[38];
+             String t2 = obj[39];
              if ( !StringTools.isNullOrNone(t2))
              {
                  String transport2 = t2.trim();
@@ -1251,7 +1260,7 @@ import com.china.center.tools.WriteFileBuffer;
              }
 
              // 快递支付方式也不能为空
-             String tp = obj[39];
+             String tp = obj[40];
              if ( !StringTools.isNullOrNone(tp))
              {
                  String expressPay = tp.trim();
@@ -1291,7 +1300,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 回款天数
-         String reday = obj[40];
+         String reday = obj[41];
          if ( !StringTools.isNullOrNone(reday))
          {
              bean.setReday(MathTools.parseInt(reday.trim()));
@@ -1300,7 +1309,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          //二级类型
-         String pf = obj[41];
+         String pf = obj[42];
          if (bean.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
                  || bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH) {
              if ( !StringTools.isNullOrNone(pf))
@@ -1332,14 +1341,14 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // 2015/09/29 客户姓名
-         String cname = obj[42];
+         String cname = obj[43];
          if ( !StringTools.isNullOrNone(cname))
          {
              bean.setCustomerName(cname.trim());
          }
 
          // #426 2017/2/28 固定电话
-         String tel = obj[43];
+         String tel = obj[44];
          if ( !StringTools.isNullOrNone(tel))
          {
              bean.setTelephone(tel.trim());
@@ -1356,7 +1365,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          // #62 2017/6/13 是否直邮,状态默认为0 输入值为N时为0，Y时为1
-         String di = obj[44];
+         String di = obj[45];
          if ( !StringTools.isNullOrNone(di))
          {
              String direct = di.trim();
@@ -1381,7 +1390,7 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
 
-         String cnl = obj[45];
+         String cnl = obj[46];
          if ( !StringTools.isNullOrNone(cnl))
          {
              String channel = cnl.trim();
@@ -1513,7 +1522,7 @@ import com.china.center.tools.WriteFileBuffer;
 
 
          //交货方式
-         String dlv = obj[46];
+         String dlv = obj[47];
          if ( !StringTools.isNullOrNone(dlv))
          {
              String delivery = dlv.trim();
@@ -1531,21 +1540,21 @@ import com.china.center.tools.WriteFileBuffer;
          }
 
          //pos付款方
-         String posPayer = obj[47];
+         String posPayer = obj[48];
          if ( !StringTools.isNullOrNone(posPayer))
          {
              bean.setPosPayer(posPayer.trim());
          }
 
          //推荐标示
-         String recommendation = obj[48];
+         String recommendation = obj[49];
          if ( !StringTools.isNullOrNone(recommendation))
          {
              bean.setRecommendation(recommendation.trim());
          }
 
          //#629 虚拟订单
-         String vs = obj[49];
+         String vs = obj[50];
          if ( !StringTools.isNullOrNone(vs))
          {
              String virtualStatus = vs.trim();
@@ -1671,7 +1680,7 @@ import com.china.center.tools.WriteFileBuffer;
 
              while (reader.hasNext())
              {
-                 String[] obj = StringUtils.fillObj((String[])reader.next(), 50);
+                 String[] obj = StringUtils.fillObj((String[])reader.next(), OUT_FIELD_NUM);
 
                  // 第一行忽略
                  if (reader.getCurrentLineNumber() == 1)

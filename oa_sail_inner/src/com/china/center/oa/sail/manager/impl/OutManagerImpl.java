@@ -505,6 +505,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         // 含税价
         final String[] priceList = this.getParam(request, "priceList");
+        final String[] priceList2 = this.getParam(request, "priceList2");
 
         // 输入价格
         final String[] inputPriceList = this.getParam(request, "inputPriceList");
@@ -802,6 +803,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         else
                         {
                             base.setPrice(MathTools.parseDouble(priceList[i]));
+                            base.setPrice2(MathTools.parseDouble(priceList2[i]));
                         }
 
                         if (base.getPrice() == 0)

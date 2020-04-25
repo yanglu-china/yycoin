@@ -826,7 +826,8 @@ public class OutImportManagerImpl implements OutImportManager
 			base.setAmount(each.getAmount());
 			
 			base.setPrice(each.getPrice());
-			
+			base.setPrice2(each.getPrice2());
+
 			base.setValue(each.getValue());
 			
 			base.setLocationId(newOutBean.getLocation());

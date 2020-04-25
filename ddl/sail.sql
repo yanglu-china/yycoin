@@ -80,3 +80,6 @@ INSERT INTO t_center_schedule_job (id, createTime, updateTime, jobName, jobGroup
 
 -- #950
 alter table T_CENTER_VS_GIFT add column mzje decimal(10,2) default 0,add column giftProductId4 varchar(32) default null,add column amount4 int(11) default 0;
+
+alter table t_center_out_import add column price2 double(10,2) default 0;
+alter table t_center_base add column price2 double(10,2) default 0;
