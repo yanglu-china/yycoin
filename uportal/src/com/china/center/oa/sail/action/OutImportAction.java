@@ -56,6 +56,7 @@ import com.china.center.oa.product.bean.DepotpartBean;
 import com.china.center.oa.product.bean.PriceConfigBean;
 import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.bean.ProductImportBean;
+import com.china.center.oa.product.bean.ProviderBean;
 import com.china.center.oa.product.bean.StorageBean;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.StorageConstant;
@@ -64,6 +65,7 @@ import com.china.center.oa.product.dao.DepotpartDAO;
 import com.china.center.oa.product.dao.PriceConfigDAO;
 import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.dao.ProductImportDAO;
+import com.china.center.oa.product.dao.ProviderDAO;
 import com.china.center.oa.product.dao.StorageDAO;
 import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.helper.StorageRelationHelper;
@@ -128,7 +130,6 @@ import com.china.center.oa.sail.vo.OutImportVO;
 import com.china.center.oa.stock.constant.StockConstant;
 import com.china.center.oa.stock.manager.StockManager;
 import com.china.center.oa.stockvssail.listener.FechProductListener;
-import com.china.center.oa.tax.bean.UnitBean;
 import com.china.center.oa.tax.dao.UnitDAO;
 import com.china.center.tools.CommonTools;
 import com.china.center.tools.ListTools;
@@ -228,6 +229,8 @@ import com.china.center.tools.WriteFileBuffer;
      private FechProductListener fechProductListenerTaxGlueImpl =null;
      
      private UnitDAO unitDAO;
+     
+     private ProviderDAO providerDAO;
 
      private static String QUERYOUTIMPORT = "queryOutImport";
 
@@ -7704,14 +7707,14 @@ import com.china.center.tools.WriteFileBuffer;
                 	 builder.append("第[" + currentNumber + "]行错误:").append("供应商不能为空");
                 	 break;
                  }
-                 List<UnitBean> unitBeanList = unitDAO.queryEntityBeansByCondition(" where name=?", obj[5].trim());
+                 List<ProviderBean> unitBeanList = providerDAO.queryEntityBeansByCondition(" where name=?", obj[5].trim());
                  if(unitBeanList.size() == 0)
                  {
                 	 builder.append("第[" + currentNumber + "]行错误:").append("供应商:" + obj[5].trim() +"不存在");
                 	 break;
                  }
                  DepotpartBean depotpart = depotpartBeanList.get(0);
-                 UnitBean unitBean = unitBeanList.get(0);
+                 ProviderBean unitBean = unitBeanList.get(0);
                  bean.setProductName(productName);
                  bean.setProductNum(productNum);
                  bean.setProductCost(new BigDecimal(productCost));
@@ -8306,6 +8309,14 @@ import com.china.center.tools.WriteFileBuffer;
 
 	public void setStockManager(StockManager stockManager) {
 		this.stockManager = stockManager;
+	}
+
+	public ProviderDAO getProviderDAO() {
+		return providerDAO;
+	}
+
+	public void setProviderDAO(ProviderDAO providerDAO) {
+		this.providerDAO = providerDAO;
 	}
      
  }
