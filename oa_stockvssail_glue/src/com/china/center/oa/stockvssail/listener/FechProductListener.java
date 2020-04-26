@@ -9,6 +9,8 @@
 package com.china.center.oa.stockvssail.listener;
 
 
+import java.util.List;
+
 import com.center.china.osgi.publics.ParentListener;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
@@ -42,7 +44,7 @@ public interface FechProductListener extends ParentListener
     
     int onFechProductzysc(final String fullId, final User user, final int nextStatus, final String reason,
             final String customerDescription,
-            final String depotpartId, final StockBean bean, final StockItemBean each,
+            final String depotpartId, final StockBean bean, List<StockItemBean> stockItemList,
             final OutBean out) throws MYException; 
 
 }

@@ -1927,18 +1927,21 @@ public class OutAction extends ParentOutAction
                     {
                     	try {
                     		StockBean stockBean = new StockBean();
-                    		StockItemBean stockItemBean = new StockItemBean();
-                    		stockItemBean.setDutyId("90201008080000000001");
-                    		stockItemBean.setProviderId(out.getCustomerId());
+                    		List<StockItemBean> stockItemList = new ArrayList<StockItemBean>();
                     		List<BaseBean> baseList= baseDAO.queryEntityBeansByFK(fullId);
-                    		if(baseList.size() > 0)
+                    		stockBean.setDutyId("90201008080000000001");
+                    		for(BaseBean baseBean : baseList)
                     		{
-                    			stockItemBean.setProductId(baseList.get(0).getProductId());
-                    			stockItemBean.setAmount(baseList.get(0).getAmount());
-                    			stockItemBean.setPrice(baseList.get(0).getPrice());
+                    			StockItemBean stockItemBean = new StockItemBean();
+                        		stockItemBean.setDutyId("90201008080000000001");
+                        		stockItemBean.setProviderId(out.getCustomerId());
+                    			stockItemBean.setProductId(baseBean.getProductId());
+                    			stockItemBean.setAmount(baseBean.getAmount());
+                    			stockItemBean.setPrice(baseBean.getPrice());
+                    			stockItemList.add(stockItemBean);
                     		}
                     		resultStatus = fechProductListenerTaxGlueImpl.onFechProductzysc(fullId, user,
-                    				OutConstant.STATUS_PASS, reason, null, depotpartId, stockBean, stockItemBean, out);
+                    				OutConstant.STATUS_PASS, reason, null, depotpartId, stockBean, stockItemList, out);
     					} catch (MYException e) {
     						_logger.error(e, e);
                             request.setAttribute(KeyConstant.ERROR_MESSAGE, "处理异常："
@@ -2324,6 +2327,8 @@ public class OutAction extends ParentOutAction
                         {
                             try
                             {
+                            	resultStatus = outManager.submit(fullId, user,
+                                        StorageConstant.OPR_STORAGE_OUTBILL);
                                 processPromotion(fullId, user);
                             }
                             catch(MYException e)
