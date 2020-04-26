@@ -685,6 +685,9 @@ import com.china.center.tools.WriteFileBuffer;
          {
              double price2 = MathTools.parseDouble(p2.trim());
              bean.setPrice2(price2);
+         } else{
+             //为空就取销售单价
+             bean.setPrice2(bean.getPrice());
          }
 
          // 规格
