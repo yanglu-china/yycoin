@@ -4654,7 +4654,15 @@ public class TravelApplyAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[5]))
                     {
                         String money = obj[5];
-                        
+
+                        if (MathTools.parseDouble(money) < 0){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("金额不能小于0")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
                         double itemTotal = 0;
                         //导入时未检查申请金额是否等于系统记录的中收或激励金额，不等应该报错
 //                        ConditionParse con1 = new ConditionParse();
@@ -4713,20 +4721,21 @@ public class TravelApplyAction extends DispatchAction
                             }
                         }
 
-                        TcpShareVO shareVO = stafferToShareMap.get(out.getStafferId());
-                        if(shareVO == null){
-                            shareVO = new TcpShareVO();
-                            shareVO.setBearId(out.getStafferId());
-                            shareVO.setBearName(out.getStafferName());
-                            shareVO.setRealMonery(TCPHelper.doubleToLong2(String.valueOf(itemTotal)));
-                            shareVO.setShowRealMonery(MathTools.longToDoubleStr2(shareVO.getRealMonery()));
-                        }else{
-                            shareVO.setRealMonery(shareVO.getRealMonery() + TCPHelper.doubleToLong2(String.valueOf(itemTotal)));
-                            shareVO.setShowRealMonery(MathTools.longToDoubleStr2(shareVO.getRealMonery()));
-                        }
+                        if (out!= null){
+                            TcpShareVO shareVO = stafferToShareMap.get(out.getStafferId());
+                            if(shareVO == null){
+                                shareVO = new TcpShareVO();
+                                shareVO.setBearId(out.getStafferId());
+                                shareVO.setBearName(out.getStafferName());
+                                shareVO.setRealMonery(TCPHelper.doubleToLong2(String.valueOf(itemTotal)));
+                                shareVO.setShowRealMonery(MathTools.longToDoubleStr2(shareVO.getRealMonery()));
+                            }else{
+                                shareVO.setRealMonery(shareVO.getRealMonery() + TCPHelper.doubleToLong2(String.valueOf(itemTotal)));
+                                shareVO.setShowRealMonery(MathTools.longToDoubleStr2(shareVO.getRealMonery()));
+                            }
 
-                        stafferToShareMap.put(out.getStafferId(), shareVO);
-                        
+                            stafferToShareMap.put(out.getStafferId(), shareVO);
+                        }
                     } else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -5488,7 +5497,14 @@ public class TravelApplyAction extends DispatchAction
                     // 金额
                     if ( !StringTools.isNullOrNone(obj[3])) {
                         String price = obj[3].trim();
-                        if (TcpConstanst.IB_TYPE == bean.getType()){
+                        if (Double.valueOf(price) < 0){
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("金额不能小于0")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else if (TcpConstanst.IB_TYPE == bean.getType()){
                             bean.setIbMoney(Double.valueOf(price));
                         } else if (TcpConstanst.MOTIVATION_TYPE == bean.getType()){
                             bean.setMotivationMoney(Double.valueOf(price));
