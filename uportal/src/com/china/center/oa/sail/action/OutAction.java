@@ -3594,6 +3594,13 @@ public class OutAction extends ParentOutAction
                     //#73 #66 转销售的需要先核对是否已退库
                     for (OutBean ref : refList)
                     {
+                    	
+                    	//#934
+                    	if("2".equals(ref.getStatus())){
+                    		//过滤驳回的退单
+                    		continue;
+                    	}
+                    	
                         String description = ref.getDescription();
                         if(StringTools.isNullOrNone(description)){
                             List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
