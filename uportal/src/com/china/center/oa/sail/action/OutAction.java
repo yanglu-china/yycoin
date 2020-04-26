@@ -3571,6 +3571,11 @@ public class OutAction extends ParentOutAction
                     // 退库
                     for (OutBean ref : refBuyList)
                     {
+                    	//#934
+                    	if("2".equals(ref.getStatus())){
+                    		//过滤驳回的退单
+                    		continue;
+                    	}
                         List<BaseBean> refBaseList = ref.getBaseList();
 
                         for (BaseBean refBase : refBaseList)
