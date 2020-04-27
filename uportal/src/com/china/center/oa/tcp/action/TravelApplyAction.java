@@ -4655,6 +4655,7 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String money = obj[5];
 
+                        /*roll back #965
                         if (MathTools.parseDouble(money) < 0){
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -4663,6 +4664,7 @@ public class TravelApplyAction extends DispatchAction
 
                             importError = true;
                         }
+                        */
                         double itemTotal = 0;
                         //导入时未检查申请金额是否等于系统记录的中收或激励金额，不等应该报错
 //                        ConditionParse con1 = new ConditionParse();
@@ -5500,7 +5502,7 @@ public class TravelApplyAction extends DispatchAction
                         if (Double.valueOf(price) < 0){
                             builder
                                     .append("第[" + currentNumber + "]错误:")
-                                    .append("金额不能小于0")
+                                    .append("价格不能小于0")
                                     .append("<br>");
 
                             importError = true;
