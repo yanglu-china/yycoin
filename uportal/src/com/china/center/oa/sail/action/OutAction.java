@@ -3571,8 +3571,9 @@ public class OutAction extends ParentOutAction
                     // 退库
                     for (OutBean ref : refBuyList)
                     {
+                    	_logger.debug("1 ref.getStatus():"+ref.getStatus()+", ref.getFullId():"+ref.getFullId()+", equals 2:"+("2".equals(ref.getStatus())));
                     	//#934
-                    	if("2".equals(ref.getStatus())){
+                    	if(ref.getStatus()==2){
                     		//过滤驳回的退单
                     		continue;
                     	}
@@ -3583,20 +3584,24 @@ public class OutAction extends ParentOutAction
                             if (refBase.equals(baseBean))
                             {
                                 hasBack += refBase.getAmount();
+                                
+                                _logger.debug("hasBack:"+hasBack);
 
                                 break;
                             }
                         }
                         backSet.add(ref.getFullId());
                     }
+                    
+                    _logger.debug("1 hasBack:"+hasBack);
 
                     // 转销售的
                     //#73 #66 转销售的需要先核对是否已退库
                     for (OutBean ref : refList)
                     {
-                    	
+                    	_logger.debug("2 ref.getStatus():"+ref.getStatus()+", ref.getFullId():"+ref.getFullId());
                     	//#934
-                    	if("2".equals(ref.getStatus())){
+                    	if(ref.getStatus()==2){
                     		//过滤驳回的退单
                     		continue;
                     	}
@@ -3649,6 +3654,8 @@ public class OutAction extends ParentOutAction
 //                                break;
 //                            }
 //                        }
+                        
+                        _logger.debug("2 hasBack:"+hasBack);
                     }
 
                     //#831 已退数量不能超过实际数量
