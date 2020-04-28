@@ -239,7 +239,7 @@ function getProduct(oos)
 
             <p:pro field="amount3" value="0" innerString="oncheck='isMathNumber'"/>
 
-            <p:pro field="mzje" value="0" innerString="oncheck='isFloat'"/>
+<%--            <p:pro field="mzje" value="0" innerString="oncheck='isFloat'"/>
 
             <p:pro field="giftProductId4" value="满增商品品名" innerString="size=60">
                 <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
@@ -248,7 +248,7 @@ function getProduct(oos)
                        class="button_class" onclick="clears(4)">&nbsp;&nbsp;
             </p:pro>
 
-            <p:pro field="amount4" value="0" innerString="oncheck='isMathNumber'"/>
+            <p:pro field="amount4" value="0" innerString="oncheck='isMathNumber'"/>--%>
 			
 			<p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 

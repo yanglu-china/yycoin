@@ -2327,6 +2327,17 @@ public class OutAction extends ParentOutAction
                         {
                             try
                             {
+	                        	List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
+	                            if (!ListTools.isEmptyOrNull(baseBeans)){
+	                                for (BaseBean item : baseBeans){
+	                                	if(item.getCostPrice() == 0)
+	                                	{
+	                                		request.setAttribute(KeyConstant.ERROR_MESSAGE,
+	                                                "产品成本价不能为空");
+                                            return mapping.findForward("error");
+	                                	}
+	                                }
+	                            }
                             	resultStatus = outManager.submit(fullId, user,
                                         StorageConstant.OPR_STORAGE_OUTBILL);
                                 processPromotion(fullId, user);

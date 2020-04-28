@@ -27,4 +27,5 @@ import java.util.List;
  */
 public interface ProductImportDAO extends DAO<ProductImportBean, ProductImportBean>
 {
+    double queryMaxRetailPriceByCode(String bankProductCode);
 }
