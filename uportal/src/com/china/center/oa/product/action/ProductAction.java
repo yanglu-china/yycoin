@@ -30,6 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.product.dao.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,23 +77,6 @@ import com.china.center.oa.product.constant.ComposeConstant;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
-import com.china.center.oa.product.dao.CiticVSOAProductDAO;
-import com.china.center.oa.product.dao.ComposeFeeDAO;
-import com.china.center.oa.product.dao.ComposeFeeDefinedDAO;
-import com.china.center.oa.product.dao.ComposeItemDAO;
-import com.china.center.oa.product.dao.ComposeProductDAO;
-import com.china.center.oa.product.dao.DecomposeProductDAO;
-import com.china.center.oa.product.dao.DepotDAO;
-import com.china.center.oa.product.dao.DepotpartDAO;
-import com.china.center.oa.product.dao.GoldSilverPriceDAO;
-import com.china.center.oa.product.dao.PriceChangeDAO;
-import com.china.center.oa.product.dao.PriceConfigDAO;
-import com.china.center.oa.product.dao.ProductBOMDAO;
-import com.china.center.oa.product.dao.ProductCombinationDAO;
-import com.china.center.oa.product.dao.ProductDAO;
-import com.china.center.oa.product.dao.ProductVSLocationDAO;
-import com.china.center.oa.product.dao.ProviderDAO;
-import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.manager.ComposeProductManager;
@@ -230,6 +214,8 @@ public class ProductAction extends DispatchAction
     private BaseDAO baseDAO = null;
     
     private ComposeFeeDAO composeFeeDAO;
+
+    private ProductImportDAO productImportDAO;
 
     private static String QUERYPRODUCT = "queryProduct";
 
@@ -2067,6 +2053,16 @@ public class ProductAction extends DispatchAction
         _logger.info(bean);
         try {
             setCompose(request, bean);
+            //#968 销售价取t_center_product_import表中name名称与合成产品相同的最近创建的记录的retailprice值
+            double retailPrice = this.productImportDAO.queryLatestRetailPrice(bean.getDirTargerName());
+            _logger.info("***latestPrice***"+retailPrice);
+            bean.setRetailPrice(retailPrice);
+            double grossProfit = 0;
+            //毛利率=（销售价-合成产品的单价）/销售价
+            if (retailPrice>0){
+                grossProfit = (retailPrice-bean.getPrice())*100/retailPrice;
+            }
+            bean.setGrossProfit(NumberUtils.roundDouble(grossProfit));
             ajax.setMsg(bean);
         }
         catch (MYException e)
@@ -5374,5 +5370,8 @@ public class ProductAction extends DispatchAction
 	public void setComposeFeeDAO(ComposeFeeDAO composeFeeDAO) {
 		this.composeFeeDAO = composeFeeDAO;
 	}
-    
+
+    public void setProductImportDAO(ProductImportDAO productImportDAO) {
+        this.productImportDAO = productImportDAO;
+    }
 }
