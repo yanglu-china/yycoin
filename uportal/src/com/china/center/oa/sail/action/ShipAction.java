@@ -2081,7 +2081,12 @@ public class ShipAction extends DispatchAction
                 request.setAttribute("title", ShipConstant.ZJGH+"——发货清单");
                 request.setAttribute("address", ShipConstant.SHIPPING_ADDRESS+ShipConstant.ZJGH);
             } else{
-                request.setAttribute("title", ShipConstant.YYWH+"——发货清单");
+                //#951
+                if (vo.getCustomerName().contains(ShipConstant.GH)){
+                    request.setAttribute("title", ShipConstant.GH+"——发货清单");
+                } else{
+                    request.setAttribute("title", ShipConstant.YYWH+"——发货清单");
+                }
                 request.setAttribute("address", ShipConstant.SHIPPING_ADDRESS+ShipConstant.YYWH);
             }
 
@@ -2489,7 +2494,13 @@ public class ShipAction extends DispatchAction
                 request.setAttribute("title", ShipConstant.ZJGH+"——发货清单");
                 request.setAttribute("address", ShipConstant.SHIPPING_ADDRESS+ShipConstant.ZJGH);
             } else{
-                request.setAttribute("title", ShipConstant.YYWH+"——发货清单");
+                //#951
+                if (vo.getCustomerName().contains(ShipConstant.GH)){
+                    request.setAttribute("title", ShipConstant.GH+"——发货清单");
+                } else{
+                    request.setAttribute("title", ShipConstant.YYWH+"——发货清单");
+                }
+
                 request.setAttribute("address", ShipConstant.SHIPPING_ADDRESS+ShipConstant.YYWH);
             }
 

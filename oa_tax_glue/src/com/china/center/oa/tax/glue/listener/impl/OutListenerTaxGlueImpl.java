@@ -327,6 +327,14 @@ public class OutListenerTaxGlueImpl implements OutListener
                 return;
             }
 
+            // #953 服务订单
+            if (outBean.isServiceOrder())
+            {
+                processOutService(user, outBean);
+
+                return;
+            }
+
             return;
         }
 
@@ -862,6 +870,49 @@ public class OutListenerTaxGlueImpl implements OutListener
     }
 
     /**
+     * #953
+     * @param user
+     * @param outBean
+     * @throws MYException
+     */
+    private void processOutService(User user, OutBean outBean)
+            throws MYException
+    {
+        // 应收账款（销售金额，含税价）(1132) 主营业务收入：含税价
+        FinanceBean financeBean = new FinanceBean();
+
+        String name = "服务订单:" + outBean.getFullId() + '.';
+        if (user == null){
+            name = "系统补录服务订单:" + outBean.getFullId() + '.';
+        }
+
+        financeBean.setName(name);
+
+        financeBean.setType(TaxConstanst.FINANCE_TYPE_MANAGER);
+
+        financeBean.setCreateType(TaxConstanst.FINANCE_CREATETYPE_SAIL_COMMON);
+
+        financeBean.setRefId(outBean.getFullId());
+
+        financeBean.setRefOut(outBean.getFullId());
+
+        financeBean.setDutyId(outBean.getDutyId());
+
+        financeBean.setDescription(financeBean.getName());
+
+        financeBean.setFinanceDate(TimeTools.now_short());
+
+        financeBean.setLogTime(TimeTools.now());
+
+        List<FinanceItemBean> itemList = new ArrayList<>();
+        // 应收账款（销售金额，含税价）(1132)/主营业务收入：含税价
+        createOutCommonItem1(user, outBean, financeBean, itemList);
+        financeBean.setItemList(itemList);
+
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+    }
+
+    /**
      * 销售-销售出库移交(应收抵消/主营业务收入抵消/主营业务成本抵消)
      * 
      * @param user
@@ -1038,6 +1089,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
+
 
     /**
      * processDuiChong
@@ -2110,6 +2162,10 @@ public class OutListenerTaxGlueImpl implements OutListener
         throws MYException
     {
         String name = "销售出库:" + outBean.getFullId() + '.';
+
+        if (outBean.isServiceOrder()){
+            name = "服务订单:" + outBean.getFullId() + '.';
+        }
 
         // 借:库存商品 贷:应付账款-供应商
         FinanceItemBean itemIn1 = new FinanceItemBean();

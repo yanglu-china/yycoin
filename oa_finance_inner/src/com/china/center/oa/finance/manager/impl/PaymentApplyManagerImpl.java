@@ -184,11 +184,11 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         if (oldType == FinanceConstant.PAYAPPLY_TYPE_BING) {
             for (PaymentVSOutBean vsItem : vsList) {
                 // 校验是否一个销售单被多次绑定
-                int count = paymentApplyDAO.countApplyByOutId(vsItem.getOutId());
-
-                if (count > 0) {
-                    throw new MYException("单据[%s]已经申请付款,请审批付款后再提交新的申请", vsItem.getOutId());
-                }
+//                int count = paymentApplyDAO.countApplyByOutId(vsItem.getOutId());
+//
+//                if (count > 0) {
+//                    throw new MYException("单据[%s]已经申请付款,请审批付款后再提交新的申请", vsItem.getOutId());
+//                }
 
                 OutBean out = outDAO.find(vsItem.getOutId());
 
@@ -238,11 +238,11 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             for (PaymentVSOutBean vsItem : vsList) {
                 if (!StringTools.isNullOrNone(vsItem.getOutId())) {
                     // 校验是否一个销售单被多次绑定(因为委托单里面也是关联销售单的)
-                    int count = paymentApplyDAO.countApplyByOutId(vsItem.getOutId());
-
-                    if (count > 0) {
-                        throw new MYException("单据[%s]已经申请付款,请审批付款后再提交新的申请", vsItem.getOutId());
-                    }
+//                    int count = paymentApplyDAO.countApplyByOutId(vsItem.getOutId());
+//
+//                    if (count > 0) {
+//                        throw new MYException("单据[%s]已经申请付款,请审批付款后再提交新的申请", vsItem.getOutId());
+//                    }
 
                     // 票款一致标记未打的
                     updatePayInvoiceData(payment.getDutyId(), payment.getMtype(), vsItem.getOutId(), vsItem.getOutBalanceId(), OutConstant.OUT_PAYINS_STATUS_APPROVE);
@@ -259,11 +259,11 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             String outId = vsList.get(0).getOutId();
 
             // 校验是否一个销售单被多次申请付款
-            int count = paymentApplyDAO.countApplyByOutId(outId);
-
-            if (count > 0) {
-                throw new MYException("单据[%s]已经申请付款,请审批付款后再提交新的申请", outId);
-            }
+//            int count = paymentApplyDAO.countApplyByOutId(outId);
+//
+//            if (count > 0) {
+//                throw new MYException("单据[%s]已经申请付款,请审批付款后再提交新的申请", outId);
+//            }
 
             OutBean out = outDAO.find(outId);
 

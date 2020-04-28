@@ -143,7 +143,8 @@ function blackForbid()
 
 <input type=hidden name="customercreditlevel" value="" />
 <input type=hidden name="id" value="" />
-<input type=hidden name="priceList"> 
+<input type=hidden name="priceList">
+<input type=hidden name="priceList2">
 <input type=hidden name="inputPriceList">
 <input type=hidden name="mtype" value="" />
 <input type=hidden name="hasProm" value="${hasProm}" />
@@ -323,6 +324,7 @@ function blackForbid()
 						<td width="5%" align="center">毛利</td>
 						<td width="5%" align="center">毛利率</td>
 						<td width="5%" align="center">虚料金额</td>
+                        <td width="5%" align="center">单价2</td>
 						<td width="5%" align="center"><input type="button" accesskey="A"
 							value="增加" class="button_class" onclick="addTr()"></td>
 					</tr>
@@ -342,6 +344,7 @@ function blackForbid()
 							productid="" 
 							productcode="" 
 							price=""
+							price2=""
 							addprice=""
 							stafferid=""
 							depotpartid=""
@@ -361,6 +364,7 @@ function blackForbid()
 						<td align="center"><input type="text"
 							style="width: 100%" maxlength="13" onkeyup="cc(this)" cost=""
 							onblur="blu(this)" name="price"></td>
+
 
 						<td align="center"><input type="text"
 							value="0.00" readonly="readonly" style="width: 100%" name="value"></td>
@@ -384,6 +388,10 @@ function blackForbid()
 							style="width: 100%" name="profitRatio"></td>
 
 						<td align="center"><input type="text" readonly="readonly"name="virtualPrice" value=""></td>
+
+                        <td align="center"><input type="text"
+                                                  style="width: 100%" maxlength="13" onkeyup="cc(this)" cost=""
+                                                  onblur="blu(this)" name="price2"></td>
 
 						<td align="center"></td>
 					</tr>
@@ -420,6 +428,7 @@ function blackForbid()
 						<td align="center"><input type="text" style="width: 100%" id="unPrice" cost=""
 							maxlength="13" onkeyup="cc(this)" onblur="blu(this)" name="price"></td>
 
+
 						<td align="center"><input type="text"
 							value="0.00" readonly="readonly" style="width: 100%" name="value"></td>
 
@@ -443,6 +452,12 @@ function blackForbid()
 						<td align="center">
 							<input type="text" readonly="readonly" style="width: 100%" name="virtualPrice">
 						</td>
+
+                        <td align="center">
+                            <input type="text" style="width: 100%" id="unPrice2" cost=""
+                                                  maxlength="13" onkeyup="cc(this)" onblur="blu(this)" name="price2">
+                        </td>
+
 						<td><input type=button value="清空"  class="button_class" onclick="clears()"></td>
 					</tr>
 				</table>

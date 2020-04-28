@@ -156,7 +156,7 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
     @Override
     @Transactional(rollbackFor = {MYException.class})
 	public int onFechProductzysc(String fullId, User user, int nextStatus, String reason,String customerDescription,
-            String depotpartId, StockBean stock, StockItemBean each,OutBean out) throws MYException {
+            String depotpartId, StockBean stock, List<StockItemBean> stockItemList,OutBean out) throws MYException {
     	
     	int state = outManager.pass(fullId, user,OutConstant.STATUS_PASS, reason, null, depotpartId);
 
@@ -164,7 +164,7 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
         // 贷:1.应付账款-货款(2122-01) 2.应付账款-货款（税点应付）
         FinanceBean financeBean = new FinanceBean();
 
-        String name = user.getStafferName() + ".拿货:" + stock.getId() + '/' + each.getId() + '.';
+        String name = user.getStafferName() + ".拿货:" + stock.getId() + '/' + stock.getId() + '.';
 
         financeBean.setName(name);
 
@@ -178,7 +178,7 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
 
         financeBean.setRefStock(stock.getId());
 
-        financeBean.setDutyId(each.getDutyId());
+        financeBean.setDutyId(stock.getDutyId());
 
         financeBean.setCreaterId(StafferConstant.SUPER_STAFFER);
 
@@ -190,30 +190,13 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
 
         List<FinanceItemBean> itemList = new ArrayList<FinanceItemBean>();
 
-        // 借:库存商品 贷:应付账款-供应商
-        createItem1(user, stock, each, out, financeBean, itemList);
+        createItemlist(user, stock, stockItemList, out, financeBean, itemList);
 
-        DutyBean duty = dutyDAO.find(each.getDutyId());
+        DutyBean duty = dutyDAO.find(stock.getDutyId());
 
         if (duty == null)
         {
             throw new MYException("纳税实体不存在,请确认操作");
-        }
-
-        ProviderBean provider = providerDAO.find(each.getProviderId());
-
-        if (StringTools.isNullOrNone(each.getProviderId())){
-            throw new MYException("T_CENTER_STOCKITEM表供应商栏位providerId不能为空："+each.getId());
-        } else if (provider == null)
-        {
-            throw new MYException("T_CENTER_STOCKITEM表供应商providerId不存在："+each.getProviderId());
-        }
-
-        // 一般纳税人
-        if (duty.getType() == DutyConstant.DUTY_TYPE_COMMON && provider.getDues() > 0)
-        {
-            // 借:主营业务税金即附加 贷:应付账款-供应商
-            createItem2(user, stock, each, out, financeBean, itemList, provider);
         }
 
         financeBean.setItemList(itemList);
@@ -226,6 +209,113 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
         return state;
 		
 	}
+    
+    /**
+     * 借:库存商品 贷:应付账款-供应商
+     * 
+     * @param stock
+     * @param each
+     * @param out
+     * @param financeBean
+     * @param itemList
+     * @throws MYException
+     */
+    private void createItemlist(User user, StockBean stock, List<StockItemBean> eachList, OutBean out,
+                             FinanceBean financeBean, List<FinanceItemBean> itemList)
+        throws MYException
+    {
+    	String pare1 = commonDAO.getSquenceString();
+    	for(StockItemBean each:eachList)
+    	{
+    		String name = user.getStafferName() + ".拿货:" + stock.getId() + '/' + each.getId() + '.';
+
+            // 借:库存商品 贷:应付账款-供应商
+            
+            FinanceItemBean itemIn1 = new FinanceItemBean();
+
+            itemIn1.setPareId(pare1);
+
+            itemIn1.setName("库存商品:" + name);
+
+            itemIn1.setForward(TaxConstanst.TAX_FORWARD_IN);
+
+            FinanceHelper.copyFinanceItem(financeBean, itemIn1);
+
+            // 库存商品
+            String itemTaxId1 = TaxItemConstanst.DEPOR_PRODUCT;
+
+            TaxBean productTax = taxDAO.findByUnique(itemTaxId1);
+
+            if (productTax == null)
+            {
+                throw new MYException("数据错误,请确认操作");
+            }
+
+            // 科目拷贝
+            FinanceHelper.copyTax(productTax, itemIn1);
+
+            double money = 0;
+            if (each instanceof StockItemArrivalBean){
+                money = each.getWarehouseNum() * each.getPrice();
+            } else{
+                money = each.getAmount() * each.getPrice();
+            }
+
+            itemIn1.setInmoney(FinanceHelper.doubleToLong(money));
+
+            itemIn1.setOutmoney(0);
+
+            itemIn1.setDescription("库存商品:" + name + "入库单号:" + out.getFullId());
+
+            // 辅助核算 仓库/产品
+            itemIn1.setDepotId(out.getLocation());
+            itemIn1.setProductId(each.getProductId());
+
+            // 采购数量
+            if (each instanceof StockItemArrivalBean){
+                itemIn1.setProductAmountIn(each.getWarehouseNum());
+            }else{
+                itemIn1.setProductAmountIn(each.getAmount());
+            }
+
+            itemList.add(itemIn1);
+    	}
+        // 贷方
+        FinanceItemBean itemOut1 = new FinanceItemBean();
+
+        itemOut1.setPareId(pare1);
+
+        itemOut1.setName("应付账款:" + user.getStafferName() + ".拿货:" + stock.getId());
+
+        itemOut1.setForward(TaxConstanst.TAX_FORWARD_OUT);
+
+        FinanceHelper.copyFinanceItem(financeBean, itemOut1);
+
+        // 库存商品
+        String itemTaxIdOut1 = TaxItemConstanst.PAY_PRODUCT;
+
+        TaxBean outTax = taxDAO.findByUnique(itemTaxIdOut1);
+
+        if (outTax == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 科目拷贝
+        FinanceHelper.copyTax(outTax, itemOut1);
+
+        itemOut1.setInmoney(0);
+
+        itemOut1.setOutmoney(FinanceHelper.doubleToLong(out.getTotal()));
+
+        itemOut1.setDescription("贷:" + user.getStafferName() + ".拿货:" + stock.getId() + "入库单号:" + out.getFullId());
+
+        // 辅助核算 单位
+        itemOut1.setUnitType(TaxConstanst.UNIT_TYPE_PROVIDE);
+        itemOut1.setUnitId(out.getCustomerId());
+
+        itemList.add(itemOut1);
+    }
 
     /**
      * 借:库存商品 贷:应付账款-供应商

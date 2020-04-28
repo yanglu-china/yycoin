@@ -603,6 +603,8 @@ public class LoginAction extends DispatchAction
         JSONArray auths = new JSONArray(user.getAuth(), true);
 
         request.getSession().setAttribute("authJSON", auths.toString());
+        
+        _accessLog.debug("auths.toString():"+auths.toString());
 
         request.getSession().setAttribute("gkey", key);
         // 默认是20
@@ -782,6 +784,8 @@ public class LoginAction extends DispatchAction
 
         // get auth by role
         List<RoleAuthBean> authList = roleAuthDAO.queryEntityBeansByFK(user.getRoleId());
+        
+        _accessLog.debug("user.getRoleId():"+user.getRoleId());
 
         RoleAuthBean publicAuth = new RoleAuthBean();
 
@@ -793,20 +797,27 @@ public class LoginAction extends DispatchAction
 
         user.setAuth(authList);
         
+        StringBuffer buffer = new StringBuffer();
+        
         for (RoleAuthBean each : authList)
         {
+        	buffer.append(each.getAuthId()).append(";");
         	// 商务权限
         	if (each.getAuthId().equals("010402"))
         	{
         		request.getSession().setAttribute("g_agent", "1");
         	}
         }
+
+        _accessLog.debug("authList:"+buffer.toString());
         
         AgentConfigVO agentBean = agentConfigDAO.findVOByUnique(user.getStafferId());
         
         request.getSession().setAttribute("agentBean", agentBean);
 
         List<MenuItemBean> result = filterMenuItem(user, menuItemMap);
+
+        _accessLog.debug(result);
 
         request.getSession().setAttribute("menuRootList", result);
 

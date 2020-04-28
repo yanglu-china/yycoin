@@ -2232,6 +2232,9 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             
             for(StockItemBean stockItemBean : stockItemBeans){
             	int amount = stockItemBean.getAmount(); //采购数量
+            	
+            	int totalWarehouseNum = stockItemBean.getTotalWarehouseNum();
+            	
             	int fetchAmount = 0;//已拿货数量
             	int returnAmount1 = 0;//已入库退货数量
             	int returnAmount2 = 0;//未入库退货数量
@@ -2318,8 +2321,9 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                     }
                 	
                 	//update status 已拿货
-                    if(this.needChangeStatus(amount, fetchAmount, returnAmount1, returnAmount2)){
+                    if(this.needChangeStatus(amount, fetchAmount, returnAmount1, returnAmount2, totalWarehouseNum)){
                     	stockItemBean.setFechProduct(StockConstant.STOCK_ITEM_FECH_YES);
+                    	stockItemBean.setHasRef(StockConstant.STOCK_ITEM_HASREF_YES);
                     	this.stockItemDAO.updateEntityBean(stockItemBean);
                     	sfLog.info("update stock item to 已拿货 "+stockItemBean.toString());
                     }else{
@@ -2354,11 +2358,14 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
      * @param fetchAmmount //已拿货数量
      * @param returnAmmount1 已入库退货数量
      * @param returnAmmount2 未入库退货数量
+     * @param totalWarehouseNum 已入库数量
      * @return
      */
-    private boolean needChangeStatus(int amount, int fetchAmmount, int returnAmmount1, int returnAmmount2){
+    private boolean needChangeStatus(int amount, int fetchAmmount, int returnAmmount1, int returnAmmount2, int totalWarehouseNum){
     	boolean flag = false;
-    	if(amount == fetchAmmount){
+    	if(amount == totalWarehouseNum){
+    		flag = true;
+    	}else if(amount == fetchAmmount){
     		flag = true;
     	}else if(amount == returnAmmount1){
     		flag = true;
@@ -2369,6 +2376,9 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     	}else if(amount == (fetchAmmount+returnAmmount2)){
     		flag = true;
     	}
+    	
+    	sfLog.info("amount:"+amount+",fetchAmmount:"+fetchAmmount+",returnAmmount1:"+returnAmmount1
+    			+",returnAmmount2:"+returnAmmount2+",totalWarehouseNum:"+totalWarehouseNum+",flag:"+flag);
     	
     	return flag;
     }

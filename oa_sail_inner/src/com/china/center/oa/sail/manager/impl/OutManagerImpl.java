@@ -505,6 +505,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         // 含税价
         final String[] priceList = this.getParam(request, "priceList");
+        final String[] priceList2 = this.getParam(request, "priceList2");
 
         // 输入价格
         final String[] inputPriceList = this.getParam(request, "inputPriceList");
@@ -802,6 +803,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         else
                         {
                             base.setPrice(MathTools.parseDouble(priceList[i]));
+                            base.setPrice2(MathTools.parseDouble(priceList2[i]));
                         }
 
                         if (base.getPrice() == 0)
@@ -3555,9 +3557,13 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                     if(!EmptyDepotpartId.equals(outBean.getDepotpartId())){
                     	_logger.debug("outBean.getDepotpartId():"+outBean.getDepotpartId()+", check1");
-                    	storageRelationManager.checkStorageRelation(wrap, includeSelf);
+                    	//#953
+                    	if (outBean.isServiceOrder()){
+                    	    _logger.info("****not check storage***"+outBean.getFullId());
+                        } else{
+                            storageRelationManager.checkStorageRelation(wrap, includeSelf);
+                        }
                     }
-                    
                 }
             }
             else
@@ -4469,52 +4475,57 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         String sequence = commonDAO.getSquenceString();
 
-        for (BaseBean element : baseList)
-        {
-            ProductChangeWrap wrap = new ProductChangeWrap();
-
-            wrap.setDepotpartId(element.getDepotpartId());
-            wrap.setPrice(element.getCostPrice());
-            wrap.setVirtualPrice(element.getVirtualPrice());
-            wrap.setProductId(element.getProductId());
-            if (StringTools.isNullOrNone(element.getOwner()))
+        if(outBean.isServiceOrder()){
+            _logger.info("***not change storage***"+outBean.getFullId());
+        } else{
+            //库存变动
+            for (BaseBean element : baseList)
             {
-                wrap.setStafferId("0");
+                ProductChangeWrap wrap = new ProductChangeWrap();
+
+                wrap.setDepotpartId(element.getDepotpartId());
+                wrap.setPrice(element.getCostPrice());
+                wrap.setVirtualPrice(element.getVirtualPrice());
+                wrap.setProductId(element.getProductId());
+                if (StringTools.isNullOrNone(element.getOwner()))
+                {
+                    wrap.setStafferId("0");
+                }
+                else
+                {
+                    wrap.setStafferId(element.getOwner());
+                }
+
+                // 通用商品销售设为 私卖
+                if ((element.getProductId().equals(ProductConstant.OUT_COMMON_PRODUCTID) || element.getProductId().equals(ProductConstant.OUT_COMMON_MPRODUCTID))
+                        && outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                {
+                    wrap.setStafferId(outBean.getStafferId());
+                }
+
+                wrap.setRefId(outBean.getFullId());
+
+                if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                {
+                    // 这里是销售单,所以是负数
+                    wrap.setChange( -element.getAmount());
+
+                    wrap.setDescription("销售单[" + outBean.getFullId() + "]库管通过操作");
+                }
+                else
+                {
+                    // 这里是入库单
+                    wrap.setChange(element.getAmount());
+
+                    wrap.setDescription("入库单[" + outBean.getFullId() + "]库管通过操作");
+                }
+
+                wrap.setSerializeId(sequence);
+
+                wrap.setType(type);
+
+                storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
             }
-            else
-            {
-                wrap.setStafferId(element.getOwner());
-            }
-            
-            // 通用商品销售设为 私卖
-            if ((element.getProductId().equals(ProductConstant.OUT_COMMON_PRODUCTID) || element.getProductId().equals(ProductConstant.OUT_COMMON_MPRODUCTID))
-            		&& outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-            {
-            	wrap.setStafferId(outBean.getStafferId());
-            }
-            
-            wrap.setRefId(outBean.getFullId());
-
-            if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-            {
-                // 这里是销售单,所以是负数
-                wrap.setChange( -element.getAmount());
-
-                wrap.setDescription("销售单[" + outBean.getFullId() + "]库管通过操作");
-            }
-            else
-            {
-                // 这里是入库单
-                wrap.setChange(element.getAmount());
-
-                wrap.setDescription("入库单[" + outBean.getFullId() + "]库管通过操作");
-            }
-
-            wrap.setSerializeId(sequence);
-
-            wrap.setType(type);
-
-            storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
         }
         
         outBean.setBaseList(baseList);
@@ -10363,6 +10374,18 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         }
                     }
 
+                    if (outBean.isServiceOrder()){
+                        for (BaseBean baseBean: outBean.getBaseList()){
+                            //#953 服务订单成本价和结算价都取销售价
+                            baseBean.setCostPrice(baseBean.getPrice());
+                            baseBean.setCostPriceKey(StorageRelationHelper.getPriceKey(baseBean
+                                    .getCostPrice()));
+                            baseBean.setInputPrice(baseBean.getPrice());
+                            baseBean.setIprice(baseBean.getPrice());
+                            baseBean.setPprice(baseBean.getPrice());
+                        }
+                    }
+
                     baseDAO.updateAllEntityBeans(outBean.getBaseList());
                     
                     DistributionBean distBean = outBean.getDistributeBean();
@@ -13695,7 +13718,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (AppConstant.APP_NAME.equals(appName)){
             conditionParse.addCondition("sys","=","体内");
         } else if (AppConstant.APP_NAME_TW.equals(appName)){
-            conditionParse.addCondition("sys","=","体外");
+            conditionParse.addCondition("sys","=","TW");
         }
 
         List<FrDbBean> frDbBeans = this.frDbDAO.queryEntityBeansByCondition(conditionParse);

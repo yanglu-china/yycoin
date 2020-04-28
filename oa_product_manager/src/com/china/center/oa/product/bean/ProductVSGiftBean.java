@@ -1,6 +1,7 @@
 package com.china.center.oa.product.bean;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.FK;
@@ -44,6 +45,20 @@ public class ProductVSGiftBean implements Serializable
 
     @Html(title = "赠送商品数量3", maxLength = 100)
     private int amount3 = 0;
+
+
+    /**
+     * #950
+     */
+    @Html(title = "订单满赠金额")
+    private BigDecimal mzje;
+
+    @Html(title = "满赠商品品名", type = Element.INPUT, name = "giftProductName4", readonly = true)
+    @Join(tagClass = ProductBean.class, type = JoinType.LEFT, alias = "P5")
+    private String giftProductId4 = "";
+
+    @Html(title = "满赠商品数量", maxLength = 100)
+    private int amount4 = 0;
 
     @Html(title = "销售商品数量", must = true, maxLength = 100)
     private int sailAmount = 0;
@@ -550,22 +565,81 @@ public class ProductVSGiftBean implements Serializable
 		this.dqShare = dqShare;
 	}
 
-	@Override
-	public String toString() {
-		return "ProductVSGiftBean [id=" + id + ", productId=" + productId + ", giftProductId=" + giftProductId
-				+ ", amount=" + amount + ", giftProductId2=" + giftProductId2 + ", amount2=" + amount2
-				+ ", giftProductId3=" + giftProductId3 + ", amount3=" + amount3 + ", sailAmount=" + sailAmount
-				+ ", activity=" + activity + ", bank=" + bank + ", excludeBank=" + excludeBank + ", beginDate="
-				+ beginDate + ", endDate=" + endDate + ", description=" + description + ", industryName=" + industryName
-				+ ", industryName2=" + industryName2 + ", industryName3=" + industryName3 + ", city=" + city
-				+ ", province=" + province + ", stafferName=" + stafferName + ", excludeIndustryName="
-				+ excludeIndustryName + ", excludeIndustryName2=" + excludeIndustryName2 + ", excludeIndustryName3="
-				+ excludeIndustryName3 + ", excludeCity=" + excludeCity + ", companyShare=" + companyShare
-				+ ", stafferShare=" + stafferShare + ", excludeProvince=" + excludeProvince + ", excludeStafferName="
-				+ excludeStafferName + ", branchName=" + branchName + ", excludeBranchName=" + excludeBranchName
-				+ ", customerName=" + customerName + ", excludeCustomerName=" + excludeCustomerName + ", channel="
-				+ channel + ", excludeChannel=" + excludeChannel + ", createTime=" + createTime + ", creator=" + creator
-				+ ", sybid=" + sybid + ", ywbid=" + ywbid + ", dqid=" + dqid + ", publicfunds=" + publicfunds + "]";
-	}
+    public BigDecimal getMzje() {
+        return mzje;
+    }
+
+    public void setMzje(BigDecimal mzje) {
+        this.mzje = mzje;
+    }
+
+    public String getGiftProductId4() {
+        return giftProductId4;
+    }
+
+    public void setGiftProductId4(String giftProductId4) {
+        this.giftProductId4 = giftProductId4;
+    }
+
+    public int getAmount4() {
+        return amount4;
+    }
+
+    public void setAmount4(int amount4) {
+        this.amount4 = amount4;
+    }
+
+    @Override
+    public String toString() {
+        return "ProductVSGiftBean{" +
+                "id='" + id + '\'' +
+                ", productId='" + productId + '\'' +
+                ", giftProductId='" + giftProductId + '\'' +
+                ", amount=" + amount +
+                ", giftProductId2='" + giftProductId2 + '\'' +
+                ", amount2=" + amount2 +
+                ", giftProductId3='" + giftProductId3 + '\'' +
+                ", amount3=" + amount3 +
+                ", mzje=" + mzje +
+                ", giftProductId4='" + giftProductId4 + '\'' +
+                ", amount4=" + amount4 +
+                ", sailAmount=" + sailAmount +
+                ", activity='" + activity + '\'' +
+                ", bank='" + bank + '\'' +
+                ", excludeBank='" + excludeBank + '\'' +
+                ", beginDate='" + beginDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                ", description='" + description + '\'' +
+                ", industryName='" + industryName + '\'' +
+                ", industryName2='" + industryName2 + '\'' +
+                ", industryName3='" + industryName3 + '\'' +
+                ", city='" + city + '\'' +
+                ", province='" + province + '\'' +
+                ", stafferName='" + stafferName + '\'' +
+                ", excludeIndustryName='" + excludeIndustryName + '\'' +
+                ", excludeIndustryName2='" + excludeIndustryName2 + '\'' +
+                ", excludeIndustryName3='" + excludeIndustryName3 + '\'' +
+                ", excludeCity='" + excludeCity + '\'' +
+                ", companyShare=" + companyShare +
+                ", stafferShare=" + stafferShare +
+                ", excludeProvince='" + excludeProvince + '\'' +
+                ", excludeStafferName='" + excludeStafferName + '\'' +
+                ", branchName='" + branchName + '\'' +
+                ", excludeBranchName='" + excludeBranchName + '\'' +
+                ", customerName='" + customerName + '\'' +
+                ", excludeCustomerName='" + excludeCustomerName + '\'' +
+                ", channel='" + channel + '\'' +
+                ", excludeChannel='" + excludeChannel + '\'' +
+                ", createTime='" + createTime + '\'' +
+                ", creator='" + creator + '\'' +
+                ", sybid='" + sybid + '\'' +
+                ", ywbid='" + ywbid + '\'' +
+                ", dqid='" + dqid + '\'' +
+                ", sybShare=" + sybShare +
+                ", ywbShare=" + ywbShare +
+                ", dqShare=" + dqShare +
+                ", publicfunds=" + publicfunds +
+                '}';
+    }
 
 }

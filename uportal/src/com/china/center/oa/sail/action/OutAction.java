@@ -1927,18 +1927,21 @@ public class OutAction extends ParentOutAction
                     {
                     	try {
                     		StockBean stockBean = new StockBean();
-                    		StockItemBean stockItemBean = new StockItemBean();
-                    		stockItemBean.setDutyId("90201008080000000001");
-                    		stockItemBean.setProviderId(out.getCustomerId());
+                    		List<StockItemBean> stockItemList = new ArrayList<StockItemBean>();
                     		List<BaseBean> baseList= baseDAO.queryEntityBeansByFK(fullId);
-                    		if(baseList.size() > 0)
+                    		stockBean.setDutyId("90201008080000000001");
+                    		for(BaseBean baseBean : baseList)
                     		{
-                    			stockItemBean.setProductId(baseList.get(0).getProductId());
-                    			stockItemBean.setAmount(baseList.get(0).getAmount());
-                    			stockItemBean.setPrice(baseList.get(0).getPrice());
+                    			StockItemBean stockItemBean = new StockItemBean();
+                        		stockItemBean.setDutyId("90201008080000000001");
+                        		stockItemBean.setProviderId(out.getCustomerId());
+                    			stockItemBean.setProductId(baseBean.getProductId());
+                    			stockItemBean.setAmount(baseBean.getAmount());
+                    			stockItemBean.setPrice(baseBean.getPrice());
+                    			stockItemList.add(stockItemBean);
                     		}
                     		resultStatus = fechProductListenerTaxGlueImpl.onFechProductzysc(fullId, user,
-                    				OutConstant.STATUS_PASS, reason, null, depotpartId, stockBean, stockItemBean, out);
+                    				OutConstant.STATUS_PASS, reason, null, depotpartId, stockBean, stockItemList, out);
     					} catch (MYException e) {
     						_logger.error(e, e);
                             request.setAttribute(KeyConstant.ERROR_MESSAGE, "处理异常："
@@ -2138,7 +2141,9 @@ public class OutAction extends ParentOutAction
                         || statuss == OutConstant.STATUS_PASS)
                     {
                          //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
-                        if (statuss == OutConstant.STATUS_MANAGER_PASS){
+                        if (statuss == OutConstant.STATUS_MANAGER_PASS
+                                //#953 服务订单不需要更新结算价
+                                && !out.isServiceOrder()){
                             _logger.info("***销售商务审批时检查结算价是否为0***");
                             List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
                             if (!ListTools.isEmptyOrNull(baseBeans)){
@@ -2322,6 +2327,19 @@ public class OutAction extends ParentOutAction
                         {
                             try
                             {
+	                        	List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
+	                            if (!ListTools.isEmptyOrNull(baseBeans)){
+	                                for (BaseBean item : baseBeans){
+	                                	if(item.getCostPrice() == 0)
+	                                	{
+	                                		request.setAttribute(KeyConstant.ERROR_MESSAGE,
+	                                                "产品成本价不能为空");
+                                            return mapping.findForward("error");
+	                                	}
+	                                }
+	                            }
+                            	resultStatus = outManager.submit(fullId, user,
+                                        StorageConstant.OPR_STORAGE_OUTBILL);
                                 processPromotion(fullId, user);
                             }
                             catch(MYException e)
@@ -3564,6 +3582,12 @@ public class OutAction extends ParentOutAction
                     // 退库
                     for (OutBean ref : refBuyList)
                     {
+                    	_logger.debug("1 ref.getStatus():"+ref.getStatus()+", ref.getFullId():"+ref.getFullId()+", equals 2:"+("2".equals(ref.getStatus())));
+                    	//#934
+                    	if(ref.getStatus()==2){
+                    		//过滤驳回的退单
+                    		continue;
+                    	}
                         List<BaseBean> refBaseList = ref.getBaseList();
 
                         for (BaseBean refBase : refBaseList)
@@ -3571,17 +3595,28 @@ public class OutAction extends ParentOutAction
                             if (refBase.equals(baseBean))
                             {
                                 hasBack += refBase.getAmount();
+                                
+                                _logger.debug("hasBack:"+hasBack);
 
                                 break;
                             }
                         }
                         backSet.add(ref.getFullId());
                     }
+                    
+                    _logger.debug("1 hasBack:"+hasBack);
 
                     // 转销售的
                     //#73 #66 转销售的需要先核对是否已退库
                     for (OutBean ref : refList)
                     {
+                    	_logger.debug("2 ref.getStatus():"+ref.getStatus()+", ref.getFullId():"+ref.getFullId());
+                    	//#934
+                    	if(ref.getStatus()==2){
+                    		//过滤驳回的退单
+                    		continue;
+                    	}
+                    	
                         String description = ref.getDescription();
                         if(StringTools.isNullOrNone(description)){
                             List<BaseBean> refBaseList = baseDAO.queryEntityBeansByFK(ref.getFullId());
@@ -3630,6 +3665,8 @@ public class OutAction extends ParentOutAction
 //                                break;
 //                            }
 //                        }
+                        
+                        _logger.debug("2 hasBack:"+hasBack);
                     }
 
                     //#831 已退数量不能超过实际数量

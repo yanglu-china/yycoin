@@ -28,6 +28,21 @@ function pagePrint()
 }
 
 </script>
+<style type="text/css">
+.border_table {
+	border:1px solid black;
+	border-collapse:collapse;
+}
+
+.border_cell {
+    border:1px solid black;
+    border-collapse:collapse;
+	cellspacing: 0px;
+	cellpadding: 0px;
+}
+
+
+</style>
 </head>
 <body>
 <input type="hidden" name="pickupId" value="${bean.pickupId}">
@@ -92,28 +107,28 @@ function pagePrint()
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td colspan="4"><table class="border1"><tr><td>编号：${bean.pickupId}--${bean.index_pos} / ${bean.id}</td></tr></table></td>
+						<td colspan="4" class="border_cell"><table ><tr><td>编号：${bean.pickupId}--${bean.index_pos} / ${bean.id}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td><table class="border1"><tr><td>制单时间：${year} / ${month} / ${day}</td></tr></table></td>
-						<td><table class="border1"><tr><td>申请人：${bean.stafferName}</td></tr></table></td>
-						<td><table class="border1"><tr><td>事业部：${bean.industryName}</td></tr></table></td>
-						<td><table class="border1"><tr><td>销售部门：${bean.departName}</td></tr></table></td>
+						<td class="border_cell" ><table ><tr><td>制单时间：${year} / ${month} / ${day}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>申请人：${bean.stafferName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>事业部：${bean.industryName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>销售部门：${bean.departName}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="2"><table class="border1"><tr><td>收货人：${bean.receiver}</td></tr></table></td>
-						<td colspan="2"><table class="border1"><tr><td>联系电话：${bean.mobile}</td></tr></table></td>
+						<td colspan="2" class="border_cell"><table><tr><td>收货人：${bean.receiver}</td></tr></table></td>
+						<td colspan="2" class="border_cell"><table><tr><td>联系电话：${bean.mobile}</td></tr></table></td>
 					</tr>					
 					<tr class="content2">
-						<td colspan="4"><table class="border1"><tr><td>发货地址：${bean.address}</td></tr></table></td>
+						<td colspan="4" class="border_cell"><table><tr><td>发货地址：${bean.address}</td></tr></table></td>
 					</tr>
 					
 					<tr class="content2">
-						<td><table class="border1"><tr><td>发货方式：${my:get('outShipment',bean.shipping)}</td></tr></table></td>
-						<td colspan="2"><table class="border1"><tr><td>发货公司：${bean.transportName1}&nbsp;${bean.transportName2}</td></tr></table></td>
-						<td><table class="border1"><tr><td>支付方式：${my:get('deliverPay',bean.expressPay)}&nbsp;${my:get('deliverPay',bean.transportPay)}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>发货方式：${my:get('outShipment',bean.shipping)}</td></tr></table></td>
+						<td colspan="2"  class="border_cell"><table><tr><td>发货公司：${bean.transportName1}&nbsp;${bean.transportName2}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>支付方式：${my:get('deliverPay',bean.expressPay)}&nbsp;${my:get('deliverPay',bean.transportPay)}</td></tr></table></td>
 					</tr>					
 					
 				</table>
@@ -122,20 +137,20 @@ function pagePrint()
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border2">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td width="8%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
-						<td width="15%"><table class="border1"><tr><td align="center">单号</td></tr></table></td>
-						<td width="15%"><table class="border1"><tr><td align="center">银行订单号</td></tr></table></td>
-						<td width="40%"><table class="border1"><tr><td align="center">销售备注</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">序号</td></tr></table></td>
+						<td width="15%" class="border_cell"><table><tr><td align="center">单号</td></tr></table></td>
+						<td width="15%" class="border_cell"><table><tr><td align="center">银行订单号</td></tr></table></td>
+						<td width="40%" class="border_cell"><table><tr><td align="center">销售备注</td></tr></table></td>
 					</tr>
 					
 					<c:forEach items="${bean.wrapList}" var="item1" varStatus="vs1">
 					<tr class="content2">
-						<td><table class="border1"><tr><td align="center">${vs1.index + 1}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item1.outId}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item1.citicNo}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item1.description}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${vs1.index + 1}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item1.outId}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item1.citicNo}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item1.description}</td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
@@ -145,29 +160,29 @@ function pagePrint()
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border2">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td width="5%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
-						<td width="30%"><table class="border1"><tr><td align="center">品名</td></tr></table></td>
-						<td width="52%"><table class="border1"><tr><td align="center">配件名</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">发货数量</td></tr></table></td>
+						<td width="5%" class="border_cell"><table><tr><td align="center">序号</td></tr></table></td>
+						<td width="30%" class="border_cell"><table><tr><td align="center">品名</td></tr></table></td>
+						<td width="52%" class="border_cell"><table><tr><td align="center">配件名</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">发货数量</td></tr></table></td>
 					</tr>
 					
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
-						<td><table class="border1"><tr><td align="center">${vs.index + 1}</td></tr></table></td>
-						<td><table class="border1"><tr><td><p style='font-weight: bold;font-size:18px;'>${item.productName}</p></td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.showSubProductName}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"><p style='font-weight: bold;font-size:18px;'>${item.amount}</p></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${vs.index + 1}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td><p style='font-weight: bold;font-size:18px;'>${item.productName}</p></td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.showSubProductName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"><p style='font-weight: bold;font-size:18px;'>${item.amount}</p></td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
 					<c:forEach varStatus="vs" begin="1" end="${(2 - my:length(baseList)) > 0 ? (2 - my:length(baseList)) : 0}">
 					<tr class="content2">
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 				</table>
