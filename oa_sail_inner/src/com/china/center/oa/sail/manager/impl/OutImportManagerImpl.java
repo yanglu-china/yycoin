@@ -1423,27 +1423,27 @@ public class OutImportManagerImpl implements OutImportManager
 			}
 
 			//#950 订单金额满增
-			int i=new BigDecimal(out.getTotal()).compareTo(giftVO.getMzje()); //i==1表示订单金额大于满增金额金额
-            _logger.info(i+"*****mzje***"+giftVO.getMzje()+"****total***"+out.getTotal());
-			if (i ==1 && !StringTools.isNullOrNone(giftVO.getGiftProductId4())
-					&& giftVO.getAmount4()>0){
-				BaseBean newBaseBean4 = new BaseBean();
-				BeanUtil.copyProperties(newBaseBean4, base);
-
-				newBaseBean4.setId(commonDAO.getSquenceString());
-				newBaseBean4.setAmount(giftVO.getAmount4());
-				newBaseBean4.setProductId(giftVO.getGiftProductId4());
-				newBaseBean4.setProductName(giftVO.getGiftProductName4());
-				newBaseBean4.setPrice(0);
-				newBaseBean4.setValue(0);
-				newBaseBean4.setProfit(0);
-				newBaseBean4.setProfitRatio(0);
-				newBaseBean4.setOutId(newOutId);
-
-				baseDAO.saveEntityBean(newBaseBean4);
-                createdFlag = true;
-                _logger.info("***create extra base bean for gift4***"+newBaseBean4);
-			}
+//			int i=new BigDecimal(out.getTotal()).compareTo(giftVO.getMzje()); //i==1表示订单金额大于满增金额金额
+//            _logger.info(i+"*****mzje***"+giftVO.getMzje()+"****total***"+out.getTotal());
+//			if (i ==1 && !StringTools.isNullOrNone(giftVO.getGiftProductId4())
+//					&& giftVO.getAmount4()>0){
+//				BaseBean newBaseBean4 = new BaseBean();
+//				BeanUtil.copyProperties(newBaseBean4, base);
+//
+//				newBaseBean4.setId(commonDAO.getSquenceString());
+//				newBaseBean4.setAmount(giftVO.getAmount4());
+//				newBaseBean4.setProductId(giftVO.getGiftProductId4());
+//				newBaseBean4.setProductName(giftVO.getGiftProductName4());
+//				newBaseBean4.setPrice(0);
+//				newBaseBean4.setValue(0);
+//				newBaseBean4.setProfit(0);
+//				newBaseBean4.setProfitRatio(0);
+//				newBaseBean4.setOutId(newOutId);
+//
+//				baseDAO.saveEntityBean(newBaseBean4);
+//                createdFlag = true;
+//                _logger.info("***create extra base bean for gift4***"+newBaseBean4);
+//			}
 
 			if (createdFlag){
                 outDAO.saveEntityBean(newOutBean);
