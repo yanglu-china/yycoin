@@ -31,4 +31,11 @@ import java.util.List;
  */
 public class ProductImportDAOImpl extends BaseDAO<ProductImportBean, ProductImportBean> implements ProductImportDAO
 {
+
+    @Override
+    public double queryMaxRetailPriceByCode(String bankProductCode) {
+        String sql = "select max(retailPrice) from t_center_product_import where syb = '银行事业部' and productstatus = '正常' and bankProductCode=?";
+
+        return this.jdbcOperation.queryForInt(sql, bankProductCode);
+    }
 }

@@ -236,7 +236,7 @@ function load()
             </p:pro>
 
             <p:pro field="amount3" value="${bean.amount3}" innerString="size=60 oncheck='isMathNumber'"/>
-
+<%--
             <p:pro field="mzje" value="${bean.mzje}" innerString="oncheck='isFloat'"/>
 
             <p:pro field="giftProductId4" value="${bean.giftProductName4}" innerString="size=60">
@@ -246,7 +246,7 @@ function load()
                        class="button_class" onclick="clears(4)">&nbsp;&nbsp;
             </p:pro>
 
-            <p:pro field="amount4" value="${bean.amount4}" innerString="oncheck='isMathNumber'"/>
+            <p:pro field="amount4" value="${bean.amount4}" innerString="oncheck='isMathNumber'"/>--%>
 
             <p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 
