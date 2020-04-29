@@ -486,7 +486,7 @@ function load()
         <div align="left" id="price"></div>
 		<div align="right">
             <input type="button" class="button_class"
-                   value="&nbsp;&nbsp;计算合成价格&nbsp;&nbsp;" onclick="computePrice()">&nbsp;&nbsp;
+                   value="&nbsp;&nbsp;毛利率试算&nbsp;&nbsp;" onclick="computePrice()">&nbsp;&nbsp;
             <input type="button" class="button_class"
                    value="&nbsp;&nbsp;保 存&nbsp;&nbsp;" onclick="saveBean()">&nbsp;&nbsp;
 		  <input type="button" class="button_class" id="sub_b"
