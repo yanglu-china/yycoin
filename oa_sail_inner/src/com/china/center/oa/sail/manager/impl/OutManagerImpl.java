@@ -803,7 +803,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                         else
                         {
                             base.setPrice(MathTools.parseDouble(priceList[i]));
-                            base.setPrice2(MathTools.parseDouble(priceList2[i]));
+                            try {
+                                base.setPrice2(MathTools.parseDouble(priceList2[i]));
+                            }catch (Exception e){
+                                _logger.error(e);
+                            }
                         }
 
                         if (base.getPrice() == 0)
