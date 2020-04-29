@@ -2745,7 +2745,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
 //                outDAO.modifyOutStatus(fullId, nextStatus);
                 
-                result = nextStatus;
+                String appName = ConfigLoader.getProperty("appName");
+                if(AppConstant.APP_NAME_ZYSC.equals(appName))
+                {
+                	result = OutConstant.STATUS_FLOW_PASS;
+                }
+                else
+                {
+                	result = nextStatus;
+                	
+                }
 
                 processCredit(fullId, outBean);
             }
