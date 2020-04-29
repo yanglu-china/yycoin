@@ -38,4 +38,11 @@ public class ProductImportDAOImpl extends BaseDAO<ProductImportBean, ProductImpo
 
         return this.jdbcOperation.queryForInt(sql, bankProductCode);
     }
+
+    @Override
+    public double queryLatestRetailPrice(String productName) {
+        String sql = "select retailPrice from t_center_product_import where productstatus = '正常' and name=? order by updateTime desc limit 1";
+
+        return this.jdbcOperation.queryForDouble(sql, productName);
+    }
 }

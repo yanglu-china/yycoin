@@ -2,24 +2,20 @@ package com.china.center.oa.sail.manager.impl;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import com.china.center.oa.client.vo.CustomerVO;
-import com.china.center.oa.product.bean.*;
-import com.china.center.oa.product.constant.DepotConstant;
-import com.china.center.oa.product.dao.*;
-import com.china.center.oa.product.helper.StorageRelationHelper;
-import com.china.center.oa.publics.StringUtils;
-import com.china.center.oa.publics.bean.*;
-import com.china.center.oa.publics.bean.LogBean;
-import com.china.center.oa.publics.constant.*;
-import com.china.center.oa.publics.dao.*;
-import com.china.center.oa.publics.vo.StafferVO;
-import com.china.center.oa.sail.bean.*;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.constanst.ShipConstant;
-import com.china.center.oa.sail.dao.*;
-import com.china.center.oa.sail.vo.BaseVO;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -30,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
@@ -39,21 +36,106 @@ import com.china.center.oa.client.dao.AddressDAO;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vo.AddressVO;
+import com.china.center.oa.client.vo.CustomerVO;
 import com.china.center.oa.client.vo.StafferVSCustomerVO;
+import com.china.center.oa.product.bean.DepotpartBean;
+import com.china.center.oa.product.bean.PriceConfigBean;
+import com.china.center.oa.product.bean.ProductBean;
+import com.china.center.oa.product.bean.ProductImportBean;
+import com.china.center.oa.product.bean.TwthProductBean;
+import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
+import com.china.center.oa.product.dao.DepotpartDAO;
+import com.china.center.oa.product.dao.PriceConfigDAO;
+import com.china.center.oa.product.dao.ProductDAO;
+import com.china.center.oa.product.dao.ProductImportDAO;
+import com.china.center.oa.product.dao.ProductVSGiftDAO;
+import com.china.center.oa.product.dao.StorageRelationDAO;
+import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.product.wrap.ProductChangeWrap;
+import com.china.center.oa.publics.StringUtils;
+import com.china.center.oa.publics.bean.AreaBean;
+import com.china.center.oa.publics.bean.CityBean;
+import com.china.center.oa.publics.bean.FlowLogBean;
+import com.china.center.oa.publics.bean.InvoiceBean;
+import com.china.center.oa.publics.bean.LogBean;
+import com.china.center.oa.publics.bean.ProvinceBean;
+import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.AppConstant;
+import com.china.center.oa.publics.constant.IDPrefixConstant;
+import com.china.center.oa.publics.constant.ModuleConstant;
+import com.china.center.oa.publics.constant.OperationConstant;
+import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.publics.constant.SysConfigConstant;
+import com.china.center.oa.publics.dao.AreaDAO;
+import com.china.center.oa.publics.dao.CityDAO;
+import com.china.center.oa.publics.dao.CommonDAO;
+import com.china.center.oa.publics.dao.FlowLogDAO;
+import com.china.center.oa.publics.dao.InvoiceDAO;
+import com.china.center.oa.publics.dao.LocationDAO;
+import com.china.center.oa.publics.dao.LogDAO;
+import com.china.center.oa.publics.dao.ParameterDAO;
+import com.china.center.oa.publics.dao.ProvinceDAO;
+import com.china.center.oa.publics.dao.StafferDAO;
+import com.china.center.oa.publics.vo.StafferVO;
+import com.china.center.oa.sail.bean.BankSailBean;
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.BatchApproveBean;
+import com.china.center.oa.sail.bean.BatchDropBean;
+import com.china.center.oa.sail.bean.BatchReturnLog;
+import com.china.center.oa.sail.bean.BatchSwatchBean;
+import com.china.center.oa.sail.bean.ConsignBean;
+import com.china.center.oa.sail.bean.DistributionBaseBean;
+import com.china.center.oa.sail.bean.DistributionBean;
+import com.china.center.oa.sail.bean.EstimateProfitBean;
+import com.china.center.oa.sail.bean.OlBaseBean;
+import com.china.center.oa.sail.bean.OlOutBean;
+import com.china.center.oa.sail.bean.OutBackBean;
+import com.china.center.oa.sail.bean.OutBackItemBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.bean.OutImportBean;
+import com.china.center.oa.sail.bean.OutImportLogBean;
+import com.china.center.oa.sail.bean.OutImportResultBean;
+import com.china.center.oa.sail.bean.PackageBean;
+import com.china.center.oa.sail.bean.PackageItemBean;
+import com.china.center.oa.sail.bean.ReplenishmentBean;
+import com.china.center.oa.sail.bean.SailConfBean;
+import com.china.center.oa.sail.bean.TwOutImportBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.constanst.SailConstant;
+import com.china.center.oa.sail.constanst.ShipConstant;
+import com.china.center.oa.sail.dao.BankSailDAO;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.BatchApproveDAO;
+import com.china.center.oa.sail.dao.BatchReturnLogDAO;
+import com.china.center.oa.sail.dao.BatchSwatchDAO;
+import com.china.center.oa.sail.dao.ConsignDAO;
+import com.china.center.oa.sail.dao.DistributionBaseDAO;
+import com.china.center.oa.sail.dao.DistributionDAO;
+import com.china.center.oa.sail.dao.EstimateProfitDAO;
+import com.china.center.oa.sail.dao.OlBaseDAO;
+import com.china.center.oa.sail.dao.OlOutDAO;
+import com.china.center.oa.sail.dao.OutBackDAO;
+import com.china.center.oa.sail.dao.OutBackItemDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.dao.OutImportDAO;
+import com.china.center.oa.sail.dao.OutImportLogDAO;
+import com.china.center.oa.sail.dao.OutImportResultDAO;
+import com.china.center.oa.sail.dao.PackageDAO;
+import com.china.center.oa.sail.dao.PackageItemDAO;
+import com.china.center.oa.sail.dao.ReplenishmentDAO;
+import com.china.center.oa.sail.dao.TwOutImportDAO;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.manager.OutImportManager;
 import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailConfigManager;
+import com.china.center.oa.sail.vo.BaseVO;
 import com.china.center.tools.BeanUtil;
 import com.china.center.tools.JudgeTools;
 import com.china.center.tools.ListTools;
@@ -643,6 +725,7 @@ public class OutImportManagerImpl implements OutImportManager
 	 */
 	private OutBean createOut(List<OutImportBean> list)
 	{
+		String appName = ConfigLoader.getProperty("appName");
 		_logger.info("***begin create Out***");
 		String newOutId;
 		int itype = 0;
@@ -750,8 +833,14 @@ public class OutImportManagerImpl implements OutImportManager
     	}
     	
     	setInvoiceId(newOutBean);
-    	
-    	newOutBean.setStatus(OutConstant.STATUS_SUBMIT);
+    	if(appName.equalsIgnoreCase(AppConstant.APP_NAME_ZYSC))
+    	{
+    		newOutBean.setStatus(OutConstant.STATUS_FLOW_PASS);
+    	}
+    	else
+    	{
+    		newOutBean.setStatus(OutConstant.STATUS_SUBMIT);
+    	}
     	
     	double total = 0.0d;
     	
@@ -1423,27 +1512,27 @@ public class OutImportManagerImpl implements OutImportManager
 			}
 
 			//#950 订单金额满增
-			int i=new BigDecimal(out.getTotal()).compareTo(giftVO.getMzje()); //i==1表示订单金额大于满增金额金额
-            _logger.info(i+"*****mzje***"+giftVO.getMzje()+"****total***"+out.getTotal());
-			if (i ==1 && !StringTools.isNullOrNone(giftVO.getGiftProductId4())
-					&& giftVO.getAmount4()>0){
-				BaseBean newBaseBean4 = new BaseBean();
-				BeanUtil.copyProperties(newBaseBean4, base);
-
-				newBaseBean4.setId(commonDAO.getSquenceString());
-				newBaseBean4.setAmount(giftVO.getAmount4());
-				newBaseBean4.setProductId(giftVO.getGiftProductId4());
-				newBaseBean4.setProductName(giftVO.getGiftProductName4());
-				newBaseBean4.setPrice(0);
-				newBaseBean4.setValue(0);
-				newBaseBean4.setProfit(0);
-				newBaseBean4.setProfitRatio(0);
-				newBaseBean4.setOutId(newOutId);
-
-				baseDAO.saveEntityBean(newBaseBean4);
-                createdFlag = true;
-                _logger.info("***create extra base bean for gift4***"+newBaseBean4);
-			}
+//			int i=new BigDecimal(out.getTotal()).compareTo(giftVO.getMzje()); //i==1表示订单金额大于满增金额金额
+//            _logger.info(i+"*****mzje***"+giftVO.getMzje()+"****total***"+out.getTotal());
+//			if (i ==1 && !StringTools.isNullOrNone(giftVO.getGiftProductId4())
+//					&& giftVO.getAmount4()>0){
+//				BaseBean newBaseBean4 = new BaseBean();
+//				BeanUtil.copyProperties(newBaseBean4, base);
+//
+//				newBaseBean4.setId(commonDAO.getSquenceString());
+//				newBaseBean4.setAmount(giftVO.getAmount4());
+//				newBaseBean4.setProductId(giftVO.getGiftProductId4());
+//				newBaseBean4.setProductName(giftVO.getGiftProductName4());
+//				newBaseBean4.setPrice(0);
+//				newBaseBean4.setValue(0);
+//				newBaseBean4.setProfit(0);
+//				newBaseBean4.setProfitRatio(0);
+//				newBaseBean4.setOutId(newOutId);
+//
+//				baseDAO.saveEntityBean(newBaseBean4);
+//                createdFlag = true;
+//                _logger.info("***create extra base bean for gift4***"+newBaseBean4);
+//			}
 
 			if (createdFlag){
                 outDAO.saveEntityBean(newOutBean);
