@@ -85,17 +85,19 @@ function amountChange(){
 function computePrice()
 {
     var formData = $("#formEntry").serialize();
-   console.log("formData***"+formData);
+   // console.log("formData***"+formData);
     $.ajax({
         type: "POST",
         url: '../product/product.do?method=computePrice',
         data: formData, // serializes the form's elements.
         success: function(data)
         {
-//            alert(data);
-           console.log(data);
+           // console.log(data);
             var jsonData = JSON.parse(data);
-            $O('price').innerHTML = "合成价格:"+jsonData.msg.price;
+            // console.log(jsonData);
+            $O('price').innerHTML = "<font color=red>"+
+                "    最近零售价:"+jsonData.msg.retailPrice+" 合成价格:"+jsonData.msg.price+"  毛利率:"+jsonData.msg.grossProfit
+                +"%</font>";
         }
     });
 }

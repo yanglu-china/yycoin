@@ -125,6 +125,15 @@ public class ComposeProductBean implements Serializable, ComposeInterface
     private String dirTargerName = "";
 
     /**
+     * #968
+     */
+    @Ignore
+    private double retailPrice = 0.0d;
+
+    @Ignore
+    private double grossProfit;
+
+    /**
      * default constructor
      */
     public ComposeProductBean()
@@ -547,6 +556,22 @@ public class ComposeProductBean implements Serializable, ComposeInterface
 
     public void setSn(String sn) {
         this.sn = sn;
+    }
+
+    public double getRetailPrice() {
+        return retailPrice;
+    }
+
+    public void setRetailPrice(double retailPrice) {
+        this.retailPrice = retailPrice;
+    }
+
+    public double getGrossProfit() {
+        return grossProfit;
+    }
+
+    public void setGrossProfit(double grossProfit) {
+        this.grossProfit = grossProfit;
     }
 
     /**
