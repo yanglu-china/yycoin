@@ -28,21 +28,6 @@ function pagePrint()
 }
 
 </script>
-<style type="text/css">
-.border_table {
-	border:1px solid black;
-	border-collapse:collapse;
-}
-
-.border_cell {
-    border:1px solid black;
-    border-collapse:collapse;
-	cellspacing: 0px;
-	cellpadding: 0px;
-}
-
-
-</style>
 </head>
 <body>
 <input type="hidden" name="pickupId" value="${bean.pickupId}">

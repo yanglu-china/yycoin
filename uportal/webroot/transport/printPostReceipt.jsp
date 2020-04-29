@@ -108,72 +108,72 @@ function callBackPrintFun()
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td width="8%"><table class="border1"><tr><td align="center">发货日期</td></tr></table></td>
-						<td width="20%"><table class="border1"><tr><td align="center">品名</td></tr></table></td>
-						<td width="5%"><table class="border1"><tr><td align="center">数量</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">结算单价</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">金额</td></tr></table></td>
-						<td width="15%"><table class="border1"><tr><td align="center">对应销售单号</td></tr></table></td>
-						<td width="20%"><table class="border1"><tr><td align="center">配件</td></tr></table></td>
-						<td width="16%"><table class="border1"><tr><td align="center">备注</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">发货日期</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">品名</td></tr></table></td>
+						<td width="5%" class="border_cell"><table><tr><td align="center">数量</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">结算单价</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">金额</td></tr></table></td>
+						<td width="15%" class="border_cell"><table><tr><td align="center">对应销售单号</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">配件</td></tr></table></td>
+						<td width="16%" class="border_cell"><table><tr><td align="center">备注</td></tr></table></td>
 					</tr>
 					
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
-						<td><table class="border1"><tr><td>${bean.repTime}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.productName}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.price}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.value}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.outId}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.showSubProductName}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.description}${item.printText}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${bean.repTime}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.productName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.amount}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.price}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.value}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.outId}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.showSubProductName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.description}${item.printText}</td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
 					<c:forEach varStatus="vs" begin="1" end="${(2 - my:length(bean.itemList)) > 0 ? (2 - my:length(bean.itemList)) : 0}">
 					<tr class="content2">
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 					<tr class="content2">
-						<td colspan="2"><table class="border1"><tr><td align="center">合计(人民币):</td></tr></table></td>
-						<td colspan="3"><table class="border1"><tr><td align="center">${total}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td colspan="2" class="border_cell"><table><tr><td align="center">合计(人民币):</td></tr></table></td>
+						<td colspan="3" class="border_cell"><table><tr><td align="center">${total}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="8"><table class="border1"><tr><td align="center">货物签收信息</td></tr></table></td>
+						<td colspan="8" class="border_cell"><table><tr><td align="center">货物签收信息</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="4" align="left"><table class="border1"><tr><td align="center">以上货物全部收到并确认无误！   </td></tr></table></td>
-						<td colspan="4" align="left"><table class="border1"><tr><td align="center">日期：</td></tr></table></td>
+						<td colspan="4" align="left" class="border_cell"><table><tr><td align="center">以上货物全部收到并确认无误！   </td></tr></table></td>
+						<td colspan="4" align="left" class="border_cell"><table><tr><td align="center">日期：</td></tr></table></td>
 					</tr>
 					<tr>
-						<td height="15" colspan="8"><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td height="15" colspan="8" class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="8" align="left"><table class="border1"><tr><td align="center">回函地址：南京市秦淮区应天大街388号1865创意园c2栋   邮编：210006    </td></tr></table></td>
+						<td colspan="8" align="left" class="border_cell"><table><tr><td align="center">回函地址：南京市秦淮区应天大街388号1865创意园c2栋   邮编：210006    </td></tr></table></td>
 					</tr>
 					<tr>
-						<td height="15" colspan="8"><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td height="15" colspan="8" class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>					
 					<tr class="content2">
-						<td colspan="4" align="left"><table class="border1"><tr><td align="center">传真请直接回传至：025-51885923   </td></tr></table></td>
-						<td colspan="4" align="left"><table class="border1"><tr><td align="center">联系电话：4006518859</td></tr></table></td>
+						<td colspan="4" align="left" class="border_cell"><table><tr><td align="center">传真请直接回传至：025-51885923   </td></tr></table></td>
+						<td colspan="4" align="left" class="border_cell"><table><tr><td align="center">联系电话：4006518859</td></tr></table></td>
 					</tr>
 					<tr>
-						<td height="15" colspan="8"><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td height="15" colspan="8" class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 				</table>
 				</td>

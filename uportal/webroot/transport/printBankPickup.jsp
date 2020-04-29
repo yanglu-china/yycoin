@@ -83,13 +83,13 @@ function pagePrint()
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td colspan="2"><table class="border1"><tr><td>批次编号：${bean.pickupId}</td></tr></table></td>
-						<td colspan="2"><table class="border1"><tr><td>制单时间：${year} / ${month} / ${day}</td></tr></table></td>
+						<td colspan="2" class="border_cell"><table><tr><td>批次编号：${bean.pickupId}</td></tr></table></td>
+						<td colspan="2" class="border_cell"><table><tr><td>制单时间：${year} / ${month} / ${day}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="4"><table class="border1"><tr><td>对应客户出库单号：1 - ${pickupCount}</td></tr></table></td>
+						<td colspan="4" class="border_cell"><table><tr><td>对应客户出库单号：1 - ${pickupCount}</td></tr></table></td>
 					</tr>
 					
 				</table>
@@ -98,45 +98,45 @@ function pagePrint()
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border2">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td width="10%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
-						<td width="30%"><table class="border1"><tr><td align="center">品名</td></tr></table></td>
-						<td width="52%"><table class="border1"><tr><td align="center">配件名</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">发货数量</td></tr></table></td>
+						<td width="10%" class="border_cell"><table><tr><td align="center">序号</td></tr></table></td>
+						<td width="30%" class="border_cell"><table><tr><td align="center">品名</td></tr></table></td>
+						<td width="52%" class="border_cell"><table><tr><td align="center">配件名</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">发货数量</td></tr></table></td>
 					</tr>
 
                     <c:forEach var="entry" items="${map}">
                         <tr class="content2">
-                            <td width="10%"><table class="border1"><tr><td align="center">${entry.key}</td></tr></table></td>
-                            <td width="30%"><table class="border1"><tr><td align="center"></td></tr></table></td>
-                            <td width="52%"><table class="border1"><tr><td align="center"></td></tr></table></td>
-                            <td width="8%"><table class="border1"><tr><td align="center"></td></tr></table></td>
-                            <%--<td><table class="border1"><tr><td align="center">${entry.key}</td></tr></table></td>--%>
-                            <%--<td><table class="border1"><tr><td></td></tr></table></td>--%>
-                            <%--<td><table class="border1"><tr><td></td></tr></table></td>--%>
-                            <%--<td><table class="border1"><tr><td align="center"></td></tr></table></td>--%>
+                            <td width="10%" class="border_cell"><table><tr><td align="center">${entry.key}</td></tr></table></td>
+                            <td width="30%" class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                            <td width="52%" class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                            <td width="8%" class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                            <%--<td><table><tr><td align="center">${entry.key}</td></tr></table></td>--%>
+                            <%--<td><table><tr><td></td></tr></table></td>--%>
+                            <%--<td><table><tr><td></td></tr></table></td>--%>
+                            <%--<td><table><tr><td align="center"></td></tr></table></td>--%>
                         </tr>
                         <c:forEach var="item" items="${entry.value}" varStatus="vs">
                             <tr class="content2">
-                                <td width="10%"><table class="border1"><tr><td align="center">${vs.index + 1}</td></tr></table></td>
-                                <td width="30%"><table class="border1"><tr><td align="center">${item.productName}</td></tr></table></td>
-                                <td width="52%"><table class="border1"><tr><td align="center">${item.showSubProductName}</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-                                <%--<td><table class="border1"><tr><td align="center">${vs.index + 1}</td></tr></table></td>--%>
-                                <%--<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>--%>
-                                <%--<td><table class="border1"><tr><td>${item.showSubProductName}</td></tr></table></td>--%>
-                                <%--<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>--%>
+                                <td width="10%" class="border_cell"><table><tr><td align="center">${vs.index + 1}</td></tr></table></td>
+                                <td width="30%" class="border_cell"><table><tr><td align="center">${item.productName}</td></tr></table></td>
+                                <td width="52%" class="border_cell"><table><tr><td align="center">${item.showSubProductName}</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">${item.amount}</td></tr></table></td>
+                                <%--<td><table><tr><td align="center">${vs.index + 1}</td></tr></table></td>--%>
+                                <%--<td><table><tr><td>${item.productName}</td></tr></table></td>--%>
+                                <%--<td><table><tr><td>${item.showSubProductName}</td></tr></table></td>--%>
+                                <%--<td><table><tr><td align="center">${item.amount}</td></tr></table></td>--%>
                             </tr>
                         </c:forEach>
                     </c:forEach>
 
 					<c:forEach varStatus="vs" begin="1" end="${(4 - my:length(baseList)) > 0 ? (4 - my:length(baseList)) : 0}">
 					<tr class="content2">
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 

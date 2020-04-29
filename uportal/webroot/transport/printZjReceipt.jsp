@@ -127,38 +127,38 @@
 
                 <tr>
                     <td>
-                        <table width="100%" cellspacing='0' cellpadding="0"  class="border">
+                        <table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
                             <tr class="content2">
-                                <td width="20%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">贵金属含量</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">规格</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">数量(条)</td></tr></table></td>
-                                <td width="20%"><table class="border1"><tr><td align="center">总重量(克)</td></tr></table></td>
-                                <td width="10%"><table class="border1"><tr><td align="center">实物号码</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">备注</td></tr></table></td>
+                                <td width="20%" class="border_cell"><table><tr><td align="center">产品名称</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">贵金属含量</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">规格</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">数量(条)</td></tr></table></td>
+                                <td width="20%" class="border_cell"><table><tr><td align="center">总重量(克)</td></tr></table></td>
+                                <td width="10%" class="border_cell"><table><tr><td align="center">实物号码</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">备注</td></tr></table></td>
                             </tr>
 
                             <c:forEach items="${bean.itemList}" var="item" varStatus="vs">
                                 <tr class="content2">
-                                    <td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.materiaType}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.productWeight}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td>${item.amount}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td>${item.productWeight}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td>${item.productCode}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td>${item.description}${item.printText}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td>${item.productName}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.materiaType}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.productWeight}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td>${item.amount}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td>${item.productWeight}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td>${item.productCode}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td>${item.description}${item.printText}</td></tr></table></td>
                                 </tr>
                             </c:forEach>
 
                             <c:forEach varStatus="vs" begin="1" end="${(2 - my:length(vo.itemList)) > 0 ? (2 - my:length(vo.itemList)) : 0}">
                                 <tr class="content2">
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
                                 </tr>
                             </c:forEach>
                         </table>

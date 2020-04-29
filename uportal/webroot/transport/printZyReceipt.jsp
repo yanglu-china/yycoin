@@ -108,52 +108,52 @@
             <table width="100%" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                     <td>
-                        <table width="100%" cellspacing='0' cellpadding="0"  class="border">
+                        <table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
                             <tr class="content2">
-                                <td width="10%"><table class="border1"><tr><td align="center">企业代码</td></tr></table></td>
-                                <td width="10%"><table class="border1"><tr><td align="center">产品代码</td></tr></table></td>
-                                <td width="10%"><table class="border1"><tr><td align="center">规格代码</td></tr></table></td>
-                                <td width="30%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
-                                <td width="10%"><table class="border1"><tr><td align="center">数量(套)</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">订单类型</td></tr></table></td>
-                                <td width="10%"><table class="border1"><tr><td align="center">顾客姓名</td></tr></table></td>
-                                <td width="12%"><table class="border1"><tr><td align="center">客户备注</td></tr></table></td>
+                                <td width="10%" class="border_cell"><table><tr><td align="center">企业代码</td></tr></table></td>
+                                <td width="10%" class="border_cell"><table><tr><td align="center">产品代码</td></tr></table></td>
+                                <td width="10%" class="border_cell"><table><tr><td align="center">规格代码</td></tr></table></td>
+                                <td width="30%" class="border_cell"><table><tr><td align="center">产品名称</td></tr></table></td>
+                                <td width="10%" class="border_cell"><table><tr><td align="center">数量(套)</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">订单类型</td></tr></table></td>
+                                <td width="10%" class="border_cell"><table><tr><td align="center">顾客姓名</td></tr></table></td>
+                                <td width="12%" class="border_cell"><table><tr><td align="center">客户备注</td></tr></table></td>
                             </tr>
 
                             <c:forEach items="${entry.value}" var="item" varStatus="vs">
                                 <tr class="content2">
-                                    <td><table class="border1"><tr><td align="center">102</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">01</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.productName}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.itemType}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.customerName}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.customerDescription}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">102</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.productCode}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">01</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.productName}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.amount}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.itemType}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.customerName}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.customerDescription}</td></tr></table></td>
                                 </tr>
                             </c:forEach>
 
                             <c:forEach varStatus="vs" begin="1" end="${(2 - my:length(vo.itemList)) > 0 ? (2 - my:length(vo.itemList)) : 0}">
                                 <tr class="content2">
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
                                 </tr>
                             </c:forEach>
                             <tr class="content2">
-                                <td><table class="border1"><tr><td align="center">合计:</td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center">${total}</td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                                <td class="border_cell"><table><tr><td align="center">合计:</td></tr></table></td>
+                                <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                <td class="border_cell"><table><tr><td align="center">${total}</td></tr></table></td>
+                                <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
                             </tr>
                         </table>
                     </td>
