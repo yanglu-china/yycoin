@@ -139,51 +139,51 @@ function callBackPrintFun()
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td width="20%"><table class="border1"><tr><td align="center">产品</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">数量</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">商品性质</td></tr></table></td>
-						<td width="20%"><table class="border1"><tr><td align="center">银行单号</td></tr></table></td>
-						<td width="10%"><table class="border1"><tr><td align="center">销售时间</td></tr></table></td>
-                        <td width="8%"><table class="border1"><tr><td align="center">客户姓名</td></tr></table></td>
-						<td width="26%"><table class="border1"><tr><td align="center">备注</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">产品</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">数量</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">商品性质</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">银行单号</td></tr></table></td>
+						<td width="10%" class="border_cell"><table><tr><td align="center">销售时间</td></tr></table></td>
+                        <td width="8%" class="border_cell"><table><tr><td align="center">客户姓名</td></tr></table></td>
+						<td width="26%" class="border_cell"><table><tr><td align="center">备注</td></tr></table></td>
 					</tr>
 					
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
-						<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.itemType}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.refId}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.poDate}</td></tr></table></td>
-                        <td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.description}${item.printText}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.productName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.amount}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.itemType}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.refId}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.poDate}</td></tr></table></td>
+                        <td class="border_cell"><table><tr><td>${item.customerName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.description}${item.printText}</td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
 					<c:forEach varStatus="vs" begin="1" end="${(2 - my:length(vo.itemList)) > 0 ? (2 - my:length(vo.itemList)) : 0}">
 					<tr class="content2">
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                        <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 					<tr class="content2">
-						<td colspan="2"><table class="border1"><tr><td align="center">合计:</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${total}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">-</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td colspan="2" class="border_cell"><table><tr><td align="center">合计:</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${total}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">-</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                        <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="7">
-                            <table class="border1"><tr><td align="center">注："此收货回执单仅做为收货确认所用"</td></tr></table>
+						<td colspan="7" class="border_cell">
+                            <table><tr><td align="center">注："此收货回执单仅做为收货确认所用"</td></tr></table>
                         </td>
 					</tr>
 				</table>

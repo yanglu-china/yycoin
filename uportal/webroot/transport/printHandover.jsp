@@ -124,13 +124,13 @@
 
                 <tr>
                     <td>
-                        <table width="100%" cellspacing='0' cellpadding="0"  class="border">
+                        <table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
                             <tr class="content2">
-                                <td colspan="4"><table class="border1"><tr><td>货物总箱数：1</td></tr></table></td>
+                                <td colspan="4" class="border_cell"><table><tr><td>货物总箱数：1</td></tr></table></td>
                             </tr>
                             <tr class="content2">
-                                <td colspan="4">
-                                    <table class="border1">
+                                <td colspan="4" class="border_cell">
+                                    <table>
                                         <tr>
                                             <td>封条号及清单：<br>
                                                 <c:forEach items="${bean.itemList}" var="item" varStatus="vs">
@@ -145,12 +145,12 @@
                             </tr>
 
                             <tr class="content2">
-                                <td colspan="2" style="height: 120px"><table class="border1"><tr><td>出货方：<br><p align="center">盖章</p><br><br><br><p>经办员：乔纯维</p>${year} 年 ${month} 月 ${day} 日</td></tr></table></td>
-                                <td colspan="2" style="height: 120px"><table class="border1"><tr><td>承运方：<br><p align="center"></p><br><br><br><p>经办员：</p>&nbsp;&nbsp;&nbsp;&nbsp; 年 &nbsp;&nbsp;&nbsp;&nbsp; 月 &nbsp;&nbsp;&nbsp;&nbsp; 日</td></tr></table></td>
+                                <td colspan="2" style="height: 120px" class="border_cell"><table><tr><td>出货方：<br><p align="center">盖章</p><br><br><br><p>经办员：乔纯维</p>${year} 年 ${month} 月 ${day} 日</td></tr></table></td>
+                                <td colspan="2" style="height: 120px" class="border_cell"><table><tr><td>承运方：<br><p align="center"></p><br><br><br><p>经办员：</p>&nbsp;&nbsp;&nbsp;&nbsp; 年 &nbsp;&nbsp;&nbsp;&nbsp; 月 &nbsp;&nbsp;&nbsp;&nbsp; 日</td></tr></table></td>
                             </tr>
                             <tr class="content2">
-                                <td colspan="2" style="height: 120px"><table class="border1"><tr><td>收货方：<br><p align="center">盖章</p><br><br><p>经办员：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;复核员：</p>&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日</td></tr></table></td>
-                                <td colspan="2" style="height: 120px"><table class="border1"><tr><td></td></tr></table></td>
+                                <td colspan="2" style="height: 120px" class="border_cell"><table><tr><td>收货方：<br><p align="center">盖章</p><br><br><p>经办员：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;复核员：</p>&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日</td></tr></table></td>
+                                <td colspan="2" style="height: 120px" class="border_cell"><table><tr><td></td></tr></table></td>
                             </tr>
                         </table>
                     </td>

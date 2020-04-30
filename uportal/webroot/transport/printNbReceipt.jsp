@@ -108,44 +108,44 @@
             <table width="100%" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                     <td>
-                        <table width="100%" cellspacing='0' cellpadding="0"  class="border">
+                        <table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
                             <tr class="content2">
-                                <td width="4%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">产品编码</td></tr></table></td>
-                                <td width="30%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
-                                <td width="10%"><table class="border1"><tr><td align="center">材质成色</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">单件重量</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">数量(实物)</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">数量(包装)</td></tr></table></td>
-                                <td width="8%"><table class="border1"><tr><td align="center">数量(证书)</td></tr></table></td>
-                                <td width="16%"><table class="border1"><tr><td align="center">备注</td></tr></table></td>
+                                <td width="4%" class="border_cell"><table><tr><td align="center">序号</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">产品编码</td></tr></table></td>
+                                <td width="30%" class="border_cell"><table><tr><td align="center">产品名称</td></tr></table></td>
+                                <td width="10%" class="border_cell"><table><tr><td align="center">材质成色</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">单件重量</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">数量(实物)</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">数量(包装)</td></tr></table></td>
+                                <td width="8%" class="border_cell"><table><tr><td align="center">数量(证书)</td></tr></table></td>
+                                <td width="16%" class="border_cell"><table><tr><td align="center">备注</td></tr></table></td>
                             </tr>
 
                             <c:forEach items="${bean.itemList}" var="item" varStatus="vs">
                                 <tr class="content2">
-                                    <td><table class="border1"><tr><td align="center">${vs.index+1}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.productName}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.materiaType}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.productWeight}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.productAmount}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.packageAmount}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.certificateAmount}</td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center">${item.description}${item.printText}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${vs.index+1}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.productCode}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.productName}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.materiaType}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.productWeight}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.productAmount}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.packageAmount}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.certificateAmount}</td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center">${item.description}${item.printText}</td></tr></table></td>
                                 </tr>
                             </c:forEach>
 
                             <c:forEach varStatus="vs" begin="1" end="${(2 - my:length(vo.itemList)) > 0 ? (2 - my:length(vo.itemList)) : 0}">
                                 <tr class="content2">
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-                                    <td><table class="border1"><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+                                    <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
                                 </tr>
                             </c:forEach>
                         </table>
@@ -172,10 +172,10 @@
 
                 <tr>
                     <td>
-                        <table width="100%" cellspacing='0' cellpadding="0"  class="border">
+                        <table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
                             <tr class="content2">
-                                <td width="8%" rowspan="3">
-                                    <table class="border1">
+                                <td width="8%" rowspan="3"  class="border_cell">
+                                    <table>
                                         <tr class="content2">
                                             <td colspan="3" width="50%"><table><tr><td>贵行如有问题请在此处注明：</td></tr></table></td>
                                             <td width="50%"><table><tr><td></td></tr></table></td>

@@ -3584,12 +3584,10 @@ public class OutAction extends ParentOutAction
                     {
                     	_logger.debug("1 ref.getStatus():"+ref.getStatus()+", ref.getFullId():"+ref.getFullId()+", equals 2:"+("2".equals(ref.getStatus())));
                     	//#934
-                    	/*
                     	if(ref.getStatus()==2){
                     		//过滤驳回的退单
                     		continue;
                     	}
-                    	*/
                         List<BaseBean> refBaseList = ref.getBaseList();
 
                         for (BaseBean refBase : refBaseList)
@@ -3614,12 +3612,10 @@ public class OutAction extends ParentOutAction
                     {
                     	_logger.debug("2 ref.getStatus():"+ref.getStatus()+", ref.getFullId():"+ref.getFullId());
                     	//#934
-                    	/*
                     	if(ref.getStatus()==2){
                     		//过滤驳回的退单
                     		continue;
                     	}
-                    	*/
                     	
                         String description = ref.getDescription();
                         if(StringTools.isNullOrNone(description)){

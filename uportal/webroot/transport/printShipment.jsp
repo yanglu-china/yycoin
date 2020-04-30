@@ -110,18 +110,18 @@ function callBackPrintFun()
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td colspan="2"><table class="border1"><tr><td>编号：${bean.pickupId}--${bean.index_pos} / ${bean.id}</td></tr></table></td>
-						<td colspan="2"><table class="border1"><tr><td>发货公司：${bean.transportName1}&nbsp;${bean.transportName2}</td></tr></table></td>
+						<td colspan="2" class="border_cell"><table><tr><td>编号：${bean.pickupId}--${bean.index_pos} / ${bean.id}</td></tr></table></td>
+						<td colspan="2" class="border_cell"><table><tr><td>发货公司：${bean.transportName1}&nbsp;${bean.transportName2}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
-						<td colspan="2"><table class="border1"><tr><td>收货人：${bean.receiver}</td></tr></table></td>
-						<td colspan="2"><table class="border1"><tr><td>收货人电话：${bean.mobile}</td></tr></table></td>
+						<td colspan="2" class="border_cell"><table><tr><td>收货人：${bean.receiver}</td></tr></table></td>
+						<td colspan="2" class="border_cell"><table><tr><td>收货人电话：${bean.mobile}</td></tr></table></td>
 					</tr>
 					
 					<tr class="content2">
-						<td colspan="4"><table class="border1"><tr><td>送货地址：${bean.address}</td></tr></table></td>
+						<td colspan="4" class="border_cell"><table><tr><td>送货地址：${bean.address}</td></tr></table></td>
 					</tr>
 				</table>
 				</td>
@@ -129,32 +129,32 @@ function callBackPrintFun()
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border2">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td width="8%"><table class="border1"><tr><td align="center">序号</td></tr></table></td>
-						<td width="30%"><table class="border1"><tr><td align="center">品名</td></tr></table></td>
-						<td width="15%"><table class="border1"><tr><td align="center">发货数量</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">单位</td></tr></table></td>
-						<td width="20%"><table class="border1"><tr><td align="center">备注</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">序号</td></tr></table></td>
+						<td width="30%" class="border_cell"><table><tr><td align="center">品名</td></tr></table></td>
+						<td width="15%" class="border_cell"><table><tr><td align="center">发货数量</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">单位</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">备注</td></tr></table></td>
 					</tr>
 					
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
-						<td><table class="border1"><tr><td align="center">${vs.index + 1}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">套</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.description}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${vs.index + 1}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.productName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.amount}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">套</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.description}</td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
 					<c:forEach varStatus="vs" begin="1" end="${(2 - my:length(bean.itemList)) > 0 ? (4 - my:length(bean.itemList)) : 0}">
 					<tr class="content2">
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 				</table>

@@ -146,38 +146,38 @@ function callBackPrintFun()
 			
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td width="20%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
-                        <td width="8%"><table class="border1"><tr><td align="center">代码</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">数量</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">订单性质</td></tr></table></td>
-						<td width="20%"><table class="border1"><tr><td align="center">客户单号</td></tr></table></td>
-						<td width="10%"><table class="border1"><tr><td align="center">订单日期</td></tr></table></td>
-                        <td width="8%"><table class="border1"><tr><td align="center">提金机构</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">产品名称</td></tr></table></td>
+                        <td width="8%" class="border_cell"><table><tr><td align="center">代码</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">数量</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">订单性质</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">客户单号</td></tr></table></td>
+						<td width="10%" class="border_cell"><table><tr><td align="center">订单日期</td></tr></table></td>
+                        <td width="8%" class="border_cell"><table><tr><td align="center">提金机构</td></tr></table></td>
 					</tr>
 					
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
-						<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.itemType}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.refId}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.poDate}</td></tr></table></td>
-                        <td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.productName}</td></tr></table></td>
+                        <td class="border_cell"><table><tr><td align="center">${item.productCode}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.amount}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.itemType}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.refId}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.poDate}</td></tr></table></td>
+                        <td class="border_cell"><table><tr><td>${item.customerName}</td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
 					<c:forEach varStatus="vs" begin="1" end="${(2 - my:length(vo.itemList)) > 0 ? (2 - my:length(vo.itemList)) : 0}">
 					<tr class="content2">
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td></td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td></td></tr></table></td>
+                        <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 				</table>

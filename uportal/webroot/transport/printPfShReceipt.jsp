@@ -109,62 +109,62 @@ function callBackPrintFun()
 		<table width="100%" border="0" cellpadding="0" cellspacing="0">
 			<tr>
 				<td>
-				<table width="100%" cellspacing='0' cellpadding="0"  class="border">
+				<table width="100%" cellspacing='0' cellpadding="0"  class="border_table">
 					<tr class="content2">
-						<td width="8%"><table class="border1"><tr><td align="center">交易日期</td></tr></table></td>
-						<td width="20%"><table class="border1"><tr><td align="center">交易机构</td></tr></table></td>
-						<td width="20%"><table class="border1"><tr><td align="center">配货机构</td></tr></table></td>
-                        <td width="8%"><table class="border1"><tr><td align="center">产品代码</td></tr></table></td>
-						<td width="20%"><table class="border1"><tr><td align="center">产品名称</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">零售价</td></tr></table></td>
-						<td width="4%"><table class="border1"><tr><td align="center">数量</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">快递公司</td></tr></table></td>
-						<td width="8%"><table class="border1"><tr><td align="center">快递单号</td></tr></table></td>
-						<td width="20%"><table class="border1"><tr><td align="center">发票号</td></tr></table></td>
-                        <td width="8%"><table class="border1"><tr><td align="center">证书号</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">交易日期</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">交易机构</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">配货机构</td></tr></table></td>
+                        <td width="8%" class="border_cell"><table><tr><td align="center">产品代码</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">产品名称</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">零售价</td></tr></table></td>
+						<td width="4%" class="border_cell"><table><tr><td align="center">数量</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">快递公司</td></tr></table></td>
+						<td width="8%" class="border_cell"><table><tr><td align="center">快递单号</td></tr></table></td>
+						<td width="20%" class="border_cell"><table><tr><td align="center">发票号</td></tr></table></td>
+                        <td width="8%" class="border_cell"><table><tr><td align="center">证书号</td></tr></table></td>
 					</tr>
 					
 					<c:forEach items="${bean.itemList}" var="item" varStatus="vs">
 					<tr class="content2">
-						<td><table class="border1"><tr><td>${item.poDate}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.customerName}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${item.comunicatonBranchName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.poDate}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.customerName}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.comunicatonBranchName}</td></tr></table></td>
 						<c:if test="${item.outType == 99}">
-							<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-							<td><table class="border1"><tr><td></td></tr></table></td>
+							<td><table><tr><td align="center"></td></tr></table></td>
+							<td><table><tr><td></td></tr></table></td>
 						</c:if>
 						<c:if test="${item.outType != 99}">
-							<td><table class="border1"><tr><td align="center">${item.productCode}</td></tr></table></td>
-							<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
+							<td><table><tr><td align="center">${item.productCode}</td></tr></table></td>
+							<td><table><tr><td>${item.productName}</td></tr></table></td>
 						</c:if>
-						<td><table class="border1"><tr><td>${item.price}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${bean.transportName1}</td></tr></table></td>
-						<td><table class="border1"><tr><td>${bean.transportNo}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${item.price}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center">${item.amount}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${bean.transportName1}</td></tr></table></td>
+						<td class="border_cell"><table><tr><td>${bean.transportNo}</td></tr></table></td>
 						<c:if test="${item.outType == 99}">
-							<td><table class="border1"><tr><td>${item.productName}</td></tr></table></td>
+							<td class="border_cell"><table><tr><td>${item.productName}</td></tr></table></td>
 						</c:if>
 						<c:if test="${item.outType != 99}">
-							<td><table class="border1"><tr><td></td></tr></table></td>
+							<td class="border_cell"><table><tr><td></td></tr></table></td>
 						</c:if>
-						<td><table class="border1"><tr><td></td></tr></table></td>
+						<td class="border_cell"><table><tr><td></td></tr></table></td>
 
 					</tr>
 					</c:forEach>
 					
 					<c:forEach varStatus="vs" begin="1" end="${(2 - my:length(vo.itemList)) > 0 ? (2 - my:length(vo.itemList)) : 0}">
 					<tr class="content2">
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td></td></tr></table></td>
-                        <td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
-						<td><table class="border1"><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td></td></tr></table></td>
+                        <td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
+						<td class="border_cell"><table><tr><td align="center"></td></tr></table></td>
 					</tr>
 					</c:forEach>
 				</table>
