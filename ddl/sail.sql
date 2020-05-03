@@ -83,3 +83,4 @@ alter table T_CENTER_VS_GIFT add column mzje decimal(10,2) default 0,add column 
 
 alter table t_center_out_import add column price2 double(10,2) default 0;
 alter table t_center_base add column price2 double(10,2) default 0;
+alter table T_CENTER_OLBASE add column price2 double(10,2) default 0;

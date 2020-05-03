@@ -4107,6 +4107,8 @@ public class OutImportManagerImpl implements OutImportManager
 						baseBean.setUnit("套");
 						baseBean.setAmount(olBaseBean.getAmount());
 						baseBean.setPrice(olBaseBean.getPrice());
+						baseBean.setPrice2(olBaseBean.getPrice2());
+
 //						baseBean.setValue(olBaseBean.getAmount() * olBaseBean.getPrice());
 
                         //#575
@@ -4708,6 +4710,13 @@ public void offlineStorageInJob() {
 						OutBean outBean = new OutBean();
 						outBean.setType(OutConstant.OUT_TYPE_INBILL);
 						outBean.setOutType(Integer.valueOf(item.getType()));
+
+						//#969
+						if (outBean.getOutType() == OutConstant.OUTTYPE_IN_MOVEOUT && amount >0){
+							_logger.error("DB amount should be <0 "+outId);
+							this.updateDescription(item,item.getDescription()+"_ERROR_"+"调拨单数量应该是负数");
+							continue;
+						}
 
 						String id = getAll(commonDAO.getSquence());
 						String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
