@@ -123,7 +123,9 @@ function getProductBom(oos)
         setInputValueInTr(trow, 'attritionRate', item.attritionRate);
         setInputValueInTr(trow, 'virtualPrice', item.virtualPrice);
         var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
-        setSelect(srcDe1, "A1201606211663545389");
+        //#966 与合成产品源仓区一致
+        var dirDepotpart = document.querySelector('[name="dirDepotpart"]');
+        setSelect(srcDe1, dirDepotpart.value);
     }
 }
 
