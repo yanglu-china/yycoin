@@ -5009,12 +5009,20 @@ public class TravelApplyAction extends DispatchAction
                 vo.setShareVOList(shareList.subList(0,1));
             }
 
-            //#932
+            //#932,#948
+            /*
             if(stafferToShareMap.values().size()>0){
                 List<TcpShareVO> tcpShareVOList = new ArrayList<TcpShareVO>();
                 tcpShareVOList.addAll(stafferToShareMap.values());
                 vo.setShareVOList(tcpShareVOList);
                 _logger.debug("setShareVOList, tcpShareVOList.size(): "+tcpShareVOList.size());
+            }
+            */
+            //add one empty item
+            if(vo.getShareVOList()==null || vo.getShareVOList().size() == 0){
+            	List<TcpShareVO> tcpShareVOList = new ArrayList<TcpShareVO>();
+            	tcpShareVOList.addAll(new TcpShareVO());
+            	vo.setShareVOList(tcpShareVOList);
             }
 
             double end = System.currentTimeMillis();
