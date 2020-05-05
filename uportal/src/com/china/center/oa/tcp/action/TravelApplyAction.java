@@ -5021,7 +5021,7 @@ public class TravelApplyAction extends DispatchAction
             //add one empty item
             if(vo.getShareVOList()==null || vo.getShareVOList().size() == 0){
             	List<TcpShareVO> tcpShareVOList = new ArrayList<TcpShareVO>();
-            	tcpShareVOList.addAll(new TcpShareVO());
+            	tcpShareVOList.add(new TcpShareVO());
             	vo.setShareVOList(tcpShareVOList);
             }
 
