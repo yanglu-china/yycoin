@@ -3148,6 +3148,12 @@ public class ShipAction extends DispatchAction
 
             OutInterface out = this.findOut(outId);
 
+            //#970
+            if (vo.getCustomerName().contains("邮储银行") &&
+                    out!= null && "手机渠道".equals(out.getChannel())){
+                request.setAttribute("title", "发货清单");
+            }
+
             //2015/10/13 商品性质根据销售单类型显示不同的名称：销售出库--销售，XX领样-领样，XX铺货--铺货，赠送--赠品，单号为A开头的显示 发票
             if (out!= null && out.getType() == OutConstant.OUT_TYPE_OUTBILL){
                 if (out.getOutType() == OutConstant.OUTTYPE_OUT_COMMON){

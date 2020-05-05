@@ -44,6 +44,11 @@ public class OlBaseBean implements Serializable
      */
     private double price = 0.0d;
 
+    /**
+     * #973 单价2
+     */
+    private double price2 = 0.0d;
+
 
     /**2015/04/11 中收激励功能
      * 中收金额
@@ -250,6 +255,14 @@ public class OlBaseBean implements Serializable
         this.settlePrice = settlePrice;
     }
 
+    public double getPrice2() {
+        return price2;
+    }
+
+    public void setPrice2(double price2) {
+        this.price2 = price2;
+    }
+
     @Override
     public String toString() {
         return "OlBaseBean{" +
@@ -260,18 +273,20 @@ public class OlBaseBean implements Serializable
                 ", productName='" + productName + '\'' +
                 ", amount=" + amount +
                 ", price=" + price +
+                ", price2=" + price2 +
                 ", ibMoney=" + ibMoney +
                 ", motivationMoney=" + motivationMoney +
                 ", ibMoney2=" + ibMoney2 +
                 ", motivationMoney2=" + motivationMoney2 +
                 ", platformFee=" + platformFee +
-                ", changeTime='" + changeTime + '\'' +
-                ", depot='" + depot + '\'' +
-                ", depotpart='" + depotpart + '\'' +
                 ", cash=" + cash +
                 ", cash2=" + cash2 +
                 ", grossProfit=" + grossProfit +
                 ", productImportId='" + productImportId + '\'' +
+                ", changeTime='" + changeTime + '\'' +
+                ", depot='" + depot + '\'' +
+                ", depotpart='" + depotpart + '\'' +
+                ", settlePrice=" + settlePrice +
                 '}';
     }
 
