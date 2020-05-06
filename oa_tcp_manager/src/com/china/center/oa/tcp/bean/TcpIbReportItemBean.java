@@ -44,6 +44,8 @@ public class TcpIbReportItemBean implements Serializable
 
     private String fullId = "";
 
+    private String baseId = "";
+
     private String productName = "";
 
     private String productId = "";
@@ -198,6 +200,14 @@ public class TcpIbReportItemBean implements Serializable
         this.platformFee = platformFee;
     }
 
+    public String getBaseId() {
+        return baseId;
+    }
+
+    public void setBaseId(String baseId) {
+        this.baseId = baseId;
+    }
+
     @Override
     public String toString() {
         return "TcpIbReportItemBean{" +
@@ -205,6 +215,7 @@ public class TcpIbReportItemBean implements Serializable
                 ", refId='" + refId + '\'' +
                 ", customerName='" + customerName + '\'' +
                 ", fullId='" + fullId + '\'' +
+                ", baseId='" + baseId + '\'' +
                 ", productName='" + productName + '\'' +
                 ", productId='" + productId + '\'' +
                 ", price=" + price +
