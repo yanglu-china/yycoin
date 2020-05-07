@@ -394,6 +394,24 @@ function checkBean()
                        </td>
                     </tr>
 
+					<tr class="content1">
+						<td align="right">中收标志：</td>
+						<td colspan="1">${my:get('ibMotivationFlag', bean.ibFlag)}</td>
+						<td align="right">中收申请：</td>
+						<td colspan="1">
+							<a href="../tcp/apply.do?method=findTravelApply&id=${bean.ibApplyId}">${bean.ibApplyId}</a>
+						</td>
+					</tr>
+
+					<tr class="content2">
+						<td align="right">激励标志：</td>
+						<td colspan="1">${my:get('ibMotivationFlag', bean.motivationFlag)}</td>
+						<td align="right">激励申请：</td>
+						<td colspan="1">
+							<a href="../tcp/apply.do?method=findTravelApply&id=${bean.motivationApplyId}">${bean.motivationApplyId}</a>
+						</td>
+					</tr>
+
                     <tr class="content1">
                         <td align="right">配送单号：</td>
                         <td colspan="3">
