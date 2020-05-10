@@ -2192,6 +2192,13 @@ public class ShipAction extends DispatchAction
                 if (customerName.contains("北京银行") || customerName.contains("中国银行")){
                     request.setAttribute("title", ShipConstant.YYWH+"——更换发货单");
                 }
+
+                //#975 零售事业部 的发货清单上都删掉【业务员姓名、电话】
+                String industryName = vo.getIndustryName();
+                if (industryName!= null && industryName.contains("零售事业部")){
+                    return mapping.findForward("printRetailBuReceipt");
+                }
+
                 return mapping.findForward("printUnifiedReceipt");
             }
         }
@@ -2549,6 +2556,13 @@ public class ShipAction extends DispatchAction
                 if (customerName.contains("北京银行") || customerName.contains("中国银行")){
                     request.setAttribute("title", ShipConstant.YYWH+"——更换发货单");
                 }
+
+                //#975 零售事业部 的发货清单上都删掉【业务员姓名、电话】
+                String industryName = vo.getIndustryName();
+                if (industryName!= null && industryName.contains("零售事业部")){
+                    return mapping.findForward("printRetailBuReceipt");
+                }
+
                 return mapping.findForward("printUnifiedReceipt");
             }
         }
