@@ -3438,6 +3438,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                 item.setAmount(eachitem.getAmount());
                                 item.setPrice(eachitem.getPrice());
                                 item.setMoneys(item.getAmount() * item.getPrice());
+                                //#979
+                                if (!eachb.getProductName().contains("+") &&
+                                        !NumberUtils.equals(eachb.getInvoiceMoney(), item.getMoneys(), 0.001)){
+                                    item.setMoneys(eachb.getInvoiceMoney());
+                                }
                                 item.setOutId(eachitem.getOutId());
                                 item.setBaseId(eachitem.getId());
                                 item.setProductId(eachitem.getProductId());
