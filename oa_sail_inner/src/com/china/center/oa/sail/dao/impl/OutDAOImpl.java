@@ -27,6 +27,7 @@ import com.china.center.jdbc.annosql.tools.BeanTools;
 import com.china.center.jdbc.inter.IbatisDaoSupport;
 import com.china.center.jdbc.inter.impl.BaseDAO;
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.bean.BaseBean;
@@ -1412,4 +1413,16 @@ public class OutDAOImpl extends BaseDAO<OutBean, OutVO> implements OutDAO
     	
     	this.jdbcOperation.execute(sql);
     }
+    
+    public void updateForSampleToOrderByOutId(String outId){
+    	//空发
+    	String sql = "update t_center_distribution set shipping=99 where outId='"+outId+"'";
+    	this.jdbcOperation.execute(sql);
+    	
+    	//空退空开库（仅限商务部操作）_默认仓区
+    	sql = "update t_center_base set depotpartId='"+DepotConstant.KTKK_SW_DEPOTPART_ID+"',depotpartName='"+DepotConstant.KTKK_SW_DEPOTPART_NAME+"' where outId='"+outId+"'";
+    	this.jdbcOperation.execute(sql);
+    	
+    }
+    
 }

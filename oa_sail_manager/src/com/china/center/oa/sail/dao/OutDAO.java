@@ -460,4 +460,6 @@ public interface OutDAO extends DAO<OutBean, OutVO>
     public int countPartialFetch(String stockId);
     
     public void updateStockStatus(String stockId, String status);
+    
+    public void updateForSampleToOrderByOutId(String outId);
 }

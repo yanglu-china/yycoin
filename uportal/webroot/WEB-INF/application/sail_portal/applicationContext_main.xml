@@ -26,6 +26,8 @@
 	<!--</bean>-->
 	
 	<bean name="/sail/out" class="com.china.center.oa.sail.action.OutAction"/>
+	
+	<bean name="/sail/outS2O" class="com.china.center.oa.sail.action.OutSample2OrderAction"/>
 		
 	<bean name="/sail/transport"
         class="com.china.center.oa.sail.action.ConsignAction">
