@@ -5,7 +5,7 @@ INSERT INTO `t_center_auth` (`id`, `PARENTID`, `NAME`, `type`, `LEVEL`, `bottomF
 
 delete from `t_center_oamenuitem` where id in ('1453');
 
-INSERT INTO `t_center_oamenuitem` VALUES ('1453', '批量领样转订单', '../sail/outS2O.do?method=batchSample2Order', '14', '1', '1453', '99', '');
+INSERT INTO `t_center_oamenuitem` VALUES ('1453', '批量领样转订单', '../sail/batchSample2Order.jsp', '14', '1', '1453', '99', '');
 
 
 
