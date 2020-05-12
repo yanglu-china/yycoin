@@ -77,6 +77,13 @@
              <forward name="error" path="/error.jsp" />
 		</action>
 		
+		 <action path="/sail/outS2O" parameter="method"
+			type="org.springframework.web.struts.DelegatingActionProxy"
+			validate="false">
+			<forward name="batchSample2Order" path="/sail/batchSample2Order.jsp" />
+             <forward name="error" path="/error.jsp" />
+		</action>		
+		
 		<action path="/sail/transport" parameter="method"
             type="org.springframework.web.struts.DelegatingActionProxy"
             validate="false">

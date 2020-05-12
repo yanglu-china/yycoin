@@ -62,6 +62,38 @@ public class OutSample2OrderAction  extends DispatchAction{
 	
 	protected OutSample2OrderManager outSample2OrderManager = null;
 	
+	public UserDAO getUserDAO() {
+		return userDAO;
+	}
+
+	public void setUserDAO(UserDAO userDAO) {
+		this.userDAO = userDAO;
+	}
+
+	public OutDAO getOutDAO() {
+		return outDAO;
+	}
+
+	public void setOutDAO(OutDAO outDAO) {
+		this.outDAO = outDAO;
+	}
+
+	public BaseDAO getBaseDAO() {
+		return baseDAO;
+	}
+
+	public void setBaseDAO(BaseDAO baseDAO) {
+		this.baseDAO = baseDAO;
+	}
+
+	public OutSample2OrderManager getOutSample2OrderManager() {
+		return outSample2OrderManager;
+	}
+
+	public void setOutSample2OrderManager(OutSample2OrderManager outSample2OrderManager) {
+		this.outSample2OrderManager = outSample2OrderManager;
+	}
+
 	/**
 	 * #952 领样转订单
 	 * @param mapping
@@ -116,10 +148,14 @@ public class OutSample2OrderAction  extends DispatchAction{
 
 			//转新订单号对应累计转数量
 			Map<String, Sample2OrderWrap> destId2AmountMap = new HashMap<String, Sample2OrderWrap>();
+			
+			_logger.debug("readFile...reader.hasNext():"+reader.hasNext());
 
 			while (reader.hasNext())
 			{
 				String[] obj = StringUtils.fillObj((String[])reader.next(), totalColumns);
+
+				_logger.debug("obj.length: "+obj.length+", reader.getCurrentLineNumber(): "+reader.getCurrentLineNumber());
 
 				// 第一行忽略
 				if (reader.getCurrentLineNumber() == 1)
@@ -129,9 +165,10 @@ public class OutSample2OrderAction  extends DispatchAction{
 
 				int currentNumber = reader.getCurrentLineNumber();
 
-				for(int i=0;i<totalColumns;i++){
-					if (StringTools.isNullOrNone(obj[i]))
-					{
+				for(int i=0;i<totalColumns;i++) {
+					//_logger.debug("StringTools.isNullOrNone(obj[i]): "+StringTools.isNullOrNone(obj[i])+", obj[i]: "+obj[i]);
+					
+					if (StringTools.isNullOrNone(obj[i])) {
 						builder
 								.append("第[" + currentNumber + "]行数据不完整。")
 								.append("<br>");
@@ -148,10 +185,34 @@ public class OutSample2OrderAction  extends DispatchAction{
 					String type = obj[0].trim();
 					bean.setTypeName(type);
 
+					_logger.debug("type: "+type);
+
 					//领样单号
 				    String outId = obj[1].trim();
 				    bean.setSampleId(outId);
 					OutBean out = this.outDAO.find(outId);
+
+					if (out == null){
+						builder
+								.append("第[" + currentNumber + "]行错误:")
+								.append("领样单号不存在:"+outId)
+								.append("<br>");
+
+						importError = true;
+						continue;
+					} else{
+						int status = out.getStatus();
+						if(status != OutConstant.STATUS_SEC_PASS){
+							builder
+									.append("第[" + currentNumber + "]行错误:")
+									.append("只有已发货的订单可以操作")
+									.append("<br>");
+
+							importError = true;
+							continue;
+						}
+					}
+					
 					List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition("where outId = ?", outId);
 
 					out.setBaseList(baseBeans);
@@ -164,35 +225,17 @@ public class OutSample2OrderAction  extends DispatchAction{
 						totalCount+= baseBean.getAmount();
 					}
 
-					if (out == null){
-						builder
-								.append("第[" + currentNumber + "]错误:")
-								.append("领样单号不存在:"+outId)
-								.append("<br>");
-
-						importError = true;
-					} else{
-						int status = out.getStatus();
-						if(status != OutConstant.STATUS_SEC_PASS){
-							builder
-									.append("第[" + currentNumber + "]错误:")
-									.append("只有已发货的订单可以操作")
-									.append("<br>");
-
-							importError = true;
-						}
-					}
-
 					//被转业务员
 					String srcStaffer = obj[2].trim();
 					bean.setSrcStaffer(srcStaffer);
 
 					if(!srcStaffer.equals(out.getStafferName())){
 						builder
-								.append("第[" + currentNumber + "]错误:")
+								.append("第[" + currentNumber + "]行错误:")
 								.append("领样单业务员不一致")
 								.append("<br>");
 						importError = true;
+						continue;
 					}
 
 					//转新订单
@@ -205,30 +248,33 @@ public class OutSample2OrderAction  extends DispatchAction{
 					
 					if (destOut == null){
 						builder
-								.append("第[" + currentNumber + "]错误:")
+								.append("第[" + currentNumber + "]行错误:")
 								.append("新订单号不存在:"+destOrderId)
 								.append("<br>");
 
 						importError = true;
+						continue;
 					} else{
 						if(destBaseBeans==null || destBaseBeans.size() == 0){
 							builder
-									.append("第[" + currentNumber + "]错误:")
+									.append("第[" + currentNumber + "]行错误:")
 									.append("新订单号找不到对应的base项:"+destOrderId)
 									.append("<br>");
 
 							importError = true;
+							continue;
 						}
 
 						bean.setDestOrderAmount(baseBeans.get(0).getAmount());
 
 						if(!destBaseBeans.get(0).getProductName().equals(baseBeans.get(0).getProductName())){
 							builder
-									.append("第[" + currentNumber + "]错误:")
+									.append("第[" + currentNumber + "]行错误:")
 									.append("转新订单和领样单号对应的品名不一致")
 									.append("<br>");
 
 							importError = true;
+							continue;
 						}
 					}
 
@@ -245,10 +291,11 @@ public class OutSample2OrderAction  extends DispatchAction{
 
 					if(!destStaffer.equals(destOut.getStafferName())){
 						builder
-								.append("第[" + currentNumber + "]错误:")
+								.append("第[" + currentNumber + "]行错误:")
 								.append("新订单业务员不一致")
 								.append("<br>");
 						importError = true;
+						continue;
 					}
 
 					//转数量
@@ -259,7 +306,7 @@ public class OutSample2OrderAction  extends DispatchAction{
 					int backCount = this.getBackCount(outId);
 					if(bean.getAmount()>(totalCount - backCount)){
 						builder
-								.append("第[" + currentNumber + "]错误:")
+								.append("第[" + currentNumber + "]行错误:")
 								.append("转订单数量超出最高可转数量："+outId)
 								.append("<br>");
 						importError = true;
@@ -274,10 +321,11 @@ public class OutSample2OrderAction  extends DispatchAction{
 						wrap.setAmount(wrap.getAmount()+bean.getAmount());
 						if(wrap.getAmount()>(totalCount - backCount)){
 							builder
-									.append("第[" + currentNumber + "]错误:")
+									.append("第[" + currentNumber + "]行错误:")
 									.append("合并数量超出最高可转数量："+outId)
 									.append("<br>");
 							importError = true;
+							continue;
 						}
 					}
 
@@ -331,7 +379,7 @@ public class OutSample2OrderAction  extends DispatchAction{
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			_logger.error("导入出错", e);
 			request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getMessage());
 
 			return mapping.findForward("batchSample2Order");

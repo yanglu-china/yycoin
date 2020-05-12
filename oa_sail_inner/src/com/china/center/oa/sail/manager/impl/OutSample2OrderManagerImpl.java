@@ -1,11 +1,4 @@
-/**
- * File Name: OutManagerImpl.java<br>
- * CopyRight: Copyright by www.center.china<br>
- * Description:<br>
- * CREATER: ZHUACHEN<br>
- * CreateTime: 2010-11-7<br>
- * Grant: open source to everybody
- */
+
 package com.china.center.oa.sail.manager.impl;
 
 
@@ -16,6 +9,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.china.center.spring.ex.annotation.Exceptional;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.center.china.osgi.publics.User;
 
@@ -45,11 +40,11 @@ import com.china.center.tools.TimeTools;
 import com.center.china.osgi.publics.User; 
 
 /**
- * OutManagerImpl
+ * OutSample2OrderManagerImpl
  * 
- * @author ZHUZHU
- * @version 2010-11-7
- * @see OutManagerImpl
+ * @author GLQ
+ * @version 2020-5-12
+ * @see OutSample2OrderManagerImpl
  * @since 1.0
  */
 public class OutSample2OrderManagerImpl implements OutSample2OrderManager
@@ -86,7 +81,16 @@ public class OutSample2OrderManagerImpl implements OutSample2OrderManager
 		this.outManager = outManager;
 	}
 
-	@Override
+	public FlowLogDAO getFlowLogDAO() {
+		return flowLogDAO;
+	}
+
+	public void setFlowLogDAO(FlowLogDAO flowLogDAO) {
+		this.flowLogDAO = flowLogDAO;
+	}
+
+    @Exceptional
+    @Transactional(rollbackFor = {MYException.class})
 	public boolean batchHandle(List<Sample2OrderWrap> list, User user) throws MYException {
 		boolean flag = true;
 		List<String> destOrderIds = new ArrayList<String>();
@@ -95,8 +99,12 @@ public class OutSample2OrderManagerImpl implements OutSample2OrderManager
 			//生成退单
 			this.handleBack(wrap, user);
 			
+			_logger.debug("!destOrderIds.contains(wrap.getDestOrderId()):"+(!destOrderIds.contains(wrap.getDestOrderId())));
+			
 			//处理新订单
 			if(!destOrderIds.contains(wrap.getDestOrderId())){
+				
+				_logger.debug("handleDestOrder...");
 				
 				this.handleDestOrder(wrap);
 				
@@ -218,7 +226,7 @@ public class OutSample2OrderManagerImpl implements OutSample2OrderManager
 		return flag;
 	}
 	
-	
+
 	private boolean handleDestOrder(Sample2OrderWrap wrap){
 		boolean flag = true;
 		
@@ -226,13 +234,14 @@ public class OutSample2OrderManagerImpl implements OutSample2OrderManager
 		
 		//auto approve
 		this.autoApprove(wrap.getDestOrderId(), OutConstant.STATUS_SUBMIT, OutConstant.STATUS_FLOW_PASS);
-		
+
 		this.autoApprove(wrap.getDestOrderId(), OutConstant.STATUS_FLOW_PASS, OutConstant.STATUS_PASS);
 		
 		return flag;
 	}
 	
 	private boolean autoApprove(String fullId, int preStatus, int afterStatus ){
+		
 		this.outDAO.modifyOutStatus(fullId, afterStatus);
 		
     	// 记录退货审批日志 操作人系统，自动审批 

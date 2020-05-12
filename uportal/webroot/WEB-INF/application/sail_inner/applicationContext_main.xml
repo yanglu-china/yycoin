@@ -48,6 +48,8 @@
     <bean id="unitViewDAO" class="com.china.center.oa.sail.dao.impl.UnitViewDAOImpl" />
 
 	<bean id="outManager" class="com.china.center.oa.sail.manager.impl.OutManagerImpl" />
+	
+	<bean id="outSample2OrderManager" class="com.china.center.oa.sail.manager.impl.OutSample2OrderManagerImpl" />
 		
 	<bean id="sailConfigDAO" class="com.china.center.oa.sail.dao.impl.SailConfigDAOImpl" />
 
