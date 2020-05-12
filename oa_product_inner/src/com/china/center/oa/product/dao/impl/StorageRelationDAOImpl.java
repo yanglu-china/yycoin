@@ -21,6 +21,7 @@ import com.china.center.oa.product.dao.StorageRelationDAO;
 import com.china.center.oa.product.vo.StorageRelationVO;
 import com.china.center.oa.product.vs.StorageRelationBean;
 import com.china.center.oa.publics.bean.DepotExportData;
+import com.china.center.tools.StringTools;
 
 /**
  * StorageRelationDAOImpl
@@ -58,6 +59,19 @@ public class StorageRelationDAOImpl extends BaseDAO<StorageRelationBean, Storage
         return findUnique(
                 "where depotpartId = ? and productId = ? and priceKey = ? and virtualPriceKey = ? and stafferId = ?",
                 depotpartId, productId, priceKey,virtualPriceKey, stafferId);
+    }
+
+    @Override
+    public StorageRelationBean findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(String depotpartId, String productId, String priceKey, String virtualPriceKey, String sn, String stafferId) {
+        if (StringTools.isNullOrNone(sn)){
+            return findUnique(
+                    "where depotpartId = ? and productId = ? and priceKey = ? and virtualPriceKey = ? and (sn is null or sn='') and stafferId = ?",
+                    depotpartId, productId, priceKey,virtualPriceKey, stafferId);
+        } else{
+            return findUnique(
+                    "where depotpartId = ? and productId = ? and priceKey = ? and virtualPriceKey = ? and sn = ? and stafferId = ?",
+                    depotpartId, productId, priceKey,virtualPriceKey, sn, stafferId);
+        }
     }
 
     public int sumProductInDepotpartId(String productId, String depotpartId) {

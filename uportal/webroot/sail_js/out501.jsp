@@ -225,6 +225,9 @@ function check(isAdd)
     var prices = document.getElementsByName('price');
    //#961
     var prices2 = document.getElementsByName('price2');
+
+    //#925
+    var sns = document.getElementsByName('sn');
     
     var taxrates = document.getElementsByName('taxrate');
     
@@ -335,17 +338,36 @@ function check(isAdd)
             amounts[i].focus();
             return false;
         }
-        
-        if (parseInt(amounts[i].value, 10) < 0)
+
+        var amount = parseInt(amounts[i].value, 10);
+        if ( amount< 0)
         {
             alert('数据错误,产品数量不能为负数!');
             amounts[i].focus();
             return false;
+        } else if (amount > 1){
+            var sn = sns[i].value;
+            if (!isEmpty(sn)){
+                alert('数量大于1时单品码必须为空!');
+                sns[i].focus();
+                return false;
+            }
         }
+<%--        else if (amount == 1){
+            var sn = sns[i].value;
+            if (isEmpty(sn)){
+                alert('数量为1时单品码不能为空!');
+                sns[i].focus();
+                return false;
+            }
+        } --%>
 
         amous = amous + amounts[i].value + '~';
 
         $O('amontList').value = amous;
+
+       //#925
+        $O('snList').value = $O('snList').value + sns[i].value + '~';
     }
     
 
@@ -381,7 +403,6 @@ function check(isAdd)
         }
 
         $O('priceList2').value = $O('priceList2').value + prices2[i].value + '~';
-
     }
 
     for (var i = 1; i < taxrates.length; i++)
@@ -463,6 +484,10 @@ function check(isAdd)
     $O('totalss').value = tsts;
 
     return true;
+}
+
+function isEmpty(str) {
+    return (!str || 0 === str.length);
 }
 
 function checkTotal()

@@ -89,7 +89,7 @@ function check()
     $O('showNameList').value = '';
     $O('desList').value = '';
     $O('virtualPriceList').value = '';
-    
+    $O('snList').value = '';
     if (trim($O('outTime').value) == '')
     {
         alert('请选择销售日期');
@@ -210,6 +210,8 @@ function check()
     var desList = document.getElementsByName('desciprt');
     //#545 虚料金额
     var virtualPriceList = document.getElementsByName('virtualPrice');
+    //#925 单品码
+    var snList = document.getElementsByName('sn');
 
     for (var i = 1; i < desList.length; i++)
     {
@@ -244,6 +246,13 @@ function check()
             $O('virtualPriceList').value = $O('virtualPriceList').value + virtualPriceEle.value + '~';
         } else{
             $O('virtualPriceList').value = $O('virtualPriceList').value + '0' + '~';
+        }
+
+        var snEle = snList[i];
+        if (snEle){
+            $O('snList').value = $O('snList').value + snEle.value + '~';
+        } else{
+            $O('snList').value = $O('snList').value + '0' + '~';
         }
     }
 

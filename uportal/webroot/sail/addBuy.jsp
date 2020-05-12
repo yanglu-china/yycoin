@@ -264,6 +264,7 @@ function showMoreAtt()
 <input type=hidden name="saves" value="" />
 <input type=hidden name="desList" value="" />
 	<input type=hidden name="virtualPriceList" value="" />
+	<input type=hidden name="snList" value="" />
 <input type=hidden name="otherList" value="" />
 
 <input type=hidden name="depotList" value="" />
@@ -592,6 +593,7 @@ function showMoreAtt()
 						<td width="10%" align="center">成本</td>
 						<td width="15%" align="center">类型</td>
 						<td width="10%" align="center">虚料金额</td>
+						<td width="10%" align="center">单品码</td>
 						<td width="5%" align="left"><input type="button" accesskey="A"
 							value="增加" class="button_class" onclick="addTr()"></td>
 					</tr>
@@ -604,6 +606,7 @@ function showMoreAtt()
 							productcode="" 
 							price=""
 							virtualprice=""
+							sn=""
 							stafferid=""
 							depotpartid=""
 							readonly="readonly"
@@ -639,6 +642,9 @@ function showMoreAtt()
 						<td align="center"><input type="text"
 												  value="0.00" style="width: 100%" name="virtualPrice" onkeyup="cc(this)"
 							onblur="blu(this)"></td>
+
+						<td align="center"><input type="text"
+												  value="0.00" style="width: 100%" name="sn" ></td>
 							
 						<td align="center"></td>
 					</tr>
@@ -680,6 +686,9 @@ function showMoreAtt()
 						<td align="center"><input type="text"
 												  style="width: 100%" name="virtualPrice" onkeyup="cc(this)"
 							onblur="blu(this)" value="0.00"></td>
+
+						<td align="center"><input type="text"
+												  style="width: 100%" name="sn"></td>
 
 						<td align="left"><input type=button value="清空"  class="button_class" onclick="clears()"></td>
 					</tr>

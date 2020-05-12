@@ -916,6 +916,7 @@ public class OutImportManagerImpl implements OutImportManager
 			
 			base.setPrice(each.getPrice());
 			base.setPrice2(each.getPrice2());
+			base.setSn(each.getSn());
 
 			base.setValue(each.getValue());
 			

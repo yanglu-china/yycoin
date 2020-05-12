@@ -160,20 +160,20 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         String virtualPriceKey = StorageRelationHelper.getPriceKey(bean.getVirtualPrice());
         StorageRelationBean relation = storageRelationDAO
             .findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(bean.getDepotpartId(), bean
-                .getProductId(), priceKey, virtualPriceKey, bean.getStafferId());
+                .getProductId(), priceKey, virtualPriceKey, bean.getSn(), bean.getStafferId());
 
         if (relation == null)
         {
-            String template = "name:%s depotpartID:%s productId:%s priceKey:%s virtualPriceKey:%s staffer:%s without storage";
-            String errorMessge = String.format(template, productBean.getName(), bean.getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getStafferId());
+            String template = "name:%s depotpartID:%s productId:%s priceKey:%s virtualPriceKey:%s sn:%s without storage";
+            String errorMessge = String.format(template, productBean.getName(), bean.getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getSn());
             _logger.error(errorMessge);
             throw new MYException("产品[%s]库存配置不存在", errorMessge);
         }
 
         int zaitu = sumPreassignByStorageRelation(relation);
 
-        String template = "depotpartID:%s productId:%s priceKey:%s virtualPriceKey:%s staffer:%s with storage:%d zaitu:%d";
-        _logger.info(String.format(template, bean.getDepotpartId(), bean.getProductId(), priceKey,virtualPriceKey, bean.getStafferId(), relation.getAmount(), zaitu));
+        String template = "depotpartID:%s productId:%s priceKey:%s virtualPriceKey:%s sn:%s with storage:%d zaitu:%d";
+        _logger.info(String.format(template, bean.getDepotpartId(), bean.getProductId(), priceKey,virtualPriceKey, bean.getSn(), relation.getAmount(), zaitu));
         relation.setAmount(relation.getAmount() - zaitu);
 
         if (relation.getAmount() < 0)
@@ -354,6 +354,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
             bean.setPrice(relation.getPrice());
             bean.setVirtualPrice(relation.getVirtualPrice());
+            bean.setSn(relation.getSn());
 
             bean.setProductId(relation.getProductId());
 
@@ -436,7 +437,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         {
         	// costPrice = 000
             relation = storageRelationDAO.findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(bean
-                    .getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getStafferId());
+                    .getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getSn(), bean.getStafferId());
         	
         	if (null == relation)
         	{
@@ -453,6 +454,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
                 newStorageRelation.setPriceKey(priceKey);
                 newStorageRelation.setVirtualPrice(bean.getVirtualPrice());
                 newStorageRelation.setVirtualPriceKey(virtualPriceKey);
+                newStorageRelation.setSn(bean.getSn());
                 newStorageRelation.setAmount(bean.getChange());
                 newStorageRelation.setLastPrice(bean.getPrice());
                 newStorageRelation.setProductId(bean.getProductId());
@@ -475,8 +477,8 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         if (relation == null)
         {
             relation = storageRelationDAO.findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(bean
-                .getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getStafferId());
-            _logger.info("***find relation***"+bean.getDepotpartId()+"***"+bean.getProductId()+"***"+priceKey+"***"+bean.getStafferId()+"***virtual***"+virtualPriceKey+"***find***"+relation);
+                .getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getSn(), bean.getStafferId());
+            _logger.info("***find relation***"+relation);
 
         }
 
@@ -503,6 +505,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
             newStorageRelation.setPriceKey(priceKey);
             newStorageRelation.setVirtualPrice(bean.getVirtualPrice());
             newStorageRelation.setVirtualPriceKey(virtualPriceKey);
+            newStorageRelation.setSn(bean.getSn());
             newStorageRelation.setAmount(0);
             newStorageRelation.setLastPrice(bean.getPrice());
             newStorageRelation.setProductId(bean.getProductId());
@@ -607,6 +610,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         log.setStorageId(bean.getStorageId());
         log.setPrice(bean.getPrice());
         log.setVirtualPrice(bean.getVirtualPrice());
+        log.setSn(bean.getSn());
         log.setPriceKey(priceKey);
         log.setVirtualPriceKey(virtualPriceKey);
 
@@ -737,6 +741,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
             bean.setPrice(relation.getPrice());
             bean.setVirtualPrice(relation.getVirtualPrice());
+            bean.setSn(relation.getSn());
 
             bean.setProductId(relation.getProductId());
 
@@ -797,7 +802,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         if (relation == null)
         {
             relation = storageRelationDAO.findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(bean
-                .getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getStafferId());
+                .getDepotpartId(), bean.getProductId(), priceKey, virtualPriceKey, bean.getSn(), bean.getStafferId());
         }
         
         _logger.debug("relation == null:"+(relation == null)+", bean.getChange(): "+bean.getChange());
@@ -822,6 +827,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
             newStorageRelation.setPrice(bean.getPrice());
             newStorageRelation.setPriceKey(priceKey);
             newStorageRelation.setVirtualPriceKey(virtualPriceKey);
+            newStorageRelation.setSn(bean.getSn());
             newStorageRelation.setAmount(0);
             newStorageRelation.setLastPrice(bean.getPrice());
             newStorageRelation.setProductId(bean.getProductId());
@@ -905,6 +911,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         log.setVirtualPrice(bean.getVirtualPrice());
         log.setPriceKey(priceKey);
         log.setVirtualPriceKey(virtualPriceKey);
+        log.setSn(bean.getSn());
         log.setType(bean.getType());
 
         log.setPreAmount(preAmount);
@@ -1247,7 +1254,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 //	                .getProductId(), srb.getPriceKey(), srb.getStafferId());
             final StorageRelationBean newRelationBean = storageRelationDAO
                     .findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(dirDepotpartId, srb
-                            .getProductId(), srb.getPriceKey(),srb.getVirtualPriceKey(), srb.getStafferId());
+                            .getProductId(), srb.getPriceKey(),srb.getVirtualPriceKey(), srb.getSn(), srb.getStafferId());
 	
 	        final List<StorageBean> sbs = new ArrayList();
 	

@@ -315,6 +315,7 @@ public class StorageRelationBean implements Serializable
                 ", price=" + price +
                 ", virtualPrice=" + virtualPrice +
                 ", virtualPriceKey='" + virtualPriceKey + '\'' +
+                ", sn='" + sn + '\'' +
                 ", lastPrice=" + lastPrice +
                 ", inputRate=" + inputRate +
                 '}';

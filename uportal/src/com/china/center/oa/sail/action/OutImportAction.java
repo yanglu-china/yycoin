@@ -238,7 +238,7 @@ import com.china.center.tools.WriteFileBuffer;
 
      private static String QUERYBANKSAIL = "queryBankSail";
 
-     private static int OUT_FIELD_NUM = 51;
+     private static int OUT_FIELD_NUM = 52;
 
 
      public OutImportAction()
@@ -1600,6 +1600,21 @@ import com.china.center.tools.WriteFileBuffer;
              //为空就取销售单价
              bean.setPrice2(bean.getPrice());
          }
+
+         // 单品码
+         String sn = obj[51];
+         if ( !StringTools.isNullOrNone(sn))
+         {
+             bean.setSn(sn.trim());
+             if (bean.getAmount() > 1){
+                 builder.append("第[" + currentNumber + "]错误:")
+                         .append("商品数量大于1不能填单品码")
+                         .append("<br>");
+
+                 importError = true;
+             }
+         }
+
          return importError;
      }
 

@@ -1950,7 +1950,7 @@ public class ProductAction extends DispatchAction
      * @param dbList
      * @return
      */
-    private String isInway(ComposeItemBean item, List<OutBean> dbList){
+   /* private String isInway(ComposeItemBean item, List<OutBean> dbList){
         //TODO 该产品全部库存-在途库存>=合成数量，就可以正常合成
         String stafferId = "0";
         String priceKey = StorageRelationHelper.getPriceKey(item.getPrice());
@@ -1984,7 +1984,7 @@ public class ProductAction extends DispatchAction
         }
 
         return null;
-    }
+    }*/
 
     /**
      * #431
@@ -2581,6 +2581,7 @@ public class ProductAction extends DispatchAction
         String[] srcRelations = request.getParameterValues("srcRelation");
         String[] srcInputRates = request.getParameterValues("srcInputRate");
         String[] virtualPrices = request.getParameterValues("virtualPrice");
+        String[] snList = request.getParameterValues("sn");
 
         List<ComposeItemBean> itemList = new ArrayList<ComposeItemBean>();
 
@@ -2604,6 +2605,9 @@ public class ProductAction extends DispatchAction
 //            each.setPrice(CommonTools.parseFloat(srcPrices[i]));
             each.setPrice(this.parseFloat(srcPrices[i]));
             each.setVirtualPrice(this.parseFloat(virtualPrices[i]));
+            try{
+                each.setSn(snList[i]);
+            }catch (Exception e){}
             each.setProductId(srcProductIds[i]);
             each.setRelationId(srcRelations[i]);
             each.setInputRate(CommonTools.parseFloat(srcInputRates[i]));

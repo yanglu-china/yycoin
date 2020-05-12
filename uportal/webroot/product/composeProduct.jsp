@@ -122,6 +122,7 @@ function getProductBom(oos)
         setInputValueInTr(trow, 'bomAmount', item.bomAmount);
         setInputValueInTr(trow, 'attritionRate', item.attritionRate);
         setInputValueInTr(trow, 'virtualPrice', item.virtualPrice);
+        setInputValueInTr(trow, 'sn', item.sn);
         var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
         //#966 与合成产品源仓区一致
         var dirDepotpart = document.querySelector('[name="dirDepotpart"]');
@@ -174,6 +175,10 @@ function getProductRelation(oos)
     var vobj = getEle(eles, "virtualPrice");
 
     vobj.value = oo.pvirtualprice;
+
+    var sobj = getEle(eles, "sn");
+
+    sobj.value = oo.psn;
     
     var srcDe = getEle(tr.getElementsByTagName('select'), "srcDepotpart");
     
@@ -192,6 +197,7 @@ function getProductRelation(oos)
     		setInputValueInTr(trow, 'srcAmount', oos[i].pamount);
     		setInputValueInTr(trow, 'srcRelation', oos[i].value);
             setInputValueInTr(trow, 'virtualPrice', oos[i].pvirtualprice);
+            setInputValueInTr(trow, 'sn', oos[i].psn);
     	    var srcDe1 = getEle(trow.getElementsByTagName('select'), "srcDepotpart");
     	    
     	    setSelect(srcDe1, oos[i].pdepotpart);
@@ -471,6 +477,7 @@ function load()
                         <td width="3%" align="center">组成用量</td>
                         <td width="3%" align="center">损耗率(‰)</td>
                         <td width="3%" align="center">XL</td>
+                        <td width="3%" align="center">单品码</td>
                         <td width="3%" align="left"><input type="button" accesskey="A"
                             value="增加" class="button_class" onclick="addTr()"></td>
                     </tr>
@@ -529,6 +536,8 @@ function load()
          </td>
         <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
                                               name="virtualPrice" value="" oncheck="isFloat"></td>
+        <td width="15%" align="center"><input type="text" style="width: 100%" readonly="readonly"
+                                              name="sn" value="" ></td>
         <td width="5%" align="center"><input type=button
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
     </tr>

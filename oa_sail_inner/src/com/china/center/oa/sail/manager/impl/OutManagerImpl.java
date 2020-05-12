@@ -506,6 +506,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         // 含税价
         final String[] priceList = this.getParam(request, "priceList");
         final String[] priceList2 = this.getParam(request, "priceList2");
+        //#925 单品码
+        final String[] snList = this.getParam(request, "snList");
 
         // 输入价格
         final String[] inputPriceList = this.getParam(request, "inputPriceList");
@@ -808,6 +810,14 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             }catch (Exception e){
                                 _logger.error(e);
                             }
+                        }
+
+                        // #925
+                        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                        {
+                            try {
+                                base.setSn(snList[i]);
+                            }catch(Exception e){}
                         }
 
                         if (base.getPrice() == 0)
@@ -2558,6 +2568,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 wrap.setDepotpartId(element.getDepotpartId());
                 wrap.setPrice(element.getCostPrice());
                 wrap.setVirtualPrice(element.getVirtualPrice());
+                wrap.setSn(element.getSn());
                 wrap.setProductId(element.getProductId());
                 if (StringTools.isNullOrNone(element.getOwner()))
                 {
@@ -2604,6 +2615,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 wrap.setDepotpartId(element.getDepotpartId());
                 wrap.setPrice(element.getCostPrice());
                 wrap.setVirtualPrice(element.getVirtualPrice());
+                wrap.setSn(element.getSn());
                 wrap.setProductId(element.getProductId());
 
                 if (StringTools.isNullOrNone(element.getOwner()))
@@ -3104,6 +3116,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 wrap.setDepotpartId(element.getDepotpartId());
                 wrap.setPrice(element.getCostPrice());
                 wrap.setVirtualPrice(element.getVirtualPrice());
+                wrap.setSn(element.getSn());
                 wrap.setProductId(element.getProductId());
                 if (StringTools.isNullOrNone(element.getOwner()))
                 {
@@ -3545,6 +3558,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             wrap.setDepotpartId(element.getDepotpartId());
             wrap.setPrice(element.getCostPrice());
             wrap.setVirtualPrice(element.getVirtualPrice());
+            wrap.setSn(element.getSn());
             wrap.setProductId(element.getProductId());
             wrap.setStafferId(element.getOwner());
             wrap.setRefId(outBean.getFullId());
@@ -3823,6 +3837,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             wrap.setDepotpartId(element.getDepotpartId());
                             wrap.setPrice(element.getCostPrice());
                             wrap.setVirtualPrice(element.getVirtualPrice());
+                            wrap.setSn(element.getSn());
                             wrap.setProductId(element.getProductId());
                             if (StringTools.isNullOrNone(element.getOwner()))
                             {
@@ -4499,6 +4514,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 wrap.setDepotpartId(element.getDepotpartId());
                 wrap.setPrice(element.getCostPrice());
                 wrap.setVirtualPrice(element.getVirtualPrice());
+                wrap.setSn(element.getSn());
                 wrap.setProductId(element.getProductId());
                 if (StringTools.isNullOrNone(element.getOwner()))
                 {
@@ -6482,6 +6498,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 }
                 wrap.setPrice(element.getCostPrice());
                 wrap.setVirtualPrice(element.getVirtualPrice());
+                wrap.setSn(element.getSn());
                 wrap.setProductId(element.getProductId());
                 if (StringTools.isNullOrNone(element.getOwner()))
                 {

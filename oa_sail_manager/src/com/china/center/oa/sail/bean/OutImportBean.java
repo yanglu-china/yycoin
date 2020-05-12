@@ -73,6 +73,11 @@ public class OutImportBean implements Serializable
 	 * #961 销售单价2
 	 */
 	private double price2 = 0.0d;
+
+	/**
+	 * #925 单品码
+	 */
+	private String sn = "";
 	
 	private String style = "";
 	
@@ -1139,6 +1144,14 @@ public class OutImportBean implements Serializable
 		this.price2 = price2;
 	}
 
+	public String getSn() {
+		return sn;
+	}
+
+	public void setSn(String sn) {
+		this.sn = sn;
+	}
+
 	@Override
 	public String toString() {
 		return "OutImportBean{" +
@@ -1160,6 +1173,7 @@ public class OutImportBean implements Serializable
 				", amount=" + amount +
 				", price=" + price +
 				", price2=" + price2 +
+				", sn='" + sn + '\'' +
 				", style='" + style + '\'' +
 				", value=" + value +
 				", midValue=" + midValue +
