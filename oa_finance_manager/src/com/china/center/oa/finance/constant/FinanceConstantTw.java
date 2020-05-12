@@ -63,37 +63,37 @@ public interface FinanceConstantTw
      * 个人还款
      */
     @Defined(key = "inbillTypeTw", value = "个人还款")
-    int INBILL_TYPE_UNBORROW = 6;
+    int INBILL_TYPE_UNBORROW = FinanceConstant.INBILL_TYPE_UNBORROW;
 
     /**
      * 贷款-本金
      */
     @Defined(key = "inbillTypeTw", value = "贷款-本金")
-    int INBILL_TYPE_DKBJ = 7;
+    int INBILL_TYPE_DKBJ = FinanceConstant.INBILL_TYPE_DKBJ;
 
     /**
      * 理财-本金
      */
     @Defined(key = "inbillTypeTw", value = "理财-本金")
-    int INBILL_TYPE_LCBJ = 8;
+    int INBILL_TYPE_LCBJ = FinanceConstant.INBILL_TYPE_LCBJ;
 
     /**
      * 理财-收益
      */
     @Defined(key = "inbillTypeTw", value = "理财-收益")
-    int INBILL_TYPE_LCSY = 9;
+    int INBILL_TYPE_LCSY = FinanceConstant.INBILL_TYPE_LCSY;
 
     /**
      * 钱生钱
      */
     @Defined(key = "inbillTypeTw", value = "钱生钱")
-    int INBILL_TYPE_QSQ = 10;
+    int INBILL_TYPE_QSQ = FinanceConstant.INBILL_TYPE_QSQ;
 
     /**
      * 银行卡利息收入
      */
     @Defined(key = "inbillTypeTw", value = "银行卡利息收入")
-    int INBILL_TYPE_YHKLXSR = 11;
+    int INBILL_TYPE_YHKLXSR = FinanceConstant.INBILL_TYPE_YHKLXSR;
 
     /**
      * #900 20200307新增类型

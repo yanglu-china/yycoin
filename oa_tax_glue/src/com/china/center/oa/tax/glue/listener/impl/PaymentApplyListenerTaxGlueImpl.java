@@ -1842,6 +1842,14 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
             //“钱生钱”和“其他”，财务操作认领成功后，无需自动生成凭证，页面直接跳转手工做凭证页面
             return;
         }
+        //#980
+        else if (bean.getDkType() == FinanceConstant.INBILL_TYPE_WYJ){
+            //违约金 已认领时生成的凭证为【借：其他应付款-暂记户 贷：营业外收入】
+            String itemOutName = "营业外收入:"+name;
+            this.financeManager.createFinanceItem(user, bean,  itemInName, itemOutName,
+                    this.getBankTaxId(bank), TaxItemConstanst.EXT_RECEIVE,
+                    financeBean, itemList);
+        }
         //体外凭证
         else if (bean.getDkType() == FinanceConstantTw.INBILL_TYPE_JYLLK){
             //金银料来款

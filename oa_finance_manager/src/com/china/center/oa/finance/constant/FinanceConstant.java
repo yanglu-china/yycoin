@@ -140,6 +140,9 @@ public interface FinanceConstant
     @Defined(key = "inbillType", value = "代收代付")
     int INBILL_TYPE_DSDF = 12;
 
+    @Defined(key = "inbillType", value = "违约金")
+    int INBILL_TYPE_WYJ = 13;
+
 
     /**
      * 采购退款
